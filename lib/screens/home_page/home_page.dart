@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    //  final authController = Provider.of<AuthController>(context);
+    final authController = Provider.of<AuthController>(context);
 
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
@@ -67,13 +67,17 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   title: const Text('Нийлүүлэгч'),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const SupplierPage()));
                   },
                 ),
                 ListTile(
                   title: const Text('logout'),
                   onTap: () {
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: ((context) => const LoginPage())), (route) => false);
+                    authController.logout(context);
+                    authController.toggleVisibile();
                   },
                 ),
               ],

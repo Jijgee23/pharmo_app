@@ -4,7 +4,8 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final TextInputType keyboardType;
   final String hintText;
-  final bool? obscureText; // Made obscureText optional
+  final bool? obscureText;
+  final IconData? suffixIcon;
 
   final Function(String?)? validator;
 
@@ -15,6 +16,7 @@ class CustomTextField extends StatelessWidget {
     required this.obscureText,
     required this.validator,
     required this.keyboardType,
+    this.suffixIcon,
   });
 
   @override
@@ -31,6 +33,7 @@ class CustomTextField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: hintText,
           border: const OutlineInputBorder(),
+            suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null
         ),
         obscureText: obscureText ??
             false, 
