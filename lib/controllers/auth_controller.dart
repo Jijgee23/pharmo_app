@@ -79,7 +79,7 @@ class AuthController extends ChangeNotifier {
         final responseData = json.decode(response.body);
         final isPasswordCreated = responseData['pwd'];
         if (!isPasswordCreated) {
-          String password = await showDialog(
+          await showDialog(
             context: context,
             builder: (context) {
               return CreatePassDialog(
