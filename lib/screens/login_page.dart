@@ -14,6 +14,7 @@ import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// BOLJ BNA..............
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
   @override
