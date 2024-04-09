@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/login_page.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SupplierDetail extends StatefulWidget {
   final Supplier supp;
@@ -26,15 +25,15 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   getDataById() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
       // var token = prefs.getString("accessToken");
       String? token = await TokenManager.getToken();
-      String ss = 'Bearer $token';
-      print(ss);
+      String tt = 'Bearer $token';
+      print(tt);
       final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': ss,
+            'Authorization': tt,
           },
           body: jsonEncode({'pId': widget.supp.id}));
       print(response.body);
