@@ -1,13 +1,12 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/screens/home_page.dart';
+import 'package:pharmo_app/screens/home_page/home_page.dart';
 import 'package:pharmo_app/screens/login_page.dart';
-import 'package:pharmo_app/widgets/create_pass.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 
 class AuthController extends ChangeNotifier {
+//  bool _invisible = true;
   Future<void> logout(BuildContext context) async {
     try {
       final response = await http.post(
@@ -27,6 +26,65 @@ class AuthController extends ChangeNotifier {
       }
     } catch (e) {
       print('Интернет холболтоо шалгана уу!');
+    }
+    notifyListeners();
+  }
+
+  Future<void> createPassword(String email, String otp, String newPassword,
+      BuildContext context) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.88.39:8000/api/v1/auth/reset/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'email': email,
+          'otp': otp,
+          'new_pwd': newPassword,
+        }),
+      );
+      if (response.statusCode == 200) {}
+      if (response.statusCode == 400) {
+        // ignore: use_build_context_synchronously
+        showFailedMessage(
+            message: 'Батлагаажуулах код буруу байна!', context: context);
+      }
+    } catch (e) {
+      // ignore: use_build_context_synchronously
+      showFailedMessage(
+          message: 'Амжилтгүй, дахин оролдоно уу!', context: context);
+    }
+  }
+
+  Future<void> getOtp(String email, String otp, String newPassword,
+      BuildContext context) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.88.39:8000/api/v1/auth/get_otp/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'email': email,
+          'otp': otp,
+          'new_pwd': newPassword,
+        }),
+      );
+      if (response.statusCode == 200) {
+        createPassword(email, otp, newPassword, context);
+        notifyListeners();
+      } else {
+        showFailedMessage(
+            // ignore: use_build_context_synchronously
+            message: 'Амжилтгүй!',
+            context: context);
+        notifyListeners();
+        throw Exception('Амжилтгүй: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Алдаа: $e');
+      notifyListeners();
     }
     notifyListeners();
   }
@@ -54,59 +112,12 @@ class AuthController extends ChangeNotifier {
             builder: (context) => const HomePage(),
           ),
         );
+      } else {
+        showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
       }
-      // else {
-      //   showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
     } catch (e) {
       showFailedMessage(
           message: 'Интернет холболтоо шалгана уу!', context: context);
-    }
-    notifyListeners();
-  }
-
-  bool _invisible = false;
-  void toggleInvisible() {
-    _invisible = !_invisible;
-    notifyListeners(); // Notify listeners that the state has changed
-  }
-
-  Future<void> checkEmail(String email, BuildContext context) async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://192.168.88.39:8000/api/v1/auth/reged/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'email': email,
-        }),
-      );
-      print('check email: ${response.statusCode}');
-      final responseData = jsonDecode(response.body);
-      final bool isPasswordCreated = responseData['pwd'];
-      if (isPasswordCreated == false) {
-        String password = await showDialog(
-          // ignore:
-          context: context,
-          builder: (context) => CreatePassDialog(
-            email: email,
-          ),
-        );
-        if (password == passwordController.text) {}
-      }
-      if (response.statusCode == 200 &&
-          responseData['ema'] == email &&
-          isPasswordCreated) {
-        toggleInvisible();
-        if (_invisible) {
-          login(email, passwordController.text, context);
-        }
-      } else {
-        showFailedMessage(
-            message: 'И-мэйл хаяг бүртгэлгүй байна!', context: context);
-      }
-    } catch (e) {
-      // ignore: use_build_context_synchronously
     }
     notifyListeners();
   }
