@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
 import 'package:pharmo_app/screens/login_page.dart';
+import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -64,13 +65,15 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
+                  title: const Text('Нийлүүлэгч'),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
+                  },
+                ),
+                ListTile(
                   title: const Text('logout'),
                   onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => const LoginPage())),
-                        (route) => false);
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: ((context) => const LoginPage())), (route) => false);
                   },
                 ),
               ],
