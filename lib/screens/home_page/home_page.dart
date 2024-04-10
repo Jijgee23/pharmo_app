@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
+import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -126,15 +127,24 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
 
   @override
+  State<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       child: Column(
         children: [
           Text('Home Tab'),
+          ElevatedButton(
+            onPressed: () {},
+            child: Text('BTn'),
+          ),
         ],
       ),
     );
