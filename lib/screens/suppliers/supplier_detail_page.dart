@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,7 +35,19 @@ class _SupplierDetailState extends State<SupplierDetail> {
             'Authorization': bearerToken,
           },
           body: jsonEncode({'pId': widget.supp.id}));
-      print(response.body);
+      Map<String, dynamic> res = jsonDecode(response.body);
+      await prefs.setString('access_token', res['access_token']);
+      await prefs.setString('refresh_token', res['refresh_token']);
+
+      token = prefs.getString("access_token");
+      bearerToken = "Bearer $token";
+      final resProd = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=1&page_size=20'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
+      Map res111 = jsonDecode(resProd.body);
+      List<Product> employees = (res111['results'] as List).map((data) => Product.fromJson(data)).toList();
+      print(employees);
     } catch (e) {
       showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }
@@ -45,12 +58,21 @@ class _SupplierDetailState extends State<SupplierDetail> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Хэрэглэгчийн байршил'),
+          title: const Text(
+            'Сонгосон нийлүүлэгч',
+            style: TextStyle(fontSize: 18),
+          ),
           actions: [
             IconButton(
                 icon: const Icon(
                   Icons.notifications,
                   color: Colors.blue,
+                ),
+                onPressed: () {}),
+            IconButton(
+                icon: const Icon(
+                  Icons.shopping_basket,
+                  color: Colors.red,
                 ),
                 onPressed: () {}),
           ],

@@ -28,7 +28,8 @@ class _SupplierPageState extends State<SupplierPage> {
     try {
       final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-      });
+      });      
+
       if (response.statusCode == 200) {
         Map res = json.decode(response.body);
         setState(() {
@@ -52,12 +53,21 @@ class _SupplierPageState extends State<SupplierPage> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Хэрэглэгчийн байршил'),
+          title: const Text(
+            'Нийлүүлэгч',
+            style: TextStyle(fontSize: 18),
+          ),
           actions: [
             IconButton(
                 icon: const Icon(
                   Icons.notifications,
                   color: Colors.blue,
+                ),
+                onPressed: () {}),
+            IconButton(
+                icon: const Icon(
+                  Icons.shopping_basket,
+                  color: Colors.red,
                 ),
                 onPressed: () {}),
           ],
