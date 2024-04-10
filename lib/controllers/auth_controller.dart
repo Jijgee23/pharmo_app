@@ -27,6 +27,7 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+<<<<<<< Updated upstream
   Future<void> login(String email, String password, BuildContext context) async {
     var responseLogin = await http.post(
       Uri.parse('http://192.168.88.39:8000/api/v1/auth/login/'),
@@ -47,16 +48,55 @@ class AuthController extends ChangeNotifier {
         MaterialPageRoute(
           builder: (context) => const HomePage(),
         ),
+=======
+  Future<void> login(
+      String email, String password, BuildContext context) async {
+    try {
+      var responseLogin = await http.post(
+        Uri.parse('http://192.168.88.39:8000/api/v1/auth/login/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':
+              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzEyMTM4MDk3LCJpYXQiOjE3MTIwNTE2OTcsImp0aSI6IjM3NzE2NzEwN2VhZDRkYTRhNDA5ZTE4M2YzMmFlNDhjIiwidXNlcl9pZCI6NDUwLCJlbWFpbCI6ImppamdlZTY0N0BnbWFpbC5jb20iLCJyb2xlIjoiUEEiLCJpc19zdGFmZiI6ZmFsc2UsImlzX3ZlcmlmaWVkIjp0cnVlLCJzdXBwbGllciI6bnVsbCwicGMiOmZhbHNlLCJpc1Jldmlld2VkIjpudWxsfQ.SmniAagJJnLl8NmvzLTB1CgCcXDlVP865HlneMp9suE',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+>>>>>>> Stashed changes
       );
+
+      if (responseLogin.statusCode == 200) {
+        String refreshToken = json.decode(responseLogin.body)['refresh_token'];
+        String accessToken = json.decode(responseLogin.body)['access_token'];
+        await TokenStorage.saveTokens(accessToken, refreshToken);
+        Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ),
+        );
+        notifyListeners();
+      } else {
+        showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
+      }
       notifyListeners();
+<<<<<<< Updated upstream
       Map<String, dynamic> res = jsonDecode(responseLogin.body);
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
     } else {
       showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
+=======
+    } catch (e) {
+      showFailedMessage(
+        message: 'Хүсэлт амжилтгүй боллоо!',
+        context: context,
+      );
+>>>>>>> Stashed changes
     }
-    notifyListeners();
   }
 
   void toggleVisibile() {
@@ -232,5 +272,33 @@ class AuthController extends ChangeNotifier {
           context: context);
     }
     notifyListeners();
+  }
+}
+
+class TokenStorage {
+  static const _accessTokenKey = 'access_token';
+  static const _refreshTokenKey = 'refresh_token';
+
+  static Future<void> saveTokens(
+      String accessToken, String refreshToken) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_accessTokenKey, accessToken);
+    await prefs.setString(_refreshTokenKey, refreshToken);
+  }
+
+  static Future<String?> getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_accessTokenKey);
+  }
+
+  static Future<String?> getRefreshToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_refreshTokenKey);
+  }
+
+  static Future<void> clearTokens() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_accessTokenKey);
+    await prefs.remove(_refreshTokenKey);
   }
 }
