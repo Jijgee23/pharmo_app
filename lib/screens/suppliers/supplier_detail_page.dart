@@ -56,23 +56,16 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPage(int pageKey) async {
     try {
-      // get api /beers list from pages
       final newItems = await RemoteApi.getBeerList(pageKey, _pageSize);
-      // Check if it is last page
       final isLastPage = newItems!.length < _pageSize;
-      // If it is last page then append last page else append new page
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
       } else {
-        // Appending new page when it is not last page
         final nextPageKey = pageKey + 1;
         _pagingController.appendPage(newItems, nextPageKey);
       }
-    }
-    // Handle error in catch
-    catch (error) {
+    } catch (error) {
       print(_pagingController.error);
-      // Sets the error in controller
       _pagingController.error = error;
     }
   }
@@ -94,11 +87,8 @@ class _SupplierDetailState extends State<SupplierDetail> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      // Refrsh Indicator pull down
-      RefreshIndicator(
+  Widget build(BuildContext context) => RefreshIndicator(
         onRefresh: () => Future.sync(
-          // Refresh through page controllers
           () => _pagingController.refresh(),
         ),
         child: Scaffold(
@@ -168,13 +158,6 @@ class RemoteApi {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      // final response = await http.get(
-      //   Uri.parse(
-      //     'http://192.168.88.39:8000/api/v1/product/?'
-      //     'page=$page'
-      //     '&page_size=$limit',
-      //   ),
-      // );
       final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=1&page_size=20'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
