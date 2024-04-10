@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
-import 'package:pharmo_app/screens/login_page.dart';
+import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:provider/provider.dart';
 
 void main() {

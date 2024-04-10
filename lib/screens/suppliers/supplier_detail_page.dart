@@ -28,15 +28,19 @@ class _SupplierDetailState extends State<SupplierDetail> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
-          body: jsonEncode({'pId': widget.supp.id}));
+      print(token);
+      final response =
+          await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Authorization': bearerToken,
+              },
+              body: jsonEncode({'pId': widget.supp.id}));
       print(response.body);
     } catch (e) {
-      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          context: context);
     }
   }
 
@@ -62,17 +66,25 @@ class _SupplierDetailState extends State<SupplierDetail> {
             children: [
               const Text(
                 "Full Details",
-                style: TextStyle(fontWeight: FontWeight.w600, color: Colors.blueGrey, fontSize: 20),
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blueGrey,
+                    fontSize: 20),
               ),
               const SizedBox(
                 height: 20,
               ),
               Row(
                 children: [
-                  const Text('Name', style: TextStyle(color: Colors.teal, fontSize: 16, fontWeight: FontWeight.w600)),
+                  const Text('Name',
+                      style: TextStyle(
+                          color: Colors.teal,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
                   Padding(
                     padding: const EdgeInsets.only(left: 30),
-                    child: Text(widget.supp.name, style: const TextStyle(fontSize: 16)),
+                    child: Text(widget.supp.name,
+                        style: const TextStyle(fontSize: 16)),
                   ),
                 ],
               ),
@@ -81,10 +93,15 @@ class _SupplierDetailState extends State<SupplierDetail> {
               ),
               Row(
                 children: [
-                  const Text('Contact', style: TextStyle(color: Colors.teal, fontSize: 16, fontWeight: FontWeight.w600)),
+                  const Text('Contact',
+                      style: TextStyle(
+                          color: Colors.teal,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
                   Padding(
                     padding: const EdgeInsets.only(left: 25),
-                    child: Text(widget.supp.id, style: const TextStyle(fontSize: 16)),
+                    child: Text(widget.supp.id,
+                        style: const TextStyle(fontSize: 16)),
                   ),
                 ],
               ),
@@ -94,7 +111,11 @@ class _SupplierDetailState extends State<SupplierDetail> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Description', style: TextStyle(color: Colors.teal, fontSize: 16, fontWeight: FontWeight.w600)),
+                  const Text('Description',
+                      style: TextStyle(
+                          color: Colors.teal,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
                   const SizedBox(
                     height: 20,
                   ),

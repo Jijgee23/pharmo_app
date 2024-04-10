@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
-import 'package:pharmo_app/screens/signup_page.dart';
+import 'package:pharmo_app/screens/auth/signup_page.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
-import 'package:pharmo_app/widgets/create_pass.dart';
+import 'package:pharmo_app/widgets/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_button.dart';
 import 'package:pharmo_app/widgets/custom_text_filed.dart';
@@ -15,11 +16,10 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
-  final otpController = TextEditingController();
-  final passwordController = TextEditingController();
+final emailController = TextEditingController();
+final passwordController = TextEditingController();
 
+class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
         appBar: AppBar(
           toolbarHeight: size.height * 0.13,
           centerTitle: true,
-          backgroundColor: const Color(0xFF1B2E3C),
+          backgroundColor: AppColors.primary,
           title: Padding(
             padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
             child: Column(
@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     CircleAvatar(
-                      backgroundColor: const Color(0xFFA32711),
+                      backgroundColor: AppColors.secondary,
                       child: IconButton(
                         onPressed: () {
                           setState(() {

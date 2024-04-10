@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
+
+import 'tabs/cart.dart';
+import 'tabs/search.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,12 +17,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final List _pages = [
     const HomeTab(),
-    const Center(
-      child: Text("About"),
-    ),
-    const Center(
-      child: Text("Products"),
-    ),
+    const SearchScreen(),
+    const ShoppingCart(),
     const Center(
       child: Text("Contact"),
     ),
@@ -84,15 +83,36 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           appBar: AppBar(
+            iconTheme: const IconThemeData(color: AppColors.primary),
             centerTitle: true,
-            title: const Text('Хэрэглэгчийн байршил'),
+            title: const Text(
+              'Хэрэглэгчийн байршил',
+              style: TextStyle(fontSize: 16),
+            ),
             actions: [
               IconButton(
                   icon: const Icon(
                     Icons.notifications,
-                    color: Colors.blue,
+                    color: AppColors.primary,
                   ),
-                  onPressed: () {}),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: ((context) {
+                          return AlertDialog(
+                            title: const Text('Захиалгууд'),
+                            content: const ShoppingCart(),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Хаах'),
+                              ),
+                            ],
+                          );
+                        }));
+                  }),
             ],
           ),
           body: _pages[_selectedIndex],
@@ -110,16 +130,15 @@ class _HomePageState extends State<HomePage> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.shop_2),
-                label: 'Бараа',
+                label: 'Захиалга',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_sharp),
                 label: 'Бүртгэл',
               ),
             ],
-            backgroundColor: Colors.blue,
-            selectedItemColor: Colors.pink[500],
-            unselectedItemColor: Colors.blue,
+            selectedItemColor: AppColors.secondary,
+            unselectedItemColor: AppColors.primary,
           ),
         ),
       ),
@@ -140,10 +159,10 @@ class _HomeTabState extends State<HomeTab> {
     return SizedBox(
       child: Column(
         children: [
-          Text('Home Tab'),
+          const Text('Home Tab'),
           ElevatedButton(
             onPressed: () {},
-            child: Text('BTn'),
+            child: const Text('BTn'),
           ),
         ],
       ),

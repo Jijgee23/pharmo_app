@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
-import 'package:pharmo_app/screens/signup_page.dart';
+import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_filed.dart';
@@ -19,7 +19,6 @@ class CreatePassDialog extends StatefulWidget {
 }
 
 final TextEditingController otpController = TextEditingController();
-final TextEditingController passwordController = TextEditingController();
 final TextEditingController newPasswordController = TextEditingController();
 final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -77,7 +76,7 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
               ),
               SizedBox(height: size.height * 0.04),
               Visibility(
-                visible: !authController.invisible,
+                visible: authController.invisible,
                 child: CustomTextField(
                     controller: otpController,
                     hintText: 'Батлагаажуулах код',
@@ -91,33 +90,31 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                     ? 'Батлагаажуулах код авах'
                     : 'Батлагаажуулах',
                 ontap: () {
+                  (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Нууц үгээ оруулна уу';
+                    }
+                  };
+                  String email = emailController.text;
                   String password = passwordController.text;
                   String password2 = newPasswordController.text;
-                  if (authController.invisible) {
-                    authController.getResetOtp(emailController.text, context);
-                    setState(() {
-                      authController.toggleVisibile();
-                    });
-                  } else {
-                    if (password == password2) {
+                  String otp = otpController.text;
+                  if (password == password2) {
+                    if (!authController.invisible) {
+                      authController.resetPassOtp(email, context);
+                      setState(() {
+                        authController.toggleVisibile();
+                      });
+                    } else {
                       authController.createPassword(
-                          emailController.text,
-                          otpController.text,
-                          newPasswordController.text,
-                          context);
-                      showSuccessMessage(
-                          // ignore: use_build_context_synchronously
-                          message: 'Нууц үг амжилттай үүслээ',
-                          context: context);
-
-                      Navigator.of(context).pop(password);
+                          email, otp, password2, context);
+                      authController.toggleVisibile();
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const LoginPage()));
                     }
-                    (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Нууц үгээ оруулна уу';
-                      } else {}
-                      return null;
-                    };
+                  } else {
+                    showFailedMessage(
+                        message: 'Нууц үг таарахгүй байна!', context: context);
                   }
                 },
               ),
