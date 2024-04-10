@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -17,114 +18,177 @@ class SupplierDetail extends StatefulWidget {
 }
 
 class _SupplierDetailState extends State<SupplierDetail> {
+  final int _pageSize = 20;
+  final PagingController<int, dynamic> _pagingController = PagingController(firstPageKey: 1);
+
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
     getDataById();
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
+
+    _pagingController.addStatusListener((status) {
+      if (status == PagingStatus.subsequentPageError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Something went wrong while fetching a new page.',
+            ),
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: () => _pagingController.retryLastFailedRequest(),
+            ),
+          ),
+        );
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      // get api /beers list from pages
+      final newItems = await RemoteApi.getBeerList(pageKey, _pageSize);
+      // Check if it is last page
+      final isLastPage = newItems!.length < _pageSize;
+      // If it is last page then append last page else append new page
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        // Appending new page when it is not last page
+        final nextPageKey = pageKey + 1;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    }
+    // Handle error in catch
+    catch (error) {
+      print(_pagingController.error);
+      // Sets the error in controller
+      _pagingController.error = error;
+    }
   }
 
   getDataById() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
-          body: jsonEncode({'pId': widget.supp.id}));
-      Map<String, dynamic> res = jsonDecode(response.body);
-      await prefs.setString('access_token', res['access_token']);
-      await prefs.setString('refresh_token', res['refresh_token']);
-
-      token = prefs.getString("access_token");
-      bearerToken = "Bearer $token";
-      final resProd = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=1&page_size=20'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      Map res111 = jsonDecode(resProd.body);
-      List<Product> employees = (res111['results'] as List).map((data) => Product.fromJson(data)).toList();
-      print(employees);
+      // token = prefs.getString("access_token");
+      // bearerToken = "Bearer $token";
+      // final resProd = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=1&page_size=20'), headers: <String, String>{
+      //   'Content-Type': 'application/json; charset=UTF-8',
+      //   'Authorization': bearerToken,
+      // });
+      // Map res111 = jsonDecode(resProd.body);
+      // List<Product> employees = (res111['results'] as List).map((data) => Product.fromJson(data)).toList();
+      // print(employees);
     } catch (e) {
       showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'Сонгосон нийлүүлэгч',
-            style: TextStyle(fontSize: 18),
-          ),
-          actions: [
-            IconButton(
-                icon: const Icon(
-                  Icons.notifications,
-                  color: Colors.blue,
-                ),
-                onPressed: () {}),
-            IconButton(
-                icon: const Icon(
-                  Icons.shopping_basket,
-                  color: Colors.red,
-                ),
-                onPressed: () {}),
-          ],
+  Widget build(BuildContext context) =>
+      // Refrsh Indicator pull down
+      RefreshIndicator(
+        onRefresh: () => Future.sync(
+          // Refresh through page controllers
+          () => _pagingController.refresh(),
         ),
-        body: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Full Details",
-                style: TextStyle(fontWeight: FontWeight.w600, color: Colors.blueGrey, fontSize: 20),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                children: [
-                  const Text('Name', style: TextStyle(color: Colors.teal, fontSize: 16, fontWeight: FontWeight.w600)),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 30),
-                    child: Text(widget.supp.name, style: const TextStyle(fontSize: 16)),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                children: [
-                  const Text('Contact', style: TextStyle(color: Colors.teal, fontSize: 16, fontWeight: FontWeight.w600)),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: Text(widget.supp.id, style: const TextStyle(fontSize: 16)),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Description', style: TextStyle(color: Colors.teal, fontSize: 16, fontWeight: FontWeight.w600)),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Text(widget.supp.name, style: const TextStyle(fontSize: 16)),
-                ],
-              )
-            ],
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("Pagination Scroll Flutter Template"),
           ),
-        ));
+          // Page Listview with divider as a separation
+          body: PagedGridView<int, dynamic>(
+            // showNewPageProgressIndicatorAsGridChild: false,
+            // showNewPageErrorIndicatorAsGridChild: false,
+            // showNoMoreItemsIndicatorAsGridChild: false,
+            pagingController: _pagingController,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              // childAspectRatio: 100 / 150,
+              // crossAxisSpacing: 10,
+              // mainAxisSpacing: 10,
+              crossAxisCount: 2,
+            ),
+            builderDelegate: PagedChildBuilderDelegate<dynamic>(
+              animateTransitions: true,
+              itemBuilder: (_, item, index) => InkWell(
+                onTap: () {
+                  print("Container was tapped");
+                  print(item);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      Text(
+                        item.name,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                      Container(
+                        child: Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                          Text(
+                            item.price + ' ₮',
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w400),
+                          ),
+                          Text(
+                            item.modified_at,
+                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                          ),
+                        ]),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+}
+
+class RemoteApi {
+  static Future<List<dynamic>?> getBeerList(
+    int page,
+    int limit,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      // final response = await http.get(
+      //   Uri.parse(
+      //     'http://192.168.88.39:8000/api/v1/product/?'
+      //     'page=$page'
+      //     '&page_size=$limit',
+      //   ),
+      // );
+      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=1&page_size=20'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
+      if (response.statusCode == 200) {
+        // Decode the response
+
+        Map res111 = jsonDecode(response.body);
+        List<Product> employees = (res111['results'] as List).map((data) => Product.fromJson(data)).toList();
+
+        final mybody = jsonDecode(response.body);
+        return employees;
+      }
+    } catch (e) {
+      print("Error $e");
+    }
+    return null;
   }
 }

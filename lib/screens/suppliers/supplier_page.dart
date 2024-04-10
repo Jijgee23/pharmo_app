@@ -28,7 +28,7 @@ class _SupplierPageState extends State<SupplierPage> {
     try {
       final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-      });      
+      });
 
       if (response.statusCode == 200) {
         Map res = json.decode(response.body);
@@ -78,7 +78,20 @@ class _SupplierPageState extends State<SupplierPage> {
               itemBuilder: (context, index) {
                 return Card(
                   child: ListTile(
-                    onTap: () {
+                    onTap: () async {
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      String? token = prefs.getString("access_token");
+                      String bearerToken = "Bearer $token";
+                      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
+                          headers: <String, String>{
+                            'Content-Type': 'application/json; charset=UTF-8',
+                            'Authorization': bearerToken,
+                          },
+                          body: jsonEncode({'pId': _supList[index].id}));
+                      Map<String, dynamic> res = jsonDecode(response.body);
+                      await prefs.setString('access_token', res['access_token']);
+                      await prefs.setString('refresh_token', res['refresh_token']);
+
                       Navigator.push(
                           context,
                           MaterialPageRoute(
