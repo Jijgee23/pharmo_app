@@ -97,14 +97,11 @@ class _SupplierDetailState extends State<SupplierDetail> {
           ),
           // Page Listview with divider as a separation
           body: PagedGridView<int, dynamic>(
-            // showNewPageProgressIndicatorAsGridChild: false,
-            // showNewPageErrorIndicatorAsGridChild: false,
-            // showNoMoreItemsIndicatorAsGridChild: false,
+            showNewPageProgressIndicatorAsGridChild: false,
+            showNewPageErrorIndicatorAsGridChild: false,
+            showNoMoreItemsIndicatorAsGridChild: false,
             pagingController: _pagingController,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              // childAspectRatio: 100 / 150,
-              // crossAxisSpacing: 10,
-              // mainAxisSpacing: 10,
               crossAxisCount: 2,
             ),
             builderDelegate: PagedChildBuilderDelegate<dynamic>(
