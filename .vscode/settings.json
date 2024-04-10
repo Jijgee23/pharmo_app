@@ -1,0 +1,32 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "test": true,
+        "web": true,
+        "linux": true,
+        ".flutter-plugins": true,
+        ".flutter-plugins-dependencies": true,
+        ".metadata": true,
+        "analysis_options.yaml": true,
+        ".dart_tool": true,
+        ".vscode": true,
+        ".gitignore": true
+    },
+    "hide-files.files": [
+        "test",
+        "web",
+        "linux",
+        ".flutter-plugins",
+        ".flutter-plugins-dependencies",
+        ".metadata",
+        "analysis_options.yaml",
+        ".dart_tool",
+        ".vscode",
+        ".gitignore"
+    ]
+}

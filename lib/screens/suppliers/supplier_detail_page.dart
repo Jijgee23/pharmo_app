@@ -125,15 +125,17 @@ class _SupplierDetailState extends State<SupplierDetail> {
                   print(item);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
                   width: double.infinity,
                   child: Column(
                     children: [
-                      Text(
-                        item.name,
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.black),
+                      Expanded(
+                        child: Text(
+                          item.name,
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Colors.black),
+                        ),
                       ),
                       Container(
                         child: Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [

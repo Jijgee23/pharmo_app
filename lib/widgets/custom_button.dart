@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -12,7 +13,7 @@ class CustomButton extends StatelessWidget {
       onTap: ontap,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF1B2E3C),
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(8),
         ),
         width: size.width * 0.75,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
+import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_button.dart';
@@ -18,7 +19,7 @@ final emailController = TextEditingController();
 final phoneController = TextEditingController();
 final passwordController = TextEditingController();
 final passwordConfirmController = TextEditingController();
-final optController = TextEditingController();
+//final optController = TextEditingController();
 
 class _SignUpPageState extends State<SignUpPage> {
   @override
@@ -84,7 +85,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     CustomButton(
                         text: 'Батлагаажуулах код авах',
                         ontap: () {
-
                           if (emailController.text.isEmpty) {
                             showFailedMessage(
                                 message: 'Имэйл хаягаа оруулна уу!',
@@ -110,8 +110,11 @@ class _SignUpPageState extends State<SignUpPage> {
                           if (passwordController.text ==
                                   passwordConfirmController.text &&
                               passwordController.text.isNotEmpty) {
-                            authController.signUpGetOtp(emailController.text,
-                                phoneController.text, context);
+                            authController.signUpGetOtp(
+                                emailController.text,
+                                phoneController.text,
+                                passwordConfirmController.text,
+                                context);
                             showDialog(
                                 context: context,
                                 builder: (context) {
@@ -222,6 +225,8 @@ class _OtpDialogState extends State<OtpDialog> {
                       passwordController.text,
                       otpController.text,
                       context);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()));
                 }),
           ],
         ),
