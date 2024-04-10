@@ -47,29 +47,20 @@ class _SupplierPageState extends State<SupplierPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: size.height * 0.13,
           centerTitle: true,
-          backgroundColor: const Color(0xFF1B2E3C),
-          title: Padding(
-            padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
-            child: Column(
-              children: [
-                Text(
-                  'Pharmo',
-                  style: TextStyle(fontSize: size.height * 0.04, fontStyle: FontStyle.italic, color: Colors.white),
+          title: const Text('Хэрэглэгчийн байршил'),
+          actions: [
+            IconButton(
+                icon: const Icon(
+                  Icons.notifications,
+                  color: Colors.blue,
                 ),
-                Text(
-                  'Эмийн бөөний худалдаа,\n захиалгын систем',
-                  style: TextStyle(fontSize: size.height * 0.02, fontStyle: FontStyle.italic, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
+                onPressed: () {}),
+          ],
         ),
         body: Container(
           child: ListView.builder(

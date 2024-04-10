@@ -5,6 +5,7 @@ import 'package:pharmo_app/screens/home_page/home_page.dart';
 import 'package:pharmo_app/screens/login_page.dart';
 import 'package:pharmo_app/widgets/create_pass.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController extends ChangeNotifier {
   bool invisible = true;
@@ -26,8 +27,7 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> login(
-      String email, String password, BuildContext context) async {
+  Future<void> login(String email, String password, BuildContext context) async {
     var responseLogin = await http.post(
       Uri.parse('http://192.168.88.39:8000/api/v1/auth/login/'),
       headers: <String, String>{
@@ -49,6 +49,10 @@ class AuthController extends ChangeNotifier {
         ),
       );
       notifyListeners();
+      Map<String, dynamic> res = jsonDecode(responseLogin.body);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('access_token', res['access_token']);
+      await prefs.setString('refresh_token', res['refresh_token']);
     } else {
       showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
     }
@@ -111,11 +115,9 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> signUpGetOtp(
-      String email, String phone, BuildContext context) async {
+  Future<void> signUpGetOtp(String email, String phone, BuildContext context) async {
     try {
-      final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/auth/reg_otp/'),
+      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/auth/reg_otp/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -141,20 +143,13 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> register(String email, String phone, String password, String otp,
-      BuildContext context) async {
+  Future<void> register(String email, String phone, String password, String otp, BuildContext context) async {
     try {
-      final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/auth/register/'),
+      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/auth/register/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
-          body: jsonEncode({
-            'email': email,
-            'phone': phone,
-            'password': password,
-            'otp': otp
-          }));
+          body: jsonEncode({'email': email, 'phone': phone, 'password': password, 'otp': otp}));
       notifyListeners();
       if (response.statusCode == 200) {
         Navigator.pushAndRemoveUntil(
@@ -212,8 +207,7 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createPassword(String email, String otp, String newPassword,
-      BuildContext context) async {
+  Future<void> createPassword(String email, String otp, String newPassword, BuildContext context) async {
     final response = await http.post(
       Uri.parse('http://192.168.88.39:8000/api/v1/auth/reset/'),
       headers: <String, String>{

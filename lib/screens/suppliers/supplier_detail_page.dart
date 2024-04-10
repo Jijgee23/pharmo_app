@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/screens/login_page.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SupplierDetail extends StatefulWidget {
   final Supplier supp;
@@ -25,15 +25,13 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   getDataById() async {
     try {
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // var token = prefs.getString("accessToken");
-      String? token = await TokenManager.getToken();
-      String tt = 'Bearer $token';
-      print(tt);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
       final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': tt,
+            'Authorization': bearerToken,
           },
           body: jsonEncode({'pId': widget.supp.id}));
       print(response.body);
@@ -44,27 +42,18 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
-          toolbarHeight: size.height * 0.13,
           centerTitle: true,
-          backgroundColor: const Color(0xFF1B2E3C),
-          title: Padding(
-            padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
-            child: Column(
-              children: [
-                Text(
-                  'Pharmo',
-                  style: TextStyle(fontSize: size.height * 0.04, fontStyle: FontStyle.italic, color: Colors.white),
+          title: const Text('Хэрэглэгчийн байршил'),
+          actions: [
+            IconButton(
+                icon: const Icon(
+                  Icons.notifications,
+                  color: Colors.blue,
                 ),
-                Text(
-                  'Эмийн бөөний худалдаа,\n захиалгын систем',
-                  style: TextStyle(fontSize: size.height * 0.02, fontStyle: FontStyle.italic, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
+                onPressed: () {}),
+          ],
         ),
         body: Container(
           padding: const EdgeInsets.all(16.0),
