@@ -73,6 +73,7 @@ class _SupplierPageState extends State<SupplierPage> {
           ],
         ),
         body: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
           child: ListView.builder(
               itemCount: _supList.length,
               itemBuilder: (context, index) {
@@ -88,16 +89,22 @@ class _SupplierPageState extends State<SupplierPage> {
                             'Authorization': bearerToken,
                           },
                           body: jsonEncode({'pId': _supList[index].id}));
-                      Map<String, dynamic> res = jsonDecode(response.body);
-                      await prefs.setString('access_token', res['access_token']);
-                      await prefs.setString('refresh_token', res['refresh_token']);
+                      if (response.statusCode == 200) {
+                        Map<String, dynamic> res = jsonDecode(response.body);
+                        await prefs.setString('access_token', res['access_token']);
+                        await prefs.setString('refresh_token', res['refresh_token']);
 
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SupplierDetail(
-                                    supp: _supList[index],
-                                  )));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SupplierDetail(
+                                      supp: _supList[index],
+                                    )));
+                      } else if (response.statusCode == 403) {
+                        showFailedMessage(message: 'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.', context: context);
+                      } else {
+                        showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
+                      }
                     },
                     leading: const Icon(Icons.home),
                     title: Text(_supList[index].name),

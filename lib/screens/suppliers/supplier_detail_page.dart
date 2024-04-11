@@ -93,7 +93,25 @@ class _SupplierDetailState extends State<SupplierDetail> {
         ),
         child: Scaffold(
           appBar: AppBar(
-            title: const Text("Pagination Scroll Flutter Template"),
+            centerTitle: true,
+            title: const Text(
+              'Бараа',
+              style: TextStyle(fontSize: 18),
+            ),
+            actions: [
+              IconButton(
+                  icon: const Icon(
+                    Icons.notifications,
+                    color: Colors.blue,
+                  ),
+                  onPressed: () {}),
+              IconButton(
+                  icon: const Icon(
+                    Icons.shopping_basket,
+                    color: Colors.red,
+                  ),
+                  onPressed: () {}),
+            ],
           ),
           // Page Listview with divider as a separation
           body: PagedGridView<int, dynamic>(
@@ -112,7 +130,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
                   print(item);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                   width: double.infinity,
                   child: Column(
                     children: [
