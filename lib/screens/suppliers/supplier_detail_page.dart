@@ -80,7 +80,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
           appBar: AppBar(
             centerTitle: true,
             title: const Text(
-              'Бараа',
+              'Барааны жагсаалт',
               style: TextStyle(fontSize: 18),
             ),
             actions: [
