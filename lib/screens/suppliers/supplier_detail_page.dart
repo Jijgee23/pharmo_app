@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
+import 'package:pharmo_app/screens/suppliers/product_detail_page.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -110,7 +111,12 @@ class _SupplierDetailState extends State<SupplierDetail> {
               itemBuilder: (_, item, index) => InkWell(
                 onTap: () {
                   print("Container was tapped");
-                  print(item);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProductDetail(
+                                prod: item,
+                              )));
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -134,7 +140,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
                       Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
                         Text(
                           item.price + ' ₮',
-                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w400),
+                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
                         ),
                         Text(
                           item.modified_at,
