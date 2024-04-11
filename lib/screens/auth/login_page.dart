@@ -28,6 +28,7 @@ class _LoginPageState extends State<LoginPage> {
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           toolbarHeight: size.height * 0.13,
           centerTitle: true,

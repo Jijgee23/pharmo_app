@@ -15,7 +15,9 @@ class ProductDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return SafeArea(
+      
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           leading: IconButton(
             onPressed: () {},
@@ -26,21 +28,24 @@ class ProductDetail extends StatelessWidget {
         ),
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(25),
+            padding: EdgeInsets.all(size.width * 0.05),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  flex: 3,
-                  child: Image.network(
+                  flex: 2,
+                  child: Center(
+                    child: Image.network(
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwrng-1Q_xEhlRgtdU9Ljy5PoPNVjYYcTfZQ&s',
                     fit: BoxFit.fitHeight,
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 4,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceEvenly,
+                    direction: Axis.vertical,
                     children: [
                       Text(productName),
                       const Text('Баркод: 1234567890'),
@@ -52,32 +57,39 @@ class ProductDetail extends StatelessWidget {
                       Text('Үйлдвэрлэгч: $productPrice₮'),
                       Text('Ерөнхий нэршил: $productPrice₮'),
                       const Expanded(child: Text('')),
-                      Expanded(
-                        flex: 1,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Column(
-                              children: [
-                                const Text('Тоо ширхэг'),
-                                SizedBox(
-                                  width: size.width * 0.4,
-                                  height: size.width * 0.1,
-                                  child: const TextField(),
-                                ),
-                              ],
+                      
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            'Тоо ширхэг',
+                            style: TextStyle(
+                              fontSize: size.height * 0.025,
                             ),
-                            SizedBox(
-                              width: size.width * 0.4,
-                              height: size.width * 0.1,
-                              child: CustomButton(
-                                  text: 'Сагсанд нэмэх', ontap: () {}),
-                            ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(
+                            width: size.width * 0.4,
+                            height: size.width * 0.05,
+                            child: const TextField(),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        width: size.width * 0.4,
+                        height: size.width * 0.1,
+                        child:
+                            CustomButton(text: 'Сагсанд нэмэх', ontap: () {}),
                       ),
                     ],
                   ),
+                  
                 ),
               ],
             ),
