@@ -34,7 +34,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text(
-              'Something went wrong while fetching a new page.',
+              'Шинэ хуудас дуудах үед алдаа гарлаа.',
             ),
             action: SnackBarAction(
               label: 'Retry',
@@ -113,7 +113,6 @@ class _SupplierDetailState extends State<SupplierDetail> {
                   onPressed: () {}),
             ],
           ),
-          // Page Listview with divider as a separation
           body: PagedGridView<int, dynamic>(
             showNewPageProgressIndicatorAsGridChild: false,
             showNewPageErrorIndicatorAsGridChild: false,
@@ -178,12 +177,8 @@ class RemoteApi {
         'Authorization': bearerToken,
       });
       if (response.statusCode == 200) {
-        // Decode the response
-
-        Map res111 = jsonDecode(response.body);
-        List<Product> employees = (res111['results'] as List).map((data) => Product.fromJson(data)).toList();
-
-        final mybody = jsonDecode(response.body);
+        Map res = jsonDecode(response.body);
+        List<Product> employees = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         return employees;
       }
     } catch (e) {
