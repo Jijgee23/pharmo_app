@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
+import 'package:pharmo_app/screens/home_page/tabs/home.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
@@ -32,38 +33,74 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
-
+    // final authController = Provider.of<AuthController>(context);
+    final size = MediaQuery.of(context).size;
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: SafeArea(
         child: Scaffold(
           drawer: Drawer(
+            width: size.width * 0.7,
             child: ListView(
               children: [
-                const DrawerHeader(
-                  curve: Curves.bounceIn,
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
+                DrawerHeader(
+                  padding: EdgeInsets.all(size.width * 0.05),
+                  curve: Curves.easeInOut,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
                   ),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Text('Profile'),
-                        Column(
-                          children: [],
-                        )
-                      ],
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Бүртгэл',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Container(
+                        width: size.width * 0.15,
+                        height: size.width * 0.15,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                        ),
+                        child: Icon(
+                          Icons.person,
+                          color: AppColors.secondary,
+                          size: size.width * 0.15,
+                        ),
+                      ),
+                      Text(
+                        'Имейл хаяг: supplier@gmail.com',
+                        style: TextStyle(
+                            color: Colors.white, fontSize: size.height * 0.02),
+                      ),
+                    ],
                   ),
                 ),
                 ListTile(
-                  title: const Text('Item 1'),
+                  leading: const Icon(Icons.shopping_cart),
+                  title: const Text('Захиалга'),
                   onTap: () {
                     Navigator.pop(context);
                   },
                 ),
                 ListTile(
+                  leading: const Icon(Icons.widgets),
+                  title: const Text('Бараа бүтээгдэхүүн'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text('Харилцагч'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.people),
                   title: const Text('Нийлүүлэгч'),
                   onTap: () {
                     Navigator.push(
@@ -73,10 +110,16 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  title: const Text('logout'),
+                  leading: const Icon(Icons.settings),
+                  title: const Text('Тохиргоо'),
+                  onTap: () {},
+                ),
+                ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: const Text('Гарах'),
                   onTap: () {
-                    authController.logout(context);
-                    authController.toggleVisibile();
+                    showLogoutDialog(context);
+                   
                   },
                 ),
               ],
@@ -146,26 +189,46 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class HomeTab extends StatefulWidget {
-  const HomeTab({super.key});
+class LogoutDialog extends StatelessWidget {
+  const LogoutDialog({super.key});
 
-  @override
-  State<HomeTab> createState() => _HomeTabState();
-}
-
-class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: Column(
-        children: [
-          const Text('Home Tab'),
-          ElevatedButton(
-            onPressed: () {},
-            child: const Text('BTn'),
+    final authController = Provider.of<AuthController>(context);
+    //  final size = MediaQuery.of(context).size;
+    return ChangeNotifierProvider(
+      create: (context) => AuthController(),
+      child: AlertDialog(
+        title: const Center(
+          child: Text('Системээс гарах'),
+        ),
+        content: const Text('Та системээс гарахдаа итгэлтэй байна уу?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Үгүй'),
+          ),
+          TextButton(
+            onPressed: () {
+              authController.logout(context);
+              authController.toggleVisibile();
+            },
+            child: const Text('Тийм'),
           ),
         ],
+        
       ),
     );
   }
+}
+
+void showLogoutDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return LogoutDialog();
+    },
+  );
 }
