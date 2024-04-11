@@ -26,6 +26,13 @@ class AuthController extends ChangeNotifier {
           {'email': email, 'pwd': false},
         ),
       );
+      if (response.statusCode == 400) {
+        showFailedMessage(
+          message: 'И-мейл хаяг бүртгэлгүй байна!',
+          context: context,
+        );
+        return Future.value(false);
+      }
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         final isPasswordCreated = responseData['pwd'];
@@ -55,7 +62,7 @@ class AuthController extends ChangeNotifier {
       }
     } catch (e) {
       showFailedMessage(
-        message: 'Хүсэлт амжилтгүй боллоо!',
+        message: 'И-мейл хаяг бүртгэлгүй байна!',
         context: context,
       );
       return Future.value(false);
