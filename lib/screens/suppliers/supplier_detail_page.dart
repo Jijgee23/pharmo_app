@@ -120,6 +120,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
                       Expanded(
                         child: SizedBox(
                           child: (item.images != null && item.images.length > 0)
+                              // ignore: prefer_interpolation_to_compose_strings
                               ? Image.network('http://192.168.88.39:8000' + item.images?.first['url'])
                               : Image.asset('assets/no_image.jpg'),
                         ),
@@ -130,18 +131,16 @@ class _SupplierDetailState extends State<SupplierDetail> {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Colors.black),
                       ),
-                      Container(
-                        child: Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
-                          Text(
-                            item.price + ' ₮',
-                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w400),
-                          ),
-                          Text(
-                            item.modified_at,
-                            style: const TextStyle(fontSize: 11, color: Colors.grey),
-                          ),
-                        ]),
-                      )
+                      Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                        Text(
+                          item.price + ' ₮',
+                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w400),
+                        ),
+                        Text(
+                          item.modified_at,
+                          style: const TextStyle(fontSize: 11, color: Colors.grey),
+                        ),
+                      ])
                     ],
                   ),
                 ),
