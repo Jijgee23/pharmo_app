@@ -1,11 +1,10 @@
-
 class Product {
   int id;
   String? expDate;
   String? discount_expireddate;
   String? name;
   String? price;
-  int itemname_id;
+  int? itemname_id;
   String? barcode;
   String? sale_price;
   int? sale_qty;
@@ -17,9 +16,10 @@ class Product {
   String? modified_at;
   String? mohs;
   int? supplier;
-  String? mnfr;
-  String? vndr;
+  Map<String, dynamic>? mnfr;
+  Map<String, dynamic>? vndr;
   List<dynamic>? category;
+  List<dynamic>? images;
 
   Product(
     this.id,
@@ -42,6 +42,7 @@ class Product {
     this.mnfr,
     this.vndr,
     this.category,
+    this.images,
   );
 
   Product.fromJson(Map<String, dynamic> json)
@@ -64,6 +65,7 @@ class Product {
         supplier = json['supplier'],
         mnfr = json['mnfr'],
         vndr = json['vndr'],
+        images = json['images'],
         category = json['category'];
 
   Map<String, dynamic> toJson() {
@@ -87,6 +89,7 @@ class Product {
       'supplier': supplier,
       'mnfr': mnfr,
       'vndr': vndr,
+      'images': images,
     };
   }
 }

@@ -29,22 +29,6 @@ class _SupplierDetailState extends State<SupplierDetail> {
       _fetchPage(pageKey);
     });
 
-    _pagingController.addStatusListener((status) {
-      if (status == PagingStatus.subsequentPageError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Шинэ хуудас дуудах үед алдаа гарлаа.',
-            ),
-            action: SnackBarAction(
-              label: 'Retry',
-              onPressed: () => _pagingController.retryLastFailedRequest(),
-            ),
-          ),
-        );
-      }
-    });
-
     super.initState();
   }
 
@@ -56,7 +40,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPage(int pageKey) async {
     try {
-      final newItems = await RemoteApi.getBeerList(pageKey, _pageSize);
+      final newItems = await RemoteApi.getProdList(pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -134,12 +118,17 @@ class _SupplierDetailState extends State<SupplierDetail> {
                   child: Column(
                     children: [
                       Expanded(
-                        child: Text(
-                          item.name,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.black),
+                        child: SizedBox(
+                          child: (item.images != null && item.images.length > 0)
+                              ? Image.network('http://192.168.88.39:8000' + item.images?.first['url'])
+                              : Image.asset('assets/no_image.jpg'),
                         ),
+                      ),
+                      Text(
+                        item.name,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.black),
                       ),
                       Container(
                         child: Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -164,7 +153,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 }
 
 class RemoteApi {
-  static Future<List<dynamic>?> getBeerList(
+  static Future<List<dynamic>?> getProdList(
     int page,
     int limit,
   ) async {
@@ -172,14 +161,15 @@ class RemoteApi {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=1&page_size=20'), headers: <String, String>{
+      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
       if (response.statusCode == 200) {
         Map res = jsonDecode(response.body);
-        List<Product> employees = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        return employees;
+        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        print(prods[0].images?.first['url']);
+        return prods;
       }
     } catch (e) {
       print("Error $e");
