@@ -72,8 +72,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       Text(
                         'Имейл хаяг: supplier@gmail.com',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: size.height * 0.02),
+                        style: TextStyle(color: Colors.white, fontSize: size.height * 0.02),
                       ),
                     ],
                   ),
@@ -103,10 +102,7 @@ class _HomePageState extends State<HomePage> {
                   leading: const Icon(Icons.people),
                   title: const Text('Нийлүүлэгч'),
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const SupplierPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
                   },
                 ),
                 ListTile(
@@ -119,7 +115,6 @@ class _HomePageState extends State<HomePage> {
                   title: const Text('Гарах'),
                   onTap: () {
                     showLogoutDialog(context);
-                   
                   },
                 ),
               ],
@@ -218,7 +213,6 @@ class LogoutDialog extends StatelessWidget {
             child: const Text('Тийм'),
           ),
         ],
-        
       ),
     );
   }

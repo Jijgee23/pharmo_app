@@ -95,22 +95,21 @@ class _ProductDetailState extends State<ProductDetail> {
               ),
               Expanded(
                 flex: 3,
-                child: Wrap(
-                  alignment: WrapAlignment.spaceEvenly,
-                  direction: Axis.vertical,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       widget.prod.name.toString(),
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Text('Баркод: ${widget.prod.barcode}'),
-                    Text('Үнэ: ${widget.prod.price}'),
+                    Text('Үнэ: ${widget.prod.price}₮'),
                     Text('Барааны дуусах хугацаа	:${widget.prod.expDate}'),
                     Text('Бөөний үнэ: ${widget.prod.discount}'),
                     Text('Бөөний тоо: ${widget.prod.in_stock}'),
                     Text('Хямдрал: ${widget.prod.sale_price}'),
                     Text('Үйлдвэрлэгч: ${widget.prod.supplier}'),
-                    const Expanded(child: Text('')),
                   ],
                 ),
               ),
@@ -118,9 +117,10 @@ class _ProductDetailState extends State<ProductDetail> {
                 flex: 1,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Тоо ширхэг',
@@ -137,11 +137,11 @@ class _ProductDetailState extends State<ProductDetail> {
                     ),
                     SizedBox(
                       width: size.width * 0.4,
-                      height: size.width * 0.1,
+                      height: size.width * 0.13,
                       child: CustomButton(
                           text: 'Сагсанд нэмэх',
                           ontap: () {
-                            print('odkooooo');
+                            getData();
                           }),
                     ),
                   ],
