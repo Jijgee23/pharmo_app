@@ -29,6 +29,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Container(
           padding: EdgeInsets.symmetric(
               vertical: size.height * 0.1, horizontal: size.width * 0.1),
