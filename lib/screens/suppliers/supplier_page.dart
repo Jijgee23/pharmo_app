@@ -27,11 +27,11 @@ class _SupplierPageState extends State<SupplierPage> {
   getData() async {
     try {
       final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=utf-8',
       });
-
       if (response.statusCode == 200) {
-        Map res = json.decode(response.body);
+        // Map res = json.decode(response.body);
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
           res.forEach((key, value) {
             var model = Supplier(key, value);

@@ -171,7 +171,8 @@ class RemoteApi {
         'Authorization': bearerToken,
       });
       if (response.statusCode == 200) {
-        Map res = jsonDecode(response.body);
+        // Map res = jsonDecode(response.body);
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
         List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         print(prods[0].images?.first['url']);
         return prods;
