@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/product_controller.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,7 @@ void main() {
     providers: [
       ChangeNotifierProvider(create: (_) => AuthController()),
       ChangeNotifierProvider(create: (_) => BasketProvider()),
+      ChangeNotifierProvider(create: (_) => ProductController()),
     ],
     child: const MyApp(),
   ));

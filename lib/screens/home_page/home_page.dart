@@ -33,12 +33,18 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // final authController = Provider.of<AuthController>(context);
+    final authController = Provider.of<AuthController>(context);
     final size = MediaQuery.of(context).size;
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: SafeArea(
         child: Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              authController.refresh();
+              authController.refresh();
+            },
+          ),
           drawer: Drawer(
             width: size.width * 0.7,
             child: ListView(
@@ -103,7 +109,10 @@ class _HomePageState extends State<HomePage> {
                   leading: const Icon(Icons.people),
                   title: const Text('Нийлүүлэгч'),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const SupplierPage()));
                   },
                 ),
                 ListTile(

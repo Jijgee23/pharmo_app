@@ -8,7 +8,6 @@ import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_button.dart';
 import 'package:pharmo_app/widgets/custom_text_filed.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -166,24 +165,5 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-  }
-}
-
-class TokenManager {
-  static const String _tokenKey = 'token';
-
-  static Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
-  }
-
-  static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
-  }
-
-  static Future<void> removeToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
   }
 }
