@@ -115,6 +115,8 @@ class AuthController extends ChangeNotifier {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
+      String accessToken = prefs.getString('access_token')!;
+      print(accessToken);
     } else {
       showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
     }

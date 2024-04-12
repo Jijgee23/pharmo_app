@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
+import 'package:pharmo_app/screens/auth/partners/partner_page.dart';
 import 'package:pharmo_app/screens/home_page/tabs/home.dart';
+import 'package:pharmo_app/screens/home_page/tabs/profile.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
@@ -20,9 +22,7 @@ class _HomePageState extends State<HomePage> {
     const Home(),
     const SearchScreen(),
     const ShoppingCart(),
-    const Center(
-      child: Text("Contact"),
-    ),
+    const CustomerBranchList(),
   ];
   int _selectedIndex = 0;
   void _onItemTapped(int index) {
@@ -33,18 +33,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
     final size = MediaQuery.of(context).size;
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: SafeArea(
         child: Scaffold(
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              authController.refresh();
-              authController.refresh();
-            },
-          ),
           drawer: Drawer(
             width: size.width * 0.7,
             child: ListView(
@@ -102,7 +95,8 @@ class _HomePageState extends State<HomePage> {
                   leading: const Icon(Icons.person),
                   title: const Text('Харилцагч'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const PartnerPage()));
                   },
                 ),
                 ListTile(

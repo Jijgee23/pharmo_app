@@ -7,6 +7,7 @@ import 'package:pharmo_app/controllers/product_controller.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/suppliers/product_detail_page.dart';
+import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -392,7 +393,7 @@ class RemoteApi {
         return prods;
       }
     } catch (e) {
-      print("Error $e");
+      showFailedMessage(context: null, message: "Алдаа гарлаа");
     }
     return null;
   }
