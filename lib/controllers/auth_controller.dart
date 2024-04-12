@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:pharmo_app/screens/home_page/home_page.dart';
 import 'package:pharmo_app/widgets/create_pass_dialog.dart';
@@ -14,6 +13,25 @@ class AuthController extends ChangeNotifier {
   void toggleVisibile() {
     invisible = !invisible;
     notifyListeners();
+  }
+
+  Future<void> refresh() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? rtoken = prefs.getString("refresh_token");
+    var response = await http.post(
+      Uri.parse('http://192.168.88.39:8000/api/v1/auth/refresh/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': rtoken!,
+      },
+      body: jsonEncode(<String, String>{
+        'refresh': rtoken,
+      }),
+    );
+    if (response.statusCode == 200) {
+      String? accessToken = json.decode(response.body)['access'];
+      await prefs.setString('access_token', accessToken!);
+    }
   }
 
   Future<bool> checkEmail(String email, BuildContext context) async {
@@ -70,7 +88,8 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> login(String email, String password, BuildContext context) async {
+  Future<void> login(
+      String email, String password, BuildContext context) async {
     var responseLogin = await http.post(
       Uri.parse('http://192.168.88.39:8000/api/v1/auth/login/'),
       headers: <String, String>{
@@ -111,6 +130,9 @@ class AuthController extends ChangeNotifier {
     );
     notifyListeners();
     if (response.statusCode == 200) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.remove('access_token');
+      prefs.remove('refresh_token');
       Navigator.pushAndRemoveUntil(
           // ignore: use_build_context_synchronously
           context,
@@ -120,9 +142,11 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signUpGetOtp(String email, String phone, String password, BuildContext context) async {
+  Future<void> signUpGetOtp(
+      String email, String phone, String password, BuildContext context) async {
     try {
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/auth/reg_otp/'),
+      final response = await http.post(
+          Uri.parse('http://192.168.88.39:8000/api/v1/auth/reg_otp/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -147,13 +171,20 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> register(String email, String phone, String password, String otp, BuildContext context) async {
+  Future<void> register(String email, String phone, String password, String otp,
+      BuildContext context) async {
     try {
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/auth/register/'),
+      final response = await http.post(
+          Uri.parse('http://192.168.88.39:8000/api/v1/auth/register/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
-          body: jsonEncode({'email': email, 'phone': phone, 'password': password, 'otp': otp}));
+          body: jsonEncode({
+            'email': email,
+            'phone': phone,
+            'password': password,
+            'otp': otp
+          }));
       notifyListeners();
       if (response.statusCode == 200) {
         Navigator.pushAndRemoveUntil(
@@ -218,7 +249,8 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createPassword(String email, String otp, String newPassword, BuildContext context) async {
+  Future<void> createPassword(String email, String otp, String newPassword,
+      BuildContext context) async {
     try {
       final response = await http.post(
         Uri.parse('http://192.168.88.39:8000/api/v1/auth/reset/'),
