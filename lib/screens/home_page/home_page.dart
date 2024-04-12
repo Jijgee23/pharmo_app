@@ -72,7 +72,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                       Text(
                         'Имейл хаяг: supplier@gmail.com',
-                        style: TextStyle(color: Colors.white, fontSize: size.height * 0.02),
+                        style: TextStyle(
+                            color: Colors.white, fontSize: size.height * 0.01),
                       ),
                     ],
                   ),
