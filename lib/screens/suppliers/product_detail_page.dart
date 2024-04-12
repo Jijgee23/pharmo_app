@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart' as badges;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
@@ -25,8 +26,6 @@ class _ProductDetailState extends State<ProductDetail> {
   @override
   void initState() {
     // TODO: implement initState
-    getData();
-
     super.initState();
   }
 
@@ -35,7 +34,7 @@ class _ProductDetailState extends State<ProductDetail> {
     super.dispose();
   }
 
-  getData() async {
+  addBasket() async {
     try {
       print('odko');
     } catch (e) {
@@ -52,7 +51,7 @@ class _ProductDetailState extends State<ProductDetail> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          centerTitle: true,
+          // centerTitle: true,
           title: const Text(
             'Барааны дэлгэрэнгүй',
             style: TextStyle(fontSize: 18),
@@ -64,13 +63,23 @@ class _ProductDetailState extends State<ProductDetail> {
                   color: Colors.blue,
                 ),
                 onPressed: () {}),
-            IconButton(
-                icon: const Icon(
+            Container(
+              margin: EdgeInsets.only(right: 15),
+              child: badges.Badge(
+                badgeContent: Text(
+                  '${basketProvider.count}',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+                badgeStyle: const badges.BadgeStyle(
+                  badgeColor: Colors.blue,
+                ),
+                child: const Icon(
                   Icons.shopping_basket,
                   color: Colors.red,
-                
                 ),
-                onPressed: () {}),
+              ),
+            )
+            // Text('Тоо ширхэг: ${basketProvider.count}')
           ],
         ),
         body: Center(
@@ -143,8 +152,13 @@ class _ProductDetailState extends State<ProductDetail> {
                         height: size.width * 0.13,
                         child: CustomButton(
                             text: 'Сагсанд нэмэх',
-                            ontap: () {
-                              basketProvider.increment();
+                            ontap: () async {
+                              dynamic res = await basketProvider.addBasket(product_id: widget.prod.id, qty: 5);
+                              if (res == 'success') {
+                                showSuccessMessage(message: 'Амжилттай сагсанд нэмлээ.', context: context);
+                              } else {
+                                showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
+                              }
                             }),
                       ),
                     ],
