@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/models/basket.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BasketProvider extends ChangeNotifier {
@@ -13,7 +14,7 @@ class BasketProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> addBasket({int? product_id, int? qty}) async {
+  Future<dynamic> addBasket({int? product_id, int? qty}) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
@@ -25,14 +26,24 @@ class BasketProvider extends ChangeNotifier {
           },
           body: jsonEncode({'product': product_id, 'qty': qty}));
       if (response.statusCode == 201) {
-        _count++;
-        notifyListeners();
-        return 'success';
+        final resBasket = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/get_basket'), headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': bearerToken,
+        });
+        if (resBasket.statusCode == 200) {
+          Map<String, dynamic> res = jsonDecode(utf8.decode(resBasket.bodyBytes));
+          Basket basket = Basket.fromJson(res);
+          _count = basket.items != null && basket.items!.isNotEmpty ? basket.items!.length : 0;
+          notifyListeners();
+          return {'success': 'Сагсанд амжилттай нэмэгдлээ.'};
+        }
+      } else {
+        return {'fail': 'Уг бараа өмнө сагсанд орсон байна.'};
       }
     } catch (e) {
       print(e);
-      notifyListeners();
+      return {'fail': e};
     }
-    return 'fail';
+    return null;
   }
 }
