@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List _pages = [
-    const HomeTab(),
+    const Home(),
     const SearchScreen(),
     const ShoppingCart(),
     const Center(
