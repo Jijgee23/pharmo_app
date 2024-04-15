@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
+import 'package:pharmo_app/screens/order/seller_order_page.dart';
 import 'package:pharmo_app/screens/partners/partner_page.dart';
 import 'package:pharmo_app/screens/home_page/tabs/home.dart';
 import 'package:pharmo_app/screens/home_page/tabs/suplist.dart';
@@ -7,7 +8,6 @@ import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 
-import 'tabs/cart.dart';
 import 'tabs/search.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,7 +21,9 @@ class _HomePageState extends State<HomePage> {
   final List _pages = [
     const Home(),
     const SearchScreen(),
-    const ShoppingCart(),
+    const Center(
+      child: Text('data'),
+    ),
     const SuplierList(),
   ];
   int _selectedIndex = 0;
@@ -115,6 +117,16 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {},
                 ),
                 ListTile(
+                  leading: const Icon(Icons.medical_information),
+                  title: const Text('Эмийн сангийн жагсаалт'),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const PharmacyList()));
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.logout),
                   title: const Text('Гарах'),
                   onTap: () {
@@ -138,22 +150,7 @@ class _HomePageState extends State<HomePage> {
                     color: AppColors.primary,
                   ),
                   onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: ((context) {
-                          return AlertDialog(
-                            title: const Text('Захиалгууд'),
-                            content: const ShoppingCart(),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Хаах'),
-                              ),
-                            ],
-                          );
-                        }));
+                  
                   }),
             ],
           ),
