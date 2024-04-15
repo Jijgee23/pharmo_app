@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
-import 'package:pharmo_app/screens/auth/partners/partner_page.dart';
+import 'package:pharmo_app/screens/partners/partner_page.dart';
 import 'package:pharmo_app/screens/home_page/tabs/home.dart';
-import 'package:pharmo_app/screens/home_page/tabs/profile.dart';
+import 'package:pharmo_app/screens/home_page/tabs/suplist.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
     const Home(),
     const SearchScreen(),
     const ShoppingCart(),
-    const CustomerBranchList(),
+    const SuplierList(),
   ];
   int _selectedIndex = 0;
   void _onItemTapped(int index) {
