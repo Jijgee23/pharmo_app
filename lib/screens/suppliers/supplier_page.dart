@@ -26,11 +26,9 @@ class _SupplierPageState extends State<SupplierPage> {
 
   getData() async {
     try {
-      final response = await http.get(
-          Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=utf-8',
-          });
+      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=utf-8',
+      });
       if (response.statusCode == 200) {
         // Map res = json.decode(response.body);
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -42,13 +40,10 @@ class _SupplierPageState extends State<SupplierPage> {
           });
         });
       } else {
-        showFailedMessage(
-            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+        showFailedMessage(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          context: context);
+      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }
   }
 
@@ -86,12 +81,10 @@ class _SupplierPageState extends State<SupplierPage> {
                 return Card(
                   child: ListTile(
                     onTap: () async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
                       String? token = prefs.getString("access_token");
                       String bearerToken = "Bearer $token";
-                      final response = await http.post(
-                          Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
+                      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
                           headers: <String, String>{
                             'Content-Type': 'application/json; charset=UTF-8',
                             'Authorization': bearerToken,
@@ -99,25 +92,18 @@ class _SupplierPageState extends State<SupplierPage> {
                           body: jsonEncode({'pId': _supList[index].id}));
                       if (response.statusCode == 200) {
                         Map<String, dynamic> res = jsonDecode(response.body);
-                        await prefs.setString(
-                            'access_token', res['access_token']);
-                        await prefs.setString(
-                            'refresh_token', res['refresh_token']);
-                        
-                      } else if (response.statusCode == 403) {
+                        await prefs.setString('access_token', res['access_token']);
+                        await prefs.setString('refresh_token', res['refresh_token']);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => SupplierDetail(
                                       supp: _supList[index],
                                     )));
-                        showFailedMessage(
-                            message:
-                                'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.',
-                            context: context);
+                      } else if (response.statusCode == 403) {
+                        showFailedMessage(message: 'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.', context: context);
                       } else {
-                        showFailedMessage(
-                            message: 'Дахин оролдоно уу.', context: context);
+                        showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
                       }
                     },
                     leading: const Icon(Icons.home),

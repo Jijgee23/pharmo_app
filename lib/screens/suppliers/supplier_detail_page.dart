@@ -22,11 +22,11 @@ class SupplierDetail extends StatefulWidget {
 
 class _SupplierDetailState extends State<SupplierDetail> {
   final int _pageSize = 20;
-  final PagingController<int, dynamic> _pagingController =
-      PagingController(firstPageKey: 1);
+  final PagingController<int, dynamic> _pagingController = PagingController(firstPageKey: 1);
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = '';
   String type = 'нэрээр';
+  bool isHover = false;
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
@@ -141,8 +141,13 @@ class _SupplierDetailState extends State<SupplierDetail> {
               builderDelegate: PagedChildBuilderDelegate<dynamic>(
                 animateTransitions: true,
                 itemBuilder: (_, item, index) => InkWell(
+                  onHover: (val) {
+                    print(val);
+                    setState(() {
+                      isHover = val;
+                    });
+                  },
                   onTap: () {
-                    print("Container was tapped");
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -151,18 +156,16 @@ class _SupplierDetailState extends State<SupplierDetail> {
                                 )));
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    // padding: EdgeInsets.only(top: (isHover) ? 25 : 30.0, bottom: !(isHover) ? 25 : 30),
                     width: double.infinity,
                     child: Column(
                       children: [
                         Expanded(
                           child: SizedBox(
-                            child: (item.images != null &&
-                                    item.images.length > 0)
+                            child: (item.images != null && item.images.length > 0)
                                 // ignore: prefer_interpolation_to_compose_strings
-                                ? Image.network('http://192.168.88.39:8000' +
-                                    item.images?.first['url'])
+                                ? Image.network('http://192.168.88.39:8000' + item.images?.first['url'])
                                 : Image.asset('assets/no_image.jpg'),
                           ),
                         ),
@@ -172,22 +175,16 @@ class _SupplierDetailState extends State<SupplierDetail> {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(color: Colors.black),
                         ),
-                        Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                item.price + ' ₮',
-                                style: const TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                item.modified_at,
-                                style: const TextStyle(
-                                    fontSize: 11, color: Colors.grey),
-                              ),
-                            ])
+                        Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                          Text(
+                            item.price + ' ₮',
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                          ),
+                          Text(
+                            item.modified_at,
+                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                          ),
+                        ])
                       ],
                     ),
                   ),
@@ -216,8 +213,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByBarcode(int pageKey, String searchQuery) async {
     try {
-      final newItems =
-          await getProdListByBarcode(pageKey, _pageSize, searchQuery);
+      final newItems = await getProdListByBarcode(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -233,8 +229,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByIntName(int pageKey, String searchQuery) async {
     try {
-      final newItems =
-          await getProdListByIntName(pageKey, _pageSize, searchQuery);
+      final newItems = await getProdListByIntName(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -257,25 +252,16 @@ class _SupplierDetailState extends State<SupplierDetail> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse(
-              'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
+        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         List<dynamic> filteredItems = [];
         for (int i = 0; i < prods.length; i++) {
-          if (prods[i]
-              .name
-              .toString()
-              .toLowerCase()
-              .contains(searchQuery.toString().toLowerCase())) {
+          if (prods[i].name.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
             filteredItems.add(prods[i]);
           }
         }
@@ -296,25 +282,16 @@ class _SupplierDetailState extends State<SupplierDetail> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse(
-              'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
+        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         List<dynamic> filteredItems = [];
         for (int i = 0; i < prods.length; i++) {
-          if (prods[i]
-              .intName
-              .toString()
-              .toLowerCase()
-              .contains(searchQuery.toString().toLowerCase())) {
+          if (prods[i].intName.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
             filteredItems.add(prods[i]);
           }
         }
@@ -335,26 +312,17 @@ class _SupplierDetailState extends State<SupplierDetail> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse(
-              'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
       if (response.statusCode == 200) {
         // Map res = jsonDecode(response.body);
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
+        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         List<dynamic> filteredItems = [];
         for (int i = 0; i < prods.length; i++) {
-          if (prods[i]
-              .barcode
-              .toString()
-              .toLowerCase()
-              .contains(searchQuery.toString().toLowerCase())) {
+          if (prods[i].barcode.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
             print(prods[i].barcode);
             filteredItems.add(prods[i]);
             //  print(filteredItems.length);
@@ -378,18 +346,13 @@ class RemoteApi {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse(
-              'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
+        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         return prods;
       }
     } catch (e) {

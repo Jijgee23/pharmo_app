@@ -150,7 +150,11 @@ class _ProductDetailState extends State<ProductDetail> {
                         child: CustomButton(
                             text: 'Сагсанд нэмэх',
                             ontap: () async {
-                              Map<String, String> res = await basketProvider.addBasket(product_id: widget.prod.id, qty: 5);
+                              if (qtyController.text.isEmpty || int.parse(qtyController.text) <= 0) {
+                                showFailedMessage(message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
+                                return;
+                              }
+                              Map<String, String> res = await basketProvider.addBasket(product_id: widget.prod.id, qty: int.parse(qtyController.text));
                               if (res['success'] != null) {
                                 showSuccessMessage(message: res['success'], context: context);
                               } else {
