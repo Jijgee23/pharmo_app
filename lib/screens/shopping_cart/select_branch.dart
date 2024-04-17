@@ -34,9 +34,9 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
       });
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Sector> sectors = (res).map((data) => Sector.fromJson(data)).toList();
-        _branchList = sectors;
-        print(_branchList.length);
+        setState(() {
+          _branchList = (res).map((data) => Sector.fromJson(data)).toList();
+        });
       } else {
         showFailedMessage(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
@@ -53,7 +53,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text(
-            'Нийлүүлэгч',
+            'Салбар сонгох',
             style: TextStyle(fontSize: 18),
           ),
           actions: [
@@ -104,7 +104,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
                     },
                     leading: const Icon(Icons.home),
                     title: Text(_branchList[index].name.toString()),
-                    subtitle: Text(_branchList[index].id.toString()),
+                    subtitle: Text(_branchList[index].address!["address"]),
                   ),
                 );
               }),

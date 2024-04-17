@@ -90,7 +90,6 @@ class ShoppingCart extends StatelessWidget {
                 builder: (context, provider, _) {
                   final cartDatas = provider.shoppingCarts;
                   final basket = provider.basket;
-                  print(cartDatas.length);
                   print(basket);
                   return Stack(children: [
                     Column(
