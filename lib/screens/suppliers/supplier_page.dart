@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_controller.dart';
 import 'package:pharmo_app/models/supplier.dart';
+import 'package:pharmo_app/screens/home_page/tabs/home.dart';
+import 'package:pharmo_app/screens/home_page/tabs/search.dart';
+import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_detail_page.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +21,13 @@ class SupplierPage extends StatefulWidget {
 
 class _SupplierPageState extends State<SupplierPage> {
   final List<Supplier> _supList = <Supplier>[];
+    final List _pages = [
+    const Home(),
+    const SearchScreen(),
+    const ShoppingCart(),
+    const Home(),
+  ];
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -45,6 +56,12 @@ class _SupplierPageState extends State<SupplierPage> {
     } catch (e) {
       showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
@@ -112,6 +129,30 @@ class _SupplierPageState extends State<SupplierPage> {
                   ),
                 );
               }),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Нүүр',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              label: 'Хайх',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shop_2),
+              label: 'Захиалга',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_sharp),
+              label: 'Бүртгэл',
+            ),
+          ],
+          selectedItemColor: AppColors.secondary,
+          unselectedItemColor: AppColors.primary,
         ),
       ),
     );

@@ -54,15 +54,7 @@ class _HomeState extends State<Home> {
 
   getDataById() async {
     try {
-      // token = prefs.getString("access_token");
-      // bearerToken = "Bearer $token";
-      // final resProd = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=1&page_size=20'), headers: <String, String>{
-      //   'Content-Type': 'application/json; charset=UTF-8',
-      //   'Authorization': bearerToken,
-      // });
-      // Map res111 = jsonDecode(resProd.body);
-      // List<Product> employees = (res111['results'] as List).map((data) => Product.fromJson(data)).toList();
-      // print(employees);
+      print('AAAAAA');
     } catch (e) {
       showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }

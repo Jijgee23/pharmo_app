@@ -4,24 +4,45 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/home_page/tabs/cart.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final VoidCallback? leadingOnTap;
-  final bool showIcon;
-  final String title;
-  final IconData? icon;
-
-  const CustomAppBar({
-    super.key,
-    this.leadingOnTap,
-    this.showIcon = false,
-    this.title = "",
-    this.icon,
-  }) : preferredSize = const Size.fromHeight(kToolbarHeight);
+class AppDetail extends StatefulWidget implements PreferredSizeWidget {
+  const AppDetail({Key? key}) : super(key: key);
 
   @override
-  final Size preferredSize;
+  State<AppDetail> createState() => _AppDetailState();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(100);
+}
+
+class _AppDetailState extends State<AppDetail> {
+  List<Widget> carouselItems = [
+    Image.network('https://12bb6ecf-bda5-4c99-816b-12bda79f6bd9.selcdn.net/upload//Photo_Tovar/396999_2_1687352103.jpeg'),
+    Image.network('https://iskamed.by/wp-content/uploads/1433.jpg'),
+    Image.network('https://612611.selcdn.ru/prod-s3/resize_cache/1583648/8d98eab21f83652e055a2f8c91f3543a/iblock/2dd/2dddefb762666acf79f34cdeb455be4b/617f02e7aaece58849e3acf3e5651c89.png'),
+  ];
+  TextEditingController qtyController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  addBasket() async {
+    try {
+      print('odko');
+    } catch (e) {
+      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

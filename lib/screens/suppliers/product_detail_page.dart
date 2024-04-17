@@ -3,6 +3,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/screens/home_page/home_page.dart';
+import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -35,9 +37,26 @@ class _ProductDetailState extends State<ProductDetail> {
     super.dispose();
   }
 
-  addBasket() async {
+  void addBasket() async {
     try {
-      print('odko');
+      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+      if (qtyController.text.isEmpty || int.parse(qtyController.text) <= 0) {
+        showFailedMessage(message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
+        return;
+      }
+      Map<String, String> res = await basketProvider.addBasket(product_id: widget.prod.id, qty: int.parse(qtyController.text));
+      if (res['success'] != null) {
+        basketProvider.getBasket();
+        showSuccessMessage(message: res['success'], context: context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ),
+        );
+      } else {
+        showFailedMessage(message: res['fail'], context: context);
+      }
     } catch (e) {
       showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }
@@ -66,21 +85,26 @@ class _ProductDetailState extends State<ProductDetail> {
                 onPressed: () {}),
             Container(
               margin: const EdgeInsets.only(right: 15),
-              child: badges.Badge(
-                badgeContent: Text(
-                  '${basketProvider.count}',
-                  style: const TextStyle(color: Colors.white, fontSize: 10),
-                ),
-                badgeStyle: const badges.BadgeStyle(
-                  badgeColor: Colors.blue,
-                ),
-                child: const Icon(
-                  Icons.shopping_basket,
-                  color: Colors.red,
+              child: InkWell(
+                onTap: () {
+                  print('odkooooooo');
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+                },
+                child: badges.Badge(
+                  badgeContent: Text(
+                    '${basketProvider.count}',
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  badgeStyle: const badges.BadgeStyle(
+                    badgeColor: Colors.blue,
+                  ),
+                  child: const Icon(
+                    Icons.shopping_basket,
+                    color: Colors.red,
+                  ),
                 ),
               ),
             )
-            // Text('Тоо ширхэг: ${basketProvider.count}')
           ],
         ),
         body: Center(
@@ -150,16 +174,7 @@ class _ProductDetailState extends State<ProductDetail> {
                         child: CustomButton(
                             text: 'Сагсанд нэмэх',
                             ontap: () async {
-                              if (qtyController.text.isEmpty || int.parse(qtyController.text) <= 0) {
-                                showFailedMessage(message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
-                                return;
-                              }
-                              Map<String, String> res = await basketProvider.addBasket(product_id: widget.prod.id, qty: int.parse(qtyController.text));
-                              if (res['success'] != null) {
-                                showSuccessMessage(message: res['success'], context: context);
-                              } else {
-                                showFailedMessage(message: res['fail'], context: context);
-                              }
+                              addBasket();
                             }),
                       ),
                     ],

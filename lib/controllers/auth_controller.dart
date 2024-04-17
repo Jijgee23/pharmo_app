@@ -105,6 +105,15 @@ class AuthController extends ChangeNotifier {
       }),
     );
     if (responseLogin.statusCode == 200) {
+      Map<String, dynamic> res = jsonDecode(responseLogin.body);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('access_token', res['access_token']);
+      await prefs.setString('refresh_token', res['refresh_token']);
+      final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
+      shoppingCart.getBasket();
+      // print(count);
+      // await prefs.setString('basket_count', count.toString());
+      notifyListeners();
       Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
         context,
@@ -112,15 +121,6 @@ class AuthController extends ChangeNotifier {
           builder: (context) => const HomePage(),
         ),
       );
-      Map<String, dynamic> res = jsonDecode(responseLogin.body);
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('access_token', res['access_token']);
-      await prefs.setString('refresh_token', res['refresh_token']);
-      final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
-      String? count = await shoppingCart.getBasket();
-      print(count);
-      await prefs.setString('basket_count', count.toString());
-      notifyListeners();
     } else {
       showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
     }
