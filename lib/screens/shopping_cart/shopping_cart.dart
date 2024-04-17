@@ -91,108 +91,105 @@ class ShoppingCart extends StatelessWidget {
                   final cartDatas = provider.shoppingCarts;
                   final basket = provider.basket;
                   print(basket);
-                  return Stack(children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        cartDatas.isNotEmpty
-                            ? Expanded(
-                                child: ListView.builder(
-                                  itemCount: cartDatas.length,
-                                  itemBuilder: (context, index) {
-                                    //item-ийг дамжуулж cartview үүсгэх
-                                    return ShoppingCartView(detail: cartDatas[index] ?? {});
-                                  },
-                                ),
-                              )
-                            : const SizedBox(
-                                height: 200,
-                                child: Center(
-                                  child: Text(
-                                    "Сагс хоосон байна ...",
+                  return Column(children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          cartDatas.isNotEmpty
+                              ? Expanded(
+                                  child: ListView.builder(
+                                    itemCount: cartDatas.length,
+                                    itemBuilder: (context, index) {
+                                      //item-ийг дамжуулж cartview үүсгэх
+                                      return ShoppingCartView(detail: cartDatas[index] ?? {});
+                                    },
+                                  ),
+                                )
+                              : const SizedBox(
+                                  height: 200,
+                                  child: Center(
+                                    child: Text(
+                                      "Сагс хоосон байна ...",
+                                    ),
                                   ),
                                 ),
-                              ),
-                      ],
+                        ],
+                      ),
                     ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          border: Border(
-                            top: BorderSide(
-                              color: Colors.grey.shade400,
-                              width: 1.0,
-                              style: BorderStyle.solid,
-                            ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.grey.shade400,
+                            width: 1.0,
+                            style: BorderStyle.solid,
                           ),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
-                              style: const TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  RichText(
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    text: TextSpan(text: 'Нийт тоо ширхэг: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                      TextSpan(text: '${basket.totalCount}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                                    ]),
-                                  ),
-                                  RichText(
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    text: TextSpan(text: 'Нийт төлөх дүн: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                      TextSpan(text: '${basket.totalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
-                                    ]),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Row(
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                OutlinedButton.icon(
-                                  onPressed: () {
-                                    clearBasket(basket.id);
-                                  },
-                                  icon: const Icon(
-                                    Icons.delete_forever,
-                                    size: 24.0,
-                                  ),
-                                  label: const Text('Сагс хоослох'),
+                                RichText(
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  text: TextSpan(text: 'Нийт тоо ширхэг: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                                    TextSpan(text: '${basket.totalCount}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                  ]),
                                 ),
-                                OutlinedButton.icon(
-                                  onPressed: () {
-                                    purchase(basket.id);
-                                  },
-                                  icon: const Icon(
-                                    Icons.paid_rounded,
-                                    size: 24.0,
-                                  ),
-                                  label: const Text(
-                                    'Төлбөр төлөх',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
+                                RichText(
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  text: TextSpan(text: 'Нийт төлөх дүн: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                                    TextSpan(text: '${basket.totalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
+                                  ]),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  clearBasket(basket.id);
+                                },
+                                icon: const Icon(
+                                  Icons.delete_forever,
+                                  size: 24.0,
+                                ),
+                                label: const Text('Сагс хоослох'),
+                              ),
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  purchase(basket.id);
+                                },
+                                icon: const Icon(
+                                  Icons.paid_rounded,
+                                  size: 24.0,
+                                ),
+                                label: const Text(
+                                  'Төлбөр төлөх',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ]);
