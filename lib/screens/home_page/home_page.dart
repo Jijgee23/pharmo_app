@@ -11,11 +11,8 @@ import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 import 'tabs/search.dart';
+import 'package:badges/badges.dart' as badges;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -68,11 +65,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-<<<<<<< Updated upstream
+
     final cartProvider = Provider.of<BasketProvider>(context, listen: true);
-=======
+
     //   final shoppingCartProvider = Provider.of<BasketProvider>(context, listen: false);
->>>>>>> Stashed changes
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthController>(create: (context) => AuthController()),
@@ -163,7 +160,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-<<<<<<< Updated upstream
             appBar: AppBar(
               iconTheme: const IconThemeData(color: AppColors.primary),
               centerTitle: true,
@@ -241,7 +237,6 @@ class _HomePageState extends State<HomePage> {
                 // ),
               ],
             ),
-=======
             // appBar: AppBar(
             //   iconTheme: const IconThemeData(color: AppColors.primary),
             //   centerTitle: true,
@@ -291,8 +286,7 @@ class _HomePageState extends State<HomePage> {
             //     )
             //   ],
             // ),
-            appBar: const CustomAppBar(),
->>>>>>> Stashed changes
+            // appBar: const CustomAppBar(),
             body: _pages[_selectedIndex],
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _selectedIndex,
