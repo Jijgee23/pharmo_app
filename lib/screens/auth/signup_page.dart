@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/auth_controller.dart';
+import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';

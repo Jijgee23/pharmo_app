@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/order.dart';
-import 'package:pharmo_app/screens/home_page/home_page.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +12,7 @@ class OrderDone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    //  final basketProvider = Provider.of<BasketProvider>(context, listen: false);
     final screenWidth = MediaQuery.of(context).size.width;
     const maxWidth = 850.0;
 
@@ -59,7 +59,11 @@ class OrderDone extends StatelessWidget {
                           children: [
                             OutlinedButton.icon(
                               onPressed: () {
-                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomePage()), (route) => true);
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => const PharmaHomePage()),
+                                    (route) => true);
                                 provider.getBasket();
                               },
                               icon: const Icon(

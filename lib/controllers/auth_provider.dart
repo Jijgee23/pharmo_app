@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
-import 'package:pharmo_app/screens/home_page/home_page.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/widgets/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthController extends ChangeNotifier {
   bool invisible = true;
@@ -109,29 +111,37 @@ class AuthController extends ChangeNotifier {
       Map<String, dynamic> res = jsonDecode(responseLogin.body);
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('access_token', res['access_token']);
+      String? accessToken = prefs.getString('access_token').toString();
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+      print(decodedToken['role']);
       await prefs.setString('refresh_token', res['refresh_token']);
+      // ignore: use_build_context_synchronously
       final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
       shoppingCart.getBasket();
       // print(count);
       // await prefs.setString('basket_count', count.toString());
       notifyListeners();
-      Navigator.pushReplacement(
-        // ignore: use_build_context_synchronously
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ),
-      );
-      // Map<String, dynamic> res = jsonDecode(responseLogin.body);
-      // final SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (decodedToken['role'] == 'S') {
+        Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SellerHomePage(),
+          ),
+        );
+      }
+      if (decodedToken['role'] == 'PA') {
+        Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PharmaHomePage(),
+          ),
+        );
+      }
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
-      String? accessToken = prefs.getString('access_token').toString();
       print(accessToken);
-      // final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
-      // String? count = await shoppingCart.getBasket();
-      // print(count);
-      // await prefs.setString('basket_count', count.toString());
       notifyListeners();
     } else {
       showFailedMessage(message: 'Нууц үг буруу байна!', context: context);

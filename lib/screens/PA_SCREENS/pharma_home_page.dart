@@ -1,11 +1,9 @@
-
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/auth_controller.dart';
+import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/screens/home_page/tabs/home.dart';
-import 'package:pharmo_app/screens/home_page/tabs/suplist.dart';
-import 'package:pharmo_app/screens/order/seller_order_page.dart';
-import 'package:pharmo_app/screens/partners/partner_page.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/tabs/suplist.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/pharmacy_list.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -14,14 +12,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'tabs/search.dart';
 import 'package:badges/badges.dart' as badges;
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class PharmaHomePage extends StatefulWidget {
+  const PharmaHomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<PharmaHomePage> createState() => _PharmaHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _PharmaHomePageState extends State<PharmaHomePage> {
   final List _pages = [
     const Home(),
     const SearchScreen(),
@@ -30,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   ];
   late SharedPreferences prefs;
   int _selectedIndex = 0;
-  String _basketCount = '';
+  String basketCount = '';
 
   void _onItemTapped(int index) {
     setState(() {
@@ -48,8 +46,9 @@ class _HomePageState extends State<HomePage> {
   getData() async {
     try {
       prefs = await SharedPreferences.getInstance();
-      setState(() => _basketCount = prefs.getString('basket_count').toString());
-      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+      setState(() => basketCount = prefs.getString('basket_count').toString());
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
       basketProvider.getBasket();
       print('-------------->home_page ${basketProvider.count}');
     } catch (e) {
@@ -72,10 +71,13 @@ class _HomePageState extends State<HomePage> {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthController>(create: (context) => AuthController()),
-        ChangeNotifierProvider<BasketProvider>(create: (context) => BasketProvider()),
+        ChangeNotifierProvider<AuthController>(
+            create: (context) => AuthController()),
+        ChangeNotifierProvider<BasketProvider>(
+            create: (context) => BasketProvider()),
       ],
-      child: Consumer2<AuthController, BasketProvider>(builder: (context, authController, basketProvider, _) {
+      child: Consumer2<AuthController, BasketProvider>(
+          builder: (context, authController, basketProvider, _) {
         return SafeArea(
           child: Scaffold(
             drawer: Drawer(
@@ -111,7 +113,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Text(
                           'Имейл хаяг: supplier@gmail.com',
-                          style: TextStyle(color: Colors.white, fontSize: size.height * 0.01),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: size.height * 0.01),
                         ),
                       ],
                     ),
@@ -133,18 +137,18 @@ class _HomePageState extends State<HomePage> {
                   ListTile(
                     leading: const Icon(Icons.person),
                     title: const Text('Харилцагч'),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const PartnerPage()));
-                    },
+                    onTap: () {},
                   ),
                   ListTile(
                     leading: const Icon(Icons.people),
                     title: const Text('Нийлүүлэгч'),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const SupplierPage()));
                     },
                   ),
-                  
                   ListTile(
                     leading: const Icon(Icons.settings),
                     title: const Text('Тохиргоо'),
@@ -196,12 +200,16 @@ class _HomePageState extends State<HomePage> {
                   child: InkWell(
                     onTap: () {
                       print('odkooooooo');
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ShoppingCart()));
                     },
                     child: badges.Badge(
                       badgeContent: Text(
                         "${cartProvider.count}",
-                        style: const TextStyle(color: Colors.white, fontSize: 11),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 11),
                       ),
                       badgeStyle: const badges.BadgeStyle(
                         badgeColor: Colors.blue,

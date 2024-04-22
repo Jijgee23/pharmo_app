@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/branch.dart';
-import 'package:pharmo_app/screens/branch/brainch_detail.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/branch/brainch_detail.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;

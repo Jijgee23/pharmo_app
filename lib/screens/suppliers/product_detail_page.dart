@@ -3,7 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/screens/home_page/home_page.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -51,7 +51,7 @@ class _ProductDetailState extends State<ProductDetail> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const HomePage(),
+            builder: (context) => const PharmaHomePage(),
           ),
         );
       } else {
