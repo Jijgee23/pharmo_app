@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 class Basket {
   int id;
   String? name;
@@ -5,7 +7,7 @@ class Basket {
   String? totalPrice;
   int? totalCount;
   int? extra;
-  String? branch;
+  int? branch;
   Map<String,dynamic>? supplier;
   List<dynamic>? items;
 
