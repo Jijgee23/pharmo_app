@@ -26,9 +26,22 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                 RichText(
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  text: TextSpan(text: '', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                    TextSpan(text: '${widget.detail['product_name'].toString()}\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                  ]),
+                  text: TextSpan(
+                    text: '',
+                    style: TextStyle(
+                      color: Colors.blueGrey.shade800,
+                      fontSize: 13.0,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: '${widget.detail['product_name'].toString()}\n',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(
                   height: 10,
@@ -66,8 +79,10 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                   ),
                 ]),
               ],
-            )),
+            ),
+          ),
       );
-    });
+      },
+    );
   }
 }

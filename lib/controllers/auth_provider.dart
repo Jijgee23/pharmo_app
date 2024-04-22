@@ -122,22 +122,16 @@ class AuthController extends ChangeNotifier {
       // await prefs.setString('basket_count', count.toString());
       notifyListeners();
       if (decodedToken['role'] == 'S') {
-        Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          MaterialPageRoute(
-            builder: (context) => const SellerHomePage(),
-          ),
-        );
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const SellerHomePage()),
+            (route) => false);
       }
       if (decodedToken['role'] == 'PA') {
-        Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PharmaHomePage(),
-          ),
-        );
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const PharmaHomePage()),
+            (route) => false);
       }
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);

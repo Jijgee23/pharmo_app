@@ -34,7 +34,7 @@ class _PharmacyListState extends State<PharmacyList> {
       },
     );
     final res = jsonDecode(utf8.decode(response.bodyBytes));
-
+    print(res);
     if (response.statusCode == 200) {
       setState(() {
         _basketId = res['id'];
@@ -56,7 +56,6 @@ class _PharmacyListState extends State<PharmacyList> {
     if (response.statusCode == 200) {
       Map data = jsonDecode(utf8.decode(response.bodyBytes));
       List<dynamic> pharms = data['pharmacies'];
-      print(pharms[0]);
       for (int i = 0; i < pharms.length; i++) {
         setState(() {
           _pharmList.add(Pharm(pharms[i]['id'], pharms[i]['name']));
@@ -82,6 +81,7 @@ class _PharmacyListState extends State<PharmacyList> {
                   setState(() {
                     pharmId = _pharmList[index].id.toString();
                   });
+                  print(pharmId);
                   String? token = prefs.getString('access_token');
                   final response = await http.post(
                     Uri.parse('http://192.168.88.39:8000/api/v1/seller/order/'),
@@ -96,6 +96,7 @@ class _PharmacyListState extends State<PharmacyList> {
                       },
                     ),
                   );
+                  print(response.statusCode);
                   if (response.statusCode == 200) {
                     final data = jsonDecode(utf8.decode(response.bodyBytes));
                     Navigator.push(

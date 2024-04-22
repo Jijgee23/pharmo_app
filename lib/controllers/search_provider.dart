@@ -1,0 +1,158 @@
+import 'dart:convert';
+
+import 'package:pharmo_app/models/products.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+class SearchProvider {
+  static Future<List<dynamic>?> getProdList(
+    int page,
+    int limit,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      final response = await http.get(
+          Uri.parse(
+              'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          });
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
+        // print(prods[0].images?.first['url']);
+        print(res['results'][0]);
+        return prods;
+      }
+    } catch (e) {
+      print("Error $e");
+    }
+    return null;
+  }
+
+  static Future<List<dynamic>?> getProdListByName(
+    int page,
+    int limit,
+    String searchQuery,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      final response = await http.get(
+          Uri.parse(
+              'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          });
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
+        List<dynamic> filteredItems = [];
+        for (int i = 0; i < prods.length; i++) {
+          if (prods[i]
+              .name
+              .toString()
+              .toLowerCase()
+              .contains(searchQuery.toString().toLowerCase())) {
+            filteredItems.add(prods[i]);
+          }
+        }
+        return filteredItems;
+      }
+    } catch (e) {
+      print("Error $e");
+    }
+    return null;
+  }
+
+  static Future<List<dynamic>?> getProdListByIntName(
+    int page,
+    int limit,
+    String searchQuery,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      final response = await http.get(
+          Uri.parse(
+              'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          });
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
+        List<dynamic> filteredItems = [];
+        for (int i = 0; i < prods.length; i++) {
+          if (prods[i]
+              .intName
+              .toString()
+              .toLowerCase()
+              .contains(searchQuery.toString().toLowerCase())) {
+            filteredItems.add(prods[i]);
+          }
+        }
+        return filteredItems;
+      }
+    } catch (e) {
+      print("Error $e");
+    }
+    return null;
+  }
+
+  static Future<List<dynamic>?> getProdListByBarcode(
+    int page,
+    int limit,
+    String searchQuery,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      final response = await http.get(
+          Uri.parse(
+              'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          });
+      if (response.statusCode == 200) {
+        // Map res = jsonDecode(response.body);
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
+        List<dynamic> filteredItems = [];
+        for (int i = 0; i < prods.length; i++) {
+          if (prods[i]
+              .barcode
+              .toString()
+              .toLowerCase()
+              .contains(searchQuery.toString().toLowerCase())) {
+            print(prods[i].barcode);
+            filteredItems.add(prods[i]);
+            //  print(filteredItems.length);
+          }
+        }
+        return filteredItems;
+      }
+    } catch (e) {
+      print("Error $e");
+    }
+    return null;
+  }
+}

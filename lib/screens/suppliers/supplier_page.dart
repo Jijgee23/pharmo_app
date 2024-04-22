@@ -21,7 +21,7 @@ class SupplierPage extends StatefulWidget {
 
 class _SupplierPageState extends State<SupplierPage> {
   final List<Supplier> _supList = <Supplier>[];
-    final List _pages = [
+  final List pages = [
     const Home(),
     const SearchScreen(),
     const ShoppingCart(),
