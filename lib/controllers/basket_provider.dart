@@ -20,25 +20,104 @@ class BasketProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<dynamic> addBasket({int? product_id, int? qty}) async {
+  Future<dynamic> checkQTYs({int? product_id, int? itemname_id, int? qty}) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/basket_item/'),
+      String bearerToken = await getAccessToken();
+      Map<String, int?> bodyStr = {};
+      List<String> errorMessages = [];
+      if (_shoppingCarts.isNotEmpty) {
+        for (int i = 0; i < _shoppingCarts.length; i++) {
+          if (shoppingCarts[i]["product_itemname_id"] != null && shoppingCarts[i]["product_itemname_id"] > 0) {
+            bodyStr['${shoppingCarts[i]["product_itemname_id"]}'] = shoppingCarts[i]["qty"];
+          } else {
+            bodyStr['${shoppingCarts[i]["product_id"]}'] = shoppingCarts[i]["qty"];
+          }
+        }
+        final response = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/check_qty/'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': bearerToken,
+            },
+            body: jsonEncode({"data": bodyStr}));
+        if (response.statusCode == 200) {
+          Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+          for (String key in res.keys) {
+            dynamic cart = shoppingCarts.firstWhere((s) => s['product_itemname_id'].toString() == key);
+            if (res[key] == null) {
+              errorMessages.add(cart['product_name'] + ' бараа дууссан байна.');
+            } else if (res[key] == false) {
+              errorMessages.add(cart['product_name'] + ' барааны үлдэгдэл хүрэлцэхгүй байна.');
+            }
+          }
+          if (errorMessages.isNotEmpty) {
+            return {'errorType': 2, 'data': null, 'message': errorMessages.join("\n")};
+          } else {
+            return {'errorType': 1, 'data': res, 'message': ''};
+          }
+        }
+      }
+    } catch (e) {
+      return {'errorType': 3, 'data': e, 'message': e};
+    }
+  }
+
+  Future<dynamic> checkQTY({int? product_id, int? itemname_id, int? qty}) async {
+    try {
+      String bearerToken = await getAccessToken();
+      Map<String, int?> bodyStr;
+      String isProduct;
+      if (itemname_id != null && itemname_id > 0) {
+        bodyStr = {'$itemname_id': qty};
+        isProduct = itemname_id.toString();
+      } else {
+        bodyStr = {'$product_id': qty};
+        isProduct = product_id.toString();
+      }
+      final response = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/check_qty/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           },
-          body: jsonEncode({'product': product_id, 'qty': qty}));
-      if (response.statusCode == 201) {
-        return {'success': 'Сагсанд амжилттай нэмэгдлээ.'};
+          body: jsonEncode({"data": bodyStr}));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+        if (res[isProduct] == null) {
+          return {'errorType': 2, 'data': null, 'message': 'Бараа дууссан.'};
+        } else if (res[isProduct] == false) {
+          return {'errorType': 2, 'data': null, 'message': 'Барааны тоо хүрэхгүй байна.'};
+        } else {
+          return {'errorType': 1, 'data': res, 'message': ''};
+        }
       } else {
-        return {'fail': 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.'};
+        return {'errorType': 2, 'data': null, 'message': 'Барааны тоо хүрэхгүй байна.'};
+      }
+    } catch (e) {
+      return {'errorType': 3, 'data': e, 'message': e};
+    }
+  }
+
+  Future<dynamic> addBasket({int? product_id, int? itemname_id, int? qty}) async {
+    try {
+      Map check = await checkQTY(product_id: product_id, itemname_id: itemname_id, qty: qty);
+      if (check['errorType'] == 1) {
+        String bearerToken = await getAccessToken();
+        final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/basket_item/'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': bearerToken,
+            },
+            body: jsonEncode({'product': product_id, 'qty': qty}));
+        if (response.statusCode == 201) {
+          return {'errorType': 1, 'data': response, 'message': 'Сагсанд амжилттай нэмэгдлээ.'};
+        } else {
+          return {'errorType': 2, 'data': null, 'message': 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.'};
+        }
+      } else {
+        return {'errorType': 2, 'data': null, 'message': check['message']};
       }
     } catch (e) {
       print(e);
-      return {'fail': e};
+      return {'errorType': 3, 'data': e, 'message': ''};
     }
   }
 
@@ -91,6 +170,28 @@ class BasketProvider extends ChangeNotifier {
           body: jsonEncode({'basketId': basket_id}));
       notifyListeners();
       if (response.statusCode == 200) {
+        return {'errorType': 1, 'data': response, 'message': 'Сагсан дахь бараа амжилттай устлаа.'};
+      } else {
+        return {'errorType': 2, 'data': null, 'message': 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.'};
+      }
+    } catch (e) {
+      return {'fail': e};
+    }
+  }
+
+  Future<dynamic> doneBasket({int? basket_id}) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/clear_basket/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          },
+          body: jsonEncode({'basketId': basket_id}));
+      notifyListeners();
+      if (response.statusCode == 200) {
         return {'success': 'Сагсан дахь бараа амжилттай устлаа.'};
       } else {
         return {'fail': 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.'};
@@ -99,5 +200,34 @@ class BasketProvider extends ChangeNotifier {
       print(e);
       return {'fail': e};
     }
+  }
+
+  Future<dynamic> createOrder({required int basket_id, required int address, required String pay_type}) async {
+    try {
+      String bearerToken = await getAccessToken();
+      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/order/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          },
+          body: jsonEncode({'basket': basket_id, 'address': address, 'payType': pay_type}));
+      notifyListeners();
+      if (response.statusCode == 201) {
+        final res = jsonDecode(utf8.decode(response.bodyBytes));
+        return {'errorType': 1, 'data': res, 'message': 'Захиалга амжилттай үүслээ.'};
+      } else {
+        return {'errorType': 2, 'data': null, 'message': 'Захиалга үүсхэд алдаа гарлаа.'};
+      }
+    } catch (e) {
+      print(e);
+      return {'errorType': 3, 'data': e, 'message': e};
+    }
+  }
+
+  Future<String> getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("access_token");
+    String bearerToken = "Bearer $token";
+    return bearerToken;
   }
 }

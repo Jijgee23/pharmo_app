@@ -1,7 +1,6 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/screens/home_page/tabs/cart.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +25,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context);
-    // basketProvider.getBasket();
     final shoppingCartCC = context.watch<BasketProvider>().count;
 
     return ChangeNotifierProvider(
@@ -35,7 +33,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         iconTheme: const IconThemeData(color: AppColors.primary),
         centerTitle: true,
         title: Text(
-          basketProvider.count.toString() + ' ' + shoppingCartCC.toString(),
+          '${basketProvider.count} $shoppingCartCC',
           style: const TextStyle(fontSize: 16),
         ),
         actions: [

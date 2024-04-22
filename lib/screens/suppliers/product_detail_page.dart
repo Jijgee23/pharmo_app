@@ -5,7 +5,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/screens/home_page/home_page.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
-import 'package:pharmo_app/widgets/custom_button.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
@@ -44,10 +44,10 @@ class _ProductDetailState extends State<ProductDetail> {
         showFailedMessage(message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
         return;
       }
-      Map<String, String> res = await basketProvider.addBasket(product_id: widget.prod.id, qty: int.parse(qtyController.text));
-      if (res['success'] != null) {
+      Map<String, dynamic> res = await basketProvider.addBasket(product_id: widget.prod.id, itemname_id: widget.prod.itemname_id, qty: int.parse(qtyController.text));
+      if (res['errorType'] == 1) {
         basketProvider.getBasket();
-        showSuccessMessage(message: res['success'], context: context);
+        showSuccessMessage(message: res['message'], context: context);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -55,7 +55,7 @@ class _ProductDetailState extends State<ProductDetail> {
           ),
         );
       } else {
-        showFailedMessage(message: res['fail'], context: context);
+        showFailedMessage(message: res['message'], context: context);
       }
     } catch (e) {
       showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
@@ -71,7 +71,7 @@ class _ProductDetailState extends State<ProductDetail> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          // centerTitle: true,
+          centerTitle: true,
           title: const Text(
             'Барааны дэлгэрэнгүй',
             style: TextStyle(fontSize: 18),
@@ -157,7 +157,7 @@ class _ProductDetailState extends State<ProductDetail> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: size.width * 0.45,
+                        width: size.width * 0.4,
                         height: 50,
                         child: TextField(
                           controller: qtyController,
@@ -169,13 +169,30 @@ class _ProductDetailState extends State<ProductDetail> {
                         ),
                       ),
                       SizedBox(
-                        width: size.width * 0.4,
+                        width: size.width * 0.5,
                         height: 50,
-                        child: CustomButton(
-                            text: 'Сагсанд нэмэх',
-                            ontap: () async {
-                              addBasket();
-                            }),
+                        child:
+                            // CustomButton(
+                            //     text: 'Сагсанд нэмэх',
+                            //     ontap: () async {
+                            //       addBasket();
+                            //     }),
+                            OutlinedButton.icon(
+                          onPressed: () async {
+                            addBasket();
+                          },
+                          icon: const Icon(
+                            color: Colors.white,
+                            Icons.add,
+                          ),
+                          label: const Text(
+                            'Сагсанд нэмэх',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                          ),
+                        ),
                       ),
                     ],
                   ),

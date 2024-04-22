@@ -7,7 +7,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 
 class ShoppingCart extends StatelessWidget {
-  const ShoppingCart({Key? key}) : super(key: key);
+  const ShoppingCart({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +25,12 @@ class ShoppingCart extends StatelessWidget {
 
     final screenWidth = MediaQuery.of(context).size.width;
     const maxWidth = 850.0;
-
     return Scaffold(
         appBar: AppBar(
           iconTheme: const IconThemeData(color: AppColors.primary),
           centerTitle: true,
           title: const Text(
-            'Нүүр',
+            'Миний сагс',
             style: TextStyle(fontSize: 16),
           ),
           actions: [
@@ -167,7 +166,6 @@ class ShoppingCart extends StatelessWidget {
                                 },
                                 icon: const Icon(
                                   Icons.delete_forever,
-                                  size: 24.0,
                                 ),
                                 label: const Text('Сагс хоослох'),
                               ),
@@ -177,14 +175,14 @@ class ShoppingCart extends StatelessWidget {
                                 },
                                 icon: const Icon(
                                   Icons.paid_rounded,
-                                  size: 24.0,
+                                  color: Colors.white,
                                 ),
                                 label: const Text(
                                   'Төлбөр төлөх',
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
+                                  backgroundColor: AppColors.secondary,
                                 ),
                               ),
                             ],
