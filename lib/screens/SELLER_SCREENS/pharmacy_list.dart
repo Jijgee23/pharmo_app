@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/pharm.dart';
-import 'package:pharmo_app/screens/order/order_detail.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/order/order_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 

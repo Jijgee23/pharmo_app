@@ -1,6 +1,6 @@
 class Partner {
   final int id;
-  final PartnerInfo partner;
+  final PartnerDetails partnerDetails;
   final bool isBad;
   final int badCnt;
   final double debt;
@@ -8,7 +8,7 @@ class Partner {
 
   Partner({
     required this.id,
-    required this.partner,
+    required this.partnerDetails,
     required this.isBad,
     required this.badCnt,
     required this.debt,
@@ -18,7 +18,7 @@ class Partner {
   factory Partner.fromJson(Map<String, dynamic> json) {
     return Partner(
       id: json['id'],
-      partner: PartnerInfo.fromJson(json['partner']),
+      partnerDetails: PartnerDetails.fromJson(json['partner']),
       isBad: json['isBad'],
       badCnt: json['badCnt'],
       debt: json['debt'],
@@ -27,21 +27,21 @@ class Partner {
   }
 }
 
-class PartnerInfo {
+class PartnerDetails {
   final String name;
   final String rd;
-  final String email;
-  final String phone;
+  final String? email;
+  final String? phone;
 
-  PartnerInfo({
+  PartnerDetails({
     required this.name,
     required this.rd,
-    required this.email,
-    required this.phone,
+    this.email,
+    this.phone,
   });
 
-  factory PartnerInfo.fromJson(Map<String, dynamic> json) {
-    return PartnerInfo(
+  factory PartnerDetails.fromJson(Map<String, dynamic> json) {
+    return PartnerDetails(
       name: json['name'],
       rd: json['rd'],
       email: json['email'],

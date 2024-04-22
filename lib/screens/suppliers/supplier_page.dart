@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/controllers/auth_controller.dart';
+import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/screens/home_page/tabs/home.dart';
-import 'package:pharmo_app/screens/home_page/tabs/search.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/tabs/search.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
