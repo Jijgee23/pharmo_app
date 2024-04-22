@@ -68,14 +68,6 @@ class _PharmacyListState extends State<PharmacyList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Эмийн сангийн жагсаалт'),
-        centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        print('basket: $_basketId');
-        print('pId: $pharmId');
-      }),
       body: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         child: ListView.builder(

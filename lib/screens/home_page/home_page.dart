@@ -1,15 +1,20 @@
-import 'package:badges/badges.dart' as badges;
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_controller.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/home_page/tabs/home.dart';
+import 'package:pharmo_app/screens/home_page/tabs/suplist.dart';
+import 'package:pharmo_app/screens/order/seller_order_page.dart';
 import 'package:pharmo_app/screens/partners/partner_page.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 import 'tabs/search.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,8 +28,8 @@ class _HomePageState extends State<HomePage> {
   final List _pages = [
     const Home(),
     const SearchScreen(),
-    const ShoppingCart(),
-    const Home(),
+    const PharmacyList(),
+    const SuplierList(),
   ];
   late SharedPreferences prefs;
   int _selectedIndex = 0;
@@ -63,7 +68,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+<<<<<<< Updated upstream
     final cartProvider = Provider.of<BasketProvider>(context, listen: true);
+=======
+    //   final shoppingCartProvider = Provider.of<BasketProvider>(context, listen: false);
+>>>>>>> Stashed changes
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthController>(create: (context) => AuthController()),
@@ -138,6 +147,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
                     },
                   ),
+                  
                   ListTile(
                     leading: const Icon(Icons.settings),
                     title: const Text('Тохиргоо'),
@@ -153,6 +163,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+<<<<<<< Updated upstream
             appBar: AppBar(
               iconTheme: const IconThemeData(color: AppColors.primary),
               centerTitle: true,
@@ -230,6 +241,58 @@ class _HomePageState extends State<HomePage> {
                 // ),
               ],
             ),
+=======
+            // appBar: AppBar(
+            //   iconTheme: const IconThemeData(color: AppColors.primary),
+            //   centerTitle: true,
+            //   title: const Text(
+            //     'Хэрэглэгчийн байршил',
+            //     style: TextStyle(fontSize: 16),
+            //   ),
+            //   actions: [
+            //     IconButton(
+            //         icon: const Icon(
+            //           Icons.notifications,
+            //           color: AppColors.primary,
+            //         ),
+            //         onPressed: () {
+            //           showDialog(
+            //               context: context,
+            //               builder: ((context) {
+            //                 return AlertDialog(
+            //                   title: const Text('Захиалгууд'),
+            //                   content: const ShoppingCart(),
+            //                   actions: [
+            //                     TextButton(
+            //                       onPressed: () {
+            //                         Navigator.pop(context);
+            //                       },
+            //                       child: const Text('Хаах'),
+            //                     ),
+            //                   ],
+            //                 );
+            //               }));
+            //         }),
+            //     Container(
+            //       margin: const EdgeInsets.only(right: 15),
+            //       child: badges.Badge(
+            //         badgeContent: Text(
+            //           "$_basketCount ${shoppingCartProvider.count}",
+            //           style: const TextStyle(color: Colors.white, fontSize: 10),
+            //         ),
+            //         badgeStyle: const badges.BadgeStyle(
+            //           badgeColor: Colors.blue,
+            //         ),
+            //         child: const Icon(
+            //           Icons.shopping_basket,
+            //           color: Colors.red,
+            //         ),
+            //       ),
+            //     )
+            //   ],
+            // ),
+            appBar: const CustomAppBar(),
+>>>>>>> Stashed changes
             body: _pages[_selectedIndex],
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _selectedIndex,
@@ -244,8 +307,8 @@ class _HomePageState extends State<HomePage> {
                   label: 'Хайх',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.shop_2),
-                  label: 'Захиалга',
+                  icon: Icon(Icons.medical_information),
+                  label: 'Эмийн сан',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person_sharp),
@@ -300,7 +363,7 @@ void showLogoutDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return LogoutDialog();
+      return const LogoutDialog();
     },
   );
 }

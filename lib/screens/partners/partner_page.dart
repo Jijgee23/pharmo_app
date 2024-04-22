@@ -32,20 +32,26 @@ class _PartnerPageState extends State<PartnerPage> {
         },
       );
       if (response.statusCode == 200) {
+        print('status ok');
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> partners = res['partners'];
+        print(partners.length);
         _partnerList.clear();
         setState(() {
-          for (var partnerData in partners) {
-            var partnerInfo = PartnerInfo.fromJson(partnerData['partner']);
+          for (var i = 0; i < partners.length; i++) {
+            print(partners[i]['partner']['name']);
+            var partner = PartnerInfo(
+                name: partners[i]['partner']['name'],
+                rd: partners[i]['partner']['rd'],
+                email: partners[i]['partner']['email'],
+                phone: partners[i]['partner']['phone']);
             var model = Partner(
-              id: partnerData['id'],
-              partner: partnerInfo,
-              isBad: partnerData['isBad'],
-              badCnt: partnerData['badCnt'],
-              debt: partnerData['debt'],
-              debtLimit: partnerData['debtLimit'],
-            );
+                id: partners[i]['id'],
+                partner: partner,
+                isBad: partners[i]['isBad'],
+                badCnt: partners[i]['badCnt'],
+                debt: partners[i]['debt'],
+                debtLimit: partners[i]['debLimit']);
             _partnerList.add(model);
           }
         });
