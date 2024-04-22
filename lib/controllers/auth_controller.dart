@@ -122,20 +122,17 @@ class AuthController extends ChangeNotifier {
           builder: (context) => const HomePage(),
         ),
       );
-<<<<<<< Updated upstream
-=======
-      Map<String, dynamic> res = jsonDecode(responseLogin.body);
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      // Map<String, dynamic> res = jsonDecode(responseLogin.body);
+      // final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
       String? accessToken = prefs.getString('access_token').toString();
       print(accessToken);
-      final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
-      String? count = await shoppingCart.getBasket();
-      print(count);
-      await prefs.setString('basket_count', count.toString());
+      // final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
+      // String? count = await shoppingCart.getBasket();
+      // print(count);
+      // await prefs.setString('basket_count', count.toString());
       notifyListeners();
->>>>>>> Stashed changes
     } else {
       showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
     }
