@@ -63,13 +63,17 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
         return;
       }
       final basketProvider = Provider.of<BasketProvider>(context, listen: false);
-      basketProvider.checkQTYs();
-      dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, address: _selectedAddress, pay_type: _selectedRadioValue);
-      Order order = Order.fromJson(res['data']);
-      if (res['errorType'] == 1) {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(order: order)));
+      dynamic resCheck = await basketProvider.checkQTYs();
+      if (resCheck['errorType'] == 1) {
+        dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, address: _selectedAddress, pay_type: _selectedRadioValue);
+        Order order = Order.fromJson(res['data']);
+        if (res['errorType'] == 1) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(order: order)));
+        } else {
+          showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+        }
       } else {
-        showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+        showFailedMessage(message: resCheck['message'], context: context);
       }
     } catch (e) {
       showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
@@ -98,7 +102,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
               margin: const EdgeInsets.only(right: 15),
               child: InkWell(
                 onTap: () {
-                  print('odkooooooo');
+                  print('odko');
                 },
                 child: badges.Badge(
                   badgeContent: Text(

@@ -211,6 +211,13 @@ class BasketProvider extends ChangeNotifier {
             'Authorization': bearerToken,
           },
           body: jsonEncode({'basket': basket_id, 'address': address, 'payType': pay_type}));
+
+      final resQR = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/ci/'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
+      final res = jsonDecode(utf8.decode(resQR.bodyBytes));
+      print(res);
       notifyListeners();
       if (response.statusCode == 201) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
