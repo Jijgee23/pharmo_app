@@ -33,49 +33,31 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         iconTheme: const IconThemeData(color: AppColors.primary),
         centerTitle: true,
         title: Text(
-          '${basketProvider.count} $shoppingCartCC',
+          title,
           style: const TextStyle(fontSize: 16),
         ),
         actions: [
-          IconButton(
-              icon: const Icon(
-                Icons.notifications,
-                color: AppColors.primary,
-              ),
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: ((context) {
-                      return AlertDialog(
-                        title: const Text('Захиалгууд'),
-                        content: const ShoppingCart(),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Хаах'),
-                          ),
-                        ],
-                      );
-                    }));
-              }),
           Container(
             margin: const EdgeInsets.only(right: 15),
-            child: badges.Badge(
-              badgeContent: Text(
-                "${basketProvider.count} ${shoppingCartCC}",
-                style: const TextStyle(color: Colors.white, fontSize: 10),
-              ),
-              badgeStyle: const badges.BadgeStyle(
-                badgeColor: Colors.blue,
-              ),
-              child: const Icon(
-                Icons.shopping_basket,
-                color: Colors.red,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+              },
+              child: badges.Badge(
+                badgeContent: Text(
+                  "${basketProvider.count} ${shoppingCartCC}",
+                  style: const TextStyle(color: Colors.white, fontSize: 11),
+                ),
+                badgeStyle: const badges.BadgeStyle(
+                  badgeColor: Colors.blue,
+                ),
+                child: const Icon(
+                  Icons.shopping_basket,
+                  color: Colors.red,
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

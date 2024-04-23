@@ -13,7 +13,9 @@ class QRCode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: const CustomAppBar(),
+        appBar: const CustomAppBar(
+          title: 'Бэлнээр төлөх',
+        ),
         body: Consumer<BasketProvider>(
           builder: (context, provider, _) {
             return Container(
@@ -44,31 +46,31 @@ class QRCode extends StatelessWidget {
                       const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                         Text(
                           'Төлбөрийн хэлбэр : ',
-                          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
+                          style: TextStyle(fontSize: 15),
                         ),
                         Text(
                           'Бэлнээр',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
                         ),
                       ]),
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                         const Text(
                           'Нийт үнэ : ',
-                          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
+                          style: TextStyle(fontSize: 15),
                         ),
                         Text(
                           '${provider.qrCode.totalPrice} ₮',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.red),
                         ),
                       ]),
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                         const Text(
                           'Нийт тоо ширхэг: ',
-                          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
+                          style: TextStyle(fontSize: 15),
                         ),
                         Text(
                           provider.qrCode.totalCount.toString(),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
                         ),
                       ]),
                     ],
