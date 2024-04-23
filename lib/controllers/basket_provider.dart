@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/basket.dart';
+import 'package:pharmo_app/models/order_qrcode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BasketProvider extends ChangeNotifier {
@@ -14,6 +15,9 @@ class BasketProvider extends ChangeNotifier {
 
   List<dynamic> _shoppingCarts = [];
   List<dynamic> get shoppingCarts => [..._shoppingCarts];
+
+  late OrderQRCode _qrCode;
+  OrderQRCode get qrCode => _qrCode;
 
   void increment() {
     _count++;
@@ -179,28 +183,28 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> doneBasket({int? basket_id}) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/clear_basket/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
-          body: jsonEncode({'basketId': basket_id}));
-      notifyListeners();
-      if (response.statusCode == 200) {
-        return {'success': 'Сагсан дахь бараа амжилттай устлаа.'};
-      } else {
-        return {'fail': 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.'};
-      }
-    } catch (e) {
-      print(e);
-      return {'fail': e};
-    }
-  }
+  // Future<dynamic> doneBasket({int? basket_id}) async {
+  //   try {
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     String? token = prefs.getString("access_token");
+  //     String bearerToken = "Bearer $token";
+  //     final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/clear_basket/'),
+  //         headers: <String, String>{
+  //           'Content-Type': 'application/json; charset=UTF-8',
+  //           'Authorization': bearerToken,
+  //         },
+  //         body: jsonEncode({'basketId': basket_id}));
+  //     notifyListeners();
+  //     if (response.statusCode == 200) {
+  //       return {'success': 'Сагсан дахь бараа амжилттай устлаа.'};
+  //     } else {
+  //       return {'fail': 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.'};
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //     return {'fail': e};
+  //   }
+  // }
 
   Future<dynamic> createOrder({required int basket_id, required int address, required String pay_type}) async {
     try {
@@ -211,19 +215,57 @@ class BasketProvider extends ChangeNotifier {
             'Authorization': bearerToken,
           },
           body: jsonEncode({'basket': basket_id, 'address': address, 'payType': pay_type}));
-
-      final resQR = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/ci/'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      final res = jsonDecode(utf8.decode(resQR.bodyBytes));
-      print(res);
       notifyListeners();
       if (response.statusCode == 201) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         return {'errorType': 1, 'data': res, 'message': 'Захиалга амжилттай үүслээ.'};
       } else {
         return {'errorType': 2, 'data': null, 'message': 'Захиалга үүсхэд алдаа гарлаа.'};
+      }
+    } catch (e) {
+      print(e);
+      return {'errorType': 3, 'data': e, 'message': e};
+    }
+  }
+
+  Future<dynamic> createQR({required int basket_id, required int address, required String pay_type}) async {
+    try {
+      String bearerToken = await getAccessToken();
+      final resQR = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/ci/'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
+      notifyListeners();
+      if (resQR.statusCode == 200) {
+        final response = jsonDecode(utf8.decode(resQR.bodyBytes));
+        _qrCode = OrderQRCode.fromJson(response);
+        return {'errorType': 1, 'data': response, 'message': 'QR code амжилттай үүслээ.'};
+      } else {
+        return {'errorType': 2, 'data': null, 'message': 'QR code үүсхэд алдаа гарлаа.'};
+      }
+    } catch (e) {
+      print(e);
+      return {'errorType': 3, 'data': e, 'message': e};
+    }
+  }
+
+  Future<dynamic> checkPayment() async {
+    try {
+      String bearerToken = await getAccessToken();
+      final resQR = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/cp/'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
+      notifyListeners();
+      if (resQR.statusCode == 200) {
+        bool response = jsonDecode(utf8.decode(resQR.bodyBytes));
+        if (response) {
+          return {'errorType': 1, 'data': response, 'message': 'Төлбөр төлөгдсөн байна.'};
+        } else {
+          return {'errorType': 1, 'data': response, 'message': 'Төлбөр төлөгдөөгүй байна.!'};
+        }
+      } else {
+        return {'errorType': 2, 'data': null, 'message': 'QR code үүсхэд алдаа гарлаа.'};
       }
     } catch (e) {
       print(e);

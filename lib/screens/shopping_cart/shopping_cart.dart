@@ -89,7 +89,6 @@ class ShoppingCart extends StatelessWidget {
                 builder: (context, provider, _) {
                   final cartDatas = provider.shoppingCarts;
                   final basket = provider.basket;
-                  print(basket);
                   return Column(children: [
                     Expanded(
                       child: Column(

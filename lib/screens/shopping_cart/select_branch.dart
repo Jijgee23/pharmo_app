@@ -7,6 +7,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/order.dart';
 import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/screens/shopping_cart/order_done.dart';
+import 'package:pharmo_app/screens/shopping_cart/qr_code.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -65,12 +66,21 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
       final basketProvider = Provider.of<BasketProvider>(context, listen: false);
       dynamic resCheck = await basketProvider.checkQTYs();
       if (resCheck['errorType'] == 1) {
-        dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, address: _selectedAddress, pay_type: _selectedRadioValue);
-        Order order = Order.fromJson(res['data']);
-        if (res['errorType'] == 1) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(order: order)));
+        if (_selectedRadioValue == 'L') {
+          dynamic res = await basketProvider.createQR(basket_id: basketProvider.basket.id, address: _selectedAddress, pay_type: _selectedRadioValue);
+          if (res['errorType'] == 1) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const QRCode()));
+          } else {
+            showFailedMessage(message: res['message'], context: context);
+          }
         } else {
-          showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+          dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, address: _selectedAddress, pay_type: _selectedRadioValue);
+          Order order = Order.fromJson(res['data']);
+          if (res['errorType'] == 1) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(order: order)));
+          } else {
+            showFailedMessage(message: res['message'], context: context);
+          }
         }
       } else {
         showFailedMessage(message: resCheck['message'], context: context);
