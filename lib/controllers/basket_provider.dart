@@ -141,13 +141,11 @@ class BasketProvider extends ChangeNotifier {
         _count = _basket.items != null && _basket.items!.isNotEmpty ? _basket.items!.length : 0;
         _shoppingCarts = _basket.items!;
         notifyListeners();
-        // return (_basket.items != null && _basket.items!.isNotEmpty ? _basket.items?.length.toString() : '0');
       }
     } catch (e) {
       print(e);
+      notifyListeners();
     }
-    notifyListeners();
-    // return '0';
   }
 
   Future<String?> get getBasketCount async {
@@ -182,29 +180,6 @@ class BasketProvider extends ChangeNotifier {
       return {'fail': e};
     }
   }
-
-  // Future<dynamic> doneBasket({int? basket_id}) async {
-  //   try {
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     String? token = prefs.getString("access_token");
-  //     String bearerToken = "Bearer $token";
-  //     final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/clear_basket/'),
-  //         headers: <String, String>{
-  //           'Content-Type': 'application/json; charset=UTF-8',
-  //           'Authorization': bearerToken,
-  //         },
-  //         body: jsonEncode({'basketId': basket_id}));
-  //     notifyListeners();
-  //     if (response.statusCode == 200) {
-  //       return {'success': 'Сагсан дахь бараа амжилттай устлаа.'};
-  //     } else {
-  //       return {'fail': 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.'};
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //     return {'fail': e};
-  //   }
-  // }
 
   Future<dynamic> createOrder({required int basket_id, required int address, required String pay_type}) async {
     try {
