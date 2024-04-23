@@ -12,14 +12,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final int _pageSize = 20;
-  final PagingController<int, dynamic> _pagingController =
-      PagingController(firstPageKey: 1);
+  final PagingController<int, dynamic> _pagingController = PagingController(firstPageKey: 1);
   String type = 'нэрээр';
   String searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
+    _pagingController.addPageRequestListener(
+      (pageKey) {
         if (_searchController.text.isNotEmpty && type == 'нэрээр') {
           _fetchPageByName(pageKey, searchQuery);
         }
@@ -55,8 +55,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByName(
-          pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByName(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -69,8 +68,6 @@ class _HomeState extends State<Home> {
       _pagingController.error = error;
     }
   }
-
- 
 
   @override
   Widget build(BuildContext context) => RefreshIndicator(
@@ -155,8 +152,7 @@ class _HomeState extends State<Home> {
                         ),
                         TextButton(
                           onPressed: () {},
-                          child:
-                              const Text('Эрүүл мэндийн хэрэгсэл, төхөөрөмж'),
+                          child: const Text('Эрүүл мэндийн хэрэгсэл, төхөөрөмж'),
                         ),
                         TextButton(
                           onPressed: () {},
@@ -182,7 +178,6 @@ class _HomeState extends State<Home> {
                     animateTransitions: true,
                     itemBuilder: (_, item, index) => InkWell(
                       onTap: () {
-                        print("Container was tapped");
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -193,20 +188,15 @@ class _HomeState extends State<Home> {
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                         width: double.infinity,
                         child: Column(
                           children: [
                             Expanded(
                               child: SizedBox(
-                                child: (item.images != null &&
-                                        item.images.length > 0)
+                                child: (item.images != null && item.images.length > 0) ? Image.network(
                                     // ignore: prefer_interpolation_to_compose_strings
-                                    ? Image.network(
-                                        'http://192.168.88.39:8000' +
-                                            item.images?.first['url'])
-                                    : Image.asset('assets/no_image.jpg'),
+                                    'http://192.168.88.39:8000' + item.images?.first['url']) : Image.asset('assets/no_image.jpg'),
                               ),
                             ),
                             Text(
@@ -215,22 +205,16 @@ class _HomeState extends State<Home> {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(color: Colors.black),
                             ),
-                            Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    item.price + ' ₮',
-                                    style: const TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  Text(
-                                    item.modified_at,
-                                    style: const TextStyle(
-                                        fontSize: 11, color: Colors.grey),
-                                  ),
-                                ])
+                            Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                              Text(
+                                item.price + ' ₮',
+                                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                item.modified_at,
+                                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                              ),
+                            ])
                           ],
                         ),
                       ),
@@ -242,5 +226,4 @@ class _HomeState extends State<Home> {
           ),
         ),
       );
-  
 }

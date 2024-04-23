@@ -25,7 +25,6 @@ class OrderDone extends StatelessWidget {
               width: screenWidth <= maxWidth ? screenWidth : maxWidth,
               child: Consumer<BasketProvider>(
                 builder: (context, provider, _) {
-                  print(provider.basket);
                   return Stack(children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.center,

@@ -240,11 +240,22 @@ class BasketProvider extends ChangeNotifier {
         final response = jsonDecode(utf8.decode(resQR.bodyBytes));
         _qrCode = OrderQRCode.fromJson(response);
         return {'errorType': 1, 'data': response, 'message': 'QR code амжилттай үүслээ.'};
-      } else {
-        return {'errorType': 2, 'data': null, 'message': 'QR code үүсхэд алдаа гарлаа.'};
+      } else if (resQR.statusCode == 404) {
+        return {'errorType': 2, 'data': null, 'message': 'Нийлүүлэгч QPay холбоогүй байна.'};
+      } else if (resQR.statusCode == 400) {
+        if (resQR.body == 'qpay') {
+          return {'errorType': 2, 'data': null, 'message': 'Нийлүүлэгч QPay холбоогүй байна.'};
+        } else if (resQR.body == 'bad qpay') {
+          return {'errorType': 2, 'data': null, 'message': 'Нийлүүлэгчийн Qpay тохиргоо алдаатай.'};
+        } else if (resQR.body == 'min') {
+          return {'errorType': 2, 'data': null, 'message': 'Төлбөрийн дүн 10 төг буюу түүнээс дээш байх.'};
+        } else if (resQR.body == 'empty') {
+          return {'errorType': 2, 'data': null, 'message': 'Захиалганд бараа байхгүй буюу сагс хоосон.'};
+        }
+      } else if (resQR.statusCode == 500) {
+        return {'errorType': 2, 'data': null, 'message': 'Серверийн алдаа.'};
       }
     } catch (e) {
-      print(e);
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
