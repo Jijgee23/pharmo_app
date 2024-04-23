@@ -12,13 +12,12 @@ class ShoppingCartView extends StatefulWidget {
 }
 
 class _ShoppingCartViewState extends State<ShoppingCartView> {
-  void _showModal(detail) {}
-
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-      return Card(
-        child: Container(
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Card(
+          child: Container(
             margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +80,7 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
               ],
             ),
           ),
-      );
+        );
       },
     );
   }

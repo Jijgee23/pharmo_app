@@ -209,81 +209,75 @@ class _HomeState extends State<Home> {
                 ),
               ];
             },
-            body: Column(
-              children: [
-                Expanded(
-                  flex: 8,
-                  child: PagedGridView<int, dynamic>(
-                    showNewPageProgressIndicatorAsGridChild: false,
-                    showNewPageErrorIndicatorAsGridChild: false,
-                    showNoMoreItemsIndicatorAsGridChild: false,
-                    pagingController: _pagingController,
-                    physics: const BouncingScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                    ),
-                    builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                      animateTransitions: true,
-                      itemBuilder: (_, item, index) => InkWell(
-                        onTap: () {
-                          print("Container was tapped");
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProductDetail(
-                                prod: item,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 10),
-                          width: double.infinity,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  child: (item.images != null &&
-                                          item.images.length > 0)
-                                      // ignore: prefer_interpolation_to_compose_strings
-                                      ? Image.network(
-                                          'http://192.168.88.39:8000' +
-                                              item.images?.first['url'])
-                                      : Image.asset('assets/no_image.jpg'),
-                                ),
-                              ),
-                              Text(
-                                item.name,
-                                softWrap: true,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      item.price + ' ₮',
-                                      style: const TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    Text(
-                                      item.modified_at,
-                                      style: const TextStyle(
-                                          fontSize: 11, color: Colors.grey),
-                                    ),
-                                  ])
-                            ],
+            body: Expanded(
+              flex: 8,
+              child: PagedGridView<int, dynamic>(
+                showNewPageProgressIndicatorAsGridChild: false,
+                showNewPageErrorIndicatorAsGridChild: false,
+                showNoMoreItemsIndicatorAsGridChild: false,
+                pagingController: _pagingController,
+                physics: const BouncingScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                ),
+                builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                  animateTransitions: true,
+                  itemBuilder: (_, item, index) => InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetail(
+                            prod: item,
                           ),
                         ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              child: (item.images != null &&
+                                      item.images.length > 0)
+                                  ? Image.network(
+                                      // ignore: prefer_interpolation_to_compose_strings
+                                      'http://192.168.88.39:8000' +
+                                          item.images?.first['url'])
+                                  : Image.asset('assets/no_image.jpg'),
+                            ),
+                          ),
+                          Text(
+                            item.name,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  item.price + ' ₮',
+                                  style: const TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  item.modified_at,
+                                  style: const TextStyle(
+                                      fontSize: 11, color: Colors.grey),
+                                ),
+                              ])
+                        ],
                       ),
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
