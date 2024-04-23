@@ -77,7 +77,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
           dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, address: _selectedAddress, pay_type: _selectedRadioValue);
           Order order = Order.fromJson(res['data']);
           if (res['errorType'] == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(order: order)));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: order.orderNo.toString())));
           } else {
             showFailedMessage(message: res['message'], context: context);
           }

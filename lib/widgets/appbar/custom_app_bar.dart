@@ -25,7 +25,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context);
-    final shoppingCartCC = context.watch<BasketProvider>().count;
+    // final shoppingCartCC = context.watch<BasketProvider>().count;
 
     return ChangeNotifierProvider(
       create: (context) => BasketProvider(),
@@ -45,7 +45,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               },
               child: badges.Badge(
                 badgeContent: Text(
-                  "${basketProvider.count} ${shoppingCartCC}",
+                  "${basketProvider.count}",
                   style: const TextStyle(color: Colors.white, fontSize: 11),
                 ),
                 badgeStyle: const badges.BadgeStyle(

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/models/order.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 
 class OrderDone extends StatelessWidget {
-  final Order order;
-  const OrderDone({super.key, required this.order});
+  final String orderNo;
+  const OrderDone({super.key, required this.orderNo});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +16,9 @@ class OrderDone extends StatelessWidget {
     const maxWidth = 850.0;
 
     return Scaffold(
-        appBar: const CustomAppBar(),
+        appBar: const CustomAppBar(
+          title: 'Миний захиалга',
+        ),
         body: SizedBox(
             width: double.infinity,
             child: Center(
@@ -48,7 +49,7 @@ class OrderDone extends StatelessWidget {
                               'Таны захиалгы дугаар : ',
                             ),
                             Text(
-                              '${order.orderNo}',
+                              '$orderNo',
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ]),
@@ -58,11 +59,7 @@ class OrderDone extends StatelessWidget {
                           children: [
                             OutlinedButton.icon(
                               onPressed: () {
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => const PharmaHomePage()),
-                                    (route) => true);
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => true);
                                 provider.getBasket();
                               },
                               icon: const Icon(
