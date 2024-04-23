@@ -48,7 +48,7 @@ class QRCode extends StatelessWidget {
                         ),
                         Text(
                           'Бэлнээр',
-                          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                         ),
                       ]),
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -58,7 +58,7 @@ class QRCode extends StatelessWidget {
                         ),
                         Text(
                           '${provider.qrCode.totalPrice} ₮',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.red),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
                         ),
                       ]),
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -68,7 +68,7 @@ class QRCode extends StatelessWidget {
                         ),
                         Text(
                           provider.qrCode.totalCount.toString(),
-                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                         ),
                       ]),
                     ],
