@@ -33,30 +33,7 @@ class ShoppingCart extends StatelessWidget {
             'Миний сагс',
             style: TextStyle(fontSize: 16),
           ),
-          actions: [
-            IconButton(
-                icon: const Icon(
-                  Icons.notifications,
-                  color: AppColors.primary,
-                ),
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: ((context) {
-                        return AlertDialog(
-                          title: const Text('Захиалгууд'),
-                          content: const ShoppingCart(),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Хаах'),
-                            ),
-                          ],
-                        );
-                      }));
-                }),
+        actions: [
             Container(
               margin: const EdgeInsets.only(right: 15),
               child: InkWell(
@@ -189,9 +166,13 @@ class ShoppingCart extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ]);
+                  ],
+                );
                 },
               ),
-            ))));
+          ),
+        ),
+      ),
+    );
   }
 }

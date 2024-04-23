@@ -1,15 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/product_controller.dart';
-import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/suppliers/product_detail_page.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SupplierDetail extends StatefulWidget {
   final Supplier supp;
@@ -26,7 +21,6 @@ class _SupplierDetailState extends State<SupplierDetail> {
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = '';
   String type = 'нэрээр';
-  bool isHover = false;
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
@@ -55,7 +49,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPage(int pageKey, String searchQuery) async {
     try {
-      final newItems = await RemoteApi.getProdList(pageKey, _pageSize);
+      final newItems = await SearchProvider.getProdList(pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -141,19 +135,15 @@ class _SupplierDetailState extends State<SupplierDetail> {
               builderDelegate: PagedChildBuilderDelegate<dynamic>(
                 animateTransitions: true,
                 itemBuilder: (_, item, index) => InkWell(
-                  onHover: (val) {
-                    print(val);
-                    setState(() {
-                      isHover = val;
-                    });
-                  },
                   onTap: () {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => ProductDetail(
                                   prod: item,
-                                )));
+                        ),
+                      ),
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -197,7 +187,8 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await getProdListByName(pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByName(
+          pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -213,7 +204,8 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByBarcode(int pageKey, String searchQuery) async {
     try {
-      final newItems = await getProdListByBarcode(pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByBarcode(
+          pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -229,7 +221,8 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByIntName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await getProdListByIntName(pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByIntName(
+          pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -241,123 +234,5 @@ class _SupplierDetailState extends State<SupplierDetail> {
       print(_pagingController.error);
       _pagingController.error = error;
     }
-  }
-
-  static Future<List<dynamic>?> getProdListByName(
-    int page,
-    int limit,
-    String searchQuery,
-  ) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        List<dynamic> filteredItems = [];
-        for (int i = 0; i < prods.length; i++) {
-          if (prods[i].name.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
-            filteredItems.add(prods[i]);
-          }
-        }
-        return filteredItems;
-      }
-    } catch (e) {
-      print("Error $e");
-    }
-    return null;
-  }
-
-  static Future<List<dynamic>?> getProdListByIntName(
-    int page,
-    int limit,
-    String searchQuery,
-  ) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        List<dynamic> filteredItems = [];
-        for (int i = 0; i < prods.length; i++) {
-          if (prods[i].intName.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
-            filteredItems.add(prods[i]);
-          }
-        }
-        return filteredItems;
-      }
-    } catch (e) {
-      print("Error $e");
-    }
-    return null;
-  }
-
-  static Future<List<dynamic>?> getProdListByBarcode(
-    int page,
-    int limit,
-    String searchQuery,
-  ) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      if (response.statusCode == 200) {
-        // Map res = jsonDecode(response.body);
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        List<dynamic> filteredItems = [];
-        for (int i = 0; i < prods.length; i++) {
-          if (prods[i].barcode.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
-            print(prods[i].barcode);
-            filteredItems.add(prods[i]);
-            //  print(filteredItems.length);
-          }
-        }
-        return filteredItems;
-      }
-    } catch (e) {
-      print("Error $e");
-    }
-    return null;
-  }
-}
-
-class RemoteApi {
-  static Future<List<dynamic>?> getProdList(
-    int page,
-    int limit,
-  ) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        return prods;
-      }
-    } catch (e) {
-      showFailedMessage(context: null, message: "Алдаа гарлаа");
-    }
-    return null;
   }
 }

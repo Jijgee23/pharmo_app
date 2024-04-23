@@ -17,7 +17,7 @@ class OrderDone extends StatelessWidget {
     const maxWidth = 850.0;
 
     return Scaffold(
-        appBar: CustomAppBar(),
+        appBar: const CustomAppBar(),
         body: SizedBox(
             width: double.infinity,
             child: Center(
