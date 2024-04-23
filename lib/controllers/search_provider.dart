@@ -25,8 +25,6 @@ class SearchProvider {
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
-        // print(prods[0].images?.first['url']);
-        print(res['results'][0]);
         return prods;
       }
     } catch (e) {

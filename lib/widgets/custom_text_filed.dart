@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final TextInputType keyboardType;
-  final String hintText;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final String? hintText;
   final bool? obscureText;
   final IconData? suffixIcon;
 
@@ -12,10 +12,10 @@ class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
     required this.controller,
-    required this.hintText,
-    required this.obscureText,
-    required this.validator,
-    required this.keyboardType,
+    this.hintText,
+    this.obscureText,
+    this.validator,
+    this.keyboardType,
     this.suffixIcon,
   });
 

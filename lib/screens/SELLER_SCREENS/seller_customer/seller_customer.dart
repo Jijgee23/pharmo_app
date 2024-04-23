@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/partner.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer/seller_customer_detail.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,10 +16,20 @@ class SellerCustomerPage extends StatefulWidget {
 }
 
 class _SellerCustomerPageState extends State<SellerCustomerPage> {
-  final List<Partner> _partnerList = <Partner>[];
+  String email = '';
+  String role = '';
+  List<Partner> partnerList = <Partner>[];
+  List<Partner> filteredItems = <Partner>[];
+  List<Partner> _displayItems = <Partner>[];
+  String searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
     getPartners();
+    setState(() {
+      _displayItems = partnerList;
+    });
+    getUserInfo();
     super.initState();
   }
 
@@ -35,10 +47,10 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> partners = res['partners'];
-        _partnerList.clear();
+        partnerList.clear();
         setState(() {
           for (int i = 0; i < partners.length; i++) {
-            _partnerList.add(Partner.fromJson(partners[i]));
+            partnerList.add(Partner.fromJson(partners[i]));
           }
         });
       }
@@ -48,46 +60,163 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     }
   }
 
+  void searchCustomer(String searchQuery) {
+    filteredItems.clear();
+    setState(() {
+      searchQuery = _searchController.text;
+    });
+    for (int i = 0; i < partnerList.length; i++) {
+      if (searchQuery.isNotEmpty &&
+          partnerList[i]
+              .partnerDetails
+              .name
+              .toLowerCase()
+              .contains(searchQuery.toLowerCase())) {
+        filteredItems.add(
+          Partner(
+            id: partnerList[i].id,
+            partnerDetails: partnerList[i].partnerDetails,
+            isBad: partnerList[i].isBad,
+            badCnt: partnerList[i].badCnt,
+            debt: partnerList[i].debt,
+            debtLimit: partnerList[i].debtLimit,
+          ),
+        );
+        setState(() {
+          _displayItems = filteredItems;
+        });
+      }
+      if (searchQuery.isEmpty) {
+        setState(() {
+          _displayItems = partnerList;
+        });
+      }
+    }
+  }
+
+  void getUserInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? useremail = prefs.getString('useremail');
+    String? userRole = prefs.getString('userrole');
+
+    setState(() {
+      email = useremail.toString();
+      role = userRole.toString();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Харилцагч эмийн сангууд'),
+        title: CustomSearchBar(
+          searchController: _searchController,
+          title: 'Хайх',
+          onChanged: searchCustomer,
+        ),
       ),
-      body: _partnerList.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : Container(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-              child: ListView.builder(
-                itemCount: _partnerList.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PartnerDetail(
-                              partner: _partnerList[index],
-                            ),
-                          ),
-                        );
-                      },
-                      leading: const Icon(
-                        Icons.medical_services,
-                        color: AppColors.secondary,
-                      ),
-                      title: Text(
-                          _partnerList[index].partnerDetails.name.toString()),
-                      subtitle: Text(
-                          _partnerList[index].partnerDetails.email.toString()),
-                      trailing: Icon(Icons.chevron_right_rounded),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              padding: EdgeInsets.all(size.width * 0.05),
+              curve: Curves.easeInOut,
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Бүртгэл',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Container(
+                    width: size.width * 0.1,
+                    height: size.width * 0.1,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: Icon(
+                      Icons.person,
+                      color: AppColors.secondary,
+                      size: size.width * 0.1,
+                    ),
+                  ),
+                  Text(
+                    'Имейл хаяг: $email',
+                    style: TextStyle(
+                        color: Colors.white, fontSize: size.height * 0.015),
+                  ),
+                  Text(
+                    'Хэрэглэгчийн төрөл: $role',
+                    style: TextStyle(
+                        color: Colors.white, fontSize: size.height * 0.015),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_cart),
+              title: const Text('Захиалга'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Тохиргоо'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Гарах'),
+              onTap: () {
+                showLogoutDialog(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        child: ListView.builder(
+          itemCount: _displayItems.length,
+          itemBuilder: (context, index) {
+            return Card(
+              child: ListTile(
+                onTap: () async {
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  prefs.remove('selectedPartrner');
+                  prefs.setString(
+                      'selectedPartner', _displayItems[index].id.toString());
+                  final selectedCustomer = prefs.getString('selectedPartner');
+                  print('selectedCustomer $selectedCustomer');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const Home(),
                     ),
                   );
                 },
+                leading: const Icon(
+                  Icons.person,
+                  color: AppColors.secondary,
+                ),
+                title:
+                    Text(_displayItems[index].partnerDetails.name.toString()),
+                trailing: const Icon(Icons.chevron_right_rounded),
               ),
-            ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

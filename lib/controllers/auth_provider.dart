@@ -117,6 +117,8 @@ class AuthController extends ChangeNotifier {
       _userInfo = decodedToken;
       print(decodedToken['role']);
       await prefs.setString('refresh_token', res['refresh_token']);
+      await prefs.setString('useremail', decodedToken['email']);
+      await prefs.setString('userrole', decodedToken['role']);
       // ignore: use_build_context_synchronously
       final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
       shoppingCart.getBasket();
