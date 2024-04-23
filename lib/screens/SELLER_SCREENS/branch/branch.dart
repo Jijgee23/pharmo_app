@@ -59,6 +59,8 @@ class _CustomerBranchListState extends State<CustomerBranchList> {
                       },
                       body: jsonEncode(
                           {'customerId': suplierId, 'branchId': widget.id}));
+                  prefs.setString('suplierId', suplierId.toString());
+                  prefs.setString('branchId', widget.id.toString());
                   if (response.statusCode == 200) {
                     Map<dynamic, dynamic> res =
                         jsonDecode(utf8.decode(response.bodyBytes));
