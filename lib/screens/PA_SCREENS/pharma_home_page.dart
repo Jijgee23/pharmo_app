@@ -29,7 +29,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
   ];
   late SharedPreferences prefs;
   int _selectedIndex = 0;
-  String basketCount = '';
 
   void _onItemTapped(int index) {
     setState(() {
