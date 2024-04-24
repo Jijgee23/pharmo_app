@@ -147,7 +147,6 @@ class _SupplierDetailState extends State<SupplierDetail> {
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    // padding: EdgeInsets.only(top: (isHover) ? 25 : 30.0, bottom: !(isHover) ? 25 : 30),
                     width: double.infinity,
                     child: Column(
                       children: [

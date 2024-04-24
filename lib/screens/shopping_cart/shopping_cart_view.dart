@@ -77,13 +77,37 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    RichText(
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      text: TextSpan(text: 'Тоо ширхэг: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                        TextSpan(text: '${widget.detail['qty'].toString()}\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                      ]),
-                    ),
+                    Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start, children: [
+                      IconButton(
+                        iconSize: 22,
+                        color: Colors.black,
+                        icon: const Icon(
+                          Icons.remove,
+                        ),
+                        onPressed: () {
+                          selectedItem = widget.detail['id'];
+                          showAlertDialog();
+                        },
+                      ),
+                      RichText(
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        text: TextSpan(text: 'Тоо ширхэг: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                          TextSpan(text: '${widget.detail['qty'].toString()}\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                        ]),
+                      ),
+                      IconButton(
+                        iconSize: 22,
+                        color: Colors.black,
+                        icon: const Icon(
+                          Icons.add,
+                        ),
+                        onPressed: () {
+                          selectedItem = widget.detail['id'];
+                          showAlertDialog();
+                        },
+                      ),
+                    ]),
                     RichText(
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
