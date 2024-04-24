@@ -95,7 +95,8 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> login(String email, String password, BuildContext context) async {
+  Future<void> login(
+      String email, String password, BuildContext context) async {
     var responseLogin = await http.post(
       Uri.parse('http://192.168.88.39:8000/api/v1/auth/login/'),
       headers: <String, String>{
@@ -114,22 +115,27 @@ class AuthController extends ChangeNotifier {
       await prefs.setString('access_token', res['access_token']);
       String? accessToken = prefs.getString('access_token').toString();
       Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-      _userInfo = decodedToken;
-      print(decodedToken['role']);
+      print(decodedToken);
       await prefs.setString('refresh_token', res['refresh_token']);
       await prefs.setString('useremail', decodedToken['email']);
+      await prefs.setInt('user_id', decodedToken['user_id']);
       await prefs.setString('userrole', decodedToken['role']);
       // ignore: use_build_context_synchronously
       final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
       shoppingCart.getBasket();
-      // print(count);
       // await prefs.setString('basket_count', count.toString());
       notifyListeners();
       if (decodedToken['role'] == 'S') {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SellerHomePage()), (route) => false);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const SellerHomePage()),
+            (route) => false);
       }
       if (decodedToken['role'] == 'PA') {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => false);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const PharmaHomePage()),
+            (route) => false);
       }
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
@@ -162,9 +168,11 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signUpGetOtp(String email, String phone, String password, BuildContext context) async {
+  Future<void> signUpGetOtp(
+      String email, String phone, String password, BuildContext context) async {
     try {
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/auth/reg_otp/'),
+      final response = await http.post(
+          Uri.parse('http://192.168.88.39:8000/api/v1/auth/reg_otp/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -189,13 +197,20 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> register(String email, String phone, String password, String otp, BuildContext context) async {
+  Future<void> register(String email, String phone, String password, String otp,
+      BuildContext context) async {
     try {
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/auth/register/'),
+      final response = await http.post(
+          Uri.parse('http://192.168.88.39:8000/api/v1/auth/register/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
-          body: jsonEncode({'email': email, 'phone': phone, 'password': password, 'otp': otp}));
+          body: jsonEncode({
+            'email': email,
+            'phone': phone,
+            'password': password,
+            'otp': otp
+          }));
       notifyListeners();
       if (response.statusCode == 200) {
         Navigator.pushAndRemoveUntil(
@@ -260,7 +275,8 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createPassword(String email, String otp, String newPassword, BuildContext context) async {
+  Future<void> createPassword(String email, String otp, String newPassword,
+      BuildContext context) async {
     try {
       final response = await http.post(
         Uri.parse('http://192.168.88.39:8000/api/v1/auth/reset/'),

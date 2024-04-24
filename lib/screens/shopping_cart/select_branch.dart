@@ -4,6 +4,7 @@ import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/models/order.dart';
 import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/screens/shopping_cart/order_done.dart';
@@ -28,6 +29,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
   @override
   void initState() {
     getData();
+    getCustomerBranch();
     super.initState();
   }
 
@@ -52,7 +54,25 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
       showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }
   }
-
+void getCustomerBranch() async {
+    List<Branch> branchList = [];
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    String? customerId = prefs.getString('customerId');
+    final response = await http.post(
+        Uri.parse('http://192.168.88.39:8000/api/v1/seller/customer_branch/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'customerId': customerId}));
+    final res = jsonDecode(utf8.decode(response.bodyBytes));
+    for (int i = 0; i < res.length; i++) {
+      branchList.add(Branch.fromJson(res[i]));
+    }
+    print(res);
+    await prefs.setInt('branchId', res[0]['id']);
+  }
   createOrder() async {
     try {
       if (_selectedRadioValue == '') {

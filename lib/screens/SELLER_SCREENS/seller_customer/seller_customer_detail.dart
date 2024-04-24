@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/partner.dart';
+import 'package:pharmo_app/models/customer.dart';
 
 class PartnerDetail extends StatefulWidget {
-  final Partner partner;
+  final Customer customer;
   const PartnerDetail({
     super.key,
-    required this.partner,
+    required this.customer,
   });
 
   @override
@@ -31,19 +31,19 @@ class _PartnerDetailState extends State<PartnerDetail> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        'Харилцагчийн нэр: ${widget.partner.partnerDetails.name}'),
+                        'Харилцагчийн нэр: ${widget.customer.customer.name}'),
                     Text(
-                        'Харилцагчийн дугаар: ${widget.partner.partnerDetails.name}'),
+                        'Харилцагчийн дугаар: ${widget.customer.customer.name}'),
                     Text(
-                        'Харилцагчийн имейл: ${widget.partner.partnerDetails.email}'),
+                        'Харилцагчийн имейл: ${widget.customer.customer.email}'),
                     Text(
-                        'Харилцагчийн утас: ${widget.partner.partnerDetails.phone}'),
+                        'Харилцагчийн утас: ${widget.customer.customer.phone}'),
                     Text(
-                        'Найдвартай харилцагч эсэх: ${widget.partner.isBad ? "Тийм" : "Үгүй"}'),
+                        'Найдвартай харилцагч эсэх: ${widget.customer.isBad ? "Тийм" : "Үгүй"}'),
                     Text(
-                        'Найдвахгүй харилцагчаар тэмдэглэгсэн тоо: ${widget.partner.isBad}'),
-                    Text('Зээлийн үлдэгдэл: ${widget.partner.debt}'),
-                    Text('Зээлийн хязгаар: ${widget.partner.debtLimit}'),
+                        'Найдвахгүй харилцагчаар тэмдэглэгсэн тоо: ${widget.customer.isBad}'),
+                    Text('Зээлийн үлдэгдэл: ${widget.customer.debt}'),
+                    Text('Зээлийн хязгаар: ${widget.customer.debtLimit}'),
                   ],
                 ),
               ),

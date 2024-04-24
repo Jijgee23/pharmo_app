@@ -43,9 +43,11 @@ class _PharmacyListState extends State<PharmacyList> {
     );
     final res = jsonDecode(utf8.decode(response.bodyBytes));
     if (response.statusCode == 200) {
+      await prefs.setInt('basket_id', res['id']);
       setState(() {
         _basketId = res['id'];
       });
+      print(_basketId);
     }
   }
 
@@ -61,7 +63,6 @@ class _PharmacyListState extends State<PharmacyList> {
     );
     if (response.statusCode == 200) {
       Map data = jsonDecode(utf8.decode(response.bodyBytes));
-      print(data);
       List<dynamic> pharms = data['pharmacies'];
       for (int i = 0; i < pharms.length; i++) {
         setState(() {

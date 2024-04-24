@@ -6,8 +6,18 @@ import 'package:pharmo_app/screens/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 
-class ShoppingCart extends StatelessWidget {
+class ShoppingCart extends StatefulWidget {
   const ShoppingCart({super.key});
+
+  @override
+  State<ShoppingCart> createState() => _ShoppingCartState();
+}
+
+class _ShoppingCartState extends State<ShoppingCart> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +30,12 @@ class ShoppingCart extends StatelessWidget {
     }
 
     void purchase(int basketId) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const SelectBranchPage()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const SelectBranchPage()));
     }
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    const maxWidth = 850.0;
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: AppColors.primary),
@@ -36,7 +49,8 @@ class ShoppingCart extends StatelessWidget {
             margin: const EdgeInsets.only(right: 15),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const ShoppingCart()));
               },
               child: badges.Badge(
                 badgeContent: Text(
@@ -70,7 +84,8 @@ class ShoppingCart extends StatelessWidget {
                             child: ListView.builder(
                               itemCount: cartDatas.length,
                               itemBuilder: (context, index) {
-                                return ShoppingCartView(detail: cartDatas[index] ?? {});
+                                return ShoppingCartView(
+                                    detail: cartDatas[index] ?? {});
                               },
                             ),
                           )
@@ -86,7 +101,8 @@ class ShoppingCart extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   border: Border(
@@ -105,23 +121,43 @@ class ShoppingCart extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(text: 'Нийт тоо ширхэг: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                              TextSpan(text: '${basket.totalCount}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                            ]),
+                            text: TextSpan(
+                                text: 'Нийт тоо ширхэг: ',
+                                style: TextStyle(
+                                    color: Colors.blueGrey.shade800,
+                                    fontSize: 13.0),
+                                children: [
+                                  TextSpan(
+                                      text: '${basket.totalCount}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0)),
+                                ]),
                           ),
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(text: 'Нийт төлөх дүн: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                              TextSpan(text: '${basket.totalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
-                            ]),
+                            text: TextSpan(
+                                text: 'Нийт төлөх дүн: ',
+                                style: TextStyle(
+                                    color: Colors.blueGrey.shade800,
+                                    fontSize: 13.0),
+                                children: [
+                                  TextSpan(
+                                      text: '${basket.totalPrice} ₮',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0,
+                                          color: Colors.red)),
+                                ]),
                           ),
                         ],
                       ),
