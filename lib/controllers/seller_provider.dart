@@ -37,4 +37,5 @@ class SellerProvider extends ChangeNotifier {
       showFailedMessage(context: null, message: 'Алдаа гарлаа!');
     }
   }
+  getCustomerBranch() {}
 }

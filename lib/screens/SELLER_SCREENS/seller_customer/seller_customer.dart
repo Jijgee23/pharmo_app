@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/models/partner.dart';
+import 'package:pharmo_app/models/customer.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -18,25 +18,26 @@ class SellerCustomerPage extends StatefulWidget {
 class _SellerCustomerPageState extends State<SellerCustomerPage> {
   String email = '';
   String role = '';
-  List<Partner> partnerList = <Partner>[];
-  List<Partner> filteredItems = <Partner>[];
-  List<Partner> _displayItems = <Partner>[];
+  List<Customer> customerList = <Customer>[];
+  List<Customer> filteredItems = <Customer>[];
+  List<Customer> displayItems = <Customer>[];
   String searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
-    getPartners();
+    getCustomers();
     setState(() {
-      _displayItems = partnerList;
+      displayItems = customerList;
     });
     getUserInfo();
     super.initState();
   }
 
-  getPartners() async {
+  getCustomers() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
+      prefs.remove('customerId');
       final response = await http.get(
         Uri.parse('http://192.168.88.39:8000/api/v1/seller/customer_list/'),
         headers: <String, String>{
@@ -46,11 +47,11 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
       );
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<dynamic> partners = res['partners'];
-        partnerList.clear();
+        List<dynamic> customers = res['customers'];
+        customerList.clear();
         setState(() {
-          for (int i = 0; i < partners.length; i++) {
-            partnerList.add(Partner.fromJson(partners[i]));
+          for (int i = 0; i < customers.length; i++) {
+            customerList.add(Customer.fromJson((customers[i])));
           }
         });
       }
@@ -65,30 +66,29 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     setState(() {
       searchQuery = _searchController.text;
     });
-    for (int i = 0; i < partnerList.length; i++) {
+    for (int i = 0; i < customerList.length; i++) {
       if (searchQuery.isNotEmpty &&
-          partnerList[i]
-              .partnerDetails
+          customerList[i]
+              .customer
               .name
               .toLowerCase()
               .contains(searchQuery.toLowerCase())) {
         filteredItems.add(
-          Partner(
-            id: partnerList[i].id,
-            partnerDetails: partnerList[i].partnerDetails,
-            isBad: partnerList[i].isBad,
-            badCnt: partnerList[i].badCnt,
-            debt: partnerList[i].debt,
-            debtLimit: partnerList[i].debtLimit,
-          ),
+          Customer(
+              id: customerList[i].id,
+              customer: customerList[i].customer,
+              isBad: customerList[i].isBad,
+              badCnt: customerList[i].badCnt,
+              debt: customerList[i].debt,
+              debtLimit: customerList[i].debtLimit),
         );
         setState(() {
-          _displayItems = filteredItems;
+          displayItems = filteredItems;
         });
       }
       if (searchQuery.isEmpty) {
         setState(() {
-          _displayItems = partnerList;
+          displayItems = customerList;
         });
       }
     }
@@ -98,17 +98,18 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? useremail = prefs.getString('useremail');
     String? userRole = prefs.getString('userrole');
-
     setState(() {
       email = useremail.toString();
       role = userRole.toString();
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      
       appBar: AppBar(
         centerTitle: true,
         title: CustomSearchBar(
@@ -186,18 +187,17 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
       body: Container(
         padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         child: ListView.builder(
-          itemCount: _displayItems.length,
+          itemCount: displayItems.length,
           itemBuilder: (context, index) {
             return Card(
               child: ListTile(
                 onTap: () async {
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
-                  prefs.remove('selectedPartrner');
                   prefs.setString(
-                      'selectedPartner', _displayItems[index].id.toString());
-                  final selectedCustomer = prefs.getString('selectedPartner');
-                  print('selectedCustomer $selectedCustomer');
+                      'customerId', displayItems[index].customer.id.toString());
+                  String? customerId = prefs.getString('customerId');
+                  print(customerId);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -209,8 +209,7 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
                   Icons.person,
                   color: AppColors.secondary,
                 ),
-                title:
-                    Text(_displayItems[index].partnerDetails.name.toString()),
+                title: Text(displayItems[index].customer.name.toString()),
                 trailing: const Icon(Icons.chevron_right_rounded),
               ),
             );

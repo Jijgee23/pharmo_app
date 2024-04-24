@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/branch/branch.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/register_pharm/resgister_pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer/seller_customer.dart';
@@ -26,6 +27,10 @@ class _SellerHomePageState extends State<SellerHomePage> {
     const PharmacyList(),
     const RegisterPharm(),
     const ShoppingCart(),
+    const CustomerBranchList(
+      id: 52,
+      name: 'S',
+    ),
   ];
 
   @override
@@ -50,6 +55,8 @@ class _SellerHomePageState extends State<SellerHomePage> {
             BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Бүртгэл'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.shopping_cart), label: 'Захиалга'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_cart), label: 'Salbar'),
           ],
         ),
       ),

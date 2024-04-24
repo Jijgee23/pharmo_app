@@ -26,7 +26,66 @@ class _CustomerBranchListState extends State<CustomerBranchList> {
   @override
   void initState() {
     getSupId();
+    print(suplierId);
     super.initState();
+  }
+
+  getBranchId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('branchId');
+    String? token = prefs.getString("access_token");
+    String? customerId = prefs.getString('customerId');
+    print('customerId $customerId');
+    final response = await http.post(
+        Uri.parse('http://192.168.88.39:8000/api/v1/seller/customer_branch/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'customerId': customerId,
+        }));
+    print("st code ${response.statusCode}");
+    if (response.statusCode == 200) {
+      Map<dynamic, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+      print(res);
+    }
+    if (response.statusCode == 400) {
+      await prefs.setString('branchId', null.toString());
+      showFailedMessage(
+          context: context, message: '"Салбарын мэдээлэл олдсонгүй!"');
+    } else {
+      showFailedMessage(
+          context: context, message: 'Салбарын мэдээлэл татаж чадсангүй');
+    }
+  }
+
+  createSellerOrder() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      int? userId = prefs.getInt('user_id');
+      String? basketId = prefs.getString('basketId');
+      String? customerId = prefs.getString('customerId');
+      print('userId: $userId');
+      print('basketId $basketId');
+      print('customerId $customerId');
+      final response = await http.post(
+          Uri.parse('http://192.168.88.39:8000/api/v1/seller/order/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'user': userId,
+            'basket': basketId,
+            'address': null,
+          }));
+      print('corder stcode : ${response.statusCode}');
+    } catch (e) {
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа.', context: context);
+    }
   }
 
   String? suplierId = '';
@@ -39,6 +98,12 @@ class _CustomerBranchListState extends State<CustomerBranchList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          createSellerOrder();
+        },
+        child: Icon(Icons.add),
+      ),
       body: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         child: ListView.builder(
@@ -87,8 +152,8 @@ class _CustomerBranchListState extends State<CustomerBranchList> {
                         message: 'Салбарын мэдээлэл татаж чадсангүй');
                   }
                 },
-                title: Text('Салбарийн дугаар: ${widget.id}'),
-                subtitle: Text('Салбарийн нэр: ${widget.name}'),
+                title: Text('Салбарийн дугаар: '),
+                subtitle: Text('Салбарийн нэр:'),
               ),
             );
           },
