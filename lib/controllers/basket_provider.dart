@@ -259,6 +259,27 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
+  Future<dynamic> removeBasketItem({required int basket_id, required int item_id}) async {
+    try {
+      String bearerToken = await getAccessToken();
+      final resQR = await http.delete(Uri.parse('http://192.168.88.39:8000/api/v1/basket_item/$item_id/'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': bearerToken,
+      });
+      if (resQR.statusCode == 204) {
+        getBasket();
+        notifyListeners();
+        return {'errorType': 1, 'data': null, 'message': 'Сагснаас бараа амжилттай устгалаа.!'};
+      } else {
+        notifyListeners();
+        return {'errorType': 2, 'data': null, 'message': 'Сагснаас бараа устгах үед алдаа гарлаа.'};
+      }
+    } catch (e) {
+      print(e);
+      return {'errorType': 3, 'data': e, 'message': e};
+    }
+  }
+
   Future<String> getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
