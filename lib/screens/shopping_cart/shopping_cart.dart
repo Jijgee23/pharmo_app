@@ -11,7 +11,7 @@ class ShoppingCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    final basketProvider = Provider.of<BasketProvider>(context, listen: true);
 
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
@@ -23,8 +23,6 @@ class ShoppingCart extends StatelessWidget {
       Navigator.push(context, MaterialPageRoute(builder: (_) => const SelectBranchPage()));
     }
 
-    final screenWidth = MediaQuery.of(context).size.width;
-    const maxWidth = 850.0;
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: AppColors.primary),
