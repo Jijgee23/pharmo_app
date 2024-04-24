@@ -137,10 +137,10 @@ class _SupplierDetailState extends State<SupplierDetail> {
                 itemBuilder: (_, item, index) => InkWell(
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ProductDetail(
-                                  prod: item,
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetail(
+                          prod: item,
                         ),
                       ),
                     );
@@ -153,10 +153,8 @@ class _SupplierDetailState extends State<SupplierDetail> {
                       children: [
                         Expanded(
                           child: SizedBox(
-                            child: (item.images != null && item.images.length > 0)
-                                // ignore: prefer_interpolation_to_compose_strings
-                                ? Image.network('http://192.168.88.39:8000' + item.images?.first['url'])
-                                : Image.asset('assets/no_image.jpg'),
+                            // ignore: prefer_interpolation_to_compose_strings
+                            child: (item.images != null && item.images.length > 0) ? Image.network('http://192.168.88.39:8000' + item.images.first['url']) : Image.asset('assets/no_image.jpg'),
                           ),
                         ),
                         Text(
@@ -187,8 +185,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByName(
-          pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByName(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -204,8 +201,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByBarcode(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByBarcode(
-          pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByBarcode(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -221,8 +217,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByIntName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByIntName(
-          pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByIntName(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
