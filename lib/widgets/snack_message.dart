@@ -16,9 +16,12 @@ void showFailedMessage({String? message, BuildContext? context}) {
           const SizedBox(
             width: 10,
           ),
-          Text(
-            message!,
-            style: const TextStyle(color: Colors.white),
+          Expanded(
+            child: Text(
+              message!,
+              style: const TextStyle(color: Colors.white),
+              softWrap: true,
+            ),
           ),
         ]),
       ),
@@ -42,9 +45,12 @@ void showSuccessMessage({String? message, BuildContext? context}) {
           const SizedBox(
             width: 10,
           ),
-          Text(
-            message!,
-            style: const TextStyle(color: Colors.white),
+          Expanded(
+            child: Text(
+              message!,
+              style: const TextStyle(color: Colors.white),
+              softWrap: true,
+            ),
           ),
         ]),
       ),

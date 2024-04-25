@@ -1,17 +1,13 @@
-import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/tabs/suplist.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/pharmacy_list.dart';
-import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'tabs/search.dart';
 
 class PharmaHomePage extends StatefulWidget {
   const PharmaHomePage({super.key});
@@ -23,9 +19,9 @@ class PharmaHomePage extends StatefulWidget {
 class _PharmaHomePageState extends State<PharmaHomePage> {
   final List _pages = [
     const Home(),
-    const SearchScreen(),
-    const PharmacyList(),
-    const SuplierList(),
+    const ShoppingCartHome(),
+    // const PharmacyList(),
+    // const SuplierList(),
   ];
   late SharedPreferences prefs;
   int _selectedIndex = 0;
@@ -55,9 +51,8 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthController>(create: (context) => AuthController()),
-        ChangeNotifierProvider<BasketProvider>(create: (context) => BasketProvider()),
       ],
-      child: Consumer2<AuthController, BasketProvider>(builder: (context, authController, basketProvider, _) {
+      child: Consumer<AuthController>(builder: (context, authController, _) {
         return SafeArea(
           child: Scaffold(
             drawer: Drawer(
@@ -133,59 +128,62 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                 ],
               ),
             ),
-            appBar: AppBar(
-              iconTheme: const IconThemeData(color: AppColors.primary),
-              centerTitle: true,
-              title: const Text(
-                'Нүүр',
-                style: TextStyle(fontSize: 16),
-              ),
-              actions: [
-                IconButton(
-                    icon: const Icon(
-                      Icons.notifications,
-                      color: AppColors.primary,
-                    ),
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: ((context) {
-                            return AlertDialog(
-                              title: const Text('Захиалгууд'),
-                              content: const ShoppingCart(),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('Хаах'),
-                                ),
-                              ],
-                            );
-                          }));
-                    }),
-                Container(
-                  margin: const EdgeInsets.only(right: 15),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
-                    },
-                    child: badges.Badge(
-                      badgeContent: Text(
-                        "${cartProvider.count}",
-                        style: const TextStyle(color: Colors.white, fontSize: 11),
-                      ),
-                      badgeStyle: const badges.BadgeStyle(
-                        badgeColor: Colors.blue,
-                      ),
-                      child: const Icon(
-                        Icons.shopping_basket,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            // appBar: AppBar(
+            //   iconTheme: const IconThemeData(color: AppColors.primary),
+            //   centerTitle: true,
+            //   title: const Text(
+            //     'Нүүр',
+            //     style: TextStyle(fontSize: 16),
+            //   ),
+            //   actions: [
+            //     IconButton(
+            //         icon: const Icon(
+            //           Icons.notifications,
+            //           color: AppColors.primary,
+            //         ),
+            //         onPressed: () {
+            //           showDialog(
+            //               context: context,
+            //               builder: ((context) {
+            //                 return AlertDialog(
+            //                   title: const Text('Захиалгууд'),
+            //                   content: const ShoppingCart(),
+            //                   actions: [
+            //                     TextButton(
+            //                       onPressed: () {
+            //                         Navigator.pop(context);
+            //                       },
+            //                       child: const Text('Хаах'),
+            //                     ),
+            //                   ],
+            //                 );
+            //               }));
+            //         }),
+            //     Container(
+            //       margin: const EdgeInsets.only(right: 15),
+            //       child: InkWell(
+            //         onTap: () {
+            //           Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+            //         },
+            //         child: badges.Badge(
+            //           badgeContent: Text(
+            //             "${cartProvider.count}",
+            //             style: const TextStyle(color: Colors.white, fontSize: 11),
+            //           ),
+            //           badgeStyle: const badges.BadgeStyle(
+            //             badgeColor: Colors.blue,
+            //           ),
+            //           child: const Icon(
+            //             Icons.shopping_basket,
+            //             color: Colors.red,
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            appBar: const CustomAppBar(
+              title: 'Нүүр хуудас',
             ),
             body: _pages[_selectedIndex],
             bottomNavigationBar: BottomNavigationBar(
@@ -197,17 +195,17 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                   label: 'Нүүр',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.search),
-                  label: 'Хайх',
+                  icon: Icon(Icons.shopping_cart),
+                  label: 'Миний сагс',
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.medical_information),
-                  label: 'Эмийн сан',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_sharp),
-                  label: 'Бүртгэл',
-                ),
+                // BottomNavigationBarItem(
+                //   icon: Icon(Icons.medical_information),
+                //   label: 'Эмийн сан',
+                // ),
+                // BottomNavigationBarItem(
+                //   icon: Icon(Icons.person_sharp),
+                //   label: 'Бүртгэл',
+                // ),
               ],
               selectedItemColor: AppColors.secondary,
               unselectedItemColor: AppColors.primary,

@@ -24,7 +24,7 @@ class BasketProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<dynamic> checkQTYs({int? product_id, int? itemname_id, int? qty}) async {
+  Future<dynamic> checkQTYs() async {
     try {
       String bearerToken = await getAccessToken();
       Map<String, int?> bodyStr = {};
@@ -65,7 +65,7 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> checkQTY({int? product_id, int? itemname_id, int? qty}) async {
+  Future<dynamic> checkQTY({int? product_id, int? itemname_id, required int qty}) async {
     try {
       String bearerToken = await getAccessToken();
       Map<String, int?> bodyStr;
@@ -100,7 +100,7 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> addBasket({int? product_id, int? itemname_id, int? qty}) async {
+  Future<dynamic> addBasket({int? product_id, int? itemname_id, required int qty}) async {
     try {
       Map check = await checkQTY(product_id: product_id, itemname_id: itemname_id, qty: qty);
       if (check['errorType'] == 1) {
@@ -159,7 +159,7 @@ class BasketProvider extends ChangeNotifier {
     return '0';
   }
 
-  Future<dynamic> clearBasket({int? basket_id}) async {
+  Future<dynamic> clearBasket({required int basket_id}) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
@@ -193,6 +193,7 @@ class BasketProvider extends ChangeNotifier {
       notifyListeners();
       if (response.statusCode == 201) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
+        await clearBasket(basket_id: basket_id);
         return {'errorType': 1, 'data': res, 'message': 'Захиалга амжилттай үүслээ.'};
       } else {
         return {'errorType': 2, 'data': null, 'message': 'Захиалга үүсхэд алдаа гарлаа.'};
@@ -244,14 +245,11 @@ class BasketProvider extends ChangeNotifier {
       });
       notifyListeners();
       if (resQR.statusCode == 200) {
-        bool response = jsonDecode(utf8.decode(resQR.bodyBytes));
-        if (response) {
-          return {'errorType': 1, 'data': response, 'message': 'Төлбөр төлөгдсөн байна.'};
-        } else {
-          return {'errorType': 1, 'data': response, 'message': 'Төлбөр төлөгдөөгүй байна.!'};
-        }
+        dynamic response = jsonDecode(utf8.decode(resQR.bodyBytes));
+        await clearBasket(basket_id: basket.id);
+        return {'errorType': 1, 'data': response, 'message': 'Төлбөр амжилттай төлөгдсөн байна.'};
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'QR code үүсхэд алдаа гарлаа.'};
+        return {'errorType': 2, 'data': null, 'message': 'Төлбөр төлөх үед алдаа гарлаа.'};
       }
     } catch (e) {
       print(e);
@@ -273,6 +271,34 @@ class BasketProvider extends ChangeNotifier {
       } else {
         notifyListeners();
         return {'errorType': 2, 'data': null, 'message': 'Сагснаас бараа устгах үед алдаа гарлаа.'};
+      }
+    } catch (e) {
+      print(e);
+      return {'errorType': 3, 'data': e, 'message': e};
+    }
+  }
+
+  Future<dynamic> changeBasketItem({required String type, required int item_id, required int qty}) async {
+    try {
+      String bearerToken = await getAccessToken();
+      if (type == 'add') {
+        qty = qty + 1;
+      } else {
+        qty = qty - 1;
+      }
+      final resQR = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/basket_item/$item_id/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          },
+          body: jsonEncode({"qty": qty}));
+      if (resQR.statusCode == 200) {
+        getBasket();
+        notifyListeners();
+        return {'errorType': 1, 'data': null, 'message': 'Барааны тоог амжилттай өөрчиллөө.'};
+      } else {
+        notifyListeners();
+        return {'errorType': 2, 'data': null, 'message': 'Барааны тоог өөрчлөх үед алдаа гарлаа.'};
       }
     } catch (e) {
       print(e);

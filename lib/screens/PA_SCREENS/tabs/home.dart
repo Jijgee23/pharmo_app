@@ -14,8 +14,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final int _pageSize = 20;
-  final PagingController<int, dynamic> _pagingController =
-      PagingController(firstPageKey: 1);
+  final PagingController<int, dynamic> _pagingController = PagingController(firstPageKey: 1);
   String type = 'нэрээр';
   String searchQuery = '';
   bool isem = true;
@@ -63,8 +62,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByName(
-          pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByName(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -87,6 +85,7 @@ class _HomeState extends State<Home> {
       child: SafeArea(
         child: Scaffold(
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             title: Padding(
               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
               child: TextField(
@@ -144,8 +143,7 @@ class _HomeState extends State<Home> {
           ),
           resizeToAvoidBottomInset: false,
           body: NestedScrollView(
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
+            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
                 SliverPersistentHeader(
                   pinned: false,
@@ -232,20 +230,15 @@ class _HomeState extends State<Home> {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                     width: double.infinity,
                     child: Column(
                       children: [
                         Expanded(
                           child: SizedBox(
-                            child: (item.images != null &&
-                                    item.images.length > 0)
-                                ? Image.network(
-                                    // ignore: prefer_interpolation_to_compose_strings
-                                    'http://192.168.88.39:8000' +
-                                        item.images?.first['url'])
-                                : Image.asset('assets/no_image.jpg'),
+                            child: (item.images != null && item.images.length > 0) ? Image.network(
+                                // ignore: prefer_interpolation_to_compose_strings
+                                'http://192.168.88.39:8000' + item.images?.first['url']) : Image.asset('assets/no_image.jpg'),
                           ),
                         ),
                         Text(
@@ -254,22 +247,16 @@ class _HomeState extends State<Home> {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(color: Colors.black),
                         ),
-                        Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                item.price + ' ₮',
-                                style: const TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                item.modified_at,
-                                style: const TextStyle(
-                                    fontSize: 11, color: Colors.grey),
-                              ),
-                            ])
+                        Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                          Text(
+                            item.price + ' ₮',
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                          ),
+                          Text(
+                            item.modified_at,
+                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                          ),
+                        ])
                       ],
                     ),
                   ),
@@ -301,15 +288,12 @@ class StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxHeight;
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return SizedBox.expand(child: child);
   }
 
   @override
   bool shouldRebuild(covariant StickyHeaderDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
+    return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
 }

@@ -1,13 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:badges/badges.dart' as badges;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
@@ -68,48 +67,50 @@ class _ProductDetailState extends State<ProductDetail> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final basketProvider = Provider.of<BasketProvider>(context);
-    return ChangeNotifierProvider(
-      create: (context) => BasketProvider(),
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'Барааны дэлгэрэнгүй',
-            style: TextStyle(fontSize: 18),
-          ),
-          actions: [
-            IconButton(
-                icon: const Icon(
-                  Icons.notifications,
-                  color: Colors.blue,
-                ),
-                onPressed: () {}),
-            Container(
-              margin: const EdgeInsets.only(right: 15),
-              child: InkWell(
-                onTap: () {
-                  print('odkooooooo');
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
-                },
-                child: badges.Badge(
-                  badgeContent: Text(
-                    '${basketProvider.count}',
-                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                  badgeStyle: const badges.BadgeStyle(
-                    badgeColor: Colors.blue,
-                  ),
-                  child: const Icon(
-                    Icons.shopping_basket,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            )
-          ],
-        ),
-        body: Center(
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      // appBar: AppBar(
+      //   centerTitle: true,
+      //   title: const Text(
+      //     'Барааны дэлгэрэнгүй',
+      //     style: TextStyle(fontSize: 18),
+      //   ),
+      //   actions: [
+      //     IconButton(
+      //         icon: const Icon(
+      //           Icons.notifications,
+      //           color: Colors.blue,
+      //         ),
+      //         onPressed: () {}),
+      //     Container(
+      //       margin: const EdgeInsets.only(right: 15),
+      //       child: InkWell(
+      //         onTap: () {
+      //           Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+      //         },
+      //         child: badges.Badge(
+      //           badgeContent: Text(
+      //             '${basketProvider.count}',
+      //             style: const TextStyle(color: Colors.white, fontSize: 10),
+      //           ),
+      //           badgeStyle: const badges.BadgeStyle(
+      //             badgeColor: Colors.blue,
+      //           ),
+      //           child: const Icon(
+      //             Icons.shopping_basket,
+      //             color: Colors.red,
+      //           ),
+      //         ),
+      //       ),
+      //     )
+      //   ],
+      // ),
+      appBar: const CustomAppBar(
+        title: 'Барааны дэлгэрэнгүй',
+      ),
+      body: ChangeNotifierProvider(
+        create: (context) => BasketProvider(),
+        child: Center(
           child: Padding(
             padding: EdgeInsets.all(size.width * 0.05),
             child: Column(
@@ -143,7 +144,7 @@ class _ProductDetailState extends State<ProductDetail> {
                       ),
                       Text('Баркод: ${widget.prod.barcode}'),
                       Text('Үнэ: ${widget.prod.price}₮'),
-                      Text('Барааны дуусах хугацаа	:${widget.prod.expDate}'),
+                      Text('Барааны дуусах хугацаа: ${widget.prod.expDate}'),
                       Text('Бөөний үнэ: ${widget.prod.discount}'),
                       Text('Бөөний тоо: ${widget.prod.in_stock}'),
                       Text('Хямдрал: ${widget.prod.sale_price}'),
@@ -173,13 +174,7 @@ class _ProductDetailState extends State<ProductDetail> {
                       SizedBox(
                         width: size.width * 0.5,
                         height: 50,
-                        child:
-                            // CustomButton(
-                            //     text: 'Сагсанд нэмэх',
-                            //     ontap: () async {
-                            //       addBasket();
-                            //     }),
-                            OutlinedButton.icon(
+                        child: OutlinedButton.icon(
                           onPressed: () async {
                             addBasket();
                           },
@@ -192,7 +187,7 @@ class _ProductDetailState extends State<ProductDetail> {
                             style: TextStyle(color: Colors.white),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: AppColors.secondary,
                           ),
                         ),
                       ),

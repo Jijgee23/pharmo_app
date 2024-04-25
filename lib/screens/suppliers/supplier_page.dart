@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/search.dart';
-import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,8 +25,6 @@ class _SupplierPageState extends State<SupplierPage> {
   final List pages = [
     const Home(),
     const SearchScreen(),
-    const ShoppingCart(),
-    const Home(),
   ];
   int _selectedIndex = 0;
 
@@ -66,31 +65,45 @@ class _SupplierPageState extends State<SupplierPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AuthController(),
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'Нийлүүлэгч',
-            style: TextStyle(fontSize: 18),
-          ),
-          actions: [
-            IconButton(
-                icon: const Icon(
-                  Icons.notifications,
-                  color: Colors.blue,
-                ),
-                onPressed: () {}),
-            IconButton(
-                icon: const Icon(
-                  Icons.shopping_basket,
-                  color: Colors.red,
-                ),
-                onPressed: () {}),
-          ],
-        ),
-        body: Container(
+    final basketProvider = Provider.of<BasketProvider>(context, listen: true);
+    return Scaffold(
+      // appBar: AppBar(
+      //   iconTheme: const IconThemeData(color: AppColors.primary),
+      //   centerTitle: true,
+      //   title: const Text(
+      //     'Нийлүүлэгч',
+      //     style: TextStyle(fontSize: 16),
+      //   ),
+      //   actions: [
+      //     Container(
+      //       margin: const EdgeInsets.only(right: 15),
+      //       child: InkWell(
+      //         onTap: () {
+      //           Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+      //         },
+      //         child: badges.Badge(
+      //           badgeContent: Text(
+      //             "${basketProvider.count}",
+      //             style: const TextStyle(color: Colors.white, fontSize: 11),
+      //           ),
+      //           badgeStyle: const badges.BadgeStyle(
+      //             badgeColor: Colors.blue,
+      //           ),
+      //           child: const Icon(
+      //             Icons.shopping_basket,
+      //             color: Colors.red,
+      //           ),
+      //         ),
+      //       ),
+      //     ),
+      //   ],
+      // ),
+      appBar: const CustomAppBar(
+        title: 'Нийлүүлэгч',
+      ),
+      body: ChangeNotifierProvider(
+        create: (context) => AuthController(),
+        child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
           child: ListView.builder(
               itemCount: _supList.length,
@@ -130,30 +143,22 @@ class _SupplierPageState extends State<SupplierPage> {
                 );
               }),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Нүүр',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Хайх',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shop_2),
-              label: 'Захиалга',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_sharp),
-              label: 'Бүртгэл',
-            ),
-          ],
-          selectedItemColor: AppColors.secondary,
-          unselectedItemColor: AppColors.primary,
-        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Нүүр',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Миний сагс',
+          ),
+        ],
+        selectedItemColor: AppColors.secondary,
+        unselectedItemColor: AppColors.primary,
       ),
     );
   }

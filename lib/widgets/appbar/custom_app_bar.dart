@@ -30,6 +30,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return ChangeNotifierProvider(
       create: (context) => BasketProvider(),
       child: AppBar(
+        // backgroundColor: Colors.amber,
         iconTheme: const IconThemeData(color: AppColors.primary),
         centerTitle: true,
         title: Text(
@@ -37,11 +38,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           style: const TextStyle(fontSize: 16),
         ),
         actions: [
+          IconButton(
+              icon: const Icon(
+                Icons.notifications,
+                color: Colors.blue,
+              ),
+              onPressed: () {}),
           Container(
             margin: const EdgeInsets.only(right: 15),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
               },
               child: badges.Badge(
                 badgeContent: Text(
@@ -52,7 +59,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   badgeColor: Colors.blue,
                 ),
                 child: const Icon(
-                  Icons.shopping_basket,
+                  Icons.shopping_cart,
                   color: Colors.red,
                 ),
               ),

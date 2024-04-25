@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
+import 'package:pharmo_app/screens/shopping_cart/order_done.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -100,9 +101,9 @@ class QRCode extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: () async {
                         dynamic res = await provider.checkPayment();
-                        if (res['data'] == true) {
+                        if (res['errorType'] == 1) {
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: res['data']['orderNo'].toString())));
                           showSuccessMessage(message: res['message'], context: context);
-                          // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const OrderDone(orderNo: '')), (route) => true);
                         } else {
                           showFailedMessage(message: res['message'], context: context);
                         }
