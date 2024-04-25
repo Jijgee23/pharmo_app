@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/screens/DM_SCREENS/jagger_home_page.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
@@ -130,6 +131,9 @@ class AuthController extends ChangeNotifier {
       }
       if (decodedToken['role'] == 'PA') {
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => false);
+      }
+      if (decodedToken['role'] == 'D') {
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const JaggerHomePage()), (route) => false);
       }
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);

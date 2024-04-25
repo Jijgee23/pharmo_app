@@ -243,12 +243,13 @@ class BasketProvider extends ChangeNotifier {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
-      notifyListeners();
       if (resQR.statusCode == 200) {
         dynamic response = jsonDecode(utf8.decode(resQR.bodyBytes));
         await clearBasket(basket_id: basket.id);
+        notifyListeners();
         return {'errorType': 1, 'data': response, 'message': 'Төлбөр амжилттай төлөгдсөн байна.'};
       } else {
+        notifyListeners();
         return {'errorType': 2, 'data': null, 'message': 'Төлбөр төлөх үед алдаа гарлаа.'};
       }
     } catch (e) {

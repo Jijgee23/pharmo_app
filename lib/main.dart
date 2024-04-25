@@ -7,14 +7,15 @@ import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => AuthController()),
-      ChangeNotifierProvider(create: (_) => BasketProvider()),
-      ChangeNotifierProvider(create: (_) => ProductController()),
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthController()),
+        ChangeNotifierProvider(create: (_) => BasketProvider()),
+        ChangeNotifierProvider(create: (_) => ProductController()),
         ChangeNotifierProvider(create: (_) => SellerProvider()),
-    ],
-    child: const MyApp(),
+      ],
+      child: const MyApp(),
     ),
   );
 }
