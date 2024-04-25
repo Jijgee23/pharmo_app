@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/shopping_cart/select_branch.dart';
+import 'package:pharmo_app/screens/shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ShoppingCart extends StatefulWidget {
   const ShoppingCart({super.key});
@@ -15,9 +17,19 @@ class ShoppingCart extends StatefulWidget {
 }
 
 class _ShoppingCartState extends State<ShoppingCart> {
+  String? _userRole = '';
   @override
   void initState() {
+    getUser();
     super.initState();
+  }
+
+  void getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userRole = prefs.getString('userrole');
+    setState(() {
+      _userRole = userRole;
+    });
   }
 
   @override
@@ -27,14 +39,27 @@ class _ShoppingCartState extends State<ShoppingCart> {
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const PharmaHomePage()));
     }
 
     void purchase(int basketId) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const SelectBranchPage()));
+      if (_userRole == 'S') {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const SelectSellerBranchPage()));
+      } else {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const SelectBranchPage()));
+      }
     }
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          print(_userRole);
+        },
+        child: const Icon(Icons.home),
+      ),
       // appBar: AppBar(
       //   iconTheme: const IconThemeData(color: AppColors.primary),
       //   centerTitle: true,
@@ -84,7 +109,8 @@ class _ShoppingCartState extends State<ShoppingCart> {
                             child: ListView.builder(
                               itemCount: cartDatas.length,
                               itemBuilder: (context, index) {
-                                return ShoppingCartView(detail: cartDatas[index] ?? {});
+                                return ShoppingCartView(
+                                    detail: cartDatas[index] ?? {});
                               },
                             ),
                           )
@@ -100,7 +126,8 @@ class _ShoppingCartState extends State<ShoppingCart> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   border: Border(
@@ -119,23 +146,43 @@ class _ShoppingCartState extends State<ShoppingCart> {
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(text: 'Нийт тоо ширхэг: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                              TextSpan(text: '${basket.totalCount}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                            ]),
+                            text: TextSpan(
+                                text: 'Нийт тоо ширхэг: ',
+                                style: TextStyle(
+                                    color: Colors.blueGrey.shade800,
+                                    fontSize: 13.0),
+                                children: [
+                                  TextSpan(
+                                      text: '${basket.totalCount}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0)),
+                                ]),
                           ),
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(text: 'Нийт төлөх дүн: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                              TextSpan(text: '${basket.totalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
-                            ]),
+                            text: TextSpan(
+                                text: 'Нийт төлөх дүн: ',
+                                style: TextStyle(
+                                    color: Colors.blueGrey.shade800,
+                                    fontSize: 13.0),
+                                children: [
+                                  TextSpan(
+                                      text: '${basket.totalPrice} ₮',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0,
+                                          color: Colors.red)),
+                                ]),
                           ),
                         ],
                       ),

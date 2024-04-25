@@ -1,7 +1,7 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_select_branch.dart';
+import 'package:pharmo_app/screens/shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';

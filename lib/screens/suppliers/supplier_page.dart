@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/search.dart';
@@ -42,7 +41,6 @@ class _SupplierPageState extends State<SupplierPage> {
       if (response.statusCode == 200) {
         // Map res = json.decode(response.body);
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        print(res);
         setState(() {
           res.forEach((key, value) {
             var model = Supplier(key, value);
@@ -65,39 +63,7 @@ class _SupplierPageState extends State<SupplierPage> {
 
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context, listen: true);
     return Scaffold(
-      // appBar: AppBar(
-      //   iconTheme: const IconThemeData(color: AppColors.primary),
-      //   centerTitle: true,
-      //   title: const Text(
-      //     'Нийлүүлэгч',
-      //     style: TextStyle(fontSize: 16),
-      //   ),
-      //   actions: [
-      //     Container(
-      //       margin: const EdgeInsets.only(right: 15),
-      //       child: InkWell(
-      //         onTap: () {
-      //           Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
-      //         },
-      //         child: badges.Badge(
-      //           badgeContent: Text(
-      //             "${basketProvider.count}",
-      //             style: const TextStyle(color: Colors.white, fontSize: 11),
-      //           ),
-      //           badgeStyle: const badges.BadgeStyle(
-      //             badgeColor: Colors.blue,
-      //           ),
-      //           child: const Icon(
-      //             Icons.shopping_basket,
-      //             color: Colors.red,
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ],
-      // ),
       appBar: const CustomAppBar(
         title: 'Нийлүүлэгч',
       ),
