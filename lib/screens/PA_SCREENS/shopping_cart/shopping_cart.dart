@@ -1,21 +1,13 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-<<<<<<< Updated upstream
-=======
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_select_branch.dart';
->>>>>>> Stashed changes
 import 'package:pharmo_app/screens/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-<<<<<<< Updated upstream
-import '../../SELLER_SCREENS/select_seller_branch.dart';
-
-=======
->>>>>>> Stashed changes
 class ShoppingCart extends StatefulWidget {
   const ShoppingCart({super.key});
 
