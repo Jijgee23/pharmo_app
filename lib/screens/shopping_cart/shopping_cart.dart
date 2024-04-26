@@ -54,43 +54,6 @@ class _ShoppingCartState extends State<ShoppingCart> {
     }
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print(_userRole);
-        },
-        child: const Icon(Icons.home),
-      ),
-      // appBar: AppBar(
-      //   iconTheme: const IconThemeData(color: AppColors.primary),
-      //   centerTitle: true,
-      //   title: const Text(
-      //     'Миний сагс',
-      //     style: TextStyle(fontSize: 16),
-      //   ),
-      //   actions: [
-      //     Container(
-      //       margin: const EdgeInsets.only(right: 15),
-      //       child: InkWell(
-      //         onTap: () {
-      //           Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
-      //         },
-      //         child: badges.Badge(
-      //           badgeContent: Text(
-      //             "${basketProvider.count}",
-      //             style: const TextStyle(color: Colors.white, fontSize: 11),
-      //           ),
-      //           badgeStyle: const badges.BadgeStyle(
-      //             badgeColor: Colors.blue,
-      //           ),
-      //           child: const Icon(
-      //             Icons.shopping_basket,
-      //             color: Colors.red,
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ],
-      // ),
       appBar: const CustomAppBar(
         title: 'Миний сагс',
       ),
@@ -202,6 +165,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
                         OutlinedButton.icon(
                           onPressed: () {
                             purchase(basket.id);
+                            
                           },
                           icon: const Icon(
                             Icons.paid_rounded,

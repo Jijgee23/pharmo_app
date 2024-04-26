@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/customer.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -104,88 +103,15 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
-      
       appBar: AppBar(
         centerTitle: true,
         title: CustomSearchBar(
           searchController: _searchController,
           title: 'Хайх',
           onChanged: searchCustomer,
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              padding: EdgeInsets.all(size.width * 0.05),
-              curve: Curves.easeInOut,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Бүртгэл',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Container(
-                    width: size.width * 0.1,
-                    height: size.width * 0.1,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      color: AppColors.secondary,
-                      size: size.width * 0.1,
-                    ),
-                  ),
-                  Text(
-                    'Имейл хаяг: $email',
-                    style: TextStyle(
-                        color: Colors.white, fontSize: size.height * 0.015),
-                  ),
-                  Text(
-                    'Хэрэглэгчийн төрөл: $role',
-                    style: TextStyle(
-                        color: Colors.white, fontSize: size.height * 0.015),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.shopping_cart),
-              title: const Text('Захиалга'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Тохиргоо'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Захиалгууд'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Гарах'),
-              onTap: () {
-                showLogoutDialog(context);
-              },
-            ),
-          ],
         ),
       ),
       resizeToAvoidBottomInset: false,
@@ -206,7 +132,7 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const Home(),
+                      builder: (_) => const SellerHomePage(),
                     ),
                   );
                 },

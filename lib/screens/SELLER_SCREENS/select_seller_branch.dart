@@ -184,50 +184,6 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                     );
                   }),
             ),
-            Card(
-              child: Container(
-                margin: const EdgeInsets.only(left: 15, right: 15, top: 15),
-                child: Column(children: [
-                  const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('Төлбөрийн хэлбэр сонгоно уу : ')),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Radio(
-                        value: 'L',
-                        groupValue: _selectedRadioValue,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _selectedRadioValue = value!;
-                          });
-                        },
-                      ),
-                      const Text(
-                        'Бэлнээр',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      Radio(
-                        value: 'C',
-                        groupValue: _selectedRadioValue,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _selectedRadioValue = value!;
-                          });
-                        },
-                      ),
-                      const Text(
-                        'Зээлээр',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                    ],
-                  ),
-                ]),
-              ),
-            ),
             Row(mainAxisAlignment: MainAxisAlignment.end, children: [
               OutlinedButton.icon(
                 onPressed: () {

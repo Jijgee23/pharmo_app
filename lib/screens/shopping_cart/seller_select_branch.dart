@@ -17,10 +17,9 @@ class SelectSellerBranchPage extends StatefulWidget {
 
 class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   List<Branch> sellerBranchList = <Branch>[];
-  String _selectedRadioValue = '';
   int _selectedIndex = -1;
   int _selectedAddress = 0;
-  String? _basketId = '';
+  int _basketId = 0;
   String? customerID = '';
 
   @override
@@ -44,7 +43,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
     final res = jsonDecode(utf8.decode(response.bodyBytes));
     if (response.statusCode == 200) {
       setState(() {
-        _basketId = res['id'].toString();
+        _basketId = res['id'];
       });
     }
   }
@@ -106,7 +105,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
             message: 'Захиалга амжилттай  үүслээ.', context: context);
       } else {
         showFailedMessage(
-            message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
+            message: 'Сагсаа шалгана уу', context: context);
       }
     } catch (e) {
       showFailedMessage(
@@ -116,10 +115,10 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final basketProvider = Provider.of<BasketProvider>(context);
     return ChangeNotifierProvider(
       create: (context) => BasketProvider(),
       child: Scaffold(
-        floatingActionButton: FloatingActionButton(onPressed: () {}),
         appBar: const CustomAppBar(
           title: 'Төлбөрийн хэлбэр',
         ),
@@ -152,50 +151,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                 },
               ),
             ),
-            Card(
-              child: Container(
-                margin: const EdgeInsets.only(left: 15, right: 15, top: 15),
-                child: Column(children: [
-                  const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('Төлбөрийн хэлбэр сонгоно уу : ')),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Radio(
-                        value: 'L',
-                        groupValue: _selectedRadioValue,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _selectedRadioValue = value!;
-                          });
-                        },
-                      ),
-                      const Text(
-                        'Бэлнээр',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      Radio(
-                        value: 'C',
-                        groupValue: _selectedRadioValue,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _selectedRadioValue = value!;
-                          });
-                        },
-                      ),
-                      const Text(
-                        'Зээлээр',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                    ],
-                  ),
-                ]),
-              ),
-            ),
+            
             Row(mainAxisAlignment: MainAxisAlignment.end, children: [
               OutlinedButton.icon(
                 onPressed: () {
@@ -204,6 +160,9 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                         message: 'Салбар сонгоно уу.', context: context);
                   } else {
                     createSellerOrder();
+                    setState(() {
+                      basketProvider.clearBasket(basket_id: _basketId);
+                    });
                   }
                 },
                 icon: const Icon(

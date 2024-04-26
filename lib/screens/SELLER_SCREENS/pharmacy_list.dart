@@ -98,22 +98,19 @@ class _PharmacyListState extends State<PharmacyList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Column(
-      children: [
-        Expanded(
-          flex: 1,
-          child: Visibility(
-            visible: true,
-            child: CustomSearchBar(
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: CustomSearchBar(
               searchController: _searchController,
               title: 'Хайх',
-              onChanged: searchPharmacy,
-            ),
+            onChanged: searchPharmacy,
           ),
         ),
+        body: Column(
+          children: [
         Expanded(
-          flex: 9,
+              flex: 9,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
             child: ListView.builder(
@@ -173,7 +170,9 @@ class _PharmacyListState extends State<PharmacyList> {
             ),
           ),
         ),
-      ],
-    ));
+          ],
+        ),
+      ),
+    );
   }
 }
