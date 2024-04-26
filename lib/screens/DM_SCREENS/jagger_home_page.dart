@@ -136,7 +136,7 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home),
-                  label: 'Нүүр',
+                  label: 'Түгээлт',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.shopping_cart),
