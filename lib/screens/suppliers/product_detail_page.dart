@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductDetail extends StatefulWidget {
   final Product prod;
@@ -21,16 +23,27 @@ class ProductDetail extends StatefulWidget {
 
 class _ProductDetailState extends State<ProductDetail> {
   List<Widget> carouselItems = [
-    Image.network('https://12bb6ecf-bda5-4c99-816b-12bda79f6bd9.selcdn.net/upload//Photo_Tovar/396999_2_1687352103.jpeg'),
+    Image.network(
+        'https://12bb6ecf-bda5-4c99-816b-12bda79f6bd9.selcdn.net/upload//Photo_Tovar/396999_2_1687352103.jpeg'),
     Image.network('https://iskamed.by/wp-content/uploads/1433.jpg'),
-    Image.network('https://612611.selcdn.ru/prod-s3/resize_cache/1583648/8d98eab21f83652e055a2f8c91f3543a/iblock/2dd/2dddefb762666acf79f34cdeb455be4b/617f02e7aaece58849e3acf3e5651c89.png'),
+    Image.network(
+        'https://612611.selcdn.ru/prod-s3/resize_cache/1583648/8d98eab21f83652e055a2f8c91f3543a/iblock/2dd/2dddefb762666acf79f34cdeb455be4b/617f02e7aaece58849e3acf3e5651c89.png'),
   ];
   TextEditingController qtyController = TextEditingController();
-
+  String? _userRole = '';
   @override
   void initState() {
-    // TODO: implement initState
+    getUser();
     super.initState();
+  }
+
+  void getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userRole = prefs.getString('userrole');
+    setState(() {
+      _userRole = userRole;
+    });
+    print(_userRole);
   }
 
   @override
@@ -40,26 +53,42 @@ class _ProductDetailState extends State<ProductDetail> {
 
   void addBasket() async {
     try {
-      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
       if (qtyController.text.isEmpty || int.parse(qtyController.text) <= 0) {
-        showFailedMessage(message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
+        showFailedMessage(
+            message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
         return;
       }
-      Map<String, dynamic> res = await basketProvider.addBasket(product_id: widget.prod.id, itemname_id: widget.prod.itemname_id, qty: int.parse(qtyController.text));
+      Map<String, dynamic> res = await basketProvider.addBasket(
+          product_id: widget.prod.id,
+          itemname_id: widget.prod.itemname_id,
+          qty: int.parse(qtyController.text));
       if (res['errorType'] == 1) {
         basketProvider.getBasket();
         showSuccessMessage(message: res['message'], context: context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PharmaHomePage(),
-          ),
-        );
+        if (_userRole == 'S') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Home(),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const PharmaHomePage(),
+            ),
+          );
+        }
       } else {
         showFailedMessage(message: res['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          context: context);
     }
   }
 
@@ -121,9 +150,11 @@ class _ProductDetailState extends State<ProductDetail> {
                   child: CarouselSlider(
                     items: carouselItems,
                     options: CarouselOptions(
-                      height: size.height * 0.2, // Customize the height of the carousel
+                      height: size.height *
+                          0.2, // Customize the height of the carousel
                       autoPlay: true, // Enable auto-play
-                      enlargeCenterPage: true, // Increase the size of the center item
+                      enlargeCenterPage:
+                          true, // Increase the size of the center item
                       enableInfiniteScroll: true, // Enable infinite scroll
                       onPageChanged: (index, reason) {
                         // Optional callback when the page changes

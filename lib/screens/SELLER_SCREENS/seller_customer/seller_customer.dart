@@ -174,6 +174,11 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
               onTap: () {},
             ),
             ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Захиалгууд'),
+              onTap: () {},
+            ),
+            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Гарах'),
               onTap: () {

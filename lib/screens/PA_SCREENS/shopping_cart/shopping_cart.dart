@@ -1,11 +1,10 @@
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/seller_select_branch.dart';
+import 'package:pharmo_app/screens/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,14 +16,14 @@ class ShoppingCart extends StatefulWidget {
 }
 
 class _ShoppingCartState extends State<ShoppingCart> {
-  String? _userRole = '';
+  String? _userRole;
   @override
   void initState() {
     getUser();
     super.initState();
   }
 
-  void getUser() async {
+  getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userRole = prefs.getString('userrole');
     setState(() {
@@ -39,8 +38,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
-      Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const PharmaHomePage()));
+      Navigator.pop(context);
     }
 
     void purchase(int basketId) {
@@ -53,46 +51,37 @@ class _ShoppingCartState extends State<ShoppingCart> {
       }
     }
 
+    // final screenWidth = MediaQuery.of(context).size.width;
+    // const maxWidth = 850.0;
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print(_userRole);
-        },
-        child: const Icon(Icons.home),
-      ),
-      // appBar: AppBar(
-      //   iconTheme: const IconThemeData(color: AppColors.primary),
-      //   centerTitle: true,
-      //   title: const Text(
-      //     'Миний сагс',
-      //     style: TextStyle(fontSize: 16),
-      //   ),
-      //   actions: [
-      //     Container(
-      //       margin: const EdgeInsets.only(right: 15),
-      //       child: InkWell(
-      //         onTap: () {
-      //           Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
-      //         },
-      //         child: badges.Badge(
-      //           badgeContent: Text(
-      //             "${basketProvider.count}",
-      //             style: const TextStyle(color: Colors.white, fontSize: 11),
-      //           ),
-      //           badgeStyle: const badges.BadgeStyle(
-      //             badgeColor: Colors.blue,
-      //           ),
-      //           child: const Icon(
-      //             Icons.shopping_basket,
-      //             color: Colors.red,
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ],
-      // ),
-      appBar: const CustomAppBar(
-        title: 'Миний сагс',
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: AppColors.primary),
+        centerTitle: true,
+        title: const Text(
+          'Миний сагс',
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 15),
+            child: InkWell(
+              onTap: () {},
+              child: badges.Badge(
+                badgeContent: Text(
+                  "${basketProvider.count}",
+                  style: const TextStyle(color: Colors.white, fontSize: 11),
+                ),
+                badgeStyle: const badges.BadgeStyle(
+                  badgeColor: Colors.blue,
+                ),
+                child: const Icon(
+                  Icons.shopping_basket,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Consumer<BasketProvider>(
         builder: (context, provider, _) {

@@ -6,9 +6,9 @@ import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/search.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +24,8 @@ class _SupplierPageState extends State<SupplierPage> {
   final List pages = [
     const Home(),
     const SearchScreen(),
+    const ShoppingCart(),
+    const Home(),
   ];
   int _selectedIndex = 0;
 
@@ -35,12 +37,15 @@ class _SupplierPageState extends State<SupplierPage> {
 
   getData() async {
     try {
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=utf-8',
-      });
+      final response = await http.get(
+          Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=utf-8',
+          });
       if (response.statusCode == 200) {
         // Map res = json.decode(response.body);
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        print(res);
         setState(() {
           res.forEach((key, value) {
             var model = Supplier(key, value);
@@ -48,10 +53,13 @@ class _SupplierPageState extends State<SupplierPage> {
           });
         });
       } else {
-        showFailedMessage(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+        showFailedMessage(
+            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
-      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          context: context);
     }
   }
 
@@ -63,13 +71,31 @@ class _SupplierPageState extends State<SupplierPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Нийлүүлэгч',
-      ),
-      body: ChangeNotifierProvider(
-        create: (context) => AuthController(),
-        child: Container(
+    return ChangeNotifierProvider(
+      create: (context) => AuthController(),
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text(
+            'Нийлүүлэгч',
+            style: TextStyle(fontSize: 18),
+          ),
+          actions: [
+            IconButton(
+                icon: const Icon(
+                  Icons.notifications,
+                  color: Colors.blue,
+                ),
+                onPressed: () {}),
+            IconButton(
+                icon: const Icon(
+                  Icons.shopping_basket,
+                  color: Colors.red,
+                ),
+                onPressed: () {}),
+          ],
+        ),
+        body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
           child: ListView.builder(
               itemCount: _supList.length,
@@ -77,10 +103,12 @@ class _SupplierPageState extends State<SupplierPage> {
                 return Card(
                   child: ListTile(
                     onTap: () async {
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
                       String? token = prefs.getString("access_token");
                       String bearerToken = "Bearer $token";
-                      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
+                      final response = await http.post(
+                          Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
                           headers: <String, String>{
                             'Content-Type': 'application/json; charset=UTF-8',
                             'Authorization': bearerToken,
@@ -88,8 +116,10 @@ class _SupplierPageState extends State<SupplierPage> {
                           body: jsonEncode({'pId': _supList[index].id}));
                       if (response.statusCode == 200) {
                         Map<String, dynamic> res = jsonDecode(response.body);
-                        await prefs.setString('access_token', res['access_token']);
-                        await prefs.setString('refresh_token', res['refresh_token']);
+                        await prefs.setString(
+                            'access_token', res['access_token']);
+                        await prefs.setString(
+                            'refresh_token', res['refresh_token']);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -97,9 +127,13 @@ class _SupplierPageState extends State<SupplierPage> {
                                       supp: _supList[index],
                                     )));
                       } else if (response.statusCode == 403) {
-                        showFailedMessage(message: 'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.', context: context);
+                        showFailedMessage(
+                            message:
+                                'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.',
+                            context: context);
                       } else {
-                        showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
+                        showFailedMessage(
+                            message: 'Дахин оролдоно уу.', context: context);
                       }
                     },
                     leading: const Icon(Icons.home),
@@ -109,22 +143,30 @@ class _SupplierPageState extends State<SupplierPage> {
                 );
               }),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Нүүр',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Миний сагс',
-          ),
-        ],
-        selectedItemColor: AppColors.secondary,
-        unselectedItemColor: AppColors.primary,
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Нүүр',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              label: 'Хайх',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shop_2),
+              label: 'Захиалга',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_sharp),
+              label: 'Бүртгэл',
+            ),
+          ],
+          selectedItemColor: AppColors.secondary,
+          unselectedItemColor: AppColors.primary,
+        ),
       ),
     );
   }
