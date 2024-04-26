@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/order.dart';
 
+// ignore: must_be_immutable
 class SellerOrders extends StatelessWidget {
   List<Order> order = [];
   SellerOrders({super.key, required this.order});

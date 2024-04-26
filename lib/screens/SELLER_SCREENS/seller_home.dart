@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/order.dart';
-import 'package:pharmo_app/models/seller_order.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/branch/branch.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/register_pharm/resgister_pharm.dart';

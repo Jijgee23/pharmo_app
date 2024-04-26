@@ -15,7 +15,7 @@ class JaggerHomeDetail extends StatelessWidget {
         title: 'Түгээлтийн дэлгэрэнгүй',
       ),
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
-        final jagger = provider.jaggers[0];
+        // final jagger = provider.jaggers[0];
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
           child: orderItems!.isNotEmpty
