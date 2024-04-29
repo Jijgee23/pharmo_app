@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/screens/DM_SCREENS/jagger_order_page.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/tabs/jagger_home.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
@@ -88,7 +89,7 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                     leading: const Icon(Icons.shopping_cart),
                     title: const Text('Захиалга'),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const JaggerOrderPage()));
                     },
                   ),
                   ListTile(

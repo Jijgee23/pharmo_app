@@ -2,115 +2,115 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/models/jagger_order_item.dart';
+import 'package:pharmo_app/models/jagger_expense_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/custom_text_field_icon.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
-class JaggerHomeDetail extends StatelessWidget {
-  final List<JaggerOrderItem>? orderItems;
-  const JaggerHomeDetail({super.key, required this.orderItems});
+class JaggerOrderPage extends StatefulWidget {
+  const JaggerOrderPage({super.key});
+  @override
+  State<JaggerOrderPage> createState() => _JaggerOrderPageState();
+}
+
+class _JaggerOrderPageState extends State<JaggerOrderPage> {
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    try {
+      final jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
+      dynamic res = await jaggerProvider.getJaggerOrders();
+      if (res['errorType'] == 1) {
+        showSuccessMessage(message: res['message'], context: context);
+      } else {
+        showFailedMessage(message: res['message'], context: context);
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(
-        title: 'Түгээлтийн дэлгэрэнгүй',
+        title: 'Зарлагын жагсаалт',
       ),
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
-        // final jagger = provider.jaggers[0];
+        final jaggerOrders = (provider.jaggerOrders.isNotEmpty) ? provider.jaggerOrders : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-          child: orderItems!.isNotEmpty
+          child: jaggerOrders != null && jaggerOrders.isNotEmpty
               ? ListView.builder(
-                  itemCount: orderItems?.length,
+                  itemCount: jaggerOrders.length,
                   itemBuilder: (context, index) {
                     return Card(
                         child: InkWell(
-                      onTap: () => {print('shineodko')},
+                      onTap: () => {
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => JaggerHomeDetail(
+                        //               orderItems: jagger.jaggerOrders![index].jaggerOrderItems,
+                        //             )))
+                      },
                       child: Container(
-                        margin: const EdgeInsets.all(15),
+                        margin: const EdgeInsets.all(10),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              orderItems![0].itemName.toString(),
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                              jaggerOrders[index].note.toString(),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                            RichText(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              text: TextSpan(text: 'Дүн : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                                TextSpan(text: jaggerOrders[index].amount.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                              ]),
                             ),
                             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                               RichText(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                text: TextSpan(text: 'Үнэ : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: orderItems![0].itemPrice.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                                ]),
-                              ),
-                              RichText(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                text: TextSpan(text: 'Тоо ширхэг : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: orderItems![0].itemQty.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                text: TextSpan(text: 'Огноо : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                                  TextSpan(text: jaggerOrders[index].createdOn.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
                                 ]),
                               ),
                             ]),
-                            RichText(
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              text: TextSpan(text: 'Нийт дүн : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                TextSpan(text: orderItems![0].itemTotalPrice.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                              ]),
-                            ),
                             const SizedBox(
-                              height: 10,
+                              height: 5,
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 OutlinedButton.icon(
                                   onPressed: () {
-                                    _dialogBuilder(
-                                      context,
-                                      'Түгээлтийн зарлага хасах',
-                                      orderItems![index].itemId,
-                                      false,
-                                    );
+                                    // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => true);
+                                    // provider.getBasket();
+                                    _dialogBuilder(context, 'Түгээлтийн зарлага засах', jaggerOrders[index]);
+                                    provider.amount = TextEditingController(text: jaggerOrders[index].amount.toString());
+                                    provider.note = TextEditingController(text: jaggerOrders[index].note);
                                   },
                                   icon: const Icon(
                                     color: Colors.white,
-                                    Icons.delete,
+                                    Icons.edit,
                                     size: 24.0,
                                   ),
                                   label: const Text(
-                                    'Хасах',
+                                    'Засах',
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.primary,
-                                  ),
-                                ),
-                                OutlinedButton.icon(
-                                  onPressed: () async {
-                                    _dialogBuilder(
-                                      context,
-                                      'Түгээлтийн зарлага нэмэх',
-                                      orderItems![index].itemId,
-                                      true,
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    color: Colors.white,
-                                    Icons.add,
-                                    size: 24.0,
-                                  ),
-                                  label: const Text(
-                                    'Нэмэх',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.secondary,
                                   ),
                                 ),
                               ],
@@ -133,7 +133,7 @@ class JaggerHomeDetail extends StatelessWidget {
     );
   }
 
-  Future<void> _dialogBuilder(BuildContext context, String title, int itemId, bool add) {
+  Future<void> _dialogBuilder(BuildContext context, String title, JaggerExpenseOrder order) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -144,19 +144,32 @@ class JaggerHomeDetail extends StatelessWidget {
               style: const TextStyle(fontSize: 20),
             ),
             content: SizedBox(
-              height: 90,
+              height: 190,
               child: Form(
                 key: provider.formKey,
                 child: Column(children: [
                   CustomTextFieldIcon(
-                    hintText: "Тоо хэмжээ оруулна уу...",
+                    hintText: "Дүн оруулна уу...",
                     prefixIconData: const Icon(Icons.numbers_rounded),
-                    validatorText: "Тоо хэмжээ оруулна уу.",
+                    validatorText: "Дүн оруулна уу.",
                     fillColor: Colors.white,
                     expands: false,
-                    controller: provider.rQty,
-                    onChanged: provider.validateRqty,
-                    errorText: provider.rqtyVal.error,
+                    controller: provider.amount,
+                    onChanged: provider.validateAmount,
+                    errorText: provider.amountVal.error,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  CustomTextFieldIcon(
+                    hintText: "Тайлбар оруулна уу...",
+                    prefixIconData: const Icon(Icons.comment_outlined),
+                    validatorText: "Тайлбар оруулна уу.",
+                    fillColor: Colors.white,
+                    expands: false,
+                    controller: provider.note,
+                    onChanged: provider.validateNote,
+                    errorText: provider.noteVal.error,
                   ),
                 ]),
               ),
@@ -178,7 +191,7 @@ class JaggerHomeDetail extends StatelessWidget {
                 child: const Text('Хадгалах'),
                 onPressed: () async {
                   if (provider.formKey.currentState!.validate()) {
-                    dynamic res = await provider.updateItemQTY(itemId, add);
+                    dynamic res = await provider.editExpenseAmount(order.id);
                     if (res['errorType'] == 1) {
                       showSuccessMessage(message: res['message'], context: context);
                       Navigator.of(context).pop();
