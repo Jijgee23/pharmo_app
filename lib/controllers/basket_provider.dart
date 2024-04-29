@@ -231,7 +231,7 @@ class BasketProvider extends ChangeNotifier {
       return {'fail': e};
     }
   }
-  
+
   Future<dynamic> createOrder(
       {required int basket_id,
       required int address,
@@ -399,6 +399,8 @@ class BasketProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       if (type == 'add') {
         qty = qty + 1;
+      } else if (type == 'set') {
+        qty = qty;
       } else {
         qty = qty - 1;
       }

@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/branch.dart';
+import 'package:pharmo_app/screens/shopping_cart/order_done.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -20,7 +23,9 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   int _selectedIndex = -1;
   int _selectedAddress = 0;
   int _basketId = 0;
-  String? customerID = '';
+  String? _customerID = '';
+  String _selectedRadioValue = '';
+  bool invisible = false;
 
   @override
   void initState() {
@@ -53,18 +58,22 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       String? customerId = prefs.getString('customerId');
+      setState(() {
+        _customerID = customerId;
+      });
+      print(_customerID);
       final response = await http.post(
           Uri.parse('http://192.168.88.39:8000/api/v1/seller/customer_branch/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
           },
-          body: jsonEncode({'customerId': customerId}));
+          body: jsonEncode({'customerId': _customerID}));
       sellerBranchList.clear();
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
-          customerID = customerId;
+          _customerID = customerId;
           for (int i = 0; i < res.length; i++) {
             sellerBranchList.add(Branch.fromJson(res[i]));
           }
@@ -79,33 +88,72 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
 
   createSellerOrder() async {
     try {
+      print(
+          'user: $_customerID , address: $_selectedAddress, basket: $_basketId');
+      print(_selectedRadioValue);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
-      String? customerId = prefs.getString('customerId');
-      setState(() {
-        customerID = customerId;
-      });
-      final response = await http.post(
-        Uri.parse('http://192.168.88.39:8000/api/v1/seller/order/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(
-          {
-            'user': customerId,
-            'address': _selectedAddress,
-            'basket': _basketId,
+      if (_selectedRadioValue == 'L') {
+        if (_selectedIndex == -1) {
+          showFailedMessage(message: 'Салбар сонгоно уу.', context: context);
+        }
+        final response = await http.post(
+          Uri.parse('http://192.168.88.39:8000/api/v1/seller/order/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
           },
-        ),
-      );
-      print(response.statusCode);
-      if (response.statusCode == 200) {
-        showSuccessMessage(
-            message: 'Захиалга амжилттай  үүслээ.', context: context);
-      } else {
-        showFailedMessage(
-            message: 'Сагсаа шалгана уу', context: context);
+          body: jsonEncode(
+            {
+              'user': _customerID,
+              'address': _selectedAddress,
+              'basket': _basketId,
+            },
+          ),
+        );
+        print(response.statusCode);
+        if (response.statusCode == 200) {
+          final res = jsonDecode(utf8.decode(response.bodyBytes));
+          final orderNumber = res['orderNo'];
+          showSuccessMessage(
+              message: 'Захиалга амжилттай  үүслээ.', context: context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OrderDone(orderNo: orderNumber.toString()),
+            ),
+          );
+        } else {
+          showFailedMessage(message: 'Сагс хоосон байна', context: context);
+        }
+      }
+      if (_selectedRadioValue == 'C') {
+        final response = await http.post(
+          Uri.parse('http://192.168.88.39:8000/api/v1/seller/order/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode(
+            {
+              'user': _customerID,
+            },
+          ),
+        );
+        if (response.statusCode == 200) {
+          final res = jsonDecode(utf8.decode(response.bodyBytes));
+          final orderNumber = res['orderNo'];
+          showSuccessMessage(
+              message: 'Захиалга амжилттай  үүслээ.', context: context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OrderDone(orderNo: orderNumber.toString()),
+            ),
+          );
+        } else {
+          showFailedMessage(message: 'Сагс хоосон байна', context: context);
+        }
       }
     } catch (e) {
       showFailedMessage(
@@ -115,7 +163,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context);
+    //  final basketProvider = Provider.of<BasketProvider>(context);
     return ChangeNotifierProvider(
       create: (context) => BasketProvider(),
       child: Scaffold(
@@ -124,61 +172,100 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
         ),
         body: Container(
           margin: const EdgeInsets.all(15),
-          child: Column(children: [
-            Container(
-                margin: const EdgeInsets.only(bottom: 5),
-                child: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Салбар сонгоно уу : '))),
-            Expanded(
-              child: ListView.builder(
-                itemCount: sellerBranchList.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      onTap: () {
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Radio(
+                      value: 'L',
+                      groupValue: _selectedRadioValue,
+                      onChanged: (String? value) {
                         setState(() {
-                          _selectedIndex = index;
-                          _selectedAddress = sellerBranchList[index].id;
-                          print(_selectedAddress);
+                          _selectedRadioValue = value!;
+                          setState(() {
+                            invisible = !invisible;
+                          });
                         });
                       },
-                      tileColor: _selectedIndex == index ? Colors.grey : null,
-                      leading: const Icon(Icons.home),
-                      title: Text(sellerBranchList[index].name.toString()),
                     ),
-                  );
-                },
-              ),
-            ),
-            
-            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              OutlinedButton.icon(
-                onPressed: () {
-                  if (_selectedIndex == -1) {
-                    showFailedMessage(
-                        message: 'Салбар сонгоно уу.', context: context);
-                  } else {
-                    createSellerOrder();
-                    setState(() {
-                      basketProvider.clearBasket(basket_id: _basketId);
-                    });
-                  }
-                },
-                icon: const Icon(
-                  Icons.add,
-                  color: Colors.white,
+                    const Text(
+                      'Хүргэлтээр',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Radio(
+                      value: 'C',
+                      groupValue: _selectedRadioValue,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedRadioValue = value!;
+                          invisible = false;
+                        });
+                      },
+                    ),
+                    const Text(
+                      'Очиж авах',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ],
                 ),
-                label: const Text(
-                  'Захиалга үүсгэх',
-                  style: TextStyle(color: Colors.white),
+                Visibility(
+                  visible: invisible,
+                  child: Container(
+                      margin: const EdgeInsets.only(bottom: 5),
+                      child: const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Салбар сонгоно уу : '))),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
+                Visibility(
+                  visible: invisible,
+                  child: Expanded(
+                    child: ListView.builder(
+                      itemCount: sellerBranchList.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          child: ListTile(
+                            onTap: () {
+                              setState(() {
+                                _selectedIndex = index;
+                                _selectedAddress = sellerBranchList[index].id;
+                                print(_selectedAddress);
+                              });
+                            },
+                            tileColor:
+                                _selectedIndex == index ? Colors.grey : null,
+                            leading: const Icon(Icons.home),
+                            title:
+                                Text(sellerBranchList[index].name.toString()),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ]),
-          ]),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      createSellerOrder();
+                    },
+                    icon: const Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Захиалга үүсгэх',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+                    ),
+                  ),
+                ]),
+              ]),
         ),
       ),
     );

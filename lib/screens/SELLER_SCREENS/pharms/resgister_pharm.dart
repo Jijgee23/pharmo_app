@@ -183,11 +183,6 @@ class _RegisterPharmState extends State<RegisterPharm> {
     final Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            print('$provinceId, $districtId, $khorooId');
-          },
-        ),
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Эмийн сан бүртгэл'),

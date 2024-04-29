@@ -18,6 +18,7 @@ class ShoppingCart extends StatefulWidget {
 
 class _ShoppingCartState extends State<ShoppingCart> {
   String? _userRole = '';
+  String buttonText = 'Төлбөр төлөх';
   @override
   void initState() {
     getUser();
@@ -30,10 +31,17 @@ class _ShoppingCartState extends State<ShoppingCart> {
     setState(() {
       _userRole = userRole;
     });
+    if (_userRole == 'S') {
+      setState(() {
+        buttonText = 'Захиалах';
+      });
+    }
+    print(_userRole);
   }
 
   @override
   Widget build(BuildContext context) {
+   
     final basketProvider = Provider.of<BasketProvider>(context, listen: true);
 
     void clearBasket(int basketId) {
@@ -56,6 +64,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
     return Scaffold(
       appBar: const CustomAppBar(
         title: 'Миний сагс',
+        
       ),
       body: Consumer<BasketProvider>(
         builder: (context, provider, _) {
@@ -165,15 +174,14 @@ class _ShoppingCartState extends State<ShoppingCart> {
                         OutlinedButton.icon(
                           onPressed: () {
                             purchase(basket.id);
-                            
                           },
                           icon: const Icon(
                             Icons.paid_rounded,
                             color: Colors.white,
                           ),
-                          label: const Text(
-                            'Төлбөр төлөх',
-                            style: TextStyle(color: Colors.white),
+                          label: Text(
+                            buttonText,
+                            style: const TextStyle(color: Colors.white),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.secondary,

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/pharm.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/order/order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -102,74 +101,35 @@ class _PharmacyListState extends State<PharmacyList> {
       child: Scaffold(
         appBar: AppBar(
           title: CustomSearchBar(
-              searchController: _searchController,
-              title: 'Хайх',
+            searchController: _searchController,
+            title: 'Хайх',
             onChanged: searchPharmacy,
           ),
         ),
         body: Column(
           children: [
-        Expanded(
+            Expanded(
               flex: 9,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-            child: ListView.builder(
-              itemCount: _displayItems.length,
-              itemBuilder: ((context, index) {
-                return Card(
-                  child: ListTile(
-                    onTap: () async {
-                      final SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      await prefs.remove('pharm_id');
-                      setState(() {
-                        pharmId = _pharmList[index].id.toString();
-                      });
-                      String? token = prefs.getString('access_token');
-                      final response = await http.post(
-                        Uri.parse(
-                            'http://192.168.88.39:8000/api/v1/seller/order/'),
-                        headers: <String, String>{
-                          'Content-Type': 'application/json; charset=UTF-8',
-                          'Authorization': 'Bearer $token',
-                        },
-                        body: jsonEncode(
-                          {
-                            'user': pharmId,
-                            'basket': _basketId,
-                          },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                child: ListView.builder(
+                  itemCount: _displayItems.length,
+                  itemBuilder: ((context, index) {
+                    return Card(
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.medical_services,
+                          color: Colors.blue,
+                          size: 30,
                         ),
-                      );
-
-                      if (response.statusCode == 200) {
-                        final data =
-                            jsonDecode(utf8.decode(response.bodyBytes));
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => SellerOrderDetail(
-                              orderId: data['orderNo'],
-                              totalAmount: data['totalPrice'],
-                              quantity: data['totalCount'],
-                            ),
-                          ),
-                        );
-                      } else {
-                        print('status not ok');
-                      }
-                    },
-                    leading: const Icon(
-                      Icons.medical_services,
-                      color: Colors.blue,
-                      size: 30,
-                    ),
-                    title: Text(_displayItems[index].name),
-                  ),
-                );
-              }),
+                        title: Text(_displayItems[index].name),
+                      ),
+                    );
+                  }),
+                ),
+              ),
             ),
-          ),
-        ),
           ],
         ),
       ),
