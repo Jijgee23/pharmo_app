@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/tabs/jagger_home_detail.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/custom_text_field_icon.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
@@ -36,10 +37,10 @@ class _HomeJaggerState extends State<HomeJagger> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
-        final jagger = provider.jaggers[0];
+        final jagger = (provider.jaggers.isNotEmpty) ? provider.jaggers[0] : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-          child: jagger.jaggerOrders!.isNotEmpty
+          child: jagger != null && jagger.jaggerOrders!.isNotEmpty
               ? ListView.builder(
                   itemCount: jagger.jaggerOrders?.length,
                   itemBuilder: (context, index) {
@@ -96,6 +97,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                                   onPressed: () {
                                     // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => true);
                                     // provider.getBasket();
+                                    _dialogBuilder(context, 'Түгээлтийн зарлага нэмэх');
                                   },
                                   icon: const Icon(
                                     color: Colors.white,
@@ -150,6 +152,81 @@ class _HomeJaggerState extends State<HomeJagger> {
                 ),
         );
       }),
+    );
+  }
+
+  Future<void> _dialogBuilder(BuildContext context, String title) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<JaggerProvider>(builder: (context, provider, _) {
+          return AlertDialog(
+            title: Text(
+              title,
+              style: const TextStyle(fontSize: 20),
+            ),
+            content: SizedBox(
+              height: 190,
+              child: Form(
+                key: provider.formKey,
+                child: Column(children: [
+                  CustomTextFieldIcon(
+                    hintText: "Дүн оруулна уу...",
+                    prefixIconData: const Icon(Icons.numbers_rounded),
+                    validatorText: "Дүн оруулна уу.",
+                    fillColor: Colors.white,
+                    expands: false,
+                    controller: provider.amount,
+                    onChanged: provider.validateAmount,
+                    errorText: provider.amountVal.error,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  CustomTextFieldIcon(
+                    hintText: "Тайлбар оруулна уу...",
+                    prefixIconData: const Icon(Icons.comment_outlined),
+                    validatorText: "Тайлбар оруулна уу.",
+                    fillColor: Colors.white,
+                    expands: false,
+                    controller: provider.note,
+                    onChanged: provider.validateNote,
+                    errorText: provider.noteVal.error,
+                  ),
+                ]),
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge,
+                ),
+                child: const Text('Хаах'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge,
+                ),
+                child: const Text('Хадгалах'),
+                onPressed: () async {
+                  if (provider.formKey.currentState!.validate()) {
+                    dynamic res = await provider.addExpenseAmount();
+                    if (res['errorType'] == 1) {
+                      showSuccessMessage(message: res['message'], context: context);
+                      Navigator.of(context).pop();
+                    } else {
+                      showFailedMessage(message: res['message'], context: context);
+                    }
+                  }
+                },
+              ),
+            ],
+          );
+        });
+      },
     );
   }
 }
