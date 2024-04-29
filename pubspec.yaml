@@ -34,14 +34,15 @@ dependencies:
   jwt_decoder: ^2.0.1
   badges: ^3.1.2
   qr_flutter: ^4.1.0
-  location_picker_flutter_map: ^3.0.1
-  location: ^6.0.1
+  geolocator: ^11.0.0
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^3.0.0
+ 
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
