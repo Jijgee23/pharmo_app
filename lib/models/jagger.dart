@@ -13,7 +13,7 @@ class Jagger {
   String? createdOn;
   int? supplier;
   int? delman;
-  String? expense;
+  double? expense;
   List<dynamic>? inItems;  
   List<JaggerOrder>? jaggerOrders;  
 

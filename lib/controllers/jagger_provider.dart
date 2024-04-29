@@ -16,14 +16,20 @@ class JaggerProvider extends ChangeNotifier {
   late Basket _basket;
   Basket get basket => _basket;
 
-  // late Map<String, dynamic> _jaggers;
-  // Map<String, dynamic> get jaggers => _jaggers;
-
   final List<Jagger> _jaggers = <Jagger>[];
   List<Jagger> get jaggers => _jaggers;
 
   late OrderQRCode _qrCode;
   OrderQRCode get qrCode => _qrCode;
+
+  final _formKey = GlobalKey<FormState>();
+  get formKey => _formKey;
+  TextEditingController amount = TextEditingController();
+  TextEditingController note = TextEditingController();
+  ValidationModel _noteVal = ValidationModel(null, null);
+  ValidationModel get noteVal => _noteVal;
+  ValidationModel _amountVal = ValidationModel(null, null);
+  ValidationModel get amountVal => _amountVal;
 
   Future<dynamic> getJaggers() async {
     try {
@@ -130,4 +136,52 @@ class JaggerProvider extends ChangeNotifier {
     String bearerToken = "Bearer $token";
     return bearerToken;
   }
+
+  Future<dynamic> addExpenseAmount() async {
+    try {
+      String bearerToken = await getAccessToken();
+      final res = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/shipment_expense/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          },
+          body: jsonEncode({"note": note.text, "amount": amount.text}));
+      notifyListeners();
+      if (res.statusCode == 201) {
+        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        amount.text = '';
+        note.text = '';
+        return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн зарлага амжилттай нэмэгдлээ.'};
+      } else {
+        return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага нэмхэд алдаа гарлаа.'};
+      }
+    } catch (e) {
+      print(e);
+      return {'fail': e};
+    }
+  }
+
+  void validateNote(String? val) {
+    if (val != null && val.isNotEmpty) {
+      _noteVal = ValidationModel(val, null);
+    } else {
+      _noteVal = ValidationModel(null, 'Алдаатай имэйл хаяг байна.');
+    }
+    notifyListeners();
+  }
+
+  void validateAmount(String? val) {
+    if (val != null && val.isNotEmpty) {
+      _amountVal = ValidationModel(val, null);
+    } else {
+      _amountVal = ValidationModel(null, 'Алдаатай имэйл хаяг байна.');
+    }
+    notifyListeners();
+  }
+}
+
+class ValidationModel {
+  String? value;
+  String? error;
+  ValidationModel(this.value, this.error);
 }
