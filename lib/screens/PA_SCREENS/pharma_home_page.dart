@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
@@ -46,7 +45,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final cartProvider = Provider.of<BasketProvider>(context, listen: true);
+    // final cartProvider = Provider.of<BasketProvider>(context, listen: true);
     final authProvider = Provider.of<AuthController>(context, listen: false);
     return MultiProvider(
       providers: [

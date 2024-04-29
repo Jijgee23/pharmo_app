@@ -6,7 +6,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_home_page.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer/seller_customer.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:pharmo_app/widgets/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -127,7 +127,10 @@ class AuthController extends ChangeNotifier {
       // await prefs.setString('basket_count', count.toString());
       notifyListeners();
       if (decodedToken['role'] == 'S') {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SellerHomePage()), (route) => false);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const SellerCustomerPage()),
+            (route) => false);
       }
       if (decodedToken['role'] == 'PA') {
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => false);
