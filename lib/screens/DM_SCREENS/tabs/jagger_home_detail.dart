@@ -37,7 +37,7 @@ class JaggerHomeDetail extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              orderItems![0].itemName.toString(),
+                              orderItems![index].itemName.toString(),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                             ),
                             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -45,14 +45,14 @@ class JaggerHomeDetail extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 text: TextSpan(text: 'Үнэ : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: orderItems![0].itemPrice.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                  TextSpan(text: orderItems![index].itemPrice.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
                                 ]),
                               ),
                               RichText(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 text: TextSpan(text: 'Тоо ширхэг : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: orderItems![0].itemQty.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                  TextSpan(text: orderItems![index].itemQty.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
                                 ]),
                               ),
                             ]),
@@ -60,7 +60,7 @@ class JaggerHomeDetail extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               text: TextSpan(text: 'Нийт дүн : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                TextSpan(text: orderItems![0].itemTotalPrice.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                TextSpan(text: orderItems![index].itemTotalPrice.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
                               ]),
                             ),
                             const SizedBox(

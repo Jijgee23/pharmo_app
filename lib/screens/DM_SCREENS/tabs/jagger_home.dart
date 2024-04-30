@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/tabs/jagger_home_detail.dart';
@@ -61,14 +63,14 @@ class _HomeJaggerState extends State<HomeJagger> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              jagger.jaggerOrders![0].user.toString(),
+                              jagger.jaggerOrders![index].user.toString(),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
                             ),
                             RichText(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               text: TextSpan(text: 'Захиалгын дугаар : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                TextSpan(text: jagger.jaggerOrders![0].orderNo.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                TextSpan(text: jagger.jaggerOrders![index].orderNo.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
                               ]),
                             ),
                             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -76,7 +78,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 text: TextSpan(text: 'Төлөв : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: jagger.jaggerOrders![0].process.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                  TextSpan(text: jagger.jaggerOrders![index].process.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
                                 ]),
                               ),
                               IconButton(
