@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -64,12 +66,10 @@ class _RegisterPharmState extends State<RegisterPharm> {
       );
       List res = jsonDecode(utf8.decode(response.bodyBytes));
       provinceList.clear();
-      print(response.statusCode);
       if (response.statusCode == 200) {
         setState(() {
           for (int i = 0; i < res.length; i++) {
             provinceList.add(Province(id: res[i]['id'], name: res[i]['ner']));
-            print(provinceList[i].name);
           }
         });
       }

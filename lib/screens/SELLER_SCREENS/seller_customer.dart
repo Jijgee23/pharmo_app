@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/customer.dart';
+import 'package:pharmo_app/models/favorite.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/order/favorites.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/order/orderHistoryList.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
@@ -26,6 +29,7 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
   List<Customer> customerList = <Customer>[];
   List<Customer> filteredItems = <Customer>[];
   List<Customer> displayItems = <Customer>[];
+  List<Favorite> favoriteList = <Favorite>[];
   String searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   late bool servicePermission = false;
@@ -40,6 +44,93 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     getUserInfo();
     getLocatiion();
     super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: CustomSearchBar(
+          searchController: _searchController,
+          title: 'Хайх',
+          onChanged: searchCustomer,
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        shape: const CircleBorder(
+          side: BorderSide(
+            width: 1,
+            color: AppColors.secondary,
+          ),
+        ),
+        backgroundColor: AppColors.primary,
+        onPressed: () {
+          searchByLocation();
+        },
+        child: const Icon(Icons.location_on, color: Colors.blue),
+      ),
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        child: ListView.builder(
+          itemCount: displayItems.length,
+          itemBuilder: (context, index) {
+            return Card(
+              child: ListTile(
+                onTap: () async {
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  prefs.setString(
+                      'customerId', displayItems[index].customer.id.toString());
+                  String? customerId = prefs.getString('customerId');
+                  print(customerId);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SellerHomePage(),
+                    ),
+                  );
+                },
+                leading: IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => OrderhistoryListPage(
+                          customerId: displayItems[index].customer.id,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.work_history_outlined,
+                    color: Colors.blue,
+                  ),
+                ),
+                title: Text(displayItems[index].customer.name.toString()),
+                trailing: IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FavoriteList(
+                          customerId: displayItems[index].customer.id,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.favorite,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 
   getCustomers() async {
@@ -69,7 +160,7 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     }
   }
 
-  void searchCustomer(String searchQuery) {
+  searchCustomer(String searchQuery) {
     filteredItems.clear();
     setState(() {
       searchQuery = _searchController.text;
@@ -102,7 +193,7 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     }
   }
 
-  void getUserInfo() async {
+  getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? useremail = prefs.getString('useremail');
     String? userRole = prefs.getString('userrole');
@@ -127,7 +218,7 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     return await Geolocator.getCurrentPosition();
   }
 
-  void getLocatiion() async {
+  getLocatiion() async {
     _currentLocation = await _getCurrentLocation();
     setState(() {
       latitude = _currentLocation!.latitude.toString().substring(0, 7);
@@ -136,7 +227,7 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     print('lat: $latitude, long: $longitude');
   }
 
-  void searchByLocation() async {
+  searchByLocation() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
@@ -168,58 +259,5 @@ class _SellerCustomerPageState extends State<SellerCustomerPage> {
     } catch (e) {
       showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: CustomSearchBar(
-          searchController: _searchController,
-          title: 'Хайх',
-          onChanged: searchCustomer,
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          searchByLocation();
-        },
-        child: const Icon(Icons.location_on),
-      ),
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        child: ListView.builder(
-          itemCount: displayItems.length,
-          itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                onTap: () async {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  prefs.setString(
-                      'customerId', displayItems[index].customer.id.toString());
-                  String? customerId = prefs.getString('customerId');
-                  print(customerId);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const SellerHomePage(),
-                    ),
-                  );
-                },
-                leading: const Icon(
-                  Icons.person,
-                  color: AppColors.secondary,
-                ),
-                title: Text(displayItems[index].customer.name.toString()),
-                trailing: const Icon(Icons.chevron_right_rounded),
-              ),
-            );
-          },
-        ),
-      ),
-    );
   }
 }

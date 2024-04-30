@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
+import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer/seller_customer.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/screens/suppliers/product_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -15,7 +16,7 @@ class Home extends StatefulWidget {
   const Home({
     super.key,
   });
-  
+
   @override
   State<Home> createState() => _HomeState();
 }
@@ -34,6 +35,7 @@ class _HomeState extends State<Home> {
   bool isother = true;
   Color selectedColor = AppColors.failedColor;
   final TextEditingController _searchController = TextEditingController();
+  List<Product> displayProducts = <Product>[];
   @override
   void initState() {
     getUserInfo();
@@ -56,6 +58,8 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  
+
   Future<void> _fetchPage(int pageKey) async {
     try {
       final newItems = await SearchProvider.getProdList(pageKey, _pageSize);
@@ -71,7 +75,6 @@ class _HomeState extends State<Home> {
       _pagingController.error = error;
     }
   }
-
   Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
     try {
       final newItems = await SearchProvider.getProdListByName(
@@ -88,7 +91,8 @@ class _HomeState extends State<Home> {
       _pagingController.error = error;
     }
   }
-void getUserInfo() async {
+
+  void getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? useremail = prefs.getString('useremail');
     String? userRole = prefs.getString('userrole');
@@ -97,6 +101,7 @@ void getUserInfo() async {
       role = userRole.toString();
     });
   }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -207,7 +212,7 @@ void getUserInfo() async {
                   ),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.person_4),
+                  leading: const Icon(Icons.person_4, color: Colors.lightBlue),
                   title: const Text('Харилцагч сонгох'),
                   onTap: () {
                     Navigator.pushAndRemoveUntil(
@@ -217,8 +222,12 @@ void getUserInfo() async {
                         (route) => false);
                   },
                 ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Divider(),
+                ),
                 ListTile(
-                  leading: const Icon(Icons.shop),
+                  leading: const Icon(Icons.shop, color: Colors.lightBlue),
                   title: const Text('Захиалга'),
                   onTap: () {
                     Navigator.push(
@@ -227,8 +236,12 @@ void getUserInfo() async {
                             builder: (_) => const ShoppingCart()));
                   },
                 ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Divider(),
+                ),
                 ListTile(
-                  leading: const Icon(Icons.add),
+                  leading: const Icon(Icons.add, color: Colors.lightBlue),
                   title: const Text('Эмийн сан бүртгэх'),
                   onTap: () {
                     Navigator.push(
@@ -237,8 +250,13 @@ void getUserInfo() async {
                             builder: (_) => const RegisterPharm()));
                   },
                 ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Divider(),
+                ),
                 ListTile(
-                  leading: const Icon(Icons.medical_information),
+                  leading: const Icon(Icons.medical_information,
+                      color: Colors.lightBlue),
                   title: const Text('Эмийн сангийн жагсаалт'),
                   onTap: () {
                     Navigator.push(
@@ -247,8 +265,12 @@ void getUserInfo() async {
                             builder: (_) => const PharmacyList()));
                   },
                 ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Divider(),
+                ),
                 ListTile(
-                  leading: const Icon(Icons.logout),
+                  leading: const Icon(Icons.logout, color: Colors.lightBlue),
                   title: const Text('Гарах'),
                   onTap: () {
                     showLogoutDialog(context);
@@ -370,21 +392,22 @@ void getUserInfo() async {
                           style: const TextStyle(color: Colors.black),
                         ),
                         Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                item.price + ' ₮',
-                                style: const TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                item.modified_at,
-                                style: const TextStyle(
-                                    fontSize: 11, color: Colors.grey),
-                              ),
-                            ])
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              item.price + ' ₮',
+                              style: const TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                            Text(
+                              item.modified_at,
+                              style: const TextStyle(
+                                  fontSize: 11, color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
