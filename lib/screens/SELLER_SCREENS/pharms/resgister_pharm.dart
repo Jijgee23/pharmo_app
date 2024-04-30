@@ -65,6 +65,7 @@ class _RegisterPharmState extends State<RegisterPharm> {
         },
       );
       List res = jsonDecode(utf8.decode(response.bodyBytes));
+      print(res);
       provinceList.clear();
       if (response.statusCode == 200) {
         setState(() {
@@ -91,6 +92,7 @@ class _RegisterPharmState extends State<RegisterPharm> {
         },
       );
       List res = jsonDecode(utf8.decode(response.bodyBytes));
+      print(res);
       districtList.clear();
       if (response.statusCode == 200) {
         setState(() {
@@ -118,6 +120,7 @@ class _RegisterPharmState extends State<RegisterPharm> {
         },
       );
       List res = jsonDecode(utf8.decode(response.bodyBytes));
+      print(res);
       khorooList.clear();
       if (response.statusCode == 200) {
         setState(() {
@@ -192,6 +195,7 @@ class _RegisterPharmState extends State<RegisterPharm> {
               vertical: size.height * 0.05, horizontal: size.width * 0.05),
           child: SingleChildScrollView(
             child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
               direction: Axis.vertical,
               spacing: 20,
               children: [
@@ -212,7 +216,7 @@ class _RegisterPharmState extends State<RegisterPharm> {
                   hintText: 'Утасны дугаар',
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.8,
+                  width: MediaQuery.of(context).size.width * 0.75,
                   child: DropdownButtonFormField<Province>(
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -238,7 +242,7 @@ class _RegisterPharmState extends State<RegisterPharm> {
                   ),
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.8,
+                  width: MediaQuery.of(context).size.width * 0.75,
                   child: DropdownButtonFormField<District>(
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -264,7 +268,7 @@ class _RegisterPharmState extends State<RegisterPharm> {
                   ),
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.8,
+                  width: MediaQuery.of(context).size.width * 0.75,
                   child: DropdownButtonFormField<Khoroo>(
                     decoration: InputDecoration(
                       border: OutlineInputBorder(

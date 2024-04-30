@@ -7,7 +7,7 @@ import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
-import 'package:pharmo_app/screens/suppliers/product_detail_page.dart';
+import 'package:pharmo_app/screens/product/product_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/filter.dart';
 import 'package:shared_preferences/shared_preferences.dart';

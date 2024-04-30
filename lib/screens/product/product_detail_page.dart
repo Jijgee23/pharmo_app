@@ -191,7 +191,7 @@ class _ProductDetailState extends State<ProductDetail> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: size.width * 0.4,
+                        width: size.width * 0.3,
                         height: 50,
                         child: TextField(
                           controller: qtyController,
