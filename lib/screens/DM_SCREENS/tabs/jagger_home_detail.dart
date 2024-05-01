@@ -2,30 +2,29 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/models/jagger_order_item.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/custom_text_field_icon.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class JaggerHomeDetail extends StatelessWidget {
-  final List<JaggerOrderItem>? orderItems;
-  const JaggerHomeDetail({super.key, required this.orderItems});
+  final int index;
+  const JaggerHomeDetail({super.key, required this.index});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(
+      appBar: const DMAppBar(
         title: 'Түгээлтийн дэлгэрэнгүй',
       ),
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
-        // final jagger = provider.jaggers[0];
+        final orderItems =
+            (provider.jaggers[0].jaggerOrders != null && provider.jaggers[0].jaggerOrders!.isNotEmpty && provider.jaggers[0].jaggerOrders![index].jaggerOrderItems != null) ? provider.jaggers[0].jaggerOrders![index].jaggerOrderItems : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-          child: orderItems!.isNotEmpty
+          child: orderItems != null && orderItems.isNotEmpty
               ? ListView.builder(
-                  itemCount: orderItems?.length,
+                  itemCount: orderItems.length,
                   itemBuilder: (context, index) {
                     return Card(
                         child: InkWell(
@@ -37,84 +36,76 @@ class JaggerHomeDetail extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              orderItems![index].itemName.toString(),
+                              orderItems[index].itemName.toString(),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                            ),
+                            const SizedBox(
+                              height: 7,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                IconButton.filledTonal(
+                                  iconSize: 25,
+                                  color: Colors.red,
+                                  icon: const Icon(
+                                    Icons.remove,
+                                  ),
+                                  onPressed: () {
+                                    _dialogBuilder(
+                                      context,
+                                      'Түгээлтийн зарлага хасах',
+                                      orderItems[index].itemId,
+                                      false,
+                                    );
+                                  },
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                                  child: RichText(
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    text: TextSpan(text: 'Тоо ширхэг : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                                      TextSpan(text: orderItems[index].itemQty.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                    ]),
+                                  ),
+                                ),
+                                IconButton.filledTonal(
+                                  iconSize: 25,
+                                  color: Colors.green,
+                                  icon: const Icon(
+                                    Icons.add,
+                                  ),
+                                  onPressed: () {
+                                    _dialogBuilder(
+                                      context,
+                                      'Түгээлтийн зарлага нэмэх',
+                                      orderItems[index].itemId,
+                                      true,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 7,
                             ),
                             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                               RichText(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 text: TextSpan(text: 'Үнэ : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: orderItems![index].itemPrice.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                  TextSpan(text: '${orderItems[index].itemPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
                                 ]),
                               ),
                               RichText(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                text: TextSpan(text: 'Тоо ширхэг : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: orderItems![index].itemQty.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                text: TextSpan(text: 'Нийт дүн : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                                  TextSpan(text: '${orderItems[index].itemTotalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
                                 ]),
                               ),
                             ]),
-                            RichText(
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              text: TextSpan(text: 'Нийт дүн : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                TextSpan(text: orderItems![index].itemTotalPrice.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                              ]),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                OutlinedButton.icon(
-                                  onPressed: () {
-                                    _dialogBuilder(
-                                      context,
-                                      'Түгээлтийн зарлага хасах',
-                                      orderItems![index].itemId,
-                                      false,
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    color: Colors.white,
-                                    Icons.delete,
-                                    size: 24.0,
-                                  ),
-                                  label: const Text(
-                                    'Хасах',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                  ),
-                                ),
-                                OutlinedButton.icon(
-                                  onPressed: () async {
-                                    _dialogBuilder(
-                                      context,
-                                      'Түгээлтийн зарлага нэмэх',
-                                      orderItems![index].itemId,
-                                      true,
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    color: Colors.white,
-                                    Icons.add,
-                                    size: 24.0,
-                                  ),
-                                  label: const Text(
-                                    'Нэмэх',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.secondary,
-                                  ),
-                                ),
-                              ],
-                            )
                           ],
                         ),
                       ),
@@ -157,6 +148,7 @@ class JaggerHomeDetail extends StatelessWidget {
                     controller: provider.rQty,
                     onChanged: provider.validateRqty,
                     errorText: provider.rqtyVal.error,
+                    isNumber: true,
                   ),
                 ]),
               ),

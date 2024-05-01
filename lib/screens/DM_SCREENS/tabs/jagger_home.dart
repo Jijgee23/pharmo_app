@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/tabs/jagger_home_detail.dart';
@@ -14,11 +16,25 @@ class HomeJagger extends StatefulWidget {
   State<HomeJagger> createState() => _HomeJaggerState();
 }
 
+int count = 0;
+Timer? timer;
+
 class _HomeJaggerState extends State<HomeJagger> {
   @override
   void initState() {
     super.initState();
     getData();
+
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) {
+        /// callback will be executed every 1 second, increament a count value
+        /// on each callback
+        setState(() {
+          count++;
+        });
+      },
+    );
   }
 
   getData() async {
@@ -42,18 +58,18 @@ class _HomeJaggerState extends State<HomeJagger> {
         final jagger = (provider.jaggers.isNotEmpty) ? provider.jaggers[0] : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-          child: jagger != null && jagger.jaggerOrders!.isNotEmpty
+          child: jagger != null && jagger.jaggerOrders != null && jagger.jaggerOrders!.isNotEmpty
               ? ListView.builder(
                   itemCount: jagger.jaggerOrders?.length,
                   itemBuilder: (context, index) {
                     return Card(
                         child: InkWell(
-                      onTap: () => {
+                      onTap: () async => {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => JaggerHomeDetail(
-                                      orderItems: jagger.jaggerOrders![index].jaggerOrderItems,
+                                      index: index,
                                     )))
                       },
                       child: Container(
@@ -62,9 +78,13 @@ class _HomeJaggerState extends State<HomeJagger> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text("Counter reached $count"),
                             Text(
                               jagger.jaggerOrders![index].user.toString(),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                            ),
+                            const SizedBox(
+                              height: 10,
                             ),
                             RichText(
                               overflow: TextOverflow.ellipsis,
@@ -89,17 +109,27 @@ class _HomeJaggerState extends State<HomeJagger> {
                                 },
                               ),
                             ]),
-                            const SizedBox(
-                              height: 5,
-                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                OutlinedButton.icon(
+                                IconButton.filledTonal(
+                                  iconSize: 25,
+                                  color: Colors.green,
+                                  icon: const Icon(
+                                    Icons.add,
+                                  ),
                                   onPressed: () {
-                                    // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => true);
-                                    // provider.getBasket();
                                     _dialogBuilder(context, 'Түгээлтийн зарлага нэмэх');
+                                  },
+                                ),
+                                OutlinedButton.icon(
+                                  onPressed: () async {
+                                    dynamic res = await provider.endShipment(jagger.id);
+                                    if (res['errorType'] == 1) {
+                                      showSuccessMessage(message: res['message'] + ' ' + res['data'], context: context);
+                                    } else {
+                                      showFailedMessage(message: res['message'], context: context);
+                                    }
                                   },
                                   icon: const Icon(
                                     color: Colors.white,
@@ -118,7 +148,6 @@ class _HomeJaggerState extends State<HomeJagger> {
                                   onPressed: () async {
                                     dynamic res = await provider.startShipment(jagger.id);
                                     if (res['errorType'] == 1) {
-                                      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: res['data']['orderNo'].toString())));
                                       showSuccessMessage(message: res['message'] + ' ' + res['data'], context: context);
                                     } else {
                                       showFailedMessage(message: res['message'], context: context);
@@ -181,6 +210,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                     controller: provider.amount,
                     onChanged: provider.validateAmount,
                     errorText: provider.amountVal.error,
+                    isNumber: true,
                   ),
                   const SizedBox(
                     height: 15,
@@ -194,6 +224,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                     controller: provider.note,
                     onChanged: provider.validateNote,
                     errorText: provider.noteVal.error,
+                    isNumber: false,
                   ),
                 ]),
               ),

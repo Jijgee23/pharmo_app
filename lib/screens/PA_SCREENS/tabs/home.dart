@@ -15,15 +15,14 @@ class Home extends StatefulWidget {
   const Home({
     super.key,
   });
-  
+
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
   final int _pageSize = 20;
-  final PagingController<int, dynamic> _pagingController =
-      PagingController(firstPageKey: 1);
+  final PagingController<int, dynamic> _pagingController = PagingController(firstPageKey: 1);
   String email = '';
   String role = '';
   String type = 'нэрээр';
@@ -74,8 +73,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByName(
-          pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByName(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -88,7 +86,8 @@ class _HomeState extends State<Home> {
       _pagingController.error = error;
     }
   }
-void getUserInfo() async {
+
+  void getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? useremail = prefs.getString('useremail');
     String? userRole = prefs.getString('userrole');
@@ -97,6 +96,7 @@ void getUserInfo() async {
       role = userRole.toString();
     });
   }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -106,63 +106,63 @@ void getUserInfo() async {
       ),
       child: SafeArea(
         child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: true,
-            title: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) async {
-                  setState(() {
-                    searchQuery = _searchController.text;
-                  });
-                  _pagingController.refresh();
-                },
-                decoration: InputDecoration(
-                  hintText: 'Барааны $type хайх',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      showMenu(
-                        context: context,
-                        position: const RelativeRect.fromLTRB(150, 20, 0, 0),
-                        items: <PopupMenuEntry>[
-                          PopupMenuItem(
-                            value: '1',
-                            onTap: () {
-                              setState(() {
-                                type = 'нэрээр';
-                              });
-                            },
-                            child: const Text('нэрээр'),
-                          ),
-                          PopupMenuItem(
-                            value: '2',
-                            onTap: () {
-                              setState(() {
-                                type = 'баркодоор';
-                              });
-                            },
-                            child: const Text('Баркодоор'),
-                          ),
-                          PopupMenuItem(
-                            value: '3',
-                            onTap: () {
-                              setState(() {
-                                type = 'ерөнхий нэршлээр';
-                              });
-                            },
-                            child: const Text('Ерөнхий нэршлээр'),
-                          ),
-                        ],
-                      ).then((value) {});
-                    },
-                    icon: const Icon(Icons.change_circle),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // appBar: AppBar(
+          //   automaticallyImplyLeading: true,
+          //   title: Padding(
+          //     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+          //     child: TextField(
+          //       controller: _searchController,
+          //       onChanged: (value) async {
+          //         setState(() {
+          //           searchQuery = _searchController.text;
+          //         });
+          //         _pagingController.refresh();
+          //       },
+          //       decoration: InputDecoration(
+          //         hintText: 'Барааны $type хайх',
+          //         prefixIcon: const Icon(Icons.search),
+          //         suffixIcon: IconButton(
+          //           onPressed: () {
+          //             showMenu(
+          //               context: context,
+          //               position: const RelativeRect.fromLTRB(150, 20, 0, 0),
+          //               items: <PopupMenuEntry>[
+          //                 PopupMenuItem(
+          //                   value: '1',
+          //                   onTap: () {
+          //                     setState(() {
+          //                       type = 'нэрээр';
+          //                     });
+          //                   },
+          //                   child: const Text('нэрээр'),
+          //                 ),
+          //                 PopupMenuItem(
+          //                   value: '2',
+          //                   onTap: () {
+          //                     setState(() {
+          //                       type = 'баркодоор';
+          //                     });
+          //                   },
+          //                   child: const Text('Баркодоор'),
+          //                 ),
+          //                 PopupMenuItem(
+          //                   value: '3',
+          //                   onTap: () {
+          //                     setState(() {
+          //                       type = 'ерөнхий нэршлээр';
+          //                     });
+          //                   },
+          //                   child: const Text('Ерөнхий нэршлээр'),
+          //                 ),
+          //               ],
+          //             ).then((value) {});
+          //           },
+          //           icon: const Icon(Icons.change_circle),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
           drawer: Drawer(
             child: ListView(
               children: [
@@ -195,13 +195,11 @@ void getUserInfo() async {
                       ),
                       Text(
                         'Имейл хаяг: $email',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: size.height * 0.015),
+                        style: TextStyle(color: Colors.white, fontSize: size.height * 0.015),
                       ),
                       Text(
                         'Хэрэглэгчийн төрөл: $role',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: size.height * 0.015),
+                        style: TextStyle(color: Colors.white, fontSize: size.height * 0.015),
                       ),
                     ],
                   ),
@@ -210,41 +208,28 @@ void getUserInfo() async {
                   leading: const Icon(Icons.person_4),
                   title: const Text('Харилцагч сонгох'),
                   onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const SellerCustomerPage()),
-                        (route) => false);
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SellerCustomerPage()), (route) => false);
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.shop),
                   title: const Text('Захиалга'),
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const ShoppingCart()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.add),
                   title: const Text('Эмийн сан бүртгэх'),
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const RegisterPharm()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterPharm()));
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.medical_information),
                   title: const Text('Эмийн сангийн жагсаалт'),
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const PharmacyList()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const PharmacyList()));
                   },
                 ),
                 ListTile(
@@ -259,16 +244,69 @@ void getUserInfo() async {
           ),
           resizeToAvoidBottomInset: false,
           body: NestedScrollView(
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
+            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
                 SliverPersistentHeader(
                   pinned: false,
                   delegate: StickyHeaderDelegate(
                     minHeight: MediaQuery.of(context).size.height * 0.071,
-                    maxHeight: MediaQuery.of(context).size.height * 0.071,
+                    maxHeight: MediaQuery.of(context).size.height * 0.115,
                     child: Column(
                       children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (value) async {
+                              setState(() {
+                                searchQuery = _searchController.text;
+                              });
+                              _pagingController.refresh();
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Барааны $type хайх',
+                              prefixIcon: const Icon(Icons.search),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  showMenu(
+                                    context: context,
+                                    position: const RelativeRect.fromLTRB(150, 20, 0, 0),
+                                    items: <PopupMenuEntry>[
+                                      PopupMenuItem(
+                                        value: '1',
+                                        onTap: () {
+                                          setState(() {
+                                            type = 'нэрээр';
+                                          });
+                                        },
+                                        child: const Text('нэрээр'),
+                                      ),
+                                      PopupMenuItem(
+                                        value: '2',
+                                        onTap: () {
+                                          setState(() {
+                                            type = 'баркодоор';
+                                          });
+                                        },
+                                        child: const Text('Баркодоор'),
+                                      ),
+                                      PopupMenuItem(
+                                        value: '3',
+                                        onTap: () {
+                                          setState(() {
+                                            type = 'ерөнхий нэршлээр';
+                                          });
+                                        },
+                                        child: const Text('Ерөнхий нэршлээр'),
+                                      ),
+                                    ],
+                                  ).then((value) {});
+                                },
+                                icon: const Icon(Icons.change_circle),
+                              ),
+                            ),
+                          ),
+                        ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           width: double.infinity,
@@ -347,20 +385,15 @@ void getUserInfo() async {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                     width: double.infinity,
                     child: Column(
                       children: [
                         Expanded(
                           child: SizedBox(
-                            child: (item.images != null &&
-                                    item.images.length > 0)
-                                ? Image.network(
-                                    // ignore: prefer_interpolation_to_compose_strings
-                                    'http://192.168.88.39:8000' +
-                                        item.images?.first['url'])
-                                : Image.asset('assets/no_image.jpg'),
+                            child: (item.images != null && item.images.length > 0) ? Image.network(
+                                // ignore: prefer_interpolation_to_compose_strings
+                                'http://192.168.88.39:8000' + item.images?.first['url']) : Image.asset('assets/no_image.jpg'),
                           ),
                         ),
                         Text(
@@ -369,22 +402,16 @@ void getUserInfo() async {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(color: Colors.black),
                         ),
-                        Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                item.price + ' ₮',
-                                style: const TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                item.modified_at,
-                                style: const TextStyle(
-                                    fontSize: 11, color: Colors.grey),
-                              ),
-                            ])
+                        Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                          Text(
+                            item.price + ' ₮',
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                          ),
+                          Text(
+                            item.modified_at,
+                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                          ),
+                        ])
                       ],
                     ),
                   ),
@@ -416,15 +443,12 @@ class StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxHeight;
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return SizedBox.expand(child: child);
   }
 
   @override
   bool shouldRebuild(covariant StickyHeaderDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
+    return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
 }

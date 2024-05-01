@@ -1,11 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_order_page.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/tabs/jagger_home.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/cart.dart';
-import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,16 +24,25 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
   ];
   late SharedPreferences prefs;
   int _selectedIndex = 0;
-
+  late Timer _timer;
+  int _secondsElapsed = 0;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _secondsElapsed++;
+      });
+      print(_secondsElapsed);
+    });
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -44,7 +54,6 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    //final cartProvider = Provider.of<BasketProvider>(context, listen: true);
     final authProvider = Provider.of<AuthController>(context, listen: false);
     return MultiProvider(
       providers: [
@@ -92,30 +101,13 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const JaggerOrderPage()));
                     },
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.widgets),
-                    title: const Text('Бараа бүтээгдэхүүн'),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.person),
-                    title: const Text('Харилцагч'),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.people),
-                    title: const Text('Нийлүүлэгч'),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.settings),
-                    title: const Text('Тохиргоо'),
-                    onTap: () {},
-                  ),
+                  // ListTile(
+                  //   leading: const Icon(Icons.widgets),
+                  //   title: const Text('Бараа бүтээгдэхүүн'),
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //   },
+                  // ),
                   ListTile(
                     leading: const Icon(Icons.logout),
                     title: const Text('Гарах'),
@@ -126,7 +118,7 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                 ],
               ),
             ),
-            appBar: const CustomAppBar(
+            appBar: const DMAppBar(
               title: 'Нүүр хуудас',
             ),
             body: _pages[_selectedIndex],
@@ -142,14 +134,6 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                   icon: Icon(Icons.shopping_cart),
                   label: 'Миний сагс',
                 ),
-                // BottomNavigationBarItem(
-                //   icon: Icon(Icons.medical_information),
-                //   label: 'Эмийн сан',
-                // ),
-                // BottomNavigationBarItem(
-                //   icon: Icon(Icons.person_sharp),
-                //   label: 'Бүртгэл',
-                // ),
               ],
               selectedItemColor: AppColors.secondary,
               unselectedItemColor: AppColors.primary,
@@ -167,7 +151,6 @@ class LogoutDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
-    //  final size = MediaQuery.of(context).size;
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: AlertDialog(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -36,8 +37,12 @@ class JaggerProvider extends ChangeNotifier {
   ValidationModel _amountVal = ValidationModel(null, null);
   ValidationModel get amountVal => _amountVal;
 
-  ValidationModel _rqtyVal = ValidationModel(null, null);
+  final ValidationModel _rqtyVal = ValidationModel(null, null);
   ValidationModel get rqtyVal => _rqtyVal;
+  void handleTimeout() {
+    print('shineodko');
+    notifyListeners();
+  }
 
   Future<dynamic> getJaggers() async {
     try {
@@ -46,10 +51,9 @@ class JaggerProvider extends ChangeNotifier {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
-      notifyListeners();
       if (res.statusCode == 200) {
+        _jaggers.clear();
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        // _jaggers = (response['results']).map((data) => Jagger.fromJson(data)).toList();
         for (int i = 0; i < response['results'].length; i++) {
           Jagger jagger = Jagger.fromJson(response['results'][i]);
           if (jagger.inItems != null && jagger.inItems!.isNotEmpty) {
@@ -62,13 +66,15 @@ class JaggerProvider extends ChangeNotifier {
           }
           _jaggers.add(jagger);
         }
+        notifyListeners();
         return {'errorType': 1, 'data': response, 'message': 'Түгээлт амжилттай авчирлаа.'};
       } else {
+        notifyListeners();
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
       print(e);
-      return {'fail': e};
+      return {'errorType': 3, 'data': e, 'message': e};
     }
   }
 
@@ -79,15 +85,17 @@ class JaggerProvider extends ChangeNotifier {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
-      notifyListeners();
+      _jaggerOrders.clear();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         for (int i = 0; i < response['results'].length; i++) {
           JaggerExpenseOrder jagger = JaggerExpenseOrder.fromJson(response['results'][i]);
           _jaggerOrders.add(jagger);
         }
+        notifyListeners();
         return {'errorType': 1, 'data': response, 'message': 'Түгээлт амжилттай авчирлаа.'};
       } else {
+        notifyListeners();
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
@@ -238,13 +246,14 @@ class JaggerProvider extends ChangeNotifier {
             body: jsonEncode({"itemId": itemId, "rQty": rQty.text}));
       }
 
-      notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         await getJaggers();
         rQty.text = '';
+        notifyListeners();
         return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн зарлага амжилттай засагдлаа.'};
       } else {
+        notifyListeners();
         return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'};
       }
     } catch (e) {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/jagger_expense_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/custom_text_field_icon.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +39,7 @@ class _JaggerOrderPageState extends State<JaggerOrderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(
+      appBar: const DMAppBar(
         title: 'Зарлагын жагсаалт',
       ),
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
@@ -157,6 +157,7 @@ class _JaggerOrderPageState extends State<JaggerOrderPage> {
                     controller: provider.amount,
                     onChanged: provider.validateAmount,
                     errorText: provider.amountVal.error,
+                    isNumber: true,
                   ),
                   const SizedBox(
                     height: 15,
@@ -170,6 +171,7 @@ class _JaggerOrderPageState extends State<JaggerOrderPage> {
                     controller: provider.note,
                     onChanged: provider.validateNote,
                     errorText: provider.noteVal.error,
+                    isNumber: false,
                   ),
                 ]),
               ),
