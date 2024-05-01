@@ -24,15 +24,19 @@ class _HomeJaggerState extends State<HomeJagger> {
   void initState() {
     super.initState();
     getData();
+    startTimer();
+  }
 
+  void startTimer() {
+    final jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
     timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        /// callback will be executed every 1 second, increament a count value
-        /// on each callback
+      const Duration(seconds: 30),
+      (timer) async {
         setState(() {
           count++;
         });
+        await jaggerProvider.getLocatiion();
+        await jaggerProvider.sendJaggerLocation();
       },
     );
   }
