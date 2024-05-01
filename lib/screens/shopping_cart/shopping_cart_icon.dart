@@ -40,7 +40,8 @@ class ShoppinCartIcon extends StatelessWidget {
             right: 0, // Adjust this value to position the text horizontally
             child: Text(
               shoppingCart.toString() + ' ' + shoppingCartProvider.count.toString(),
-            )),
+          ),
+        ),
       ],
     );
   }

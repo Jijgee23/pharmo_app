@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/branch/branch.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -77,16 +76,6 @@ class _SuplierListState extends State<SuplierList> {
                       List<dynamic> data =
                           jsonDecode(utf8.decode(response.bodyBytes));
                       if (data.isNotEmpty) {
-                        Map<String, dynamic> res = data[0];
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CustomerBranchList(
-                              id: res['id'],
-                              name: res['name'],
-                            ),
-                          ),
-                        );
                       }
                     } else {
                       showFailedMessage(

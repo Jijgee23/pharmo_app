@@ -32,7 +32,6 @@ class _JaggerDialogState extends State<JaggerDialog> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 

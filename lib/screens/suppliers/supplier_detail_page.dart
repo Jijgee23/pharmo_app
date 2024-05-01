@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/screens/suppliers/product_detail_page.dart';
+import 'package:pharmo_app/screens/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 
 class SupplierDetail extends StatefulWidget {

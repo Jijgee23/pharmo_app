@@ -41,7 +41,6 @@ class _ShoppingCartState extends State<ShoppingCart> {
 
   @override
   Widget build(BuildContext context) {
-   
     final basketProvider = Provider.of<BasketProvider>(context, listen: true);
 
     void clearBasket(int basketId) {
@@ -64,7 +63,6 @@ class _ShoppingCartState extends State<ShoppingCart> {
     return Scaffold(
       appBar: const CustomAppBar(
         title: 'Миний сагс',
-        
       ),
       body: Consumer<BasketProvider>(
         builder: (context, provider, _) {

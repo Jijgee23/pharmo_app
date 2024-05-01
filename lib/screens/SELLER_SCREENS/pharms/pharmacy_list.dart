@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/pharm.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/customer_branch_list.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +16,6 @@ class PharmacyList extends StatefulWidget {
 class _PharmacyListState extends State<PharmacyList> {
   final List<Pharm> _pharmList = <Pharm>[];
   final _searchController = TextEditingController();
-  int _basketId = 0;
   String pharmId = '';
   String searchQuery = '';
   List<Pharm> filteredItems = [];
@@ -26,28 +26,7 @@ class _PharmacyListState extends State<PharmacyList> {
     setState(() {
       _displayItems = _pharmList;
     });
-    getBasketId();
     super.initState();
-  }
-
-  getBasketId() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('access_token');
-    final response = await http.get(
-      Uri.parse('http://192.168.88.39:8000/api/v1/get_basket/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    final res = jsonDecode(utf8.decode(response.bodyBytes));
-    if (response.statusCode == 200) {
-      await prefs.setInt('basket_id', res['id']);
-      setState(() {
-        _basketId = res['id'];
-      });
-      print(_basketId);
-    }
   }
 
   getPharmacyList() async {
@@ -118,6 +97,18 @@ class _PharmacyListState extends State<PharmacyList> {
                   itemBuilder: ((context, index) {
                     return Card(
                       child: ListTile(
+                        onTap: () {
+                          print(_displayItems[index].id);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CustomerBranchList(
+                                customerId: _displayItems[index].id,
+                                custName: _displayItems[index].name,
+                              ),
+                            ),
+                          );
+                        },
                         leading: const Icon(
                           Icons.medical_services,
                           color: Colors.blue,
