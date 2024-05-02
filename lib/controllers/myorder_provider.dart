@@ -123,8 +123,13 @@ class MyOrderProvider extends ChangeNotifier {
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
-      } else {
+      } else if (selectedFilter == '4') {
         res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?supplier=$selectedItem'), headers: <String, String>{
+          'Content-Type': 'application/json; charset=utf-8',
+          'Authorization': bearerToken,
+        });
+      } else {
+        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/'), headers: <String, String>{
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
