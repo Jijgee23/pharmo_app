@@ -1,42 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
-import 'package:pharmo_app/screens/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ShoppingCart extends StatefulWidget {
-  const ShoppingCart({super.key});
+class SellerShoppingCart extends StatefulWidget {
+  const SellerShoppingCart({super.key});
 
   @override
-  State<ShoppingCart> createState() => _ShoppingCartState();
+  State<SellerShoppingCart> createState() => _SellerShoppingCartState();
 }
 
-class _ShoppingCartState extends State<ShoppingCart> {
-  String? _userRole = '';
-  String buttonText = 'Төлбөр төлөх';
+class _SellerShoppingCartState extends State<SellerShoppingCart> {
+  int? pharmId = 0;
   @override
   void initState() {
-    getUser();
+    getcustomerId();
     super.initState();
   }
 
-  void getUser() async {
+  getcustomerId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userRole = prefs.getString('userrole');
+    int? customerId = prefs.getInt('pharmId');
     setState(() {
-      _userRole = userRole;
+      pharmId = customerId;
     });
-    if (_userRole == 'S') {
-      setState(() {
-        buttonText = 'Захиалах';
-      });
-    }
   }
 
   @override
@@ -46,29 +37,16 @@ class _ShoppingCartState extends State<ShoppingCart> {
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
-      if (_userRole == 'S') {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const SellerHomePage()));
-      } else {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const PharmaHomePage()));
-      }
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const SellerHomePage()));
     }
 
     void purchase(int basketId) {
-      if (_userRole == 'S') {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const SelectSellerBranchPage()));
-      } else {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const SelectBranchPage()));
-      }
+      Navigator.push(context,
+          MaterialPageRoute(builder: (_) => const SelectSellerBranchPage()));
     }
 
     return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Миний сагс',
-      ),
       body: Consumer<BasketProvider>(
         builder: (context, provider, _) {
           final cartDatas = provider.shoppingCarts;
@@ -182,9 +160,9 @@ class _ShoppingCartState extends State<ShoppingCart> {
                             Icons.paid_rounded,
                             color: Colors.white,
                           ),
-                          label: Text(
-                            buttonText,
-                            style: const TextStyle(color: Colors.white),
+                          label: const Text(
+                            'Захиалах',
+                            style: TextStyle(color: Colors.white),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.secondary,

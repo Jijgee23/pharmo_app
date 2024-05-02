@@ -9,16 +9,16 @@ String? validateEmail(String? value) {
   final regex = RegExp(pattern);
 
   return value!.isNotEmpty && !regex.hasMatch(value)
-      ? 'Алдаатай имэйл хаяг байна!'
+      ? 'Имэйл хаяг буруу байна!'
       : null;
 }
 String? validatePassword(String? value) {
   final passwordRegex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$');
   if (value == null || value.isEmpty) {
-    return 'Please enter a password';
+    return 'Нууц үгээ оруулна уу';
   }
   if (!passwordRegex.hasMatch(value)) {
-    return 'Нууц үг буруу алдайтай байна!';
+    return 'Нууц үг буруу буруу байна!';
   }
   return null;
 }
@@ -29,7 +29,7 @@ String? validateOtp(String? value) {
     return 'Нууц үгээ оруулна уу';
   }
   if (!otpRegex.hasMatch(value)) {
-    return 'Нууц үг алдайтай байна!';
+    return 'Нууц үг буруу байна!';
   }
   return null;
 }
@@ -40,7 +40,18 @@ String? validatePhone(String? value) {
     return 'Утасны дугаараа оруулна уу';
   }
   if (!otpRegex.hasMatch(value)) {
-    return 'Утасны дугаар алдайтай байна!';
+    return 'Утасны дугаар 8 оронтой байх ёстой!!';
+  }
+  return null;
+}
+
+String? validateCRD(String? value) {
+  final otpRegex = RegExp(r'^\d{7}$');
+  if (value == null || value.isEmpty) {
+    return 'Регистрийн дугаар оруулна уу';
+  }
+  if (!otpRegex.hasMatch(value)) {
+    return 'Регистрийн дугаар 7 оронтой байх ёстой!';
   }
   return null;
 }

@@ -1,9 +1,11 @@
 class Pharm {
   int id;
   String name;
+  bool isCustomer;
   Pharm(
     this.id,
     this.name,
+    this.isCustomer
   );
 }
 

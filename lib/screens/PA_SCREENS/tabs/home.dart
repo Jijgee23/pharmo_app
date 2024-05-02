@@ -4,7 +4,6 @@ import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer.dart';
 import 'package:pharmo_app/screens/product/product_detail_page.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
@@ -23,7 +22,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final int _pageSize = 20;
-  final PagingController<int, dynamic> _pagingController = PagingController(firstPageKey: 1);
+  final PagingController<int, dynamic> _pagingController =
+      PagingController(firstPageKey: 1);
   String email = '';
   String role = '';
   String type = 'нэрээр';
@@ -75,7 +75,8 @@ class _HomeState extends State<Home> {
 
   Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByName(pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByName(
+          pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -108,63 +109,6 @@ class _HomeState extends State<Home> {
       ),
       child: SafeArea(
         child: Scaffold(
-          // appBar: AppBar(
-          //   automaticallyImplyLeading: true,
-          //   title: Padding(
-          //     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-          //     child: TextField(
-          //       controller: _searchController,
-          //       onChanged: (value) async {
-          //         setState(() {
-          //           searchQuery = _searchController.text;
-          //         });
-          //         _pagingController.refresh();
-          //       },
-          //       decoration: InputDecoration(
-          //         hintText: 'Барааны $type хайх',
-          //         prefixIcon: const Icon(Icons.search),
-          //         suffixIcon: IconButton(
-          //           onPressed: () {
-          //             showMenu(
-          //               context: context,
-          //               position: const RelativeRect.fromLTRB(150, 20, 0, 0),
-          //               items: <PopupMenuEntry>[
-          //                 PopupMenuItem(
-          //                   value: '1',
-          //                   onTap: () {
-          //                     setState(() {
-          //                       type = 'нэрээр';
-          //                     });
-          //                   },
-          //                   child: const Text('нэрээр'),
-          //                 ),
-          //                 PopupMenuItem(
-          //                   value: '2',
-          //                   onTap: () {
-          //                     setState(() {
-          //                       type = 'баркодоор';
-          //                     });
-          //                   },
-          //                   child: const Text('Баркодоор'),
-          //                 ),
-          //                 PopupMenuItem(
-          //                   value: '3',
-          //                   onTap: () {
-          //                     setState(() {
-          //                       type = 'ерөнхий нэршлээр';
-          //                     });
-          //                   },
-          //                   child: const Text('Ерөнхий нэршлээр'),
-          //                 ),
-          //               ],
-          //             ).then((value) {});
-          //           },
-          //           icon: const Icon(Icons.change_circle),
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
           drawer: Drawer(
             child: ListView(
               children: [
@@ -197,11 +141,13 @@ class _HomeState extends State<Home> {
                       ),
                       Text(
                         'Имейл хаяг: $email',
-                        style: TextStyle(color: Colors.white, fontSize: size.height * 0.015),
+                        style: TextStyle(
+                            color: Colors.white, fontSize: size.height * 0.015),
                       ),
                       Text(
                         'Хэрэглэгчийн төрөл: $role',
-                        style: TextStyle(color: Colors.white, fontSize: size.height * 0.015),
+                        style: TextStyle(
+                            color: Colors.white, fontSize: size.height * 0.015),
                       ),
                     ],
                   ),
@@ -210,7 +156,11 @@ class _HomeState extends State<Home> {
                   leading: const Icon(Icons.person_4, color: Colors.lightBlue),
                   title: const Text('Харилцагч сонгох'),
                   onTap: () {
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SellerCustomerPage()), (route) => false);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const SellerCustomerPage()),
+                        (route) => false);
                   },
                 ),
                 const Padding(
@@ -221,29 +171,29 @@ class _HomeState extends State<Home> {
                   leading: const Icon(Icons.shop, color: Colors.lightBlue),
                   title: const Text('Захиалга'),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const ShoppingCart()));
                   },
                 ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Divider(),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.add, color: Colors.lightBlue),
-                  title: const Text('Эмийн сан бүртгэх'),
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterPharm()));
-                  },
-                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Divider(),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.medical_information, color: Colors.lightBlue),
+                  leading: const Icon(Icons.medical_information,
+                      color: Colors.lightBlue),
                   title: const Text('Эмийн сангийн жагсаалт'),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const PharmacyList()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const PharmacyList()));
                   },
                 ),
                 const Padding(
@@ -262,7 +212,8 @@ class _HomeState extends State<Home> {
           ),
           resizeToAvoidBottomInset: false,
           body: NestedScrollView(
-            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
                 SliverPersistentHeader(
                   pinned: false,
@@ -272,7 +223,8 @@ class _HomeState extends State<Home> {
                     child: Column(
                       children: [
                         Container(
-                          margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 0, horizontal: 20),
                           child: TextField(
                             controller: _searchController,
                             onChanged: (value) async {
@@ -288,7 +240,8 @@ class _HomeState extends State<Home> {
                                 onPressed: () {
                                   showMenu(
                                     context: context,
-                                    position: const RelativeRect.fromLTRB(150, 20, 0, 0),
+                                    position: const RelativeRect.fromLTRB(
+                                        150, 20, 0, 0),
                                     items: <PopupMenuEntry>[
                                       PopupMenuItem(
                                         value: '1',
@@ -403,15 +356,20 @@ class _HomeState extends State<Home> {
                     );
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 10),
                     width: double.infinity,
                     child: Column(
                       children: [
                         Expanded(
                           child: SizedBox(
-                            child: (item.images != null && item.images.length > 0) ? Image.network(
-                                // ignore: prefer_interpolation_to_compose_strings
-                                'http://192.168.88.39:8000' + item.images?.first['url']) : Image.asset('assets/no_image.jpg'),
+                            child: (item.images != null &&
+                                    item.images.length > 0)
+                                ? Image.network(
+                                    // ignore: prefer_interpolation_to_compose_strings
+                                    'http://192.168.88.39:8000' +
+                                        item.images?.first['url'])
+                                : Image.asset('assets/no_image.jpg'),
                           ),
                         ),
                         Text(
@@ -420,16 +378,22 @@ class _HomeState extends State<Home> {
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(color: Colors.black),
                         ),
-                        Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
-                          Text(
-                            item.price + ' ₮',
-                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            item.modified_at,
-                            style: const TextStyle(fontSize: 11, color: Colors.grey),
-                          ),
-                        ])
+                        Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                item.price + ' ₮',
+                                style: const TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                item.modified_at,
+                                style: const TextStyle(
+                                    fontSize: 11, color: Colors.grey),
+                              ),
+                            ])
                       ],
                     ),
                   ),
@@ -461,12 +425,15 @@ class StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxHeight;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return SizedBox.expand(child: child);
   }
 
   @override
   bool shouldRebuild(covariant StickyHeaderDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }

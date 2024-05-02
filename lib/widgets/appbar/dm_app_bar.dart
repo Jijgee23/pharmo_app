@@ -22,7 +22,6 @@ class DMAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context);
 
     return ChangeNotifierProvider(
       create: (context) => BasketProvider(),

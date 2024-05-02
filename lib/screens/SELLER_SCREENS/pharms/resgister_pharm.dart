@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/address.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
+import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_filed.dart';
 import 'package:http/http.dart' as http;
@@ -12,14 +13,14 @@ import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
-class RegisterPharm extends StatefulWidget {
-  const RegisterPharm({super.key});
+class RegisterPharmPage extends StatefulWidget {
+  const RegisterPharmPage({super.key});
 
   @override
-  State<RegisterPharm> createState() => _RegisterPharmState();
+  State<RegisterPharmPage> createState() => _RegisterPharmPageState();
 }
 
-class _RegisterPharmState extends State<RegisterPharm> {
+class _RegisterPharmPageState extends State<RegisterPharmPage> {
   List<Province> provinceList = [];
   List<District> districtList = [];
   List<Khoroo> khorooList = [];
@@ -206,14 +207,19 @@ class _RegisterPharmState extends State<RegisterPharm> {
                 CustomTextField(
                   controller: cRdController,
                   hintText: 'Байгууллагын РД',
+                  validator: validateCRD,
+                  keyboardType: TextInputType.number,
                 ),
                 CustomTextField(
                   controller: emailController,
                   hintText: 'Имэйл хаяг',
+                  validator: validateEmail,
                 ),
                 CustomTextField(
                   controller: phoneController,
                   hintText: 'Утасны дугаар',
+                  validator: validatePhone,
+                  keyboardType: TextInputType.number,
                 ),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.75,
@@ -280,7 +286,9 @@ class _RegisterPharmState extends State<RegisterPharm> {
                     onChanged: (Khoroo? newValue) {
                       setState(() {
                         selectedKhoroo = newValue;
-                        khorooId = newValue!.id;
+                        provinceId = newValue!.aimag;
+                        districtId = newValue.sum;
+                        khorooId = newValue.id;
                       });
                     },
                     items: khorooList
@@ -299,6 +307,49 @@ class _RegisterPharmState extends State<RegisterPharm> {
                 CustomButton(
                   text: 'Бүртгэх',
                   ontap: () {
+                    if (cNameController.text.isEmpty) {
+                      showFailedMessage(
+                          message: 'Байгууллагын нэрээ оруулна уу.',
+                          context: context);
+                      return;
+                    }
+                    if (cRdController.text.isEmpty) {
+                      showFailedMessage(
+                          message: 'Байгууллагын рд оруулна уу.',
+                          context: context);
+                      return;
+                    }
+                    if (emailController.text.isEmpty) {
+                      showFailedMessage(
+                          message: 'Имейл хаяг оруулна уу.', context: context);
+                      return;
+                    }
+                    if (phoneController.text.isEmpty) {
+                      showFailedMessage(
+                          message: 'Утасны дугаар оруулна уу.',
+                          context: context);
+                      return;
+                    }
+                    if (provinceId == 0) {
+                      showFailedMessage(
+                          message: 'Аймаг/Хот сонгоно уу.', context: context);
+                      return;
+                    }
+                    if (districtId == 0) {
+                      showFailedMessage(
+                          message: 'Сум/Дүүрэг сонгоно уу.', context: context);
+                      return;
+                    }
+                    if (provinceId == 0) {
+                      showFailedMessage(
+                          message: 'Баг/Хороо сонгоно уу.', context: context);
+                      return;
+                    }
+                    if (detailedController.text.isEmpty) {
+                      showFailedMessage(
+                          message: 'Тайлбар оруулна уу.', context: context);
+                      return;
+                    }
                     registerPharm();
                   },
                 ),
