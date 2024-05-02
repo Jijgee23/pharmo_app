@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/models/pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -9,6 +10,8 @@ import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+import '../../../models/customer.dart';
 
 class PharmacyList extends StatefulWidget {
   const PharmacyList({super.key});
@@ -29,10 +32,19 @@ class _PharmacyListState extends State<PharmacyList> {
   Map company = {};
   List<dynamic> branches = [];
   List<dynamic> manager = [];
+  Position? _currentLocation;
+  late LocationPermission permission;
+  late bool servicePermission = false;
+  String latitude = '';
+  String longitude = '';
+  List<Customer> customerList = <Customer>[];
+  List<Customer> displayItems = <Customer>[];
   @override
   void initState() {
     getPharmacyList();
     getCustomers();
+    getLocatiion();
+    _getCurrentLocation();
     setState(() {
       _displayItems = _pharmList;
     });
@@ -114,6 +126,25 @@ class _PharmacyListState extends State<PharmacyList> {
               icon: const Icon(Icons.change_circle),
             ),
           ),
+          actions: [
+            Container(
+              padding: const EdgeInsets.only(right: 5),
+              width: 40,
+              child: FloatingActionButton(
+                shape: const CircleBorder(
+                  side: BorderSide(
+                    width: 1,
+                    color: AppColors.secondary,
+                  ),
+                ),
+                backgroundColor: AppColors.primary,
+                onPressed: () {
+                  searchByLocation();
+                },
+                child: const Icon(Icons.location_on, color: Colors.blue),
+              ),
+            ),
+          ],
         ),
         uniqueItems.isEmpty
             ? SliverFillRemaining(
@@ -371,6 +402,64 @@ class _PharmacyListState extends State<PharmacyList> {
           _displayItems = _pharmList;
         });
       }
+    }
+  }
+
+  Future<Position> _getCurrentLocation() async {
+    servicePermission = await Geolocator.isLocationServiceEnabled();
+
+    if (!servicePermission) {
+      print("Service Disabled");
+    }
+    permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  getLocatiion() async {
+    _currentLocation = await _getCurrentLocation();
+    setState(() {
+      latitude = _currentLocation!.latitude.toString().substring(0, 7);
+      longitude = _currentLocation!.longitude.toString().substring(0, 7);
+    });
+    print('lat: $latitude, long: $longitude');
+  }
+
+  searchByLocation() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      final response = await http.post(
+          Uri.parse(
+              'http://192.168.88.39:8000/api/v1/seller/search_by_location/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({'lat': latitude, 'lon': longitude}));
+      if (response.statusCode == 200) {
+        final res = jsonDecode(utf8.decode(response.bodyBytes));
+        if (res == 'not found') {
+          showFailedMessage(message: 'Харилцагч олдсонгүй', context: context);
+        } else {
+          List<dynamic> customers = res['customers'];
+          customerList.clear();
+          setState(() {
+            for (int i = 0; i < customers.length; i++) {
+              customerList.add(Customer.fromJson((customers[i])));
+            }
+            displayItems = customerList;
+          });
+        }
+      } else {
+        showFailedMessage(message: 'Харилцагч олдсонгүй.', context: context);
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
     }
   }
 }

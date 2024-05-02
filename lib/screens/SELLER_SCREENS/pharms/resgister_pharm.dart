@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/address.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_order/seller_home.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_filed.dart';
