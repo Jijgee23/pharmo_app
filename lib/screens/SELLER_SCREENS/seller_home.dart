@@ -5,6 +5,7 @@ import 'package:pharmo_app/models/customer.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home_tab.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -51,7 +52,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
 
   final List _pages = [
     const PharmacyList(),
-    const Home(),
+    const SellerHomeTab(),
     const SellerShoppingCart(),
   ];
   void getUserInfo() async {
