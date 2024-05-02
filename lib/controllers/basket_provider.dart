@@ -10,15 +10,17 @@ class BasketProvider extends ChangeNotifier {
   int _count = 0;
   int get count => _count;
   String? userrole = '';
-
   late Basket _basket;
   Basket get basket => _basket;
-
   List<dynamic> _shoppingCarts = [];
   List<dynamic> get shoppingCarts => [..._shoppingCarts];
 
   late OrderQRCode _qrCode;
   OrderQRCode get qrCode => _qrCode;
+  BasketProvider() {
+    getUser();
+    getBasket();
+  }
   void getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userRole = prefs.getString('userrole');
@@ -170,11 +172,12 @@ class BasketProvider extends ChangeNotifier {
       String bearerToken = "Bearer $token";
 
       final resBasket = await http.get(
-          Uri.parse('http://192.168.88.39:8000/api/v1/get_basket'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+        Uri.parse('http://192.168.88.39:8000/api/v1/get_basket'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': bearerToken,
+        },
+      );
       if (resBasket.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(utf8.decode(resBasket.bodyBytes));
         _basket = Basket.fromJson(res);
@@ -185,7 +188,6 @@ class BasketProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print(e);
       notifyListeners();
     }
   }

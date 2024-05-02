@@ -5,26 +5,44 @@ class CustomSearchBar extends StatelessWidget {
   final String title;
   final TextEditingController searchController;
   void Function(String)? onChanged;
-  final IconButton? iconButton;
+  final IconButton? suffix;
+  final IconButton? prefix;
+  final TextInputType? keyboardType;
+  final Function(String)? onSubmitted;
   CustomSearchBar({
     super.key,
     this.onChanged,
     required this.searchController,
     required this.title,
-    this.iconButton,
+    this.suffix,
+    this.prefix,
+    this.keyboardType,
+    this.onSubmitted,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 18),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      height: 50,
+      width: double.infinity,
       child: TextField(
+        cursorColor: Colors.black,
+        keyboardType: keyboardType,
         controller: searchController,
         onChanged: onChanged,
+        onSubmitted: onSubmitted,
         decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
           hintText: title,
           prefixIcon: const Icon(Icons.search),
-          suffixIcon: iconButton,
+          suffixIcon: suffix,
+          prefix: prefix,
         ),
       ),
     );

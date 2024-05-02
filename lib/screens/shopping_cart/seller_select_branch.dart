@@ -23,15 +23,24 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   int _selectedIndex = -1;
   int _selectedAddress = 0;
   int _basketId = 0;
-  String? _customerID = '';
   String _selectedRadioValue = '';
   bool invisible = false;
+  int? pharmId = 0;
 
   @override
   void initState() {
     getCustomerBranch();
     getBasketId();
+    getcustomerId();
     super.initState();
+  }
+
+  getcustomerId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? customerId = prefs.getInt('pharmId');
+    setState(() {
+      pharmId = customerId;
+    });
   }
 
   getBasketId() async {
@@ -57,23 +66,17 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
-      String? customerId = prefs.getString('customerId');
-      setState(() {
-        _customerID = customerId;
-      });
-      print(_customerID);
       final response = await http.post(
           Uri.parse('http://192.168.88.39:8000/api/v1/seller/customer_branch/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
           },
-          body: jsonEncode({'customerId': _customerID}));
+          body: jsonEncode({'customerId': pharmId}));
       sellerBranchList.clear();
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
-          _customerID = customerId;
           for (int i = 0; i < res.length; i++) {
             sellerBranchList.add(Branch.fromJson(res[i]));
           }
@@ -88,9 +91,6 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
 
   createSellerOrder() async {
     try {
-      print(
-          'user: $_customerID , address: $_selectedAddress, basket: $_basketId');
-      print(_selectedRadioValue);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       if (_selectedRadioValue == 'L') {
@@ -105,13 +105,12 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           },
           body: jsonEncode(
             {
-              'user': _customerID,
+              'user': pharmId,
               'address': _selectedAddress,
               'basket': _basketId,
             },
           ),
         );
-        print(response.statusCode);
         if (response.statusCode == 200) {
           final res = jsonDecode(utf8.decode(response.bodyBytes));
           final orderNumber = res['orderNo'];
@@ -136,7 +135,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           },
           body: jsonEncode(
             {
-              'user': _customerID,
+              'user': pharmId,
             },
           ),
         );
@@ -168,7 +167,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
       create: (context) => BasketProvider(),
       child: Scaffold(
         appBar: const CustomAppBar(
-          title: 'Төлбөрийн хэлбэр',
+          title: 'Захиалга үүсгэх',
         ),
         body: Container(
           margin: const EdgeInsets.all(15),
@@ -184,9 +183,8 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                       onChanged: (String? value) {
                         setState(() {
                           _selectedRadioValue = value!;
-                          setState(() {
-                            invisible = !invisible;
-                          });
+                          invisible = !invisible;
+                          getCustomerBranch();
                         });
                       },
                     ),

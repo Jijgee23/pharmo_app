@@ -25,7 +25,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context);
-    // final shoppingCartCC = context.watch<BasketProvider>().count;
 
     return ChangeNotifierProvider(
       create: (context) => BasketProvider(),

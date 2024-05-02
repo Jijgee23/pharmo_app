@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -6,7 +8,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_home_page.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:pharmo_app/widgets/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -101,8 +103,6 @@ class AuthController extends ChangeNotifier {
       Uri.parse('http://192.168.88.39:8000/api/v1/auth/login/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization':
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzEyMTM4MDk3LCJpYXQiOjE3MTIwNTE2OTcsImp0aSI6IjM3NzE2NzEwN2VhZDRkYTRhNDA5ZTE4M2YzMmFlNDhjIiwidXNlcl9pZCI6NDUwLCJlbWFpbCI6ImppamdlZTY0N0BnbWFpbC5jb20iLCJyb2xlIjoiUEEiLCJpc19zdGFmZiI6ZmFsc2UsImlzX3ZlcmlmaWVkIjp0cnVlLCJzdXBwbGllciI6bnVsbCwicGMiOmZhbHNlLCJpc1Jldmlld2VkIjpudWxsfQ.SmniAagJJnLl8NmvzLTB1CgCcXDlVP865HlneMp9suE',
       },
       body: jsonEncode({
         'email': email,
@@ -121,7 +121,6 @@ class AuthController extends ChangeNotifier {
       await prefs.setString('useremail', decodedToken['email']);
       await prefs.setInt('user_id', decodedToken['user_id']);
       await prefs.setString('userrole', decodedToken['role']);
-      // ignore: use_build_context_synchronously
       final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
       shoppingCart.getBasket();
       // await prefs.setString('basket_count', count.toString());
@@ -129,7 +128,7 @@ class AuthController extends ChangeNotifier {
       if (decodedToken['role'] == 'S') {
         Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (_) => const SellerCustomerPage()),
+            MaterialPageRoute(builder: (_) => const SellerHomePage()),
             (route) => false);
       }
       if (decodedToken['role'] == 'PA') {
@@ -161,7 +160,6 @@ class AuthController extends ChangeNotifier {
       prefs.remove('access_token');
       prefs.remove('refresh_token');
       Navigator.pushAndRemoveUntil(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (_) => const LoginPage()),
           (route) => true);
@@ -183,14 +181,12 @@ class AuthController extends ChangeNotifier {
       if (response.statusCode == 200) {
         showSuccessMessage(
             message: 'Батлагаажуулах код илгээлээ!',
-            // ignore: use_build_context_synchronously
             context: context);
         notifyListeners();
       }
     } catch (e) {
       showFailedMessage(
           message: 'Амжилтгүй!',
-          // ignore: use_build_context_synchronously
           context: context);
       notifyListeners();
     }
@@ -206,28 +202,23 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (response.statusCode == 200) {
         Navigator.pushAndRemoveUntil(
-            // ignore: use_build_context_synchronously
             context,
             MaterialPageRoute(builder: (_) => const LoginPage()),
             (route) => false);
         showSuccessMessage(
-            // ignore: use_build_context_synchronously
             message: 'Бүртгэл амжилттай үүслээ',
-            // ignore: use_build_context_synchronously
             context: context);
         notifyListeners();
       }
       if (response.statusCode == 500) {
         showFailedMessage(
             message: 'Түр хүлээгээд дахин оролдоно уу!',
-            // ignore: use_build_context_synchronously
             context: context);
         notifyListeners();
       }
     } catch (e) {
       showFailedMessage(
           message: 'Амжилтгүй!',
-          // ignore: use_build_context_synchronously
           context: context);
     }
     notifyListeners();
@@ -247,21 +238,17 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (response.statusCode == 200) {
         showSuccessMessage(
-            // ignore: use_build_context_synchronously
             context: context,
             message: 'Батлагаажуулах код илгээлээ');
         notifyListeners();
       } else {
         showFailedMessage(
-            // ignore: use_build_context_synchronously
             message: 'Амжилтгүй!',
-            // ignore: use_build_context_synchronously
             context: context);
         notifyListeners();
       }
       notifyListeners();
     } catch (e) {
-      // ignore: use_build_context_synchronously
       showFailedMessage(context: context, message: 'Амжилтгүй!');
     }
     notifyListeners();
@@ -284,14 +271,12 @@ class AuthController extends ChangeNotifier {
       if (response.statusCode == 200) {
         showSuccessMessage(
             message: 'Нууц үг амжилттай үүслээ',
-            // ignore: use_build_context_synchronously
             context: context);
         notifyListeners();
       }
     } catch (e) {
       showFailedMessage(
           message: 'Амжилтгүй!',
-          // ignore: use_build_context_synchronously
           context: context);
     }
     notifyListeners();

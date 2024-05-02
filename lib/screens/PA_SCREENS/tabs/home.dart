@@ -1,16 +1,16 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer.dart';
-import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/screens/product/product_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/filter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   const Home({
@@ -27,7 +27,7 @@ class _HomeState extends State<Home> {
       PagingController(firstPageKey: 1);
   String email = '';
   String role = '';
-  String type = 'нэрээр';
+  String searchType = 'Нэрээр';
   String searchQuery = '';
   bool isem = true;
   bool isvita = true;
@@ -38,15 +38,15 @@ class _HomeState extends State<Home> {
   List<Product> displayProducts = <Product>[];
   @override
   void initState() {
-    getUserInfo();
     _pagingController.addPageRequestListener(
       (pageKey) {
-        if (_searchController.text.isNotEmpty && type == 'нэрээр') {
+        if (_searchController.text.isNotEmpty && searchType == 'Нэрээр') {
           _fetchPageByName(pageKey, searchQuery);
         }
         if (_searchController.text.isEmpty) {
           _fetchPage(pageKey);
         }
+        _pagingController.refresh();
       },
     );
     super.initState();
@@ -57,8 +57,6 @@ class _HomeState extends State<Home> {
     _pagingController.dispose();
     super.dispose();
   }
-
-  
 
   Future<void> _fetchPage(int pageKey) async {
     try {
@@ -75,6 +73,7 @@ class _HomeState extends State<Home> {
       _pagingController.error = error;
     }
   }
+
   Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
     try {
       final newItems = await SearchProvider.getProdListByName(
@@ -92,323 +91,241 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void getUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? useremail = prefs.getString('useremail');
-    String? userRole = prefs.getString('userrole');
-    setState(() {
-      email = useremail.toString();
-      role = userRole.toString();
-    });
+  void addBasket(int productID, int itemNameId) async {
+    try {
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
+      Map<String, dynamic> res = await basketProvider.addBasket(
+          product_id: productID, itemname_id: itemNameId, qty: 1);
+      if (res['errorType'] == 1) {
+        basketProvider.getBasket();
+        showSuccessMessage(message: res['message'], context: context);
+      } else {
+        showFailedMessage(message: res['message'], context: context);
+      }
+    } catch (e) {
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа.!', context: context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return RefreshIndicator(
       onRefresh: () => Future.sync(
         () => _pagingController.refresh(),
       ),
       child: SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: true,
-            title: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) async {
-                  setState(() {
-                    searchQuery = _searchController.text;
-                  });
-                  _pagingController.refresh();
-                },
-                decoration: InputDecoration(
-                  hintText: 'Барааны $type хайх',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      showMenu(
-                        context: context,
-                        position: const RelativeRect.fromLTRB(150, 20, 0, 0),
-                        items: <PopupMenuEntry>[
-                          PopupMenuItem(
-                            value: '1',
-                            onTap: () {
-                              setState(() {
-                                type = 'нэрээр';
-                              });
-                            },
-                            child: const Text('нэрээр'),
+        child: ChangeNotifierProvider(
+          create: (context) => BasketProvider(),
+          child: Scaffold(
+            resizeToAvoidBottomInset: false,
+            body: NestedScrollView(
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[
+                  SliverPersistentHeader(
+                    pinned: false,
+                    delegate: StickyHeaderDelegate(
+                      minHeight: MediaQuery.of(context).size.height * 0.145,
+                      maxHeight: MediaQuery.of(context).size.height * 0.15,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: CustomSearchBar(
+                              searchController: _searchController,
+                              onChanged: (value) {
+                                setState(() {
+                                  searchQuery = value;
+                                  print(searchQuery);
+                                });
+                                _pagingController.refresh();
+                              },
+                              title: searchType,
+                              suffix: IconButton(
+                                icon: const Icon(Icons.change_circle_sharp),
+                                onPressed: () {
+                                  showMenu(
+                                    context: context,
+                                    position: const RelativeRect.fromLTRB(
+                                        150, 20, 0, 0),
+                                    items: <PopupMenuEntry>[
+                                      PopupMenuItem(
+                                        value: 'item1',
+                                        onTap: () {
+                                          setState(() {
+                                            searchType = 'нэрээр';
+                                          });
+                                        },
+                                        child: const Text('нэрээр'),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'item2',
+                                        onTap: () {
+                                          setState(() {
+                                            searchType = 'баркодоор';
+                                          });
+                                        },
+                                        child: const Text('Баркодоор'),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'item3',
+                                        onTap: () {
+                                          setState(() {
+                                            searchType = 'ерөнхий нэршлээр';
+                                          });
+                                        },
+                                        child: const Text('Ерөнхий нэршлээр'),
+                                      ),
+                                    ],
+                                  ).then((value) {});
+                                },
+                              ),
+                            ),
                           ),
-                          PopupMenuItem(
-                            value: '2',
-                            onTap: () {
-                              setState(() {
-                                type = 'баркодоор';
-                              });
-                            },
-                            child: const Text('Баркодоор'),
-                          ),
-                          PopupMenuItem(
-                            value: '3',
-                            onTap: () {
-                              setState(() {
-                                type = 'ерөнхий нэршлээр';
-                              });
-                            },
-                            child: const Text('Ерөнхий нэршлээр'),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            width: double.infinity,
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              child: Wrap(
+                                spacing: 10,
+                                children: [
+                                  CustomFitler(
+                                    selected: !isem,
+                                    text: 'Эм',
+                                    onSelected: (bool value) {
+                                      setState(() {
+                                        isem = !isem;
+                                      });
+                                    },
+                                  ),
+                                  CustomFitler(
+                                    selected: !isvita,
+                                    text: 'Витамин',
+                                    onSelected: (bool value) {
+                                      setState(() {
+                                        isvita = !isvita;
+                                      });
+                                    },
+                                  ),
+                                  CustomFitler(
+                                    selected: !isprod,
+                                    text: 'Эрүүл мэндийн хэрэгсэл, төхөөрөмж',
+                                    onSelected: (bool value) {
+                                      setState(() {
+                                        isprod = !isprod;
+                                      });
+                                    },
+                                  ),
+                                  CustomFitler(
+                                    selected: !isother,
+                                    text: 'Бусад',
+                                    onSelected: (bool value) {
+                                      setState(() {
+                                        isother = !isother;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
-                      ).then((value) {});
-                    },
-                    icon: const Icon(Icons.change_circle),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          drawer: Drawer(
-            child: ListView(
-              children: [
-                DrawerHeader(
-                  padding: EdgeInsets.all(size.width * 0.05),
-                  curve: Curves.easeInOut,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Бүртгэл',
-                        style: TextStyle(color: Colors.white),
                       ),
-                      Container(
-                        width: size.width * 0.1,
-                        height: size.width * 0.1,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
-                        child: Icon(
-                          Icons.person,
-                          color: AppColors.secondary,
-                          size: size.width * 0.1,
-                        ),
-                      ),
-                      Text(
-                        'Имейл хаяг: $email',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: size.height * 0.015),
-                      ),
-                      Text(
-                        'Хэрэглэгчийн төрөл: $role',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: size.height * 0.015),
-                      ),
-                    ],
-                  ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.person_4, color: Colors.lightBlue),
-                  title: const Text('Харилцагч сонгох'),
-                  onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const SellerCustomerPage()),
-                        (route) => false);
-                  },
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Divider(),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.shop, color: Colors.lightBlue),
-                  title: const Text('Захиалга'),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const ShoppingCart()));
-                  },
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Divider(),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.add, color: Colors.lightBlue),
-                  title: const Text('Эмийн сан бүртгэх'),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const RegisterPharm()));
-                  },
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Divider(),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.medical_information,
-                      color: Colors.lightBlue),
-                  title: const Text('Эмийн сангийн жагсаалт'),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const PharmacyList()));
-                  },
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Divider(),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.lightBlue),
-                  title: const Text('Гарах'),
-                  onTap: () {
-                    showLogoutDialog(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-          resizeToAvoidBottomInset: false,
-          body: NestedScrollView(
-            headerSliverBuilder:
-                (BuildContext context, bool innerBoxIsScrolled) {
-              return <Widget>[
-                SliverPersistentHeader(
-                  pinned: false,
-                  delegate: StickyHeaderDelegate(
-                    minHeight: MediaQuery.of(context).size.height * 0.071,
-                    maxHeight: MediaQuery.of(context).size.height * 0.071,
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          width: double.infinity,
-                          child: SingleChildScrollView(
-                            physics: const BouncingScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            child: Wrap(
-                              spacing: 10,
-                              children: [
-                                CustomFitler(
-                                  selected: !isem,
-                                  text: 'Эм',
-                                  onSelected: (bool value) {
-                                    setState(() {
-                                      isem = !isem;
-                                    });
-                                  },
-                                ),
-                                CustomFitler(
-                                  selected: !isvita,
-                                  text: 'Витамин',
-                                  onSelected: (bool value) {
-                                    setState(() {
-                                      isvita = !isvita;
-                                    });
-                                  },
-                                ),
-                                CustomFitler(
-                                  selected: !isprod,
-                                  text: 'Эрүүл мэндийн хэрэгсэл, төхөөрөмж',
-                                  onSelected: (bool value) {
-                                    setState(() {
-                                      isprod = !isprod;
-                                    });
-                                  },
-                                ),
-                                CustomFitler(
-                                  selected: !isother,
-                                  text: 'Бусад',
-                                  onSelected: (bool value) {
-                                    setState(() {
-                                      isother = !isother;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
+                ];
+              },
+              body: PagedGridView<int, dynamic>(
+                showNewPageProgressIndicatorAsGridChild: false,
+                showNewPageErrorIndicatorAsGridChild: false,
+                showNoMoreItemsIndicatorAsGridChild: false,
+                pagingController: _pagingController,
+                physics: const BouncingScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
                 ),
-              ];
-            },
-            body: PagedGridView<int, dynamic>(
-              showNewPageProgressIndicatorAsGridChild: false,
-              showNewPageErrorIndicatorAsGridChild: false,
-              showNoMoreItemsIndicatorAsGridChild: false,
-              pagingController: _pagingController,
-              physics: const BouncingScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-              ),
-              builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                animateTransitions: true,
-                itemBuilder: (_, item, index) => InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetail(
-                          prod: item,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 10),
-                    width: double.infinity,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            child: (item.images != null &&
-                                    item.images.length > 0)
-                                ? Image.network(
-                                    // ignore: prefer_interpolation_to_compose_strings
-                                    'http://192.168.88.39:8000' +
-                                        item.images?.first['url'])
-                                : Image.asset('assets/no_image.jpg'),
+                builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                  animateTransitions: true,
+                  itemBuilder: (_, item, index) => InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetail(
+                            prod: item,
                           ),
                         ),
-                        Text(
-                          item.name,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.black),
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              item.price + ' ₮',
-                              style: const TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w500),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              child: (item.images != null &&
+                                      item.images.length > 0)
+                                  ? Image.network(
+                                      // ignore: prefer_interpolation_to_compose_strings
+                                      'http://192.168.88.39:8000' +
+                                          item.images?.first['url'])
+                                  : Image.asset('assets/no_image.jpg'),
                             ),
-                            Text(
-                              item.modified_at,
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.grey),
+                          ),
+                          Text(
+                            item.name,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                item.price + ' ₮',
+                                style: const TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                item.modified_at,
+                                style: const TextStyle(
+                                    fontSize: 11, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.05,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                addBasket(item.id, item.itemname_id);
+                              },
+                              child: Text(
+                                'Сагсанд нэмэх',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        AppColors.secondary),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
