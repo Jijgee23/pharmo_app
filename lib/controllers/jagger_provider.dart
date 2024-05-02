@@ -33,6 +33,7 @@ class JaggerProvider extends ChangeNotifier {
   TextEditingController amount = TextEditingController();
   TextEditingController note = TextEditingController();
   TextEditingController rQty = TextEditingController();
+  TextEditingController feedback = TextEditingController();
   ValidationModel _noteVal = ValidationModel(null, null);
   ValidationModel get noteVal => _noteVal;
   ValidationModel _amountVal = ValidationModel(null, null);
@@ -205,6 +206,29 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
+  Future<dynamic> setFeedback(int shipId, int itemId) async {
+    try {
+      String bearerToken = await getAccessToken();
+      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/shipment_add_note/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          },
+          body: jsonEncode({"shipId": shipId, "itemId": itemId, "note": feedback.text}));
+      notifyListeners();
+      if (res.statusCode == 200) {
+        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        feedback.text = '';
+        return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.'};
+      } else {
+        return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн тайлбар нэмхэд алдаа гарлаа.'};
+      }
+    } catch (e) {
+      print(e);
+      return {'fail': e};
+    }
+  }
+
   Future<dynamic> editExpenseAmount(int id) async {
     try {
       String bearerToken = await getAccessToken();
@@ -308,7 +332,7 @@ class JaggerProvider extends ChangeNotifier {
     return await Geolocator.getCurrentPosition();
   }
 
-  getLocatiion() async {
+  getLocation() async {
     _currentLocation = await _getCurrentLocation();
     _latitude = _currentLocation!.latitude.toString().substring(0, 7);
     _longitude = _currentLocation!.longitude.toString().substring(0, 7);
@@ -318,19 +342,26 @@ class JaggerProvider extends ChangeNotifier {
     try {
       String bearerToken = await getAccessToken();
       print('lat: $latitude, long: $longitude');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/update_shipment_location/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
-          body: jsonEncode({"lat": latitude, "lon": longitude}));
-      notifyListeners();
-      if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
-        return {'errorType': 1, 'data': response, 'message': 'Түгээгчийн байршлыг амжилттай илгээлээ.'};
+      if (prefs.getString('latitude') != latitude || prefs.getString('longitude') != longitude) {
+        await prefs.setString('latitude', latitude);
+        await prefs.setString('longitude', longitude);
+        final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/update_shipment_location/'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': bearerToken,
+            },
+            body: jsonEncode({"lat": latitude, "lon": longitude}));
+        notifyListeners();
+        if (res.statusCode == 200) {
+          final response = jsonDecode(utf8.decode(res.bodyBytes));
+          return {'errorType': 1, 'data': response, 'message': 'Түгээгчийн байршлыг амжилттай илгээлээ.'};
+        } else {
+          return {'errorType': 2, 'data': null, 'message': 'Түгээгчийн байршлыг илгээхэд алдаа гарлаа.'};
+        }
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'Түгээгчийн байршлыг илгээхэд алдаа гарлаа.'};
+        return {'errorType': 1, 'data': null, 'message': 'Түгээгчийн байршил өөрчлөгдөөгүй байна.'};
       }
     } catch (e) {
       print(e);

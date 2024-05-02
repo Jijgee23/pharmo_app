@@ -6,8 +6,8 @@ class Jagger {
   int id;
   String? startTime;
   String? endTime;
-  String? lon;
-  String? lat;
+  double? lon;
+  double? lat;
   String? progress;
   bool? isActive;
   String? createdOn;

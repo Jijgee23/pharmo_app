@@ -1,122 +1,95 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
+import 'package:pharmo_app/controllers/myorder_provider.dart';
+import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/custom_text_field_icon.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
-class JaggerHomeDetail extends StatelessWidget {
-  final int index;
-  const JaggerHomeDetail({super.key, required this.index});
+class MyOrderDetail extends StatefulWidget {
+  final int orderId;
+  const MyOrderDetail({super.key, required this.orderId});
+  @override
+  State<MyOrderDetail> createState() => _MyOrderDetailState();
+}
+
+class _MyOrderDetailState extends State<MyOrderDetail> {
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    try {
+      final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
+      dynamic res = await orderProvider.getMyorderDetail(widget.orderId);
+      if (res['errorType'] == 1) {
+        showSuccessMessage(message: res['message'], context: context);
+      } else {
+        showFailedMessage(message: res['message'], context: context);
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const DMAppBar(
-        title: 'Түгээлтийн дэлгэрэнгүй',
+      appBar: const CustomAppBar(
+        title: 'Миний захиалгын дэлгэрэнгүй',
       ),
-      body: Consumer<JaggerProvider>(builder: (context, provider, _) {
-        final orderItems =
-            (provider.jaggers[0].jaggerOrders != null && provider.jaggers[0].jaggerOrders!.isNotEmpty && provider.jaggers[0].jaggerOrders![index].jaggerOrderItems != null) ? provider.jaggers[0].jaggerOrders![index].jaggerOrderItems : null;
-        final jagger = provider.jaggers[0];
-        print(jagger);
+      body: Consumer<MyOrderProvider>(builder: (context, provider, _) {
+        final details = (provider.orderDetails.isNotEmpty) ? provider.orderDetails : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-          child: orderItems != null && orderItems.isNotEmpty
+          child: details != null && details.isNotEmpty
               ? ListView.builder(
-                  itemCount: orderItems.length,
+                  itemCount: details.length,
                   itemBuilder: (context, index) {
                     return Card(
                         child: InkWell(
-                      onTap: () => {print('shineodko')},
+                      onTap: () async => {print('shineodko')},
                       child: Container(
-                        margin: const EdgeInsets.all(15),
+                        margin: const EdgeInsets.all(10),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              orderItems[index].itemName.toString(),
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-                            ),
+                            Text(details[index].itemName.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
                             const SizedBox(
-                              height: 7,
+                              height: 5,
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    IconButton.filledTonal(
-                                      iconSize: 25,
-                                      color: Colors.red,
-                                      icon: const Icon(
-                                        Icons.remove,
-                                      ),
-                                      onPressed: () {
-                                        _dialogBuilder(
-                                          context,
-                                          'Түгээлтийн зарлага хасах',
-                                          orderItems[index].itemId,
-                                          false,
-                                        );
-                                      },
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                                      child: RichText(
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        text: TextSpan(text: 'Тоо ширхэг : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                          TextSpan(text: orderItems[index].itemQty.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                                        ]),
-                                      ),
-                                    ),
-                                    IconButton.filledTonal(
-                                      iconSize: 25,
-                                      color: Colors.green,
-                                      icon: const Icon(
-                                        Icons.add,
-                                      ),
-                                      onPressed: () {
-                                        _dialogBuilder(
-                                          context,
-                                          'Түгээлтийн зарлага нэмэх',
-                                          orderItems[index].itemId,
-                                          true,
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  iconSize: 20,
-                                  icon: const Icon(Icons.text_increase_outlined),
-                                  onPressed: () {
-                                    _jaggerFeedbackDialog(context, 'Түгээлтийн зарлага хасах', jagger.id, orderItems[index].itemId);
-                                  },
-                                ),
-                              ],
-                            ),
+                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                              RichText(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                text: TextSpan(text: 'Тоо ширхэг : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                                  TextSpan(text: details[index].itemQty.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                ]),
+                              ),
+                            ]),
                             const SizedBox(
-                              height: 7,
+                              height: 5,
                             ),
                             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                               RichText(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 text: TextSpan(text: 'Үнэ : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: '${orderItems[index].itemPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                                  TextSpan(text: "${details[index].itemPrice} ₮", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
                                 ]),
                               ),
                               RichText(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                text: TextSpan(text: 'Нийт дүн : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: '${orderItems[index].itemTotalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
+                                text: TextSpan(text: 'Нийт үнэ : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                                  TextSpan(text: '${details[index].itemTotalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
                                 ]),
                               ),
                             ]),
@@ -138,7 +111,7 @@ class JaggerHomeDetail extends StatelessWidget {
     );
   }
 
-  Future<void> _dialogBuilder(BuildContext context, String title, int itemId, bool add) {
+  Future<void> _dialogBuilder(BuildContext context, String title) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -149,20 +122,34 @@ class JaggerHomeDetail extends StatelessWidget {
               style: const TextStyle(fontSize: 20),
             ),
             content: SizedBox(
-              height: 90,
+              height: 190,
               child: Form(
                 key: provider.formKey,
                 child: Column(children: [
                   CustomTextFieldIcon(
-                    hintText: "Тоо хэмжээ оруулна уу...",
+                    hintText: "Дүн оруулна уу...",
                     prefixIconData: const Icon(Icons.numbers_rounded),
-                    validatorText: "Тоо хэмжээ оруулна уу.",
+                    validatorText: "Дүн оруулна уу.",
                     fillColor: Colors.white,
                     expands: false,
-                    controller: provider.rQty,
-                    onChanged: provider.validateRqty,
-                    errorText: provider.rqtyVal.error,
+                    controller: provider.amount,
+                    onChanged: provider.validateAmount,
+                    errorText: provider.amountVal.error,
                     isNumber: true,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  CustomTextFieldIcon(
+                    hintText: "Тайлбар оруулна уу...",
+                    prefixIconData: const Icon(Icons.comment_outlined),
+                    validatorText: "Тайлбар оруулна уу.",
+                    fillColor: Colors.white,
+                    expands: false,
+                    controller: provider.note,
+                    onChanged: provider.validateNote,
+                    errorText: provider.noteVal.error,
+                    isNumber: false,
                   ),
                 ]),
               ),
@@ -184,7 +171,7 @@ class JaggerHomeDetail extends StatelessWidget {
                 child: const Text('Хадгалах'),
                 onPressed: () async {
                   if (provider.formKey.currentState!.validate()) {
-                    dynamic res = await provider.updateItemQTY(itemId, add);
+                    dynamic res = await provider.addExpenseAmount();
                     if (res['errorType'] == 1) {
                       showSuccessMessage(message: res['message'], context: context);
                       Navigator.of(context).pop();
@@ -212,7 +199,7 @@ class JaggerHomeDetail extends StatelessWidget {
               style: const TextStyle(fontSize: 20),
             ),
             content: SizedBox(
-              height: 190,
+              height: 140,
               child: Form(
                 key: provider.formKey,
                 child: Column(children: [
@@ -224,7 +211,7 @@ class JaggerHomeDetail extends StatelessWidget {
                     expands: false,
                     controller: provider.feedback,
                     isNumber: false,
-                    maxLine: 3,
+                    maxLine: 4,
                   ),
                 ]),
               ),

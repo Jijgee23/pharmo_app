@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
+import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/seller_provider.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => BasketProvider()),
         ChangeNotifierProvider(create: (_) => SellerProvider()),
         ChangeNotifierProvider(create: (_) => JaggerProvider()),
+        ChangeNotifierProvider(create: (_) => MyOrderProvider()),
       ],
       child: const MyApp(),
     ),

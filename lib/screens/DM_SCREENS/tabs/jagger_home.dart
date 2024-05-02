@@ -35,7 +35,7 @@ class _HomeJaggerState extends State<HomeJagger> {
         setState(() {
           count++;
         });
-        await jaggerProvider.getLocatiion();
+        await jaggerProvider.getLocation();
         await jaggerProvider.sendJaggerLocation();
       },
     );
@@ -82,7 +82,10 @@ class _HomeJaggerState extends State<HomeJagger> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Counter reached $count"),
+                            Text(
+                              "Counter reached $count",
+                              style: const TextStyle(color: Colors.amber),
+                            ),
                             Text(
                               jagger.jaggerOrders![index].user.toString(),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
@@ -109,7 +112,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                                 iconSize: 20,
                                 icon: const Icon(Icons.text_increase_outlined),
                                 onPressed: () {
-                                  // ...
+                                  _jaggerFeedbackDialog(context, 'Түгээлтэнд тайлбар бичих', jagger.id, jagger.jaggerOrders![index].id);
                                 },
                               ),
                             ]),
@@ -130,7 +133,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                                   onPressed: () async {
                                     dynamic res = await provider.endShipment(jagger.id);
                                     if (res['errorType'] == 1) {
-                                      showSuccessMessage(message: res['message'] + ' ' + res['data'], context: context);
+                                      showSuccessMessage(message: res['message'] + 'Цаг: ' + res['data'], context: context);
                                     } else {
                                       showFailedMessage(message: res['message'], context: context);
                                     }
@@ -152,7 +155,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                                   onPressed: () async {
                                     dynamic res = await provider.startShipment(jagger.id);
                                     if (res['errorType'] == 1) {
-                                      showSuccessMessage(message: res['message'] + ' ' + res['data'], context: context);
+                                      showSuccessMessage(message: res['message'] + 'Цаг: ' + res['data'], context: context);
                                     } else {
                                       showFailedMessage(message: res['message'], context: context);
                                     }
@@ -251,6 +254,68 @@ class _HomeJaggerState extends State<HomeJagger> {
                 onPressed: () async {
                   if (provider.formKey.currentState!.validate()) {
                     dynamic res = await provider.addExpenseAmount();
+                    if (res['errorType'] == 1) {
+                      showSuccessMessage(message: res['message'], context: context);
+                      Navigator.of(context).pop();
+                    } else {
+                      showFailedMessage(message: res['message'], context: context);
+                    }
+                  }
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
+  Future<void> _jaggerFeedbackDialog(BuildContext context, String title, int shipId, int itemId) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<JaggerProvider>(builder: (context, provider, _) {
+          return AlertDialog(
+            title: Text(
+              title,
+              style: const TextStyle(fontSize: 20),
+            ),
+            content: SizedBox(
+              height: 140,
+              child: Form(
+                key: provider.formKey,
+                child: Column(children: [
+                  CustomTextFieldIcon(
+                    hintText: "Тайлбар оруулна уу...",
+                    prefixIconData: const Icon(Icons.comment_outlined),
+                    validatorText: "Тайлбар оруулна уу.",
+                    fillColor: Colors.white,
+                    expands: false,
+                    controller: provider.feedback,
+                    isNumber: false,
+                    maxLine: 4,
+                  ),
+                ]),
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge,
+                ),
+                child: const Text('Хаах'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge,
+                ),
+                child: const Text('Хадгалах'),
+                onPressed: () async {
+                  if (provider.formKey.currentState!.validate()) {
+                    dynamic res = await provider.setFeedback(shipId, itemId);
                     if (res['errorType'] == 1) {
                       showSuccessMessage(message: res['message'], context: context);
                       Navigator.of(context).pop();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/screens/PA_SCREENS/my_orders.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
@@ -88,22 +89,10 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.shopping_cart),
-                    title: const Text('Захиалга'),
+                    title: const Text('Миний захиалгууд'),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const MyOrder()));
                     },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.widgets),
-                    title: const Text('Бараа бүтээгдэхүүн'),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.person),
-                    title: const Text('Харилцагч'),
-                    onTap: () {},
                   ),
                   ListTile(
                     leading: const Icon(Icons.people),
@@ -111,11 +100,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
                     },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.settings),
-                    title: const Text('Тохиргоо'),
-                    onTap: () {},
                   ),
                   ListTile(
                     leading: const Icon(Icons.logout),
