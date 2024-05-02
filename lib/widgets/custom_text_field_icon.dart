@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 
 class CustomTextFieldIcon extends StatelessWidget {
@@ -20,6 +21,7 @@ class CustomTextFieldIcon extends StatelessWidget {
   final String? suffixText;
   final bool enabled;
   final TextStyle? hintTextStyle;
+  final bool isNumber;
   const CustomTextFieldIcon(
       {super.key,
       this.controller,
@@ -39,6 +41,7 @@ class CustomTextFieldIcon extends StatelessWidget {
       this.suffix,
       this.suffixText,
       this.enabled = true,
+      required this.isNumber,
       this.hintTextStyle});
 
   @override
@@ -59,6 +62,8 @@ class CustomTextFieldIcon extends StatelessWidget {
       },
       style: const TextStyle(color: AppColors.primary, fontSize: 15),
       cursorColor: AppColors.primary,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      inputFormatters: isNumber ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), FilteringTextInputFormatter.digitsOnly] : <TextInputFormatter>[],
       decoration: InputDecoration(
         border: const OutlineInputBorder(),
         labelText: labelText,

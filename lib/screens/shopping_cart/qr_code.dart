@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
@@ -102,8 +104,12 @@ class QRCode extends StatelessWidget {
                       onPressed: () async {
                         dynamic res = await provider.checkPayment();
                         if (res['errorType'] == 1) {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: res['data']['orderNo'].toString())));
-                          showSuccessMessage(message: res['message'], context: context);
+                          if (res['data'] == false) {
+                            showFailedMessage(message: 'Төлбөр төлөгдөөгүй байна.', context: context);
+                          } else {
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: res['data']['orderNo'].toString())));
+                            showSuccessMessage(message: res['message'], context: context);
+                          }
                         } else {
                           showFailedMessage(message: res['message'], context: context);
                         }

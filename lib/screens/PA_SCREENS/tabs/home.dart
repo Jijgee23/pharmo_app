@@ -239,16 +239,6 @@ class _HomeState extends State<Home> {
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Divider(),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.add, color: Colors.lightBlue),
-                  title: const Text('Эмийн сан бүртгэх'),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const RegisterPharmPage()));
-                  },
-                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Divider(),

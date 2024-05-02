@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/jagger.dart';
@@ -35,9 +37,16 @@ class JaggerProvider extends ChangeNotifier {
   ValidationModel get noteVal => _noteVal;
   ValidationModel _amountVal = ValidationModel(null, null);
   ValidationModel get amountVal => _amountVal;
-
-  ValidationModel _rqtyVal = ValidationModel(null, null);
+  final ValidationModel _rqtyVal = ValidationModel(null, null);
   ValidationModel get rqtyVal => _rqtyVal;
+
+  Position? _currentLocation;
+  late bool servicePermission = false;
+  late LocationPermission permission;
+  String _latitude = '';
+  String _longitude = '';
+  String get latitude => _latitude;
+  String get longitude => _longitude;
 
   Future<dynamic> getJaggers() async {
     try {
@@ -46,10 +55,9 @@ class JaggerProvider extends ChangeNotifier {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
-      notifyListeners();
       if (res.statusCode == 200) {
+        _jaggers.clear();
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        // _jaggers = (response['results']).map((data) => Jagger.fromJson(data)).toList();
         for (int i = 0; i < response['results'].length; i++) {
           Jagger jagger = Jagger.fromJson(response['results'][i]);
           if (jagger.inItems != null && jagger.inItems!.isNotEmpty) {
@@ -62,13 +70,15 @@ class JaggerProvider extends ChangeNotifier {
           }
           _jaggers.add(jagger);
         }
+        notifyListeners();
         return {'errorType': 1, 'data': response, 'message': 'Түгээлт амжилттай авчирлаа.'};
       } else {
+        notifyListeners();
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
       print(e);
-      return {'fail': e};
+      return {'errorType': 3, 'data': e, 'message': e};
     }
   }
 
@@ -79,15 +89,17 @@ class JaggerProvider extends ChangeNotifier {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
-      notifyListeners();
+      _jaggerOrders.clear();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         for (int i = 0; i < response['results'].length; i++) {
           JaggerExpenseOrder jagger = JaggerExpenseOrder.fromJson(response['results'][i]);
           _jaggerOrders.add(jagger);
         }
+        notifyListeners();
         return {'errorType': 1, 'data': response, 'message': 'Түгээлт амжилттай авчирлаа.'};
       } else {
+        notifyListeners();
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
@@ -238,13 +250,14 @@ class JaggerProvider extends ChangeNotifier {
             body: jsonEncode({"itemId": itemId, "rQty": rQty.text}));
       }
 
-      notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         await getJaggers();
         rQty.text = '';
+        notifyListeners();
         return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн зарлага амжилттай засагдлаа.'};
       } else {
+        notifyListeners();
         return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'};
       }
     } catch (e) {
@@ -278,6 +291,51 @@ class JaggerProvider extends ChangeNotifier {
       _amountVal = ValidationModel(null, 'Алдаатай имэйл хаяг байна.');
     }
     notifyListeners();
+  }
+
+  Future<Position> _getCurrentLocation() async {
+    servicePermission = await Geolocator.isLocationServiceEnabled();
+
+    if (!servicePermission) {
+      print("Service Disabled");
+    }
+    permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  getLocatiion() async {
+    _currentLocation = await _getCurrentLocation();
+    _latitude = _currentLocation!.latitude.toString().substring(0, 7);
+    _longitude = _currentLocation!.longitude.toString().substring(0, 7);
+  }
+
+  Future<dynamic> sendJaggerLocation() async {
+    try {
+      String bearerToken = await getAccessToken();
+      print('lat: $latitude, long: $longitude');
+
+      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/update_shipment_location/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          },
+          body: jsonEncode({"lat": latitude, "lon": longitude}));
+      notifyListeners();
+      if (res.statusCode == 200) {
+        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        return {'errorType': 1, 'data': response, 'message': 'Түгээгчийн байршлыг амжилттай илгээлээ.'};
+      } else {
+        return {'errorType': 2, 'data': null, 'message': 'Түгээгчийн байршлыг илгээхэд алдаа гарлаа.'};
+      }
+    } catch (e) {
+      print(e);
+      return {'fail': e};
+    }
   }
 }
 
