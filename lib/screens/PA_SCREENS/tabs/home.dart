@@ -4,7 +4,6 @@ import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer.dart';
 import 'package:pharmo_app/screens/product/product_detail_page.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
@@ -110,63 +109,6 @@ class _HomeState extends State<Home> {
       ),
       child: SafeArea(
         child: Scaffold(
-          // appBar: AppBar(
-          //   automaticallyImplyLeading: true,
-          //   title: Padding(
-          //     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-          //     child: TextField(
-          //       controller: _searchController,
-          //       onChanged: (value) async {
-          //         setState(() {
-          //           searchQuery = _searchController.text;
-          //         });
-          //         _pagingController.refresh();
-          //       },
-          //       decoration: InputDecoration(
-          //         hintText: 'Барааны $type хайх',
-          //         prefixIcon: const Icon(Icons.search),
-          //         suffixIcon: IconButton(
-          //           onPressed: () {
-          //             showMenu(
-          //               context: context,
-          //               position: const RelativeRect.fromLTRB(150, 20, 0, 0),
-          //               items: <PopupMenuEntry>[
-          //                 PopupMenuItem(
-          //                   value: '1',
-          //                   onTap: () {
-          //                     setState(() {
-          //                       type = 'нэрээр';
-          //                     });
-          //                   },
-          //                   child: const Text('нэрээр'),
-          //                 ),
-          //                 PopupMenuItem(
-          //                   value: '2',
-          //                   onTap: () {
-          //                     setState(() {
-          //                       type = 'баркодоор';
-          //                     });
-          //                   },
-          //                   child: const Text('Баркодоор'),
-          //                 ),
-          //                 PopupMenuItem(
-          //                   value: '3',
-          //                   onTap: () {
-          //                     setState(() {
-          //                       type = 'ерөнхий нэршлээр';
-          //                     });
-          //                   },
-          //                   child: const Text('Ерөнхий нэршлээр'),
-          //                 ),
-          //               ],
-          //             ).then((value) {});
-          //           },
-          //           icon: const Icon(Icons.change_circle),
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
           drawer: Drawer(
             child: ListView(
               children: [

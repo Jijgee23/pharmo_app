@@ -3,7 +3,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/customer.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home_tab.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_shopping_cart.dart';
