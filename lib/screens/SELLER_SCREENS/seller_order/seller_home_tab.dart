@@ -314,7 +314,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                               style: ButtonStyle(
                                 backgroundColor:
                                     MaterialStateProperty.all<Color>(
-                                        AppColors.secondary),
+                                        AppColors.primary),
                                 shape: MaterialStateProperty.all<
                                     RoundedRectangleBorder>(
                                   RoundedRectangleBorder(

@@ -4,7 +4,6 @@ import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_customer.dart';
 import 'package:pharmo_app/screens/product/product_detail_page.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -152,21 +151,7 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.person_4, color: Colors.lightBlue),
-                  title: const Text('Харилцагч сонгох'),
-                  onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const SellerCustomerPage()),
-                        (route) => false);
-                  },
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Divider(),
-                ),
+               
                 ListTile(
                   leading: const Icon(Icons.shop, color: Colors.lightBlue),
                   title: const Text('Захиалга'),

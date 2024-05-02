@@ -81,7 +81,7 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                   ),
                 ),
                 const SizedBox(
-                  height: 15,
+                  height: 5,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -113,7 +113,7 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                                 ),
                                 SizedBox(
                                   height: 30,
-                                  width: 30,
+                                  width: 50,
                                   child: TextField(
                                     controller: TextEditingController(
                                         text: widget.detail['qty'].toString()),

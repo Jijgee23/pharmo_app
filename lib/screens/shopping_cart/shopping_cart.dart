@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_order/seller_home.dart';
 import 'package:pharmo_app/screens/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart_view.dart';
