@@ -15,7 +15,7 @@ class SellerShoppingCart extends StatefulWidget {
 }
 
 class _SellerShoppingCartState extends State<SellerShoppingCart> {
-  int? pharmId = 0;
+  int pharmId = 0;
   @override
   void initState() {
     getcustomerId();
@@ -26,7 +26,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? customerId = prefs.getInt('pharmId');
     setState(() {
-      pharmId = customerId;
+      pharmId = customerId!;
     });
   }
 

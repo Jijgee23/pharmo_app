@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_order/seller_home_tab.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_shopping_cart/seller_shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -10,7 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:badges/badges.dart' as badges;
 
 class SellerHomePage extends StatefulWidget {
-  const SellerHomePage({super.key});
+  const SellerHomePage({
+    super.key,
+  });
 
   @override
   State<SellerHomePage> createState() => _SellerHomePageState();
@@ -162,6 +165,17 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   ),
                 ),
                 ListTile(
+                  leading:
+                      const Icon(Icons.add_circle, color: Colors.lightBlue),
+                  title: const Text('Эмийг сан бүртгэх'),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const RegisterPharmPage()));
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.logout, color: Colors.lightBlue),
                   title: const Text('Гарах'),
                   onTap: () {
@@ -174,15 +188,24 @@ class _SellerHomePageState extends State<SellerHomePage> {
           body: _pages[_selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _selectedIndex,
-            selectedItemColor: AppColors.secondary,
+            selectedItemColor: AppColors.primary,
             unselectedItemColor: AppColors.primary,
             onTap: onTap,
             items: const [
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: 'Захиалагч'),
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Бараа'),
+                icon: Icon(Icons.person_outlined),
+                label: 'Захиалагч',
+                activeIcon: Icon(Icons.person),
+              ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.medical_information), label: 'Сагс'),
+                  icon: Icon(Icons.home_outlined),
+                  label: 'Бараа',
+                  activeIcon: Icon(Icons.home)),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_cart_outlined),
+                label: 'Сагс',
+                activeIcon: Icon(Icons.shopping_cart),
+              ),
             ],
           ),
         ),

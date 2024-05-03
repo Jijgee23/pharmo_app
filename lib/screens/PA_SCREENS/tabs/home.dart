@@ -203,8 +203,8 @@ class _HomeState extends State<Home> {
                 SliverPersistentHeader(
                   pinned: false,
                   delegate: StickyHeaderDelegate(
-                    minHeight: MediaQuery.of(context).size.height * 0.071,
-                    maxHeight: MediaQuery.of(context).size.height * 0.115,
+                    minHeight: MediaQuery.of(context).size.height * 0.16,
+                    maxHeight: MediaQuery.of(context).size.height * 0.16,
                     child: Column(
                       children: [
                         Container(
