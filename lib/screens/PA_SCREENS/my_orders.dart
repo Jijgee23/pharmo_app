@@ -20,6 +20,7 @@ class MyOrder extends StatefulWidget {
 
 class _MyOrderState extends State<MyOrder> {
   final Map<String, String> _filters = {
+    "": "",
     "0": "Статусаар шүүх",
     "1": "Явцаар шүүх",
     "2": "Төлбөрийн хэлбэрээр шүүх",
@@ -28,7 +29,8 @@ class _MyOrderState extends State<MyOrder> {
   };
 
   String _selectedItem = '';
-  String _selectedFilter = '0';
+  String _selectedFilter = '';
+  String _selected = '';
   Map<String, String> _processess = {};
   final Map<String, String> _branches = {};
   final Map<String, String> _suppliers = {};
@@ -120,7 +122,7 @@ class _MyOrderState extends State<MyOrder> {
           };
         } else if (_selectedFilter == '3') {
           _processess = _branches;
-        } else {
+        } else if (_selectedFilter == '4') {
           _processess = _suppliers;
         }
       });
@@ -164,7 +166,11 @@ class _MyOrderState extends State<MyOrder> {
                     DropdownButton<String>(
                       value: _selectedFilter,
                       onChanged: (String? value) async {
-                        setState(() => _selectedFilter = value!);
+                        // setState(() => _selectedFilter = value!);
+                        setState(() {
+                          _selectedFilter = value!;
+                          _selected = _filters[value]!;
+                        });
                         await fillDropdown();
                       },
                       selectedItemBuilder: (BuildContext context) {
@@ -196,7 +202,7 @@ class _MyOrderState extends State<MyOrder> {
                   children: [
                     Column(
                       children: <Widget>[
-                        const Text('Статусаар шүүх: '),
+                        Text(_selected),
                         DropdownButton<String>(
                           value: _selectedItem,
                           onChanged: (String? value) {
