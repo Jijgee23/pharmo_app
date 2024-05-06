@@ -145,6 +145,20 @@ class _MyOrderState extends State<MyOrder> {
     }
   }
 
+  confirmOrder(int orderId) async {
+    try {
+      final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
+      dynamic res = await orderProvider.confirmOrder(orderId);
+      if (res['errorType'] == 1) {
+        showSuccessMessage(message: res['message'], context: context);
+      } else {
+        showFailedMessage(message: res['message'], context: context);
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,8 +175,10 @@ class _MyOrderState extends State<MyOrder> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const Text('Шүүх төрлөө сонгоно уу: '),
+                    const Text('Шүүх төрлөө сонгоно уу : '),
                     DropdownButton<String>(
                       value: _selectedFilter,
                       onChanged: (String? value) async {
@@ -201,6 +217,7 @@ class _MyOrderState extends State<MyOrder> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(_selected),
                         DropdownButton<String>(
@@ -311,6 +328,29 @@ class _MyOrderState extends State<MyOrder> {
                                     ]),
                                   ),
                                 ]),
+                                const SizedBox(
+                                  height: 7,
+                                ),
+                                (orders[index].process == 'Хүргэлтэнд гарсан' || orders[index].address == null)
+                                    ? Center(
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            confirmOrder(orders[index].id);
+                                          },
+                                          icon: const Icon(
+                                            Icons.done,
+                                            color: Colors.white,
+                                          ),
+                                          label: const Text(
+                                            'Баталгаажуулах',
+                                            style: TextStyle(color: Colors.white),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.primary,
+                                          ),
+                                        ),
+                                      )
+                                    : const SizedBox(),
                               ],
                             ),
                           ),

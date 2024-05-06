@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_order_page.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/tabs/jagger_home.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:provider/provider.dart';
@@ -20,24 +17,13 @@ class JaggerHomePage extends StatefulWidget {
 class _JaggerHomePageState extends State<JaggerHomePage> {
   final List _pages = [
     const HomeJagger(),
-    const ShoppingCartHome(),
+    const JaggerOrderPage(),
   ];
   late SharedPreferences prefs;
   int _selectedIndex = 0;
-  late Timer _timer;
-  int _secondsElapsed = 0;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-    });
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _secondsElapsed++;
-      });
-      print(_secondsElapsed);
     });
   }
 
@@ -101,13 +87,6 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const JaggerOrderPage()));
                     },
                   ),
-                  // ListTile(
-                  //   leading: const Icon(Icons.widgets),
-                  //   title: const Text('Бараа бүтээгдэхүүн'),
-                  //   onTap: () {
-                  //     Navigator.pop(context);
-                  //   },
-                  // ),
                   ListTile(
                     leading: const Icon(Icons.logout),
                     title: const Text('Гарах'),
@@ -132,7 +111,7 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.shopping_cart),
-                  label: 'Миний сагс',
+                  label: 'Захиалгууд',
                 ),
               ],
               selectedItemColor: AppColors.secondary,

@@ -70,14 +70,17 @@ class _JaggerOrderPageState extends State<JaggerOrderPage> {
                               jaggerOrders[index].note.toString(),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
                             ),
-                            RichText(
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              text: TextSpan(text: 'Дүн : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                TextSpan(text: jaggerOrders[index].amount.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                              ]),
+                            const SizedBox(
+                              height: 5,
                             ),
                             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                              RichText(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                text: TextSpan(text: 'Дүн : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                                  TextSpan(text: '${jaggerOrders[index].amount} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
+                                ]),
+                              ),
                               RichText(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
@@ -86,16 +89,11 @@ class _JaggerOrderPageState extends State<JaggerOrderPage> {
                                 ]),
                               ),
                             ]),
-                            const SizedBox(
-                              height: 5,
-                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 OutlinedButton.icon(
                                   onPressed: () {
-                                    // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => true);
-                                    // provider.getBasket();
                                     _dialogBuilder(context, 'Түгээлтийн зарлага засах', jaggerOrders[index]);
                                     provider.amount = TextEditingController(text: jaggerOrders[index].amount.toString());
                                     provider.note = TextEditingController(text: jaggerOrders[index].note);

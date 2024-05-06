@@ -100,16 +100,15 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> filterOrders(String selectedFilter, String selectedItem) async {
     try {
-      print(selectedItem);
       String bearerToken = await getAccessToken();
       dynamic res;
       if (selectedFilter == '0') {
-        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?status=$selectedItem'), headers: <String, String>{
+        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?process=$selectedItem'), headers: <String, String>{
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
       } else if (selectedFilter == '1') {
-        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?process=$selectedItem'), headers: <String, String>{
+        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?status=$selectedItem'), headers: <String, String>{
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
@@ -147,6 +146,29 @@ class MyOrderProvider extends ChangeNotifier {
       }
     } catch (e) {
       print(e);
+    }
+  }
+
+  Future<dynamic> confirmOrder(int orderId) async {
+    try {
+      String bearerToken = await getAccessToken();
+      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/accept_order/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          },
+          body: jsonEncode({"id": orderId}));
+
+      if (res.statusCode == 200) {
+        notifyListeners();
+        return {'errorType': 1, 'data': null, 'message': 'Таны захиалга амжилттай баталгаажлаа.'};
+      } else {
+        notifyListeners();
+        return {'errorType': 2, 'data': null, 'message': 'Захиалга баталгаажуулах үед алдаа гарлаа.'};
+      }
+    } catch (e) {
+      print(e);
+      return {'errorType': 3, 'data': e, 'message': e};
     }
   }
 

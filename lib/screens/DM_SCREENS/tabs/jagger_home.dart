@@ -30,7 +30,7 @@ class _HomeJaggerState extends State<HomeJagger> {
   void startTimer() {
     final jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
     timer = Timer.periodic(
-      const Duration(seconds: 30),
+      const Duration(seconds: 5),
       (timer) async {
         setState(() {
           count++;
@@ -83,7 +83,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Counter reached $count",
+                              "Байршил илгээсэн: $count",
                               style: const TextStyle(color: Colors.amber),
                             ),
                             Text(
@@ -112,7 +112,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                                 iconSize: 20,
                                 icon: const Icon(Icons.text_increase_outlined),
                                 onPressed: () {
-                                  _jaggerFeedbackDialog(context, 'Түгээлтэнд тайлбар бичих', jagger.id, jagger.jaggerOrders![index].id);
+                                  _jaggerFeedbackDialog(context, 'Түгээлтэнд тайлбар бичих', jagger.id, jagger.jaggerOrders![index].id!);
                                 },
                               ),
                             ]),

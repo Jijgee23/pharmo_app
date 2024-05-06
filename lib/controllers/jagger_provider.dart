@@ -221,11 +221,11 @@ class JaggerProvider extends ChangeNotifier {
         feedback.text = '';
         return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.'};
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн тайлбар нэмхэд алдаа гарлаа.'};
+        return {'errorType': 2, 'data': null, 'message': res.body};
       }
     } catch (e) {
       print(e);
-      return {'fail': e};
+      return {'errorType': 3, 'data': e, 'message': e};
     }
   }
 
@@ -341,7 +341,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> sendJaggerLocation() async {
     try {
       String bearerToken = await getAccessToken();
-      print('lat: $latitude, long: $longitude');
+      // print('lat: $latitude, long: $longitude');
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       if (prefs.getString('latitude') != latitude || prefs.getString('longitude') != longitude) {
