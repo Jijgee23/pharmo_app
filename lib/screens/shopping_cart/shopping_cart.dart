@@ -20,6 +20,7 @@ class ShoppingCart extends StatefulWidget {
 class _ShoppingCartState extends State<ShoppingCart> {
   String? _userRole = '';
   String buttonText = 'Төлбөр төлөх';
+  int selectedUser = 0;
   @override
   void initState() {
     getUser();
@@ -29,8 +30,10 @@ class _ShoppingCartState extends State<ShoppingCart> {
   void getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userRole = prefs.getString('userrole');
+    int? userId = prefs.getInt('pharmId');
     setState(() {
       _userRole = userRole;
+      selectedUser = userId!;
     });
     if (_userRole == 'S') {
       setState(() {

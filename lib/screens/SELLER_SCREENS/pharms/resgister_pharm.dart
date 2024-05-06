@@ -165,6 +165,13 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         ),
       );
       if (response.statusCode == 200) {
+        print(response.body);
+        print(jsonDecode(utf8.decode(response.bodyBytes)));
+        String cName = jsonDecode(utf8.decode(response.bodyBytes))['cName'];
+        print(cName);
+        prefs.setInt(
+            'pharmId', jsonDecode(utf8.decode(response.bodyBytes))['user']);
+        prefs.setString('selectedPharmName', cName);
         showSuccessMessage(message: 'Амжилттай бүртгэгдлээ.', context: context);
         Navigator.push(
             context, MaterialPageRoute(builder: (_) => const SellerHomePage()));
@@ -198,8 +205,12 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
             child: Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
               direction: Axis.vertical,
-              spacing: 20,
+              spacing: 10,
               children: [
+                const Text(
+                  'Байгууллага',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 CustomTextField(
                   controller: cNameController,
                   hintText: 'Байгууллагын нэр',
@@ -221,16 +232,20 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                   validator: validatePhone,
                   keyboardType: TextInputType.number,
                 ),
+                const Text(
+                  'Хаяг',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.75,
+                  width: size.width * 0.9,
                   child: DropdownButtonFormField<Province>(
                     decoration: InputDecoration(
+                      label: const Text('Аймаг/Хот сонгох'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(0),
                       ),
                     ),
                     value: selectedProvince,
-                    hint: const Text('Аймаг/Хот сонгох'),
                     onChanged: (Province? newValue) {
                       setState(() {
                         selectedProvince = newValue;
@@ -242,13 +257,18 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                         .map<DropdownMenuItem<Province>>((Province province) {
                       return DropdownMenuItem<Province>(
                         value: province,
-                        child: Text(province.name),
+                        child: Text(
+                          province.name,
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.normal),
+                        ),
                       );
                     }).toList(),
                   ),
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.75,
+                  width: MediaQuery.of(context).size.width * 0.9,
                   child: DropdownButtonFormField<District>(
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -274,7 +294,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                   ),
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.75,
+                  width: MediaQuery.of(context).size.width * 0.9,
                   child: DropdownButtonFormField<Khoroo>(
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -300,9 +320,21 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                     }).toList(),
                   ),
                 ),
-                CustomTextField(
-                  controller: detailedController,
-                  hintText: 'Тайлбар',
+                const Text(
+                  'Тайлбар',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: size.width * 0.9,
+                  child: TextFormField(
+                    maxLines: 4,
+                    minLines: 1,
+                    controller: detailedController,
+                    decoration: const InputDecoration(
+                      labelText: 'Тайлбар',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                 ),
                 CustomButton(
                   text: 'Бүртгэх',
