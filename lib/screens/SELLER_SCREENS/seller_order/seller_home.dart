@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
@@ -26,6 +27,8 @@ class _SellerHomePageState extends State<SellerHomePage> {
   int selectedCustomer = 0;
   String? selectedCustomerName;
   List<String> orders = [];
+  bool hidden = false;
+  ScrollNotification? lastNotification;
   @override
   void initState() {
     getUserInfo();
@@ -73,70 +76,78 @@ class _SellerHomePageState extends State<SellerHomePage> {
       child: SafeArea(
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            centerTitle: true,
-            title: selectedCustomer == 0
-                ? const Text('Захиалагч сонгоно уу')
-                : TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedIndex = 0;
-                      });
-                    },
-                    child: RichText(
-                      text: TextSpan(
-                        text: 'Сонгосон захиалагч: ',
-                        style: TextStyle(
-                            color: Colors.blueGrey.shade800, fontSize: 13.0),
-                        children: [
-                          TextSpan(
-                              text: '$selectedCustomerName',
-                              style: const TextStyle(
-                                  color: AppColors.succesColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.0)),
-                        ],
+          appBar: hidden
+              ? null
+              : AppBar(
+                  centerTitle: true,
+                  title: selectedCustomer == 0
+                      ? const Text('Захиалагч сонгоно уу')
+                      : TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedIndex = 0;
+                            });
+                          },
+                          child: RichText(
+                            text: TextSpan(
+                              text: 'Сонгосон захиалагч: ',
+                              style: TextStyle(
+                                  color: Colors.blueGrey.shade800,
+                                  fontSize: 13.0),
+                              children: [
+                                TextSpan(
+                                    text: '$selectedCustomerName',
+                                    style: const TextStyle(
+                                        color: AppColors.succesColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13.0)),
+                              ],
+                            ),
+                          ),
+                        ),
+                  actions: [
+                    Container(
+                      margin: const EdgeInsets.only(right: 15),
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedIndex = 2;
+                          });
+                        },
+                        child: badges.Badge(
+                          badgeContent: Text(
+                            "${basketProvider.count}",
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 11),
+                          ),
+                          badgeStyle: const badges.BadgeStyle(
+                            badgeColor: Colors.blue,
+                          ),
+                          child: const Icon(
+                            Icons.shopping_cart,
+                            color: Colors.red,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-            actions: [
-              Container(
-                margin: const EdgeInsets.only(right: 15),
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 2;
-                    });
-                  },
-                  child: badges.Badge(
-                    badgeContent: Text(
-                      "${basketProvider.count}",
-                      style: const TextStyle(color: Colors.white, fontSize: 11),
-                    ),
-                    badgeStyle: const badges.BadgeStyle(
-                      badgeColor: Colors.blue,
-                    ),
-                    child: const Icon(
-                      Icons.shopping_cart,
-                      color: Colors.red,
-                    ),
-                  ),
+                  ],
                 ),
-              ),
-            ],
-          ),
           drawer: Drawer(
-            child: ListView(
+            shape: const RoundedRectangleBorder(),
+            width: size.height * 0.35,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DrawerHeader(
-                  padding: EdgeInsets.all(size.width * 0.05),
+                SizedBox(
+                  width: size.width,
+                  child: DrawerHeader(
                   curve: Curves.easeInOut,
                   decoration: const BoxDecoration(
                     color: AppColors.primary,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
                         width: size.width * 0.1,
@@ -154,20 +165,23 @@ class _SellerHomePageState extends State<SellerHomePage> {
                       Text(
                         'Имейл хаяг: $email',
                         style: TextStyle(
-                            color: Colors.white, fontSize: size.height * 0.015),
+                              color: Colors.white,
+                              fontSize: size.height * 0.016),
                       ),
                       Text(
                         'Хэрэглэгчийн төрөл: $role',
                         style: TextStyle(
-                            color: Colors.white, fontSize: size.height * 0.015),
+                              color: Colors.white,
+                              fontSize: size.height * 0.016),
                       ),
                     ],
                   ),
+                  ),
                 ),
-                ListTile(
-                  leading:
-                      const Icon(Icons.add_circle, color: Colors.lightBlue),
-                  title: const Text('Эмийг сан бүртгэх'),
+                _drawerItem(
+                  title: 'Эмийг сан бүртгэх',
+                  icon: const Icon(Icons.medical_services,
+                      color: Colors.lightBlue),
                   onTap: () {
                     Navigator.push(
                         context,
@@ -175,9 +189,9 @@ class _SellerHomePageState extends State<SellerHomePage> {
                             builder: (_) => const RegisterPharmPage()));
                   },
                 ),
-                ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.lightBlue),
-                  title: const Text('Гарах'),
+                _drawerItem(
+                  title: 'Гарах',
+                  icon: const Icon(Icons.logout, color: Colors.lightBlue),
                   onTap: () {
                     showLogoutDialog(context);
                   },
@@ -185,31 +199,61 @@ class _SellerHomePageState extends State<SellerHomePage> {
               ],
             ),
           ),
-          body: _pages[_selectedIndex],
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            selectedItemColor: AppColors.primary,
-            unselectedItemColor: AppColors.primary,
-            onTap: onTap,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outlined),
-                label: 'Захиалагч',
-                activeIcon: Icon(Icons.person),
-              ),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  label: 'Бараа',
-                  activeIcon: Icon(Icons.home)),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.shopping_cart_outlined),
-                label: 'Сагс',
-                activeIcon: Icon(Icons.shopping_cart),
-              ),
-            ],
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (scrollNotification) {
+              if (scrollNotification is ScrollUpdateNotification &&
+                  scrollNotification.scrollDelta! > 0) {
+                setState(() {
+                  hidden = true;
+                });
+              } else if (scrollNotification is ScrollUpdateNotification &&
+                  scrollNotification.scrollDelta! < 0) {
+                setState(() {
+                  hidden = false;
+                });
+              } else if (scrollNotification is ScrollStartNotification) {
+                setState(() {
+                  hidden = false;
+                });
+              }
+              return true;
+            },
+            child: _pages[_selectedIndex],
           ),
+          bottomNavigationBar: hidden
+              ? null
+              : BottomNavigationBar(
+                  currentIndex: _selectedIndex,
+                  selectedItemColor: AppColors.primary,
+                  unselectedItemColor: AppColors.primary,
+                  onTap: onTap,
+                  items: const [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person_outlined),
+                      label: 'Захиалагч',
+                      activeIcon: Icon(Icons.person),
+                    ),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.home_outlined),
+                        label: 'Бараа',
+                        activeIcon: Icon(Icons.home)),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.shopping_cart_outlined),
+                      label: 'Сагс',
+                      activeIcon: Icon(Icons.shopping_cart),
+                    ),
+                  ],
+                ),
         ),
       ),
+    );
+  }
+  Widget _drawerItem(
+      {required String title, required Icon icon, Function()? onTap}) {
+    return ListTile(
+      leading: icon,
+      title: Text(title),
+      onTap: onTap,
     );
   }
 }

@@ -139,10 +139,9 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                               children: [
                                 SizedBox(
                                   width:
-                                      MediaQuery.of(context).size.width * 0.86,
+                                      MediaQuery.of(context).size.width * 0.88,
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
+                                    padding: const EdgeInsets.only(left: 20),
                                     child: CustomSearchBar(
                                       searchController: _searchController,
                                       onChanged: (value) {

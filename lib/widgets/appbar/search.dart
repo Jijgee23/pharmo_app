@@ -24,10 +24,10 @@ class CustomSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(10.0),
       ),
-      height: 50,
+      height: 40,
       width: double.infinity,
       child: TextField(
         cursorColor: Colors.black,
@@ -40,6 +40,7 @@ class CustomSearchBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(10.0),
           ),
           hintText: title,
+          hintStyle: const TextStyle(height: 1),
           prefixIcon: const Icon(Icons.search),
           suffixIcon: suffix,
           prefix: prefix,

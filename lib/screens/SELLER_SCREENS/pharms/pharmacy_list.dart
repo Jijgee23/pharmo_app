@@ -38,6 +38,7 @@ class _PharmacyListState extends State<PharmacyList> {
   List<Customer> displayItems = <Customer>[];
   bool isChecked = false;
   Color activeColor = AppColors.primary;
+  ScrollController scrollController = ScrollController();
   @override
   void initState() {
     getPharmacyList();
@@ -47,7 +48,14 @@ class _PharmacyListState extends State<PharmacyList> {
       _displayItems = _pharmList;
     });
     getSelectedIndex();
+    scrollController = ScrollController();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   getSelectedIndex() async {
@@ -263,55 +271,6 @@ class _PharmacyListState extends State<PharmacyList> {
                         ),
                       ),
                     ),
-                    
-                    // child: ListTile(
-                    //   onTap: () async {
-                    //     print(_displayItems[index].id);
-                    //     print(_displayItems[index].name);
-                    //     final SharedPreferences prefs =
-                    //         await SharedPreferences.getInstance();
-                    //     prefs.setInt('pharmId', _displayItems[index].id);
-                    //     prefs.setString(
-                    //         'selectedPharmName', _displayItems[index].name);
-                    //     prefs.setInt('selectedIndex', index);
-                    //     setState(() {
-                    //       selectedIndex = index;
-                    //     });
-                    //     showSuccessMessage(
-                    //         message:
-                    //             'Та: ${_displayItems[index].name}-г сонголоо',
-                    //         context: context);
-                    //   },
-                    //   leading: IconButton(
-                    //     onPressed: () {
-                    //       if (_displayItems[index].isCustomer) {
-                    //         Navigator.push(
-                    //           context,
-                    //           MaterialPageRoute(
-                    //             builder: (_) => CustomerDetailsPage(
-                    //               customerId: _displayItems[index].id,
-                    //               custName: _displayItems[index].name,
-                    //             ),
-                    //           ),
-                    //         );
-                    //       } else {
-                    //         showFailedMessage(
-                    //             message: 'Харилцагч биш', context: context);
-                    //       }
-                    //     },
-                    //     icon: Icon(
-                    //       Icons.person,
-                    //       color: _displayItems[index].isCustomer
-                    //           ? Colors.green
-                    //           : Colors.red,
-                    //       size: 30,
-                    //     ),
-                    //   ),
-                    //   title: Text(_displayItems[index].name),
-                    //   trailing: selectedIndex == index
-                    //       ? const Icon(Icons.check)
-                    //       : null,
-                    // ),
                   );
                 }),
               ),

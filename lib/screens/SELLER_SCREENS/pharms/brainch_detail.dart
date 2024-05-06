@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher_string.dart';
 
 // ignore: must_be_immutable
 class BranchDetails extends StatefulWidget {
@@ -85,44 +86,80 @@ class _BranchDetailsState extends State<BranchDetails> {
                   ),
                 )
               : Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Салбарын нэр: ${storeList['name']}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Салбарын нэр: ${storeList['name']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          'Салбарын утас: ${storeList['phone']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          'Салбарын хаяг: ${storeList['address']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          'Салбарын менежерийн нэр: ${storeList['manager']['name']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          'Салбарын менежер имейл: ${storeList['manager']['email']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          'Салбарын менежер утас: ${storeList['manager']['phone']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'Салбарын утас: ${storeList['phone']}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    Text(
-                      'Салбарын хаяг: ${storeList['address']}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    Text(
-                      'Салбарын менежерийн нэр: ${storeList['manager']['name']}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    Text(
-                      'Салбарын менежер имейл: ${storeList['manager']['email']}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    Text(
-                      'Салбарын менежер утас: ${storeList['manager']['phone']}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: OutlinedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStatePropertyAll(
+                                  Colors.green.shade900),
+                            ),
+                            onPressed: () {
+                              launchUrlString(
+                                  'tel://+976${storeList['manager']['phone']}');
+                            },
+                            child: const Icon(Icons.call, color: Colors.white),
+                          ),
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: OutlinedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStatePropertyAll(
+                                  Colors.green.shade900),
+                            ),
+                            onPressed: () async {},
+                            child: const Icon(Icons.mail, color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
