@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
@@ -34,6 +36,8 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   bool isprod = true;
   bool isother = true;
   bool isList = false;
+  int viewIndex = 2;
+  bool threeCols = false;
   Color selectedColor = AppColors.failedColor;
   final TextEditingController _searchController = TextEditingController();
   List<Product> displayProducts = <Product>[];
@@ -129,19 +133,18 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                   SliverPersistentHeader(
                     pinned: false,
                     delegate: StickyHeaderDelegate(
-                      minHeight: MediaQuery.of(context).size.height * 0.145,
-                      maxHeight: MediaQuery.of(context).size.height * 0.15,
+                      minHeight: MediaQuery.of(context).size.height * 0.1,
+                      maxHeight: MediaQuery.of(context).size.height * 0.1,
                       child: Column(
                         children: [
                           Expanded(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.88,
+                                Expanded(
+                                  flex: 10,
                                   child: Padding(
-                                    padding: const EdgeInsets.only(left: 20),
+                                    padding: const EdgeInsets.only(left: 10),
                                     child: CustomSearchBar(
                                       searchController: _searchController,
                                       onChanged: (value) {
@@ -202,71 +205,92 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                     ),
                                   ),
                                 ),
-                                IconButton(
-                                  onPressed: () {
-                                    setState(
-                                      () {
-                                        if (isList) {
-                                          isList = false;
-                                          viewIcon = Icons.grid_view;
-                                        } else {
-                                          isList = true;
-                                          viewIcon = Icons.list;
-                                        }
-                                      },
-                                    );
-                                  },
-                                  icon: Icon(viewIcon),
+                                Expanded(
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(
+                                        () {
+                                          if (isList) {
+                                            isList = false;
+                                            viewIcon = Icons.list;
+                                          } else {
+                                            isList = true;
+                                            viewIcon = Icons.grid_view_sharp;
+                                          }
+                                        },
+                                      );
+                                    },
+                                    icon: Icon(viewIcon),
+                                  ),
                                 ),
+                                Visibility(
+                                  visible: !isList,
+                                  child: Expanded(
+                                    child: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          threeCols = !threeCols;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        threeCols
+                                            ? Icons.grid_on
+                                            : Icons.grid_view,
+                                      ),
+                                    ),
+                                  ),
+                                )
                               ],
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            width: double.infinity,
-                            child: SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(),
-                              scrollDirection: Axis.horizontal,
-                              child: Wrap(
-                                spacing: 10,
-                                children: [
-                                  CustomFitler(
-                                    selected: !isem,
-                                    text: 'Эм',
-                                    onSelected: (bool value) {
-                                      setState(() {
-                                        isem = !isem;
-                                      });
-                                    },
-                                  ),
-                                  CustomFitler(
-                                    selected: !isvita,
-                                    text: 'Витамин',
-                                    onSelected: (bool value) {
-                                      setState(() {
-                                        isvita = !isvita;
-                                      });
-                                    },
-                                  ),
-                                  CustomFitler(
-                                    selected: !isprod,
-                                    text: 'Эрүүл мэндийн хэрэгсэл, төхөөрөмж',
-                                    onSelected: (bool value) {
-                                      setState(() {
-                                        isprod = !isprod;
-                                      });
-                                    },
-                                  ),
-                                  CustomFitler(
-                                    selected: !isother,
-                                    text: 'Бусад',
-                                    onSelected: (bool value) {
-                                      setState(() {
-                                        isother = !isother;
-                                      });
-                                    },
-                                  ),
-                                ],
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.only(left: 10),
+                              width: double.infinity,
+                              child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                child: Wrap(
+                                  spacing: 5,
+                                  children: [
+                                    CustomFitler(
+                                      selected: !isem,
+                                      text: 'Эм',
+                                      onSelected: (bool value) {
+                                        setState(() {
+                                          isem = !isem;
+                                        });
+                                      },
+                                    ),
+                                    CustomFitler(
+                                      selected: !isvita,
+                                      text: 'Витамин',
+                                      onSelected: (bool value) {
+                                        setState(() {
+                                          isvita = !isvita;
+                                        });
+                                      },
+                                    ),
+                                    CustomFitler(
+                                      selected: !isprod,
+                                      text: 'Эрүүл мэндийн хэрэгсэл, төхөөрөмж',
+                                      onSelected: (bool value) {
+                                        setState(() {
+                                          isprod = !isprod;
+                                        });
+                                      },
+                                    ),
+                                    CustomFitler(
+                                      selected: !isother,
+                                      text: 'Бусад',
+                                      onSelected: (bool value) {
+                                        setState(() {
+                                          isother = !isother;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -283,9 +307,8 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                       showNoMoreItemsIndicatorAsGridChild: false,
                       pagingController: _pagingController,
                       physics: const BouncingScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: threeCols ? 3 : 2,
                       ),
                       builderDelegate: PagedChildBuilderDelegate<dynamic>(
                         animateTransitions: true,
@@ -302,7 +325,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 10),
+                                horizontal: 15, vertical: 5),
                             width: double.infinity,
                             child: Column(
                               children: [
@@ -418,7 +441,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                       ),
                                     ],
                                   ),
-                                 
                                 ],
                               ),
                             ),

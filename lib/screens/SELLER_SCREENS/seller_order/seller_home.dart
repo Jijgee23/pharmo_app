@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/order/history.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_order/seller_home_tab.dart';
@@ -180,8 +181,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                 ),
                 _drawerItem(
                   title: 'Эмийг сан бүртгэх',
-                  icon: const Icon(Icons.medical_services,
-                      color: Colors.lightBlue),
+                  icon: Icons.medical_services,
                   onTap: () {
                     Navigator.push(
                         context,
@@ -190,8 +190,19 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   },
                 ),
                 _drawerItem(
+                  title: 'Харилцагчийн захиалгын түүх',
+                  icon: Icons.history_outlined,
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const SellerCustomerOrderHisrtory()));
+                  },
+                ),
+                _drawerItem(
                   title: 'Гарах',
-                  icon: const Icon(Icons.logout, color: Colors.lightBlue),
+                  icon: Icons.logout, 
                   onTap: () {
                     showLogoutDialog(context);
                   },
@@ -249,9 +260,9 @@ class _SellerHomePageState extends State<SellerHomePage> {
     );
   }
   Widget _drawerItem(
-      {required String title, required Icon icon, Function()? onTap}) {
+      {required String title, required IconData icon, Function()? onTap}) {
     return ListTile(
-      leading: icon,
+      leading: Icon(icon, color: Colors.lightBlue),
       title: Text(title),
       onTap: onTap,
     );

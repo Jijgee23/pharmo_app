@@ -28,5 +28,6 @@
         ".dart_tool",
         ".vscode",
         ".gitignore"
-    ]
+    ],
+    "git.ignoreLimitWarning": true
 }
