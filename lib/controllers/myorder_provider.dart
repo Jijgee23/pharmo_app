@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
@@ -17,7 +18,7 @@ class MyOrderProvider extends ChangeNotifier {
   Future<dynamic> getMyorders() async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/'), headers: <String, String>{
+      final res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
@@ -41,7 +42,7 @@ class MyOrderProvider extends ChangeNotifier {
   Future<dynamic> getMyorderDetail(int orderId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/$orderId/items/'), headers: <String, String>{
+      final res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/$orderId/items/'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
@@ -65,7 +66,7 @@ class MyOrderProvider extends ChangeNotifier {
   Future<dynamic> getSuppliers() async {
     try {
       String bearerToken = await getAccessToken();
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'), headers: <String, String>{
+      final response = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}suppliers'), headers: <String, String>{
         'Content-Type': 'application/json; charset=utf-8',
         'Authorization': bearerToken,
       });
@@ -83,7 +84,7 @@ class MyOrderProvider extends ChangeNotifier {
   Future<dynamic> getBranches() async {
     try {
       String bearerToken = await getAccessToken();
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/branch'), headers: <String, String>{
+      final response = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}branch'), headers: <String, String>{
         'Content-Type': 'application/json; charset=utf-8',
         'Authorization': bearerToken,
       });
@@ -103,32 +104,32 @@ class MyOrderProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       dynamic res;
       if (selectedFilter == '0') {
-        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?process=$selectedItem'), headers: <String, String>{
+        res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/?process=$selectedItem'), headers: <String, String>{
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
       } else if (selectedFilter == '1') {
-        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?status=$selectedItem'), headers: <String, String>{
+        res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/?status=$selectedItem'), headers: <String, String>{
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
       } else if (selectedFilter == '2') {
-        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?payType=$selectedItem'), headers: <String, String>{
+        res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/?payType=$selectedItem'), headers: <String, String>{
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
       } else if (selectedFilter == '3') {
-        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?address=$selectedItem'), headers: <String, String>{
+        res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/?address=$selectedItem'), headers: <String, String>{
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
       } else if (selectedFilter == '4') {
-        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/?supplier=$selectedItem'), headers: <String, String>{
+        res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/?supplier=$selectedItem'), headers: <String, String>{
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
       } else {
-        res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/orders/'), headers: <String, String>{
+        res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/'), headers: <String, String>{
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': bearerToken,
         });
@@ -152,7 +153,7 @@ class MyOrderProvider extends ChangeNotifier {
   Future<dynamic> confirmOrder(int orderId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/pharmacy/accept_order/'),
+      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/accept_order/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,

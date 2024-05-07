@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
@@ -38,7 +39,7 @@ class _SupplierPageState extends State<SupplierPage> {
   getData() async {
     try {
       final response = await http.get(
-          Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'),
+          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=utf-8',
           });
@@ -108,7 +109,7 @@ class _SupplierPageState extends State<SupplierPage> {
                       String? token = prefs.getString("access_token");
                       String bearerToken = "Bearer $token";
                       final response = await http.post(
-                          Uri.parse('http://192.168.88.39:8000/api/v1/pick/'),
+                          Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
                           headers: <String, String>{
                             'Content-Type': 'application/json; charset=UTF-8',
                             'Authorization': bearerToken,

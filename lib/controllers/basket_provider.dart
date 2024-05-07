@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
@@ -49,7 +50,7 @@ class BasketProvider extends ChangeNotifier {
           }
         }
         final response = await http.patch(
-            Uri.parse('http://192.168.88.39:8000/api/v1/check_qty/'),
+            Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
@@ -98,7 +99,7 @@ class BasketProvider extends ChangeNotifier {
         isProduct = product_id.toString();
       }
       final response = await http.patch(
-          Uri.parse('http://192.168.88.39:8000/api/v1/check_qty/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -137,7 +138,7 @@ class BasketProvider extends ChangeNotifier {
       if (check['errorType'] == 1) {
         String bearerToken = await getAccessToken();
         final response = await http.post(
-            Uri.parse('http://192.168.88.39:8000/api/v1/basket_item/'),
+            Uri.parse('${dotenv.env['SERVER_URL']}basket_item/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
@@ -172,7 +173,7 @@ class BasketProvider extends ChangeNotifier {
       String bearerToken = "Bearer $token";
 
       final resBasket = await http.get(
-        Uri.parse('http://192.168.88.39:8000/api/v1/get_basket'),
+        Uri.parse('${dotenv.env['SERVER_URL']}get_basket'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': bearerToken,
@@ -209,7 +210,7 @@ class BasketProvider extends ChangeNotifier {
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
       final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/clear_basket/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}clear_basket/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -241,7 +242,7 @@ class BasketProvider extends ChangeNotifier {
     try {
       String bearerToken = await getAccessToken();
       final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/order/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}order/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -277,7 +278,7 @@ class BasketProvider extends ChangeNotifier {
     try {
       String bearerToken = await getAccessToken();
       final resQR = await http.get(
-          Uri.parse('http://192.168.88.39:8000/api/v1/ci/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}ci/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -335,7 +336,7 @@ class BasketProvider extends ChangeNotifier {
     try {
       String bearerToken = await getAccessToken();
       final resQR = await http.get(
-          Uri.parse('http://192.168.88.39:8000/api/v1/cp/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}cp/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -368,7 +369,7 @@ class BasketProvider extends ChangeNotifier {
     try {
       String bearerToken = await getAccessToken();
       final resQR = await http.delete(
-          Uri.parse('http://192.168.88.39:8000/api/v1/basket_item/$item_id/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -407,7 +408,7 @@ class BasketProvider extends ChangeNotifier {
         qty = qty - 1;
       }
       final resQR = await http.patch(
-          Uri.parse('http://192.168.88.39:8000/api/v1/basket_item/$item_id/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,

@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/branch.dart';
@@ -48,7 +49,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
 
     String? token = prefs.getString('access_token');
     final response = await http.get(
-      Uri.parse('http://192.168.88.39:8000/api/v1/get_basket/'),
+      Uri.parse('${dotenv.env['SERVER_URL']}get_basket/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
@@ -67,7 +68,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/seller/customer_branch/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}seller/customer_branch/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
@@ -98,7 +99,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           showFailedMessage(message: 'Салбар сонгоно уу.', context: context);
         }
         final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/seller/order/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
@@ -128,7 +129,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
       }
       if (_selectedRadioValue == 'C') {
         final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/seller/order/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',

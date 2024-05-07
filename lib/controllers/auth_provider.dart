@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
@@ -34,7 +35,7 @@ class AuthController extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? rtoken = prefs.getString("refresh_token");
     var response = await http.post(
-      Uri.parse('http://192.168.88.39:8000/api/v1/auth/refresh/'),
+      Uri.parse('${dotenv.env['SERVER_URL']}auth/refresh/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': rtoken!,
@@ -52,7 +53,7 @@ class AuthController extends ChangeNotifier {
   Future<bool> checkEmail(String email, BuildContext context) async {
     try {
       var response = await http.post(
-        Uri.parse('http://192.168.88.39:8000/api/v1/auth/reged/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}auth/reged/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -106,7 +107,7 @@ class AuthController extends ChangeNotifier {
   Future<void> login(
       String email, String password, BuildContext context) async {
     var responseLogin = await http.post(
-      Uri.parse('http://192.168.88.39:8000/api/v1/auth/login/'),
+      Uri.parse('${dotenv.env['SERVER_URL']}auth/login/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -160,7 +161,7 @@ class AuthController extends ChangeNotifier {
 
   Future<void> logout(BuildContext context) async {
     final response = await http.post(
-      Uri.parse('http://192.168.88.39:8000/api/v1/auth/logout/'),
+      Uri.parse('${dotenv.env['SERVER_URL']}auth/logout/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -182,7 +183,7 @@ class AuthController extends ChangeNotifier {
       String email, String phone, String password, BuildContext context) async {
     try {
       final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/auth/reg_otp/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}auth/reg_otp/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -206,7 +207,7 @@ class AuthController extends ChangeNotifier {
       BuildContext context) async {
     try {
       final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/auth/register/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}auth/register/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -240,7 +241,7 @@ class AuthController extends ChangeNotifier {
   Future<void> resetPassOtp(String email, BuildContext context) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.88.39:8000/api/v1/auth/get_otp/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}auth/get_otp/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -268,7 +269,7 @@ class AuthController extends ChangeNotifier {
       BuildContext context) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.88.39:8000/api/v1/auth/reset/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}auth/reset/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

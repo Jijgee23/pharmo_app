@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/order.dart';
@@ -36,7 +37,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/branch'), headers: <String, String>{
+      final response = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}branch'), headers: <String, String>{
         'Content-Type': 'application/json; charset=utf-8',
         'Authorization': bearerToken,
       });

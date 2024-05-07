@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/basket.dart';
@@ -52,7 +53,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> getJaggers() async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/shipment/'), headers: <String, String>{
+      final res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}shipment/'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
@@ -86,7 +87,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> getJaggerOrders() async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/shipment_expense/'), headers: <String, String>{
+      final res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
@@ -112,7 +113,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> startShipment(int shipmentId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/start_shipment/'),
+      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}start_shipment/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -134,7 +135,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> endShipment(int shipmentId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/end_shipment/'),
+      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -156,7 +157,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> textShipment(int shipmentId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/end_shipment/'),
+      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -185,7 +186,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> addExpenseAmount() async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/shipment_expense/'),
+      final res = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -209,7 +210,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> setFeedback(int shipId, int itemId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/shipment_add_note/'),
+      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}shipment_add_note/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -232,7 +233,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> editExpenseAmount(int id) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/shipment_expense/$id/'),
+      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/$id/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -259,14 +260,14 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final http.Response res;
       if (add) {
-        res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/update_item_qty/'),
+        res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}update_item_qty/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
             },
             body: jsonEncode({"itemId": itemId, "rQty": rQty.text, "add": add}));
       } else {
-        res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/update_item_qty/'),
+        res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}update_item_qty/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
@@ -347,7 +348,7 @@ class JaggerProvider extends ChangeNotifier {
       if (prefs.getString('latitude') != latitude || prefs.getString('longitude') != longitude) {
         await prefs.setString('latitude', latitude);
         await prefs.setString('longitude', longitude);
-        final res = await http.patch(Uri.parse('http://192.168.88.39:8000/api/v1/update_shipment_location/'),
+        final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}update_shipment_location/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,

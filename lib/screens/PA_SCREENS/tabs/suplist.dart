@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -23,7 +24,7 @@ class _SuplierListState extends State<SuplierList> {
   getData() async {
     try {
       final response = await http.get(
-          Uri.parse('http://192.168.88.39:8000/api/v1/suppliers'),
+          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=utf-8',
           });
@@ -66,7 +67,7 @@ class _SuplierListState extends State<SuplierList> {
                     String bearerToken = "Bearer $token";
                     final response = await http.post(
                         Uri.parse(
-                            'http://192.168.88.39:8000/api/v1/seller/customer_branch/'),
+                            '${dotenv.env['SERVER_URL']}seller/customer_branch/'),
                         headers: <String, String>{
                           'Content-Type': 'application/json; charset=UTF-8',
                           'Authorization': bearerToken,
