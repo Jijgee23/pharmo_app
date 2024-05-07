@@ -47,7 +47,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             margin: const EdgeInsets.only(right: 15),
             child: InkWell(
               onTap: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
               },
               child: badges.Badge(
                 badgeContent: Text(
