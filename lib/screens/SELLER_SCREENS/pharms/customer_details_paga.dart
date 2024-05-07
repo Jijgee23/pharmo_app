@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/brainch_detail.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -69,16 +70,12 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                   return Card(
                     child: ListTile(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BranchDetails(
-                              customerId: widget.customerId,
-                              branchId: _branchList[index].id,
-                              branchName: _branchList[index].name,
-                            ),
-                          ),
-                        );
+                        goto(
+                            BranchDetails(
+                                customerId: widget.customerId,
+                                branchId: _branchList[index].id,
+                                branchName: _branchList[index].name),
+                            context);
                       },
                       leading: const Icon(
                         Icons.house,

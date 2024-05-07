@@ -9,11 +9,12 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return GestureDetector(
+    return Card(
+      color: AppColors.primary,
+      child: InkWell(
       onTap: ontap,
       child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.primary,
+          decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
         ),
         width: size.width * 0.75,
@@ -23,6 +24,7 @@ class CustomButton extends StatelessWidget {
             text,
             style: const TextStyle(color: Colors.white),
           ),
+        ),
         ),
       ),
     );

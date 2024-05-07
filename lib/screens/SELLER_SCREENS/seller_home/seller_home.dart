@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/income_record/income_list.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/income_record/income_record.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/order/history.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_order/seller_home_tab.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home_tab.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_shopping_cart/seller_shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:badges/badges.dart' as badges;
@@ -29,7 +31,6 @@ class _SellerHomePageState extends State<SellerHomePage> {
   String? selectedCustomerName;
   List<String> orders = [];
   bool hidden = false;
-  ScrollNotification? lastNotification;
   @override
   void initState() {
     getUserInfo();
@@ -64,7 +65,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
     String? customerName = prefs.getString('selectedPharmName');
     setState(() {
       selectedCustomer = customerId!;
-      selectedCustomerName = customerName;
+      selectedCustomerName = customerName!;
     });
   }
 
@@ -142,67 +143,74 @@ class _SellerHomePageState extends State<SellerHomePage> {
                 SizedBox(
                   width: size.width,
                   child: DrawerHeader(
-                  curve: Curves.easeInOut,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    curve: Curves.easeInOut,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: size.width * 0.1,
-                        height: size.width * 0.1,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
+                      children: [
+                        Container(
+                          width: size.width * 0.1,
+                          height: size.width * 0.1,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            color: AppColors.secondary,
+                            size: size.width * 0.1,
+                          ),
                         ),
-                        child: Icon(
-                          Icons.person,
-                          color: AppColors.secondary,
-                          size: size.width * 0.1,
-                        ),
-                      ),
-                      Text(
-                        'Имейл хаяг: $email',
-                        style: TextStyle(
+                        Text(
+                          'Имейл хаяг: $email',
+                          style: TextStyle(
                               color: Colors.white,
                               fontSize: size.height * 0.016),
-                      ),
-                      Text(
-                        'Хэрэглэгчийн төрөл: $role',
-                        style: TextStyle(
+                        ),
+                        Text(
+                          'Хэрэглэгчийн төрөл: $role',
+                          style: TextStyle(
                               color: Colors.white,
                               fontSize: size.height * 0.016),
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 _drawerItem(
                   title: 'Эмийг сан бүртгэх',
                   icon: Icons.medical_services,
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const RegisterPharmPage()));
+                    goto(const RegisterPharmPage(), context);
+                  },
+                ),
+                _drawerItem(
+                  title: 'Орлого бүртгэх',
+                  icon: Icons.attach_money,
+                  onTap: () {
+                    goto(const IncomeRecord(), context);
+                  },
+                ),
+                _drawerItem(
+                  title: 'Орлогын жагсаалт',
+                  icon: Icons.list,
+                  onTap: () {
+                    goto(const IncomeList(), context);
                   },
                 ),
                 _drawerItem(
                   title: 'Харилцагчийн захиалгын түүх',
                   icon: Icons.history_outlined,
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                const SellerCustomerOrderHisrtory()));
+                    goto(const SellerCustomerOrderHisrtory(), context);
                   },
                 ),
                 _drawerItem(
                   title: 'Гарах',
-                  icon: Icons.logout, 
+                  icon: Icons.logout,
                   onTap: () {
                     showLogoutDialog(context);
                   },
@@ -219,10 +227,6 @@ class _SellerHomePageState extends State<SellerHomePage> {
                 });
               } else if (scrollNotification is ScrollUpdateNotification &&
                   scrollNotification.scrollDelta! < 0) {
-                setState(() {
-                  hidden = false;
-                });
-              } else if (scrollNotification is ScrollStartNotification) {
                 setState(() {
                   hidden = false;
                 });

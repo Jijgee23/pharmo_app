@@ -9,8 +9,9 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_home_page.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_order/seller_home.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ class AuthController extends ChangeNotifier {
     invisible = !invisible;
     notifyListeners();
   }
+
   void toggleVisibile2() {
     invisible2 = !invisible2;
     notifyListeners();
@@ -132,22 +134,13 @@ class AuthController extends ChangeNotifier {
       // await prefs.setString('basket_count', count.toString());
       notifyListeners();
       if (decodedToken['role'] == 'S') {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const SellerHomePage()),
-            (route) => false);
+        gotoRemoveUntil(const SellerHomePage(), context);
       }
       if (decodedToken['role'] == 'PA') {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const PharmaHomePage()),
-            (route) => false);
+        gotoRemoveUntil(const PharmaHomePage(), context);
       }
       if (decodedToken['role'] == 'D') {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const JaggerHomePage()),
-            (route) => false);
+        gotoRemoveUntil(const JaggerHomePage(), context);
       }
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
@@ -171,10 +164,7 @@ class AuthController extends ChangeNotifier {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.remove('access_token');
       prefs.remove('refresh_token');
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-          (route) => true);
+      gotoRemoveUntil(const LoginPage(), context);
     }
     notifyListeners();
   }
@@ -219,10 +209,7 @@ class AuthController extends ChangeNotifier {
           }));
       notifyListeners();
       if (response.statusCode == 200) {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginPage()),
-            (route) => false);
+        gotoRemoveUntil(const LoginPage(), context);
         showSuccessMessage(
             message: 'Бүртгэл амжилттай үүслээ', context: context);
         notifyListeners();

@@ -7,6 +7,7 @@ import 'package:pharmo_app/models/pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/customer_details_paga.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -164,10 +165,7 @@ class _PharmacyListState extends State<PharmacyList> {
                               MaterialStateProperty.all(AppColors.primary),
                         ),
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const RegisterPharmPage()));
+                          goto(const RegisterPharmPage(), context);
                         },
                         icon: const Icon(
                           Icons.add,
@@ -237,15 +235,12 @@ class _PharmacyListState extends State<PharmacyList> {
                                 TextButton(
                                   onPressed: () {
                                     if (_displayItems[index].isCustomer) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => CustomerDetailsPage(
+                                      goto(
+                                          CustomerDetailsPage(
                                             customerId: _displayItems[index].id,
                                             custName: _displayItems[index].name,
                                           ),
-                                        ),
-                                      );
+                                          context);
                                     } else {
                                       showFailedMessage(
                                           message: 'Харилцагч биш',

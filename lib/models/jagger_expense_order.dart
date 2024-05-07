@@ -1,6 +1,5 @@
 
 
-import 'package:pharmo_app/models/jagger_order_item.dart';
 
 class JaggerExpenseOrder {
   int id;

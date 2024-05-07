@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_order/seller_home.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
 import 'package:pharmo_app/screens/shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,13 +38,11 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
-      Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const SellerHomePage()));
+      goto(const SellerHomePage(), context);
     }
 
     void purchase(int basketId) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (_) => const SelectSellerBranchPage()));
+      goto(const SelectSellerBranchPage(), context);
     }
 
     return Scaffold(

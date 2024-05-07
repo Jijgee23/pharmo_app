@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/orderList.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/order/orderDetail.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/order/order_detail.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -56,15 +57,12 @@ class _OrderhistoryListPageState extends State<OrderhistoryListPage> {
                         return Card(
                           child: ListTile(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => OrderDetailPage(
+                              goto(
+                                  OrderDetailPage(
                                     customerId: widget.customerId,
                                     orderId: orderList[index].id,
                                   ),
-                                ),
-                              );
+                                  context);
                             },
                             title: Text(
                                 'ЗД: ${orderList[index].orderNo.toString()}'),

@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/order/favorites.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/order/orderHistoryList.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/order/order_history_list.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -86,26 +87,20 @@ class _SellerCustomerOrderHisrtoryState
                       title: Text(displayItems[index].name),
                       trailing: IconButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => FavoriteList(
+                            goto(
+                                FavoriteList(
                                     customerId: displayItems[index].id),
-                              ),
-                            );
+                                context);
                           },
                           icon: const Icon(
                             Icons.favorite,
                             color: AppColors.secondary,
                           )),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => OrderhistoryListPage(
+                        goto(
+                            OrderhistoryListPage(
                                 customerId: displayItems[index].id),
-                          ),
-                        );
+                            context);
                       },
                     ),
                   );

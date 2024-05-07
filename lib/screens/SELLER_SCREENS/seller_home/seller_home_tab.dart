@@ -1,14 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/screens/product/product_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/filter.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -37,8 +36,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   bool isother = true;
   bool isList = false;
   int viewIndex = 2;
-  bool threeCols = false;
-  Color selectedColor = AppColors.failedColor;
   final TextEditingController _searchController = TextEditingController();
   List<Product> displayProducts = <Product>[];
   IconData viewIcon = Icons.grid_view;
@@ -117,6 +114,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return RefreshIndicator(
       onRefresh: () => Future.sync(
         () => _pagingController.refresh(),
@@ -127,14 +125,15 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             body: NestedScrollView(
+              physics: const ScrollPhysics(),
               headerSliverBuilder:
                   (BuildContext context, bool innerBoxIsScrolled) {
                 return <Widget>[
                   SliverPersistentHeader(
                     pinned: false,
                     delegate: StickyHeaderDelegate(
-                      minHeight: MediaQuery.of(context).size.height * 0.1,
-                      maxHeight: MediaQuery.of(context).size.height * 0.1,
+                      minHeight: MediaQuery.of(context).size.height * 0.14,
+                      maxHeight: MediaQuery.of(context).size.height * 0.14,
                       child: Column(
                         children: [
                           Expanded(
@@ -223,23 +222,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                     icon: Icon(viewIcon),
                                   ),
                                 ),
-                                Visibility(
-                                  visible: !isList,
-                                  child: Expanded(
-                                    child: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          threeCols = !threeCols;
-                                        });
-                                      },
-                                      icon: Icon(
-                                        threeCols
-                                            ? Icons.grid_on
-                                            : Icons.grid_view,
-                                      ),
-                                    ),
-                                  ),
-                                )
                               ],
                             ),
                           ),
@@ -248,7 +230,9 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                               padding: const EdgeInsets.only(left: 10),
                               width: double.infinity,
                               child: SingleChildScrollView(
-                                physics: const BouncingScrollPhysics(),
+                                controller:
+                                    ScrollController(initialScrollOffset: 50),
+                                physics: const AlwaysScrollableScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
                                 child: Wrap(
                                   spacing: 5,
@@ -307,21 +291,15 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                       showNoMoreItemsIndicatorAsGridChild: false,
                       pagingController: _pagingController,
                       physics: const BouncingScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: threeCols ? 3 : 2,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
                       ),
                       builderDelegate: PagedChildBuilderDelegate<dynamic>(
                         animateTransitions: true,
                         itemBuilder: (_, item, index) => InkWell(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductDetail(
-                                  prod: item,
-                                ),
-                              ),
-                            );
+                            goto(ProductDetail(prod: item), context);
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -367,13 +345,13 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                   height:
                                       MediaQuery.of(context).size.height * 0.05,
                                   child: OutlinedButton(
+                                    onPressed: () {
+                                      addBasket(item.id, item.itemname_id);
+                                    },
                                     child: Text(
                                       'Сагсанд нэмэх',
                                       style: TextStyle(color: Colors.white),
                                     ),
-                                    onPressed: () {
-                                      addBasket(item.id, item.itemname_id);
-                                    },
                                     style: ButtonStyle(
                                       backgroundColor:
                                           MaterialStateProperty.all<Color>(
@@ -400,6 +378,105 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                         itemBuilder: (_, item, index) {
                           return Card(
                               child: InkWell(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    height: size.height * 0.8,
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(20),
+                                        topRight: Radius.circular(20),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: <Widget>[
+                                          Expanded(
+                                            child: Text(
+                                              item.name,
+                                              style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 3,
+                                            child: SizedBox(
+                                              child: (item.images != null &&
+                                                      item.images.length > 0)
+                                                  ? Image.network(
+                                                      // ignore: prefer_interpolation_to_compose_strings
+                                                      'http://192.168.88.39:8000' +
+                                                          item.images
+                                                              ?.first['url'])
+                                                  : Image.asset(
+                                                      'assets/no_image.jpg'),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      item.modified_at,
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.grey[400],
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '${item.price}₮',
+                                                      style: const TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.red),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: size.width * 0.8,
+                                                  child: OutlinedButton(
+                                                    style: const ButtonStyle(
+                                                      backgroundColor:
+                                                          MaterialStatePropertyAll(
+                                                        AppColors.primary,
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      addBasket(item.id,
+                                                          item.itemname_id);
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: const Text(
+                                                      'Сагсанд нэмэх',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                             child: Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 10),

@@ -4,7 +4,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/address.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_order/seller_home.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_filed.dart';
@@ -25,7 +26,12 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
   List<District> districtList = [];
   List<Khoroo> khorooList = [];
   List<String> names = [];
-
+  Province? selectedProvince;
+  District? selectedDistrict;
+  Khoroo? selectedKhoroo;
+  int provinceId = 0;
+  int districtId = 0;
+  int khorooId = 0;
   late TextEditingController cNameController,
       cRdController,
       emailController,
@@ -173,8 +179,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
             'pharmId', jsonDecode(utf8.decode(response.bodyBytes))['user']);
         prefs.setString('selectedPharmName', cName);
         showSuccessMessage(message: 'Амжилттай бүртгэгдлээ.', context: context);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const SellerHomePage()));
+        goto(const SellerHomePage(), context);
       } else {
         showFailedMessage(message: 'Бүртгэл амжилтгүй.', context: context);
       }
@@ -183,12 +188,6 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     }
   }
 
-  Province? selectedProvince;
-  District? selectedDistrict;
-  Khoroo? selectedKhoroo;
-  int provinceId = 0;
-  int districtId = 0;
-  int khorooId = 0;
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -281,6 +280,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                       setState(() {
                         selectedDistrict = newValue;
                         districtId = newValue!.id;
+                        provinceId = 0;
                       });
                       getKhoroo();
                     },
