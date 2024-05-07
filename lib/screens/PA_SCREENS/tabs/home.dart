@@ -21,6 +21,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final int _pageSize = 20;
+  int _isList = 2;
   final PagingController<int, dynamic> _pagingController = PagingController(firstPageKey: 1);
   String email = '';
   String role = '';
@@ -196,57 +197,88 @@ class _HomeState extends State<Home> {
                       children: [
                         Container(
                           margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (value) async {
-                              setState(() {
-                                searchQuery = _searchController.text;
-                              });
-                              _pagingController.refresh();
-                            },
-                            decoration: InputDecoration(
-                              hintText: 'Барааны $type хайх',
-                              prefixIcon: const Icon(Icons.search),
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  showMenu(
-                                    context: context,
-                                    position: const RelativeRect.fromLTRB(150, 20, 0, 0),
-                                    items: <PopupMenuEntry>[
-                                      PopupMenuItem(
-                                        value: '1',
-                                        onTap: () {
-                                          setState(() {
-                                            type = 'нэрээр';
-                                          });
-                                        },
-                                        child: const Text('нэрээр'),
-                                      ),
-                                      PopupMenuItem(
-                                        value: '2',
-                                        onTap: () {
-                                          setState(() {
-                                            type = 'баркодоор';
-                                          });
-                                        },
-                                        child: const Text('Баркодоор'),
-                                      ),
-                                      PopupMenuItem(
-                                        value: '3',
-                                        onTap: () {
-                                          setState(() {
-                                            type = 'ерөнхий нэршлээр';
-                                          });
-                                        },
-                                        child: const Text('Ерөнхий нэршлээр'),
-                                      ),
-                                    ],
-                                  ).then((value) {});
+                          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (value) async {
+                                  setState(() {
+                                    searchQuery = _searchController.text;
+                                  });
+                                  _pagingController.refresh();
                                 },
-                                icon: const Icon(Icons.change_circle),
+                                decoration: InputDecoration(
+                                  hintText: 'Барааны $type хайх',
+                                  prefixIcon: const Icon(Icons.search),
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      showMenu(
+                                        context: context,
+                                        position: const RelativeRect.fromLTRB(150, 20, 0, 0),
+                                        items: <PopupMenuEntry>[
+                                          PopupMenuItem(
+                                            value: '1',
+                                            onTap: () {
+                                              setState(() {
+                                                type = 'нэрээр';
+                                              });
+                                            },
+                                            child: const Text('нэрээр'),
+                                          ),
+                                          PopupMenuItem(
+                                            value: '2',
+                                            onTap: () {
+                                              setState(() {
+                                                type = 'баркодоор';
+                                              });
+                                            },
+                                            child: const Text('Баркодоор'),
+                                          ),
+                                          PopupMenuItem(
+                                            value: '3',
+                                            onTap: () {
+                                              setState(() {
+                                                type = 'ерөнхий нэршлээр';
+                                              });
+                                            },
+                                            child: const Text('Ерөнхий нэршлээр'),
+                                          ),
+                                        ],
+                                      ).then((value) {});
+                                    },
+                                    icon: const Icon(Icons.change_circle),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            IconButton.filledTonal(
+                              iconSize: 23,
+                              color: Colors.blue,
+                              icon: const Icon(
+                                Icons.list,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isList = 1;
+                                });
+                              },
+                            ),
+                            IconButton.filledTonal(
+                              iconSize: 23,
+                              color: Colors.blue,
+                              icon: const Icon(
+                                Icons.grid_3x3,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isList = 2;
+                                });
+                              },
+                            ),
+                          ]),
                         ),
                         const SizedBox(
                           height: 10,
@@ -306,62 +338,119 @@ class _HomeState extends State<Home> {
                 ),
               ];
             },
-            body: PagedGridView<int, dynamic>(
-              showNewPageProgressIndicatorAsGridChild: false,
-              showNewPageErrorIndicatorAsGridChild: false,
-              showNoMoreItemsIndicatorAsGridChild: false,
-              pagingController: _pagingController,
-              physics: const BouncingScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-              ),
-              builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                animateTransitions: true,
-                itemBuilder: (_, item, index) => InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetail(
-                          prod: item,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    width: double.infinity,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            child: (item.images != null && item.images.length > 0) ? Image.network(
-                                // ignore: prefer_interpolation_to_compose_strings
-                                'http://192.168.88.39:8000' + item.images?.first['url']) : Image.asset('assets/no_image.jpg'),
-                          ),
-                        ),
-                        Text(
-                          item.name,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.black),
-                        ),
-                        Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
-                          Text(
-                            item.price + ' ₮',
-                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            item.modified_at,
-                            style: const TextStyle(fontSize: 11, color: Colors.grey),
-                          ),
-                        ])
-                      ],
+            body: _isList == 2
+                ? PagedGridView<int, dynamic>(
+                    showNewPageProgressIndicatorAsGridChild: false,
+                    showNewPageErrorIndicatorAsGridChild: false,
+                    showNoMoreItemsIndicatorAsGridChild: false,
+                    pagingController: _pagingController,
+                    physics: const BouncingScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: _isList,
+                    ),
+                    builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                      animateTransitions: true,
+                      itemBuilder: (_, item, index) => InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetail(
+                                  prod: item,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                            width: double.infinity,
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: SizedBox(
+                                    child: (item.images != null && item.images.length > 0) ? Image.network(
+                                        // ignore: prefer_interpolation_to_compose_strings
+                                        'http://192.168.88.39:8000' + item.images?.first['url']) : Image.asset('assets/no_image.jpg'),
+                                  ),
+                                ),
+                                Text(
+                                  item.name,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                                  Text(
+                                    item.price + ' ₮',
+                                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                                  ),
+                                  Text(
+                                    item.modified_at,
+                                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                  ),
+                                ])
+                              ],
+                            ),
+                          )),
+                    ),
+                  )
+                : PagedListView<int, dynamic>(
+                    pagingController: _pagingController,
+                    builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                      itemBuilder: (context, item, index) => InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetail(
+                                  prod: item,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+                            width: double.infinity,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: size.width / 6 * 2,
+                                  child: (item.images != null && item.images.length > 0) ? Image.network(
+                                      // ignore: prefer_interpolation_to_compose_strings
+                                      'http://192.168.88.39:8000' + item.images?.first['url']) : Image.asset('assets/no_image.jpg'),
+                                ),
+                                const SizedBox(
+                                  width: 15,
+                                ),
+                                Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  SizedBox(
+                                    width: size.width / 6 * 3,
+                                    child: Text(
+                                      item.name,
+                                      style: const TextStyle(color: Colors.black),
+                                      softWrap: true,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 3,
+                                    ),
+                                  ),
+                                  Text(
+                                    item.price + ' ₮',
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                                  ),
+                                  Text(
+                                    item.modified_at,
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                  ),
+                                ]),
+                              ],
+                            ),
+                          )),
                     ),
                   ),
-                ),
-              ),
-            ),
           ),
         ),
       ),
