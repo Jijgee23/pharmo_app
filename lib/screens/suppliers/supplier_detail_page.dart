@@ -16,11 +16,11 @@ class SupplierDetail extends StatefulWidget {
 
 class _SupplierDetailState extends State<SupplierDetail> {
   final int _pageSize = 20;
-  final PagingController<int, dynamic> _pagingController =
-      PagingController(firstPageKey: 1);
+  final PagingController<int, dynamic> _pagingController = PagingController(firstPageKey: 1);
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = '';
   String type = 'нэрээр';
+  int _isList = 2;
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
@@ -65,6 +65,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return RefreshIndicator(
       onRefresh: () => Future.sync(
         () => _pagingController.refresh(),
@@ -107,122 +108,202 @@ class _SupplierDetailState extends State<SupplierDetail> {
         body: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            title: TextField(
-              controller: _searchController,
-              onChanged: (value) async {
-                setState(() {
-                  searchQuery = _searchController.text;
-                });
-                _pagingController.refresh();
-              },
-              decoration: InputDecoration(
-                hintText: 'Барааны $type хайх',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    showMenu(
-                      context: context,
-                      position: const RelativeRect.fromLTRB(150, 20, 0, 0),
-                      items: <PopupMenuEntry>[
-                        PopupMenuItem(
-                          value: '1',
-                          onTap: () {
-                            setState(() {
-                              type = 'нэрээр';
-                            });
-                          },
-                          child: const Text('нэрээр'),
-                        ),
-                        PopupMenuItem(
-                          value: '2',
-                          onTap: () {
-                            setState(() {
-                              type = 'баркодоор';
-                            });
-                          },
-                          child: const Text('Баркодоор'),
-                        ),
-                        PopupMenuItem(
-                          value: '3',
-                          onTap: () {
-                            setState(() {
-                              type = 'ерөнхий нэршлээр';
-                            });
-                          },
-                          child: const Text('Ерөнхий нэршлээр'),
-                        ),
-                      ],
-                    ).then((value) {});
+            title: Row(children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) async {
+                    setState(() {
+                      searchQuery = _searchController.text;
+                    });
+                    _pagingController.refresh();
                   },
-                  icon: const Icon(Icons.change_circle),
-                ),
-              ),
-            ),
-          ),
-          body: PagedGridView<int, dynamic>(
-            showNewPageProgressIndicatorAsGridChild: false,
-            showNewPageErrorIndicatorAsGridChild: false,
-            showNoMoreItemsIndicatorAsGridChild: false,
-            pagingController: _pagingController,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-            ),
-            builderDelegate: PagedChildBuilderDelegate<dynamic>(
-              animateTransitions: true,
-              itemBuilder: (_, item, index) => InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductDetail(
-                        prod: item,
-                      ),
+                  decoration: InputDecoration(
+                    hintText: 'Барааны $type хайх',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        showMenu(
+                          context: context,
+                          position: const RelativeRect.fromLTRB(150, 20, 0, 0),
+                          items: <PopupMenuEntry>[
+                            PopupMenuItem(
+                              value: '1',
+                              onTap: () {
+                                setState(() {
+                                  type = 'нэрээр';
+                                });
+                              },
+                              child: const Text('нэрээр'),
+                            ),
+                            PopupMenuItem(
+                              value: '2',
+                              onTap: () {
+                                setState(() {
+                                  type = 'баркодоор';
+                                });
+                              },
+                              child: const Text('Баркодоор'),
+                            ),
+                            PopupMenuItem(
+                              value: '3',
+                              onTap: () {
+                                setState(() {
+                                  type = 'ерөнхий нэршлээр';
+                                });
+                              },
+                              child: const Text('Ерөнхий нэршлээр'),
+                            ),
+                          ],
+                        ).then((value) {});
+                      },
+                      icon: const Icon(Icons.change_circle),
                     ),
-                  );
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  width: double.infinity,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          // ignore: prefer_interpolation_to_compose_strings
-                          child: (item.images != null && item.images.length > 0)
-                              ? Image.network('http://192.168.88.39:8000' +
-                                  item.images.first['url'])
-                              : Image.asset('assets/no_image.jpg'),
-                        ),
-                      ),
-                      Text(
-                        item.name,
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                      Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              item.price + ' ₮',
-                              style: const TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                            Text(
-                              item.modified_at,
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.grey),
-                            ),
-                          ])
-                    ],
                   ),
                 ),
               ),
-            ),
+              Row(
+                children: [
+                  IconButton.filledTonal(
+                    iconSize: 23,
+                    color: Colors.blue,
+                    icon: const Icon(
+                      Icons.list,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isList = 1;
+                      });
+                    },
+                  ),
+                  IconButton.filledTonal(
+                    iconSize: 23,
+                    color: Colors.blue,
+                    icon: const Icon(
+                      Icons.grid_3x3,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isList = 2;
+                      });
+                    },
+                  ),
+                ],
+              )
+            ]),
           ),
+          body: _isList == 2
+              ? PagedGridView<int, dynamic>(
+                  showNewPageProgressIndicatorAsGridChild: false,
+                  showNewPageErrorIndicatorAsGridChild: false,
+                  showNoMoreItemsIndicatorAsGridChild: false,
+                  pagingController: _pagingController,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                  ),
+                  builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                    animateTransitions: true,
+                    itemBuilder: (_, item, index) => InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductDetail(
+                              prod: item,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        width: double.infinity,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                // ignore: prefer_interpolation_to_compose_strings
+                                child: (item.images != null && item.images.length > 0) ? Image.network('http://192.168.88.39:8000' + item.images.first['url']) : Image.asset('assets/no_image.jpg'),
+                              ),
+                            ),
+                            Text(
+                              item.name,
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                            Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                              Text(
+                                item.price + ' ₮',
+                                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                item.modified_at,
+                                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                              ),
+                            ])
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : PagedListView<int, dynamic>(
+                  pagingController: _pagingController,
+                  builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                    itemBuilder: (context, item, index) => InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetail(
+                                prod: item,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+                          width: double.infinity,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: size.width / 6 * 2,
+                                child: (item.images != null && item.images.length > 0) ? Image.network(
+                                    // ignore: prefer_interpolation_to_compose_strings
+                                    'http://192.168.88.39:8000' + item.images?.first['url']) : Image.asset('assets/no_image.jpg'),
+                              ),
+                              const SizedBox(
+                                width: 15,
+                              ),
+                              Column(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                SizedBox(
+                                  width: size.width / 6 * 3,
+                                  child: Text(
+                                    item.name,
+                                    style: const TextStyle(color: Colors.black),
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 3,
+                                  ),
+                                ),
+                                Text(
+                                  item.price + ' ₮',
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  item.modified_at,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                ),
+                              ]),
+                            ],
+                          ),
+                        )),
+                  ),
+                ),
         ),
       ),
     );
@@ -230,8 +311,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByName(
-          pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByName(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -247,8 +327,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByBarcode(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByBarcode(
-          pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByBarcode(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -264,8 +343,7 @@ class _SupplierDetailState extends State<SupplierDetail> {
 
   Future<void> _fetchPageByIntName(int pageKey, String searchQuery) async {
     try {
-      final newItems = await SearchProvider.getProdListByIntName(
-          pageKey, _pageSize, searchQuery);
+      final newItems = await SearchProvider.getProdListByIntName(pageKey, _pageSize, searchQuery);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
