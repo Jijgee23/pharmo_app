@@ -17,11 +17,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController extends ChangeNotifier {
   bool invisible = true;
+  bool invisible2 = false;
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
 
   void toggleVisibile() {
     invisible = !invisible;
+    notifyListeners();
+  }
+  void toggleVisibile2() {
+    invisible2 = !invisible2;
     notifyListeners();
   }
 
@@ -98,7 +103,8 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> login(String email, String password, BuildContext context) async {
+  Future<void> login(
+      String email, String password, BuildContext context) async {
     var responseLogin = await http.post(
       Uri.parse('http://192.168.88.39:8000/api/v1/auth/login/'),
       headers: <String, String>{
@@ -115,7 +121,6 @@ class AuthController extends ChangeNotifier {
       await prefs.setString('access_token', res['access_token']);
       String? accessToken = prefs.getString('access_token').toString();
       Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-      print(decodedToken);
       _userInfo = decodedToken;
       await prefs.setString('refresh_token', res['refresh_token']);
       await prefs.setString('useremail', decodedToken['email']);
@@ -132,10 +137,16 @@ class AuthController extends ChangeNotifier {
             (route) => false);
       }
       if (decodedToken['role'] == 'PA') {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => false);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const PharmaHomePage()),
+            (route) => false);
       }
       if (decodedToken['role'] == 'D') {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const JaggerHomePage()), (route) => false);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const JaggerHomePage()),
+            (route) => false);
       }
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
@@ -167,9 +178,11 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signUpGetOtp(String email, String phone, String password, BuildContext context) async {
+  Future<void> signUpGetOtp(
+      String email, String phone, String password, BuildContext context) async {
     try {
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/auth/reg_otp/'),
+      final response = await http.post(
+          Uri.parse('http://192.168.88.39:8000/api/v1/auth/reg_otp/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -180,25 +193,29 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (response.statusCode == 200) {
         showSuccessMessage(
-            message: 'Батлагаажуулах код илгээлээ!',
-            context: context);
+            message: 'Батлагаажуулах код илгээлээ!', context: context);
         notifyListeners();
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Амжилтгүй!',
-          context: context);
+      showFailedMessage(message: 'Амжилтгүй!', context: context);
       notifyListeners();
     }
   }
 
-  Future<void> register(String email, String phone, String password, String otp, BuildContext context) async {
+  Future<void> register(String email, String phone, String password, String otp,
+      BuildContext context) async {
     try {
-      final response = await http.post(Uri.parse('http://192.168.88.39:8000/api/v1/auth/register/'),
+      final response = await http.post(
+          Uri.parse('http://192.168.88.39:8000/api/v1/auth/register/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
-          body: jsonEncode({'email': email, 'phone': phone, 'password': password, 'otp': otp}));
+          body: jsonEncode({
+            'email': email,
+            'phone': phone,
+            'password': password,
+            'otp': otp
+          }));
       notifyListeners();
       if (response.statusCode == 200) {
         Navigator.pushAndRemoveUntil(
@@ -206,20 +223,16 @@ class AuthController extends ChangeNotifier {
             MaterialPageRoute(builder: (_) => const LoginPage()),
             (route) => false);
         showSuccessMessage(
-            message: 'Бүртгэл амжилттай үүслээ',
-            context: context);
+            message: 'Бүртгэл амжилттай үүслээ', context: context);
         notifyListeners();
       }
       if (response.statusCode == 500) {
         showFailedMessage(
-            message: 'Түр хүлээгээд дахин оролдоно уу!',
-            context: context);
+            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
         notifyListeners();
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Амжилтгүй!',
-          context: context);
+      showFailedMessage(message: 'Амжилтгүй!', context: context);
     }
     notifyListeners();
   }
@@ -238,13 +251,10 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (response.statusCode == 200) {
         showSuccessMessage(
-            context: context,
-            message: 'Батлагаажуулах код илгээлээ');
+            context: context, message: 'Батлагаажуулах код илгээлээ');
         notifyListeners();
       } else {
-        showFailedMessage(
-            message: 'Амжилтгүй!',
-            context: context);
+        showFailedMessage(message: 'Амжилтгүй!', context: context);
         notifyListeners();
       }
       notifyListeners();
@@ -254,7 +264,8 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createPassword(String email, String otp, String newPassword, BuildContext context) async {
+  Future<void> createPassword(String email, String otp, String newPassword,
+      BuildContext context) async {
     try {
       final response = await http.post(
         Uri.parse('http://192.168.88.39:8000/api/v1/auth/reset/'),
@@ -270,14 +281,11 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (response.statusCode == 200) {
         showSuccessMessage(
-            message: 'Нууц үг амжилттай үүслээ',
-            context: context);
+            message: 'Нууц үг амжилттай үүслээ', context: context);
         notifyListeners();
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Амжилтгүй!',
-          context: context);
+      showFailedMessage(message: 'Амжилтгүй!', context: context);
     }
     notifyListeners();
   }

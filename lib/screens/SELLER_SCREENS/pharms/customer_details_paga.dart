@@ -8,6 +8,7 @@ import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/brainch_detail.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher_string.dart';
 
 class CustomerDetailsPage extends StatefulWidget {
   final int customerId;
@@ -43,13 +44,15 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
         centerTitle: !false,
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text('Эмийн сангийн нэр: ${companyInfo['name']}'),
                   Text('Регистрийн дугаар: ${companyInfo['rd']}'),
@@ -59,7 +62,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
               ),
             ),
             Expanded(
-              flex: 6,
+              flex: 5,
               child: ListView.builder(
                 itemCount: _branchList.length,
                 itemBuilder: (context, index) {
@@ -87,6 +90,35 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                 },
               ),
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.3,
+                  child: OutlinedButton(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStatePropertyAll(Colors.green.shade900),
+                    ),
+                    onPressed: () {
+                      launchUrlString('tel://+976${companyInfo['phone']}');
+                    },
+                    child: const Icon(Icons.call, color: Colors.white),
+                  ),
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.3,
+                  child: OutlinedButton(
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStatePropertyAll(Colors.green.shade900),
+                    ),
+                    onPressed: () async {},
+                    child: const Icon(Icons.mail, color: Colors.white),
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),

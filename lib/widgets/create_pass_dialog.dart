@@ -76,7 +76,7 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
               ),
               SizedBox(height: size.height * 0.04),
               Visibility(
-                visible: authController.invisible,
+                visible: authController.invisible2,
                 child: CustomTextField(
                     controller: otpController,
                     hintText: 'Батлагаажуулах код',
@@ -86,7 +86,7 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
               ),
               SizedBox(height: size.height * 0.04),
               CustomButton(
-                text: !authController.invisible
+                text: !authController.invisible2
                     ? 'Батлагаажуулах код авах'
                     : 'Батлагаажуулах',
                 ontap: () {
@@ -100,18 +100,37 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                   String password2 = newPasswordController.text;
                   String otp = otpController.text;
                   if (password == password2) {
-                    if (!authController.invisible) {
+                    if (!authController.invisible2) {
                       authController.resetPassOtp(email, context);
                       setState(() {
-                        authController.toggleVisibile();
+                        authController.toggleVisibile2();
                       });
                     } else {
+                      if (otpController.text.isEmpty) {
+                        showFailedMessage(
+                            context: context,
+                            message: 'Батлагаажуулах код орууна уу');
+                      }
                       authController.createPassword(
-                          email, otp, password2, context);
-                      authController.toggleVisibile();
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()));
+                          email, otp, password, context);
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                          (route) => false);
+                      showSuccessMessage(
+                          message: 'Нууц үг амжилттай үүслээ',
+                          context: context);
+                      setState(() {
+                        authController.toggleVisibile2();
+                      });
                     }
+                    // if (authController.invisible) {
+                    //   authController.createPassword(
+                    //       email, otp, password2, context);
+                    //   setState(() {
+                    //   authController.toggleVisibile();
+                    //   });
+                    // }
                   } else {
                     showFailedMessage(
                         message: 'Нууц үг таарахгүй байна!', context: context);
