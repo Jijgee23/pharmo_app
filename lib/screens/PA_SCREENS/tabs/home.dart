@@ -24,7 +24,6 @@ class _HomeState extends State<Home> {
       PagingController(firstPageKey: 1);
   String email = '';
   String role = '';
-  String type = 'нэрээр';
   String searchQuery = '';
   bool isem = true;
   bool isvita = true;
@@ -40,8 +39,15 @@ class _HomeState extends State<Home> {
     getUserInfo();
     _pagingController.addPageRequestListener(
       (pageKey) {
-        if (_searchController.text.isNotEmpty && type == 'нэрээр') {
+        if (_searchController.text.isNotEmpty && searchType == 'Нэрээр') {
           _fetchPageByName(pageKey, searchQuery);
+        }
+        if (_searchController.text.isNotEmpty && searchType == 'Баркодоор') {
+          _fetchPageByBarcode(pageKey, searchQuery);
+        }
+        if (_searchController.text.isNotEmpty &&
+            searchType == 'Ерөнхий нэршлээр') {
+          _fetchPageByIntName(pageKey, searchQuery);
         }
         if (_searchController.text.isEmpty) {
           _fetchPage(pageKey);
@@ -55,47 +61,6 @@ class _HomeState extends State<Home> {
   void dispose() {
     _pagingController.dispose();
     super.dispose();
-  }
-
-  Future<void> _fetchPage(int pageKey) async {
-    try {
-      final newItems = await SearchProvider.getProdList(pageKey, _pageSize);
-      final isLastPage = newItems!.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
-    }
-  }
-
-  Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
-    try {
-      final newItems = await SearchProvider.getProdListByName(
-          pageKey, _pageSize, searchQuery);
-      final isLastPage = newItems!.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
-    }
-  }
-
-  void getUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? useremail = prefs.getString('useremail');
-    String? userRole = prefs.getString('userrole');
-    setState(() {
-      email = useremail.toString();
-      role = userRole.toString();
-    });
   }
 
   @override
@@ -133,7 +98,7 @@ class _HomeState extends State<Home> {
                         },
                         title: searchType,
                         suffix: IconButton(
-                          icon: const Icon(Icons.change_circle_sharp),
+                          icon: const Icon(Icons.swap_vert),
                           onPressed: () {
                             showMenu(
                               context: context,
@@ -141,7 +106,6 @@ class _HomeState extends State<Home> {
                                   const RelativeRect.fromLTRB(150, 20, 0, 0),
                               items: <PopupMenuEntry>[
                                 PopupMenuItem(
-                                  value: '1',
                                   onTap: () {
                                     setState(() {
                                       searchType = 'Нэрээр';
@@ -150,7 +114,6 @@ class _HomeState extends State<Home> {
                                   child: const Text('Нэрээр'),
                                 ),
                                 PopupMenuItem(
-                                  value: '2',
                                   onTap: () {
                                     setState(() {
                                       searchType = 'Баркодоор';
@@ -159,7 +122,6 @@ class _HomeState extends State<Home> {
                                   child: const Text('Баркодоор'),
                                 ),
                                 PopupMenuItem(
-                                  value: '2',
                                   onTap: () {
                                     setState(() {
                                       searchType = 'Ерөнхий нэршлээр';
@@ -324,5 +286,78 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await SearchProvider.getProdList(pageKey, _pageSize);
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + 1;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
+  Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
+    try {
+      final newItems = await SearchProvider.getProdListByName(
+          pageKey, _pageSize, searchQuery);
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + 1;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
+  Future<void> _fetchPageByBarcode(int pageKey, String searchQuery) async {
+    try {
+      final newItems = await SearchProvider.getProdListByBarcode(
+          pageKey, _pageSize, searchQuery);
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + 1;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
+  Future<void> _fetchPageByIntName(int pageKey, String searchQuery) async {
+    try {
+      final newItems = await SearchProvider.getProdListByIntName(
+          pageKey, _pageSize, searchQuery);
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + 1;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
+  void getUserInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? useremail = prefs.getString('useremail');
+    String? userRole = prefs.getString('userrole');
+    setState(() {
+      email = useremail.toString();
+      role = userRole.toString();
+    });
   }
 }

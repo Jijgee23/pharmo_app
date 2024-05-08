@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/my_orders.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
@@ -176,10 +177,10 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                   ),
           ),
         );
-      }),
+        },
+      ),
     );
   }
-
   Widget _drawerItem(
       {required String title, required IconData icon, Function()? onTap}) {
     return ListTile(
@@ -190,45 +191,4 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
   }
 }
 
-class LogoutDialog extends StatelessWidget {
-  const LogoutDialog({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
-    //  final size = MediaQuery.of(context).size;
-    return ChangeNotifierProvider(
-      create: (context) => AuthController(),
-      child: AlertDialog(
-        title: const Center(
-          child: Text('Системээс гарах'),
-        ),
-        content: const Text('Та системээс гарахдаа итгэлтэй байна уу?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Үгүй'),
-          ),
-          TextButton(
-            onPressed: () {
-              authController.logout(context);
-              authController.toggleVisibile();
-            },
-            child: const Text('Тийм'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-void showLogoutDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return const LogoutDialog();
-    },
-  );
-}
