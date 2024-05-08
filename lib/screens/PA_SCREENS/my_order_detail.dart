@@ -54,7 +54,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
                   itemBuilder: (context, index) {
                     return Card(
                         child: InkWell(
-                      onTap: () async => {print('shineodko')},
+                      onTap: () async => {},
                       child: Container(
                         margin: const EdgeInsets.all(10),
                         child: Column(

@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class AppDetail extends StatefulWidget implements PreferredSizeWidget {
-  const AppDetail({Key? key}) : super(key: key);
+  const AppDetail({super.key});
 
   @override
   State<AppDetail> createState() => _AppDetailState();
@@ -26,21 +25,12 @@ class _AppDetailState extends State<AppDetail> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  addBasket() async {
-    try {
-      print('odko');
-    } catch (e) {
-      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
-    }
   }
 
   @override
@@ -86,7 +76,7 @@ class _AppDetailState extends State<AppDetail> {
             margin: const EdgeInsets.only(right: 15),
             child: badges.Badge(
               badgeContent: Text(
-                "${basketProvider.count} ${shoppingCartCC}",
+                "${basketProvider.count} $shoppingCartCC",
                 style: const TextStyle(color: Colors.white, fontSize: 10),
               ),
               badgeStyle: const badges.BadgeStyle(

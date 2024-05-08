@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -84,7 +85,6 @@ class AuthController extends ChangeNotifier {
           );
         }
         if (responseData['ema'] == email && isPasswordCreated) {
-          print(responseData);
           notifyListeners();
           return Future.value(true);
         }
@@ -144,7 +144,9 @@ class AuthController extends ChangeNotifier {
       }
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
-      print(accessToken);
+      if (kDebugMode) {
+        print(accessToken);
+      }
       notifyListeners();
     } else {
       showFailedMessage(message: 'Нууц үг буруу байна!', context: context);

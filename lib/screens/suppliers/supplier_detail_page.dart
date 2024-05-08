@@ -58,7 +58,6 @@ class _SupplierDetailState extends State<SupplierDetail> {
         _pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
-      print(_pagingController.error);
       _pagingController.error = error;
     }
   }
@@ -320,7 +319,6 @@ class _SupplierDetailState extends State<SupplierDetail> {
         _pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
-      print(_pagingController.error);
       _pagingController.error = error;
     }
   }
@@ -336,7 +334,6 @@ class _SupplierDetailState extends State<SupplierDetail> {
         _pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
-      print(_pagingController.error);
       _pagingController.error = error;
     }
   }
@@ -352,7 +349,6 @@ class _SupplierDetailState extends State<SupplierDetail> {
         _pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
-      print(_pagingController.error);
       _pagingController.error = error;
     }
   }

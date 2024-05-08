@@ -1,7 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/orderList.dart';
+import 'package:pharmo_app/models/order_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/order/order_detail.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';

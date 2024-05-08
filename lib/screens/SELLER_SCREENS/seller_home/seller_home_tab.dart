@@ -72,7 +72,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
         _pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
-      print(_pagingController.error);
       _pagingController.error = error;
     }
   }
@@ -89,7 +88,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
         _pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
-      print(_pagingController.error);
       _pagingController.error = error;
     }
   }
@@ -348,10 +346,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                     onPressed: () {
                                       addBasket(item.id, item.itemname_id);
                                     },
-                                    child: Text(
-                                      'Сагсанд нэмэх',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
+                                  
                                     style: ButtonStyle(
                                       backgroundColor:
                                           MaterialStateProperty.all<Color>(
@@ -363,6 +358,10 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                               BorderRadius.circular(10),
                                         ),
                                       ),
+                                    ),
+                                    child: const Text(
+                                      'Сагсанд нэмэх',
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ),
@@ -383,7 +382,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return Container(
-                                    height: size.height * 0.8,
                                     padding: const EdgeInsets.all(10),
                                     decoration: const BoxDecoration(
                                       color: Colors.white,
@@ -406,7 +404,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                             ),
                                           ),
                                           Expanded(
-                                            flex: 3,
+                                            flex: 2,
                                             child: SizedBox(
                                               child: (item.images != null &&
                                                       item.images.length > 0)
@@ -425,7 +423,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                                 Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
-                                                          .spaceBetween,
+                                                          .spaceEvenly,
                                                   children: [
                                                     Text(
                                                       item.modified_at,
@@ -439,7 +437,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                                     Text(
                                                       '${item.price}₮',
                                                       style: const TextStyle(
-                                                          fontSize: 18,
+                                                          fontSize: 16,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           color: Colors.red),

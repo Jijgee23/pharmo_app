@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
@@ -79,7 +80,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -105,7 +108,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'fail': e};
     }
   }
@@ -127,7 +132,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт эхлэхэд алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'fail': e};
     }
   }
@@ -149,7 +156,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт дуусгахад алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'fail': e};
     }
   }
@@ -171,7 +180,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт дуусгахад алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'fail': e};
     }
   }
@@ -202,7 +213,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага нэмхэд алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'fail': e};
     }
   }
@@ -225,7 +238,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': res.body};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -250,7 +265,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'fail': e};
     }
   }
@@ -286,7 +303,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'fail': e};
     }
   }
@@ -322,7 +341,9 @@ class JaggerProvider extends ChangeNotifier {
     servicePermission = await Geolocator.isLocationServiceEnabled();
 
     if (!servicePermission) {
-      print("Service Disabled");
+      if (kDebugMode) {
+        print("Service Disabled");
+      }
     }
     permission = await Geolocator.checkPermission();
 
@@ -365,7 +386,9 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 1, 'data': null, 'message': 'Түгээгчийн байршил өөрчлөгдөөгүй байна.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'fail': e};
     }
   }

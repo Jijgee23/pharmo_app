@@ -84,7 +84,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     },
                     title: Text('Item $index'),
                     subtitle: Text('Барааны нэр $index'),
-                    trailing: Text('price'),
+                    trailing: const Text('price'),
                   );
                 },
                 childCount: 15, // Example list of items

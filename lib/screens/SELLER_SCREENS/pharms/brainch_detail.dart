@@ -47,7 +47,6 @@ class _BranchDetailsState extends State<BranchDetails> {
               {'customerId': widget.customerId, 'branchId': widget.branchId}));
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        print(res);
         storeList.clear();
         setState(() {
           storeList = res;

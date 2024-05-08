@@ -75,7 +75,7 @@ class _OrderDoneState extends State<OrderDone> {
                                 'Таны захиалгы дугаар : ',
                               ),
                               Text(
-                                '${widget.orderNo}',
+                                widget.orderNo,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold),
                               ),

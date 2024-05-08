@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/my_order.dart';
@@ -34,7 +34,9 @@ class MyOrderProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -58,7 +60,9 @@ class MyOrderProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -146,7 +150,9 @@ class MyOrderProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -168,7 +174,9 @@ class MyOrderProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Захиалга баталгаажуулах үед алдаа гарлаа.'};
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }

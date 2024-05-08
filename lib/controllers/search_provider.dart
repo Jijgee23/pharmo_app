@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/products.dart';
@@ -27,7 +28,9 @@ class SearchProvider {
         return prods;
       }
     } catch (e) {
-      print("Error $e");
+      if (kDebugMode) {
+        print("Error $e");
+      }
     }
     return null;
   }
@@ -58,7 +61,9 @@ class SearchProvider {
         return filteredItems;
       }
     } catch (e) {
-      print("Error $e");
+      if (kDebugMode) {
+        print("Error $e");
+      }
     }
     return null;
   }
@@ -90,7 +95,9 @@ class SearchProvider {
         return filteredItems;
       }
     } catch (e) {
-      print("Error $e");
+      if (kDebugMode) {
+        print("Error $e");
+      }
     }
     return null;
   }
@@ -109,21 +116,24 @@ class SearchProvider {
         'Authorization': bearerToken,
       });
       if (response.statusCode == 200) {
-        // Map res = jsonDecode(response.body);
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         List<dynamic> filteredItems = [];
         for (int i = 0; i < prods.length; i++) {
-          if (prods[i].barcode.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
-            print(prods[i].barcode);
+          if (prods[i]
+              .barcode
+              .toString()
+              .toLowerCase()
+              .contains(searchQuery.toString().toLowerCase())) {
             filteredItems.add(prods[i]);
-            //  print(filteredItems.length);
           }
         }
         return filteredItems;
       }
     } catch (e) {
-      print("Error $e");
+      if (kDebugMode) {
+        print("Error $e");
+      }
     }
     return null;
   }
@@ -154,7 +164,9 @@ class SearchProvider {
         return filteredItems;
       }
     } catch (e) {
-      print("Error $e");
+      if (kDebugMode) {
+        print("Error $e");
+      }
     }
     return null;
   }

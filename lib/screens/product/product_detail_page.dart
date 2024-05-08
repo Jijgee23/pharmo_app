@@ -16,7 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ProductDetail extends StatefulWidget {
   final Product prod;
 
-  const ProductDetail({Key? key, required this.prod}) : super(key: key);
+  const ProductDetail({super.key, required this.prod});
 
   @override
   State<ProductDetail> createState() => _ProductDetailState();
@@ -42,7 +42,6 @@ class _ProductDetailState extends State<ProductDetail> {
     setState(() {
       _userRole = userRole;
     });
-    print(_userRole);
   }
 
   @override

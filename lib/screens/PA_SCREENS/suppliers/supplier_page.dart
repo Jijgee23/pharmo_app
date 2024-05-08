@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -46,7 +48,6 @@ class _SupplierPageState extends State<SupplierPage> {
       if (response.statusCode == 200) {
         // Map res = json.decode(response.body);
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        print(res);
         setState(() {
           res.forEach((key, value) {
             var model = Supplier(key, value);

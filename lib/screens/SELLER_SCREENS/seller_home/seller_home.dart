@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/income_record/income_list.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/income_record/income_record.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/order/history.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/resgister_pharm.dart';
@@ -64,8 +63,10 @@ class _SellerHomePageState extends State<SellerHomePage> {
     int? customerId = prefs.getInt('pharmId');
     String? customerName = prefs.getString('selectedPharmName');
     setState(() {
-      selectedCustomer = customerId!;
-      selectedCustomerName = customerName!;
+      if (customerId != null && customerName != null) {
+        selectedCustomer = customerId;
+        selectedCustomerName = customerName;
+      }
     });
   }
 
@@ -188,13 +189,6 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   },
                 ),
                 _drawerItem(
-                  title: 'Орлого бүртгэх',
-                  icon: Icons.attach_money,
-                  onTap: () {
-                    goto(const IncomeRecord(), context);
-                  },
-                ),
-                _drawerItem(
                   title: 'Орлогын жагсаалт',
                   icon: Icons.list,
                   onTap: () {
@@ -263,6 +257,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
       ),
     );
   }
+
   Widget _drawerItem(
       {required String title, required IconData icon, Function()? onTap}) {
     return ListTile(

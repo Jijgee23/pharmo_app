@@ -39,17 +39,14 @@ class _PharmacyListState extends State<PharmacyList> {
   List<Customer> displayItems = <Customer>[];
   bool isChecked = false;
   Color activeColor = AppColors.primary;
-  ScrollController scrollController = ScrollController();
   @override
   void initState() {
     getPharmacyList();
-    getLocatiion();
-    _getCurrentLocation();
     setState(() {
       _displayItems = _pharmList;
     });
     getSelectedIndex();
-    scrollController = ScrollController();
+    getPosition();
     super.initState();
   }
 
@@ -325,24 +322,21 @@ class _PharmacyListState extends State<PharmacyList> {
     servicePermission = await Geolocator.isLocationServiceEnabled();
 
     if (!servicePermission) {
-      print("Service Disabled");
     }
     permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-
     return await Geolocator.getCurrentPosition();
   }
 
-  getLocatiion() async {
+  Future getPosition() async {
     _currentLocation = await _getCurrentLocation();
     setState(() {
-      latitude = _currentLocation!.latitude.toString().substring(0, 7);
-      longitude = _currentLocation!.longitude.toString().substring(0, 7);
+      latitude = _currentLocation!.latitude.toString();
+      longitude = _currentLocation!.longitude.toString();
     });
-    print('lat: $latitude, long: $longitude');
   }
 
   searchByLocation() async {

@@ -21,7 +21,6 @@ class JaggerHomeDetail extends StatelessWidget {
         final orderItems =
             (provider.jaggers[0].jaggerOrders != null && provider.jaggers[0].jaggerOrders!.isNotEmpty && provider.jaggers[0].jaggerOrders![index].jaggerOrderItems != null) ? provider.jaggers[0].jaggerOrders![index].jaggerOrderItems : null;
         final jagger = provider.jaggers[0];
-        print(jagger);
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
           child: orderItems != null && orderItems.isNotEmpty
@@ -30,7 +29,7 @@ class JaggerHomeDetail extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return Card(
                         child: InkWell(
-                      onTap: () => {print('shineodko')},
+                      onTap: () => {},
                       child: Container(
                         margin: const EdgeInsets.all(15),
                         child: Column(

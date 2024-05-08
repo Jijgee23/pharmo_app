@@ -34,7 +34,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 

@@ -106,8 +106,8 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           },
           body: jsonEncode(
             {
-              'user': pharmId,
-              'address': _selectedAddress,
+              'userId': pharmId,
+              'branchId': _selectedAddress,
               'basket': _basketId,
             },
           ),
@@ -136,7 +136,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           },
           body: jsonEncode(
             {
-              'user': pharmId,
+              'userId': pharmId,
             },
           ),
         );
@@ -232,7 +232,6 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                               setState(() {
                                 _selectedIndex = index;
                                 _selectedAddress = sellerBranchList[index].id;
-                                print(_selectedAddress);
                               });
                             },
                             tileColor:

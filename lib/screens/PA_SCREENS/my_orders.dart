@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
@@ -127,7 +128,9 @@ class _MyOrderState extends State<MyOrder> {
         }
       });
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -224,7 +227,6 @@ class _MyOrderState extends State<MyOrder> {
                           value: _selectedItem,
                           onChanged: (String? value) {
                             setState(() => _selectedItem = value!);
-                            print(value);
                           },
                           selectedItemBuilder: (BuildContext context) {
                             return _processess.keys.map<Widget>((String item) {

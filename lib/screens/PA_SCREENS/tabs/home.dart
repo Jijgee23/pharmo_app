@@ -67,7 +67,6 @@ class _HomeState extends State<Home> {
         _pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
-      print(_pagingController.error);
       _pagingController.error = error;
     }
   }
@@ -83,7 +82,6 @@ class _HomeState extends State<Home> {
         _pagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
-      print(_pagingController.error);
       _pagingController.error = error;
     }
   }

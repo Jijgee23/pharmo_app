@@ -72,7 +72,6 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         },
       );
       List res = jsonDecode(utf8.decode(response.bodyBytes));
-      print(res);
       provinceList.clear();
       if (response.statusCode == 200) {
         setState(() {
@@ -99,7 +98,6 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         },
       );
       List res = jsonDecode(utf8.decode(response.bodyBytes));
-      print(res);
       districtList.clear();
       if (response.statusCode == 200) {
         setState(() {
@@ -127,7 +125,6 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         },
       );
       List res = jsonDecode(utf8.decode(response.bodyBytes));
-      print(res);
       khorooList.clear();
       if (response.statusCode == 200) {
         setState(() {
@@ -171,10 +168,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         ),
       );
       if (response.statusCode == 200) {
-        print(response.body);
-        print(jsonDecode(utf8.decode(response.bodyBytes)));
         String cName = jsonDecode(utf8.decode(response.bodyBytes))['cName'];
-        print(cName);
         prefs.setInt(
             'pharmId', jsonDecode(utf8.decode(response.bodyBytes))['user']);
         prefs.setString('selectedPharmName', cName);
