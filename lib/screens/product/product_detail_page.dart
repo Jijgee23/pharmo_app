@@ -30,6 +30,7 @@ class _ProductDetailState extends State<ProductDetail> {
   ];
   TextEditingController qtyController = TextEditingController();
   String? _userRole = '';
+  final _focusNode = FocusNode();
   @override
   void initState() {
     getUser();
@@ -179,16 +180,27 @@ class _ProductDetailState extends State<ProductDetail> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        width: size.width * 0.3,
-                        height: 50,
-                        child: TextField(
-                          controller: qtyController,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), FilteringTextInputFormatter.digitsOnly],
-                          decoration: const InputDecoration(
-                            border: UnderlineInputBorder(),
-                            hintText: 'Тоо хэмжээ',
+                      GestureDetector(
+                        onTap: () {
+                          _focusNode.unfocus();
+                          // FocusScopeNode currentFocus = FocusScope.of(context);
+
+                          // if (!currentFocus.hasPrimaryFocus) {
+                          //   currentFocus.unfocus();
+                          // }
+                        },
+                        child: SizedBox(
+                          width: size.width * 0.3,
+                          height: 50,
+                          child: TextField(
+                            textInputAction: TextInputAction.done,
+                            controller: qtyController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), FilteringTextInputFormatter.digitsOnly],
+                            decoration: const InputDecoration(
+                              border: UnderlineInputBorder(),
+                              hintText: 'Тоо хэмжээ',
+                            ),
                           ),
                         ),
                       ),
