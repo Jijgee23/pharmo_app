@@ -211,13 +211,14 @@ class _SellerHomePageState extends State<SellerHomePage> {
                           goto(const JaggerHomePage(), context);
                         },
                       )
-                    : _drawerItem(
-                        title: 'Гарах',
-                        icon: Icons.logout,
-                        onTap: () {
-                          showLogoutDialog(context);
-                        },
-                      ),
+                    : const SizedBox(),
+                _drawerItem(
+                  title: 'Гарах',
+                  icon: Icons.logout,
+                  onTap: () {
+                    showLogoutDialog(context);
+                  },
+                ),
               ],
             ),
           ),
