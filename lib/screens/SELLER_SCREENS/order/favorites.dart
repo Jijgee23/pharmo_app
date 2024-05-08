@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/favorite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -81,7 +82,7 @@ class _FavoriteListState extends State<FavoriteList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
     final response = await http.post(
-        Uri.parse('http://192.168.88.39:8000/api/v1/seller/fav_products/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}seller/fav_products/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',

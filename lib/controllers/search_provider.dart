@@ -16,8 +16,8 @@ class SearchProvider {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse(
-          // 'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'),
+      final response = await http.get(
+          Uri.parse(
           '${dotenv.env['SERVER_URL']}product/?page=$page&page_size=$limit'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
@@ -77,8 +77,8 @@ class SearchProvider {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse(
-          // 'http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
+      final response = await http.get(
+          Uri.parse(
           '${dotenv.env['SERVER_URL']}product/?page=$page&page_size=$limit'), headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
@@ -147,7 +147,10 @@ class SearchProvider {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('http://192.168.88.39:8000/api/v1/product/?page=$page&page_size=$limit'), headers: <String, String>{
+      final response = await http.get(
+          Uri.parse(
+              '${dotenv.env['SERVER_URL']}product/?page=$page&page_size=$limit'),
+          headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });

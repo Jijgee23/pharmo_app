@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/models/pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/customer_details_paga.dart';
@@ -274,7 +275,7 @@ class _PharmacyListState extends State<PharmacyList> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
     final response = await http.get(
-      Uri.parse('http://192.168.88.39:8000/api/v1/seller/pharmacy_list/'),
+      Uri.parse('${dotenv.env['SERVER_URL']}seller/pharmacy_list/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
@@ -345,7 +346,7 @@ class _PharmacyListState extends State<PharmacyList> {
       String? token = prefs.getString('access_token');
       final response = await http.post(
           Uri.parse(
-              'http://192.168.88.39:8000/api/v1/seller/search_by_location/'),
+              '${dotenv.env['SERVER_URL']}seller/search_by_location/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',

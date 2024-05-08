@@ -34,9 +34,6 @@ class MyOrderProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -60,9 +57,6 @@ class MyOrderProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -174,9 +168,6 @@ class MyOrderProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Захиалга баталгаажуулах үед алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }

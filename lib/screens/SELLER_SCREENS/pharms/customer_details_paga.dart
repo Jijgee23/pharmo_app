@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/brainch_detail.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -128,7 +129,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
       String? token = prefs.getString("access_token");
       final response = await http.post(
           Uri.parse(
-              'http://192.168.88.39:8000/api/v1/seller/get_pharmacy_info/'),
+              '${dotenv.env['SERVER_URL']}seller/get_pharmacy_info/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
@@ -158,7 +159,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
       prefs.remove('branchId');
       String? token = prefs.getString("access_token");
       final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/seller/customer_branch/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}seller/customer_branch/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',

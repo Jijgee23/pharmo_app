@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_order_page.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/tabs/jagger_home.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,53 +46,68 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
     final authProvider = Provider.of<AuthController>(context, listen: false);
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthController>(create: (context) => AuthController()),
+        ChangeNotifierProvider<AuthController>(
+            create: (context) => AuthController()),
       ],
       child: Consumer<AuthController>(builder: (context, authController, _) {
         return SafeArea(
           child: Scaffold(
             drawer: Drawer(
+              shape: const RoundedRectangleBorder(),
               width: size.width * 0.7,
               child: ListView(
                 children: [
-                  DrawerHeader(
-                    padding: EdgeInsets.all(size.width * 0.05),
-                    curve: Curves.easeInOut,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
+                  SizedBox(
+                    width: size.width,
+                    child: DrawerHeader(
+                      curve: Curves.easeInOut,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: size.width * 0.1,
+                            height: size.width * 0.1,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: Icon(
+                              Icons.person,
+                              color: AppColors.secondary,
+                              size: size.width * 0.1,
+                            ),
                           ),
-                          child: Icon(
-                            Icons.person,
-                            color: AppColors.secondary,
-                            size: size.width * 0.15,
+                          Text(
+                            authProvider.userInfo['email'],
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: size.height * 0.02),
                           ),
-                        ),
-                        Text(
-                          'И-мэйл хаяг: ${authProvider.userInfo['email']}',
-                          style: TextStyle(color: Colors.white, fontSize: size.height * 0.01),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.shopping_cart),
-                    title: const Text('Захиалга'),
+                  _drawerItem(
+                    title: 'Захиалга',
+                    icon: Icons.shopping_cart,
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const JaggerOrderPage()));
+                      goto(const JaggerOrderPage(), context);
                     },
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.logout),
-                    title: const Text('Гарах'),
+                  _drawerItem(
+                    title: 'Борлуулагчруу шилжих',
+                    icon: Icons.swap_vert,
+                    onTap: () {
+                      goto(const SellerHomePage(), context);
+                    },
+                  ),
+                  _drawerItem(
+                    title: 'Гарах',
+                    icon: Icons.logout,
                     onTap: () {
                       showLogoutDialog(context);
                     },
@@ -122,46 +140,12 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
       }),
     );
   }
-}
-
-class LogoutDialog extends StatelessWidget {
-  const LogoutDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
-    return ChangeNotifierProvider(
-      create: (context) => AuthController(),
-      child: AlertDialog(
-        title: const Center(
-          child: Text('Системээс гарах'),
-        ),
-        content: const Text('Та системээс гарахдаа итгэлтэй байна уу?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Үгүй'),
-          ),
-          TextButton(
-            onPressed: () {
-              authController.logout(context);
-              authController.toggleVisibile();
-            },
-            child: const Text('Тийм'),
-          ),
-        ],
-      ),
+  Widget _drawerItem(
+      {required String title, required IconData icon, Function()? onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.lightBlue),
+      title: Text(title),
+      onTap: onTap,
     );
   }
-}
-
-void showLogoutDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return const LogoutDialog();
-    },
-  );
 }

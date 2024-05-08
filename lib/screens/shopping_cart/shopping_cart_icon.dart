@@ -23,7 +23,6 @@ class ShoppinCartIcon extends StatelessWidget {
       //   Navigator.push(context, MaterialPageRoute(builder: (context) => const ShoppingCart()));
       // });
     }
-
     return Stack(
       alignment: Alignment.center,
       children: [

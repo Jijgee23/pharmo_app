@@ -12,6 +12,7 @@ import 'package:pharmo_app/models/jagger_expense_order.dart';
 import 'package:pharmo_app/models/jagger_order.dart';
 import 'package:pharmo_app/models/jagger_order_item.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
+import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class JaggerProvider extends ChangeNotifier {
@@ -54,30 +55,45 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> getJaggers() async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}shipment/'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
+      final res = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}shipment/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          });
       if (res.statusCode == 200) {
         _jaggers.clear();
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         for (int i = 0; i < response['results'].length; i++) {
           Jagger jagger = Jagger.fromJson(response['results'][i]);
           if (jagger.inItems != null && jagger.inItems!.isNotEmpty) {
-            jagger.jaggerOrders = (jagger.inItems)!.map((data) => JaggerOrder.fromJson(data)).toList();
+            jagger.jaggerOrders = (jagger.inItems)!
+                .map((data) => JaggerOrder.fromJson(data))
+                .toList();
           }
           if (jagger.jaggerOrders != null && jagger.jaggerOrders!.isNotEmpty) {
             for (int j = 0; j < jagger.jaggerOrders!.length; j++) {
-              jagger.jaggerOrders![j].jaggerOrderItems = (jagger.jaggerOrders![j].items)!.map((d) => JaggerOrderItem.fromJson(d)).toList();
+              jagger.jaggerOrders![j].jaggerOrderItems =
+                  (jagger.jaggerOrders![j].items)!
+                      .map((d) => JaggerOrderItem.fromJson(d))
+                      .toList();
             }
           }
           _jaggers.add(jagger);
         }
         notifyListeners();
-        return {'errorType': 1, 'data': response, 'message': 'Түгээлт амжилттай авчирлаа.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Түгээлт амжилттай авчирлаа.'
+        };
       } else {
         notifyListeners();
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Түгээлт авчрахад алдаа гарлаа.'
+        };
       }
     } catch (e) {
       if (kDebugMode) {
@@ -90,22 +106,33 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> getJaggerOrders() async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
+      final res = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          });
       _jaggerOrders.clear();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         for (int i = 0; i < response['results'].length; i++) {
-          JaggerExpenseOrder jagger = JaggerExpenseOrder.fromJson(response['results'][i]);
+          JaggerExpenseOrder jagger =
+              JaggerExpenseOrder.fromJson(response['results'][i]);
           _jaggerOrders.add(jagger);
         }
         notifyListeners();
-        return {'errorType': 1, 'data': response, 'message': 'Түгээлт амжилттай авчирлаа.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Түгээлт амжилттай авчирлаа.'
+        };
       } else {
         notifyListeners();
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Түгээлт авчрахад алдаа гарлаа.'
+        };
       }
     } catch (e) {
       if (kDebugMode) {
@@ -118,7 +145,8 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> startShipment(int shipmentId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}start_shipment/'),
+      final res = await http.patch(
+          Uri.parse('${dotenv.env['SERVER_URL']}start_shipment/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -127,9 +155,17 @@ class JaggerProvider extends ChangeNotifier {
       notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        return {'errorType': 1, 'data': response, 'message': 'Түгээлт амжилттай эхэллээ.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Түгээлт амжилттай эхэллээ.'
+        };
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлт эхлэхэд алдаа гарлаа.'};
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Түгээлт эхлэхэд алдаа гарлаа.'
+        };
       }
     } catch (e) {
       if (kDebugMode) {
@@ -142,7 +178,8 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> endShipment(int shipmentId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
+      final res = await http.patch(
+          Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -151,9 +188,17 @@ class JaggerProvider extends ChangeNotifier {
       notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        return {'errorType': 1, 'data': response, 'message': 'Түгээлт амжилттай дууслаа.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Түгээлт амжилттай дууслаа.'
+        };
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлт дуусгахад алдаа гарлаа.'};
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Түгээлт дуусгахад алдаа гарлаа.'
+        };
       }
     } catch (e) {
       if (kDebugMode) {
@@ -166,7 +211,8 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> textShipment(int shipmentId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
+      final res = await http.patch(
+          Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -175,9 +221,17 @@ class JaggerProvider extends ChangeNotifier {
       notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        return {'errorType': 1, 'data': response, 'message': 'Түгээлт амжилттай дууслаа.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Түгээлт амжилттай дууслаа.'
+        };
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлт дуусгахад алдаа гарлаа.'};
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Түгээлт дуусгахад алдаа гарлаа.'
+        };
       }
     } catch (e) {
       if (kDebugMode) {
@@ -197,7 +251,8 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> addExpenseAmount() async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/'),
+      final res = await http.post(
+          Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -208,9 +263,17 @@ class JaggerProvider extends ChangeNotifier {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         amount.text = '';
         note.text = '';
-        return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн зарлага амжилттай нэмэгдлээ.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Түгээлтийн зарлага амжилттай нэмэгдлээ.'
+        };
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага нэмхэд алдаа гарлаа.'};
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Түгээлтийн зарлага нэмхэд алдаа гарлаа.'
+        };
       }
     } catch (e) {
       if (kDebugMode) {
@@ -223,17 +286,23 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> setFeedback(int shipId, int itemId) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}shipment_add_note/'),
+      final res = await http.patch(
+          Uri.parse('${dotenv.env['SERVER_URL']}shipment_add_note/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           },
-          body: jsonEncode({"shipId": shipId, "itemId": itemId, "note": feedback.text}));
+          body: jsonEncode(
+              {"shipId": shipId, "itemId": itemId, "note": feedback.text}));
       notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         feedback.text = '';
-        return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.'
+        };
       } else {
         return {'errorType': 2, 'data': null, 'message': res.body};
       }
@@ -248,7 +317,8 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> editExpenseAmount(int id) async {
     try {
       String bearerToken = await getAccessToken();
-      final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/$id/'),
+      final res = await http.patch(
+          Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/$id/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -260,9 +330,17 @@ class JaggerProvider extends ChangeNotifier {
         await getJaggerOrders();
         amount.text = '';
         note.text = '';
-        return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн зарлага амжилттай засагдлаа.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Түгээлтийн зарлага амжилттай засагдлаа.'
+        };
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'};
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'
+        };
       }
     } catch (e) {
       if (kDebugMode) {
@@ -277,14 +355,17 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final http.Response res;
       if (add) {
-        res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}update_item_qty/'),
+        res = await http.patch(
+            Uri.parse('${dotenv.env['SERVER_URL']}update_item_qty/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
             },
-            body: jsonEncode({"itemId": itemId, "rQty": rQty.text, "add": add}));
+            body:
+                jsonEncode({"itemId": itemId, "rQty": rQty.text, "add": add}));
       } else {
-        res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}update_item_qty/'),
+        res = await http.patch(
+            Uri.parse('${dotenv.env['SERVER_URL']}update_item_qty/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
@@ -297,10 +378,18 @@ class JaggerProvider extends ChangeNotifier {
         await getJaggers();
         rQty.text = '';
         notifyListeners();
-        return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн зарлага амжилттай засагдлаа.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Түгээлтийн зарлага амжилттай засагдлаа.'
+        };
       } else {
         notifyListeners();
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'};
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'
+        };
       }
     } catch (e) {
       if (kDebugMode) {
@@ -341,9 +430,7 @@ class JaggerProvider extends ChangeNotifier {
     servicePermission = await Geolocator.isLocationServiceEnabled();
 
     if (!servicePermission) {
-      if (kDebugMode) {
-        print("Service Disabled");
-      }
+      showFailedMessage(message: 'Permission тохируулна уу');
     }
     permission = await Geolocator.checkPermission();
 
@@ -366,10 +453,12 @@ class JaggerProvider extends ChangeNotifier {
       // print('lat: $latitude, long: $longitude');
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      if (prefs.getString('latitude') != latitude || prefs.getString('longitude') != longitude) {
+      if (prefs.getString('latitude') != latitude ||
+          prefs.getString('longitude') != longitude) {
         await prefs.setString('latitude', latitude);
         await prefs.setString('longitude', longitude);
-        final res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}update_shipment_location/'),
+        final res = await http.patch(
+            Uri.parse('${dotenv.env['SERVER_URL']}update_shipment_location/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
@@ -378,17 +467,26 @@ class JaggerProvider extends ChangeNotifier {
         notifyListeners();
         if (res.statusCode == 200) {
           final response = jsonDecode(utf8.decode(res.bodyBytes));
-          return {'errorType': 1, 'data': response, 'message': 'Түгээгчийн байршлыг амжилттай илгээлээ.'};
+          return {
+            'errorType': 1,
+            'data': response,
+            'message': 'Түгээгчийн байршлыг амжилттай илгээлээ.'
+          };
         } else {
-          return {'errorType': 2, 'data': null, 'message': 'Түгээгчийн байршлыг илгээхэд алдаа гарлаа.'};
+          return {
+            'errorType': 2,
+            'data': null,
+            'message': 'Түгээгчийн байршлыг илгээхэд алдаа гарлаа.'
+          };
         }
       } else {
-        return {'errorType': 1, 'data': null, 'message': 'Түгээгчийн байршил өөрчлөгдөөгүй байна.'};
+        return {
+          'errorType': 1,
+          'data': null,
+          'message': 'Түгээгчийн байршил өөрчлөгдөөгүй байна.'
+        };
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'fail': e};
     }
   }

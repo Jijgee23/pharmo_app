@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/order_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/order/order_detail.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -100,7 +101,7 @@ class _OrderhistoryListPageState extends State<OrderhistoryListPage> {
       String? token = prefs.getString('access_token');
       final response = await http.get(
         Uri.parse(
-            'http://192.168.88.39:8000/api/v1/seller/order_history/?pharmacyId=$customerId'),
+            '${dotenv.env['SERVER_URL']}seller/order_history/?pharmacyId=$customerId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',

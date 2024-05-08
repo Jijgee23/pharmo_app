@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/jagger_expense_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/custom_text_field_icon.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -39,93 +38,142 @@ class _JaggerOrderPageState extends State<JaggerOrderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const DMAppBar(
-        title: 'Зарлагын жагсаалт',
-      ),
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
         final jaggerOrders = (provider.jaggerOrders.isNotEmpty) ? provider.jaggerOrders : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-          child: jaggerOrders != null && jaggerOrders.isNotEmpty
-              ? ListView.builder(
-                  itemCount: jaggerOrders.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                        child: InkWell(
-                      onTap: () => {
-                        // Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //         builder: (context) => JaggerHomeDetail(
-                        //               orderItems: jagger.jaggerOrders![index].jaggerOrderItems,
-                        //             )))
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.all(10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              jaggerOrders[index].note.toString(),
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                              RichText(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                text: TextSpan(text: 'Дүн : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: '${jaggerOrders[index].amount} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
-                                ]),
-                              ),
-                              RichText(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                text: TextSpan(text: 'Огноо : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: jaggerOrders[index].createdOn.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                                ]),
-                              ),
-                            ]),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                OutlinedButton.icon(
-                                  onPressed: () {
-                                    _dialogBuilder(context, 'Түгээлтийн зарлага засах', jaggerOrders[index]);
-                                    provider.amount = TextEditingController(text: jaggerOrders[index].amount.toString());
-                                    provider.note = TextEditingController(text: jaggerOrders[index].note);
-                                  },
-                                  icon: const Icon(
-                                    color: Colors.white,
-                                    Icons.edit,
-                                    size: 24.0,
-                                  ),
-                                  label: const Text(
-                                    'Засах',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                  ),
+          child: Column(
+            children: [
+              const Expanded(
+                child: Text('Түгээлтийн жагсаалт'),
+              ),
+              jaggerOrders != null && jaggerOrders.isNotEmpty
+                  ? Expanded(
+                      flex: 8,
+                      child: ListView.builder(
+                          itemCount: jaggerOrders.length,
+                          itemBuilder: (context, index) {
+                            return Card(
+                                child: InkWell(
+                              onTap: () => {
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) => JaggerHomeDetail(
+                                //               orderItems: jagger.jaggerOrders![index].jaggerOrderItems,
+                                //             )))
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.all(10),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      jaggerOrders[index].note.toString(),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18.0),
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          RichText(
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            text: TextSpan(
+                                                text: 'Дүн : ',
+                                                style: TextStyle(
+                                                    color: Colors
+                                                        .blueGrey.shade800,
+                                                    fontSize: 13.0),
+                                                children: [
+                                                  TextSpan(
+                                                      text:
+                                                          '${jaggerOrders[index].amount} ₮',
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 16.0,
+                                                          color: Colors.red)),
+                                                ]),
+                                          ),
+                                          RichText(
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            text: TextSpan(
+                                                text: 'Огноо : ',
+                                                style: TextStyle(
+                                                    color: Colors
+                                                        .blueGrey.shade800,
+                                                    fontSize: 13.0),
+                                                children: [
+                                                  TextSpan(
+                                                      text: jaggerOrders[index]
+                                                          .createdOn
+                                                          .toString(),
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 16.0)),
+                                                ]),
+                                          ),
+                                        ]),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        OutlinedButton.icon(
+                                          onPressed: () {
+                                            _dialogBuilder(
+                                                context,
+                                                'Түгээлтийн зарлага засах',
+                                                jaggerOrders[index]);
+                                            provider.amount =
+                                                TextEditingController(
+                                                    text: jaggerOrders[index]
+                                                        .amount
+                                                        .toString());
+                                            provider.note =
+                                                TextEditingController(
+                                                    text: jaggerOrders[index]
+                                                        .note);
+                                          },
+                                          icon: const Icon(
+                                            color: Colors.white,
+                                            Icons.edit,
+                                            size: 24.0,
+                                          ),
+                                          label: const Text(
+                                            'Засах',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.primary,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
                                 ),
-                              ],
-                            )
-                          ],
+                              ),
+                            ));
+                          }),
+                    )
+                  : const SizedBox(
+                      height: 200,
+                      child: Center(
+                        child: Text(
+                          "Түгээлтийн мэдээлэл олдсонгүй ...",
                         ),
                       ),
-                    ));
-                  })
-              : const SizedBox(
-                  height: 200,
-                  child: Center(
-                    child: Text(
-                      "Түгээлтийн мэдээлэл олдсонгүй ...",
                     ),
-                  ),
-                ),
+            ],
+          ),
         );
       }),
     );

@@ -161,9 +161,6 @@ class BasketProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': check['message']};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'errorType': 3, 'data': e, 'message': ''};
     }
   }
@@ -268,9 +265,6 @@ class BasketProvider extends ChangeNotifier {
         };
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -361,9 +355,6 @@ class BasketProvider extends ChangeNotifier {
         };
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -434,9 +425,6 @@ class BasketProvider extends ChangeNotifier {
         };
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }

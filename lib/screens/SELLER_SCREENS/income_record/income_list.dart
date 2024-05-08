@@ -349,7 +349,7 @@ class _IncomeListState extends State<IncomeList> {
           await SharedPreferences.getInstance();
       String? token = preferences.getString('access_token');
       final response = await http.get(
-        Uri.parse('http://192.168.88.39:8000/api/v1/income_record/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}income_record/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -401,7 +401,7 @@ class _IncomeListState extends State<IncomeList> {
           await SharedPreferences.getInstance();
       String? token = preferences.getString('access_token');
       final response = await http.post(
-        Uri.parse('http://192.168.88.39:8000/api/v1/income_record/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}income_record/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -425,7 +425,7 @@ class _IncomeListState extends State<IncomeList> {
           await SharedPreferences.getInstance();
       String? token = preferences.getString('access_token');
       final response = await http.patch(
-        Uri.parse('http://192.168.88.39:8000/api/v1/income_record/$id/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}income_record/$id/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',

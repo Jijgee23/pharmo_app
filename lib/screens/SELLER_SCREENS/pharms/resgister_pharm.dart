@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/address.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -65,7 +66,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       final response = await http.get(
-        Uri.parse('http://192.168.88.39:8000/api/v1/aimag_hot/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}aimag_hot/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -91,7 +92,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
       String? token = prefs.getString('access_token');
       final response = await http.get(
         Uri.parse(
-            'http://192.168.88.39:8000/api/v1/sum_duureg/?aimag=$provinceId'),
+            '${dotenv.env['SERVER_URL']}sum_duureg/?aimag=$provinceId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -118,7 +119,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
       String? token = prefs.getString('access_token');
       final response = await http.get(
         Uri.parse(
-            'http://192.168.88.39:8000/api/v1/bag_horoo/?sum=$districtId'),
+            '${dotenv.env['SERVER_URL']}bag_horoo/?sum=$districtId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -147,7 +148,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       final response = await http.post(
-        Uri.parse('http://192.168.88.39:8000/api/v1/seller/reg_pharmacy/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}seller/reg_pharmacy/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',

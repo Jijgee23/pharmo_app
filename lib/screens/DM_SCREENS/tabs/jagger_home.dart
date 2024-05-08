@@ -18,23 +18,27 @@ class HomeJagger extends StatefulWidget {
 
 int count = 0;
 Timer? timer;
+bool mounted = true;
 
 class _HomeJaggerState extends State<HomeJagger> {
   @override
   void initState() {
-    super.initState();
     getData();
+
     startTimer();
+    super.initState();
   }
 
-  void startTimer() {
+  Future startTimer() async {
     final jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
     timer = Timer.periodic(
       const Duration(seconds: 5),
       (timer) async {
-        setState(() {
-          count++;
-        });
+        if (mounted) {
+          setState(() {
+            count++;
+          });
+        }
         await jaggerProvider.getLocation();
         await jaggerProvider.sendJaggerLocation();
       },
@@ -43,7 +47,8 @@ class _HomeJaggerState extends State<HomeJagger> {
 
   getData() async {
     try {
-      final jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
+      final jaggerProvider =
+          Provider.of<JaggerProvider>(context, listen: false);
       dynamic res = await jaggerProvider.getJaggers();
       if (res['errorType'] == 1) {
         showSuccessMessage(message: res['message'], context: context);
@@ -51,7 +56,9 @@ class _HomeJaggerState extends State<HomeJagger> {
         showFailedMessage(message: res['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          context: context);
     }
   }
 
@@ -59,10 +66,13 @@ class _HomeJaggerState extends State<HomeJagger> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
-        final jagger = (provider.jaggers.isNotEmpty) ? provider.jaggers[0] : null;
+        final jagger =
+            (provider.jaggers.isNotEmpty) ? provider.jaggers[0] : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-          child: jagger != null && jagger.jaggerOrders != null && jagger.jaggerOrders!.isNotEmpty
+          child: jagger != null &&
+                  jagger.jaggerOrders != null &&
+                  jagger.jaggerOrders!.isNotEmpty
               ? ListView.builder(
                   itemCount: jagger.jaggerOrders?.length,
                   itemBuilder: (context, index) {
@@ -70,11 +80,13 @@ class _HomeJaggerState extends State<HomeJagger> {
                         child: InkWell(
                       onTap: () async => {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => JaggerHomeDetail(
-                                      index: index,
-                                    )))
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => JaggerHomeDetail(
+                              index: index,
+                            ),
+                          ),
+                        )
                       },
                       child: Container(
                         margin: const EdgeInsets.all(10),
@@ -88,7 +100,8 @@ class _HomeJaggerState extends State<HomeJagger> {
                             ),
                             Text(
                               jagger.jaggerOrders![index].user.toString(),
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18.0),
                             ),
                             const SizedBox(
                               height: 10,
@@ -96,26 +109,56 @@ class _HomeJaggerState extends State<HomeJagger> {
                             RichText(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              text: TextSpan(text: 'Захиалгын дугаар : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                TextSpan(text: jagger.jaggerOrders![index].orderNo.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                              ]),
+                              text: TextSpan(
+                                  text: 'Захиалгын дугаар : ',
+                                  style: TextStyle(
+                                      color: Colors.blueGrey.shade800,
+                                      fontSize: 13.0),
+                                  children: [
+                                    TextSpan(
+                                        text: jagger
+                                            .jaggerOrders![index].orderNo
+                                            .toString(),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0)),
+                                  ]),
                             ),
-                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                              RichText(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                text: TextSpan(text: 'Төлөв : ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                                  TextSpan(text: jagger.jaggerOrders![index].process.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  RichText(
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    text: TextSpan(
+                                        text: 'Төлөв : ',
+                                        style: TextStyle(
+                                            color: Colors.blueGrey.shade800,
+                                            fontSize: 13.0),
+                                        children: [
+                                          TextSpan(
+                                              text: jagger
+                                                  .jaggerOrders![index].process
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16.0)),
+                                        ]),
+                                  ),
+                                  IconButton(
+                                    iconSize: 20,
+                                    icon: const Icon(
+                                        Icons.text_increase_outlined),
+                                    onPressed: () {
+                                      _jaggerFeedbackDialog(
+                                          context,
+                                          'Түгээлтэнд тайлбар бичих',
+                                          jagger.id,
+                                          jagger.jaggerOrders![index].id!);
+                                    },
+                                  ),
                                 ]),
-                              ),
-                              IconButton(
-                                iconSize: 20,
-                                icon: const Icon(Icons.text_increase_outlined),
-                                onPressed: () {
-                                  _jaggerFeedbackDialog(context, 'Түгээлтэнд тайлбар бичих', jagger.id, jagger.jaggerOrders![index].id!);
-                                },
-                              ),
-                            ]),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -126,16 +169,24 @@ class _HomeJaggerState extends State<HomeJagger> {
                                     Icons.add,
                                   ),
                                   onPressed: () {
-                                    _dialogBuilder(context, 'Түгээлтийн зарлага нэмэх');
+                                    _dialogBuilder(
+                                        context, 'Түгээлтийн зарлага нэмэх');
                                   },
                                 ),
                                 OutlinedButton.icon(
                                   onPressed: () async {
-                                    dynamic res = await provider.endShipment(jagger.id);
+                                    dynamic res =
+                                        await provider.endShipment(jagger.id);
                                     if (res['errorType'] == 1) {
-                                      showSuccessMessage(message: res['message'] + 'Цаг: ' + res['data'], context: context);
+                                      showSuccessMessage(
+                                          message: res['message'] +
+                                              'Цаг: ' +
+                                              res['data'],
+                                          context: context);
                                     } else {
-                                      showFailedMessage(message: res['message'], context: context);
+                                      showFailedMessage(
+                                          message: res['message'],
+                                          context: context);
                                     }
                                   },
                                   icon: const Icon(
@@ -153,11 +204,18 @@ class _HomeJaggerState extends State<HomeJagger> {
                                 ),
                                 OutlinedButton.icon(
                                   onPressed: () async {
-                                    dynamic res = await provider.startShipment(jagger.id);
+                                    dynamic res =
+                                        await provider.startShipment(jagger.id);
                                     if (res['errorType'] == 1) {
-                                      showSuccessMessage(message: res['message'] + 'Цаг: ' + res['data'], context: context);
+                                      showSuccessMessage(
+                                          message: res['message'] +
+                                              'Цаг: ' +
+                                              res['data'],
+                                          context: context);
                                     } else {
-                                      showFailedMessage(message: res['message'], context: context);
+                                      showFailedMessage(
+                                          message: res['message'],
+                                          context: context);
                                     }
                                   },
                                   icon: const Icon(
@@ -255,10 +313,12 @@ class _HomeJaggerState extends State<HomeJagger> {
                   if (provider.formKey.currentState!.validate()) {
                     dynamic res = await provider.addExpenseAmount();
                     if (res['errorType'] == 1) {
-                      showSuccessMessage(message: res['message'], context: context);
+                      showSuccessMessage(
+                          message: res['message'], context: context);
                       Navigator.of(context).pop();
                     } else {
-                      showFailedMessage(message: res['message'], context: context);
+                      showFailedMessage(
+                          message: res['message'], context: context);
                     }
                   }
                 },
@@ -270,7 +330,8 @@ class _HomeJaggerState extends State<HomeJagger> {
     );
   }
 
-  Future<void> _jaggerFeedbackDialog(BuildContext context, String title, int shipId, int itemId) {
+  Future<void> _jaggerFeedbackDialog(
+      BuildContext context, String title, int shipId, int itemId) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -317,10 +378,12 @@ class _HomeJaggerState extends State<HomeJagger> {
                   if (provider.formKey.currentState!.validate()) {
                     dynamic res = await provider.setFeedback(shipId, itemId);
                     if (res['errorType'] == 1) {
-                      showSuccessMessage(message: res['message'], context: context);
+                      showSuccessMessage(
+                          message: res['message'], context: context);
                       Navigator.of(context).pop();
                     } else {
-                      showFailedMessage(message: res['message'], context: context);
+                      showFailedMessage(
+                          message: res['message'], context: context);
                     }
                   }
                 },

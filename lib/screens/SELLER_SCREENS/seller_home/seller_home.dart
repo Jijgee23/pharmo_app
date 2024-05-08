@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
+import 'package:pharmo_app/screens/DM_SCREENS/jagger_home_page.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/income_record/income_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/order/history.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
@@ -137,7 +138,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                 ),
           drawer: Drawer(
             shape: const RoundedRectangleBorder(),
-            width: size.height * 0.35,
+            width: size.width * 0.7,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -202,13 +203,21 @@ class _SellerHomePageState extends State<SellerHomePage> {
                     goto(const SellerCustomerOrderHisrtory(), context);
                   },
                 ),
-                _drawerItem(
-                  title: 'Гарах',
-                  icon: Icons.logout,
-                  onTap: () {
-                    showLogoutDialog(context);
-                  },
-                ),
+                role == 'D'
+                    ? _drawerItem(
+                        title: 'Түгээгчрүү шилжих',
+                        icon: Icons.swap_vert,
+                        onTap: () {
+                          goto(const JaggerHomePage(), context);
+                        },
+                      )
+                    : _drawerItem(
+                        title: 'Гарах',
+                        icon: Icons.logout,
+                        onTap: () {
+                          showLogoutDialog(context);
+                        },
+                      ),
               ],
             ),
           ),

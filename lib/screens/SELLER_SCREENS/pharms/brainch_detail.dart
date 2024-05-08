@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -38,7 +39,7 @@ class _BranchDetailsState extends State<BranchDetails> {
       prefs.remove('branchId');
       String? token = prefs.getString("access_token");
       final response = await http.post(
-          Uri.parse('http://192.168.88.39:8000/api/v1/seller/customer_branch/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}seller/customer_branch/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
