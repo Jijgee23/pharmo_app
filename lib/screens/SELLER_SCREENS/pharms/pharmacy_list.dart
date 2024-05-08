@@ -182,7 +182,6 @@ class _PharmacyListState extends State<PharmacyList> {
                 itemCount: _displayItems.length,
                 itemBuilder: ((context, index) {
                   return Card(
-                    color: AppColors.primary,
                     child: InkWell(
                       onTap: () async {
                         final SharedPreferences prefs =
@@ -249,7 +248,8 @@ class _PharmacyListState extends State<PharmacyList> {
                                     _displayItems[index].isCustomer
                                         ? 'Дэлгэрэнгүй харах'
                                         : '',
-                                    style: const TextStyle(color: Colors.white),
+                                    style: const TextStyle(
+                                        color: AppColors.primary),
                                   ),
                                 ),
                               ],
@@ -258,7 +258,7 @@ class _PharmacyListState extends State<PharmacyList> {
                               _displayItems[index].isCustomer
                                   ? 'Харилцагч'
                                   : 'Эмийн сан',
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(color: AppColors.primary),
                             ),
                           ],
                         ),
