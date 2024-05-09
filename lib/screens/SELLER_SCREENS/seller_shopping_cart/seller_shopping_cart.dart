@@ -38,7 +38,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
-      goto(const SellerHomePage(), context);
+      gotoRemoveUntil(const SellerHomePage(), context);
     }
 
     void purchase(int basketId) {

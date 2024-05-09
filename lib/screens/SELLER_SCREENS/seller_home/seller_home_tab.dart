@@ -28,12 +28,11 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   String role = '';
   String searchType = 'Нэрээр';
   String searchQuery = '';
-  bool isem = true;
-  bool isvita = true;
-  bool isprod = true;
-  bool isother = true;
+  // bool isem = true;
+  // bool isvita = true;
+  // bool isprod = true;
+  // bool isother = true;
   bool isList = false;
-  int viewIndex = 2;
   final TextEditingController _searchController = TextEditingController();
   List<Product> displayProducts = <Product>[];
   List<Product> demoList = <Product>[];
