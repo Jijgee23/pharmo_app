@@ -34,7 +34,6 @@ class _ProductDetailState extends State<ProductDetail> {
     super.initState();
   }
 
-
   @override
   void dispose() {
     super.dispose();
@@ -160,7 +159,10 @@ class _ProductDetailState extends State<ProductDetail> {
                         child: TextField(
                           textInputAction: TextInputAction.done,
                           controller: qtyController,
-                          keyboardType: TextInputType.number,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
+                          ),
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                             FilteringTextInputFormatter.digitsOnly
