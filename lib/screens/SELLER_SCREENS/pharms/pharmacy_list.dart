@@ -1,7 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/models/pharm.dart';
@@ -40,6 +42,8 @@ class _PharmacyListState extends State<PharmacyList> {
   List<Customer> displayItems = <Customer>[];
   bool isChecked = false;
   Color activeColor = AppColors.primary;
+  Map pharmacyInfo = {};
+  String selectedRadioValue = 'A';
   @override
   void initState() {
     getPharmacyList();
@@ -57,46 +61,38 @@ class _PharmacyListState extends State<PharmacyList> {
     super.dispose();
   }
 
-  getSelectedIndex() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? sIndex = prefs.getInt('selectedIndex');
-    setState(() {
-      selectedCustomer = sIndex;
-    });
-  }
-
-  getCustomers() {
-    filteredItems.clear();
-    for (int i = 0; i < _pharmList.length; i++) {
-      if (_pharmList[i].isCustomer) {
-        filteredItems.add(_pharmList[i]);
+  getPharmacyinfo(int pharmId) async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      final response = await http.get(
+        Uri.parse(
+            '${dotenv.env['SERVER_URL']}seller/get_debt_info/?userId=$pharmId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        pharmacyInfo.clear();
+        setState(() {
+          pharmacyInfo = res;
+        });
+        print(pharmacyInfo);
       }
-      setState(() {
-        _displayItems = filteredItems;
-      });
-    }
-  }
-
-  getPharmacies() {
-    filteredItems.clear();
-    for (int i = 0; i < _pharmList.length; i++) {
-      if (!_pharmList[i].isCustomer) {
-        filteredItems.add(_pharmList[i]);
-      }
-      setState(() {
-        _displayItems = filteredItems;
-      });
+    } catch (e) {
+      showFailedMessage(message: 'Мэдээлэл олдсонгүй', context: context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     _displayItems.sort((a, b) => a.name.compareTo(b.name));
-
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-          pinned: false,
+          pinned: true,
           automaticallyImplyLeading: false,
           title: CustomSearchBar(
             searchController: _searchController,
@@ -105,25 +101,6 @@ class _PharmacyListState extends State<PharmacyList> {
               filteredItems.clear();
               searchPharmacy(value);
             },
-            suffix: IconButton(
-              onPressed: () {
-                setState(() {
-                  if (isChecked == false) {
-                    isChecked = true;
-                    activeColor = AppColors.secondary;
-                    getPharmacies();
-                  } else {
-                    isChecked = false;
-                    activeColor = AppColors.primary;
-                    getCustomers();
-                  }
-                });
-              },
-              icon: Icon(
-                Icons.check_box,
-                color: activeColor,
-              ),
-            ),
           ),
           actions: [
             Container(
@@ -144,6 +121,68 @@ class _PharmacyListState extends State<PharmacyList> {
               ),
             ),
           ],
+        ),
+        SliverAppBar(
+          pinned: false,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 30,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    radioText('Бүгд'),
+                    Radio(
+                      value: 'A',
+                      groupValue: selectedRadioValue,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedRadioValue = value!;
+                          getPharmacyList();
+                          _displayItems = _pharmList;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    radioText('Харилцагч'),
+                    Radio(
+                      value: 'C',
+                      groupValue: selectedRadioValue,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedRadioValue = value!;
+                        });
+                        getCustomers();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    radioText('Эмийн сан'),
+                    Radio(
+                      value: 'P',
+                      groupValue: selectedRadioValue,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedRadioValue = value!;
+                        });
+                        getPharmacies();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         _displayItems.isEmpty
             ? SliverFillRemaining(
@@ -184,19 +223,32 @@ class _PharmacyListState extends State<PharmacyList> {
                   return Card(
                     child: InkWell(
                       onTap: () async {
-                        final SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
-                        prefs.setInt('pharmId', _displayItems[index].id);
-                        prefs.setString(
-                            'selectedPharmName', _displayItems[index].name);
-                        prefs.setInt('selectedIndex', index);
-                        setState(() {
-                          selectedCustomer = index;
-                        });
-                        showSuccessMessage(
-                            message:
-                                'Та: ${_displayItems[index].name}-г сонголоо',
-                            context: context);
+                        await getPharmacyinfo(_displayItems[index].id);
+                        print(_displayItems[index].id);
+                        if (pharmacyInfo['isBad'] == true) {
+                          showFailedMessage(
+                              context: context,
+                              message: 'Найдваргүй харилцагч байна!');
+                        } else {
+                          if (pharmacyInfo['debt'] != 0 &&
+                              pharmacyInfo['debtLimit'] != 0 &&
+                              pharmacyInfo['debt'] >=
+                                  pharmacyInfo['debtLimit']) {
+                            showFailedMessage(
+                                context: context,
+                                message: 'Зээлийн хэмжээ хэтэрсэн байна!');
+                          } else {
+                            final SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setInt('pharmId', _displayItems[index].id);
+                            prefs.setString(
+                                'selectedPharmName', _displayItems[index].name);
+                            prefs.setInt('selectedIndex', index);
+                            setState(() {
+                              selectedCustomer = _displayItems[index].id;
+                            });
+                          }
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -210,7 +262,7 @@ class _PharmacyListState extends State<PharmacyList> {
                               children: [
                                 Row(
                                   children: [
-                                    selectedCustomer == index
+                                    selectedCustomer == _displayItems[index].id
                                         ? const Icon(
                                             Icons.check,
                                             color: AppColors.succesColor,
@@ -271,6 +323,52 @@ class _PharmacyListState extends State<PharmacyList> {
     );
   }
 
+  Widget mText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(color: Colors.white),
+    );
+  }
+
+  Widget radioText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(fontSize: 14),
+    );
+  }
+
+  getSelectedIndex() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? sIndex = prefs.getInt('selectedIndex');
+    setState(() {
+      selectedCustomer = sIndex;
+    });
+  }
+
+  getCustomers() {
+    filteredItems.clear();
+    for (int i = 0; i < _pharmList.length; i++) {
+      if (_pharmList[i].isCustomer) {
+        filteredItems.add(_pharmList[i]);
+      }
+      setState(() {
+        _displayItems = filteredItems;
+      });
+    }
+  }
+
+  getPharmacies() {
+    filteredItems.clear();
+    for (int i = 0; i < _pharmList.length; i++) {
+      if (!_pharmList[i].isCustomer) {
+        filteredItems.add(_pharmList[i]);
+      }
+      setState(() {
+        _displayItems = filteredItems;
+      });
+    }
+  }
+
   getPharmacyList() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
@@ -322,8 +420,7 @@ class _PharmacyListState extends State<PharmacyList> {
   Future<Position> _getCurrentLocation() async {
     servicePermission = await Geolocator.isLocationServiceEnabled();
 
-    if (!servicePermission) {
-    }
+    if (!servicePermission) {}
     permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
@@ -345,8 +442,7 @@ class _PharmacyListState extends State<PharmacyList> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       final response = await http.post(
-          Uri.parse(
-              '${dotenv.env['SERVER_URL']}seller/search_by_location/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}seller/search_by_location/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',

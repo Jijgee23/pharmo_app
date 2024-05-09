@@ -88,59 +88,56 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                     children: [
                       Expanded(
                         flex: 10,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: CustomSearchBar(
-                            searchController: _searchController,
-                            onChanged: (value) {
-                              setState(() {
-                                searchQuery = value;
-                              });
-                              _pagingController.refresh();
+                        child: CustomSearchBar(
+                          searchController: _searchController,
+                          onChanged: (value) {
+                            setState(() {
+                              searchQuery = value;
+                            });
+                            _pagingController.refresh();
+                          },
+                          onSubmitted: (value) {
+                            if (_searchController.text.isEmpty) {
+                              _fetchPage(1);
+                            }
+                          },
+                          title: searchType,
+                          suffix: IconButton(
+                            icon: const Icon(Icons.swap_vert),
+                            onPressed: () {
+                              showMenu(
+                                surfaceTintColor: Colors.white,
+                                context: context,
+                                position:
+                                    const RelativeRect.fromLTRB(150, 20, 0, 0),
+                                items: <PopupMenuEntry>[
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      setState(() {
+                                        searchType = 'Нэрээр';
+                                      });
+                                    },
+                                    child: const Text('Нэрээр'),
+                                  ),
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      setState(() {
+                                        searchType = 'Баркодоор';
+                                      });
+                                    },
+                                    child: const Text('Баркодоор'),
+                                  ),
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      setState(() {
+                                        searchType = 'Ерөнхий нэршлээр';
+                                      });
+                                    },
+                                    child: const Text('Ерөнхий нэршлээр'),
+                                  ),
+                                ],
+                              ).then((value) {});
                             },
-                            onSubmitted: (value) {
-                              if (_searchController.text.isEmpty) {
-                                _fetchPage(1);
-                              }
-                            },
-                            title: searchType,
-                            suffix: IconButton(
-                              icon: const Icon(Icons.swap_vert),
-                              onPressed: () {
-                                showMenu(
-                                  surfaceTintColor: Colors.white,
-                                  context: context,
-                                  position: const RelativeRect.fromLTRB(
-                                      150, 20, 0, 0),
-                                  items: <PopupMenuEntry>[
-                                    PopupMenuItem(
-                                      onTap: () {
-                                        setState(() {
-                                          searchType = 'Нэрээр';
-                                        });
-                                      },
-                                      child: const Text('Нэрээр'),
-                                    ),
-                                    PopupMenuItem(
-                                      onTap: () {
-                                        setState(() {
-                                          searchType = 'Баркодоор';
-                                        });
-                                      },
-                                      child: const Text('Баркодоор'),
-                                    ),
-                                    PopupMenuItem(
-                                      onTap: () {
-                                        setState(() {
-                                          searchType = 'Ерөнхий нэршлээр';
-                                        });
-                                      },
-                                      child: const Text('Ерөнхий нэршлээр'),
-                                    ),
-                                  ],
-                                ).then((value) {});
-                              },
-                            ),
                           ),
                         ),
                       ),
