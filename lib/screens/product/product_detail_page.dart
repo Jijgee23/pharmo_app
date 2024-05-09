@@ -30,6 +30,7 @@ class _ProductDetailState extends State<ProductDetail> {
   ];
   TextEditingController qtyController = TextEditingController();
   String? _userRole = '';
+  final _focusNode = FocusNode();
   @override
   void initState() {
     getUser();
@@ -152,8 +153,52 @@ class _ProductDetailState extends State<ProductDetail> {
                     ),
                   ),
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        _focusNode.unfocus();
+                      },
+                      child: SizedBox(
+                        width: size.width * 0.35,
+                        height: 50,
+                        child: TextField(
+                          textInputAction: TextInputAction.done,
+                          controller: qtyController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), FilteringTextInputFormatter.digitsOnly],
+                          decoration: const InputDecoration(
+                            border: UnderlineInputBorder(),
+                            hintText: 'Тоо хэмжээ',
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: size.width * 0.5,
+                      height: 50,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          addBasket();
+                        },
+                        icon: const Icon(
+                          color: Colors.white,
+                          Icons.add,
+                        ),
+                        label: const Text(
+                          'Сагсанд нэмэх',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.secondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 Expanded(
-                  flex: 3,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,48 +215,6 @@ class _ProductDetailState extends State<ProductDetail> {
                       Text('Хямдрал: ${widget.prod.sale_price}'),
                       Text('Үйлдвэрлэгч: ${widget.prod.supplier}'),
                       Text('Тоо ширхэг: ${basketProvider.count}'),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: size.width * 0.3,
-                        height: 50,
-                        child: TextField(
-                          controller: qtyController,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), FilteringTextInputFormatter.digitsOnly],
-                          decoration: const InputDecoration(
-                            border: UnderlineInputBorder(),
-                            hintText: 'Тоо хэмжээ',
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: size.width * 0.5,
-                        height: 50,
-                        child: OutlinedButton.icon(
-                          onPressed: () async {
-                            addBasket();
-                          },
-                          icon: const Icon(
-                            color: Colors.white,
-                            Icons.add,
-                          ),
-                          label: const Text(
-                            'Сагсанд нэмэх',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),

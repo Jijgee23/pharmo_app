@@ -101,34 +101,31 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                       ),
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 7, vertical: 0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Тоо ширхэг: ',
-                                  style: TextStyle(
-                                    color: Colors.blueGrey.shade800,
-                                    fontSize: 13.0,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 30,
-                                  width: 50,
-                                  child: TextField(
-                                    controller: TextEditingController(
-                                        text: widget.detail['qty'].toString()),
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                        border: InputBorder.none),
-                                    onSubmitted: (value) {
-                                      selectedItem = widget.detail['id'];
-                                      changeBasketItem(widget.detail['id'],
-                                          'set', int.parse(value));
-                                    },
-                                  ),
-                                ),
-                              ],
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Тоо ширхэг: ',
+                              style: TextStyle(
+                                color: Colors.blueGrey.shade800,
+                                fontSize: 13.0,
+                              ),
                             ),
+                            SizedBox(
+                              height: 30,
+                              width: 50,
+                              child: TextField(
+                                controller: TextEditingController(text: widget.detail['qty'].toString()),
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(border: InputBorder.none),
+                                onSubmitted: (value) {
+                                  selectedItem = widget.detail['id'];
+                                  changeBasketItem(widget.detail['id'], 'set', int.parse(value));
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       IconButton.filledTonal(
                         iconSize: 25,
