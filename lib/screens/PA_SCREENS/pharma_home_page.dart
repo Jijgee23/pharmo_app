@@ -63,124 +63,134 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
         ChangeNotifierProvider<AuthController>(
             create: (context) => AuthController()),
       ],
-      child: Consumer<AuthController>(builder: (context, authController, _) {
-        return SafeArea(
-          child: Scaffold(
-            drawer: Drawer(
-              shape: const RoundedRectangleBorder(),
-              width: size.width * 0.7,
-              child: ListView(
-                children: [
-                  SizedBox(
-                    width: size.width,
-                    child: DrawerHeader(
-                      curve: Curves.easeInOut,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: size.width * 0.1,
-                            height: size.width * 0.1,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            child: Icon(
-                              Icons.person,
-                              color: AppColors.secondary,
-                              size: size.width * 0.1,
-                            ),
-                          ),
-                          Text(
-                            'Имейл хаяг: $email',
-                            style: TextStyle(
+      child: Consumer<AuthController>(
+        builder: (context, authController, _) {
+          return SafeArea(
+            child: Scaffold(
+              drawer: Drawer(
+                shape: const RoundedRectangleBorder(),
+                width: size.width * 0.7,
+                child: ListView(
+                  children: [
+                    SizedBox(
+                      width: size.width,
+                      child: DrawerHeader(
+                        curve: Curves.easeInOut,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: size.width * 0.1,
+                              height: size.width * 0.1,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
                                 color: Colors.white,
-                                fontSize: size.height * 0.016),
-                          ),
-                          Text(
-                            'Хэрэглэгчийн төрөл: $role',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: size.height * 0.016),
-                          ),
-                        ],
+                              ),
+                              child: Icon(
+                                Icons.person,
+                                color: AppColors.secondary,
+                                size: size.width * 0.1,
+                              ),
+                            ),
+                            Text(
+                              'Имейл хаяг: $email',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: size.height * 0.016),
+                            ),
+                            Text(
+                              'Хэрэглэгчийн төрөл: $role',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: size.height * 0.016),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  _drawerItem(
-                    title: 'Миний захиалгууд',
-                    icon: Icons.shopping_cart,
-                    onTap: () {
-                      goto(const MyOrder(), context);
-                    },
-                  ),
-                  _drawerItem(
-                    title: 'Нийлүүлэгч',
-                    icon: Icons.people,
-                    onTap: () {
-                      goto(const SupplierPage(), context);
-                    },
-                  ),
-                  _drawerItem(
-                    title: 'Гарах',
-                    icon: Icons.logout,
-                    onTap: () {
-                      showLogoutDialog(context);
-                    },
-                  ),
-                ],
+                    _drawerItem(
+                      title: 'Миний захиалгууд',
+                      icon: Icons.shopping_cart,
+                      onTap: () {
+                        goto(const MyOrder(), context);
+                      },
+                    ),
+                    _drawerItem(
+                      title: 'Нийлүүлэгч',
+                      icon: Icons.people,
+                      onTap: () {
+                        goto(const SupplierPage(), context);
+                      },
+                    ),
+                    _drawerItem(
+                      title: 'Гарах',
+                      icon: Icons.logout,
+                      onTap: () {
+                        showLogoutDialog(context);
+                      },
+                    ),
+                  ],
+                ),
               ),
+              appBar: hidden
+                  ? null
+                  : const CustomAppBar(
+                      title: 'Нүүр хуудас',
+                    ),
+              body: NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification) {
+                 
+                  if (scrollNotification is ScrollUpdateNotification &&
+                      scrollNotification.scrollDelta! > 0) {
+                    setState(() {
+                      hidden = true;
+                    });
+                  }
+                  if (scrollNotification is ScrollUpdateNotification &&
+                      scrollNotification.scrollDelta! < 0) {
+                    setState(() {
+                      hidden = false;
+                    });
+                  }
+                  if (scrollNotification is ScrollUpdateNotification &&
+                      scrollNotification.metrics.atEdge) {
+                    setState(() {
+                      hidden = false;
+                    });
+                  }
+                  return true;
+                },
+                child: _pages[_selectedIndex],
+              ),
+              bottomNavigationBar: hidden
+                  ? null
+                  : BottomNavigationBar(
+                      currentIndex: _selectedIndex,
+                      onTap: _onItemTapped,
+                      items: const [
+                        BottomNavigationBarItem(
+                          icon: Icon(Icons.home),
+                          label: 'Нүүр',
+                        ),
+                        BottomNavigationBarItem(
+                          icon: Icon(Icons.shopping_cart),
+                          label: 'Миний сагс',
+                        ),
+                      ],
+                      selectedItemColor: AppColors.secondary,
+                      unselectedItemColor: AppColors.primary,
+                    ),
             ),
-            appBar: hidden
-                ? null
-                : const CustomAppBar(
-                    title: 'Нүүр хуудас',
-                  ),
-            body: NotificationListener<ScrollNotification>(
-              onNotification: (scrollNotification) {
-                if (scrollNotification is ScrollUpdateNotification &&
-                    scrollNotification.scrollDelta! > 0) {
-                  setState(() {
-                    hidden = true;
-                  });
-                } else if (scrollNotification is ScrollUpdateNotification &&
-                    scrollNotification.scrollDelta! < 0) {
-                  setState(() {
-                    hidden = false;
-                  });
-                }
-                return true;
-              },
-              child: _pages[_selectedIndex],
-            ),
-            bottomNavigationBar: hidden
-                ? null
-                : BottomNavigationBar(
-                    currentIndex: _selectedIndex,
-                    onTap: _onItemTapped,
-                    items: const [
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.home),
-                        label: 'Нүүр',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.shopping_cart),
-                        label: 'Миний сагс',
-                      ),
-                    ],
-                    selectedItemColor: AppColors.secondary,
-                    unselectedItemColor: AppColors.primary,
-                  ),
-          ),
-        );
+          );
         },
       ),
     );
   }
+
   Widget _drawerItem(
       {required String title, required IconData icon, Function()? onTap}) {
     return ListTile(
@@ -190,5 +200,3 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     );
   }
 }
-
-

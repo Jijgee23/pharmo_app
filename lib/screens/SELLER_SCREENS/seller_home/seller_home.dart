@@ -208,7 +208,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                         title: 'Түгээгчрүү шилжих',
                         icon: Icons.swap_vert,
                         onTap: () {
-                          goto(const JaggerHomePage(), context);
+                          gotoRemoveUntil(const JaggerHomePage(), context);
                         },
                       )
                     : const SizedBox(),
@@ -224,15 +224,21 @@ class _SellerHomePageState extends State<SellerHomePage> {
           ),
           body: NotificationListener<ScrollNotification>(
             onNotification: (scrollNotification) {
+              if (scrollNotification.metrics.atEdge == true) {
+                setState(() {
+                  hidden = false;
+                });
+              }
+              if (scrollNotification is ScrollUpdateNotification &&
+                  scrollNotification.scrollDelta! < 0) {
+                setState(() {
+                  hidden = false;
+                });
+              }
               if (scrollNotification is ScrollUpdateNotification &&
                   scrollNotification.scrollDelta! > 0) {
                 setState(() {
                   hidden = true;
-                });
-              } else if (scrollNotification is ScrollUpdateNotification &&
-                  scrollNotification.scrollDelta! < 0) {
-                setState(() {
-                  hidden = false;
                 });
               }
               return true;

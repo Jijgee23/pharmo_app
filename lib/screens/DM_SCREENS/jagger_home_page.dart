@@ -102,7 +102,7 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                     title: 'Борлуулагчруу шилжих',
                     icon: Icons.swap_vert,
                     onTap: () {
-                      goto(const SellerHomePage(), context);
+                      gotoRemoveUntil(const SellerHomePage(), context);
                     },
                   ),
                   _drawerItem(

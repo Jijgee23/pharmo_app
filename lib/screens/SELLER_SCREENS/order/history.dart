@@ -43,7 +43,8 @@ class _SellerCustomerOrderHisrtoryState
       if (searchQuery.isNotEmpty &&
           pharmList[i].name.toLowerCase().contains(searchQuery.toLowerCase())) {
         filteredItems.add(
-            Pharm(pharmList[i].id, pharmList[i].name, pharmList[i].isCustomer));
+            Pharm(pharmList[i].id, pharmList[i].name,
+            pharmList[i].isCustomer, pharmList[i].badCnt));
         setState(() {
           displayItems = filteredItems;
         });
@@ -131,8 +132,14 @@ class _SellerCustomerOrderHisrtoryState
       for (int i = 0; i < pharms.length; i++) {
         setState(() {
           pharmList.add(Pharm(
-              pharms[i]['id'], pharms[i]['name'], pharms[i]['isCustomer']));
-        });
+                pharms[i]['id'],
+                pharms[i]['name'],
+                pharms[i]['isCustomer'],
+                pharms[i]['badCnt'],
+              ),
+            );
+          },
+        );
       }
     }
   }

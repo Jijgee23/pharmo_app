@@ -1,9 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/models/pharm.dart';
@@ -59,31 +57,6 @@ class _PharmacyListState extends State<PharmacyList> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  getPharmacyinfo(int pharmId) async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.get(
-        Uri.parse(
-            '${dotenv.env['SERVER_URL']}seller/get_debt_info/?userId=$pharmId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        pharmacyInfo.clear();
-        setState(() {
-          pharmacyInfo = res;
-        });
-        print(pharmacyInfo);
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Мэдээлэл олдсонгүй', context: context);
-    }
   }
 
   @override
@@ -224,7 +197,6 @@ class _PharmacyListState extends State<PharmacyList> {
                     child: InkWell(
                       onTap: () async {
                         await getPharmacyinfo(_displayItems[index].id);
-                        print(_displayItems[index].id);
                         if (pharmacyInfo['isBad'] == true) {
                           showFailedMessage(
                               context: context,
@@ -291,15 +263,13 @@ class _PharmacyListState extends State<PharmacyList> {
                                           ),
                                           context);
                                     } else {
-                                      showFailedMessage(
-                                          message: 'Харилцагч биш',
-                                          context: context);
+                                      
                                     }
                                   },
                                   child: Text(
                                     _displayItems[index].isCustomer
                                         ? 'Дэлгэрэнгүй харах'
-                                        : '',
+                                        : 'Найдваргүй индекс: ${_displayItems[index].badCnt.toString()} ',
                                     style: const TextStyle(
                                         color: AppColors.primary),
                                   ),
@@ -386,9 +356,37 @@ class _PharmacyListState extends State<PharmacyList> {
       for (int i = 0; i < pharms.length; i++) {
         setState(() {
           _pharmList.add(Pharm(
-              pharms[i]['id'], pharms[i]['name'], pharms[i]['isCustomer']));
+            pharms[i]['id'],
+            pharms[i]['name'],
+            pharms[i]['isCustomer'],
+            pharms[i]['badCnt'],
+          ));
         });
       }
+    }
+  }
+
+  getPharmacyinfo(int pharmId) async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      final response = await http.get(
+        Uri.parse(
+            '${dotenv.env['SERVER_URL']}seller/get_debt_info/?userId=$pharmId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        pharmacyInfo.clear();
+        setState(() {
+          pharmacyInfo = res;
+        });
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Мэдээлэл олдсонгүй', context: context);
     }
   }
 
@@ -404,7 +402,8 @@ class _PharmacyListState extends State<PharmacyList> {
               .toLowerCase()
               .contains(searchQuery.toLowerCase())) {
         filteredItems.add(Pharm(
-            _pharmList[i].id, _pharmList[i].name, _pharmList[i].isCustomer));
+            _pharmList[i].id, _pharmList[i].name,
+            _pharmList[i].isCustomer, _pharmList[i].badCnt));
         setState(() {
           _displayItems = filteredItems;
         });

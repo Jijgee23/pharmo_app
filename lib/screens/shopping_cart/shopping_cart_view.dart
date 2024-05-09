@@ -115,13 +115,14 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                               height: 30,
                               width: 50,
                               child: TextField(
-                                controller: TextEditingController(text: widget.detail['qty'].toString()),
-                                keyboardType: TextInputType.number,
+                                  controller: TextEditingController(
+                                      text: widget.detail['qty'].toString()),
                                 decoration: const InputDecoration(border: InputBorder.none),
-                                onSubmitted: (value) {
-                                  selectedItem = widget.detail['id'];
-                                  changeBasketItem(widget.detail['id'], 'set', int.parse(value));
-                                },
+                                  onChanged: (value) {
+                                    selectedItem = widget.detail['id'];
+                                    changeBasketItem(widget.detail['id'], 'set',
+                                        int.parse(value));
+                                  },
                               ),
                             ),
                           ],
@@ -138,7 +139,8 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                           changeBasketItem(widget.detail['id'], 'add', widget.detail['qty']);
                         },
                       ),
-                    ]),
+                      ],
+                    ),
                     RichText(
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
