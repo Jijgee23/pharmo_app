@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
@@ -236,7 +237,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                               item.images.length > 0)
                                           ? Image.network(
                                               // ignore: prefer_interpolation_to_compose_strings
-                                              'http://192.168.88.39:8000' +
+                                              '${dotenv.env['SERVER_URL']}' +
                                                   item.images?.first['url'])
                                           : Image.asset('assets/no_image.jpg'),
                                     ),

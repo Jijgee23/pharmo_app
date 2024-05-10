@@ -135,6 +135,7 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (decodedToken['role'] == 'S') {
         gotoRemoveUntil(const SellerHomePage(), context);
+        print(dotenv.env['SERVER_URL']);
       }
       if (decodedToken['role'] == 'PA') {
         gotoRemoveUntil(const PharmaHomePage(), context);
@@ -174,15 +175,15 @@ class AuthController extends ChangeNotifier {
   Future<void> signUpGetOtp(
       String email, String phone, String password, BuildContext context) async {
     try {
-      final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}auth/reg_otp/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({
-            'email': email,
-            'phone': phone,
-          }));
+      final response =
+          await http.post(Uri.parse('${dotenv.env['SERVER_URL']}auth/reg_otp/'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: jsonEncode({
+                'email': email,
+                'phone': phone,
+              }));
       notifyListeners();
       if (response.statusCode == 200) {
         showSuccessMessage(

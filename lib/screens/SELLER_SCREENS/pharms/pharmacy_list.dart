@@ -269,7 +269,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                   child: Text(
                                     _displayItems[index].isCustomer
                                         ? 'Дэлгэрэнгүй харах'
-                                        : 'Найдваргүй индекс: ${_displayItems[index].badCnt.toString()} ',
+                                        : 'Найдваргүй индекс: ${_displayItems[index].badCnt.toString() == 'null' ? 0 : _displayItems[index].badCnt.toString()} ',
                                     style: const TextStyle(
                                         color: AppColors.primary),
                                   ),

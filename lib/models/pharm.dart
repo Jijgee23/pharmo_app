@@ -2,7 +2,7 @@ class Pharm {
   int id;
   String name;
   bool isCustomer;
-  int badCnt;
+  int? badCnt;
   Pharm(this.id, this.name, this.isCustomer, this.badCnt);
 }
 
