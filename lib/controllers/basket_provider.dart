@@ -221,21 +221,26 @@ class BasketProvider extends ChangeNotifier {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': bearerToken,
       });
-      notifyListeners();
       if (resQR.statusCode == 200) {
         final response = jsonDecode(utf8.decode(resQR.bodyBytes));
         _qrCode = OrderQRCode.fromJson(response);
+        notifyListeners();
         return {'errorType': 1, 'data': response, 'message': 'QR code амжилттай үүслээ.'};
       } else if (resQR.statusCode == 404) {
+        notifyListeners();
         return {'errorType': 2, 'data': null, 'message': 'Нийлүүлэгч QPay холбоогүй байна.'};
       } else if (resQR.statusCode == 400) {
         if (resQR.body == 'qpay') {
+          notifyListeners();
           return {'errorType': 2, 'data': null, 'message': 'Нийлүүлэгч QPay холбоогүй байна.'};
         } else if (resQR.body == 'bad qpay') {
+          notifyListeners();
           return {'errorType': 2, 'data': null, 'message': 'Нийлүүлэгчийн Qpay тохиргоо алдаатай.'};
         } else if (resQR.body == 'min') {
+          notifyListeners();
           return {'errorType': 2, 'data': null, 'message': 'Төлбөрийн дүн 10 төг буюу түүнээс дээш байх.'};
         } else if (resQR.body == 'empty') {
+          notifyListeners();
           return {'errorType': 2, 'data': null, 'message': 'Захиалганд бараа байхгүй буюу сагс хоосон.'};
         }
       } else if (resQR.statusCode == 500) {
