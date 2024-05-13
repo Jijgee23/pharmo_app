@@ -262,9 +262,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                             custName: _displayItems[index].name,
                                           ),
                                           context);
-                                    } else {
-                                      
-                                    }
+                                    } else {}
                                   },
                                   child: Text(
                                     _displayItems[index].isCustomer
@@ -401,8 +399,7 @@ class _PharmacyListState extends State<PharmacyList> {
               .name
               .toLowerCase()
               .contains(searchQuery.toLowerCase())) {
-        filteredItems.add(Pharm(
-            _pharmList[i].id, _pharmList[i].name,
+        filteredItems.add(Pharm(_pharmList[i].id, _pharmList[i].name,
             _pharmList[i].isCustomer, _pharmList[i].badCnt));
         setState(() {
           _displayItems = filteredItems;

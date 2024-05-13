@@ -322,7 +322,6 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                 SizedBox(
                   width: size.width * 0.9,
                   child: TextFormField(
-                    maxLines: 4,
                     minLines: 1,
                     controller: detailedController,
                     decoration: const InputDecoration(
