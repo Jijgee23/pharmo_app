@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
-import 'package:pharmo_app/screens/public_uses/shopping_cart/seller_select_branch.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/screens/public_uses/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SellerShoppingCart extends StatefulWidget {
   const SellerShoppingCart({super.key});
@@ -17,18 +17,13 @@ class SellerShoppingCart extends StatefulWidget {
 
 class _SellerShoppingCartState extends State<SellerShoppingCart> {
   int pharmId = 0;
+  late HomeProvider homeprovider;
+  late BasketProvider basketProvider;
   @override
   void initState() {
-    getcustomerId();
     super.initState();
-  }
-
-  getcustomerId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? customerId = prefs.getInt('pharmId');
-    setState(() {
-      pharmId = customerId!;
-    });
+    homeprovider = Provider.of<HomeProvider>(context, listen: false);
+    basketProvider = Provider.of<BasketProvider>(context, listen: false);
   }
 
   @override

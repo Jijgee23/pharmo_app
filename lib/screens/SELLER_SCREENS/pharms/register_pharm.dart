@@ -383,8 +383,6 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
           },
         ),
       );
-      print(response.statusCode);
-      print(jsonDecode(utf8.decode(response.bodyBytes)));
       if (response.statusCode == 200) {
         String cName = jsonDecode(utf8.decode(response.bodyBytes))['cName'];
         prefs.setInt(
