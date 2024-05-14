@@ -14,7 +14,6 @@ import 'package:http/http.dart' as http;
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// ignore: must_be_immutable
 class RegisterPharmPage extends StatefulWidget {
   const RegisterPharmPage({super.key});
 
@@ -33,6 +32,10 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
   int provinceId = 0;
   int districtId = 0;
   int khorooId = 0;
+  String latitude = '';
+  String longtitude = '';
+  double latF = 0;
+  double lonF = 0;
   late TextEditingController cNameController,
       cRdController,
       emailController,
@@ -41,6 +44,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
 
   @override
   void initState() {
+    getLocationData();
     getProvinceId();
     cNameController = TextEditingController();
     cRdController = TextEditingController();
@@ -48,6 +52,18 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     phoneController = TextEditingController();
     detailedController = TextEditingController();
     super.initState();
+  }
+
+  getLocationData() async {
+    final prefs = await SharedPreferences.getInstance();
+    double? lat = prefs.getDouble('Lat');
+    double? long = prefs.getDouble('Lon');
+    setState(() {
+      latitude = lat!.toStringAsFixed(6);
+      longtitude = long!.toStringAsFixed(6);
+      latF = double.parse(latitude);
+      lonF = double.parse(longtitude);
+    });
   }
 
   @override
@@ -59,128 +75,6 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     phoneController.dispose();
     detailedController.dispose();
     super.dispose();
-  }
-
-  getProvinceId() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}aimag_hot/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      List res = jsonDecode(utf8.decode(response.bodyBytes));
-      provinceList.clear();
-      if (response.statusCode == 200) {
-        setState(() {
-          for (int i = 0; i < res.length; i++) {
-            provinceList.add(Province(id: res[i]['id'], name: res[i]['ner']));
-          }
-        });
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
-    }
-  }
-
-  getDistrictId() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.get(
-        Uri.parse(
-            '${dotenv.env['SERVER_URL']}sum_duureg/?aimag=$provinceId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      List res = jsonDecode(utf8.decode(response.bodyBytes));
-      districtList.clear();
-      if (response.statusCode == 200) {
-        setState(() {
-          for (int i = 0; i < res.length; i++) {
-            districtList.add(District(
-                id: res[i]['id'], ner: res[i]['ner'], aimag: res[i]['aimag']));
-          }
-        });
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
-    }
-  }
-
-  getKhoroo() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.get(
-        Uri.parse(
-            '${dotenv.env['SERVER_URL']}bag_horoo/?sum=$districtId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      List res = jsonDecode(utf8.decode(response.bodyBytes));
-      khorooList.clear();
-      if (response.statusCode == 200) {
-        setState(() {
-          for (int i = 0; i < res.length; i++) {
-            khorooList.add(Khoroo(
-                id: res[i]['id'],
-                ner: res[i]['ner'],
-                sum: res[i]['sum'],
-                aimag: res[i]['aimag']));
-          }
-        });
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
-    }
-  }
-
-  registerPharm() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}seller/reg_pharmacy/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(
-          <String, dynamic>{
-            'cName': cNameController.text,
-            'cRd': cRdController.text,
-            'email': emailController.text,
-            'phone': phoneController.text,
-            'address': {
-              'province': provinceId,
-              'district': districtId,
-              'khoroo': khorooId,
-              'detailed': detailedController.text,
-            }
-          },
-        ),
-      );
-      if (response.statusCode == 200) {
-        String cName = jsonDecode(utf8.decode(response.bodyBytes))['cName'];
-        prefs.setInt(
-            'pharmId', jsonDecode(utf8.decode(response.bodyBytes))['user']);
-        prefs.setString('selectedPharmName', cName);
-        showSuccessMessage(message: 'Амжилттай бүртгэгдлээ.', context: context);
-        goto(const SellerHomePage(), context);
-      } else {
-        showFailedMessage(message: 'Бүртгэл амжилтгүй.', context: context);
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
-    }
   }
 
   @override
@@ -206,14 +100,17 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 CustomTextField(
-                  controller: cNameController,
-                  hintText: 'Байгууллагын нэр',
-                ),
-                CustomTextField(
                   controller: cRdController,
                   hintText: 'Байгууллагын РД',
                   validator: validateCRD,
                   keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    checkCompany(cRdController.text);
+                  },
+                ),
+                CustomTextField(
+                  controller: cNameController,
+                  hintText: 'Байгууллагын нэр',
                 ),
                 CustomTextField(
                   controller: emailController,
@@ -337,44 +234,36 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                       showFailedMessage(
                           message: 'Байгууллагын нэрээ оруулна уу.',
                           context: context);
-                      return;
                     }
                     if (cRdController.text.isEmpty) {
                       showFailedMessage(
                           message: 'Байгууллагын рд оруулна уу.',
                           context: context);
-                      return;
                     }
                     if (emailController.text.isEmpty) {
                       showFailedMessage(
                           message: 'Имейл хаяг оруулна уу.', context: context);
-                      return;
                     }
                     if (phoneController.text.isEmpty) {
                       showFailedMessage(
                           message: 'Утасны дугаар оруулна уу.',
                           context: context);
-                      return;
                     }
                     if (provinceId == 0) {
                       showFailedMessage(
                           message: 'Аймаг/Хот сонгоно уу.', context: context);
-                      return;
                     }
                     if (districtId == 0) {
                       showFailedMessage(
                           message: 'Сум/Дүүрэг сонгоно уу.', context: context);
-                      return;
                     }
                     if (provinceId == 0) {
                       showFailedMessage(
                           message: 'Баг/Хороо сонгоно уу.', context: context);
-                      return;
                     }
                     if (detailedController.text.isEmpty) {
                       showFailedMessage(
                           message: 'Тайлбар оруулна уу.', context: context);
-                      return;
                     }
                     registerPharm();
                   },
@@ -385,5 +274,149 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         ),
       ),
     );
+  }
+
+  getProvinceId() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      final response = await http.get(
+        Uri.parse('${dotenv.env['SERVER_URL']}aimag_hot/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      List res = jsonDecode(utf8.decode(response.bodyBytes));
+      provinceList.clear();
+      if (response.statusCode == 200) {
+        setState(() {
+          for (int i = 0; i < res.length; i++) {
+            provinceList.add(Province(id: res[i]['id'], name: res[i]['ner']));
+          }
+        });
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+    }
+  }
+
+  getDistrictId() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      final response = await http.get(
+        Uri.parse('${dotenv.env['SERVER_URL']}sum_duureg/?aimag=$provinceId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      List res = jsonDecode(utf8.decode(response.bodyBytes));
+      districtList.clear();
+      if (response.statusCode == 200) {
+        setState(() {
+          for (int i = 0; i < res.length; i++) {
+            districtList.add(District(
+                id: res[i]['id'], ner: res[i]['ner'], aimag: res[i]['aimag']));
+          }
+        });
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+    }
+  }
+
+  getKhoroo() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      final response = await http.get(
+        Uri.parse('${dotenv.env['SERVER_URL']}bag_horoo/?sum=$districtId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      List res = jsonDecode(utf8.decode(response.bodyBytes));
+      khorooList.clear();
+      if (response.statusCode == 200) {
+        setState(() {
+          for (int i = 0; i < res.length; i++) {
+            khorooList.add(Khoroo(
+                id: res[i]['id'],
+                ner: res[i]['ner'],
+                sum: res[i]['sum'],
+                aimag: res[i]['aimag']));
+          }
+        });
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+    }
+  }
+
+  registerPharm() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      final response = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}seller/reg_pharmacy/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(
+          <String, dynamic>{
+            'cName': cNameController.text,
+            'cRd': cRdController.text,
+            'email': emailController.text,
+            'phone': phoneController.text,
+            'address': {
+              'province': provinceId,
+              'district': districtId,
+              'khoroo': khorooId,
+              'detailed': detailedController.text,
+            },
+            'lat': latF,
+            'lon': lonF,
+          },
+        ),
+      );
+      print(response.statusCode);
+      print(jsonDecode(utf8.decode(response.bodyBytes)));
+      if (response.statusCode == 200) {
+        String cName = jsonDecode(utf8.decode(response.bodyBytes))['cName'];
+        prefs.setInt(
+            'pharmId', jsonDecode(utf8.decode(response.bodyBytes))['user']);
+        prefs.setString('selectedPharmName', cName);
+        showSuccessMessage(message: 'Амжилттай бүртгэгдлээ.', context: context);
+        goto(const SellerHomePage(), context);
+      } else {
+        showFailedMessage(message: 'Бүртгэл амжилтгүй.', context: context);
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+    }
+  }
+
+  checkCompany(String? cRd) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://info.ebarimt.mn/rest/merchant/info?regno=$cRd'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        setState(() {
+          cNameController.text = res['name'];
+        });
+      }
+    } catch (e) {
+      showFailedMessage(
+          context: context, message: 'Интернет холболтоо шалгана уу!');
+    }
   }
 }
