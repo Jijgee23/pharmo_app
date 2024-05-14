@@ -135,7 +135,6 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (decodedToken['role'] == 'S') {
         gotoRemoveUntil(const SellerHomePage(), context);
-        print(dotenv.env['SERVER_URL']);
       }
       if (decodedToken['role'] == 'PA') {
         gotoRemoveUntil(const PharmaHomePage(), context);

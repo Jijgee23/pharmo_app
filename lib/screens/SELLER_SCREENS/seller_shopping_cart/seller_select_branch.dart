@@ -4,10 +4,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/branch.dart';
-import 'package:pharmo_app/screens/shopping_cart/order_done.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
+import 'package:pharmo_app/screens/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -20,47 +22,18 @@ class SelectSellerBranchPage extends StatefulWidget {
 }
 
 class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
-  List<Branch> sellerBranchList = <Branch>[];
+  List<Branch> branchList = <Branch>[];
   int _selectedIndex = -1;
   int _selectedAddress = 0;
-  int _basketId = 0;
   String _selectedRadioValue = '';
   bool invisible = false;
-  int? pharmId = 0;
+  late HomeProvider homeProvider;
 
   @override
   void initState() {
     getCustomerBranch();
-    getBasketId();
-    getcustomerId();
     super.initState();
-  }
-
-  getcustomerId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? customerId = prefs.getInt('pharmId');
-    setState(() {
-      pharmId = customerId;
-    });
-  }
-
-  getBasketId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('access_token');
-    final response = await http.get(
-      Uri.parse('${dotenv.env['SERVER_URL']}get_basket/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    final res = jsonDecode(utf8.decode(response.bodyBytes));
-    if (response.statusCode == 200) {
-      setState(() {
-        _basketId = res['id'];
-      });
-    }
+    homeProvider = Provider.of<HomeProvider>(context, listen: false);
   }
 
   getCustomerBranch() async {
@@ -73,13 +46,13 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
           },
-          body: jsonEncode({'customerId': pharmId}));
-      sellerBranchList.clear();
+          body: jsonEncode({'customerId': homeProvider.selectedCustomerId}));
+      branchList.clear();
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
           for (int i = 0; i < res.length; i++) {
-            sellerBranchList.add(Branch.fromJson(res[i]));
+            branchList.add(Branch.fromJson(res[i]));
           }
         });
         await prefs.setInt('branchId', res[0]['id']);
@@ -106,9 +79,9 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           },
           body: jsonEncode(
             {
-              'userId': pharmId,
+              'userId': homeProvider.selectedCustomerId,
               'branchId': _selectedAddress,
-              'basket': _basketId,
+              'basket': homeProvider.basketId,
             },
           ),
         );
@@ -136,7 +109,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           },
           body: jsonEncode(
             {
-              'userId': pharmId,
+              'userId': homeProvider.selectedCustomerId,
             },
           ),
         );
@@ -163,16 +136,15 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
 
   @override
   Widget build(BuildContext context) {
-    //  final basketProvider = Provider.of<BasketProvider>(context);
-    return ChangeNotifierProvider(
-      create: (context) => BasketProvider(),
-      child: Scaffold(
-        appBar: const CustomAppBar(
-          title: 'Захиалга үүсгэх',
-        ),
-        body: Container(
-          margin: const EdgeInsets.all(15),
-          child: Column(
+    return Consumer<HomeProvider>(
+      builder: (_, sellerprovider, child) {
+        return Scaffold(
+          appBar: const CustomAppBar(
+            title: 'Захиалга үүсгэх',
+          ),
+          body: Container(
+            margin: const EdgeInsets.all(15),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
@@ -185,7 +157,6 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                         setState(() {
                           _selectedRadioValue = value!;
                           invisible = !invisible;
-                          getCustomerBranch();
                         });
                       },
                     ),
@@ -223,49 +194,73 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                 Visibility(
                   visible: invisible,
                   child: Expanded(
-                    child: ListView.builder(
-                      itemCount: sellerBranchList.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          child: ListTile(
-                            onTap: () {
-                              setState(() {
-                                _selectedIndex = index;
-                                _selectedAddress = sellerBranchList[index].id;
-                              });
+                    child: branchList.isEmpty
+                        ? Column(
+                            children: [
+                              const Text('Захиалагч сонгоно уу!'),
+                              TextButton(
+                                onPressed: () {
+                                  homeProvider.changeIndex(0);
+                                  goto(const SellerHomePage(), context);
+                                },
+                                child: const Text(
+                                  'Сонгох',
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            itemCount: branchList.length,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                child: ListTile(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedIndex = index;
+                                      _selectedAddress = branchList[index].id;
+                                    });
+                                  },
+                                  tileColor: _selectedIndex == index
+                                      ? Colors.grey
+                                      : null,
+                                  leading: const Icon(Icons.home),
+                                  title:
+                                      Text(branchList[index].name.toString()),
+                                ),
+                              );
                             },
-                            tileColor:
-                                _selectedIndex == index ? Colors.grey : null,
-                            leading: const Icon(Icons.home),
-                            title:
-                                Text(sellerBranchList[index].name.toString()),
                           ),
-                        );
-                      },
-                    ),
                   ),
                 ),
-                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      createSellerOrder();
-                    },
-                    icon: const Icon(
-                      Icons.add,
-                      color: Colors.white,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        createSellerOrder();
+                      },
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
+                        'Захиалга үүсгэх',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.secondary,
+                      ),
                     ),
-                    label: const Text(
-                      'Захиалга үүсгэх',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.secondary,
-                    ),
-                  ),
-                ]),
-              ]),
-        ),
-      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

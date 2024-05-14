@@ -8,6 +8,7 @@ class CustomTextField extends StatelessWidget {
   final IconData? suffixIcon;
 
   final Function(String?)? validator;
+  final Function(String?)? onChanged;
 
   const CustomTextField({
     super.key,
@@ -17,6 +18,8 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.keyboardType,
     this.suffixIcon,
+    this.onChanged,
+
   });
 
   @override
@@ -26,6 +29,7 @@ class CustomTextField extends StatelessWidget {
     return SizedBox(
       width: size.width * 0.9,
       child: TextFormField(
+        onChanged: onChanged,
         key: key,
         controller: controller,
         keyboardType: keyboardType,

@@ -10,7 +10,7 @@ import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/search.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/shopping_cart/shopping_cart.dart';
-import 'package:pharmo_app/screens/suppliers/supplier_detail_page.dart';
+import 'package:pharmo_app/screens/public_uses/suppliers/supplier_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
