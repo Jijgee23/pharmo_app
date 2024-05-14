@@ -207,7 +207,7 @@ class BasketProvider extends ChangeNotifier {
         await clearBasket(basket_id: basket_id);
         return {'errorType': 1, 'data': res, 'message': 'Захиалга амжилттай үүслээ.'};
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'Захиалга үүсхэд алдаа гарлаа.'};
+        return {'errorType': 2, 'data': null, 'message': response.body};
       }
     } catch (e) {
       return {'errorType': 3, 'data': e, 'message': e};
