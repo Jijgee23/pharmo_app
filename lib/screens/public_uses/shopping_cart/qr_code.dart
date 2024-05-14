@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/shopping_cart/order_done.dart';
+import 'package:pharmo_app/screens/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -32,7 +32,8 @@ class QRCode extends StatelessWidget {
                         child: Text(
                           'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w400, fontSize: 15),
                         ),
                       ),
                       const SizedBox(
@@ -46,36 +47,47 @@ class QRCode extends StatelessWidget {
                       const SizedBox(
                         height: 30,
                       ),
-                      const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        Text(
-                          'Төлбөрийн хэлбэр : ',
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        Text(
-                          'Бэлнээр',
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
-                        ),
-                      ]),
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        const Text(
-                          'Нийт үнэ : ',
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        Text(
-                          '${provider.qrCode.totalPrice} ₮',
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.red),
-                        ),
-                      ]),
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                        const Text(
-                          'Нийт тоо ширхэг: ',
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        Text(
-                          provider.qrCode.totalCount.toString(),
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
-                        ),
-                      ]),
+                      const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Төлбөрийн хэлбэр : ',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            Text(
+                              'Бэлнээр',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 17),
+                            ),
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Нийт үнэ : ',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            Text(
+                              '${provider.qrCode.totalPrice} ₮',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18,
+                                  color: Colors.red),
+                            ),
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Нийт тоо ширхэг: ',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            Text(
+                              provider.qrCode.totalCount.toString(),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 17),
+                            ),
+                          ]),
                     ],
                   ),
                 ),
@@ -84,7 +96,11 @@ class QRCode extends StatelessWidget {
                   children: [
                     OutlinedButton.icon(
                       onPressed: () {
-                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()), (route) => true);
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const PharmaHomePage()),
+                            (route) => true);
                         provider.getBasket();
                       },
                       icon: const Icon(
@@ -105,13 +121,22 @@ class QRCode extends StatelessWidget {
                         dynamic res = await provider.checkPayment();
                         if (res['errorType'] == 1) {
                           if (res['data'] == false) {
-                            showFailedMessage(message: 'Төлбөр төлөгдөөгүй байна.', context: context);
+                            showFailedMessage(
+                                message: 'Төлбөр төлөгдөөгүй байна.',
+                                context: context);
                           } else {
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: res['data']['orderNo'].toString())));
-                            showSuccessMessage(message: res['message'], context: context);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => OrderDone(
+                                        orderNo: res['data']['orderNo']
+                                            .toString())));
+                            showSuccessMessage(
+                                message: res['message'], context: context);
                           }
                         } else {
-                          showFailedMessage(message: res['message'], context: context);
+                          showFailedMessage(
+                              message: res['message'], context: context);
                         }
                       },
                       icon: const Icon(

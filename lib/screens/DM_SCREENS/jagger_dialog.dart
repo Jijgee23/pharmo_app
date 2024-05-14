@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/tabs/jagger_home.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/cart.dart';
-import 'package:pharmo_app/screens/suppliers/supplier_page.dart';
+import 'package:pharmo_app/screens/public_uses/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';

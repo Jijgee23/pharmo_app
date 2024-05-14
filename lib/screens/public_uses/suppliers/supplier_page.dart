@@ -9,7 +9,7 @@ import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/search.dart';
-import 'package:pharmo_app/screens/suppliers/supplier_detail_page.dart';
+import 'package:pharmo_app/screens/public_uses/suppliers/supplier_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -38,9 +38,11 @@ class _SupplierPageState extends State<SupplierPage> {
 
   getData() async {
     try {
-      final response = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}suppliers'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=utf-8',
-      });
+      final response = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=utf-8',
+          });
       if (response.statusCode == 200) {
         // Map res = json.decode(response.body);
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -51,10 +53,13 @@ class _SupplierPageState extends State<SupplierPage> {
           });
         });
       } else {
-        showFailedMessage(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+        showFailedMessage(
+            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
-      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          context: context);
     }
   }
 
@@ -80,10 +85,12 @@ class _SupplierPageState extends State<SupplierPage> {
                 return Card(
                   child: ListTile(
                     onTap: () async {
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
                       String? token = prefs.getString("access_token");
                       String bearerToken = "Bearer $token";
-                      final response = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
+                      final response = await http.post(
+                          Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
                           headers: <String, String>{
                             'Content-Type': 'application/json; charset=UTF-8',
                             'Authorization': bearerToken,
@@ -91,8 +98,10 @@ class _SupplierPageState extends State<SupplierPage> {
                           body: jsonEncode({'pId': _supList[index].id}));
                       if (response.statusCode == 200) {
                         Map<String, dynamic> res = jsonDecode(response.body);
-                        await prefs.setString('access_token', res['access_token']);
-                        await prefs.setString('refresh_token', res['refresh_token']);
+                        await prefs.setString(
+                            'access_token', res['access_token']);
+                        await prefs.setString(
+                            'refresh_token', res['refresh_token']);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -100,9 +109,13 @@ class _SupplierPageState extends State<SupplierPage> {
                                       supp: _supList[index],
                                     )));
                       } else if (response.statusCode == 403) {
-                        showFailedMessage(message: 'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.', context: context);
+                        showFailedMessage(
+                            message:
+                                'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.',
+                            context: context);
                       } else {
-                        showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
+                        showFailedMessage(
+                            message: 'Дахин оролдоно уу.', context: context);
                       }
                     },
                     leading: const Icon(Icons.home),
