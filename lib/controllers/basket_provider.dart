@@ -214,13 +214,15 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> createQR({required int basket_id, required int address, required String pay_type}) async {
+  Future<dynamic> createQR({required int basket_id, required int address, required String pay_type, int? selectedAddress, String? note}) async {
     try {
       String bearerToken = await getAccessToken();
-      final resQR = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}ci/'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
+      final resQR = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}ci/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          },
+          body: jsonEncode({'branchId': selectedAddress, 'note': note}));
       if (resQR.statusCode == 200) {
         final response = jsonDecode(utf8.decode(resQR.bodyBytes));
         _qrCode = OrderQRCode.fromJson(response);
