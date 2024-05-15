@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/my_orders.dart';
@@ -12,6 +15,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PharmaHomePage extends StatefulWidget {
@@ -68,19 +72,41 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     print(deviceToken);
     print("############################################################");
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("access_token");
+    String bearerToken = "Bearer $token";
+
+    final response = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}sub_push/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': bearerToken,
+        },
+        body: jsonEncode({token: deviceToken}));
+    if (response.statusCode == 201) {
+      print('amjilttai uuslee');
+    }
     // listen for user to click on notification
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
       String? title = remoteMessage.notification!.title;
       String? description = remoteMessage.notification!.body;
 
       //im gonna have an alertdialog when clicking from push notification
-      AlertDialog(
-        title: Text(
-          title!,
-          style: const TextStyle(fontSize: 20),
-        ),
-        content: SizedBox(height: 190, child: Text(description!)),
-      );
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: title, // title from push notification data
+        desc: description, // description from push notifcation data
+        buttons: [
+          DialogButton(
+            onPressed: () => Navigator.pop(context),
+            width: 120,
+            child: const Text(
+              "COOL",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+          )
+        ],
+      ).show();
     });
   }
 
