@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
@@ -9,6 +12,10 @@ import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isIOS) {
+    await Firebase.initializeApp();
+  }
   await dotenv.load(fileName: ".env");
   runApp(
     MultiProvider(
