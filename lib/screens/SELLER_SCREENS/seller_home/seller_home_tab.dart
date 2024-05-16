@@ -78,6 +78,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
         child: ChangeNotifierProvider(
           create: (context) => BasketProvider(),
           child: Scaffold(
+            
             resizeToAvoidBottomInset: false,
             body: CustomScrollView(
               slivers: [
