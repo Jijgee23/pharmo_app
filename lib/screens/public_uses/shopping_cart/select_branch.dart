@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/models/order.dart';
 import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/screens/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/screens/public_uses/shopping_cart/qr_code.dart';
@@ -47,7 +46,6 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
           _branchList = (res).map((data) => Sector.fromJson(data)).toList();
-          print(_branchList);
         });
       } else {
         showFailedMessage(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
@@ -72,17 +70,17 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
       if (resCheck['errorType'] == 1) {
         if (_selectedRadioValue == 'L') {
           print(_selectedAddress);
-          dynamic res = await basketProvider.createQR(basket_id: basketProvider.basket.id, address: _selectedAddress, pay_type: _selectedRadioValue, selectedAddress: _selectedAddress, note:'');
+          dynamic res = await basketProvider.createQR(basket_id: basketProvider.basket.id, branch_id: _selectedAddress, pay_type: _selectedRadioValue, note: '');
           if (res['errorType'] == 1) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const QRCode()));
           } else {
             showFailedMessage(message: res['message'], context: context);
           }
         } else {
-          dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, address: _selectedAddress, pay_type: _selectedRadioValue);
-          Order order = Order.fromJson(res['data']);
+          dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, branch_id: _selectedAddress, note: '');
+          String order = res['data']['orderNo'].toString();
           if (res['errorType'] == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: order.orderNo.toString())));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: order)));
           } else {
             showFailedMessage(message: res['message'], context: context);
           }
@@ -122,7 +120,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
                         tileColor: _selectedIndex == index ? Colors.grey : null,
                         leading: const Icon(Icons.home),
                         title: Text(_branchList[index].name.toString()),
-                        subtitle: Text(_branchList[index].address!["address"]),
+                        subtitle: Text(_branchList[index].address != null ? _branchList[index].address!["address"] : ''),
                       ),
                     );
                   }),

@@ -192,17 +192,18 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> createOrder({required int basket_id, required int address, required String pay_type}) async {
+  Future<dynamic> createOrder({required int basket_id, required int branch_id, required String note}) async {
     try {
       String bearerToken = await getAccessToken();
-      final response = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}order/'),
+      final response = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/order/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           },
-          body: jsonEncode({'basket': basket_id, 'address': address, 'payType': pay_type}));
+          body: jsonEncode({'basketId': basket_id, 'branchId': branch_id, 'note': note != '' ? note : null}));
+
       notifyListeners();
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         await clearBasket(basket_id: basket_id);
         return {'errorType': 1, 'data': res, 'message': 'Захиалга амжилттай үүслээ.'};
@@ -214,7 +215,7 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> createQR({required int basket_id, required int address, required String pay_type, int? selectedAddress, String? note}) async {
+  Future<dynamic> createQR({required int basket_id, required int branch_id, required String pay_type, String? note}) async {
     try {
       String bearerToken = await getAccessToken();
       final resQR = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}ci/'),
@@ -222,7 +223,7 @@ class BasketProvider extends ChangeNotifier {
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           },
-          body: jsonEncode({'branchId': selectedAddress, 'note': note}));
+          body: jsonEncode({'branchId': branch_id, 'note': note != '' ? note : null}));
       if (resQR.statusCode == 200) {
         final response = jsonDecode(utf8.decode(resQR.bodyBytes));
         _qrCode = OrderQRCode.fromJson(response);
