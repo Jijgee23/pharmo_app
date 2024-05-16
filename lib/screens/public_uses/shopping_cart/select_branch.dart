@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/models/order.dart';
 import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/screens/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/screens/public_uses/shopping_cart/qr_code.dart';
@@ -39,66 +38,49 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}branch'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': bearerToken,
-          });
+      final response = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}branch'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=utf-8',
+        'Authorization': bearerToken,
+      });
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
           _branchList = (res).map((data) => Sector.fromJson(data)).toList();
         });
       } else {
-        showFailedMessage(
-            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+        showFailedMessage(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          context: context);
+      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }
   }
 
   void createOrder() async {
     try {
       if (_selectedRadioValue == '') {
-        showFailedMessage(
-            message: 'Төлбөрийн хэлбэр сонгоно уу!', context: context);
+        showFailedMessage(message: 'Төлбөрийн хэлбэр сонгоно уу!', context: context);
         return;
       }
       if (_selectedIndex == -1) {
         showFailedMessage(message: 'Салбар сонгоно уу!', context: context);
         return;
       }
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
+      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
       dynamic resCheck = await basketProvider.checkQTYs();
       if (resCheck['errorType'] == 1) {
         if (_selectedRadioValue == 'L') {
-          dynamic res = await basketProvider.createQR(
-              basket_id: basketProvider.basket.id,
-              address: _selectedAddress,
-              pay_type: _selectedRadioValue);
+          print(_selectedAddress);
+          dynamic res = await basketProvider.createQR(basket_id: basketProvider.basket.id, branch_id: _selectedAddress, pay_type: _selectedRadioValue, note: '');
           if (res['errorType'] == 1) {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => const QRCode()));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const QRCode()));
           } else {
             showFailedMessage(message: res['message'], context: context);
           }
         } else {
-          dynamic res = await basketProvider.createOrder(
-              basket_id: basketProvider.basket.id,
-              address: _selectedAddress,
-              pay_type: _selectedRadioValue);
-          Order order = Order.fromJson(res['data']);
+          dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, branch_id: _selectedAddress, note: '');
+          String order = res['data']['orderNo'].toString();
           if (res['errorType'] == 1) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) =>
-                        OrderDone(orderNo: order.orderNo.toString())));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: order)));
           } else {
             showFailedMessage(message: res['message'], context: context);
           }
@@ -107,9 +89,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
         showFailedMessage(message: resCheck['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          context: context);
+      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }
   }
 
@@ -124,11 +104,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
         child: Container(
           margin: const EdgeInsets.all(15),
           child: Column(children: [
-            Container(
-                margin: const EdgeInsets.only(bottom: 5),
-                child: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Салбар сонгоно уу : '))),
+            Container(margin: const EdgeInsets.only(bottom: 5), child: const Align(alignment: Alignment.centerLeft, child: Text('Салбар сонгоно уу : '))),
             Expanded(
               child: ListView.builder(
                   itemCount: _branchList.length,
@@ -144,7 +120,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
                         tileColor: _selectedIndex == index ? Colors.grey : null,
                         leading: const Icon(Icons.home),
                         title: Text(_branchList[index].name.toString()),
-                        subtitle: Text(_branchList[index].address!["address"]),
+                        subtitle: Text(_branchList[index].address != null ? _branchList[index].address!["address"] : ''),
                       ),
                     );
                   }),
@@ -153,9 +129,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
               child: Container(
                 margin: const EdgeInsets.only(left: 15, right: 15, top: 15),
                 child: Column(children: [
-                  const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('Төлбөрийн хэлбэр сонгоно уу : ')),
+                  const Align(alignment: Alignment.centerLeft, child: Text('Төлбөрийн хэлбэр сонгоно уу : ')),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
