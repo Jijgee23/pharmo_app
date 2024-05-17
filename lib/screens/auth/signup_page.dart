@@ -140,8 +140,6 @@ class _SignUpPageState extends State<SignUpPage> {
                             })
                       ],
                     ),
-                    CustomTextButton(
-                        text: 'Бүртгүүлэх заавар үзэх', onTap: () {}),
                   ],
                 ),
               ),

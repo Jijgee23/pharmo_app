@@ -98,8 +98,9 @@ class AuthController extends ChangeNotifier {
         return Future.value(false);
       }
     } catch (e) {
+      print(e);
       showFailedMessage(
-        message: 'И-мейл хаяг бүртгэлгүй байна!',
+        message: 'Интернет холболтоо шалгана уу!.',
         context: context,
       );
       return Future.value(false);

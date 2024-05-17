@@ -8,6 +8,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
+import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
 import 'package:provider/provider.dart';
 
@@ -25,6 +26,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => JaggerProvider()),
         ChangeNotifierProvider(create: (_) => MyOrderProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => PharmProvider()),
       ],
       child: const MyApp(),
     ),
@@ -36,10 +38,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Pharmo app',
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      navigatorKey: GlobalKeys.navigatorKey,
+      home: const LoginPage(),
     );
   }
+}
+class GlobalKeys {
+  static final navigatorKey = GlobalKey<NavigatorState>();
 }

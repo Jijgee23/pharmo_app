@@ -3,33 +3,28 @@ class Pharm {
   String name;
   bool isCustomer;
   int? badCnt;
-  Pharm(this.id, this.name, this.isCustomer, this.badCnt);
+  Pharm(
+    this.id,
+    this.name,
+    this.isCustomer,
+    this.badCnt,
+  );
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'isCustomer': isCustomer,
+      'badCnt': badCnt,
+    };
+  }
+
+  factory Pharm.fromJson(Map<String, dynamic> json) {
+    return Pharm(
+      json['id'],
+      json['name'],
+      json['isCustomer'],
+      json['badCnt'],
+    );
+  }
 }
 
-class Pharmo {
-  String cName;
-  String cRd;
-  String email;
-  String phone;
-  Address address;
-  Pharmo(
-    this.cName,
-    this.cRd,
-    this.email,
-    this.phone,
-    this.address,
-  );
-}
-
-class Address {
-  String province;
-  String district;
-  String khoroo;
-  String detailed;
-  Address(
-    this.province,
-    this.district,
-    this.khoroo,
-    this.detailed,
-  );
-}

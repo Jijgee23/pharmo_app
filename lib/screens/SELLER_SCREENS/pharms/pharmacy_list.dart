@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/models/pharm.dart';
+import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/customer_details_paga.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/register_pharm.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -16,8 +16,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-import '../../../models/customer.dart';
-
 class PharmacyList extends StatefulWidget {
   const PharmacyList({super.key});
 
@@ -26,11 +24,9 @@ class PharmacyList extends StatefulWidget {
 }
 
 class _PharmacyListState extends State<PharmacyList> {
-  final List<Pharm> _pharmList = <Pharm>[];
   final _searchController = TextEditingController();
-  List<Pharm> filteredItems = [];
-  List<Pharm> _displayItems = [];
-  List<Pharm> isCustomer = [];
+  List<PharmFullInfo> filteredItems = [];
+  List<PharmFullInfo> _displayItems = [];
   Position? _currentLocation;
   late LocationPermission permission;
   late bool servicePermission = false;
@@ -38,22 +34,22 @@ class _PharmacyListState extends State<PharmacyList> {
   String longitude = '';
   double lat = 0;
   double lon = 0;
-  List<Customer> customerList = <Customer>[];
-  List<Customer> displayItems = <Customer>[];
-  bool isChecked = false;
+  bool onSearch = false;
   Color activeColor = AppColors.primary;
   Map pharmacyInfo = {};
   String selectedRadioValue = 'A';
   late HomeProvider homeProvider;
+  late PharmProvider pharmProvider;
   @override
   void initState() {
-    getPharmacyList();
-    setState(() {
-      _displayItems = _pharmList;
-    });
     getPosition();
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    pharmProvider = Provider.of<PharmProvider>(context, listen: false);
+    pharmProvider.getPharmacyList();
+    setState(() {
+      _displayItems = pharmProvider.fullList;
+    });
   }
 
   @override
@@ -65,102 +61,211 @@ class _PharmacyListState extends State<PharmacyList> {
   @override
   Widget build(BuildContext context) {
     _displayItems.sort((a, b) => a.name.compareTo(b.name));
-    return Consumer<HomeProvider>(
-      builder: (_, homeProvider, child) {
+    return Consumer2<HomeProvider, PharmProvider>(
+      builder: (_, homeProvider, pp, child) {
         return Scaffold(
           body: CustomScrollView(
             slivers: [
-              SliverAppBar(
-                pinned: true,
-                automaticallyImplyLeading: false,
-                title: CustomSearchBar(
-                  searchController: _searchController,
-                  title: 'Хайх',
-                  onChanged: (value) {
-                    filteredItems.clear();
-                    searchPharmacy(value);
-                  },
-                ),
-                actions: [
-                  Container(
-                    padding: const EdgeInsets.only(right: 5),
-                    width: 40,
-                    child: FloatingActionButton(
-                      shape: const CircleBorder(
-                        side: BorderSide(
-                          width: 1,
-                          color: AppColors.secondary,
-                        ),
+              onSearch
+                  ? const SliverAppBar(
+                      toolbarHeight: 0,
+                    )
+                  : SliverAppBar(
+                      pinned: true,
+                      automaticallyImplyLeading: false,
+                      title: CustomSearchBar(
+                        searchController: _searchController,
+                        title: 'Хайх',
+                        onChanged: (value) {
+                          filteredItems.clear();
+                          searchPharmacy(value);
+                        },
                       ),
-                      backgroundColor: AppColors.primary,
-                      onPressed: () {
-                        searchByLocation();
-                      },
-                      child: const Icon(Icons.location_on, color: Colors.blue),
+                      actions: [
+                        Container(
+                          padding: const EdgeInsets.only(right: 5),
+                          width: 40,
+                          child: FloatingActionButton(
+                            shape: const CircleBorder(
+                              side: BorderSide(
+                                width: 1,
+                                color: AppColors.secondary,
+                              ),
+                            ),
+                            backgroundColor: AppColors.primary,
+                            onPressed: () {
+                              searchByLocation();
+                            },
+                            child: const Icon(Icons.location_on,
+                                color: Colors.blue),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
               SliverAppBar(
                 pinned: false,
                 automaticallyImplyLeading: false,
-                toolbarHeight: 30,
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          radioText('Бүгд'),
-                          Radio(
-                            value: 'A',
-                            groupValue: selectedRadioValue,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedRadioValue = value!;
-                                getPharmacyList();
-                                _displayItems = _pharmList;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
+                title: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    return true;
+                  },
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Wrap(
+                      children: [
+                        custRadio('A', 'Бүгд', pp.fullList),
+                        Row(
+                          children: [
+                            Radio(
+                              value: 'C',
+                              groupValue: selectedRadioValue,
+                              onChanged: (value) {
+                                filteredItems.clear();
+                                setState(() {
+                                  onSearch = true;
+                                  for (int i = 0;
+                                      i < pharmProvider.fullList.length;
+                                      i++) {
+                                    if (pharmProvider.fullList[i].isCustomer) {
+                                      filteredItems
+                                          .add(pharmProvider.fullList[i]);
+                                      selectedRadioValue = value!;
+                                    }
+                                  }
+                                  _displayItems = filteredItems;
+                                });
+                              },
+                            ),
+                            radioText('Харилцагч'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Radio(
+                              value: 'P',
+                              groupValue: selectedRadioValue,
+                              onChanged: (value) {
+                                filteredItems.clear();
+                                setState(() {
+                                  onSearch = true;
+                                  for (int i = 0;
+                                      i < pharmProvider.fullList.length;
+                                      i++) {
+                                    if (!pharmProvider.fullList[i].isCustomer) {
+                                      filteredItems
+                                          .add(pharmProvider.fullList[i]);
+                                      selectedRadioValue = value!;
+                                    }
+                                  }
+                                  _displayItems = filteredItems;
+                                });
+                              },
+                            ),
+                            radioText('Эмийн сан'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Radio(
+                              value: 'G',
+                              groupValue: selectedRadioValue,
+                              onChanged: (value) {
+                                filteredItems.clear();
+                                setState(() {
+                                  onSearch = true;
+                                  for (int i = 0;
+                                      i < pharmProvider.fullList.length;
+                                      i++) {
+                                    if (pharmProvider.fullList[i].isBad) {
+                                    } else {
+                                      if (!pharmProvider.fullList[i].isBad &&
+                                          pharmProvider
+                                              .fullList[i].isCustomer) {
+                                        if (pharmProvider.fullList[i].debt !=
+                                                0 &&
+                                            pharmProvider
+                                                    .fullList[i].debtLimit !=
+                                                0 &&
+                                            pharmProvider.fullList[i].debt >=
+                                                pharmProvider
+                                                    .fullList[i].debtLimit) {
+                                        } else {
+                                          filteredItems
+                                              .add(pharmProvider.fullList[i]);
+                                          selectedRadioValue = value!;
+                                        }
+                                      }
+                                    }
+                                  }
+                                  _displayItems = filteredItems;
+                                });
+                              },
+                            ),
+                            radioText('Найдвартай'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Radio(
+                              value: 'B',
+                              groupValue: selectedRadioValue,
+                              onChanged: (value) {
+                                filteredItems.clear();
+                                setState(() {
+                                  onSearch = true;
+                                  for (int i = 0;
+                                      i < pharmProvider.fullList.length;
+                                      i++) {
+                                    if (pharmProvider.fullList[i].isBad &&
+                                        pharmProvider.fullList[i].isCustomer) {
+                                      filteredItems
+                                          .add(pharmProvider.fullList[i]);
+                                      selectedRadioValue = value!;
+                                    }
+                                  }
+                                  _displayItems = filteredItems;
+                                });
+                              },
+                            ),
+                            radioText('Найдваргүй'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Radio(
+                              value: 'L',
+                              groupValue: selectedRadioValue,
+                              onChanged: (value) {
+                                filteredItems.clear();
+                                setState(() {
+                                  onSearch = true;
+                                  for (int i = 0;
+                                      i < pharmProvider.fullList.length;
+                                      i++) {
+                                    if (!pharmProvider.fullList[i].isBad &&
+                                        pharmProvider.fullList[i].isCustomer) {
+                                      if (pharmProvider.fullList[i].debt != 0 &&
+                                          pharmProvider.fullList[i].debtLimit !=
+                                              0 &&
+                                          pharmProvider.fullList[i].debt >=
+                                              pharmProvider
+                                                  .fullList[i].debtLimit) {
+                                        filteredItems
+                                            .add(pharmProvider.fullList[i]);
+                                        selectedRadioValue = value!;
+                                      }
+                                    }
+                                  }
+                                  _displayItems = filteredItems;
+                                });
+                              },
+                            ),
+                            radioText('Зээл хэтэрсэн'),
+                          ],
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          radioText('Харилцагч'),
-                          Radio(
-                            value: 'C',
-                            groupValue: selectedRadioValue,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedRadioValue = value!;
-                              });
-                              getCustomers();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          radioText('Эмийн сан'),
-                          Radio(
-                            value: 'P',
-                            groupValue: selectedRadioValue,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedRadioValue = value!;
-                              });
-                              getPharmacies();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
               _displayItems.isEmpty
@@ -202,16 +307,15 @@ class _PharmacyListState extends State<PharmacyList> {
                         return Card(
                           child: InkWell(
                             onTap: () async {
-                              await getPharmacyinfo(_displayItems[index].id);
-                              if (pharmacyInfo['isBad'] == true) {
+                              if (_displayItems[index].isBad == true) {
                                 showFailedMessage(
                                     context: context,
                                     message: 'Найдваргүй харилцагч байна!');
                               } else {
-                                if (pharmacyInfo['debt'] != 0 &&
-                                    pharmacyInfo['debtLimit'] != 0 &&
-                                    pharmacyInfo['debt'] >=
-                                        pharmacyInfo['debtLimit']) {
+                                if (_displayItems[index].debt != 0 &&
+                                    _displayItems[index].debtLimit != 0 &&
+                                    _displayItems[index].debt >=
+                                        _displayItems[index].debtLimit) {
                                   showFailedMessage(
                                       context: context,
                                       message:
@@ -225,7 +329,6 @@ class _PharmacyListState extends State<PharmacyList> {
                                     homeProvider.getSelectedUser(
                                         _displayItems[index].id,
                                         _displayItems[index].name);
-                                    // homeProvider.changeIndex(1);
                                   });
                                 }
                               }
@@ -253,13 +356,34 @@ class _PharmacyListState extends State<PharmacyList> {
                                           const SizedBox(
                                             width: 5,
                                           ),
-                                          Text(
-                                            _displayItems[index].name,
-                                            textAlign: TextAlign.start,
-                                            style: const TextStyle(
-                                                fontSize: 18,
-                                                color: AppColors.secondary,
-                                                fontWeight: FontWeight.bold),
+                                          RichText(
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            text: TextSpan(
+                                              text: _displayItems[index].name,
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: _displayItems[index]
+                                                          .isBad
+                                                      ? Colors.red
+                                                      : _displayItems[index]
+                                                                      .debt !=
+                                                                  0 &&
+                                                              _displayItems[
+                                                                          index]
+                                                                      .debtLimit !=
+                                                                  0 &&
+                                                              _displayItems[
+                                                                          index]
+                                                                      .debt >=
+                                                                  _displayItems[
+                                                                          index]
+                                                                      .debtLimit
+                                                          ? AppColors
+                                                              .failedColor
+                                                          : AppColors.primary,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -321,79 +445,23 @@ class _PharmacyListState extends State<PharmacyList> {
     );
   }
 
-  getCustomers() {
-    filteredItems.clear();
-    for (int i = 0; i < _pharmList.length; i++) {
-      if (_pharmList[i].isCustomer) {
-        filteredItems.add(_pharmList[i]);
-      }
-      setState(() {
-        _displayItems = filteredItems;
-      });
-    }
-  }
-
-  getPharmacies() {
-    filteredItems.clear();
-    for (int i = 0; i < _pharmList.length; i++) {
-      if (!_pharmList[i].isCustomer) {
-        filteredItems.add(_pharmList[i]);
-      }
-      setState(() {
-        _displayItems = filteredItems;
-      });
-    }
-  }
-
-  getPharmacyList() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('access_token');
-    final response = await http.get(
-      Uri.parse('${dotenv.env['SERVER_URL']}seller/pharmacy_list/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
+  Widget custRadio(String value, String title, List<PharmFullInfo> viewList) {
+    return Row(
+      children: [
+        Radio(
+          value: value,
+          groupValue: selectedRadioValue,
+          onChanged: (value) {
+            setState(() {
+              onSearch = false;
+              selectedRadioValue = value!;
+              _displayItems = viewList;
+            });
+          },
+        ),
+        radioText(title),
+      ],
     );
-    if (response.statusCode == 200) {
-      Map data = jsonDecode(utf8.decode(response.bodyBytes));
-      List<dynamic> pharms = data['pharmacies'];
-      _pharmList.clear();
-      for (int i = 0; i < pharms.length; i++) {
-        setState(() {
-          _pharmList.add(Pharm(
-            pharms[i]['id'],
-            pharms[i]['name'],
-            pharms[i]['isCustomer'],
-            pharms[i]['badCnt'],
-          ));
-        });
-      }
-    }
-  }
-
-  getPharmacyinfo(int pharmId) async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.get(
-        Uri.parse(
-            '${dotenv.env['SERVER_URL']}seller/get_debt_info/?userId=$pharmId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        pharmacyInfo.clear();
-        setState(() {
-          pharmacyInfo = res;
-        });
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Мэдээлэл олдсонгүй', context: context);
-    }
   }
 
   searchPharmacy(String searchQuery) {
@@ -401,21 +469,30 @@ class _PharmacyListState extends State<PharmacyList> {
     setState(() {
       searchQuery = _searchController.text;
     });
-    for (int i = 0; i < _pharmList.length; i++) {
+    for (int i = 0; i < pharmProvider.fullList.length; i++) {
       if (searchQuery.isNotEmpty &&
-          _pharmList[i]
-              .name
+          pharmProvider.fullList[i].name
               .toLowerCase()
               .contains(searchQuery.toLowerCase())) {
-        filteredItems.add(Pharm(_pharmList[i].id, _pharmList[i].name,
-            _pharmList[i].isCustomer, _pharmList[i].badCnt));
+        filteredItems.add(
+          PharmFullInfo(
+            pharmProvider.fullList[i].id,
+            pharmProvider.fullList[i].name,
+            pharmProvider.fullList[i].isCustomer,
+            pharmProvider.fullList[i].badCnt,
+            pharmProvider.fullList[i].isBad,
+            pharmProvider.fullList[i].debt,
+            pharmProvider.fullList[i].debtLimit,
+          ),
+        );
+
         setState(() {
           _displayItems = filteredItems;
         });
       }
       if (searchQuery.isEmpty) {
         setState(() {
-          _displayItems = _pharmList;
+          _displayItems = pharmProvider.fullList;
         });
       }
     }
@@ -461,37 +538,40 @@ class _PharmacyListState extends State<PharmacyList> {
             'lon': lon,
           }));
       if (response.statusCode == 200) {
-        Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-        if (res.toString() == 'not found') {
+        if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
+            'not found') {
           showFailedMessage(message: 'Харилцагч олдсонгүй', context: context);
-        }
-        showSuccessMessage(
-            context: context,
-            message:
-                '${res['company']['name']} харилцагчийн ${res['name']} олдлоо');
-        if (res['manager']['id'] == null) {
-          setState(() {
-            homeProvider.selectedCustomerId = res['director']['id'];
-            homeProvider.selectedCustomerName = res['company']['name'];
-            homeProvider.getSelectedUser(homeProvider.selectedCustomerId,
-                homeProvider.selectedCustomerName);
-            homeProvider.changeIndex(1);
-          });
         } else {
-          setState(() {
-            homeProvider.selectedCustomerId = res['manager']['id'];
-            homeProvider.selectedCustomerName = res['company']['name'];
-            homeProvider.getSelectedUser(homeProvider.selectedCustomerId,
-                homeProvider.selectedCustomerName);
-            homeProvider.changeIndex(1);
-          });
+          Map<String, dynamic> res =
+              jsonDecode(utf8.decode(response.bodyBytes));
+          showSuccessMessage(
+              context: context,
+              message:
+                  '${res['company']['name']} харилцагчийн ${res['name']} олдлоо');
+          if (res['manager']['id'] == null) {
+            setState(() {
+              homeProvider.selectedCustomerId = res['director']['id'];
+              homeProvider.selectedCustomerName = res['company']['name'];
+              homeProvider.getSelectedUser(homeProvider.selectedCustomerId,
+                  homeProvider.selectedCustomerName);
+              homeProvider.changeIndex(1);
+            });
+          } else {
+            setState(() {
+              homeProvider.selectedCustomerId = res['manager']['id'];
+              homeProvider.selectedCustomerName = res['company']['name'];
+              homeProvider.getSelectedUser(homeProvider.selectedCustomerId,
+                  homeProvider.selectedCustomerName);
+              homeProvider.changeIndex(1);
+            });
+          }
         }
       } else {
-        showFailedMessage(message: 'Хүсэлт амжилтүй', context: context);
+        showFailedMessage(message: 'Серверийн алдаа', context: context);
       }
     } catch (e) {
       showFailedMessage(
-          message: 'Түр хүлээгээд дахин оролдоно уу!.', context: context);
+          message: 'Интернет холболтоо шалгана уу!.', context: context);
     }
   }
 }

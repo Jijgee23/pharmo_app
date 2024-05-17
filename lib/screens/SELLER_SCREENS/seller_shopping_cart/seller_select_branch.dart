@@ -11,6 +11,7 @@ import 'package:pharmo_app/screens/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,6 +29,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   String _selectedRadioValue = '';
   bool invisible = false;
   late HomeProvider homeProvider;
+  final noteController = TextEditingController();
 
   @override
   void initState() {
@@ -82,6 +84,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
               'userId': homeProvider.selectedCustomerId,
               'branchId': _selectedAddress,
               'basket': homeProvider.basketId,
+              'note': noteController.text,
             },
           ),
         );
@@ -110,6 +113,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           body: jsonEncode(
             {
               'userId': homeProvider.selectedCustomerId,
+              'note': noteController.text,
             },
           ),
         );
@@ -223,10 +227,12 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                       _selectedAddress = branchList[index].id;
                                     });
                                   },
-                                  tileColor: _selectedIndex == index
-                                      ? Colors.grey
-                                      : null,
-                                  leading: const Icon(Icons.home),
+                                  leading: Icon(
+                                    Icons.home,
+                                    color: _selectedIndex == index
+                                        ? Colors.green
+                                        : Colors.grey,
+                                  ),
                                   title:
                                       Text(branchList[index].name.toString()),
                                 ),
@@ -235,26 +241,43 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                           ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        createSellerOrder();
-                      },
-                      icon: const Icon(
-                        Icons.add,
-                        color: Colors.white,
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.25,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Заавал биш',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      label: const Text(
-                        'Захиалга үүсгэх',
-                        style: TextStyle(color: Colors.white),
+                      CustomTextField(
+                        controller: noteController,
+                        hintText: 'Тайлбар',
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.secondary,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              createSellerOrder();
+                            },
+                            icon: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Захиалга үүсгэх',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.secondary,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
