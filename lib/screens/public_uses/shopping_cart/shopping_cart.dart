@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
-import 'package:pharmo_app/screens/public_uses/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_shopping_cart/seller_select_branch.dart';
+import 'package:pharmo_app/screens/public_uses/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/screens/public_uses/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
@@ -20,7 +20,7 @@ class ShoppingCart extends StatefulWidget {
 class _ShoppingCartState extends State<ShoppingCart> {
   String? _userRole = '';
   String buttonText = 'Төлбөр төлөх';
-  int selectedUser = 0;
+  // int selectedUser = 0;
   @override
   void initState() {
     getUser();
@@ -30,10 +30,10 @@ class _ShoppingCartState extends State<ShoppingCart> {
   void getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userRole = prefs.getString('userrole');
-    int? userId = prefs.getInt('pharmId');
+    // int? userId = prefs.getInt('pharmId');
     setState(() {
       _userRole = userRole;
-      selectedUser = userId!;
+      // selectedUser = userId!;
     });
     if (_userRole == 'S') {
       setState(() {
@@ -50,21 +50,17 @@ class _ShoppingCartState extends State<ShoppingCart> {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
       if (_userRole == 'S') {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const SellerHomePage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const SellerHomePage()));
       } else {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const PharmaHomePage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const PharmaHomePage()));
       }
     }
 
     void purchase(int basketId) {
       if (_userRole == 'S') {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const SelectSellerBranchPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const SelectSellerBranchPage()));
       } else {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const SelectBranchPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const SelectBranchPage()));
       }
     }
 
@@ -87,8 +83,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
                             child: ListView.builder(
                               itemCount: cartDatas.length,
                               itemBuilder: (context, index) {
-                                return ShoppingCartView(
-                                    detail: cartDatas[index] ?? {});
+                                return ShoppingCartView(detail: cartDatas[index] ?? {});
                               },
                             ),
                           )
@@ -104,8 +99,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   border: Border(
@@ -124,43 +118,23 @@ class _ShoppingCartState extends State<ShoppingCart> {
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 0),
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(
-                                text: 'Нийт тоо ширхэг: ',
-                                style: TextStyle(
-                                    color: Colors.blueGrey.shade800,
-                                    fontSize: 13.0),
-                                children: [
-                                  TextSpan(
-                                      text: '${basket.totalCount}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.0)),
-                                ]),
+                            text: TextSpan(text: 'Нийт тоо ширхэг: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                              TextSpan(text: '${basket.totalCount}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                            ]),
                           ),
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(
-                                text: 'Нийт төлөх дүн: ',
-                                style: TextStyle(
-                                    color: Colors.blueGrey.shade800,
-                                    fontSize: 13.0),
-                                children: [
-                                  TextSpan(
-                                      text: '${basket.totalPrice} ₮',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.0,
-                                          color: Colors.red)),
-                                ]),
+                            text: TextSpan(text: 'Нийт төлөх дүн: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                              TextSpan(text: '${basket.totalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
+                            ]),
                           ),
                         ],
                       ),

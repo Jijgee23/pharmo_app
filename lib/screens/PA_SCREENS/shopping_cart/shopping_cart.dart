@@ -43,11 +43,9 @@ class _ShoppingCartState extends State<ShoppingCart> {
 
     void purchase(int basketId) {
       if (_userRole == 'S') {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const SelectSellerBranchPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const SelectSellerBranchPage()));
       } else {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const SelectBranchPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const SelectBranchPage()));
       }
     }
 
@@ -98,8 +96,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
                             child: ListView.builder(
                               itemCount: cartDatas.length,
                               itemBuilder: (context, index) {
-                                return ShoppingCartView(
-                                    detail: cartDatas[index] ?? {});
+                                return ShoppingCartView(detail: cartDatas[index] ?? {});
                               },
                             ),
                           )
@@ -115,8 +112,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   border: Border(
@@ -135,76 +131,59 @@ class _ShoppingCartState extends State<ShoppingCart> {
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 0),
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(
-                                text: 'Нийт тоо ширхэг: ',
-                                style: TextStyle(
-                                    color: Colors.blueGrey.shade800,
-                                    fontSize: 13.0),
-                                children: [
-                                  TextSpan(
-                                      text: '${basket.totalCount}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.0)),
-                                ]),
+                            text: TextSpan(text: 'Нийт тоо ширхэг: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                              TextSpan(text: '${basket.totalCount}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                            ]),
                           ),
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(
-                                text: 'Нийт төлөх дүн: ',
-                                style: TextStyle(
-                                    color: Colors.blueGrey.shade800,
-                                    fontSize: 13.0),
-                                children: [
-                                  TextSpan(
-                                      text: '${basket.totalPrice} ₮',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.0,
-                                          color: Colors.red)),
-                                ]),
+                            text: TextSpan(text: 'Нийт төлөх дүн: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
+                              TextSpan(text: '${basket.totalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
+                            ]),
                           ),
                         ],
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            clearBasket(basket.id);
-                          },
-                          icon: const Icon(
-                            Icons.delete_forever,
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              clearBasket(basket.id);
+                            },
+                            icon: const Icon(
+                              Icons.delete_forever,
+                            ),
+                            label: const Text('Сагс хоослох'),
                           ),
-                          label: const Text('Сагс хоослох'),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            purchase(basket.id);
-                          },
-                          icon: const Icon(
-                            Icons.paid_rounded,
-                            color: Colors.white,
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              purchase(basket.id);
+                            },
+                            icon: const Icon(
+                              Icons.paid_rounded,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Төлбөр төлөх',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.secondary,
+                            ),
                           ),
-                          label: const Text(
-                            'Төлбөр төлөх',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
