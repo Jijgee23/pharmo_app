@@ -78,8 +78,8 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
           }
         } else {
           dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, branch_id: _selectedAddress, note: '');
-          String order = res['data']['orderNo'].toString();
           if (res['errorType'] == 1) {
+            String order = res['data']['orderNo'].toString();
             Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: order)));
           } else {
             showFailedMessage(message: res['message'], context: context);
