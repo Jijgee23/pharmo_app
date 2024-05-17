@@ -88,8 +88,10 @@ class _FavoriteListState extends State<FavoriteList> {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({'customerId': widget.customerId}));
+    print(response.statusCode);
     if (response.statusCode == 200) {
       List<dynamic> favList = jsonDecode(utf8.decode(response.bodyBytes));
+      print(favList);
       favorites.clear();
       setState(() {
         for (int i = 0; i < favList.length; i++) {

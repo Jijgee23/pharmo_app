@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_shopping_cart/seller_qr_code.dart';
 import 'package:pharmo_app/screens/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -23,125 +23,25 @@ class SelectSellerBranchPage extends StatefulWidget {
 }
 
 class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
-  List<Branch> branchList = <Branch>[];
   int _selectedIndex = -1;
-  int _selectedAddress = 0;
-  String _selectedRadioValue = '';
+  String _selectedRadioValue = 'NODELIVERY';
+  String _selectedRadioValue2 = '';
   bool invisible = false;
+  String? note;
   late HomeProvider homeProvider;
   final noteController = TextEditingController();
 
   @override
   void initState() {
-    getCustomerBranch();
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
-  }
-
-  getCustomerBranch() async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}seller/customer_branch/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({'customerId': homeProvider.selectedCustomerId}));
-      branchList.clear();
-      if (response.statusCode == 200) {
-        List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-        setState(() {
-          for (int i = 0; i < res.length; i++) {
-            branchList.add(Branch.fromJson(res[i]));
-          }
-        });
-        await prefs.setInt('branchId', res[0]['id']);
-      }
-    } catch (e) {
-      showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа.', context: context);
-    }
-  }
-
-  createSellerOrder() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      if (_selectedRadioValue == 'L') {
-        if (_selectedIndex == -1) {
-          showFailedMessage(message: 'Салбар сонгоно уу.', context: context);
-        }
-        final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode(
-            {
-              'userId': homeProvider.selectedCustomerId,
-              'branchId': _selectedAddress,
-              'basket': homeProvider.basketId,
-              'note': noteController.text,
-            },
-          ),
-        );
-        if (response.statusCode == 200) {
-          final res = jsonDecode(utf8.decode(response.bodyBytes));
-          final orderNumber = res['orderNo'];
-          showSuccessMessage(
-              message: 'Захиалга амжилттай  үүслээ.', context: context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => OrderDone(orderNo: orderNumber.toString()),
-            ),
-          );
-        } else {
-          showFailedMessage(message: 'Сагс хоосон байна', context: context);
-        }
-      }
-      if (_selectedRadioValue == 'C') {
-        final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode(
-            {
-              'userId': homeProvider.selectedCustomerId,
-              'note': noteController.text,
-            },
-          ),
-        );
-        if (response.statusCode == 200) {
-          final res = jsonDecode(utf8.decode(response.bodyBytes));
-          final orderNumber = res['orderNo'];
-          showSuccessMessage(
-              message: 'Захиалга амжилттай  үүслээ.', context: context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => OrderDone(orderNo: orderNumber.toString()),
-            ),
-          );
-        } else {
-          showFailedMessage(message: 'Сагс хоосон байна', context: context);
-        }
-      }
-    } catch (e) {
-      showFailedMessage(
-          message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
-    }
+    homeProvider.getCustomerBranch();
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
-      builder: (_, sellerprovider, child) {
+      builder: (_, provider, child) {
         return Scaffold(
           appBar: const CustomAppBar(
             title: 'Захиалга үүсгэх',
@@ -155,7 +55,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Radio(
-                      value: 'L',
+                      value: 'DELIVERY',
                       groupValue: _selectedRadioValue,
                       onChanged: (String? value) {
                         setState(() {
@@ -172,7 +72,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                       width: 20,
                     ),
                     Radio(
-                      value: 'C',
+                      value: 'NODELIVERY',
                       groupValue: _selectedRadioValue,
                       onChanged: (String? value) {
                         setState(() {
@@ -198,7 +98,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                 Visibility(
                   visible: invisible,
                   child: Expanded(
-                    child: branchList.isEmpty
+                    child: provider.branchList.isEmpty
                         ? Column(
                             children: [
                               const Text('Захиалагч сонгоно уу!'),
@@ -217,14 +117,15 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                             ],
                           )
                         : ListView.builder(
-                            itemCount: branchList.length,
+                            itemCount: provider.branchList.length,
                             itemBuilder: (context, index) {
                               return Card(
                                 child: ListTile(
                                   onTap: () {
                                     setState(() {
                                       _selectedIndex = index;
-                                      _selectedAddress = branchList[index].id;
+                                      homeProvider.selectedBranchId =
+                                          provider.branchList[index].id;
                                     });
                                   },
                                   leading: Icon(
@@ -233,8 +134,8 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                         ? Colors.green
                                         : Colors.grey,
                                   ),
-                                  title:
-                                      Text(branchList[index].name.toString()),
+                                  title: Text(provider.branchList[index].name
+                                      .toString()),
                                 ),
                               );
                             },
@@ -242,25 +143,87 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.25,
+                  height: MediaQuery.of(context).size.height * 0.27,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Заавал биш',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
                       CustomTextField(
                         controller: noteController,
                         hintText: 'Тайлбар',
+                        onChanged: (value) {
+                          setState(() {
+                            homeProvider.note = noteController.text;
+                            note = noteController.text;
+                          });
+                        },
+                      ),
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('Төлбөрийн хэлбэр сонгоно уу : '),
+                      ),
+                      Card(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 5),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Radio(
+                                    value: 'NOW',
+                                    groupValue: _selectedRadioValue2,
+                                    onChanged: (String? value) {
+                                      setState(() {
+                                        _selectedRadioValue2 = value!;
+                                        homeProvider.payType = value;
+                                      });
+                                    },
+                                  ),
+                                  const Text(
+                                    'Бэлнээр',
+                                    style: TextStyle(fontSize: 16.0),
+                                  ),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Radio(
+                                    value: 'LATER',
+                                    groupValue: _selectedRadioValue2,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedRadioValue2 = value!;
+                                        homeProvider.payType = value;
+                                      });
+                                    },
+                                  ),
+                                  const Text(
+                                    'Зээлээр',
+                                    style: TextStyle(fontSize: 16.0),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           OutlinedButton.icon(
                             onPressed: () {
-                              createSellerOrder();
+                              if (_selectedRadioValue2 == '') {
+                                showFailedMessage(
+                                    context: context,
+                                    message: 'Төлбөрийн хэлбэр сонгоно уу!');
+                              }
+                              if (_selectedRadioValue2 == 'LATER') {
+                                createSellerOrder();
+                              }
+                              if (_selectedRadioValue2 == 'NOW') {
+                                goto(const SellerQRCode(), context);
+                              }
                             },
                             icon: const Icon(
                               Icons.add,
@@ -285,5 +248,79 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
         );
       },
     );
+  }
+
+  createSellerOrder() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      if (_selectedRadioValue == 'DELIVERY') {
+        if (_selectedIndex == -1) {
+          showFailedMessage(message: 'Салбар сонгоно уу.', context: context);
+        }
+        final response = await http.post(
+            Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': 'Bearer $token',
+            },
+            body: homeProvider.note == null
+                ? jsonEncode(
+                    {
+                      'userId': homeProvider.selectedCustomerId,
+                      'branchId': homeProvider.selectedBranchId,
+                      'basket': homeProvider.basketId,
+                    },
+                  )
+                : jsonEncode(
+                    {
+                      'userId': homeProvider.selectedCustomerId,
+                      'branchId': homeProvider.selectedBranchId,
+                      'basket': homeProvider.basketId,
+                      "note": homeProvider.note
+                    },
+                  ));
+        print(response.statusCode);
+        if (response.statusCode == 200) {
+          final res = jsonDecode(utf8.decode(response.bodyBytes));
+          final orderNumber = res['orderNo'];
+          showSuccessMessage(
+              message: 'Захиалга амжилттай  үүслээ.', context: context);
+          goto(OrderDone(orderNo: orderNumber.toString()), context);
+          setState(() {
+            homeProvider.note = null;
+          });
+        } else {
+          showFailedMessage(message: 'Сагс хоосон байна', context: context);
+        }
+      }
+      if (_selectedRadioValue == 'NODELIVERY') {
+        final response = await http.post(
+          Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode(
+            {
+              'userId': homeProvider.selectedCustomerId,
+              'note': noteController.text,
+            },
+          ),
+        );
+        if (response.statusCode == 200) {
+          final res = jsonDecode(utf8.decode(response.bodyBytes));
+          final orderNumber = res['orderNo'];
+          showSuccessMessage(
+              message: 'Захиалга амжилттай  үүслээ.', context: context);
+          goto(OrderDone(orderNo: orderNumber.toString()), context);
+        } else {
+          showFailedMessage(message: 'Сагс хоосон байна', context: context);
+        }
+      }
+    } catch (e) {
+      showFailedMessage(
+          message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
+    }
   }
 }

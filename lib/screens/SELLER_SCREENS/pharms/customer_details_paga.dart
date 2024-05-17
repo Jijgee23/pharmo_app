@@ -26,6 +26,7 @@ class CustomerDetailsPage extends StatefulWidget {
 
 class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
   final List<Branch> _branchList = <Branch>[];
+  String? email;
   Map companyInfo = {};
   @override
   @override
@@ -35,8 +36,17 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
     super.initState();
   }
 
+ 
+
   @override
   Widget build(BuildContext context) {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: '${companyInfo['email']}',
+      query: EmailHelper.encodeQueryParameters(<String, String>{
+        'subject': 'Бичих зүйлээ оруулна уу!',
+      }),
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -49,17 +59,58 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Expanded(
               flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Wrap(
+                direction: Axis.vertical,
                 children: [
                   Text('Эмийн сангийн нэр: ${companyInfo['name']}'),
+                  const SizedBox(
+                    height: 15,
+                  ),
                   Text('Регистрийн дугаар: ${companyInfo['rd']}'),
-                  Text('Имейл хаяг: ${companyInfo['email']}'),
-                  Text('Утасны дугаар: ${companyInfo['phone']}'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Text('Имейл хаяг:'),
+                      TextButton(
+                        onPressed: () async {
+                          if (await canLaunchUrlString(
+                              emailLaunchUri.toString())) {
+                            await launchUrlString(emailLaunchUri.toString());
+                          } else {
+                            showFailedMessage(
+                              context: context,
+                              message:
+                                  'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
+                            );
+                          }
+                        },
+                        child: Text(
+                          '${companyInfo['email']}',
+                          style: const TextStyle(color: Colors.black87),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text('Утасны дугаарууд:'),
+                      TextButton(
+                        onPressed: () {
+                          launchUrlString('tel://+976${companyInfo['phone']}');
+                        },
+                        child: Text(
+                          '${companyInfo['phone']}',
+                          style: const TextStyle(color: Colors.black87),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -84,7 +135,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                       ),
                       title: Text(_branchList[index].name),
                     ),
-                  );
+                  );  
                 },
               ),
             ),
@@ -128,8 +179,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       final response = await http.post(
-          Uri.parse(
-              '${dotenv.env['SERVER_URL']}seller/get_pharmacy_info/'),
+          Uri.parse('${dotenv.env['SERVER_URL']}seller/get_pharmacy_info/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
@@ -182,5 +232,14 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
     } catch (e) {
       showFailedMessage(context: context, message: 'Алдаа гарлаа');
     }
+  }
+}
+
+class EmailHelper {
+  static String encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map((MapEntry<String, String> e) =>
+            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
   }
 }

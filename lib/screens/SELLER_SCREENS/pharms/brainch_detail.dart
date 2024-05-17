@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/customer_details_paga.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -73,7 +74,8 @@ class _BranchDetailsState extends State<BranchDetails> {
         centerTitle: true,
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 40),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 10),
         child: Center(
           child: storeList.isEmpty
               ? const Center(
@@ -93,71 +95,102 @@ class _BranchDetailsState extends State<BranchDetails> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Салбарын нэр: ${storeList['name']}',
-                          style: const TextStyle(
-                            fontSize: 18,
+                        const Text(
+                          'Салбарын мэдээлэл',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
+                        const SizedBox(
+                          height: 15,
+                        ),
                         Text(
-                          'Салбарын утас: ${storeList['phone']}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                          ),
+                          'Салбарын нэр: ${storeList['name']}',
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text('Салбарын утас:'),
+                            TextButton(
+                              onPressed: () {
+                                launchUrlString(
+                                    'tel://+976${storeList['phone']}');
+                              },
+                              child: Text(
+                                '${storeList['phone']}',
+                                style: const TextStyle(color: Colors.black87),
+                              ),
+                            ),
+                          ],
                         ),
                         Text(
                           'Салбарын хаяг: ${storeList['address']}',
-                          style: const TextStyle(
-                            fontSize: 18,
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        const Text(
+                          'Салбарын менежерийн мэдээлэл',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
+                        ),
+                        const SizedBox(
+                          height: 15,
                         ),
                         Text(
                           'Салбарын менежерийн нэр: ${storeList['manager']['name']}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                          ),
                         ),
-                        Text(
-                          'Салбарын менежер имейл: ${storeList['manager']['email']}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                          ),
-                        ),
-                        Text(
-                          'Салбарын менежер утас: ${storeList['manager']['phone']}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          child: OutlinedButton(
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll(
-                                  Colors.green.shade900),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const Text('Салбарын менежер имейл:'),
+                            TextButton(
+                              onPressed: () async {
+                                final Uri emailLaunchUri = Uri(
+                                  scheme: 'mailto',
+                                  path: '${storeList['manager']['email']}',
+                                  query: EmailHelper
+                                      .encodeQueryParameters(<String, String>{
+                                    'subject': 'Бичих зүйлээ оруулна уу!',
+                                  }),
+                                );
+                                if (await canLaunchUrlString(
+                                    emailLaunchUri.toString())) {
+                                  await launchUrlString(
+                                      emailLaunchUri.toString());
+                                } else {
+                                  showFailedMessage(
+                                    context: context,
+                                    message:
+                                        'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
+                                  );
+                                }
+                              },
+                              child: Text(
+                                '${storeList['manager']['email']}',
+                                style: const TextStyle(color: Colors.black87),
+                              ),
                             ),
-                            onPressed: () {
-                              launchUrlString(
-                                  'tel://+976${storeList['manager']['phone']}');
-                            },
-                            child: const Icon(Icons.call, color: Colors.white),
-                          ),
+                          ],
                         ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          child: OutlinedButton(
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll(
-                                  Colors.green.shade900),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text('Салбарын менежер утас:'),
+                            TextButton(
+                              onPressed: () {
+                                launchUrlString(
+                                    'tel://+976${storeList['manager']['phone']}');
+                              },
+                              child: Text(
+                                '${storeList['manager']['phone']}',
+                                style: const TextStyle(color: Colors.black87),
+                              ),
                             ),
-                            onPressed: () async {},
-                            child: const Icon(Icons.mail, color: Colors.white),
-                          ),
+                          ],
                         ),
                       ],
                     ),
