@@ -74,7 +74,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     String deviceToken = await getDeviceToken();
     print("###### PRINT DEVICE TOKEN TO USE FOR PUSH NOTIFCIATION ######");
     print(deviceToken);
-    print("############################################################");
+    print("#############################################################");
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
@@ -89,24 +89,22 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     if (response.statusCode == 200) {
       print('amjilttai uuslee');
     }
-    // listen for user to click on notification
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
       String? title = remoteMessage.notification!.title;
       String? description = remoteMessage.notification!.body;
 
-      //im gonna have an alertdialog when clicking from push notification
       Alert(
         context: context,
-        type: AlertType.error,
-        title: title, // title from push notification data
-        desc: description, // description from push notifcation data
+        type: AlertType.info,
+        title: title,
+        desc: description,
         buttons: [
           DialogButton(
             onPressed: () => Navigator.pop(context),
             width: 120,
             child: const Text(
-              "COOL",
-              style: TextStyle(color: Colors.white, fontSize: 20),
+              "Хаах",
+              style: TextStyle(color: Colors.white, fontSize: 15),
             ),
           )
         ],

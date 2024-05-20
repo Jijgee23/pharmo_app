@@ -11,6 +11,7 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/screens/auth/login_page.dart';
+import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -27,8 +28,8 @@ Future<void> main() async {
         storageBucket: 'android-pharmo.appspot.com',
       ),
     );
-    print('Androidddddddddddddddddddddddddd');
   }
+  await FirebaseApi.initNotification();
   await dotenv.load(fileName: ".env");
   runApp(
     MultiProvider(
