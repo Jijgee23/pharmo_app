@@ -290,7 +290,6 @@ class JaggerProvider extends ChangeNotifier {
             },
             body: jsonEncode({"itemId": itemId, "rQty": rQty.text}));
       }
-
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         await getJaggers();

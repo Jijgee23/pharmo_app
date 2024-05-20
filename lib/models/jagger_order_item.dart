@@ -1,11 +1,10 @@
-
-
 class JaggerOrderItem {
   int itemId;
   String? itemName;
   String? itemPrice;
   String? itemTotalPrice;
   int? itemQty;
+  int? iQty;
 
   JaggerOrderItem(
     this.itemId,
@@ -13,6 +12,7 @@ class JaggerOrderItem {
     this.itemPrice,
     this.itemTotalPrice,
     this.itemQty,
+    this.iQty,
   );
 
   JaggerOrderItem.fromJson(Map<String, dynamic> json)
@@ -20,7 +20,8 @@ class JaggerOrderItem {
         itemName = json['itemName'],
         itemPrice = json['itemPrice'],
         itemTotalPrice = json['itemTotalPrice'],
-        itemQty = json['itemQty'];
+        itemQty = json['itemQty'],
+        iQty = json['iQty'];
 
   Map<String, dynamic> toJson() {
     return {
@@ -29,6 +30,7 @@ class JaggerOrderItem {
       'itemPrice': itemPrice,
       'itemTotalPrice': itemTotalPrice,
       'itemQty': itemQty,
+      'iQty': iQty,
     };
   }
 }
