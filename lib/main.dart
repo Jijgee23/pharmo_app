@@ -27,6 +27,7 @@ Future<void> main() async {
         storageBucket: 'android-pharmo.appspot.com',
       ),
     );
+    print('Androidddddddddddddddddddddddddd');
   }
   await dotenv.load(fileName: ".env");
   runApp(

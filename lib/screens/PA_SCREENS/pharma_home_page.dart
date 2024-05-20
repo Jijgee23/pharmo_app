@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -57,10 +56,10 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
   @override
   void initState() {
     getUserInfo();
-    if (Platform.isAndroid) {
-    } else {
-      init();
-    }
+    // if (Platform.isAndroid) {
+    // } else {
+    init();
+    // }
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     homeProvider.getUserInfo();
@@ -81,12 +80,12 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
 
-    final response = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}sub_push/'),
+    final response = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': bearerToken,
         },
-        body: jsonEncode({token: deviceToken}));
+        body: jsonEncode({"deviceId": deviceToken}));
     if (response.statusCode == 200) {
       print('amjilttai uuslee');
     }
