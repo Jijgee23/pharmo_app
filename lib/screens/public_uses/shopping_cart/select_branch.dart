@@ -69,7 +69,6 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
       dynamic resCheck = await basketProvider.checkQTYs();
       if (resCheck['errorType'] == 1) {
         if (_selectedRadioValue == 'L') {
-          print(_selectedAddress);
           dynamic res = await basketProvider.createQR(basket_id: basketProvider.basket.id, branch_id: _selectedAddress, pay_type: _selectedRadioValue, note: '');
           if (res['errorType'] == 1) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const QRCode()));

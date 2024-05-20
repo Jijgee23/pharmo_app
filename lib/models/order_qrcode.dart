@@ -1,7 +1,7 @@
 
 class OrderQRCode {
-  String? totalPrice;
-  String? totalCount;
+  double? totalPrice;
+  int? totalCount;
   String? qrTxt;
   List<dynamic>? urls;
 

@@ -17,6 +17,16 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isIOS) {
     await Firebase.initializeApp();
+  } else {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyDeLPH1bXffKSXckF-RShuZgIfP023TEps",
+        appId: "1:757366069753:android:fda14c67afe6ef7c068528",
+        messagingSenderId: "757366069753",
+        projectId: "android-pharmo",
+        storageBucket: 'android-pharmo.appspot.com',
+      ),
+    );
   }
   await dotenv.load(fileName: ".env");
   runApp(
@@ -48,6 +58,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 class GlobalKeys {
   static final navigatorKey = GlobalKey<NavigatorState>();
 }

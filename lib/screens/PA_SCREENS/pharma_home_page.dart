@@ -81,14 +81,13 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
 
-    final response =
-        await http.post(Uri.parse('${dotenv.env['SERVER_URL']}sub_push/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': bearerToken,
-            },
-            body: jsonEncode({token: deviceToken}));
-    if (response.statusCode == 201) {
+    final response = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}sub_push/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': bearerToken,
+        },
+        body: jsonEncode({token: deviceToken}));
+    if (response.statusCode == 200) {
       print('amjilttai uuslee');
     }
     // listen for user to click on notification
@@ -129,8 +128,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     final size = MediaQuery.of(context).size;
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthController>(
-            create: (context) => AuthController()),
+        ChangeNotifierProvider<AuthController>(create: (context) => AuthController()),
       ],
       child: Consumer<AuthController>(
         builder: (context, authController, _) {
@@ -167,15 +165,11 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                             ),
                             Text(
                               'Имейл хаяг: $email',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: size.height * 0.016),
+                              style: TextStyle(color: Colors.white, fontSize: size.height * 0.016),
                             ),
                             Text(
                               'Хэрэглэгчийн төрөл: $role',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: size.height * 0.016),
+                              style: TextStyle(color: Colors.white, fontSize: size.height * 0.016),
                             ),
                           ],
                         ),
@@ -212,20 +206,17 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                     ),
               body: NotificationListener<ScrollNotification>(
                 onNotification: (scrollNotification) {
-                  if (scrollNotification is ScrollUpdateNotification &&
-                      scrollNotification.scrollDelta! > 0) {
+                  if (scrollNotification is ScrollUpdateNotification && scrollNotification.scrollDelta! > 0) {
                     setState(() {
                       hidden = true;
                     });
                   }
-                  if (scrollNotification is ScrollUpdateNotification &&
-                      scrollNotification.scrollDelta! < 0) {
+                  if (scrollNotification is ScrollUpdateNotification && scrollNotification.scrollDelta! < 0) {
                     setState(() {
                       hidden = false;
                     });
                   }
-                  if (scrollNotification is ScrollUpdateNotification &&
-                      scrollNotification.metrics.atEdge) {
+                  if (scrollNotification is ScrollUpdateNotification && scrollNotification.metrics.atEdge) {
                     setState(() {
                       hidden = false;
                     });
@@ -259,8 +250,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     );
   }
 
-  Widget _drawerItem(
-      {required String title, required IconData icon, Function()? onTap}) {
+  Widget _drawerItem({required String title, required IconData icon, Function()? onTap}) {
     return ListTile(
       leading: Icon(icon, color: Colors.lightBlue),
       title: Text(title),
