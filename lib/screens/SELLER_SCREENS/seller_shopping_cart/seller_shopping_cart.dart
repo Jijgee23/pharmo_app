@@ -53,12 +53,15 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                   children: [
                     cartDatas.isNotEmpty
                         ? Expanded(
-                            child: ListView.builder(
-                              itemCount: cartDatas.length,
-                              itemBuilder: (context, index) {
-                                return ShoppingCartView(
-                                    detail: cartDatas[index] ?? {});
-                              },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ListView.builder(
+                                itemCount: cartDatas.length,
+                                itemBuilder: (context, index) {
+                                  return ShoppingCartView(
+                                      detail: cartDatas[index] ?? {});
+                                },
+                              ),
                             ),
                           )
                         : const SizedBox(

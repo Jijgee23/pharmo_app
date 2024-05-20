@@ -1,10 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/branch.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -18,6 +16,7 @@ class HomeProvider extends ChangeNotifier {
   int? basketId;
   int selectedBranchId = -1;
   String payType = '';
+  String orderType = 'NODELIVERY';
   String? note;
   List<Branch> branchList = <Branch>[];
   changeIndex(int index) {
