@@ -24,8 +24,8 @@ class SelectSellerBranchPage extends StatefulWidget {
 
 class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   int _selectedIndex = -1;
-  String _selectedRadioValue = 'NODELIVERY';
-  String _selectedRadioValue2 = '';
+  String orderType = 'NODELIVERY';
+  String payType = 'LATER';
   bool invisible = false;
   String? note;
   late HomeProvider homeProvider;
@@ -56,11 +56,12 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                   children: [
                     Radio(
                       value: 'DELIVERY',
-                      groupValue: _selectedRadioValue,
+                      groupValue: orderType,
                       onChanged: (String? value) {
                         setState(() {
-                          _selectedRadioValue = value!;
+                          orderType = value!;
                           invisible = !invisible;
+                          homeProvider.orderType = value;
                         });
                       },
                     ),
@@ -73,10 +74,11 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                     ),
                     Radio(
                       value: 'NODELIVERY',
-                      groupValue: _selectedRadioValue,
+                      groupValue: orderType,
                       onChanged: (String? value) {
                         setState(() {
-                          _selectedRadioValue = value!;
+                          orderType = value!;
+                          homeProvider.orderType = value;
                           invisible = false;
                         });
                       },
@@ -173,10 +175,10 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                 children: [
                                   Radio(
                                     value: 'NOW',
-                                    groupValue: _selectedRadioValue2,
+                                    groupValue: payType,
                                     onChanged: (String? value) {
                                       setState(() {
-                                        _selectedRadioValue2 = value!;
+                                        payType = value!;
                                         homeProvider.payType = value;
                                       });
                                     },
@@ -190,10 +192,10 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                   ),
                                   Radio(
                                     value: 'LATER',
-                                    groupValue: _selectedRadioValue2,
+                                    groupValue: payType,
                                     onChanged: (value) {
                                       setState(() {
-                                        _selectedRadioValue2 = value!;
+                                        payType = value!;
                                         homeProvider.payType = value;
                                       });
                                     },
@@ -213,16 +215,21 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                         children: [
                           OutlinedButton.icon(
                             onPressed: () {
-                              if (_selectedRadioValue2 == '') {
-                                showFailedMessage(
-                                    context: context,
-                                    message: 'Төлбөрийн хэлбэр сонгоно уу!');
-                              }
-                              if (_selectedRadioValue2 == 'LATER') {
-                                createSellerOrder();
-                              }
-                              if (_selectedRadioValue2 == 'NOW') {
+                              if (payType == 'NOW' &&
+                                  orderType == 'NODELIVERY') {
                                 goto(const SellerQRCode(), context);
+                              }
+                              if (payType == 'NOW' && orderType == 'DELIVERY') {
+                                if (_selectedIndex == -1) {
+                                  showFailedMessage(
+                                      message: 'Салбар сонгоно уу!',
+                                      context: context);
+                                } else {
+                                  goto(const SellerQRCode(), context);
+                                }
+                              }
+                              if (payType == 'LATER') {
+                                createSellerOrder();
                               }
                             },
                             icon: const Icon(
@@ -254,11 +261,12 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
-      if (_selectedRadioValue == 'DELIVERY') {
+      if (orderType == 'DELIVERY') {
         if (_selectedIndex == -1) {
-          showFailedMessage(message: 'Салбар сонгоно уу.', context: context);
-        }
-        final response = await http.post(
+          showFailedMessage(message: 'Салбар сонгоно уу!', context: context);
+          return;
+        } else {
+          final response = await http.post(
             Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
@@ -279,34 +287,40 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                       'basket': homeProvider.basketId,
                       "note": homeProvider.note
                     },
-                  ));
-        print(response.statusCode);
-        if (response.statusCode == 200) {
-          final res = jsonDecode(utf8.decode(response.bodyBytes));
-          final orderNumber = res['orderNo'];
-          showSuccessMessage(
-              message: 'Захиалга амжилттай  үүслээ.', context: context);
-          goto(OrderDone(orderNo: orderNumber.toString()), context);
-          setState(() {
-            homeProvider.note = null;
-          });
-        } else {
-          showFailedMessage(message: 'Сагс хоосон байна', context: context);
+                  ),
+          );
+          if (response.statusCode == 200) {
+            final res = jsonDecode(utf8.decode(response.bodyBytes));
+            final orderNumber = res['orderNo'];
+            showSuccessMessage(
+                message: 'Захиалга амжилттай  үүслээ.', context: context);
+            goto(OrderDone(orderNo: orderNumber.toString()), context);
+            setState(() {
+              homeProvider.note = null;
+            });
+          } else {
+            showFailedMessage(message: 'Сагс хоосон байна', context: context);
+          }
         }
-      }
-      if (_selectedRadioValue == 'NODELIVERY') {
+      } else {
         final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token',
           },
-          body: jsonEncode(
-            {
-              'userId': homeProvider.selectedCustomerId,
-              'note': noteController.text,
-            },
-          ),
+          body: homeProvider.note == null
+              ? jsonEncode(
+                  {
+                    'userId': homeProvider.selectedCustomerId,
+                  },
+                )
+              : jsonEncode(
+                  {
+                    'userId': homeProvider.selectedCustomerId,
+                    'note': homeProvider.note,
+                  },
+                ),
         );
         if (response.statusCode == 200) {
           final res = jsonDecode(utf8.decode(response.bodyBytes));

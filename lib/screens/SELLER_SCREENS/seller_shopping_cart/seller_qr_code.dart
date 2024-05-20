@@ -6,7 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/models/basket.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
+import 'package:pharmo_app/screens/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +30,14 @@ class _SellerQRCodeState extends State<SellerQRCode> {
   Map qrData = {};
   List urls = [];
   bool isPayed = false;
+  String orderId = '';
   late HomeProvider homeProvider;
+  late BasketProvider basketProvider;
+  clearBasket(int basketId) {
+    basketProvider.clearBasket(basket_id: basketId);
+    basketProvider.getBasket();
+  }
+
   createQR() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -38,6 +49,25 @@ class _SellerQRCodeState extends State<SellerQRCode> {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
+        body: homeProvider.orderType == 'NODELIVERY'
+            ? homeProvider.note == null
+                ? jsonEncode({
+                    'userId': homeProvider.selectedCustomerId,
+                  })
+                : jsonEncode({
+                    'userId': homeProvider.selectedCustomerId,
+                    'note': homeProvider.note,
+                  })
+            : homeProvider.note == null
+                ? jsonEncode({
+                    'userId': homeProvider.selectedCustomerId,
+                    'branchId': homeProvider.selectedBranchId,
+                  })
+                : jsonEncode({
+                    'userId': homeProvider.selectedCustomerId,
+                    'branchId': homeProvider.selectedBranchId,
+                    'note': homeProvider.note,
+                  }),
       );
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -52,36 +82,42 @@ class _SellerQRCodeState extends State<SellerQRCode> {
     }
   }
 
-  checkPaymentaaaa() async {
+  checkPayment() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
-      final resQR = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}cp/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          });
+      final resQR = await http.get(
+        Uri.parse(
+            '${dotenv.env['SERVER_URL']}cp/?userId=${homeProvider.selectedCustomerId}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
       print(resQR.statusCode);
       if (resQR.statusCode == 200) {
         dynamic response = jsonDecode(utf8.decode(resQR.bodyBytes));
-        print(response);
-        // await clearBasket(basket_id: basket.id);
-        // notifyListeners();
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Төлбөр амжилттай төлөгдсөн байна.'
-        };
-      } else {
-        // notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Төлбөр төлөх үед алдаа гарлаа.'
-        };
+        print('myres: $response');
+        //  basketProvider.clearBasket(basket_id: homeProvider.basketId!);
+        if (response['isPaid'] == true) {
+          clearBasket(homeProvider.basketId!);
+          showSuccessMessage(
+              context: context, message: 'Төлбөр төлөгдсөн байна');
+          gotoRemoveUntil(
+              OrderDone(orderNo: response['orderNo'].toString()), context);
+        }
+        if (response == false) {
+          showFailedMessage(
+              context: context, message: 'Төлбөр төлөгдөөгүй байна!');
+        }
+      }
+      if (resQR.statusCode == 404) {
+        showFailedMessage(
+            context: context, message: 'Сагсны мэдээлэл олдоогүй!');
       }
     } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
+      print(e);
+      // showFailedMessage(context: context, message: 'Алдаа гарлаа!');
     }
   }
 
@@ -90,13 +126,14 @@ class _SellerQRCodeState extends State<SellerQRCode> {
     createQR();
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    basketProvider = Provider.of<BasketProvider>(context, listen: false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<BasketProvider, HomeProvider>(
-        builder: (_, basketprovider, homeprovider, child) {
-      return Scaffold(
+      builder: (_, basketprovider, homeprovider, child) {
+        return Scaffold(
           appBar: const CustomAppBar(
             title: 'Бэлнээр төлөх',
           ),
@@ -211,15 +248,9 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton.icon(
-                    onPressed: () {
-                      // gotoRemoveUntil(const SellerHomePage(), context);
-                      // basketprovider.getBasket();
-                      print('${homeprovider.note}');
-                      print('${homeprovider.basketId}');
-                      print('${homeprovider.selectedBranchId}');
-                      print('${homeprovider.selectedCustomerId}');
-                      print('${homeprovider.selectedCustomerName}');
-                      print('${homeprovider.payType}');
+                    onPressed: () async {
+                      gotoRemoveUntil(const SellerHomePage(), context);
+                      basketProvider.getBasket();
                     },
                     icon: const Icon(
                       color: Colors.white,
@@ -235,18 +266,8 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                     ),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () async {
-                      checkPaymentaaaa();
-                      // if (isPayed == false) {
-                      //   showFailedMessage(
-                      //       message: 'Төлбөр төлөгдөөгүй байна.',
-                      //       context: context);
-                      //   return;
-                      // } else {
-                      //   showSuccessMessage(
-                      //       message: 'Төлбөр төлөгдсөн байна.',
-                      //       context: context);
-                      // }
+                    onPressed: () {
+                      checkPayment();
                     },
                     icon: const Icon(
                       color: Colors.white,
@@ -264,8 +285,10 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                 ],
               )
             ]),
-          ));
-    });
+          ),
+        );
+      },
+    );
   }
 
   createSellerOrder() async {

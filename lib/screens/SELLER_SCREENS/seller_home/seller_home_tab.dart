@@ -339,7 +339,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                                               0)
                                                       ? Image.network(
                                                           // ignore: prefer_interpolation_to_compose_strings
-                                                          'http://192.168.88.39:8000' +
+                                                          '${dotenv.env['SERVER_URL']}' +
                                                               item.images
                                                                       ?.first[
                                                                   'url'])
