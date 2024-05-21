@@ -49,23 +49,24 @@ class JaggerHomeDetail extends StatelessWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    IconButton.filledTonal(
-                                      iconSize: 25,
-                                      color: Colors.red,
-                                      icon: const Icon(
-                                        Icons.remove,
-                                      ),
-                                      onPressed: () {
-                                        _dialogBuilder(
-                                          context,
-                                          'Түгээлтийн зарлага хасах',
-                                          orderItems[index].itemId,
-                                          false,
-                                        );
-                                      },
-                                    ),
+                                    // IconButton.filledTonal(
+                                    //   iconSize: 25,
+                                    //   color: Colors.red,
+                                    //   icon: const Icon(
+                                    //     Icons.remove,
+                                    //   ),
+                                    //   onPressed: () {
+                                    //     _dialogBuilder(
+                                    //       context,
+                                    //       'Түгээлтийн зарлага хасах',
+                                    //       orderItems[index].itemId,
+                                    //       orderItems[index].iQty,
+                                    //       false,
+                                    //     );
+                                    //   },
+                                    // ),
                                     Container(
-                                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                                      margin: const EdgeInsets.only(right: 10),
                                       child: RichText(
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
@@ -78,13 +79,14 @@ class JaggerHomeDetail extends StatelessWidget {
                                       iconSize: 25,
                                       color: Colors.green,
                                       icon: const Icon(
-                                        Icons.add,
+                                        Icons.edit,
                                       ),
                                       onPressed: () {
                                         _dialogBuilder(
                                           context,
                                           'Түгээлтийн зарлага нэмэх',
                                           orderItems[index].itemId,
+                                          orderItems[index].iQty,
                                           true,
                                         );
                                       },
@@ -137,7 +139,7 @@ class JaggerHomeDetail extends StatelessWidget {
     );
   }
 
-  Future<void> _dialogBuilder(BuildContext context, String title, int itemId, bool add) {
+  Future<void> _dialogBuilder(BuildContext context, String title, int itemId, int iqty, bool add) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -183,7 +185,7 @@ class JaggerHomeDetail extends StatelessWidget {
                 child: const Text('Хадгалах'),
                 onPressed: () async {
                   if (provider.formKey.currentState!.validate()) {
-                    dynamic res = await provider.updateItemQTY(itemId, add);
+                    dynamic res = await provider.updateItemQTY(itemId, iqty, add);
                     if (res['errorType'] == 1) {
                       showSuccessMessage(message: res['message'], context: context);
                       Navigator.of(context).pop();

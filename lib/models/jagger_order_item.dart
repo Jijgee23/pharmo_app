@@ -3,8 +3,8 @@ class JaggerOrderItem {
   String? itemName;
   String? itemPrice;
   String? itemTotalPrice;
-  int? itemQty;
-  int? iQty;
+  int itemQty;
+  int iQty;
 
   JaggerOrderItem(
     this.itemId,

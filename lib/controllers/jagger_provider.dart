@@ -271,24 +271,26 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> updateItemQTY(int itemId, bool add) async {
+  Future<dynamic> updateItemQTY(int itemId, int iqty, bool add) async {
     try {
       String bearerToken = await getAccessToken();
       final http.Response res;
-      if (add) {
+      if (iqty < int.parse(rQty.text)) {
+        int diff = int.parse(rQty.text) - iqty;
         res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}update_item_qty/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
             },
-            body: jsonEncode({"itemId": itemId, "rQty": rQty.text, "add": add}));
+            body: jsonEncode({"itemId": itemId, "rQty": diff, "add": true}));
       } else {
+        int diff = iqty - int.parse(rQty.text);
         res = await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}update_item_qty/'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
             },
-            body: jsonEncode({"itemId": itemId, "rQty": rQty.text}));
+            body: jsonEncode({"itemId": itemId, "rQty": diff}));
       }
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
