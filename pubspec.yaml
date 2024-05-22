@@ -42,6 +42,7 @@ dependencies:
   rflutter_alert: ^2.0.4
   firebase_core: ^2.31.0
   flutter_local_notifications: ^17.0.0
+  device_info_plus: ^10.1.0
 
 dev_dependencies:
   flutter_test:

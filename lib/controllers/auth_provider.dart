@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -22,7 +24,7 @@ class AuthController extends ChangeNotifier {
   bool invisible2 = false;
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
-
+Map<String, String> deviceData = {};
   void toggleVisibile() {
     invisible = !invisible;
     notifyListeners();
@@ -32,7 +34,40 @@ class AuthController extends ChangeNotifier {
     invisible2 = !invisible2;
     notifyListeners();
   }
-
+Future<Map<String, String>> getDeviceInfo() async {
+    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+    Map<String, String> deviceData = {};
+    try {
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
+        deviceData = {
+          "deviceId": androidInfo.id,
+          "platform": "Android",
+          "brand": androidInfo.brand,
+          "model": androidInfo.model,
+          "modelVersion": androidInfo.device,
+          "os": "Android",
+          "osVersion": androidInfo.version.release,
+        };
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
+        deviceData = {
+          "deviceId": iosInfo.identifierForVendor ?? "unknown",
+          "platform": "iOS",
+          "brand": "Apple",
+          "model": iosInfo.name,
+          "modelVersion": iosInfo.utsname.machine,
+          "os": "iOS",
+          "osVersion": iosInfo.systemVersion,
+        };
+      }
+      print(deviceData);
+      return deviceData;
+    } catch (e) {
+      print(e);
+    }
+    return deviceData;
+  }
   Future<void> refresh() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? rtoken = prefs.getString("refresh_token");
@@ -133,6 +168,7 @@ class AuthController extends ChangeNotifier {
       final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
       shoppingCart.getBasket();
       // await prefs.setString('basket_count', count.toString());
+      
       notifyListeners();
       if (decodedToken['role'] == 'S') {
         gotoRemoveUntil(const SellerHomePage(), context);

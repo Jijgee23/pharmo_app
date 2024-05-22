@@ -145,7 +145,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.27,
+                  height: MediaQuery.of(context).size.height * 0.3,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,

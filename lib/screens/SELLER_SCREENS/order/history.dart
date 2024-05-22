@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/models/pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/order/favorites.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/order/order_history_list.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
@@ -129,11 +130,10 @@ class _SellerCustomerOrderHisrtoryState
                           onTap: () {
                             provider
                                 .getOrderList(provider.customeList[index].id);
-                            print(provider.customeList[index].id);
-                            // goto(
-                            //     OrderhistoryListPage(
-                            //         customerId: provider.customeList[index].id),
-                            //     context);
+                            goto(
+                                OrderhistoryListPage(
+                                    customerId: provider.customeList[index].id),
+                                context);
                           },
                         ),
                     ),

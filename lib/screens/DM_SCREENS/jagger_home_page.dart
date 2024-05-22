@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_order_page.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/tabs/jagger_home.dart';
@@ -23,6 +24,7 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
     const JaggerOrderPage(),
   ];
   late SharedPreferences prefs;
+  late HomeProvider homeProvider;
   int _selectedIndex = 0;
   void _onItemTapped(int index) {
     setState(() {
@@ -33,6 +35,8 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
   @override
   void initState() {
     super.initState();
+    homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    homeProvider.getDeviceInfo();
   }
 
   @override
@@ -140,6 +144,7 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
       }),
     );
   }
+
   Widget _drawerItem(
       {required String title, required IconData icon, Function()? onTap}) {
     return ListTile(

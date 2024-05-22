@@ -38,16 +38,15 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     });
   }
 
-
   late HomeProvider homeProvider;
 
   @override
   void initState() {
     init();
- 
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     homeProvider.getUserInfo();
+    homeProvider.getDeviceInfo();
   }
 
   @override

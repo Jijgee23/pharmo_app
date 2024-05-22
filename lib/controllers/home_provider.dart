@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/branch.dart';
@@ -96,5 +98,62 @@ class HomeProvider extends ChangeNotifier {
         print(e);
       }
     }
+  }
+
+  Future<Map<String, String>> getDeviceInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("access_token");
+    String bearerToken = "Bearer $token";
+    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+    Map<String, String> deviceData = {};
+    try {
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
+        deviceData = {
+          "deviceId": androidInfo.id,
+          "platform": 'android',
+          "brand": androidInfo.brand,
+          "model": androidInfo.model,
+          "modelVersion": androidInfo.device,
+          "os": Platform.operatingSystem,
+          "osVersion": Platform.operatingSystemVersion,
+        };
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
+        deviceData = {
+          "deviceId": iosInfo.identifierForVendor ?? "unknown",
+          "platform": "ios",
+          "brand": "Apple",
+          "model": iosInfo.name,
+          "modelVersion": iosInfo.utsname.machine,
+          "os": "iOS",
+          "osVersion": iosInfo.systemVersion,
+        };
+      }
+      final response =
+          await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Authorization': bearerToken,
+              },
+              body: jsonEncode({
+                'deviceId': deviceData['deviceId'],
+                'platform': deviceData['platform'],
+                'brand': deviceData['brand'],
+                'model': deviceData['model'],
+                'modelVersion': deviceData['modelVersion'],
+                'os': deviceData['os'],
+                'osVersion': deviceData['osVersion'],
+              }));
+      if (response.statusCode == 200) {
+        debugPrint('Device info sent');
+      } else {
+        debugPrint('Device info not sent');
+      }
+      return deviceData;
+    } catch (e) {
+      debugPrint('$e');
+    }
+    return deviceData;
   }
 }

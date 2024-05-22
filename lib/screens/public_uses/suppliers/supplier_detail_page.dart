@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, prefer_interpolation_to_compose_strings
+
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
@@ -179,7 +181,6 @@ class _SupplierDetailState extends State<SupplierDetail> {
                           children: [
                             Expanded(
                               child: SizedBox(
-                                // ignore: prefer_interpolation_to_compose_strings
                                 child: (item.images != null &&
                                         item.images.length > 0)
                                     ? Image.network(

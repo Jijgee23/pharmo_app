@@ -31,6 +31,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     homeProvider.getUserInfo();
     homeProvider.getBasketId();
+    homeProvider.getDeviceInfo();
   }
 
   final List _pages = [
