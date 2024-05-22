@@ -211,11 +211,12 @@ class JaggerProvider extends ChangeNotifier {
         note.text = '';
         return {'errorType': 1, 'data': response, 'message': 'Түгээлтийн зарлага амжилттай нэмэгдлээ.'};
       } else {
-        return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага нэмхэд алдаа гарлаа.'};
+        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        return {'errorType': 2, 'data': null, 'message': response['shipment']};
       }
     } catch (e) {
       print(e);
-      return {'fail': e};
+      return {'errorType': 3, 'data': e, 'message': e.toString()};
     }
   }
 
