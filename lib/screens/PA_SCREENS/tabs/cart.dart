@@ -25,7 +25,6 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
-      Navigator.pop(context);
     }
 
     void purchase(int basketId) {

@@ -18,153 +18,17 @@ class SearchProvider {
       String bearerToken = "Bearer $token";
       final response = await http.get(
           Uri.parse(
-          '${dotenv.env['SERVER_URL']}product/?page=$page&page_size=$limit'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        return prods;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
-    }
-    return null;
-  }
-
-  static Future<List<dynamic>?> getProdListByName(
-    int page,
-    int limit,
-    String searchQuery,
-  ) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}product/?page=$page&page_size=$limit'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-
-        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        List<dynamic> filteredItems = [];
-        for (int i = 0; i < prods.length; i++) {
-          if (prods[i].name.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
-            filteredItems.add(prods[i]);
-          }
-        }
-        return filteredItems;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
-    }
-    return null;
-  }
-
-  static Future<List<dynamic>?> getProdListByIntName(
-    int page,
-    int limit,
-    String searchQuery,
-  ) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse(
-          '${dotenv.env['SERVER_URL']}product/?page=$page&page_size=$limit'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        List<dynamic> filteredItems = [];
-        for (int i = 0; i < prods.length; i++) {
-          if (prods[i].intName.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
-            filteredItems.add(prods[i]);
-          }
-        }
-        return filteredItems;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
-    }
-    return null;
-  }
-
-  static Future<List<dynamic>?> getProdListByBarcode(
-    int page,
-    int limit,
-    String searchQuery,
-  ) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}product/?page=$page&page_size=$limit'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        List<dynamic> filteredItems = [];
-        for (int i = 0; i < prods.length; i++) {
-          if (prods[i]
-              .barcode
-              .toString()
-              .toLowerCase()
-              .contains(searchQuery.toString().toLowerCase())) {
-            filteredItems.add(prods[i]);
-          }
-        }
-        return filteredItems;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
-    }
-    return null;
-  }
-
-  static Future<List<dynamic>?> getProdListbyVitamin(
-    int page,
-    int limit,
-    String searchQuery,
-  ) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse(
               '${dotenv.env['SERVER_URL']}product/?page=$page&page_size=$limit'),
           headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': bearerToken,
-      });
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          });
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-
-        List<Product> prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
-        List<dynamic> filteredItems = [];
-        for (int i = 0; i < prods.length; i++) {
-          if (prods[i].category.toString().toLowerCase().contains(searchQuery.toString().toLowerCase())) {
-            filteredItems.add(prods[i]);
-          }
-        }
-        return filteredItems;
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
+        return prods;
       }
     } catch (e) {
       if (kDebugMode) {

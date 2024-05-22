@@ -2,11 +2,11 @@
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
 import 'package:pharmo_app/screens/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -94,10 +94,8 @@ class _SellerQRCodeState extends State<SellerQRCode> {
           'Authorization': 'Bearer $token',
         },
       );
-      print(resQR.statusCode);
       if (resQR.statusCode == 200) {
         dynamic response = jsonDecode(utf8.decode(resQR.bodyBytes));
-        print('myres: $response');
         //  basketProvider.clearBasket(basket_id: homeProvider.basketId!);
         if (response['isPaid'] == true) {
           clearBasket(homeProvider.basketId!);
@@ -116,7 +114,9 @@ class _SellerQRCodeState extends State<SellerQRCode> {
             context: context, message: 'Сагсны мэдээлэл олдоогүй!');
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       // showFailedMessage(context: context, message: 'Алдаа гарлаа!');
     }
   }
@@ -289,42 +289,5 @@ class _SellerQRCodeState extends State<SellerQRCode> {
         );
       },
     );
-  }
-
-  createSellerOrder() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(
-          {
-            'userId': homeProvider.selectedCustomerId,
-            'branchId': homeProvider.selectedBranchId,
-            'basket': homeProvider.basketId,
-            'note': homeProvider.note,
-          },
-        ),
-      );
-      if (response.statusCode == 200) {
-        final res = jsonDecode(utf8.decode(response.bodyBytes));
-        final orderNumber = res['orderNo'];
-        showSuccessMessage(
-            message: 'Захиалга амжилттай  үүслээ.', context: context);
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (_) => OrderDone(orderNo: orderNumber.toString()),
-        //   ),
-        // );
-      }
-    } catch (e) {
-      showFailedMessage(
-          message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
-    }
   }
 }

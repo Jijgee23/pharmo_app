@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -33,33 +32,19 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
   late SharedPreferences prefs;
   int _selectedIndex = 0;
   bool hidden = false;
-  String email = '';
-  String role = '';
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  late HomeProvider homeProvider;
 
-  void getUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? useremail = prefs.getString('useremail');
-    String? userRole = prefs.getString('userrole');
-    setState(() {
-      email = useremail.toString();
-      role = userRole.toString();
-    });
-  }
+  late HomeProvider homeProvider;
 
   @override
   void initState() {
-    getUserInfo();
-    // if (Platform.isAndroid) {
-    // } else {
     init();
-    // }
+ 
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     homeProvider.getUserInfo();
@@ -80,12 +65,13 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
 
-    final response = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
-        body: jsonEncode({"deviceId": deviceToken}));
+    final response =
+        await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': bearerToken,
+            },
+            body: jsonEncode({"deviceId": deviceToken}));
     if (response.statusCode == 200) {
       print('amjilttai uuslee');
     }
@@ -125,7 +111,8 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     final size = MediaQuery.of(context).size;
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthController>(create: (context) => AuthController()),
+        ChangeNotifierProvider<AuthController>(
+            create: (context) => AuthController()),
       ],
       child: Consumer<AuthController>(
         builder: (context, authController, _) {
@@ -161,12 +148,16 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                               ),
                             ),
                             Text(
-                              'Имейл хаяг: $email',
-                              style: TextStyle(color: Colors.white, fontSize: size.height * 0.016),
+                              'Имейл хаяг: ${homeProvider.userEmail}',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: size.height * 0.016),
                             ),
                             Text(
-                              'Хэрэглэгчийн төрөл: $role',
-                              style: TextStyle(color: Colors.white, fontSize: size.height * 0.016),
+                              'Хэрэглэгчийн төрөл: ${homeProvider.userRole}',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: size.height * 0.016),
                             ),
                           ],
                         ),
@@ -203,17 +194,20 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                     ),
               body: NotificationListener<ScrollNotification>(
                 onNotification: (scrollNotification) {
-                  if (scrollNotification is ScrollUpdateNotification && scrollNotification.scrollDelta! > 0) {
+                  if (scrollNotification is ScrollUpdateNotification &&
+                      scrollNotification.scrollDelta! > 0) {
                     setState(() {
                       hidden = true;
                     });
                   }
-                  if (scrollNotification is ScrollUpdateNotification && scrollNotification.scrollDelta! < 0) {
+                  if (scrollNotification is ScrollUpdateNotification &&
+                      scrollNotification.scrollDelta! < 0) {
                     setState(() {
                       hidden = false;
                     });
                   }
-                  if (scrollNotification is ScrollUpdateNotification && scrollNotification.metrics.atEdge) {
+                  if (scrollNotification is ScrollUpdateNotification &&
+                      scrollNotification.metrics.atEdge) {
                     setState(() {
                       hidden = false;
                     });
@@ -247,7 +241,8 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     );
   }
 
-  Widget _drawerItem({required String title, required IconData icon, Function()? onTap}) {
+  Widget _drawerItem(
+      {required String title, required IconData icon, Function()? onTap}) {
     return ListTile(
       leading: Icon(icon, color: Colors.lightBlue),
       title: Text(title),

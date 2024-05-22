@@ -52,15 +52,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Pharmo app',
       debugShowCheckedModeBanner: false,
-      navigatorKey: GlobalKeys.navigatorKey,
-      home: const LoginPage(),
+      home:  LoginPage(),
     );
   }
 }
 
-class GlobalKeys {
-  static final navigatorKey = GlobalKey<NavigatorState>();
-}

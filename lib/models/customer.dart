@@ -67,7 +67,7 @@ class NearestCustomer {
   }
   // Calculate distance between two points using Haversine formula
   double distanceTo(double otherLat, double otherLon) {
-    const double earthRadius = 6371.0; // in kilometers
+    const double earthRadius = 6371.0; 
 
     final double lat1Rad = lat * (pi / 180.0);
     final double lon1Rad = lon * (pi / 180.0);

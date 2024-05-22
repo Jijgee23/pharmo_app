@@ -69,6 +69,7 @@ class HomeProvider extends ChangeNotifier {
     if (response.statusCode == 200) {
       basketId = res['id'];
     }
+    notifyListeners();
   }
 
   getCustomerBranch() async {

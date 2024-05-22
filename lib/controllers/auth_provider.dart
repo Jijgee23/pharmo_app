@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -120,6 +119,7 @@ class AuthController extends ChangeNotifier {
       }),
     );
     if (responseLogin.statusCode == 200) {
+      print(dotenv.env['SERVER_URL']);
       Map<String, dynamic> res = jsonDecode(responseLogin.body);
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('access_token', res['access_token']);

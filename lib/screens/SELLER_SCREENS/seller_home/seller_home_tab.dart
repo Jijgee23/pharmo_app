@@ -42,19 +42,8 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   void initState() {
     _pagingController.addPageRequestListener(
       (pageKey) {
-        if (_searchController.text.isNotEmpty && searchType == 'Нэрээр') {
-          _fetchPageByName(pageKey, searchQuery);
-        }
-        if (_searchController.text.isNotEmpty && searchType == 'Баркодоор') {
-          _fetchPageByBarcode(pageKey, searchQuery);
-        }
-        if (_searchController.text.isNotEmpty &&
-            searchType == 'Ерөнхий нэршлээр') {
-          _fetchPageByIntName(pageKey, searchQuery);
-        }
-        if (_searchController.text.isEmpty) {
-          _fetchPage(pageKey);
-        }
+        _fetchPage(pageKey);
+
         _pagingController.refresh();
       },
     );
@@ -78,7 +67,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
         child: ChangeNotifierProvider(
           create: (context) => BasketProvider(),
           child: Scaffold(
-            
             resizeToAvoidBottomInset: false,
             body: CustomScrollView(
               slivers: [
@@ -484,53 +472,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
     }
   }
 
-  Future<void> _fetchPageByName(int pageKey, String searchQuery) async {
-    try {
-      final newItems = await SearchProvider.getProdListByName(
-          pageKey, _pageSize, searchQuery);
-      final isLastPage = newItems!.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
-    }
-  }
-
-  Future<void> _fetchPageByBarcode(int pageKey, String searchQuery) async {
-    try {
-      final newItems = await SearchProvider.getProdListByBarcode(
-          pageKey, _pageSize, searchQuery);
-      final isLastPage = newItems!.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
-    }
-  }
-
-  Future<void> _fetchPageByIntName(int pageKey, String searchQuery) async {
-    try {
-      final newItems = await SearchProvider.getProdListByIntName(
-          pageKey, _pageSize, searchQuery);
-      final isLastPage = newItems!.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
-    }
-  }
+ 
 
   void addBasket(int productID, int itemNameId) async {
     try {

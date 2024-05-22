@@ -71,7 +71,7 @@ class _SellerCustomerOrderHisrtoryState
           children: [
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(5),
+                  padding: const EdgeInsets.all(10),
                 child: CustomSearchBar(
                   searchController: searchController,
                   title: 'Хайх',
@@ -87,48 +87,55 @@ class _SellerCustomerOrderHisrtoryState
                 itemCount: provider.customeList.length,
                 itemBuilder: (context, index) {
                   return Card(
-                    child: ListTile(
-                      title: RichText(
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        text: TextSpan(
-                          text: provider.customeList[index].name,
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: provider.customeList[index].isBad
-                                  ? Colors.red
-                                  : provider.customeList[index].debt != 0 &&
-                                          provider.customeList[index]
-                                                  .debtLimit !=
-                                              0 &&
-                                          provider.customeList[index].debt >=
-                                              provider
-                                                  .customeList[index].debtLimit
-                                      ? AppColors.failedColor
-                                      : AppColors.primary,
-                              fontWeight: FontWeight.bold),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 15),
+                        child: ListTile(
+                          title: RichText(
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            text: TextSpan(
+                              text: provider.customeList[index].name,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: provider.customeList[index].isBad
+                                      ? Colors.red
+                                      : provider.customeList[index].debt != 0 &&
+                                              provider.customeList[index]
+                                                      .debtLimit !=
+                                                  0 &&
+                                              provider.customeList[index]
+                                                      .debt >=
+                                                  provider.customeList[index]
+                                                      .debtLimit
+                                          ? AppColors.failedColor
+                                          : AppColors.primary,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          trailing: IconButton(
+                            onPressed: () {
+                              goto(
+                                  FavoriteList(
+                                      customerId:
+                                          provider.customeList[index].id),
+                                  context);
+                            },
+                            icon: const Icon(
+                              Icons.favorite,
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                          onTap: () {
+                            provider
+                                .getOrderList(provider.customeList[index].id);
+                            print(provider.customeList[index].id);
+                            // goto(
+                            //     OrderhistoryListPage(
+                            //         customerId: provider.customeList[index].id),
+                            //     context);
+                          },
                         ),
-                      ),
-                      trailing: IconButton(
-                        onPressed: () {
-                          goto(
-                              FavoriteList(
-                                  customerId: provider.customeList[index].id),
-                              context);
-                        },
-                        icon: const Icon(
-                          Icons.favorite,
-                          color: AppColors.secondary,
-                        ),
-                      ),
-                      onTap: () {
-                        provider.getOrderList(provider.customeList[index].id);
-                        print(provider.customeList[index].id);
-                        // goto(
-                        //     OrderhistoryListPage(
-                        //         customerId: provider.customeList[index].id),
-                        //     context);
-                      },
                     ),
                   );
                 },
@@ -137,6 +144,7 @@ class _SellerCustomerOrderHisrtoryState
           ],
         ),
       );
-    });
+      },
+    );
   }
 }
