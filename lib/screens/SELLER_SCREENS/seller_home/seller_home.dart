@@ -5,6 +5,7 @@ import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_home_page.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/income_record/income_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/order/history.dart';
+import 'package:pharmo_app/screens/SELLER_SCREENS/order/seller_orders.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/register_pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home_tab.dart';
@@ -164,6 +165,13 @@ class _SellerHomePageState extends State<SellerHomePage> {
                     icon: Icons.list,
                     onTap: () {
                       goto(const IncomeList(), context);
+                    },
+                  ),
+                  _drawerItem(
+                    title: 'Захиалгууд',
+                    icon: Icons.list_rounded,
+                    onTap: () {
+                      goto(const SellerOrders(), context);
                     },
                   ),
                   _drawerItem(
