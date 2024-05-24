@@ -12,7 +12,6 @@ class SearchProvider {
     int limit,
   ) async {
     try {
-      // final serverUrl = dotenv.env['SERVER_URL'];
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";

@@ -25,6 +25,7 @@ class SellerHomePage extends StatefulWidget {
 
 class _SellerHomePageState extends State<SellerHomePage> {
   late HomeProvider homeProvider;
+  
   @override
   void initState() {
     super.initState();

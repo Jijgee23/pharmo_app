@@ -21,6 +21,13 @@ class HomeProvider extends ChangeNotifier {
   String orderType = 'NODELIVERY';
   String? note;
   List<Branch> branchList = <Branch>[];
+  int? lastPickedSupplier;
+  getLastPickedSupplier() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    lastPickedSupplier = prefs.getInt('lastSupId');
+    notifyListeners();
+  }
+
   changeIndex(int index) {
     currentIndex = index;
     notifyListeners();

@@ -65,7 +65,7 @@ class _SuplierListState extends State<SuplierList> {
                         await SharedPreferences.getInstance();
                     await prefs.remove('suplierId');
                     String? token = prefs.getString("access_token");
-                    await prefs.setString('suplierId', _supList[index].id);
+                    await prefs.setString('suplierId', _supList[index].id.toString());
                     String bearerToken = "Bearer $token";
                     final response = await http.post(
                         Uri.parse(
@@ -87,7 +87,7 @@ class _SuplierListState extends State<SuplierList> {
                   },
                   leading: const Icon(Icons.home),
                   title: Text(_supList[index].name),
-                  subtitle: Text(_supList[index].id),
+                  subtitle: Text(_supList[index].id.toString()),
                 ),
               );
             }),
