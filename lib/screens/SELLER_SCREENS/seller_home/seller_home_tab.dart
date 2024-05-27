@@ -7,8 +7,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
+import 'package:pharmo_app/models/filtered_product.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -77,555 +77,539 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
     return RefreshIndicator(
       onRefresh: () => Future.sync(
         () => _pagingController.refresh(),
       ),
-      child: SafeArea(
-        child: ChangeNotifierProvider(
-          create: (context) => BasketProvider(),
-          child: Scaffold(
-            resizeToAvoidBottomInset: false,
-            body: CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        flex: 10,
-                        child: CustomSearchBar(
-                          searchController: _searchController,
-                          onChanged: (value) {
-                            setState(() {
+      child: ChangeNotifierProvider(
+        create: (context) => BasketProvider(),
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 10,
+                      child: CustomSearchBar(
+                        searchController: _searchController,
+                        onChanged: (value) {
+                          setState(() {
+                            searching = true;
+                            searchQuery =
+                                value.isEmpty ? null : _searchController.text;
+                          });
+                          _pagingController.refresh();
+                        },
+                        onSubmitted: (value) {
+                          setState(() {
+                            if (value.isEmpty) {
+                              searching = false;
+                            } else {
                               searching = true;
-                              searchQuery =
-                                  value.isEmpty ? null : _searchController.text;
-                            });
-                            _pagingController.refresh();
-                          },
-                          onSubmitted: (value) {
-                            setState(() {
-                              if (value.isEmpty) {
-                                searching = false;
-                              } else {
-                                searching = true;
-                                searchQuery = value;
-                              }
-                            });
-                            _pagingController.refresh();
-                          },
-                          title: '$searchType хайх',
-                          suffix: IconButton(
-                            icon: const Icon(Icons.swap_vert),
-                            onPressed: () {
-                              showMenu(
-                                surfaceTintColor: Colors.white,
-                                context: context,
-                                position:
-                                    const RelativeRect.fromLTRB(150, 20, 0, 0),
-                                items: <PopupMenuEntry>[
-                                  PopupMenuItem(
-                                    onTap: () {
-                                      setState(() {
-                                        searchType = 'Нэрээр';
-                                        type = 'name';
-                                      });
-                                    },
-                                    child: const Text('Нэрээр'),
-                                  ),
-                                  PopupMenuItem(
-                                    onTap: () {
-                                      setState(() {
-                                        searchType = 'Баркодоор';
-                                        type = 'barcode';
-                                      });
-                                    },
-                                    child: const Text('Баркодоор'),
-                                  ),
-                                  PopupMenuItem(
-                                    onTap: () {
-                                      setState(() {
-                                        searchType = 'Ерөнхий нэршлээр';
-                                        type = 'intName';
-                                      });
-                                    },
-                                    child: const Text('Ерөнхий нэршлээр'),
-                                  ),
-                                ],
-                              ).then((value) {});
-                            },
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: IconButton(
+                              searchQuery = value;
+                            }
+                          });
+                          _pagingController.refresh();
+                        },
+                        title: '$searchType хайх',
+                        suffix: IconButton(
+                          icon: const Icon(Icons.swap_vert),
                           onPressed: () {
-                            setState(
-                              () {
-                                if (isList) {
-                                  isList = false;
-                                  viewIcon = Icons.list;
-                                } else {
-                                  isList = true;
-                                  viewIcon = Icons.grid_view_sharp;
-                                }
-                              },
-                            );
+                            showMenu(
+                              surfaceTintColor: Colors.white,
+                              context: context,
+                              position:
+                                  const RelativeRect.fromLTRB(150, 20, 0, 0),
+                              items: <PopupMenuEntry>[
+                                PopupMenuItem(
+                                  onTap: () {
+                                    setState(() {
+                                      searchType = 'Нэрээр';
+                                      type = 'name';
+                                    });
+                                  },
+                                  child: const Text('Нэрээр'),
+                                ),
+                                PopupMenuItem(
+                                  onTap: () {
+                                    setState(() {
+                                      searchType = 'Баркодоор';
+                                      type = 'barcode';
+                                    });
+                                  },
+                                  child: const Text('Баркодоор'),
+                                ),
+                                PopupMenuItem(
+                                  onTap: () {
+                                    setState(() {
+                                      searchType = 'Ерөнхий нэршлээр';
+                                      type = 'intName';
+                                    });
+                                  },
+                                  child: const Text('Ерөнхий нэршлээр'),
+                                ),
+                              ],
+                            ).then((value) {});
                           },
-                          icon: Icon(viewIcon),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                SliverAppBar(
-                  title: Expanded(
-                    child: NotificationListener(
-                      onNotification: (notification) {
-                        if (notification is ScrollUpdateNotification) {}
-                        return true;
-                      },
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                            children: filters.map(
-                          (e) {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 5),
-                              child: FilterChip(
-                                label: Text(e.name),
-                                selected: e.selected,
-                                onSelected: (value) {
-                                  setState(() {
-                                    e.selected = value;
-                                    filterKey = filters.indexOf(e) + 1;
-                                    if (e.selected) {
-                                      filtering = true;
-                                    } else {
-                                      filtering = false;
-                                    }
-                                    for (int i = 0; i < filters.length; i++) {
-                                      if (i != filters.indexOf(e)) {
-                                        filters[i].selected = false;
-                                      }
-                                    }
-                                  });
-                                  _pagingController.refresh();
-                                },
-                              ),
-                            );
-                          },
-                        ).toList()),
                       ),
                     ),
+                    Expanded(
+                      child: IconButton(
+                        onPressed: () {
+                          setState(
+                            () {
+                              if (isList) {
+                                isList = false;
+                                viewIcon = Icons.list;
+                              } else {
+                                isList = true;
+                                viewIcon = Icons.grid_view_sharp;
+                              }
+                            },
+                          );
+                        },
+                        icon: Icon(viewIcon),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SliverAppBar(
+                title: NotificationListener(
+                  onNotification: (notification) {
+                    if (notification is ScrollUpdateNotification) {}
+                    return true;
+                  },
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Wrap(
+                        children: filters.map(
+                      (e) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: FilterChip(
+                            label: Text(e.name),
+                            selected: e.selected,
+                            onSelected: (value) {
+                              setState(() {
+                                e.selected = value;
+                                filterKey = filters.indexOf(e) + 1;
+                                if (e.selected) {
+                                  filtering = true;
+                                } else {
+                                  filtering = false;
+                                }
+                                for (int i = 0; i < filters.length; i++) {
+                                  if (i != filters.indexOf(e)) {
+                                    filters[i].selected = false;
+                                  }
+                                }
+                              });
+                              _pagingController.refresh();
+                            },
+                          ),
+                        );
+                      },
+                    ).toList()),
                   ),
                 ),
-                searching
-                    ? !isList
-                        ? PagedSliverGrid<int, dynamic>(
-                            showNewPageProgressIndicatorAsGridChild: false,
-                            showNewPageErrorIndicatorAsGridChild: false,
-                            showNoMoreItemsIndicatorAsGridChild: false,
-                            pagingController: _pagingController,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                            ),
-                            builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                              animateTransitions: true,
-                              itemBuilder: (_, item, index) => InkWell(
-                                onTap: () {
-                                  goto(ProductDetail(prod: item), context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 10),
-                                  width: double.infinity,
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: item.image != null
-                                            ? Image.network(
-                                                // ignore: prefer_interpolation_to_compose_strings
-                                                'https://test.pharma.mn/api/v1${item.image}')
-                                            : Image.asset(
-                                                'assets/no_image.jpg',
-                                              ),
-                                      ),
-                                      Text(
-                                        item.name,
-                                        softWrap: true,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                            color: Colors.black),
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            '${item.price.toString()} ₮',
-                                            style: const TextStyle(
-                                                color: Colors.red,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.05,
-                                        child: OutlinedButton(
-                                          onPressed: () {
-                                            addBasket(
-                                                item.id, item.itemname_id);
-                                          },
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all<
-                                                    Color>(AppColors.primary),
-                                            shape: MaterialStateProperty.all<
-                                                RoundedRectangleBorder>(
-                                              RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
+              ),
+              searching
+                  ? !isList
+                      ? PagedSliverGrid<int, dynamic>(
+                          showNewPageProgressIndicatorAsGridChild: false,
+                          showNewPageErrorIndicatorAsGridChild: false,
+                          showNoMoreItemsIndicatorAsGridChild: false,
+                          pagingController: _pagingController,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                          ),
+                          builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                            animateTransitions: true,
+                            itemBuilder: (_, item, index) => InkWell(
+                              onTap: () {
+                                goto(ProductDetail(prod: item), context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 10),
+                                width: double.infinity,
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child: item.image != null
+                                          ? Image.network(
+                                              // ignore: prefer_interpolation_to_compose_strings
+                                              'https://test.pharma.mn/api/v1${item.image}')
+                                          : Image.asset(
+                                              'assets/no_image.jpg',
                                             ),
-                                          ),
-                                          child: const Text(
-                                            'Сагсанд нэмэх',
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
+                                    ),
+                                    Text(
+                                      item.name,
+                                      softWrap: true,
+                                      overflow: TextOverflow.ellipsis,
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          '${item.price.toString()} ₮',
+                                          style: const TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.w500),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        : PagedSliverList<int, dynamic>(
-                            pagingController: _pagingController,
-                            builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                              itemBuilder: (context, item, index) => InkWell(
-                                onTap: () {
-                                  goto(ProductDetail(prod: item), context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 7),
-                                  width: double.infinity,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: size.width / 6 * 3,
-                                            child: Text(
-                                              item.name,
-                                              style: const TextStyle(
-                                                  color: Colors.black),
-                                              softWrap: true,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 3,
-                                            ),
-                                          ),
-                                          Text(
-                                            '${item.price} ₮',
-                                            softWrap: true,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                                color: Colors.red,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      IconButton(
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.05,
+                                      child: OutlinedButton(
                                         onPressed: () {
                                           addBasket(item.id, item.itemname_id);
                                         },
-                                        icon: const Icon(Icons.shopping_cart),
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  AppColors.primary),
+                                          shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Сагсанд нэмэх',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                          )
-                    : !isList
-                        ? PagedSliverGrid(
-                            pagingController: _pagingController,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                            ),
-                            builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                              animateTransitions: true,
-                              itemBuilder: (_, item, index) => InkWell(
-                                onTap: () {
-                                  goto(ProductDetail(prod: item), context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 5),
-                                  width: double.infinity,
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: SizedBox(
-                                          child: (item.images != null &&
-                                                  item.images.length > 0)
-                                              ? Image.network(
-                                                  // ignore: prefer_interpolation_to_compose_strings
-                                                  '${dotenv.env['SERVER_URL']}' +
-                                                      item.images?.first['url'])
-                                              : Image.asset(
-                                                  'assets/no_image.jpg'),
-                                        ),
-                                      ),
-                                      Text(
-                                        item.name,
-                                        softWrap: true,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                            color: Colors.black),
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            item.price + ' ₮',
+                          ),
+                        )
+                      : PagedSliverList<int, dynamic>(
+                          pagingController: _pagingController,
+                          builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                            itemBuilder: (context, item, index) => InkWell(
+                              onTap: () {
+                                goto(ProductDetail(prod: item), context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 7),
+                                width: double.infinity,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          width: size.width / 6 * 3,
+                                          child: Text(
+                                            item.name,
                                             style: const TextStyle(
-                                                color: Colors.red,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          Text(
-                                            item.modified_at,
-                                            style: const TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.grey),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.05,
-                                        child: OutlinedButton(
-                                          onPressed: () {
-                                            addBasket(
-                                                item.id, item.itemname_id);
-                                          },
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all<
-                                                    Color>(AppColors.primary),
-                                            shape: MaterialStateProperty.all<
-                                                RoundedRectangleBorder>(
-                                              RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'Сагсанд нэмэх',
-                                            style:
-                                                TextStyle(color: Colors.white),
+                                                color: Colors.black),
+                                            softWrap: true,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 3,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
+                                        Text(
+                                          '${item.price} ₮',
+                                          softWrap: true,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ],
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        addBasket(item.id, item.itemname_id);
+                                      },
+                                      icon: const Icon(Icons.shopping_cart),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                          )
-                        : PagedSliverList<int, dynamic>(
-                            pagingController: _pagingController,
-                            builderDelegate: PagedChildBuilderDelegate(
-                              itemBuilder: (_, item, index) {
-                                return Card(
-                                  child: InkWell(
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return Container(
-                                            padding: const EdgeInsets.all(10),
-                                            decoration: const BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(20),
-                                                topRight: Radius.circular(20),
-                                              ),
+                          ),
+                        )
+                  : !isList
+                      ? PagedSliverGrid(
+                          pagingController: _pagingController,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                          ),
+                          builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                            animateTransitions: true,
+                            itemBuilder: (_, item, index) => InkWell(
+                              onTap: () {
+                                goto(ProductDetail(prod: item), context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 5),
+                                width: double.infinity,
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                        child: (item.images != null &&
+                                                item.images.length > 0)
+                                            ? Image.network(
+                                                // ignore: prefer_interpolation_to_compose_strings
+                                                '${dotenv.env['SERVER_URL']}' +
+                                                    item.images?.first['url'])
+                                            : Image.asset(
+                                                'assets/no_image.jpg'),
+                                      ),
+                                    ),
+                                    Text(
+                                      item.name,
+                                      softWrap: true,
+                                      overflow: TextOverflow.ellipsis,
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          item.price + ' ₮',
+                                          style: const TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        Text(
+                                          item.modified_at,
+                                          style: const TextStyle(
+                                              fontSize: 11, color: Colors.grey),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.05,
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          addBasket(item.id, item.itemname_id);
+                                        },
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  AppColors.primary),
+                                          shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
                                             ),
-                                            child: Center(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: <Widget>[
-                                                  Expanded(
-                                                    child: Text(
-                                                      item.name,
-                                                      style: const TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Сагсанд нэмэх',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      : PagedSliverList<int, dynamic>(
+                          pagingController: _pagingController,
+                          builderDelegate: PagedChildBuilderDelegate(
+                            itemBuilder: (_, item, index) {
+                              return Card(
+                                child: InkWell(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(20),
+                                              topRight: Radius.circular(20),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: <Widget>[
+                                                Expanded(
+                                                  child: Text(
+                                                    item.name,
+                                                    style: const TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   ),
-                                                  Expanded(
-                                                    flex: 2,
-                                                    child: SizedBox(
-                                                      child: (item.images !=
-                                                                  null &&
-                                                              item.images
-                                                                      .length >
-                                                                  0)
-                                                          ? Image.network(
-                                                              // ignore: prefer_interpolation_to_compose_strings
-                                                              '${dotenv.env['SERVER_URL']}' +
-                                                                  item.images
-                                                                          ?.first[
-                                                                      'url'])
-                                                          : Image.asset(
-                                                              'assets/no_image.jpg'),
-                                                    ),
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: SizedBox(
+                                                    child: (item.images !=
+                                                                null &&
+                                                            item.images.length >
+                                                                0)
+                                                        ? Image.network(
+                                                            // ignore: prefer_interpolation_to_compose_strings
+                                                            '${dotenv.env['SERVER_URL']}' +
+                                                                item.images
+                                                                        ?.first[
+                                                                    'url'])
+                                                        : Image.asset(
+                                                            'assets/no_image.jpg'),
                                                   ),
-                                                  Expanded(
-                                                    child: Column(
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceEvenly,
-                                                          children: [
-                                                            Text(
-                                                              item.modified_at,
-                                                              style: TextStyle(
-                                                                fontSize: 18,
+                                                ),
+                                                Expanded(
+                                                  child: Column(
+                                                    children: [
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        children: [
+                                                          Text(
+                                                            item.modified_at,
+                                                            style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: Colors
+                                                                  .grey[400],
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            '${item.price}₮',
+                                                            style: const TextStyle(
+                                                                fontSize: 16,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
-                                                                color: Colors
-                                                                    .grey[400],
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              '${item.price}₮',
-                                                              style: const TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .red),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        SizedBox(
-                                                          width:
-                                                              size.width * 0.8,
-                                                          child: OutlinedButton(
-                                                            style:
-                                                                const ButtonStyle(
-                                                              backgroundColor:
-                                                                  MaterialStatePropertyAll(
-                                                                AppColors
-                                                                    .primary,
-                                                              ),
-                                                            ),
-                                                            onPressed: () {
-                                                              addBasket(item.id,
-                                                                  item.itemname_id);
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: const Text(
-                                                              'Сагсанд нэмэх',
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .white),
+                                                                color:
+                                                                    Colors.red),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      SizedBox(
+                                                        width: size.width * 0.8,
+                                                        child: OutlinedButton(
+                                                          style:
+                                                              const ButtonStyle(
+                                                            backgroundColor:
+                                                                MaterialStatePropertyAll(
+                                                              AppColors.primary,
                                                             ),
                                                           ),
+                                                          onPressed: () {
+                                                            addBasket(item.id,
+                                                                item.itemname_id);
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: const Text(
+                                                            'Сагсанд нэмэх',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .white),
+                                                          ),
                                                         ),
-                                                      ],
-                                                    ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              flex: 4,
+                                              child: Text(
+                                                item.name,
+                                                softWrap: true,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                    color: Colors.black),
                                               ),
                                             ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                flex: 4,
-                                                child: Text(
-                                                  item.name,
-                                                  softWrap: true,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                      color: Colors.black),
+                                            Expanded(
+                                              child: Text(
+                                                item.price,
+                                                style: const TextStyle(
+                                                    color: Colors.red,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: IconButton(
+                                                onPressed: () {
+                                                  addBasket(item.id,
+                                                      item.itemname_id);
+                                                },
+                                                icon: const Icon(
+                                                  Icons.add_shopping_cart,
+                                                  color: AppColors.primary,
                                                 ),
                                               ),
-                                              Expanded(
-                                                child: Text(
-                                                  item.price,
-                                                  style: const TextStyle(
-                                                      color: Colors.red,
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: IconButton(
-                                                  onPressed: () {
-                                                    addBasket(item.id,
-                                                        item.itemname_id);
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.add_shopping_cart,
-                                                    color: AppColors.primary,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
-              ],
-            ),
+                        ),
+            ],
           ),
         ),
       ),

@@ -1,9 +1,6 @@
-// ignore_for_file: use_build_context_synchronously
 
-import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/customer_details_paga.dart';
@@ -13,8 +10,6 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class PharmacyList extends StatefulWidget {
   const PharmacyList({super.key});
@@ -27,13 +22,6 @@ class _PharmacyListState extends State<PharmacyList> {
   final _searchController = TextEditingController();
   List<PharmFullInfo> filteredItems = [];
   List<PharmFullInfo> _displayItems = [];
-  Position? _currentLocation;
-  late LocationPermission permission;
-  late bool servicePermission = false;
-  String latitude = '';
-  String longitude = '';
-  double lat = 0;
-  double lon = 0;
   bool onSearch = false;
   Color activeColor = AppColors.primary;
   Map pharmacyInfo = {};
@@ -42,14 +30,12 @@ class _PharmacyListState extends State<PharmacyList> {
   late PharmProvider pharmProvider;
   @override
   void initState() {
-    getPosition();
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     pharmProvider = Provider.of<PharmProvider>(context, listen: false);
     pharmProvider.getPharmacyList();
-    setState(() {
-      _displayItems = pharmProvider.fullList;
-    });
+    homeProvider.getPosition();
+    _displayItems = pharmProvider.fullList;
   }
 
   @override
@@ -94,7 +80,7 @@ class _PharmacyListState extends State<PharmacyList> {
                             ),
                             backgroundColor: AppColors.primary,
                             onPressed: () {
-                              searchByLocation();
+                              homeProvider.searchByLocation(context);
                             },
                             child: const Icon(Icons.location_on,
                                 color: Colors.blue),
@@ -362,7 +348,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                             text: TextSpan(
                                               text: _displayItems[index].name,
                                               style: TextStyle(
-                                                  fontSize: 18,
+                                                  fontSize: 16,
                                                   color: _displayItems[index]
                                                           .isBad
                                                       ? Colors.red
@@ -402,10 +388,11 @@ class _PharmacyListState extends State<PharmacyList> {
                                         },
                                         child: Text(
                                           _displayItems[index].isCustomer
-                                              ? 'Дэлгэрэнгүй харах'
-                                              : 'Найдваргүй индекс: ${_displayItems[index].badCnt.toString() == 'null' ? 0 : _displayItems[index].badCnt.toString()} ',
+                                              ? 'Дэлгэрэнгүй'
+                                              : 'Найдваргүй: ${_displayItems[index].badCnt.toString() == 'null' ? 0 : _displayItems[index].badCnt.toString()} ',
                                           style: const TextStyle(
-                                              color: AppColors.primary),
+                                              color: AppColors.primary,
+                                              fontSize: 12),
                                         ),
                                       ),
                                     ],
@@ -495,83 +482,6 @@ class _PharmacyListState extends State<PharmacyList> {
           _displayItems = pharmProvider.fullList;
         });
       }
-    }
-  }
-
-  Future<Position> _getCurrentLocation() async {
-    servicePermission = await Geolocator.isLocationServiceEnabled();
-
-    if (!servicePermission) {}
-    permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    return await Geolocator.getCurrentPosition();
-  }
-
-  Future getPosition() async {
-    _currentLocation = await _getCurrentLocation();
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble('Lat', _currentLocation!.latitude);
-    prefs.setDouble('Lon', _currentLocation!.longitude);
-    setState(() {
-      latitude = _currentLocation!.latitude.toStringAsFixed(6);
-      longitude = _currentLocation!.longitude.toStringAsFixed(6);
-      lat = double.parse(latitude);
-      lon = double.parse(longitude);
-    });
-  }
-
-  searchByLocation() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}seller/search_by_location/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            'lat': lat,
-            'lon': lon,
-          }));
-      if (response.statusCode == 200) {
-        if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
-            'not found') {
-          showFailedMessage(message: 'Харилцагч олдсонгүй', context: context);
-        } else {
-          Map<String, dynamic> res =
-              jsonDecode(utf8.decode(response.bodyBytes));
-          showSuccessMessage(
-              context: context,
-              message:
-                  '${res['company']['name']} харилцагчийн ${res['name']} олдлоо');
-          if (res['manager']['id'] == null) {
-            setState(() {
-              homeProvider.selectedCustomerId = res['director']['id'];
-              homeProvider.selectedCustomerName = res['company']['name'];
-              homeProvider.getSelectedUser(homeProvider.selectedCustomerId,
-                  homeProvider.selectedCustomerName);
-              homeProvider.changeIndex(1);
-            });
-          } else {
-            setState(() {
-              homeProvider.selectedCustomerId = res['manager']['id'];
-              homeProvider.selectedCustomerName = res['company']['name'];
-              homeProvider.getSelectedUser(homeProvider.selectedCustomerId,
-                  homeProvider.selectedCustomerName);
-              homeProvider.changeIndex(1);
-            });
-          }
-        }
-      } else {
-        showFailedMessage(message: 'Серверийн алдаа', context: context);
-      }
-    } catch (e) {
-      showFailedMessage(
-          message: 'Интернет холболтоо шалгана уу!.', context: context);
     }
   }
 }

@@ -1,10 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/models/branch.dart';
+import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,6 +27,19 @@ class HomeProvider extends ChangeNotifier {
   String? note;
   List<Branch> branchList = <Branch>[];
   int? lastPickedSupplier;
+  late LocationPermission permission;
+  late bool servicePermission = false;
+  Position? _currentLocation;
+  double? currentLatitude;
+  double? currentLongitude;
+  String? cName;
+  String? cRd;
+  String? email;
+  String? phone;
+  String? detail;
+  int? provinceId;
+  int? districtId;
+  int? khorooId;
   getLastPickedSupplier() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     lastPickedSupplier = prefs.getInt('lastSupId');
@@ -64,14 +82,12 @@ class HomeProvider extends ChangeNotifier {
   }
 
   getBasketId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('access_token');
+    final accestoken = await getAccessToken();
     final response = await http.get(
       Uri.parse('${dotenv.env['SERVER_URL']}get_basket/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
+        'Authorization': 'Bearer $accestoken',
       },
     );
     final res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -83,13 +99,12 @@ class HomeProvider extends ChangeNotifier {
 
   getCustomerBranch() async {
     try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
+      final accestoken = await getAccessToken();
       final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}seller/customer_branch/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
+            'Authorization': 'Bearer $accestoken',
           },
           body: jsonEncode({'customerId': selectedCustomerId}));
       branchList.clear();
@@ -98,7 +113,7 @@ class HomeProvider extends ChangeNotifier {
         for (int i = 0; i < res.length; i++) {
           branchList.add(Branch.fromJson(res[i]));
         }
-        await prefs.setInt('branchId', res[0]['id']);
+        selectedBranchId = res[0]['id'];
       }
     } catch (e) {
       if (kDebugMode) {
@@ -108,9 +123,8 @@ class HomeProvider extends ChangeNotifier {
   }
 
   Future<Map<String, String>> getDeviceInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
+   final accestoken = await getAccessToken();
+    String bearerToken = "Bearer $accestoken";
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
     try {
@@ -163,4 +177,77 @@ class HomeProvider extends ChangeNotifier {
     }
     return deviceData;
   }
+
+  Future getPosition() async {
+    _currentLocation = await _getCurrentLocation();
+    currentLatitude =
+        double.parse(_currentLocation!.latitude.toStringAsFixed(6));
+    currentLongitude =
+        double.parse(_currentLocation!.longitude.toStringAsFixed(6));
+  }
+
+  Future<Position> _getCurrentLocation() async {
+    servicePermission = await Geolocator.isLocationServiceEnabled();
+
+    if (!servicePermission) {}
+    permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    return await Geolocator.getCurrentPosition();
+  }
+
+  searchByLocation(BuildContext context) async {
+    try {
+     final accestoken = await getAccessToken();
+      final response = await http.post(
+          Uri.parse('${dotenv.env['SERVER_URL']}seller/search_by_location/'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $accestoken',
+          },
+          body: jsonEncode({
+            'lat': currentLatitude,
+            'lon': currentLongitude,
+          }));
+      if (response.statusCode == 200) {
+        if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
+            'not found') {
+          showFailedMessage(message: 'Харилцагч олдсонгүй', context: context);
+        } else {
+          Map<String, dynamic> res =
+              jsonDecode(utf8.decode(response.bodyBytes));
+          showSuccessMessage(
+              context: context,
+              message:
+                  '${res['company']['name']} харилцагчийн ${res['name']} олдлоо');
+          if (res['manager']['id'] == null) {
+            selectedCustomerId = res['director']['id'];
+            selectedCustomerName = res['company']['name'];
+            getSelectedUser(selectedCustomerId, selectedCustomerName);
+            changeIndex(1);
+          } else {
+            selectedCustomerId = res['manager']['id'];
+            selectedCustomerName = res['company']['name'];
+            getSelectedUser(selectedCustomerId, selectedCustomerName);
+            changeIndex(1);
+          }
+        }
+      } else {
+        showFailedMessage(message: 'Серверийн алдаа', context: context);
+      }
+    } catch (e) {
+      showFailedMessage(
+          message: 'Интернет холболтоо шалгана уу!.', context: context);
+    }
+  }
+
+  getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    return token;
+  }
+
+
 }

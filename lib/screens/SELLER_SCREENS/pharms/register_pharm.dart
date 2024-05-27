@@ -3,7 +3,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/address.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -12,6 +14,7 @@ import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_filed.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPharmPage extends StatefulWidget {
@@ -26,62 +29,28 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
   List<District> districtList = [];
   List<Khoroo> khorooList = [];
   List<String> names = [];
-  Province? selectedProvince;
-  District? selectedDistrict;
-  Khoroo? selectedKhoroo;
   int provinceId = 0;
   int districtId = 0;
   int khorooId = 0;
-  String latitude = '';
-  String longtitude = '';
-  double latF = 0;
-  double lonF = 0;
-  late TextEditingController cNameController,
-      cRdController,
-      emailController,
-      phoneController,
-      detailedController;
+  late HomeProvider homeProvider;
+  final TextEditingController cNameController = TextEditingController();
+  final TextEditingController cRdController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController detailedController = TextEditingController();
 
   @override
   void initState() {
-    getLocationData();
     getProvinceId();
-    cNameController = TextEditingController();
-    cRdController = TextEditingController();
-    emailController = TextEditingController();
-    phoneController = TextEditingController();
-    detailedController = TextEditingController();
     super.initState();
-  }
-
-  getLocationData() async {
-    final prefs = await SharedPreferences.getInstance();
-    double? lat = prefs.getDouble('Lat');
-    double? long = prefs.getDouble('Lon');
-    setState(() {
-      latitude = lat!.toStringAsFixed(6);
-      longtitude = long!.toStringAsFixed(6);
-      latF = double.parse(latitude);
-      lonF = double.parse(longtitude);
-    });
-  }
-
-  @override
-  void dispose() {
-    // Dispose your controllers when they are no longer needed
-    cNameController.dispose();
-    cRdController.dispose();
-    emailController.dispose();
-    phoneController.dispose();
-    detailedController.dispose();
-    super.dispose();
+    homeProvider = Provider.of<HomeProvider>(context, listen: false);
   }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return SafeArea(
-      child: Scaffold(
+    return Consumer<HomeProvider>(builder: (_, homeProvider, child) {
+      return Scaffold(
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Эмийн сан бүртгэл'),
@@ -105,23 +74,33 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                   validator: validateCRD,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
+                    homeProvider.cRd = cRdController.text;
                     checkCompany(cRdController.text);
                   },
                 ),
                 CustomTextField(
                   controller: cNameController,
                   hintText: 'Байгууллагын нэр',
+                  onChanged: (v) {
+                    homeProvider.cName = cNameController.text;
+                  },
                 ),
                 CustomTextField(
                   controller: emailController,
                   hintText: 'Имэйл хаяг',
                   validator: validateEmail,
+                  onChanged: (p0) {
+                    homeProvider.email = emailController.text;
+                  },
                 ),
                 CustomTextField(
                   controller: phoneController,
                   hintText: 'Утасны дугаар',
                   validator: validatePhone,
                   keyboardType: TextInputType.number,
+                  onChanged: (p0) {
+                    homeProvider.phone = phoneController.text;
+                  },
                 ),
                 const Text(
                   'Хаяг',
@@ -136,13 +115,9 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                         borderRadius: BorderRadius.circular(0),
                       ),
                     ),
-                    value: selectedProvince,
-                    onChanged: (Province? newValue) {
-                      setState(() {
-                        selectedProvince = newValue;
-                        provinceId = newValue!.id;
-                      });
-                      getDistrictId();
+                    onChanged: (newValue) {
+                      districtList.clear();
+                      getDistrictId(newValue!.id);
                     },
                     items: provinceList
                         .map<DropdownMenuItem<Province>>((Province province) {
@@ -166,15 +141,9 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                         borderRadius: BorderRadius.circular(0),
                       ),
                     ),
-                    value: selectedDistrict,
                     hint: const Text('Сум/Дүүрэг сонгох'),
-                    onChanged: (District? newValue) {
-                      setState(() {
-                        selectedDistrict = newValue;
-                        districtId = newValue!.id;
-                        provinceId = 0;
-                      });
-                      getKhoroo();
+                    onChanged: (newValue) {
+                      getKhoroo(newValue!.id);
                     },
                     items: districtList
                         .map<DropdownMenuItem<District>>((District district) {
@@ -193,11 +162,9 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                         borderRadius: BorderRadius.circular(0),
                       ),
                     ),
-                    value: selectedKhoroo,
                     hint: const Text('Баг/Хороо сонгох'),
-                    onChanged: (Khoroo? newValue) {
+                    onChanged: (newValue) {
                       setState(() {
-                        selectedKhoroo = newValue;
                         provinceId = newValue!.aimag;
                         districtId = newValue.sum;
                         khorooId = newValue.id;
@@ -219,6 +186,9 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                 SizedBox(
                   width: size.width * 0.9,
                   child: TextFormField(
+                    onChanged: (value) {
+                      homeProvider.detail = detailedController.text;
+                    },
                     minLines: 1,
                     controller: detailedController,
                     decoration: const InputDecoration(
@@ -272,8 +242,8 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   getProvinceId() async {
@@ -301,12 +271,12 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     }
   }
 
-  getDistrictId() async {
+  getDistrictId(int provId) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       final response = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}sum_duureg/?aimag=$provinceId'),
+        Uri.parse('${dotenv.env['SERVER_URL']}sum_duureg/?aimag=$provId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -327,12 +297,12 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     }
   }
 
-  getKhoroo() async {
+  getKhoroo(int distId) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       final response = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}bag_horoo/?sum=$districtId'),
+        Uri.parse('${dotenv.env['SERVER_URL']}bag_horoo/?sum=$distId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -378,16 +348,17 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
               'khoroo': khorooId,
               'detailed': detailedController.text,
             },
-            'lat': latF,
-            'lon': lonF,
+            'lat': homeProvider.currentLatitude,
+            'lon': homeProvider.currentLongitude,
           },
         ),
       );
       if (response.statusCode == 200) {
-        String cName = jsonDecode(utf8.decode(response.bodyBytes))['cName'];
-        prefs.setInt(
-            'pharmId', jsonDecode(utf8.decode(response.bodyBytes))['user']);
-        prefs.setString('selectedPharmName', cName);
+        var res = jsonDecode(utf8.decode(response.bodyBytes));
+        homeProvider.selectedCustomerId = res['user'];
+        homeProvider.selectedCustomerName = res['cName'];
+        homeProvider.getSelectedUser(
+            homeProvider.selectedCustomerId, homeProvider.selectedCustomerName);
         showSuccessMessage(message: 'Амжилттай бүртгэгдлээ.', context: context);
         goto(const SellerHomePage(), context);
       } else {

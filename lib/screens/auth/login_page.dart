@@ -114,9 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                             final bool islock = await authController.checkEmail(
                                 emailController.text, context);
                             if (islock) {
-                              setState(() {
                                 authController.toggleVisibile();
-                              });
                             }
                           }
                         }),

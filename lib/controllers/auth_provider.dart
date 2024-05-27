@@ -24,7 +24,7 @@ class AuthController extends ChangeNotifier {
   bool invisible2 = false;
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
-Map<String, String> deviceData = {};
+  Map<String, String> deviceData = {};
   void toggleVisibile() {
     invisible = !invisible;
     notifyListeners();
@@ -34,7 +34,8 @@ Map<String, String> deviceData = {};
     invisible2 = !invisible2;
     notifyListeners();
   }
-Future<Map<String, String>> getDeviceInfo() async {
+
+  Future<Map<String, String>> getDeviceInfo() async {
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
     try {
@@ -67,6 +68,7 @@ Future<Map<String, String>> getDeviceInfo() async {
     }
     return deviceData;
   }
+
   Future<void> refresh() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? rtoken = prefs.getString("refresh_token");
@@ -94,42 +96,39 @@ Future<Map<String, String>> getDeviceInfo() async {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(
-          {'email': email, 'pwd': false},
+          {'email': email},
         ),
       );
-      if (response.statusCode == 400) {
-        showFailedMessage(
-          message: 'И-мейл хаяг бүртгэлгүй байна!',
-          context: context,
-        );
-        return Future.value(false);
-      }
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         final isPasswordCreated = responseData['pwd'];
-        if (!isPasswordCreated) {
-          await showDialog(
+        final email = responseData['ema'];
+        if (email == false) {
+          showFailedMessage(
+            message: 'Имейл хаяг бүртгэлгүй байна!',
             context: context,
-            builder: (context) {
-              return CreatePassDialog(
-                email: email,
-              );
-            },
           );
-        }
-        if (responseData['ema'] == email && isPasswordCreated) {
-          notifyListeners();
-          return Future.value(true);
+          return false;
+        } else {
+          if (email == emailController.text && isPasswordCreated) {
+            notifyListeners();
+            return Future.value(true);
+          } else {
+            if ( !isPasswordCreated && email == emailController.text) {
+              await showDialog(
+                context: context,
+                builder: (context) {
+                  return CreatePassDialog(
+                    email: email,
+                  );
+                },
+              );
+            }
+          }
         }
         return false;
-      } else {
-        // Handle non-200 response
-        showFailedMessage(
-          message: 'И-мейл хаяг бүртгэлгүй байна!',
-          context: context,
-        );
-        return Future.value(false);
       }
+      return false;
     } catch (e) {
       showFailedMessage(
         message: 'Интернет холболтоо шалгана уу!.',
@@ -165,7 +164,7 @@ Future<Map<String, String>> getDeviceInfo() async {
       final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
       shoppingCart.getBasket();
       // await prefs.setString('basket_count', count.toString());
-      
+
       notifyListeners();
       if (decodedToken['role'] == 'S') {
         gotoRemoveUntil(const SellerHomePage(), context);

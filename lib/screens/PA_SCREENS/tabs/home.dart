@@ -9,6 +9,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
+import 'package:pharmo_app/models/filtered_product.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/public_uses/product/product_detail_page.dart';
@@ -668,48 +669,5 @@ class _HomeState extends State<Home> {
       _pagingController.error = error;
     }
   }
-}
+} 
 
-class FilteredProduct {
-  int id;
-  int itemname_id;
-  String name;
-  double price;
-  String? barcode;
-  String? intName;
-  String? image;
-
-  FilteredProduct({
-    required this.id,
-    required this.itemname_id,
-    required this.name,
-    required this.price,
-    this.barcode,
-    this.intName,
-    this.image,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'itemname_id': itemname_id,
-      'name': name,
-      'price': price,
-      'barcode': barcode,
-      'intName': intName,
-      'image': image,
-    };
-  }
-
-  factory FilteredProduct.fromJson(Map<String, dynamic> json) {
-    return FilteredProduct(
-      id: json['id'],
-      itemname_id: json['itemname_id'],
-      name: json['name'],
-      price: json['price'],
-      barcode: json['barcode'],
-      intName: json['intName'],
-      image: json['image'],
-    );
-  }
-}
