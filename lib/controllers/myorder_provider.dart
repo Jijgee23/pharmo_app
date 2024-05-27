@@ -30,7 +30,6 @@ class MyOrderProvider extends ChangeNotifier {
         List<dynamic> ords = response['results'];
         sellerOrders =
             (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
-        print(ords);
         notifyListeners();
       }
     } catch (e) {

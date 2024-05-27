@@ -200,7 +200,6 @@ class _HomeState extends State<Home> {
                     Expanded(
                       child: IconButton(
                         onPressed: () {
-                          print(_supList[0].name);
                           setState(
                             () {
                               if (isList) {
@@ -611,10 +610,8 @@ class _HomeState extends State<Home> {
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           });
-      print(response.statusCode);
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        print(res);
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();

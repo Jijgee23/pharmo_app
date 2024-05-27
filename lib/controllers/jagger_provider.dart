@@ -215,7 +215,6 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': response['shipment']};
       }
     } catch (e) {
-      print(e);
       return {'errorType': 3, 'data': e, 'message': e.toString()};
     }
   }

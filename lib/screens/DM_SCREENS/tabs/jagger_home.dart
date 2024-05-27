@@ -31,7 +31,7 @@ class _HomeJaggerState extends State<HomeJagger> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    
     timer?.cancel();
     super.dispose();
   }

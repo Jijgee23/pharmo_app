@@ -65,10 +65,8 @@ class PharmProvider extends ChangeNotifier {
         },
       );
       notifyListeners();
-      print(response.statusCode);
       if (response.statusCode == 200) {
         List<dynamic> ordList = jsonDecode(utf8.decode(response.bodyBytes));
-        print(ordList);
         for (int i = 0; i < ordList.length; i++) {
           orderList.add(OrderList.fromJson((ordList[i])));
         }

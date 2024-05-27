@@ -26,7 +26,6 @@ class IncomeProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> resList = res['results'];
-        print(resList[0]);
         incomeList.clear();
         incomeList = resList.map((item) => Income.fromJson(item)).toList();
       }
@@ -53,7 +52,6 @@ class IncomeProvider extends ChangeNotifier {
           'amount': amount,
         }),
       );
-      print(response.statusCode);
       if (response.statusCode == 201) {
         showSuccessMessage(context: context, message: 'Амжилттай бүртгэгдлээ');
       }
@@ -82,7 +80,6 @@ class IncomeProvider extends ChangeNotifier {
           },
         ),
       );
-      print(response.statusCode);
       if (response.statusCode == 200) {
         showSuccessMessage(context: context, message: 'Амжилттай');
       }

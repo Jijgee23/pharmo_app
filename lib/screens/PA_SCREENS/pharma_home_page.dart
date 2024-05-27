@@ -56,9 +56,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
 
   init() async {
     String deviceToken = await getDeviceToken();
-    print("###### PRINT DEVICE TOKEN TO USE FOR PUSH NOTIFCIATION ######");
-    print(deviceToken);
-    print("#############################################################");
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
@@ -72,7 +69,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
             },
             body: jsonEncode({"deviceId": deviceToken}));
     if (response.statusCode == 200) {
-      print('amjilttai uuslee');
     }
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
       String? title = remoteMessage.notification!.title;

@@ -711,10 +711,8 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           });
-      print(response.statusCode);
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        print(res);
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();

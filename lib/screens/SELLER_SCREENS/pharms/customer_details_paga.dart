@@ -139,35 +139,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                 },
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  child: OutlinedButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStatePropertyAll(Colors.green.shade900),
-                    ),
-                    onPressed: () {
-                      launchUrlString('tel://+976${companyInfo['phone']}');
-                    },
-                    child: const Icon(Icons.call, color: Colors.white),
-                  ),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  child: OutlinedButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStatePropertyAll(Colors.green.shade900),
-                    ),
-                    onPressed: () async {},
-                    child: const Icon(Icons.mail, color: Colors.white),
-                  ),
-                ),
-              ],
-            )
+            
           ],
         ),
       ),

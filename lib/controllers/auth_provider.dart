@@ -61,10 +61,9 @@ Future<Map<String, String>> getDeviceInfo() async {
           "osVersion": iosInfo.systemVersion,
         };
       }
-      print(deviceData);
       return deviceData;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return deviceData;
   }
@@ -132,7 +131,6 @@ Future<Map<String, String>> getDeviceInfo() async {
         return Future.value(false);
       }
     } catch (e) {
-      print(e);
       showFailedMessage(
         message: 'Интернет холболтоо шалгана уу!.',
         context: context,
@@ -154,7 +152,6 @@ Future<Map<String, String>> getDeviceInfo() async {
       }),
     );
     if (responseLogin.statusCode == 200) {
-      print(dotenv.env['SERVER_URL']);
       Map<String, dynamic> res = jsonDecode(responseLogin.body);
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('access_token', res['access_token']);

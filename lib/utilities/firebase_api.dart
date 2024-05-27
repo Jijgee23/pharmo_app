@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -19,13 +21,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         storageBucket: 'android-pharmo.appspot.com',
       ),
     );
-    print('Androidddddddddddddddddddddddddd');
   }
   await setupFlutterNotifications();
   showFlutterNotification(message);
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
-  print('Handling a background message ${message.messageId}');
 }
 
 late AndroidNotificationChannel channel;
@@ -75,8 +75,6 @@ void showFlutterNotification(RemoteMessage message) {
           channel.id,
           channel.name,
           channelDescription: channel.description,
-          // TODO add a proper drawable resource to android, for now using
-          //      one that already exists in example app.
           icon: 'launch_background',
         ),
       ),
@@ -90,9 +88,6 @@ class FirebaseApi {
   static Future<void> initNotification() async {
     await _firebaseMessaging.requestPermission();
     String deviceToken = await _firebaseMessaging.getToken() ?? '';
-    // AppInfo.deviceToken = deviceToken;
-    print('token---------------------------');
-    // print(AppInfo.deviceToken);
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     if (!kIsWeb) {

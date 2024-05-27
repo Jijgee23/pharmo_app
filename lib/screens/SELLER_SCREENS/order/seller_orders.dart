@@ -21,6 +21,7 @@ class _SellerOrdersState extends State<SellerOrders> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Consumer<MyOrderProvider>(
       builder: (_, provider, child) {
         return Scaffold(
@@ -56,6 +57,64 @@ class _SellerOrdersState extends State<SellerOrders> {
               String? status = provider.sellerOrders[index].status;
               return Card(
                 child: ListTile(
+                  onTap: () {
+                    showBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[400],
+                            borderRadius: BorderRadiusDirectional.only(
+                              topEnd: Radius.circular(
+                                size.width * 0.1,
+                              ),
+                              topStart: Radius.circular(
+                                size.width * 0.1,
+                              ),
+                            ),
+                          ),
+                          height: size.height * 0.7,
+                          width: size.width,
+                          padding: EdgeInsets.all(
+                            size.width * 0.08,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                             const Align(
+                                child: Text('Дэлгэрэнгүй'),
+                              ),
+                              Text(
+                                  'Захиалагч: ${provider.sellerOrders[index].user}'),
+                              Text(
+                                  'Захиалгын дугаар: ${provider.sellerOrders[index].orderNo}'),
+                              Text(
+                                  'Нийт барааны тоо ширхэг: ${provider.sellerOrders[index].totalCount.toString()}'),
+                              Text(
+                                  'Нийт үнийн дүн: ${provider.sellerOrders[index].totalPrice.toString()}'),
+                              Text(
+                                  'Хаяг: ${provider.sellerOrders[index].branch?.address != null ? provider.sellerOrders[index].branch!.address : 'Үндсэн салбар'},'),
+                              Text(
+                                  'Qpay-ээр төлсөн эсэх: ${provider.sellerOrders[index].qp == true ? 'Тийм' : 'Үгүй'}'),
+                              Text(
+                                  'Захиалга үүссэн огноо: ${provider.sellerOrders[index].createdOn}'),
+                              Text(
+                                  'Захиалга дууссан огноо: ${provider.sellerOrders[index].endedOn ?? 'Дуусаагүй'}'),
+                              Text(
+                                  'Тайлбартай эсэх: ${provider.sellerOrders[index].note == true ? 'Тийм' : 'Үгүй'}'),
+                              Text(
+                                  'Борлуулагч: ${provider.sellerOrders[index].seller ?? 'Байхгүй'}'),
+                              Text(
+                                  'Хүргэлтийн ажилтан: ${provider.sellerOrders[index].delman ?? 'Байхгүй'}'),
+                              Text(
+                                  'Бэлтгэгч: ${provider.sellerOrders[index].packer ?? 'Байхгүй'}'),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
                   title: Text('${provider.sellerOrders[index].user}'),
                   subtitle: Text(
                       'Захиалгын № : ${provider.sellerOrders[index].id.toString()}'),
@@ -80,7 +139,7 @@ class _SellerOrdersState extends State<SellerOrders> {
                             ? AppColors.succesColor
                             : status == 'S'
                                 ? AppColors.secondary
-                                : Colors.blue,
+                                : AppColors.primary,
                   ),
                 ),
               );
