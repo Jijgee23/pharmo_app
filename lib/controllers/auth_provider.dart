@@ -114,7 +114,7 @@ class AuthController extends ChangeNotifier {
             notifyListeners();
             return Future.value(true);
           } else {
-            if ( !isPasswordCreated && email == emailController.text) {
+            if (!isPasswordCreated && email == emailController.text) {
               await showDialog(
                 context: context,
                 builder: (context) {
@@ -140,51 +140,62 @@ class AuthController extends ChangeNotifier {
 
   Future<void> login(
       String email, String password, BuildContext context) async {
-    var responseLogin = await http.post(
-      Uri.parse('${dotenv.env['SERVER_URL']}auth/login/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode({
-        'email': email,
-        'password': password,
-      }),
-    );
-    if (responseLogin.statusCode == 200) {
-      Map<String, dynamic> res = jsonDecode(responseLogin.body);
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('access_token', res['access_token']);
-      String? accessToken = prefs.getString('access_token').toString();
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-      _userInfo = decodedToken;
-      await prefs.setString('refresh_token', res['refresh_token']);
-      await prefs.setString('useremail', decodedToken['email']);
-      await prefs.setInt('user_id', decodedToken['user_id']);
-      await prefs.setString('userrole', decodedToken['role']);
-      final shoppingCart = Provider.of<BasketProvider>(context, listen: false);
-      shoppingCart.getBasket();
-      // await prefs.setString('basket_count', count.toString());
+    try {
+      var responseLogin = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}auth/login/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+      if (responseLogin.statusCode == 200) {
+        Map<String, dynamic> res = jsonDecode(responseLogin.body);
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', res['access_token']);
+        String? accessToken = prefs.getString('access_token').toString();
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+        _userInfo = decodedToken;
+        await prefs.setString('refresh_token', res['refresh_token']);
+        await prefs.setString('useremail', decodedToken['email']);
+        await prefs.setInt('user_id', decodedToken['user_id']);
+        await prefs.setString('userrole', decodedToken['role']);
+        final shoppingCart =
+            Provider.of<BasketProvider>(context, listen: false);
+        shoppingCart.getBasket();
+        // await prefs.setString('basket_count', count.toString());
 
+        notifyListeners();
+        if (decodedToken['role'] == 'S') {
+          gotoRemoveUntil(const SellerHomePage(), context);
+        }
+        if (decodedToken['role'] == 'PA') {
+          gotoRemoveUntil(const PharmaHomePage(), context);
+        }
+        if (decodedToken['role'] == 'D') {
+          gotoRemoveUntil(const JaggerHomePage(), context);
+        }
+        await prefs.setString('access_token', res['access_token']);
+        await prefs.setString('refresh_token', res['refresh_token']);
+        if (kDebugMode) {
+          print(accessToken);
+        }
+        notifyListeners();
+      } else if (responseLogin.statusCode == 400) {
+        final res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
+        List<dynamic> message = res['password'];
+        showFailedMessage(context: context, message: message.toString());
+      } else {
+        {
+          showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
+        }
+      }
       notifyListeners();
-      if (decodedToken['role'] == 'S') {
-        gotoRemoveUntil(const SellerHomePage(), context);
-      }
-      if (decodedToken['role'] == 'PA') {
-        gotoRemoveUntil(const PharmaHomePage(), context);
-      }
-      if (decodedToken['role'] == 'D') {
-        gotoRemoveUntil(const JaggerHomePage(), context);
-      }
-      await prefs.setString('access_token', res['access_token']);
-      await prefs.setString('refresh_token', res['refresh_token']);
-      if (kDebugMode) {
-        print(accessToken);
-      }
-      notifyListeners();
-    } else {
-      showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
+    } catch (e) {
+      debugPrint(e.toString());
     }
-    notifyListeners();
   }
 
   Future<void> logout(BuildContext context) async {
@@ -207,15 +218,18 @@ class AuthController extends ChangeNotifier {
   Future<void> signUpGetOtp(
       String email, String phone, String password, BuildContext context) async {
     try {
-      final response =
-          await http.post(Uri.parse('${dotenv.env['SERVER_URL']}auth/reg_otp/'),
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-              },
-              body: jsonEncode({
-                'email': email,
-                'phone': phone,
-              }));
+      final response = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}auth/reg_otp/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(
+          {
+            'email': email,
+            'phone': phone,
+          },
+        ),
+      );
       notifyListeners();
       if (response.statusCode == 200) {
         showSuccessMessage(

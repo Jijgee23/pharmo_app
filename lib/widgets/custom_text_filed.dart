@@ -5,7 +5,8 @@ class CustomTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final String? hintText;
   final bool? obscureText;
-  final IconData? suffixIcon;
+  final bool? isPassword;
+  final IconButton? suffixIcon;
 
   final Function(String?)? validator;
   final Function(String?)? onChanged;
@@ -19,7 +20,7 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType,
     this.suffixIcon,
     this.onChanged,
-
+    this.isPassword,
   });
 
   @override
@@ -36,10 +37,9 @@ class CustomTextField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: hintText,
           border: const OutlineInputBorder(),
-            suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null
+          suffixIcon: suffixIcon,
         ),
-        obscureText: obscureText ??
-            false, 
+        obscureText: obscureText ?? false,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: validator as String? Function(String?)?,
       ),

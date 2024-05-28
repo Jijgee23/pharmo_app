@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MyOrderProvider extends ChangeNotifier {
   List<MyOrderModel> _orders = <MyOrderModel>[];
   List<SellerOrderModel> sellerOrders = <SellerOrderModel>[];
+  List<SellerOrderModel> filteredsellerOrders = <SellerOrderModel>[];
   List<MyOrderModel> get orders => _orders;
 
   List<MyOrderDetailModel> _orderDetails = <MyOrderDetailModel>[];
@@ -28,6 +29,54 @@ class MyOrderProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ords = response['results'];
+        sellerOrders.clear();
+        sellerOrders =
+            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  getSellerOrdersByDateRanged(String startDate, String endDate) async {
+    try {
+      String bearerToken = await getAccessToken();
+      final res = await http.get(
+        Uri.parse(
+            '${dotenv.env['SERVER_URL']}order/?start=$startDate&end=$endDate'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': bearerToken,
+        },
+      );
+      if (res.statusCode == 200) {
+        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        List<dynamic> ords = response['results'];
+        sellerOrders.clear();
+        sellerOrders =
+            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  getSellerOrdersByDateSingle(String date) async {
+    try {
+      String bearerToken = await getAccessToken();
+      final res = await http.get(
+        Uri.parse('${dotenv.env['SERVER_URL']}order/?start=$date'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': bearerToken,
+        },
+      );
+      if (res.statusCode == 200) {
+        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        List<dynamic> ords = response['results'];
+        sellerOrders.clear();
         sellerOrders =
             (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
         notifyListeners();

@@ -11,7 +11,11 @@ class SellerOrders extends StatefulWidget {
 }
 
 class _SellerOrdersState extends State<SellerOrders> {
+  bool scrolling = false;
   late MyOrderProvider orderProvider;
+  List<SellerOrderModel> displayProducts = <SellerOrderModel>[];
+  DateTime selectedDate = DateTime.now();
+  DateTime selectedDate2 = DateTime.now();
   @override
   void initState() {
     super.initState();
@@ -25,6 +29,7 @@ class _SellerOrdersState extends State<SellerOrders> {
     return Consumer<MyOrderProvider>(
       builder: (_, provider, child) {
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             title: Column(
               children: [
@@ -50,100 +55,212 @@ class _SellerOrdersState extends State<SellerOrders> {
             ),
             centerTitle: true,
           ),
-          body: ListView.builder(
-            itemCount: provider.sellerOrders.length,
-            itemBuilder: (context, index) {
-              String? process = provider.sellerOrders[index].process;
-              String? status = provider.sellerOrders[index].status;
-              return Card(
-                child: ListTile(
-                  onTap: () {
-                    showBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[400],
-                            borderRadius: BorderRadiusDirectional.only(
-                              topEnd: Radius.circular(
-                                size.width * 0.1,
-                              ),
-                              topStart: Radius.circular(
-                                size.width * 0.1,
-                              ),
-                            ),
-                          ),
-                          height: size.height * 0.7,
-                          width: size.width,
-                          padding: EdgeInsets.all(
-                            size.width * 0.08,
-                          ),
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollEndNotification) {
+                if (notification.metrics.atEdge) {
+                  setState(() {
+                    scrolling = false;
+                  });
+                } else {
+                  setState(() {
+                    scrolling = true;
+                  });
+                }
+              }
+              if (notification is ScrollUpdateNotification &&
+                  notification.scrollDelta! < 0) {
+                setState(() {
+                  scrolling = false;
+                });
+              }
+              if (notification is ScrollUpdateNotification &&
+                  notification.scrollDelta! > 0) {
+                setState(() {
+                  scrolling = true;
+                });
+              }
+              return true;
+            },
+            child: Column(
+              children: [
+                scrolling
+                    ? const SizedBox(
+                        height: 0,
+                      )
+                    : Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.all(10),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                             const Align(
-                                child: Text('Дэлгэрэнгүй'),
-                              ),
-                              Text(
-                                  'Захиалагч: ${provider.sellerOrders[index].user}'),
-                              Text(
-                                  'Захиалгын дугаар: ${provider.sellerOrders[index].orderNo}'),
-                              Text(
-                                  'Нийт барааны тоо ширхэг: ${provider.sellerOrders[index].totalCount.toString()}'),
-                              Text(
-                                  'Нийт үнийн дүн: ${provider.sellerOrders[index].totalPrice.toString()}'),
-                              Text(
-                                  'Хаяг: ${provider.sellerOrders[index].branch?.address != null ? provider.sellerOrders[index].branch!.address : 'Үндсэн салбар'},'),
-                              Text(
-                                  'Qpay-ээр төлсөн эсэх: ${provider.sellerOrders[index].qp == true ? 'Тийм' : 'Үгүй'}'),
-                              Text(
-                                  'Захиалга үүссэн огноо: ${provider.sellerOrders[index].createdOn}'),
-                              Text(
-                                  'Захиалга дууссан огноо: ${provider.sellerOrders[index].endedOn ?? 'Дуусаагүй'}'),
-                              Text(
-                                  'Тайлбартай эсэх: ${provider.sellerOrders[index].note == true ? 'Тийм' : 'Үгүй'}'),
-                              Text(
-                                  'Борлуулагч: ${provider.sellerOrders[index].seller ?? 'Байхгүй'}'),
-                              Text(
-                                  'Хүргэлтийн ажилтан: ${provider.sellerOrders[index].delman ?? 'Байхгүй'}'),
-                              Text(
-                                  'Бэлтгэгч: ${provider.sellerOrders[index].packer ?? 'Байхгүй'}'),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      _selectDate(context);
+                                    },
+                                    child: Text(
+                                      selectedDate.toString().substring(0, 10),
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_right_alt),
+                                  TextButton(
+                                    onPressed: () {
+                                      _selectDate2(context);
+                                    },
+                                    child: Text(
+                                      selectedDate2.toString().substring(0, 10),
+                                    ),
+                                  ),
+                                  OutlinedButton(
+                                    onPressed: () {
+                                      if (selectedDate == selectedDate2) {
+                                        orderProvider
+                                            .getSellerOrdersByDateSingle(
+                                                selectedDate
+                                                    .toString()
+                                                    .substring(0, 10));
+                                      } else {
+                                        orderProvider
+                                            .getSellerOrdersByDateRanged(
+                                                selectedDate
+                                                    .toString()
+                                                    .substring(0, 10),
+                                                selectedDate2
+                                                    .toString()
+                                                    .substring(0, 10));
+                                      }
+                                    },
+                                    style: const ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStatePropertyAll(
+                                                AppColors.primary)),
+                                    child: const Text(
+                                      'Шүүх',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
+                              )
                             ],
                           ),
-                        );
-                      },
-                    );
-                  },
-                  title: Text('${provider.sellerOrders[index].user}'),
-                  subtitle: Text(
-                      'Захиалгын № : ${provider.sellerOrders[index].id.toString()}'),
-                  trailing: Text(
-                    process == 'M'
-                        ? 'Бэлтгэж эхэлсэн'
-                        : process == 'N'
-                            ? 'Шинэ'
-                            : process == 'P'
-                                ? 'Бэлэн болсон'
-                                : process == 'A'
-                                    ? 'Хүлээн авсан'
-                                    : process == 'C'
-                                        ? 'Хааллтай'
-                                        : 'Буцаагдсан',
-                  ),
-                  leading: Icon(
-                    Icons.circle,
-                    color: status == 'W'
-                        ? AppColors.failedColor
-                        : status == 'P'
-                            ? AppColors.succesColor
-                            : status == 'S'
-                                ? AppColors.secondary
-                                : AppColors.primary,
+                        ),
+                      ),
+                Expanded(
+                  flex: 9,
+                  child: ListView.builder(
+                    itemCount: provider.sellerOrders.length,
+                    itemBuilder: (context, index) {
+                      String? process = provider.sellerOrders[index].process;
+                      String? status = provider.sellerOrders[index].status;
+                      return Card(
+                        color: AppColors.primary,
+                        child: ListTile(
+                          onTap: () {
+                            showBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: BorderRadiusDirectional.only(
+                                      topEnd: Radius.circular(
+                                        size.width * 0.1,
+                                      ),
+                                      topStart: Radius.circular(
+                                        size.width * 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                  height: size.height * 0.7,
+                                  width: size.width,
+                                  padding: EdgeInsets.all(
+                                    size.width * 0.08,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      const Align(
+                                        child: Text(
+                                          'Дэлгэрэнгүй',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18),
+                                        ),
+                                      ),
+                                      wtxt(
+                                          'Захиалагч: ${provider.sellerOrders[index].user}'),
+                                      wtxt(
+                                          'Нийт барааны тоо ширхэг: ${provider.sellerOrders[index].totalCount.toString()}'),
+                                      wtxt(
+                                          'Нийт үнийн дүн: ${provider.sellerOrders[index].totalPrice.toString()}'),
+                                      wtxt(
+                                          'Хаяг: ${provider.sellerOrders[index].branch?.address != null ? provider.sellerOrders[index].branch!.address : 'Үндсэн салбар'},'),
+                                      wtxt(
+                                          'Qpay-ээр төлсөн эсэх: ${provider.sellerOrders[index].qp == true ? 'Тийм' : 'Үгүй'}'),
+                                      wtxt(
+                                          'Захиалга үүссэн огноо: ${provider.sellerOrders[index].createdOn}'),
+                                      wtxt(
+                                          'Захиалга дууссан огноо: ${provider.sellerOrders[index].endedOn ?? 'Дуусаагүй'}'),
+                                      wtxt(
+                                          'Тайлбартай эсэх: ${provider.sellerOrders[index].note == true ? 'Тийм' : 'Үгүй'}'),
+                                      Align(
+                                        child: IconButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          icon: const Icon(
+                                            Icons.arrow_downward,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          title: Text('${provider.sellerOrders[index].user}',
+                              style: const TextStyle(color: Colors.white)),
+                          subtitle: Text(
+                              'Хаяг: ${provider.sellerOrders[index].branch?.address}',
+                              style: const TextStyle(color: Colors.white)),
+                          trailing: Text(
+                              process == 'M'
+                                  ? 'Бэлтгэж эхэлсэн'
+                                  : process == 'N'
+                                      ? 'Шинэ'
+                                      : process == 'P'
+                                          ? 'Бэлэн болсон'
+                                          : process == 'A'
+                                              ? 'Хүлээн авсан'
+                                              : process == 'C'
+                                                  ? 'Хааллтай'
+                                                  : 'Буцаагдсан',
+                              style: const TextStyle(color: Colors.white)),
+                          leading: Icon(
+                            Icons.circle,
+                            color: status == 'W'
+                                ? AppColors.failedColor
+                                : status == 'P'
+                                    ? AppColors.succesColor
+                                    : status == 'S'
+                                        ? AppColors.secondary
+                                        : AppColors.primary,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-              );
-            },
+              ],
+            ),
           ),
         );
       },
@@ -167,5 +284,40 @@ class _SellerOrdersState extends State<SellerOrders> {
         )
       ],
     );
+  }
+
+  Widget wtxt(String text) {
+    return Text(
+      text,
+      style: const TextStyle(color: Colors.white),
+    );
+  }
+
+  _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2025),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+  _selectDate2(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate2,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2025),
+    );
+    if (picked != null && picked != selectedDate2) {
+      setState(() {
+        selectedDate2 = picked;
+      });
+    }
   }
 }

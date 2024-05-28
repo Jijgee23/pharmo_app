@@ -41,8 +41,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   bool searching = false;
   bool filtering = false;
   final TextEditingController _searchController = TextEditingController();
-  List<Product> displayProducts = <Product>[];
-  List<Product> demoList = <Product>[];
   IconData viewIcon = Icons.grid_view;
   List<Filter> filters = [
     Filter(name: 'Эм', selected: false),
@@ -405,11 +403,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                               color: Colors.red,
                                               fontWeight: FontWeight.w500),
                                         ),
-                                        Text(
-                                          item.modified_at,
-                                          style: const TextStyle(
-                                              fontSize: 11, color: Colors.grey),
-                                        ),
                                       ],
                                     ),
                                     SizedBox(
@@ -418,7 +411,8 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                               0.05,
                                       child: OutlinedButton(
                                         onPressed: () {
-                                          addBasket(item.id, item.itemname_id);
+                                          addBasket(item.id,
+                                              int.parse(item.itemname_id));
                                         },
                                         style: ButtonStyle(
                                           backgroundColor:
@@ -503,17 +497,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                                                 .spaceEvenly,
                                                         children: [
                                                           Text(
-                                                            item.modified_at,
-                                                            style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color: Colors
-                                                                  .grey[400],
-                                                            ),
-                                                          ),
-                                                          Text(
                                                             '${item.price}₮',
                                                             style: const TextStyle(
                                                                 fontSize: 16,
@@ -569,7 +552,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              flex: 4,
+                                              flex: 3,
                                               child: Text(
                                                 item.name,
                                                 softWrap: true,

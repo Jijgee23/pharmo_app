@@ -162,7 +162,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   ),
                   _drawerItem(
                     title: 'Орлогын жагсаалт',
-                    icon: Icons.list,
+                    icon: Icons.attach_money,
                     onTap: () {
                       goto(const IncomeList(), context);
                     },

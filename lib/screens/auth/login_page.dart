@@ -7,6 +7,7 @@ import 'package:pharmo_app/widgets/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_button.dart';
 import 'package:pharmo_app/widgets/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -19,11 +20,19 @@ final emailController = TextEditingController(text: 'p1@a.mn');
 final passwordController = TextEditingController(text: 'pasS0011');
 
 class _LoginPageState extends State<LoginPage> {
+  bool hover = false;
+  late AuthController authController;
+  @override
+  void initState() {
+    super.initState();
+    authController = Provider.of<AuthController>(context, listen: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final authController = Provider.of<AuthController>(context);
-    late bool hover = true;
+
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: Scaffold(
@@ -95,10 +104,18 @@ class _LoginPageState extends State<LoginPage> {
                       child: CustomTextField(
                         controller: passwordController,
                         hintText: 'Нууц үг',
-                        obscureText: hover,
+                        obscureText: !hover,
                         validator: validatePassword,
                         keyboardType: TextInputType.name,
-                        suffixIcon: Icons.lock,
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                hover = !hover;
+                              });
+                            },
+                            icon: Icon(hover
+                                ? Icons.visibility
+                                : Icons.visibility_off)),
                       ),
                     ),
                     SizedBox(height: size.height * 0.03),
@@ -108,13 +125,23 @@ class _LoginPageState extends State<LoginPage> {
                             : 'Нэвтрэх',
                         ontap: () async {
                           if (!authController.invisible) {
-                            await authController.login(emailController.text,
-                                passwordController.text, context);
+                            if (passwordController.text.isNotEmpty) {
+                              await authController
+                                  .login(emailController.text,
+                                      passwordController.text, context)
+                                  .whenComplete(() {
+                                passwordController.clear();
+                              });
+                            } else {
+                              showFailedMessage(
+                                  context: context,
+                                  message: 'Нууц үгээ оруулна уу');
+                            }
                           } else {
                             final bool islock = await authController.checkEmail(
                                 emailController.text, context);
                             if (islock) {
-                                authController.toggleVisibile();
+                              authController.toggleVisibile();
                             }
                           }
                         }),
@@ -143,6 +170,12 @@ class _LoginPageState extends State<LoginPage> {
                             : CustomTextButton(
                                 text: 'Нууц үг сэргээх',
                                 onTap: () {
+                                  setState(() {
+                                    authController.invisible2 = false;
+                                  });
+                                  passwordController.clear();
+                                  passwordConfirmController.clear();
+                                  newPasswordController.clear();
                                   showDialog(
                                     context: context,
                                     builder: (context) {

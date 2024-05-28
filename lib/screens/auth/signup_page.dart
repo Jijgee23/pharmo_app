@@ -22,6 +22,7 @@ final passwordConfirmController = TextEditingController();
 //final optController = TextEditingController();
 
 class _SignUpPageState extends State<SignUpPage> {
+  bool showPasss = false;
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -70,17 +71,37 @@ class _SignUpPageState extends State<SignUpPage> {
                     CustomTextField(
                       controller: passwordController,
                       hintText: 'Нууц үг',
-                      obscureText: true,
+                      obscureText: !showPasss,
                       keyboardType: TextInputType.visiblePassword,
                       validator: validatePassword,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            showPasss = !showPasss;
+                          });
+                        },
+                        icon: Icon(showPasss
+                            ? Icons.visibility
+                            : Icons.visibility_off),
+                      ),
                     ),
                     SizedBox(height: size.height * 0.02),
                     CustomTextField(
                       controller: passwordConfirmController,
                       hintText: 'Нууц үг давтах',
-                      obscureText: true,
+                      obscureText: !showPasss,
                       keyboardType: TextInputType.visiblePassword,
                       validator: validatePassword,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            showPasss = !showPasss;
+                          });
+                        },
+                        icon: Icon(showPasss
+                            ? Icons.visibility
+                            : Icons.visibility_off),
+                      ),
                     ),
                     SizedBox(height: size.height * 0.02),
                     CustomButton(
@@ -89,14 +110,12 @@ class _SignUpPageState extends State<SignUpPage> {
                           if (emailController.text.isEmpty) {
                             showFailedMessage(
                                 message: 'Имэйл хаягаа оруулна уу!',
-                                // ignore: use_build_context_synchronously
                                 context: context);
                             return;
                           }
                           if (phoneController.text.isEmpty) {
                             showFailedMessage(
                                 message: 'Утасны дугаараа оруулна уу!',
-                                // ignore: use_build_context_synchronously
                                 context: context);
                             return;
                           }
@@ -104,30 +123,33 @@ class _SignUpPageState extends State<SignUpPage> {
                               passwordConfirmController.text.isEmpty) {
                             showFailedMessage(
                                 message: 'Нууц үгээ оруулна уу!',
-                                // ignore: use_build_context_synchronously
                                 context: context);
                             return;
                           }
                           if (passwordController.text ==
                                   passwordConfirmController.text &&
                               passwordController.text.isNotEmpty) {
-                            authController.signUpGetOtp(
-                                emailController.text,
-                                phoneController.text,
-                                passwordConfirmController.text,
-                                context);
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return OtpDialog(
-                                    email: emailController.text,
-                                    otp: otpController.text,
-                                  );
-                                });
+                            authController
+                                .signUpGetOtp(
+                                    emailController.text,
+                                    phoneController.text,
+                                    passwordConfirmController.text,
+                                    context)
+                                .whenComplete(
+                              () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return OtpDialog(
+                                        email: emailController.text,
+                                        otp: otpController.text,
+                                      );
+                                    });
+                              },
+                            );
                           } else {
                             showFailedMessage(
                                 message: 'Нууц үг таарахгүй байна!',
-                                // ignore: use_build_context_synchronously
                                 context: context);
                           }
                         }),
@@ -218,12 +240,15 @@ class _OtpDialogState extends State<OtpDialog> {
             CustomButton(
                 text: 'Батлагаажуулах',
                 ontap: () {
-                  authController.register(
-                      emailController.text,
-                      phoneController.text,
-                      passwordController.text,
-                      otpController.text,
-                      context);
+                  authController
+                      .register(emailController.text, phoneController.text,
+                          passwordController.text, otpController.text, context)
+                      .whenComplete(() {
+                    passwordConfirmController.clear();
+                    passwordController.clear();
+                    phoneController.clear();
+                    otpController.clear();
+                  });
                   Navigator.push(context,
                       MaterialPageRoute(builder: (_) => const LoginPage()));
                 }),

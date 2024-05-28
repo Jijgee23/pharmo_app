@@ -99,7 +99,12 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                   String password = passwordController.text;
                   String password2 = newPasswordController.text;
                   String otp = otpController.text;
-                  if (password == password2) {
+                  if(password.isEmpty){
+                    showFailedMessage(
+                        context: context,
+                        message: 'Нууц үг оруулна уу');
+                  }
+                  if (password == password2 && password2.isNotEmpty) {
                     if (!authController.invisible2) {
                       authController.resetPassOtp(email, context);
                       setState(() {
@@ -124,13 +129,6 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                         authController.toggleVisibile2();
                       });
                     }
-                    // if (authController.invisible) {
-                    //   authController.createPassword(
-                    //       email, otp, password2, context);
-                    //   setState(() {
-                    //   authController.toggleVisibile();
-                    //   });
-                    // }
                   } else {
                     showFailedMessage(
                         message: 'Нууц үг таарахгүй байна!', context: context);

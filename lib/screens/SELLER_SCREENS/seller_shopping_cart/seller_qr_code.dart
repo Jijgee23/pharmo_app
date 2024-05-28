@@ -42,14 +42,13 @@ class _SellerQRCodeState extends State<SellerQRCode> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
-
       final response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}ci/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
-        body: homeProvider.orderType == 'NODELIVERY'
+        body: homeProvider.orderType == 'NODELIVERY' 
             ? homeProvider.note == null
                 ? jsonEncode({
                     'userId': homeProvider.selectedCustomerId,
@@ -73,12 +72,15 @@ class _SellerQRCodeState extends State<SellerQRCode> {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
           qrData = res;
-          urls = res['urls'];
+          if (res['urls'] != null) {
+            urls = res['urls'];
+          }
         });
       }
     } catch (e) {
       showFailedMessage(
           message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
+      debugPrint(e.toString());
     }
   }
 
@@ -123,10 +125,10 @@ class _SellerQRCodeState extends State<SellerQRCode> {
 
   @override
   void initState() {
-    createQR();
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    createQR();
   }
 
   @override

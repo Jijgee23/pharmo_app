@@ -36,6 +36,59 @@ class IncomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  getIncomeListByDateSinlge(BuildContext context, String date) async {
+    try {
+      final SharedPreferences preferences =
+          await SharedPreferences.getInstance();
+      String? token = preferences.getString('access_token');
+      final response = await http.get(
+        Uri.parse(
+            '${dotenv.env['SERVER_URL']}income_record/?createdOn__date=$date'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<dynamic> resList = res['results'];
+        incomeList.clear();
+        incomeList = resList.map((item) => Income.fromJson(item)).toList();
+      }
+      notifyListeners();
+    } catch (e) {
+      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+    }
+    notifyListeners();
+  }
+
+  getIncomeListByDateRanged(
+      BuildContext context, String date1, String date2) async {
+    try {
+      final SharedPreferences preferences =
+          await SharedPreferences.getInstance();
+      String? token = preferences.getString('access_token');
+      final response = await http.get(
+        Uri.parse(
+            '${dotenv.env['SERVER_URL']}income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<dynamic> resList = res['results'];
+        incomeList.clear();
+        incomeList = resList.map((item) => Income.fromJson(item)).toList();
+      }
+      notifyListeners();
+    } catch (e) {
+      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+    }
+    notifyListeners();
+  }
+
   recordIncome(String note, String amount, BuildContext context) async {
     try {
       final SharedPreferences preferences =
