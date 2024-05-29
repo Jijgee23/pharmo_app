@@ -4,11 +4,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/models/branch.dart';
+import 'package:pharmo_app/models/filters.dart';
+import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -37,12 +38,14 @@ class HomeProvider extends ChangeNotifier {
   String? email;
   String? phone;
   String? detail;
-  int? provinceId;
-  int? districtId;
-  int? khorooId;
+  List<Filters> categories = <Filters>[
+    Filters(0, 'Бүгд', null, [])
+  ];
+  List<Manufacturer> mnfrs = <Manufacturer>[];
+  List<Manufacturer> vndrs = <Manufacturer>[];
   getLastPickedSupplier() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    lastPickedSupplier = prefs.getInt('lastSupId');
+    lastPickedSupplier = prefs.getInt('supplierId');
     notifyListeners();
   }
 
@@ -64,6 +67,60 @@ class HomeProvider extends ChangeNotifier {
   toggleInvisible() {
     invisible = !invisible;
     notifyListeners();
+  }
+
+  getFilters() async {
+    try {
+      final accestoken = await getAccessToken();
+      final response = await http.get(
+        Uri.parse('${dotenv.env['SERVER_URL']}product/filters/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $accestoken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        
+        categories = (res['cats'] as List)
+            .map((data) => Filters.fromJson(data))
+            .toList();
+        mnfrs = (res['mnfrs'] as List)
+            .map((e) => Manufacturer.fromJson(e))
+            .toList();
+        vndrs = (res['vndrs'] as List)
+            .map((e) => Manufacturer.fromJson(e))
+            .toList();
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  filter(int filters, int page, int pageSize) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      final response = await http.get(
+          Uri.parse(
+              '${dotenv.env['SERVER_URL']}products/?category=$filters&page=$page&page_size=$pageSize'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          });
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
+        return prods;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   getUserInfo() async {
@@ -116,14 +173,12 @@ class HomeProvider extends ChangeNotifier {
         selectedBranchId = res[0]['id'];
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
+      debugPrint(e.toString());
     }
   }
 
   Future<Map<String, String>> getDeviceInfo() async {
-   final accestoken = await getAccessToken();
+    final accestoken = await getAccessToken();
     String bearerToken = "Bearer $accestoken";
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
@@ -200,7 +255,7 @@ class HomeProvider extends ChangeNotifier {
 
   searchByLocation(BuildContext context) async {
     try {
-     final accestoken = await getAccessToken();
+      final accestoken = await getAccessToken();
       final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}seller/search_by_location/'),
           headers: <String, String>{
@@ -248,6 +303,4 @@ class HomeProvider extends ChangeNotifier {
     String? token = prefs.getString('access_token');
     return token;
   }
-
-
 }

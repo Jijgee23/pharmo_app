@@ -13,9 +13,12 @@ class ShoppingCartHome extends StatefulWidget {
 }
 
 class _ShoppingCartHomeState extends State<ShoppingCartHome> {
+  late BasketProvider basketProvider;
   @override
   void initState() {
     super.initState();
+    basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    basketProvider.getBasket();
   }
 
   @override
@@ -28,7 +31,8 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
     }
 
     void purchase(int basketId) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const SelectBranchPage()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const SelectBranchPage()));
     }
 
     return Scaffold(
@@ -47,7 +51,8 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                             child: ListView.builder(
                               itemCount: cartDatas.length,
                               itemBuilder: (context, index) {
-                                return ShoppingCartView(detail: cartDatas[index] ?? {});
+                                return ShoppingCartView(
+                                    detail: cartDatas[index] ?? {});
                               },
                             ),
                           )
@@ -63,7 +68,8 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   border: Border(
@@ -82,23 +88,43 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(text: 'Нийт тоо ширхэг: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                              TextSpan(text: '${basket.totalCount}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                            ]),
+                            text: TextSpan(
+                                text: 'Нийт тоо ширхэг: ',
+                                style: TextStyle(
+                                    color: Colors.blueGrey.shade800,
+                                    fontSize: 13.0),
+                                children: [
+                                  TextSpan(
+                                      text: '${basket.totalCount}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0)),
+                                ]),
                           ),
                           RichText(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            text: TextSpan(text: 'Нийт төлөх дүн: ', style: TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0), children: [
-                              TextSpan(text: '${basket.totalPrice} ₮', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.red)),
-                            ]),
+                            text: TextSpan(
+                                text: 'Нийт төлөх дүн: ',
+                                style: TextStyle(
+                                    color: Colors.blueGrey.shade800,
+                                    fontSize: 13.0),
+                                children: [
+                                  TextSpan(
+                                      text: '${basket.totalPrice} ₮',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0,
+                                          color: Colors.red)),
+                                ]),
                           ),
                         ],
                       ),

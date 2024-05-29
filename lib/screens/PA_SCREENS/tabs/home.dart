@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, non_constant_identifier_names
 
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -10,6 +8,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/filtered_product.dart';
+import 'package:pharmo_app/models/filters.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/public_uses/product/product_detail_page.dart';
@@ -47,9 +46,13 @@ class _HomeState extends State<Home> {
   bool filtering = false;
   Supplier? selectedSupplier;
   late HomeProvider homeProvider;
+  late BasketProvider basketProvider;
+  Color selectedFilterColor = Colors.black;
+  int? selectedFilter;
   @override
   void initState() {
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    basketProvider = Provider.of<BasketProvider>(context, listen: false);
     getSuppliers();
     _pagingController.addPageRequestListener(
       (pageKey) {
@@ -57,17 +60,19 @@ class _HomeState extends State<Home> {
           _fetchPage(pageKey);
           _pagingController.refresh();
         }
-        if (filtering) {
+        if (filtering && !searching) {
           _fetchPageFilter(filterKey, pageKey);
           _pagingController.refresh();
         }
-        if (searching) {
+        if (searching && !filtering) {
           _fetchbySearching(pageKey, type, searchQuery!);
           _pagingController.refresh();
         }
       },
     );
     super.initState();
+    basketProvider.getBasket();
+    homeProvider.getFilters();
   }
 
   @override
@@ -79,13 +84,13 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    final basketProvider = Provider.of<BasketProvider>(context, listen: false);
     return RefreshIndicator(
-      onRefresh: () => Future.sync(
-        () => _pagingController.refresh(),
-      ),
-      child: Consumer<HomeProvider>(
-        builder: (_, homeProvider, child) {
+      onRefresh: () => Future.sync(() {
+        _pagingController.refresh();
+        basketProvider.getBasket();
+      }),
+      child: Consumer2<HomeProvider, BasketProvider>(
+        builder: (_, homeProvider, basketProvider, child) {
           return CustomScrollView(
             slivers: [
               SliverAppBar(
@@ -97,14 +102,21 @@ class _HomeState extends State<Home> {
                     padding: const EdgeInsets.symmetric(horizontal: 30),
                     height: 50,
                     child: DropdownButtonFormField<Supplier>(
+                    
                       style: const TextStyle(),
                       decoration: const InputDecoration(
                           border: UnderlineInputBorder(),
                           hintText: 'Нийлүүлэгч сонгох'),
+                      icon: const Icon(Icons.arrow_drop_down),
                       value: selectedSupplier,
+                      onSaved: (newValue) {
+                        print('saved');
+                        _pagingController.refresh();
+                      },
                       onChanged: (Supplier? newValue) {
                         pickSupplier(int.parse(newValue!.id));
                         setLastSupplier(int.parse(newValue.id));
+                        homeProvider.getFilters();
                         basketProvider.getBasket();
                         _pagingController.refresh();
                       },
@@ -150,6 +162,7 @@ class _HomeState extends State<Home> {
                           onChanged: (value) {
                             setState(() {
                               searching = true;
+                              filtering = false;
                               searchQuery =
                                   value.isEmpty ? null : _searchController.text;
                             });
@@ -219,6 +232,63 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
+              homeProvider.mnfrs.isNotEmpty
+                  ? filters(homeProvider.mnfrs)
+                  : const SliverAppBar(
+                      toolbarHeight: 0,
+                    ),
+              homeProvider.categories.isNotEmpty
+                  ? SliverAppBar(
+                      toolbarHeight: 15,
+                      automaticallyImplyLeading: false,
+                      title: NotificationListener(
+                        onNotification: (notification) {
+                          if (notification is ScrollUpdateNotification) {}
+                          return true;
+                        },
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Wrap(
+                            direction: Axis.horizontal,
+                            children: homeProvider.categories.map(
+                              (e) {
+                                return TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      if (e.id == selectedFilter) {
+                                        filtering = false;
+                                        selectedFilter = null;
+                                      } else {
+                                        filtering = true;
+                                        filterKey = e.id;
+                                        searching = false;
+                                        selectedFilter = e.id;
+                                      }
+                                    });
+                                    _pagingController.refresh();
+                                  },
+                                  child: Text(
+                                    e.name,
+                                    style: TextStyle(
+                                        color: e.id == selectedFilter
+                                            ? AppColors.succesColor
+                                            : Colors.black),
+                                  ),
+                                );
+                              },
+                            ).toList(),
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SliverAppBar(
+                      toolbarHeight: 0,
+                    ),
+              homeProvider.vndrs.isNotEmpty
+                  ? filters(homeProvider.vndrs)
+                  : const SliverAppBar(
+                      toolbarHeight: 0,
+                    ),
               searching
                   ? !isList
                       ? PagedSliverGrid<int, dynamic>(
@@ -496,6 +566,51 @@ class _HomeState extends State<Home> {
     );
   }
 
+  SliverAppBar filters(List<Manufacturer> list) {
+    return SliverAppBar(
+      automaticallyImplyLeading: false,
+      toolbarHeight: 20,
+      title: NotificationListener(
+        onNotification: (notification) {
+          if (notification is ScrollUpdateNotification) {}
+          return true;
+        },
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Wrap(
+            children: list.map(
+              (e) {
+                return TextButton(
+                  onPressed: () {
+                    setState(() {
+                      if (e.id == selectedFilter) {
+                        filtering = false;
+                        selectedFilter = null;
+                      } else {
+                        filtering = true;
+                        filterKey = e.id;
+                        searching = false;
+                        selectedFilter = e.id;
+                      }
+                    });
+                    _pagingController.refresh();
+                  },
+                  child: Text(
+                    e.name,
+                    style: TextStyle(
+                        color: e.id == selectedFilter
+                            ? AppColors.succesColor
+                            : Colors.black),
+                  ),
+                );
+              },
+            ).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
   pickSupplier(int supId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
@@ -506,9 +621,11 @@ class _HomeState extends State<Home> {
               'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': bearerToken,
             },
-            body: jsonEncode({'pId': supId}));
+            body: jsonEncode({'supplierId': supId}));
+    print(response.statusCode);
     if (response.statusCode == 200) {
       Map<String, dynamic> res = jsonDecode(response.body);
+      print(res);
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
     } else if (response.statusCode == 403) {
@@ -593,35 +710,7 @@ class _HomeState extends State<Home> {
         return prods;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
-    }
-  }
-
-  filter(int filters, int page, int pageSize) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse(
-              '${dotenv.env['SERVER_URL']}product/?category=$filters&page=$page&page_size=$pageSize'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
-        return prods;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
+      debugPrint(e.toString());
     }
   }
 
@@ -642,7 +731,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _fetchPageFilter(int filters, int pageKey) async {
     try {
-      final newItems = await filter(filters, pageKey, _pageSize);
+      final newItems = await homeProvider.filter(filters, pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -669,5 +758,4 @@ class _HomeState extends State<Home> {
       _pagingController.error = error;
     }
   }
-} 
-
+}

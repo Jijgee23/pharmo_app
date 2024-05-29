@@ -98,22 +98,26 @@ class _SellerOrdersState extends State<SellerOrders> {
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   TextButton(
-                                    onPressed: () {
-                                      _selectDate(context);
-                                    },
-                                    child: Text(
-                                      selectedDate.toString().substring(0, 10),
-                                    ),
-                                  ),
+                                      onPressed: () {
+                                        _selectDate(context);
+                                      },
+                                      child: Text(
+                                          selectedDate
+                                              .toString()
+                                              .substring(0, 10),
+                                          style: const TextStyle(
+                                              color: AppColors.primary))),
                                   const Icon(Icons.arrow_right_alt),
                                   TextButton(
-                                    onPressed: () {
-                                      _selectDate2(context);
-                                    },
-                                    child: Text(
-                                      selectedDate2.toString().substring(0, 10),
-                                    ),
-                                  ),
+                                      onPressed: () {
+                                        _selectDate2(context);
+                                      },
+                                      child: Text(
+                                          selectedDate2
+                                              .toString()
+                                              .substring(0, 10),
+                                          style: const TextStyle(
+                                              color: AppColors.primary))),
                                   OutlinedButton(
                                     onPressed: () {
                                       if (selectedDate == selectedDate2) {

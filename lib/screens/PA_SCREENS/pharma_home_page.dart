@@ -46,6 +46,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     homeProvider.getUserInfo();
+    homeProvider.getLastPickedSupplier();
     homeProvider.getDeviceInfo();
   }
 
@@ -68,8 +69,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
               'Authorization': bearerToken,
             },
             body: jsonEncode({"deviceId": deviceToken}));
-    if (response.statusCode == 200) {
-    }
+    if (response.statusCode == 200) {}
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
       String? title = remoteMessage.notification!.title;
       String? description = remoteMessage.notification!.body;

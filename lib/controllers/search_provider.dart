@@ -17,7 +17,7 @@ class SearchProvider {
       String bearerToken = "Bearer $token";
       final response = await http.get(
           Uri.parse(
-              '${dotenv.env['SERVER_URL']}product/?page=$page&page_size=$limit'),
+              '${dotenv.env['SERVER_URL']}products/?page=$page&page_size=$limit'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -27,12 +27,11 @@ class SearchProvider {
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
+        
         return prods;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
+      debugPrint(e.toString());
     }
     return null;
   }

@@ -48,206 +48,204 @@ class _SellerHomePageState extends State<SellerHomePage> {
     final homePrvdr = Provider.of<HomeProvider>(context);
     return Consumer<HomeProvider>(
       builder: (_, homeProvider, child) {
-        return SafeArea(
-          child: Scaffold(
-            resizeToAvoidBottomInset: false,
-            appBar: homeProvider.invisible
-                ? null
-                : AppBar(
-                    centerTitle: true,
-                    title: homePrvdr.selectedCustomerId == 0
-                        ? const Text('Захиалагч сонгоно уу')
-                        : TextButton(
-                            onPressed: () {
-                              setState(() {
-                                homeProvider.currentIndex = 0;
-                              });
-                            },
-                            child: RichText(
-                              text: TextSpan(
-                                text: 'Сонгосон захиалагч: ',
-                                style: TextStyle(
-                                    color: Colors.blueGrey.shade800,
-                                    fontSize: 13.0),
-                                children: [
-                                  TextSpan(
-                                      text: homeProvider.selectedCustomerName,
-                                      style: const TextStyle(
-                                          color: AppColors.succesColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13.0)),
-                                ],
-                              ),
-                            ),
-                          ),
-                    actions: [
-                      Container(
-                        margin: const EdgeInsets.only(right: 15),
-                        child: InkWell(
-                          onTap: () {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: homeProvider.invisible
+              ? null
+              : AppBar(
+                  centerTitle: true,
+                  title: homePrvdr.selectedCustomerId == 0
+                      ? const Text('Захиалагч сонгоно уу')
+                      : TextButton(
+                          onPressed: () {
                             setState(() {
-                              homeProvider.currentIndex = 2;
+                              homeProvider.currentIndex = 0;
                             });
                           },
-                          child: badges.Badge(
-                            badgeContent: Text(
-                              "${basketProvider.count}",
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 11),
-                            ),
-                            badgeStyle: const badges.BadgeStyle(
-                              badgeColor: Colors.blue,
-                            ),
-                            child: const Icon(
-                              Icons.shopping_cart,
-                              color: Colors.red,
+                          child: RichText(
+                            text: TextSpan(
+                              text: 'Сонгосон захиалагч: ',
+                              style: TextStyle(
+                                  color: Colors.blueGrey.shade800,
+                                  fontSize: 13.0),
+                              children: [
+                                TextSpan(
+                                    text: homeProvider.selectedCustomerName,
+                                    style: const TextStyle(
+                                        color: AppColors.succesColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13.0)),
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-            drawer: Drawer(
-              shape: const RoundedRectangleBorder(),
-              width: size.width * 0.7,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: size.width,
-                    child: DrawerHeader(
-                      curve: Curves.easeInOut,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: size.width * 0.1,
-                            height: size.width * 0.1,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            child: Icon(
-                              Icons.person,
-                              color: AppColors.secondary,
-                              size: size.width * 0.1,
-                            ),
+                  actions: [
+                    Container(
+                      margin: const EdgeInsets.only(right: 15),
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            homeProvider.currentIndex = 2;
+                          });
+                        },
+                        child: badges.Badge(
+                          badgeContent: Text(
+                            "${basketProvider.count}",
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 11),
                           ),
-                          Text(
-                            'Имейл хаяг: ${homeProvider.userEmail}',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: size.height * 0.016),
+                          badgeStyle: const badges.BadgeStyle(
+                            badgeColor: Colors.blue,
                           ),
-                          Text(
-                            'Хэрэглэгчийн төрөл: ${homeProvider.userRole}',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: size.height * 0.016),
+                          child: const Icon(
+                            Icons.shopping_cart,
+                            color: Colors.red,
                           ),
-                        ],
+                        ),
                       ),
                     ),
+                  ],
+                ),
+          drawer: Drawer(
+            shape: const RoundedRectangleBorder(),
+            width: size.width * 0.7,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: size.width,
+                  child: DrawerHeader(
+                    curve: Curves.easeInOut,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: size.width * 0.1,
+                          height: size.width * 0.1,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            color: AppColors.secondary,
+                            size: size.width * 0.1,
+                          ),
+                        ),
+                        Text(
+                          'Имейл хаяг: ${homeProvider.userEmail}',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: size.height * 0.016),
+                        ),
+                        Text(
+                          'Хэрэглэгчийн төрөл: ${homeProvider.userRole}',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: size.height * 0.016),
+                        ),
+                      ],
+                    ),
                   ),
-                  _drawerItem(
-                    title: 'Эмийг сан бүртгэх',
-                    icon: Icons.medical_services,
-                    onTap: () {
-                      goto(const RegisterPharmPage(), context);
-                    },
-                  ),
-                  _drawerItem(
-                    title: 'Орлогын жагсаалт',
-                    icon: Icons.attach_money,
-                    onTap: () {
-                      goto(const IncomeList(), context);
-                    },
-                  ),
-                  _drawerItem(
-                    title: 'Захиалгууд',
-                    icon: Icons.list_rounded,
-                    onTap: () {
-                      goto(const SellerOrders(), context);
-                    },
-                  ),
-                  _drawerItem(
-                    title: 'Харилцагчийн захиалгын түүх',
-                    icon: Icons.history_outlined,
-                    onTap: () {
-                      goto(const SellerCustomerOrderHisrtory(), context);
-                    },
-                  ),
-                  homeProvider.userRole == 'D'
-                      ? _drawerItem(
-                          title: 'Түгээгчрүү шилжих',
-                          icon: Icons.swap_vert,
-                          onTap: () {
-                            gotoRemoveUntil(const JaggerHomePage(), context);
-                          },
-                        )
-                      : const SizedBox(),
-                  _drawerItem(
-                    title: 'Гарах',
-                    icon: Icons.logout,
-                    onTap: () {
-                      showLogoutDialog(context);
-                    },
-                  ),
-                ],
-              ),
+                ),
+                _drawerItem(
+                  title: 'Эмийг сан бүртгэх',
+                  icon: Icons.medical_services,
+                  onTap: () {
+                    goto(const RegisterPharmPage(), context);
+                  },
+                ),
+                _drawerItem(
+                  title: 'Орлогын жагсаалт',
+                  icon: Icons.attach_money,
+                  onTap: () {
+                    goto(const IncomeList(), context);
+                  },
+                ),
+                _drawerItem(
+                  title: 'Захиалгууд',
+                  icon: Icons.list_rounded,
+                  onTap: () {
+                    goto(const SellerOrders(), context);
+                  },
+                ),
+                _drawerItem(
+                  title: 'Харилцагчийн захиалгын түүх',
+                  icon: Icons.history_outlined,
+                  onTap: () {
+                    goto(const SellerCustomerOrderHisrtory(), context);
+                  },
+                ),
+                homeProvider.userRole == 'D'
+                    ? _drawerItem(
+                        title: 'Түгээгчрүү шилжих',
+                        icon: Icons.swap_vert,
+                        onTap: () {
+                          gotoRemoveUntil(const JaggerHomePage(), context);
+                        },
+                      )
+                    : const SizedBox(),
+                _drawerItem(
+                  title: 'Гарах',
+                  icon: Icons.logout,
+                  onTap: () {
+                    showLogoutDialog(context);
+                  },
+                ),
+              ],
             ),
-            body: NotificationListener<ScrollNotification>(
-              onNotification: (scrollNotification) {
-                if (scrollNotification.metrics.atEdge == true) {
-                  setState(() {
-                    homeProvider.invisible = false;
-                  });
-                }
-                if (scrollNotification is ScrollUpdateNotification &&
-                    scrollNotification.scrollDelta! < 0) {
-                  setState(() {
-                    homeProvider.invisible = false;
-                  });
-                }
-                if (scrollNotification is ScrollUpdateNotification &&
-                    scrollNotification.scrollDelta! > 0) {
-                  setState(() {
-                    homeProvider.invisible = true;
-                  });
-                }
-                return true;
-              },
-              child: _pages[homeProvider.currentIndex],
-            ),
-            bottomNavigationBar: homeProvider.invisible
-                ? null
-                : BottomNavigationBar(
-                    currentIndex: homeProvider.currentIndex,
-                    onTap: homeProvider.changeIndex,
-                    selectedItemColor: AppColors.primary,
-                    unselectedItemColor: AppColors.primary,
-                    items: const [
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.person_outlined),
-                        label: 'Захиалагч',
-                        activeIcon: Icon(Icons.person),
-                      ),
-                      BottomNavigationBarItem(
-                          icon: Icon(Icons.home_outlined),
-                          label: 'Бараа',
-                          activeIcon: Icon(Icons.home)),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.shopping_cart_outlined),
-                        label: 'Сагс',
-                        activeIcon: Icon(Icons.shopping_cart),
-                      ),
-                    ],
-                  ),
           ),
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (scrollNotification) {
+              if (scrollNotification.metrics.atEdge == true) {
+                setState(() {
+                  homeProvider.invisible = false;
+                });
+              }
+              if (scrollNotification is ScrollUpdateNotification &&
+                  scrollNotification.scrollDelta! < 0) {
+                setState(() {
+                  homeProvider.invisible = false;
+                });
+              }
+              if (scrollNotification is ScrollUpdateNotification &&
+                  scrollNotification.scrollDelta! > 0) {
+                setState(() {
+                  homeProvider.invisible = true;
+                });
+              }
+              return true;
+            },
+            child: _pages[homeProvider.currentIndex],
+          ),
+          bottomNavigationBar: homeProvider.invisible
+              ? null
+              : BottomNavigationBar(
+                  currentIndex: homeProvider.currentIndex,
+                  onTap: homeProvider.changeIndex,
+                  selectedItemColor: AppColors.primary,
+                  unselectedItemColor: AppColors.primary,
+                  items: const [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person_outlined),
+                      label: 'Захиалагч',
+                      activeIcon: Icon(Icons.person),
+                    ),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.home_outlined),
+                        label: 'Бараа',
+                        activeIcon: Icon(Icons.home)),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.shopping_cart_outlined),
+                      label: 'Сагс',
+                      activeIcon: Icon(Icons.shopping_cart),
+                    ),
+                  ],
+                ),
         );
       },
     );

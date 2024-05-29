@@ -116,9 +116,7 @@ class _SellerQRCodeState extends State<SellerQRCode> {
             context: context, message: 'Сагсны мэдээлэл олдоогүй!');
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
+      debugPrint(e.toString());
       // showFailedMessage(context: context, message: 'Алдаа гарлаа!');
     }
   }

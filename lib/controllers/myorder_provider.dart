@@ -283,9 +283,7 @@ class MyOrderProvider extends ChangeNotifier {
         };
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
+        debugPrint(e.toString());
     }
   }
 

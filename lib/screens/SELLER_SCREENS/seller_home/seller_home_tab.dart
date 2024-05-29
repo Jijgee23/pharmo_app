@@ -1,14 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/filtered_product.dart';
-import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/models/filters.dart';
 import 'package:pharmo_app/screens/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -36,18 +35,15 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   String searchType = 'Нэрээр';
   String? searchQuery = '';
   String type = 'name';
-  int filterKey = 1;
+  int filterKey = 0;
   bool isList = false;
   bool searching = false;
   bool filtering = false;
   final TextEditingController _searchController = TextEditingController();
   IconData viewIcon = Icons.grid_view;
-  List<Filter> filters = [
-    Filter(name: 'Эм', selected: false),
-    Filter(name: 'Витамин', selected: false),
-    Filter(name: 'Эрүүл мэндийн хэрэгсэл, төхөөрөмж', selected: false),
-    Filter(name: 'Бусад', selected: false),
-  ];
+  late HomeProvider homeProvider;
+  Color selectedFilterColor = Colors.black;
+  int? selectedFilter;
   @override
   void initState() {
     _pagingController.addPageRequestListener(
@@ -64,6 +60,8 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
       },
     );
     super.initState();
+    homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    homeProvider.getFilters();
   }
 
   @override
@@ -80,534 +78,594 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
       onRefresh: () => Future.sync(
         () => _pagingController.refresh(),
       ),
-      child: ChangeNotifierProvider(
-        create: (context) => BasketProvider(),
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                pinned: true,
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      flex: 10,
-                      child: CustomSearchBar(
-                        searchController: _searchController,
-                        onChanged: (value) {
-                          setState(() {
-                            searching = true;
-                            searchQuery =
-                                value.isEmpty ? null : _searchController.text;
-                          });
-                          _pagingController.refresh();
-                        },
-                        onSubmitted: (value) {
-                          setState(() {
-                            if (value.isEmpty) {
-                              searching = false;
-                            } else {
+      child: Consumer<HomeProvider>(
+        builder: (_, homeProvider, child) {
+          return Scaffold(
+            resizeToAvoidBottomInset: false,
+            body: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  pinned: true,
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        flex: 10,
+                        child: CustomSearchBar(
+                          searchController: _searchController,
+                          onChanged: (value) {
+                            setState(() {
                               searching = true;
-                              searchQuery = value;
-                            }
-                          });
-                          _pagingController.refresh();
-                        },
-                        title: '$searchType хайх',
-                        suffix: IconButton(
-                          icon: const Icon(Icons.swap_vert),
-                          onPressed: () {
-                            showMenu(
-                              surfaceTintColor: Colors.white,
-                              context: context,
-                              position:
-                                  const RelativeRect.fromLTRB(150, 20, 0, 0),
-                              items: <PopupMenuEntry>[
-                                PopupMenuItem(
-                                  onTap: () {
-                                    setState(() {
-                                      searchType = 'Нэрээр';
-                                      type = 'name';
-                                    });
-                                  },
-                                  child: const Text('Нэрээр'),
-                                ),
-                                PopupMenuItem(
-                                  onTap: () {
-                                    setState(() {
-                                      searchType = 'Баркодоор';
-                                      type = 'barcode';
-                                    });
-                                  },
-                                  child: const Text('Баркодоор'),
-                                ),
-                                PopupMenuItem(
-                                  onTap: () {
-                                    setState(() {
-                                      searchType = 'Ерөнхий нэршлээр';
-                                      type = 'intName';
-                                    });
-                                  },
-                                  child: const Text('Ерөнхий нэршлээр'),
-                                ),
-                              ],
-                            ).then((value) {});
+                              searchQuery =
+                                  value.isEmpty ? null : _searchController.text;
+                            });
+                            _pagingController.refresh();
                           },
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: IconButton(
-                        onPressed: () {
-                          setState(
-                            () {
-                              if (isList) {
-                                isList = false;
-                                viewIcon = Icons.list;
+                          onSubmitted: (value) {
+                            setState(() {
+                              if (value.isEmpty) {
+                                searching = false;
                               } else {
-                                isList = true;
-                                viewIcon = Icons.grid_view_sharp;
+                                searching = true;
+                                searchQuery = value;
                               }
-                            },
-                          );
-                        },
-                        icon: Icon(viewIcon),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SliverAppBar(
-                title: NotificationListener(
-                  onNotification: (notification) {
-                    if (notification is ScrollUpdateNotification) {}
-                    return true;
-                  },
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Wrap(
-                        children: filters.map(
-                      (e) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: FilterChip(
-                            label: Text(e.name),
-                            selected: e.selected,
-                            onSelected: (value) {
-                              setState(() {
-                                e.selected = value;
-                                filterKey = filters.indexOf(e) + 1;
-                                if (e.selected) {
-                                  filtering = true;
-                                } else {
-                                  filtering = false;
-                                }
-                                for (int i = 0; i < filters.length; i++) {
-                                  if (i != filters.indexOf(e)) {
-                                    filters[i].selected = false;
-                                  }
-                                }
-                              });
-                              _pagingController.refresh();
+                            });
+                            _pagingController.refresh();
+                          },
+                          title: '$searchType хайх',
+                          suffix: IconButton(
+                            icon: const Icon(Icons.swap_vert),
+                            onPressed: () {
+                              showMenu(
+                                surfaceTintColor: Colors.white,
+                                context: context,
+                                position:
+                                    const RelativeRect.fromLTRB(150, 20, 0, 0),
+                                items: <PopupMenuEntry>[
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      setState(() {
+                                        searchType = 'Нэрээр';
+                                        type = 'name';
+                                      });
+                                    },
+                                    child: const Text('Нэрээр'),
+                                  ),
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      setState(() {
+                                        searchType = 'Баркодоор';
+                                        type = 'barcode';
+                                      });
+                                    },
+                                    child: const Text('Баркодоор'),
+                                  ),
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      setState(() {
+                                        searchType = 'Ерөнхий нэршлээр';
+                                        type = 'intName';
+                                      });
+                                    },
+                                    child: const Text('Ерөнхий нэршлээр'),
+                                  ),
+                                ],
+                              ).then((value) {});
                             },
                           ),
-                        );
-                      },
-                    ).toList()),
+                        ),
+                      ),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () {
+                            setState(
+                              () {
+                                if (isList) {
+                                  isList = false;
+                                  viewIcon = Icons.list;
+                                } else {
+                                  isList = true;
+                                  viewIcon = Icons.grid_view_sharp;
+                                }
+                              },
+                            );
+                          },
+                          icon: Icon(viewIcon),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              searching
-                  ? !isList
-                      ? PagedSliverGrid<int, dynamic>(
-                          showNewPageProgressIndicatorAsGridChild: false,
-                          showNewPageErrorIndicatorAsGridChild: false,
-                          showNoMoreItemsIndicatorAsGridChild: false,
-                          pagingController: _pagingController,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                          ),
-                          builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                            animateTransitions: true,
-                            itemBuilder: (_, item, index) => InkWell(
-                              onTap: () {
-                                goto(ProductDetail(prod: item), context);
+                homeProvider.vndrs.isNotEmpty
+                    ? filters(homeProvider.vndrs)
+                    : const SliverAppBar(
+                        toolbarHeight: 0,
+                      ),
+                SliverAppBar(
+                  toolbarHeight: 15,
+                  title: NotificationListener(
+                    onNotification: (notification) {
+                      if (notification is ScrollUpdateNotification) {}
+                      return true;
+                    },
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Wrap(
+                        children: homeProvider.categories.map(
+                          (e) {
+                            return TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  if (e.id == selectedFilter) {
+                                    filtering = false;
+                                    selectedFilter = null;
+                                  } else {
+                                    filtering = true;
+                                    filterKey = e.id;
+                                    searching = false;
+                                    selectedFilter = e.id;
+                                  }
+                                });
+                                _pagingController.refresh();
                               },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 10),
-                                width: double.infinity,
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      child: item.image != null
-                                          ? Image.network(
-                                              // ignore: prefer_interpolation_to_compose_strings
-                                              'https://test.pharma.mn/api/v1${item.image}')
-                                          : Image.asset(
-                                              'assets/no_image.jpg',
-                                            ),
-                                    ),
-                                    Text(
-                                      item.name,
-                                      softWrap: true,
-                                      overflow: TextOverflow.ellipsis,
-                                      style:
-                                          const TextStyle(color: Colors.black),
-                                    ),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          '${item.price.toString()} ₮',
-                                          style: const TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.05,
-                                      child: OutlinedButton(
-                                        onPressed: () {
-                                          addBasket(item.id, item.itemname_id);
-                                        },
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  AppColors.primary),
-                                          shape: MaterialStateProperty.all<
-                                              RoundedRectangleBorder>(
-                                            RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Сагсанд нэмэх',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              child: Text(
+                                e.name,
+                                style: TextStyle(
+                                    color: e.id == selectedFilter
+                                        ? AppColors.succesColor
+                                        : Colors.black),
                               ),
+                            );
+                          },
+                        ).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+                homeProvider.vndrs.isNotEmpty
+                    ? filters(homeProvider.mnfrs)
+                    : const SliverAppBar(
+                        toolbarHeight: 0,
+                      ),
+                searching
+                    ? !isList
+                        ? PagedSliverGrid<int, dynamic>(
+                            showNewPageProgressIndicatorAsGridChild: false,
+                            showNewPageErrorIndicatorAsGridChild: false,
+                            showNoMoreItemsIndicatorAsGridChild: false,
+                            pagingController: _pagingController,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
                             ),
-                          ),
-                        )
-                      : PagedSliverList<int, dynamic>(
-                          pagingController: _pagingController,
-                          builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                            itemBuilder: (context, item, index) => InkWell(
-                              onTap: () {
-                                goto(ProductDetail(prod: item), context);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 7),
-                                width: double.infinity,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          width: size.width / 6 * 3,
-                                          child: Text(
-                                            item.name,
-                                            style: const TextStyle(
-                                                color: Colors.black),
-                                            softWrap: true,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 3,
-                                          ),
-                                        ),
-                                        Text(
-                                          '${item.price} ₮',
-                                          softWrap: true,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        addBasket(item.id, item.itemname_id);
-                                      },
-                                      icon: const Icon(Icons.shopping_cart),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                  : !isList
-                      ? PagedSliverGrid(
-                          pagingController: _pagingController,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                          ),
-                          builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                            animateTransitions: true,
-                            itemBuilder: (_, item, index) => InkWell(
-                              onTap: () {
-                                goto(ProductDetail(prod: item), context);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 5),
-                                width: double.infinity,
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      child: SizedBox(
-                                        child: (item.images != null &&
-                                                item.images.length > 0)
+                            builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                              animateTransitions: true,
+                              itemBuilder: (_, item, index) => InkWell(
+                                onTap: () {
+                                  goto(ProductDetail(prod: item), context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 10),
+                                  width: double.infinity,
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: item.image != null
                                             ? Image.network(
                                                 // ignore: prefer_interpolation_to_compose_strings
-                                                '${dotenv.env['SERVER_URL']}' +
-                                                    item.images?.first['url'])
+                                                'https://test.pharma.mn/api/v1${item.image}')
                                             : Image.asset(
-                                                'assets/no_image.jpg'),
+                                                'assets/no_image.jpg',
+                                              ),
                                       ),
-                                    ),
-                                    Text(
-                                      item.name,
-                                      softWrap: true,
-                                      overflow: TextOverflow.ellipsis,
-                                      style:
-                                          const TextStyle(color: Colors.black),
-                                    ),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          item.price + ' ₮',
-                                          style: const TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.05,
-                                      child: OutlinedButton(
-                                        onPressed: () {
-                                          addBasket(item.id,
-                                              int.parse(item.itemname_id));
-                                        },
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  AppColors.primary),
-                                          shape: MaterialStateProperty.all<
-                                              RoundedRectangleBorder>(
-                                            RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                      Text(
+                                        item.name,
+                                        softWrap: true,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            color: Colors.black),
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            '${item.price.toString()} ₮',
+                                            style: const TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.05,
+                                        child: OutlinedButton(
+                                          onPressed: () {
+                                            addBasket(
+                                              item.id,
+                                            );
+                                          },
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                    Color>(AppColors.primary),
+                                            shape: MaterialStateProperty.all<
+                                                RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        child: const Text(
-                                          'Сагсанд нэмэх',
-                                          style: TextStyle(color: Colors.white),
+                                          child: const Text(
+                                            'Сагсанд нэмэх',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        )
-                      : PagedSliverList<int, dynamic>(
-                          pagingController: _pagingController,
-                          builderDelegate: PagedChildBuilderDelegate(
-                            itemBuilder: (_, item, index) {
-                              return Card(
-                                child: InkWell(
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(20),
-                                              topRight: Radius.circular(20),
+                          )
+                        : PagedSliverList<int, dynamic>(
+                            pagingController: _pagingController,
+                            builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                              itemBuilder: (context, item, index) => InkWell(
+                                onTap: () {
+                                  goto(ProductDetail(prod: item), context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 7),
+                                  width: double.infinity,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: size.width / 6 * 3,
+                                            child: Text(
+                                              item.name,
+                                              style: const TextStyle(
+                                                  color: Colors.black),
+                                              softWrap: true,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 3,
                                             ),
                                           ),
-                                          child: Center(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: <Widget>[
-                                                Expanded(
-                                                  child: Text(
-                                                    item.name,
-                                                    style: const TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: SizedBox(
-                                                    child: (item.images !=
-                                                                null &&
-                                                            item.images.length >
-                                                                0)
-                                                        ? Image.network(
-                                                            // ignore: prefer_interpolation_to_compose_strings
-                                                            '${dotenv.env['SERVER_URL']}' +
-                                                                item.images
-                                                                        ?.first[
-                                                                    'url'])
-                                                        : Image.asset(
-                                                            'assets/no_image.jpg'),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Column(
-                                                    children: [
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
-                                                        children: [
-                                                          Text(
-                                                            '${item.price}₮',
-                                                            style: const TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                color:
-                                                                    Colors.red),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(
-                                                        width: size.width * 0.8,
-                                                        child: OutlinedButton(
-                                                          style:
-                                                              const ButtonStyle(
-                                                            backgroundColor:
-                                                                MaterialStatePropertyAll(
-                                                              AppColors.primary,
-                                                            ),
-                                                          ),
-                                                          onPressed: () {
-                                                            addBasket(item.id,
-                                                                item.itemname_id);
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          child: const Text(
-                                                            'Сагсанд нэмэх',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                          Text(
+                                            '${item.price} ₮',
+                                            softWrap: true,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.w500),
                                           ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              flex: 3,
-                                              child: Text(
-                                                item.name,
-                                                softWrap: true,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                    color: Colors.black),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Text(
-                                                item.price,
-                                                style: const TextStyle(
-                                                    color: Colors.red,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: IconButton(
-                                                onPressed: () {
-                                                  addBasket(item.id,
-                                                      item.itemname_id);
-                                                },
-                                                icon: const Icon(
-                                                  Icons.add_shopping_cart,
-                                                  color: AppColors.primary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                        ],
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          addBasket(
+                                            item.id,
+                                          );
+                                        },
+                                        icon: const Icon(Icons.shopping_cart),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              );
-                            },
+                              ),
+                            ),
+                          )
+                    : !isList
+                        ? PagedSliverGrid(
+                            pagingController: _pagingController,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                            ),
+                            builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                              animateTransitions: true,
+                              itemBuilder: (_, item, index) => InkWell(
+                                onTap: () {
+                                  goto(ProductDetail(prod: item), context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 5),
+                                  width: double.infinity,
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: SizedBox(
+                                          child: (item.images != null &&
+                                                  item.images.length > 0)
+                                              ? Image.network(
+                                                  // ignore: prefer_interpolation_to_compose_strings
+                                                  '${dotenv.env['SERVER_URL']}' +
+                                                      item.images?.first['url'])
+                                              : Image.asset(
+                                                  'assets/no_image.jpg'),
+                                        ),
+                                      ),
+                                      Text(
+                                        item.name,
+                                        softWrap: true,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            color: Colors.black),
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            item.price + ' ₮',
+                                            style: const TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.05,
+                                        child: OutlinedButton(
+                                          onPressed: () {
+                                            addBasket(
+                                              item.id,
+                                            );
+                                          },
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                    Color>(AppColors.primary),
+                                            shape: MaterialStateProperty.all<
+                                                RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Сагсанд нэмэх',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : PagedSliverList<int, dynamic>(
+                            pagingController: _pagingController,
+                            builderDelegate: PagedChildBuilderDelegate(
+                              itemBuilder: (_, item, index) {
+                                return Card(
+                                  child: InkWell(
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(20),
+                                                topRight: Radius.circular(20),
+                                              ),
+                                            ),
+                                            child: Center(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: <Widget>[
+                                                  Expanded(
+                                                    child: Text(
+                                                      item.name,
+                                                      style: const TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: SizedBox(
+                                                      child: (item.images !=
+                                                                  null &&
+                                                              item.images
+                                                                      .length >
+                                                                  0)
+                                                          ? Image.network(
+                                                              // ignore: prefer_interpolation_to_compose_strings
+                                                              '${dotenv.env['SERVER_URL']}' +
+                                                                  item.images
+                                                                          ?.first[
+                                                                      'url'])
+                                                          : Image.asset(
+                                                              'assets/no_image.jpg'),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Column(
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceEvenly,
+                                                          children: [
+                                                            Text(
+                                                              '${item.price}₮',
+                                                              style: const TextStyle(
+                                                                  fontSize: 16,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .red),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          width:
+                                                              size.width * 0.8,
+                                                          child: OutlinedButton(
+                                                            style:
+                                                                const ButtonStyle(
+                                                              backgroundColor:
+                                                                  MaterialStatePropertyAll(
+                                                                AppColors
+                                                                    .primary,
+                                                              ),
+                                                            ),
+                                                            onPressed: () {
+                                                              addBasket(
+                                                                item.id,
+                                                              );
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: const Text(
+                                                              'Сагсанд нэмэх',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                flex: 3,
+                                                child: Text(
+                                                  item.name,
+                                                  softWrap: true,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                      color: Colors.black),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  item.price,
+                                                  style: const TextStyle(
+                                                      color: Colors.red,
+                                                      fontWeight:
+                                                          FontWeight.w500),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: IconButton(
+                                                  onPressed: () {
+                                                    addBasket(
+                                                      item.id,
+                                                    );
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.add_shopping_cart,
+                                                    color: AppColors.primary,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget filterWidget(String label, bool selected, int fKey) {
-    return FilterChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (value) {
-        setState(() {
-          selected = !value;
-        });
-      },
+  SliverAppBar filters(List<Manufacturer> list) {
+    return SliverAppBar(
+      toolbarHeight: 20,
+      title: NotificationListener(
+        onNotification: (notification) {
+          if (notification is ScrollUpdateNotification) {}
+          return true;
+        },
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Wrap(
+            children: list.map(
+              (e) {
+                return TextButton(
+                  onPressed: () {
+                    setState(() {
+                      if (e.id == selectedFilter) {
+                        filtering = false;
+                        selectedFilter = null;
+                      } else {
+                        filtering = true;
+                        filterKey = e.id;
+                        searching = false;
+                        selectedFilter = e.id;
+                      }
+                    });
+                    _pagingController.refresh();
+                  },
+                  child: Text(
+                    e.name,
+                    style: TextStyle(
+                        color: e.id == selectedFilter
+                            ? AppColors.succesColor
+                            : Colors.black),
+                  ),
+                );
+              },
+            ).toList(),
+          ),
+        ),
+      ),
     );
   }
 
@@ -628,7 +686,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
 
   Future<void> _fetchPageFilter(int filters, int pageKey) async {
     try {
-      final newItems = await filter(filters, pageKey, _pageSize);
+      final newItems = await homeProvider.filter(filters, pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -648,7 +706,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
       String bearerToken = "Bearer $token";
       final response = await http.get(
           Uri.parse(
-              '${dotenv.env['SERVER_URL']}product/search/?k=$filter&v=$searchWord'),
+              '${dotenv.env['SERVER_URL']}products/search/?k=$filter&v=$searchWord'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
@@ -660,35 +718,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
         return prods;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
-    }
-  }
-
-  filter(int filters, int page, int pageSize) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse(
-              '${dotenv.env['SERVER_URL']}product/?category=$filters&page=$page&page_size=$pageSize'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
-        return prods;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
+      debugPrint(e.toString());
     }
   }
 
@@ -707,12 +737,12 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
     }
   }
 
-  void addBasket(int productID, int itemNameId) async {
+  void addBasket(int productID) async {
     try {
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
-      Map<String, dynamic> res = await basketProvider.addBasket(
-          product_id: productID, itemname_id: itemNameId, qty: 1);
+      Map<String, dynamic> res =
+          await basketProvider.addBasket(product_id: productID, qty: 1);
       if (res['errorType'] == 1) {
         basketProvider.getBasket();
         showSuccessMessage(message: res['message'], context: context);

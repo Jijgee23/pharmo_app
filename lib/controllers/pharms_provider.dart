@@ -46,9 +46,7 @@ class PharmProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
+      debugPrint(e.toString());
     }
   }
 

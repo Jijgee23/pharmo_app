@@ -29,15 +29,11 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
   String? email;
   Map companyInfo = {};
   @override
-  @override
   void initState() {
     getBranchList();
     getPharmaInfo();
     super.initState();
   }
-
- 
-
   @override
   Widget build(BuildContext context) {
     final Uri emailLaunchUri = Uri(

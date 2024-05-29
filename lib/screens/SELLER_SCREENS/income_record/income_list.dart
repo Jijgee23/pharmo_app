@@ -115,14 +115,16 @@ class _IncomeListState extends State<IncomeList> {
                     onPressed: () {
                       _selectDate(context);
                     },
-                    child: Text(date1),
+                    child: Text(date1,
+                        style: const TextStyle(color: AppColors.primary)),
                   ),
                   const Icon(Icons.arrow_right_alt),
                   TextButton(
                     onPressed: () {
                       _selectDate2(context);
                     },
-                    child: Text(date2),
+                    child: Text(date2,
+                        style: const TextStyle(color: AppColors.primary)),
                   ),
                   OutlinedButton(
                     onPressed: () {

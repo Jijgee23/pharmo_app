@@ -81,9 +81,6 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -109,9 +106,6 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'fail': e};
     }
   }
@@ -133,9 +127,6 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт эхлэхэд алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'fail': e};
     }
   }
@@ -157,9 +148,6 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт дуусгахад алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'fail': e};
     }
   }
@@ -181,9 +169,6 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлт дуусгахад алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'fail': e};
     }
   }
@@ -237,9 +222,6 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': res.body};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
@@ -264,9 +246,6 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'fail': e};
     }
   }
@@ -303,9 +282,6 @@ class JaggerProvider extends ChangeNotifier {
         return {'errorType': 2, 'data': null, 'message': 'Түгээлтийн зарлага засхад алдаа гарлаа.'};
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       return {'fail': e};
     }
   }

@@ -55,8 +55,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Pharmo app',
       debugShowCheckedModeBanner: false,
-      home:  LoginPage(),
+      home: LoginPage(),
     );
   }
 }
-

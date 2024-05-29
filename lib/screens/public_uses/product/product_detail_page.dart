@@ -224,3 +224,12 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 }
+
+
+class Helper extends ChangeNotifier{
+  bool hidden =  false;
+  void toglleAppBar(){
+    hidden = !hidden;
+    notifyListeners();
+  }
+}

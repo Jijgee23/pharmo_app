@@ -3,7 +3,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -162,6 +161,8 @@ class AuthController extends ChangeNotifier {
         await prefs.setString('useremail', decodedToken['email']);
         await prefs.setInt('user_id', decodedToken['user_id']);
         await prefs.setString('userrole', decodedToken['role']);
+        print(decodedToken['supplier']);
+        await prefs.setInt('supplierId', decodedToken['supplier']);
         final shoppingCart =
             Provider.of<BasketProvider>(context, listen: false);
         shoppingCart.getBasket();
@@ -179,9 +180,9 @@ class AuthController extends ChangeNotifier {
         }
         await prefs.setString('access_token', res['access_token']);
         await prefs.setString('refresh_token', res['refresh_token']);
-        if (kDebugMode) {
-          print(accessToken);
-        }
+
+        debugPrint(accessToken);
+
         notifyListeners();
       } else if (responseLogin.statusCode == 400) {
         final res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
