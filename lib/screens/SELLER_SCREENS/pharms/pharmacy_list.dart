@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
@@ -88,7 +86,7 @@ class _PharmacyListState extends State<PharmacyList> {
                         ),
                       ],
                     ),
-              SliverAppBar(
+              SliverAppBar( 
                 pinned: false,
                 automaticallyImplyLeading: false,
                 title: NotificationListener<ScrollNotification>(
@@ -485,3 +483,5 @@ class _PharmacyListState extends State<PharmacyList> {
     }
   }
 }
+
+

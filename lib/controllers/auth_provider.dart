@@ -61,6 +61,7 @@ class AuthController extends ChangeNotifier {
           "osVersion": iosInfo.systemVersion,
         };
       }
+      notifyListeners();
       return deviceData;
     } catch (e) {
       debugPrint(e.toString());
@@ -161,7 +162,6 @@ class AuthController extends ChangeNotifier {
         await prefs.setString('useremail', decodedToken['email']);
         await prefs.setInt('user_id', decodedToken['user_id']);
         await prefs.setString('userrole', decodedToken['role']);
-        print(decodedToken['supplier']);
         await prefs.setInt('supplierId', decodedToken['supplier']);
         final shoppingCart =
             Provider.of<BasketProvider>(context, listen: false);

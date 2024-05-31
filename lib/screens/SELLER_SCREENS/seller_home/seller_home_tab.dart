@@ -755,7 +755,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
     }
   }
 }
-
+  
 class Filter {
   String name;
   bool selected;

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_shopping_cart/seller_qr_code.dart';
@@ -24,18 +25,20 @@ class SelectSellerBranchPage extends StatefulWidget {
 
 class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   int _selectedIndex = -1;
-  String orderType = 'NODELIVERY';
   String payType = 'LATER';
   bool invisible = false;
   String? note;
   late HomeProvider homeProvider;
+  late BasketProvider basketProvider;
   final noteController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    basketProvider = Provider.of<BasketProvider>(context, listen: false);
     homeProvider.getCustomerBranch();
+    basketProvider.getBasket();
   }
 
   @override
@@ -56,12 +59,11 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                   children: [
                     Radio(
                       value: 'DELIVERY',
-                      groupValue: orderType,
-                      onChanged: (String? value) {
+                      groupValue: homeProvider.orderType,
+                      onChanged: (value) {
                         setState(() {
-                          orderType = value!;
                           invisible = !invisible;
-                          homeProvider.orderType = value;
+                          homeProvider.orderType = value!;
                         });
                       },
                     ),
@@ -74,11 +76,10 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                     ),
                     Radio(
                       value: 'NODELIVERY',
-                      groupValue: orderType,
-                      onChanged: (String? value) {
+                      groupValue: homeProvider.orderType,
+                      onChanged: (value) {
                         setState(() {
-                          orderType = value!;
-                          homeProvider.orderType = value;
+                          homeProvider.orderType = value!;
                           invisible = false;
                         });
                       },
@@ -216,10 +217,11 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                           OutlinedButton.icon(
                             onPressed: () {
                               if (payType == 'NOW' &&
-                                  orderType == 'NODELIVERY') {
+                                  homeProvider.orderType == 'NODELIVERY') {
                                 goto(const SellerQRCode(), context);
                               }
-                              if (payType == 'NOW' && orderType == 'DELIVERY') {
+                              if (payType == 'NOW' &&
+                                  homeProvider.orderType == 'DELIVERY') {
                                 if (_selectedIndex == -1) {
                                   showFailedMessage(
                                       message: 'Салбар сонгоно уу!',
@@ -261,7 +263,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
-      if (orderType == 'DELIVERY') {
+      if (homeProvider.orderType == 'DELIVERY') {
         if (_selectedIndex == -1) {
           showFailedMessage(message: 'Салбар сонгоно уу!', context: context);
           return;

@@ -160,7 +160,6 @@ class _SellerOrdersState extends State<SellerOrders> {
                       String? process = provider.sellerOrders[index].process;
                       String? status = provider.sellerOrders[index].status;
                       return Card(
-                        color: AppColors.primary,
                         child: ListTile(
                           onTap: () {
                             showBottomSheet(
@@ -231,10 +230,10 @@ class _SellerOrdersState extends State<SellerOrders> {
                             );
                           },
                           title: Text('${provider.sellerOrders[index].user}',
-                              style: const TextStyle(color: Colors.white)),
+                              style: const TextStyle(color: Colors.black)),
                           subtitle: Text(
                               'Хаяг: ${provider.sellerOrders[index].branch?.address}',
-                              style: const TextStyle(color: Colors.white)),
+                              style: const TextStyle(color: Colors.black)),
                           trailing: Text(
                               process == 'M'
                                   ? 'Бэлтгэж эхэлсэн'
@@ -247,7 +246,7 @@ class _SellerOrdersState extends State<SellerOrders> {
                                               : process == 'C'
                                                   ? 'Хааллтай'
                                                   : 'Буцаагдсан',
-                              style: const TextStyle(color: Colors.white)),
+                              style: const TextStyle(color: Colors.black)),
                           leading: Icon(
                             Icons.circle,
                             color: status == 'W'

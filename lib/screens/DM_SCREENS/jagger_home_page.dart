@@ -54,91 +54,89 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
             create: (context) => AuthController()),
       ],
       child: Consumer<AuthController>(builder: (context, authController, _) {
-        return SafeArea(
-          child: Scaffold(
-            drawer: Drawer(
-              shape: const RoundedRectangleBorder(),
-              width: size.width * 0.7,
-              child: ListView(
-                children: [
-                  SizedBox(
-                    width: size.width,
-                    child: DrawerHeader(
-                      curve: Curves.easeInOut,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: size.width * 0.1,
-                            height: size.width * 0.1,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
+        return Scaffold(
+          drawer: Drawer(
+            shape: const RoundedRectangleBorder(),
+            width: size.width * 0.7,
+            child: ListView(
+              children: [
+                SizedBox(
+                  width: size.width,
+                  child: DrawerHeader(
+                    curve: Curves.easeInOut,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: size.width * 0.1,
+                          height: size.width * 0.1,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            color: AppColors.secondary,
+                            size: size.width * 0.1,
+                          ),
+                        ),
+                        Text(
+                          authProvider.userInfo['email'],
+                          style: TextStyle(
                               color: Colors.white,
-                            ),
-                            child: Icon(
-                              Icons.person,
-                              color: AppColors.secondary,
-                              size: size.width * 0.1,
-                            ),
-                          ),
-                          Text(
-                            authProvider.userInfo['email'],
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: size.height * 0.02),
-                          ),
-                        ],
-                      ),
+                              fontSize: size.height * 0.02),
+                        ),
+                      ],
                     ),
                   ),
-                  _drawerItem(
-                    title: 'Захиалга',
-                    icon: Icons.shopping_cart,
-                    onTap: () {
-                      goto(const JaggerOrderPage(), context);
-                    },
-                  ),
-                  _drawerItem(
-                    title: 'Борлуулагчруу шилжих',
-                    icon: Icons.swap_vert,
-                    onTap: () {
-                      gotoRemoveUntil(const SellerHomePage(), context);
-                    },
-                  ),
-                  _drawerItem(
-                    title: 'Гарах',
-                    icon: Icons.logout,
-                    onTap: () {
-                      showLogoutDialog(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            appBar: const DMAppBar(
-              title: 'Нүүр хуудас',
-            ),
-            body: _pages[_selectedIndex],
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Түгээлт',
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_cart),
-                  label: 'Захиалгууд',
+                _drawerItem(
+                  title: 'Захиалга',
+                  icon: Icons.shopping_cart,
+                  onTap: () {
+                    goto(const JaggerOrderPage(), context);
+                  },
+                ),
+                _drawerItem(
+                  title: 'Борлуулагчруу шилжих',
+                  icon: Icons.swap_vert,
+                  onTap: () {
+                    gotoRemoveUntil(const SellerHomePage(), context);
+                  },
+                ),
+                _drawerItem(
+                  title: 'Гарах',
+                  icon: Icons.logout,
+                  onTap: () {
+                    showLogoutDialog(context);
+                  },
                 ),
               ],
-              selectedItemColor: AppColors.secondary,
-              unselectedItemColor: AppColors.primary,
             ),
+          ),
+          appBar: const DMAppBar(
+            title: 'Нүүр хуудас',
+          ),
+          body: _pages[_selectedIndex],
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Түгээлт',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_cart),
+                label: 'Захиалгууд',
+              ),
+            ],
+            selectedItemColor: AppColors.secondary,
+            unselectedItemColor: AppColors.primary,
           ),
         );
       }),

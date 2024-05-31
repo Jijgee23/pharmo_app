@@ -75,18 +75,11 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       backgroundColor: AppColors.secondary,
-                      child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            hover = !hover;
-                          });
-                        },
-                        icon: const Icon(
-                          Icons.lock_outline,
-                          color: Colors.white,
-                        ),
+                      child: Icon(
+                        Icons.lock_outline,
+                        color: Colors.white,
                       ),
                     ),
                     SizedBox(height: size.height * 0.03),

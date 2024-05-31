@@ -1,29 +1,17 @@
 class Province {
-  final int id;
-  final String name;
+  int id;
+  String name;
 
-  Province({
-    required this.id,
-    required this.name,
-  });
+  Province(
+    this.id,
+    this.name,
+  );
 
   factory Province.fromJson(Map<String, dynamic> json) {
     return Province(
-      id: json['id'],
-      name: json['name'],
+      json['id'],
+      json['ner'],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-    };
-  }
-
-  @override
-  String toString() {
-    return 'Province{id: $id, name: $name}';
   }
 }
 

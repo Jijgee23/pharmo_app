@@ -155,7 +155,6 @@ class _IncomeListState extends State<IncomeList> {
                       itemCount: income.incomeList.length,
                       itemBuilder: (context, index) {
                         return Card(
-                          color: AppColors.primary,
                           child: ListTile(
                             onTap: () {
                               showBottomSheet(
@@ -237,7 +236,7 @@ class _IncomeListState extends State<IncomeList> {
                               },
                               icon: const Icon(
                                 Icons.edit,
-                                color: Colors.white,
+                                color: Colors.green,
                               ),
                             ),
                           ),
@@ -338,7 +337,7 @@ class _IncomeListState extends State<IncomeList> {
   Widget mText(String text) {
     return Text(
       text,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(color: Colors.black),
     );
   }
 }

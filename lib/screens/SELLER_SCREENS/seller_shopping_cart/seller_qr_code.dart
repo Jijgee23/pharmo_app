@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
@@ -48,27 +46,21 @@ class _SellerQRCodeState extends State<SellerQRCode> {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
-        body: homeProvider.orderType == 'NODELIVERY' 
-            ? homeProvider.note == null
-                ? jsonEncode({
-                    'userId': homeProvider.selectedCustomerId,
-                  })
-                : jsonEncode({
-                    'userId': homeProvider.selectedCustomerId,
-                    'note': homeProvider.note,
-                  })
-            : homeProvider.note == null
-                ? jsonEncode({
-                    'userId': homeProvider.selectedCustomerId,
-                    'branchId': homeProvider.selectedBranchId,
-                  })
-                : jsonEncode({
-                    'userId': homeProvider.selectedCustomerId,
-                    'branchId': homeProvider.selectedBranchId,
-                    'note': homeProvider.note,
-                  }),
+        body: homeProvider.orderType == 'NODELIVERY'
+            ? jsonEncode({
+                'userId': homeProvider.selectedCustomerId,
+                'note': homeProvider.note == null ? homeProvider.note : null
+              })
+            : jsonEncode(
+                {
+                  'userId': homeProvider.selectedCustomerId,
+                  'branchId': homeProvider.selectedBranchId,
+                  'note': homeProvider.note == null ? homeProvider.note : null
+                },
+              ),
       );
-      if (response.statusCode == 200) {
+      int stcode = response.statusCode;
+      if (stcode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
           qrData = res;
@@ -76,15 +68,41 @@ class _SellerQRCodeState extends State<SellerQRCode> {
             urls = res['urls'];
           }
         });
+      } else if (stcode == 404) {
+        _alert('Нийлүүлэгч Qpay холбоогүй');
+        showFailedMessage(context: context, message: '');
+      } else if (stcode == 400) {
+        final message = jsonDecode(utf8.decode(response.bodyBytes));
+        if (message is String) {
+          if (message == 'qpay') {
+            _alert('Нийлүүлэгч QPay холбоогүй байна');
+          } else if (message == 'bad qpay') {
+            _alert('Нийлүүлэгчийн Qpay тохиргоо алдаатай.');
+          } else if (message == "min") {
+            _alert('Төлбөрийн дүн 10 төг буюу түүнээс дээш байх.');
+          } else if (message == 'empty') {
+            _alert('Захиалганд бараа байхгүй буюу сагс хоосон.');
+          }
+        } else {
+          Map data = jsonDecode(utf8.decode(response.bodyBytes));
+          List<dynamic> msg = data['branchId'];
+          if (msg[0] == 'Branch not found!') {
+            _alert('Салбарын  мэдээлэл буруу');
+          } else if (msg[0] == 'User not found') {
+            _alert('Захиалагчийн мэдээлэл буруу');
+          }
+        }
+      } else if (stcode == 500) {
+        _alert('Серверийн алдаа');
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
-      debugPrint(e.toString());
+      debugPrint(
+        e.toString(),
+      );
     }
   }
 
-  checkPayment() async {
+  Future<bool> checkPayment() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
@@ -97,27 +115,49 @@ class _SellerQRCodeState extends State<SellerQRCode> {
         },
       );
       if (resQR.statusCode == 200) {
-        dynamic response = jsonDecode(utf8.decode(resQR.bodyBytes));
-        //  basketProvider.clearBasket(basket_id: homeProvider.basketId!);
-        if (response['isPaid'] == true) {
-          clearBasket(homeProvider.basketId!);
-          showSuccessMessage(
-              context: context, message: 'Төлбөр төлөгдсөн байна');
-          gotoRemoveUntil(
-              OrderDone(orderNo: response['orderNo'].toString()), context);
+        final response = jsonDecode(utf8.decode(resQR.bodyBytes));
+        if (response is bool) {
+          if (!response) {
+            showFailedMessage(
+                context: context, message: 'Төлбөр төлөгдөөгүй байна!');
+          } else {
+            showSuccessMessage(
+                context: context, message: 'Төлбөр амжилттай хийгдлээ!');
+            clearBasket(homeProvider.basketId!);
+          }
+        } else {
+          if (response['isPaid'].toString() == 'true') {
+            showSuccessMessage(
+                context: context, message: 'Төлбөр амжилттай хийгдлээ!');
+            clearBasket(homeProvider.basketId!);
+            gotoRemoveUntil(
+                OrderDone(
+                  orderNo: response['orderNo'],
+                ),
+                context);
+          } else {
+            showFailedMessage(
+                context: context, message: 'Төлбөр төлөгдөөгүй байна!');
+          }
         }
-        if (response == false) {
+      } else if (resQR.statusCode == 404) {
+        final response = jsonDecode(utf8.decode(resQR.bodyBytes));
+        if (response == 'invoice') {
+          showFailedMessage(context: context, message: 'Нэхэмжлэх үүсээгүй!');
+        } else if (response == 'token') {
+          showFailedMessage(context: context, message: 'Нэхэмжлэх үүсээгүй!');
+        } else if (response == 'basket') {
           showFailedMessage(
-              context: context, message: 'Төлбөр төлөгдөөгүй байна!');
+              context: context, message: 'Сагсны мэдээлэл олдоогүй!');
+        } else {
+          showFailedMessage(context: context, message: 'Серверийн алдаа!');
         }
+        return false;
       }
-      if (resQR.statusCode == 404) {
-        showFailedMessage(
-            context: context, message: 'Сагсны мэдээлэл олдоогүй!');
-      }
+      return false;
     } catch (e) {
       debugPrint(e.toString());
-      // showFailedMessage(context: context, message: 'Алдаа гарлаа!');
+      return false;
     }
   }
 
@@ -126,6 +166,7 @@ class _SellerQRCodeState extends State<SellerQRCode> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    basketProvider.getBasket();
     createQR();
   }
 
@@ -249,6 +290,7 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                 children: [
                   OutlinedButton.icon(
                     onPressed: () async {
+                      homeProvider.changeIndex(0);
                       gotoRemoveUntil(const SellerHomePage(), context);
                       basketProvider.getBasket();
                     },
@@ -286,6 +328,53 @@ class _SellerQRCodeState extends State<SellerQRCode> {
               )
             ]),
           ),
+        );
+      },
+    );
+  }
+
+  _alert(String msg) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final size = MediaQuery.of(context).size;
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Align(
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.error,
+              color: Colors.red,
+              size: 30,
+            ),
+          ),
+          content: SizedBox(
+            height: size.height * .1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Center(
+                  child: SizedBox(
+                    width: size.width / 2,
+                    child: Text(msg,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 18,
+                        )),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
         );
       },
     );

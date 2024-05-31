@@ -48,109 +48,107 @@ class _JaggerDialogState extends State<JaggerDialog> {
         ChangeNotifierProvider<AuthController>(create: (context) => AuthController()),
       ],
       child: Consumer<AuthController>(builder: (context, authController, _) {
-        return SafeArea(
-          child: Scaffold(
-            drawer: Drawer(
-              width: size.width * 0.7,
-              child: ListView(
-                children: [
-                  DrawerHeader(
-                    padding: EdgeInsets.all(size.width * 0.05),
-                    curve: Curves.easeInOut,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                          ),
-                          child: Icon(
-                            Icons.person,
-                            color: AppColors.secondary,
-                            size: size.width * 0.15,
-                          ),
+        return Scaffold(
+          drawer: Drawer(
+            width: size.width * 0.7,
+            child: ListView(
+              children: [
+                DrawerHeader(
+                  padding: EdgeInsets.all(size.width * 0.05),
+                  curve: Curves.easeInOut,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
                         ),
-                        Text(
-                          'И-мэйл хаяг: ${authProvider.userInfo['email']}',
-                          style: TextStyle(color: Colors.white, fontSize: size.height * 0.01),
+                        child: Icon(
+                          Icons.person,
+                          color: AppColors.secondary,
+                          size: size.width * 0.15,
                         ),
-                      ],
-                    ),
+                      ),
+                      Text(
+                        'И-мэйл хаяг: ${authProvider.userInfo['email']}',
+                        style: TextStyle(color: Colors.white, fontSize: size.height * 0.01),
+                      ),
+                    ],
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.shopping_cart),
-                    title: const Text('Захиалга'),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.widgets),
-                    title: const Text('Бараа бүтээгдэхүүн'),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.person),
-                    title: const Text('Харилцагч'),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.people),
-                    title: const Text('Нийлүүлэгч'),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.settings),
-                    title: const Text('Тохиргоо'),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.logout),
-                    title: const Text('Гарах'),
-                    onTap: () {
-                      showLogoutDialog(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            appBar: const CustomAppBar(
-              title: 'Нүүр хуудас',
-            ),
-            body: _pages[_selectedIndex],
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Түгээлт',
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_cart),
-                  label: 'Миний сагс',
+                ListTile(
+                  leading: const Icon(Icons.shopping_cart),
+                  title: const Text('Захиалга'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
                 ),
-                // BottomNavigationBarItem(
-                //   icon: Icon(Icons.medical_information),
-                //   label: 'Эмийн сан',
-                // ),
-                // BottomNavigationBarItem(
-                //   icon: Icon(Icons.person_sharp),
-                //   label: 'Бүртгэл',
-                // ),
+                ListTile(
+                  leading: const Icon(Icons.widgets),
+                  title: const Text('Бараа бүтээгдэхүүн'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text('Харилцагч'),
+                  onTap: () {},
+                ),
+                ListTile(
+                  leading: const Icon(Icons.people),
+                  title: const Text('Нийлүүлэгч'),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierPage()));
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.settings),
+                  title: const Text('Тохиргоо'),
+                  onTap: () {},
+                ),
+                ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: const Text('Гарах'),
+                  onTap: () {
+                    showLogoutDialog(context);
+                  },
+                ),
               ],
-              selectedItemColor: AppColors.secondary,
-              unselectedItemColor: AppColors.primary,
             ),
+          ),
+          appBar: const CustomAppBar(
+            title: 'Нүүр хуудас',
+          ),
+          body: _pages[_selectedIndex],
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Түгээлт',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_cart),
+                label: 'Миний сагс',
+              ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(Icons.medical_information),
+              //   label: 'Эмийн сан',
+              // ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(Icons.person_sharp),
+              //   label: 'Бүртгэл',
+              // ),
+            ],
+            selectedItemColor: AppColors.secondary,
+            unselectedItemColor: AppColors.primary,
           ),
         );
       }),

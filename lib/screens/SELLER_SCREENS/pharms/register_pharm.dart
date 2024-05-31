@@ -3,8 +3,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/address.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
@@ -25,14 +25,11 @@ class RegisterPharmPage extends StatefulWidget {
 }
 
 class _RegisterPharmPageState extends State<RegisterPharmPage> {
-  List<Province> provinceList = [];
-  List<District> districtList = [];
-  List<Khoroo> khorooList = [];
-  List<String> names = [];
   int provinceId = 0;
   int districtId = 0;
   int khorooId = 0;
   late HomeProvider homeProvider;
+  late AddressProvider addressProvider;
   final TextEditingController cNameController = TextEditingController();
   final TextEditingController cRdController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -41,15 +38,19 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
 
   @override
   void initState() {
-    getProvinceId();
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    addressProvider = Provider.of<AddressProvider>(context, listen: false);
+    addressProvider.getProvince();
+    addressProvider.districts.clear();
+    addressProvider.khoroos.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return Consumer<HomeProvider>(builder: (_, homeProvider, child) {
+    return Consumer2<HomeProvider, AddressProvider>(
+        builder: (_, homeProvider, addressProvider, child) {
       return Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -74,33 +75,23 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                   validator: validateCRD,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
-                    homeProvider.cRd = cRdController.text;
                     checkCompany(cRdController.text);
                   },
                 ),
                 CustomTextField(
                   controller: cNameController,
                   hintText: 'Байгууллагын нэр',
-                  onChanged: (v) {
-                    homeProvider.cName = cNameController.text;
-                  },
                 ),
                 CustomTextField(
                   controller: emailController,
                   hintText: 'Имэйл хаяг',
                   validator: validateEmail,
-                  onChanged: (p0) {
-                    homeProvider.email = emailController.text;
-                  },
                 ),
                 CustomTextField(
                   controller: phoneController,
                   hintText: 'Утасны дугаар',
                   validator: validatePhone,
                   keyboardType: TextInputType.number,
-                  onChanged: (p0) {
-                    homeProvider.phone = phoneController.text;
-                  },
                 ),
                 const Text(
                   'Хаяг',
@@ -116,10 +107,12 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                       ),
                     ),
                     onChanged: (newValue) {
-                      districtList.clear();
-                      getDistrictId(newValue!.id);
+                      addressProvider.districts.clear();
+                      if (newValue != null) {
+                        addressProvider.getDistrictId(newValue.id, context);
+                      }
                     },
-                    items: provinceList
+                    items: addressProvider.provinces
                         .map<DropdownMenuItem<Province>>((Province province) {
                       return DropdownMenuItem<Province>(
                         value: province,
@@ -143,9 +136,11 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                     ),
                     hint: const Text('Сум/Дүүрэг сонгох'),
                     onChanged: (newValue) {
-                      getKhoroo(newValue!.id);
+                      if (newValue != null) {
+                        addressProvider.getKhoroo(newValue.id, context);
+                      }
                     },
-                    items: districtList
+                    items: addressProvider.districts
                         .map<DropdownMenuItem<District>>((District district) {
                       return DropdownMenuItem<District>(
                         value: district,
@@ -170,7 +165,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                         khorooId = newValue.id;
                       });
                     },
-                    items: khorooList
+                    items: addressProvider.khoroos
                         .map<DropdownMenuItem<Khoroo>>((Khoroo khoroo) {
                       return DropdownMenuItem<Khoroo>(
                         value: khoroo,
@@ -244,86 +239,6 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         ),
       );
     });
-  }
-
-  getProvinceId() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}aimag_hot/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      List res = jsonDecode(utf8.decode(response.bodyBytes));
-      provinceList.clear();
-      if (response.statusCode == 200) {
-        setState(() {
-          for (int i = 0; i < res.length; i++) {
-            provinceList.add(Province(id: res[i]['id'], name: res[i]['ner']));
-          }
-        });
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
-    }
-  }
-
-  getDistrictId(int provId) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}sum_duureg/?aimag=$provId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      List res = jsonDecode(utf8.decode(response.bodyBytes));
-      districtList.clear();
-      if (response.statusCode == 200) {
-        setState(() {
-          for (int i = 0; i < res.length; i++) {
-            districtList.add(District(
-                id: res[i]['id'], ner: res[i]['ner'], aimag: res[i]['aimag']));
-          }
-        });
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
-    }
-  }
-
-  getKhoroo(int distId) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final response = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}bag_horoo/?sum=$distId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      List res = jsonDecode(utf8.decode(response.bodyBytes));
-      khorooList.clear();
-      if (response.statusCode == 200) {
-        setState(() {
-          for (int i = 0; i < res.length; i++) {
-            khorooList.add(Khoroo(
-                id: res[i]['id'],
-                ner: res[i]['ner'],
-                sum: res[i]['sum'],
-                aimag: res[i]['aimag']));
-          }
-        });
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
-    }
   }
 
   registerPharm() async {
