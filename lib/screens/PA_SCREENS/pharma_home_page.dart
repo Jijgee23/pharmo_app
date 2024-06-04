@@ -8,6 +8,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/my_orders.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/cart.dart';
+import 'package:pharmo_app/screens/public_uses/filter.dart';
 import 'package:pharmo_app/screens/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/screens/public_uses/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -27,6 +28,7 @@ class PharmaHomePage extends StatefulWidget {
 class _PharmaHomePageState extends State<PharmaHomePage> {
   final List _pages = [
     const Home(),
+    const FilterPage(),
     const ShoppingCartHome(),
   ];
   late SharedPreferences prefs;
@@ -219,6 +221,10 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                       BottomNavigationBarItem(
                         icon: Icon(Icons.home),
                         label: 'Нүүр',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.category),
+                        label: 'Ангилал',
                       ),
                       BottomNavigationBarItem(
                         icon: Icon(Icons.shopping_cart),

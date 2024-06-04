@@ -10,6 +10,7 @@ import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/pharms/register_pharm.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home_tab.dart';
 import 'package:pharmo_app/screens/SELLER_SCREENS/seller_shopping_cart/seller_shopping_cart.dart';
+import 'package:pharmo_app/screens/public_uses/filter.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +27,7 @@ class SellerHomePage extends StatefulWidget {
 
 class _SellerHomePageState extends State<SellerHomePage> {
   late HomeProvider homeProvider;
-  
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +40,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
   final List _pages = [
     const PharmacyList(),
     const SellerHomeTab(),
+    const FilterPage(),
     const SellerShoppingCart(),
   ];
   @override
@@ -239,6 +241,11 @@ class _SellerHomePageState extends State<SellerHomePage> {
                         icon: Icon(Icons.home_outlined),
                         label: 'Бараа',
                         activeIcon: Icon(Icons.home)),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.category_outlined),
+                      label: 'Ангилал',
+                      activeIcon: Icon(Icons.category)
+                    ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.shopping_cart_outlined),
                       label: 'Сагс',
