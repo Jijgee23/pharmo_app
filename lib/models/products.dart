@@ -20,6 +20,8 @@ class Product {
   Map<String, dynamic>? vndr;
   List<dynamic>? category;
   List<dynamic>? images;
+  String? image;
+
 
   Product(
     this.id,
@@ -43,6 +45,7 @@ class Product {
     this.vndr,
     this.category,
     this.images,
+    this.image
   );
 
   Product.fromJson(Map<String, dynamic> json)
@@ -66,6 +69,7 @@ class Product {
         mnfr = json['mnfr'],
         vndr = json['vndr'],
         images = json['images'],
+        image = json['image'],
         category = json['category'];
 
   Map<String, dynamic> toJson() {
@@ -90,6 +94,8 @@ class Product {
       'mnfr': mnfr,
       'vndr': vndr,
       'images': images,
+      'image': image,
+      'category': category
     };
   }
 }

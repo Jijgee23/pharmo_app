@@ -27,7 +27,6 @@ class HomeProvider extends ChangeNotifier {
   String orderType = 'NODELIVERY';
   String? note;
   List<Branch> branchList = <Branch>[];
-  int? lastPickedSupplier;
   late LocationPermission permission;
   late bool servicePermission = false;
   Position? _currentLocation;
@@ -38,16 +37,9 @@ class HomeProvider extends ChangeNotifier {
   String? email;
   String? phone;
   String? detail;
-  List<Filters> categories = <Filters>[
-    Filters(0, 'Бүгд', null, [])
-  ];
+  List<Filters> categories = <Filters>[];
   List<Manufacturer> mnfrs = <Manufacturer>[];
   List<Manufacturer> vndrs = <Manufacturer>[];
-  getLastPickedSupplier() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    lastPickedSupplier = prefs.getInt('supplierId');
-    notifyListeners();
-  }
 
   changeIndex(int index) {
     currentIndex = index;
@@ -82,7 +74,7 @@ class HomeProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        
+
         categories = (res['cats'] as List)
             .map((data) => Filters.fromJson(data))
             .toList();
@@ -304,3 +296,4 @@ class HomeProvider extends ChangeNotifier {
     return token;
   }
 }
+
