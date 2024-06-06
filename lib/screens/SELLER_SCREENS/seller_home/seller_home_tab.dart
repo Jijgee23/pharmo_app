@@ -6,8 +6,9 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
-import 'package:pharmo_app/models/filtered_product.dart';
+import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/screens/public_uses/product/product_detail_page.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/product_widget.dart';
@@ -34,27 +35,22 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   String searchType = 'Нэрээр';
   String? searchQuery = '';
   String type = 'name';
-  int filterKey = 0;
   bool isList = false;
   bool searching = false;
   final TextEditingController _searchController = TextEditingController();
   IconData viewIcon = Icons.grid_view;
-  late HomeProvider homeProvider;
   @override
   void initState() {
     _pagingController.addPageRequestListener(
       (pageKey) {
-        if (!searching) {
-          _fetchPage(pageKey);
-        }
         if (searching) {
           _fetchbySearching(pageKey, type, searchQuery!);
+        } else {
+          _fetchPage(pageKey);
         }
       },
     );
     super.initState();
-    homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    homeProvider.getFilters();
   }
 
   @override
@@ -84,24 +80,24 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                         flex: 10,
                         child: CustomSearchBar(
                           searchController: _searchController,
-                          onChanged: (value) {
+                          onChanged: (v) {
                             setState(() {
-                              searching = true;
-                              searchQuery =
-                                  value.isEmpty ? null : _searchController.text;
-                            });
-                            _pagingController.refresh();
-                          },
-                          onSubmitted: (value) {
-                            setState(() {
-                              if (value.isEmpty) {
+                              if (_searchController.text.isEmpty) {
                                 searching = false;
                               } else {
                                 searching = true;
-                                searchQuery = value;
+                                searchQuery = _searchController.text;
+                                _pagingController.refresh();
                               }
                             });
-                            _pagingController.refresh();
+                          },
+                          onSubmitted: (v) {
+                            if (_searchController.text.isEmpty) {
+                              setState(() {
+                                searching = false;
+                              });
+                              _pagingController.refresh();
+                            }
                           },
                           title: '$searchType хайх',
                           suffix: IconButton(
@@ -167,50 +163,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                     ],
                   ),
                 ),
-                searching
-                    ? !isList
-                        ? PagedSliverGrid<int, dynamic>(
-                            showNewPageProgressIndicatorAsGridChild: false,
-                            showNewPageErrorIndicatorAsGridChild: false,
-                            showNoMoreItemsIndicatorAsGridChild: false,
-                            pagingController: _pagingController,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                            ),
-                            builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                              animateTransitions: true,
-                              itemBuilder: (_, item, index) => ProductWidget(
-                                item: item,
-                                onButtonTab: () => addBasket(item.id),
-                                onTap: () => goto(
-                                  ProductDetail(prod: item),
-                                  context,
-                                ),
-                              ),
-                            ),
-                          )
-                        : _listview()
-                    : !isList
-                        ? PagedSliverGrid(
-                            pagingController: _pagingController,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                            ),
-                            builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                              animateTransitions: true,
-                              itemBuilder: (_, item, index) => ProductWidget(
-                                item: item,
-                                onButtonTab: () => addBasket(item.id),
-                                onTap: () => goto(
-                                  ProductDetail(prod: item),
-                                  context,
-                                ),
-                              ),
-                            ),
-                          )
-                        : _listview()
+                !isList ? _gridview() : _listview()
               ],
             ),
           );
@@ -218,6 +171,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
       ),
     );
   }
+
   _listview() {
     Size size = MediaQuery.of(context).size;
     return PagedSliverList<int, dynamic>(
@@ -259,10 +213,34 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                   onPressed: () {
                     addBasket(item.id);
                   },
-                  icon: const Icon(Icons.shopping_cart),
+                  icon:const Icon(
+                    Icons.add_shopping_cart,
+                    size: 15,
+                    color: AppColors.primary,
+                  ),
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  _gridview() {
+    return PagedSliverGrid(
+      pagingController: _pagingController,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+      ),
+      builderDelegate: PagedChildBuilderDelegate<dynamic>(
+        animateTransitions: true,
+        itemBuilder: (_, item, index) => ProductWidget(
+          item: item,
+          onButtonTab: () => addBasket(item.id),
+          onTap: () => goto(
+            ProductDetail(prod: item),
+            context,
           ),
         ),
       ),
@@ -283,38 +261,30 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
       _pagingController.error = error;
     }
   }
-  search(String filter, String searchWord) async {
+
+  Future<void> _fetchbySearching(int pageKey, String type, String key) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
       final response = await http.get(
           Uri.parse(
-              '${dotenv.env['SERVER_URL']}products/search/?k=$filter&v=$searchWord'),
+              '${dotenv.env['SERVER_URL']}product/search/?k=$type&v=$searchQuery'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           });
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<FilteredProduct> prods =
-            (res).map((data) => FilteredProduct.fromJson(data)).toList();
-        return prods;
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
 
-  Future<void> _fetchbySearching(int pageKey, String type, String key) async {
-    try {
-      final newItems = await search(type, key);
-      final isLastPage = newItems!.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
+        final newItems = (res).map((data) => Product.fromJson(data)).toList();
+        final isLastPage = newItems.length < _pageSize;
+        if (isLastPage) {
+          _pagingController.appendLastPage(newItems);
+        } else {
+          final nextPageKey = pageKey + 1;
+          _pagingController.appendPage(newItems, nextPageKey);
+        }
       }
     } catch (error) {
       _pagingController.error = error;

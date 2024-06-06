@@ -36,7 +36,7 @@ class ProductWidget extends StatelessWidget {
                     fit: BoxFit.cover,
                     image: item.image != null
                         ? NetworkImage(
-                            '${dotenv.env['SERVER_URL']}${item.image.toString().substring(1)}')
+                            '${dotenv.env['IMAGE_URL']}${item.image.toString().substring(1)}')
                         : NetworkImage(noImageUrl),
                   ),
                 ),

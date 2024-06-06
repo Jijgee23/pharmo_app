@@ -35,6 +35,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
     homeProvider.getUserInfo();
     homeProvider.getBasketId();
     homeProvider.getDeviceInfo();
+    homeProvider.getFilters();
   }
 
   final List _pages = [
@@ -242,10 +243,9 @@ class _SellerHomePageState extends State<SellerHomePage> {
                         label: 'Бараа',
                         activeIcon: Icon(Icons.home)),
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.category_outlined),
-                      label: 'Ангилал',
-                      activeIcon: Icon(Icons.category)
-                    ),
+                        icon: Icon(Icons.category_outlined),
+                        label: 'Ангилал',
+                        activeIcon: Icon(Icons.category)),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.shopping_cart_outlined),
                       label: 'Сагс',

@@ -32,13 +32,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     const ShoppingCartHome(),
   ];
   late SharedPreferences prefs;
-  int _selectedIndex = 0;
   bool hidden = false;
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   late HomeProvider homeProvider;
 
@@ -48,8 +42,8 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     homeProvider.getUserInfo();
-    homeProvider.getLastPickedSupplier();
     homeProvider.getDeviceInfo();
+    homeProvider.getFilters();
   }
 
   @override
@@ -111,8 +105,8 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
         ChangeNotifierProvider<AuthController>(
             create: (context) => AuthController()),
       ],
-      child: Consumer<AuthController>(
-        builder: (context, authController, _) {
+      child: Consumer2<AuthController, HomeProvider>(
+        builder: (context, authController,homeProvider, _) {
           return Scaffold(
             drawer: Drawer(
               shape: const RoundedRectangleBorder(),
@@ -210,13 +204,13 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                 }
                 return true;
               },
-              child: _pages[_selectedIndex],
+              child: _pages[homeProvider.currentIndex],
             ),
             bottomNavigationBar: hidden
                 ? null
                 : BottomNavigationBar(
-                    currentIndex: _selectedIndex,
-                    onTap: _onItemTapped,
+                    currentIndex: homeProvider.currentIndex,
+                    onTap: homeProvider.changeIndex,
                     items: const [
                       BottomNavigationBarItem(
                         icon: Icon(Icons.home),

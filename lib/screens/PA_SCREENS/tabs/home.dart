@@ -7,7 +7,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
-import 'package:pharmo_app/models/filtered_product.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/screens/public_uses/product/product_detail_page.dart';
@@ -55,12 +54,11 @@ class _HomeState extends State<Home> {
     _pagingController.addPageRequestListener(
       (pageKey) {
         if (!searching) {
-          _pagingController.refresh();
           _fetchPage(pageKey);
         } else {
-          _pagingController.refresh();
           _fetchbySearching(pageKey, type, searchQuery!);
         }
+        _pagingController.refresh();
       },
     );
     super.initState();
@@ -100,12 +98,10 @@ class _HomeState extends State<Home> {
                       icon: const Icon(Icons.arrow_drop_down),
                       value: selectedSupplier,
                       onSaved: (newValue) {
-                        print('saved');
                         _pagingController.refresh();
                       },
                       onChanged: (Supplier? newValue) {
                         pickSupplier(int.parse(newValue!.id));
-                        setLastSupplier(int.parse(newValue.id));
                         homeProvider.getFilters();
                         basketProvider.getBasket();
                         _pagingController.refresh();
@@ -138,24 +134,34 @@ class _HomeState extends State<Home> {
                         padding: const EdgeInsets.only(left: 10),
                         child: CustomSearchBar(
                           searchController: _searchController,
-                          onSubmitted: (p0) {
-                            setState(() {
-                              if (p0.isEmpty) {
-                                searching = false;
+                          onChanged: (value) {
+                            Future.delayed(const Duration(milliseconds: 1000),
+                                () {
+                              if (_searchController.text.isNotEmpty) {
+                                setState(() {
+                                  searching = true;
+                                  searchQuery = value.isEmpty
+                                      ? null
+                                      : _searchController.text;
+                                });
+                                _pagingController.refresh();
                               } else {
-                                searching = true;
-                                searchQuery = p0;
+                                setState(() {
+                                  searching = false;
+                                  _pagingController
+                                      .removePageRequestListener((pageKey) {});
+                                });
+                                _pagingController.refresh();
                               }
                             });
-                            _pagingController.refresh();
                           },
-                          onChanged: (value) {
-                            setState(() {
-                              searching = true;
-                              searchQuery =
-                                  value.isEmpty ? null : _searchController.text;
-                            });
-                            _pagingController.refresh();
+                          onSubmitted: (p0) {
+                            if (p0.isEmpty) {
+                              setState(() {
+                                searching = false;
+                                _pagingController.refresh();
+                              });
+                            }
                           },
                           title: '$searchBarText хайх',
                           suffix: IconButton(
@@ -276,7 +282,10 @@ class _HomeState extends State<Home> {
                   onPressed: () {
                     addBasket(item.id, item.itemname_id);
                   },
-                  icon: const Icon(Icons.add_shopping_cart,size: 18,color: AppColors.primary,
+                  icon: const Icon(
+                    Icons.add_shopping_cart,
+                    size: 18,
+                    color: AppColors.primary,
                   ),
                 ),
               ],
@@ -320,10 +329,8 @@ class _HomeState extends State<Home> {
               'Authorization': bearerToken,
             },
             body: jsonEncode({'supplierId': supId}));
-    print(response.statusCode);
     if (response.statusCode == 200) {
       Map<String, dynamic> res = jsonDecode(response.body);
-      print(res);
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
     } else if (response.statusCode == 403) {
@@ -333,11 +340,6 @@ class _HomeState extends State<Home> {
     } else {
       showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
     }
-  }
-
-  setLastSupplier(int lastSupId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('lastSupId', lastSupId);
   }
 
   getSuppliers() async {
@@ -365,7 +367,7 @@ class _HomeState extends State<Home> {
       }
     } catch (e) {
       showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          message: 'Админтай холбогдоно уу',
           context: context);
     }
   }
@@ -387,38 +389,29 @@ class _HomeState extends State<Home> {
     }
   }
 
-  search(String filter, String searchWord) async {
+
+  Future<void> _fetchbySearching(int pageKey, String type, String key) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
       final response = await http.get(
           Uri.parse(
-              '${dotenv.env['SERVER_URL']}product/search/?k=$filter&v=$searchWord'),
+              '${dotenv.env['SERVER_URL']}product/search/?k=$type&v=$searchQuery'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           });
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-        List<FilteredProduct> prods =
-            (res).map((data) => FilteredProduct.fromJson(data)).toList();
-        return prods;
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  Future<void> _fetchbySearching(int pageKey, String type, String key) async {
-    try {
-      final newItems = await search(type, key);
-      final isLastPage = newItems!.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
+        final newItems = (res).map((data) => Product.fromJson(data)).toList();
+        final isLastPage = newItems.length < _pageSize;
+        if (isLastPage) {
+          _pagingController.appendLastPage(newItems);
+        } else {
+          final nextPageKey = pageKey + 1;
+          _pagingController.appendPage(newItems, nextPageKey);
+        }
       }
     } catch (error) {
       _pagingController.error = error;

@@ -1,14 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/screens/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/screens/public_uses/shopping_cart/shopping_cart.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/widgets/product_widget.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badges;
@@ -83,67 +82,12 @@ class _FilteredProductsState extends State<FilteredProducts> {
             ),
             builderDelegate: PagedChildBuilderDelegate<dynamic>(
               animateTransitions: true,
-              itemBuilder: (_, item, index) => InkWell(
+              itemBuilder: (_, item, index) => ProductWidget(
+                item: item,
                 onTap: () {
                   goto(ProductDetail(prod: item), context);
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: item.image != null
-                                  ? NetworkImage(
-                                      '${dotenv.env['SERVER_URL']}${item.image.toString().substring(1)}')
-                                  : NetworkImage(noImageUrl),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        item.name,
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '${item.price.toString()} ₮',
-                            style: const TextStyle(
-                                color: Colors.red, fontWeight: FontWeight.w500),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              addBasket(item.id, item.itemname_id);
-                            },
-                            icon: const Icon(
-                              Icons.add_shopping_cart,
-                              size: 15,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                onButtonTab: () => addBasket(item.id, item.itemname_id),
               ),
             ),
           )

@@ -121,10 +121,7 @@ class _LoginPageState extends State<LoginPage> {
                             if (passwordController.text.isNotEmpty) {
                               await authController
                                   .login(emailController.text,
-                                      passwordController.text, context)
-                                  .whenComplete(() {
-                                passwordController.clear();
-                              });
+                                      passwordController.text, context);
                             } else {
                               showFailedMessage(
                                   context: context,
