@@ -60,11 +60,9 @@ class _SupplierPageState extends State<SupplierPage> {
 
   getSuppliers() async {
     try {
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=utf-8',
-          });
+      final response = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}suppliers'), headers: <String, String>{
+        'Content-Type': 'application/json; charset=utf-8',
+      });
       if (response.statusCode == 200) {
         // Map res = json.decode(response.body);
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -75,27 +73,24 @@ class _SupplierPageState extends State<SupplierPage> {
           });
         });
       } else {
-        showFailedMessage(
-            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+        showFailedMessage(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          context: context);
+      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
     }
   }
 
   pickSupplier(int idx) async {
+    print(_supList[idx].id);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
-    final response =
-        await http.post(Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': bearerToken,
-            },
-            body: jsonEncode({'pId': _supList[idx].id}));
+    final response = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': bearerToken,
+        },
+        body: jsonEncode({'supplierId': _supList[idx].id}));
     if (response.statusCode == 200) {
       Map<String, dynamic> res = jsonDecode(response.body);
       await prefs.setString('access_token', res['access_token']);
@@ -107,9 +102,7 @@ class _SupplierPageState extends State<SupplierPage> {
                     supp: _supList[idx],
                   )));
     } else if (response.statusCode == 403) {
-      showFailedMessage(
-          message: 'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.',
-          context: context);
+      showFailedMessage(message: 'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.', context: context);
     } else {
       showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
     }
