@@ -230,8 +230,9 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   _gridview() {
     return PagedSliverGrid(
       pagingController: _pagingController,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: MediaQuery.of(context).size.width > 480 ? 3 : 2,
+        childAspectRatio: 0.7,
       ),
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
         animateTransitions: true,

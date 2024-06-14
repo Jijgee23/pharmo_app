@@ -43,7 +43,7 @@ class _FilterPageState extends State<FilterPage> {
               SliverAppBar(
                 toolbarHeight: 14,
                 title: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: filterList.map((e) {
                     return TextButton(
                       onPressed: () {

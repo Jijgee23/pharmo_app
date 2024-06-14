@@ -70,28 +70,31 @@ class _FilteredProductsState extends State<FilteredProducts> {
           ),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          PagedSliverGrid<int, dynamic>(
-            showNewPageProgressIndicatorAsGridChild: false,
-            showNewPageErrorIndicatorAsGridChild: false,
-            showNoMoreItemsIndicatorAsGridChild: false,
-            pagingController: _pagingController,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-            ),
-            builderDelegate: PagedChildBuilderDelegate<dynamic>(
-              animateTransitions: true,
-              itemBuilder: (_, item, index) => ProductWidget(
-                item: item,
-                onTap: () {
-                  goto(ProductDetail(prod: item), context);
-                },
-                onButtonTab: () => addBasket(item.id, item.itemname_id),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: CustomScrollView(
+          slivers: [
+            PagedSliverGrid<int, dynamic>(
+              showNewPageProgressIndicatorAsGridChild: false,
+              showNewPageErrorIndicatorAsGridChild: false,
+              showNoMoreItemsIndicatorAsGridChild: false,
+              pagingController: _pagingController,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
               ),
-            ),
-          )
-        ],
+              builderDelegate: PagedChildBuilderDelegate<dynamic>(
+                animateTransitions: true,
+                itemBuilder: (_, item, index) => ProductWidget(
+                  item: item,
+                  onTap: () {
+                    goto(ProductDetail(prod: item), context);
+                  },
+                  onButtonTab: () => addBasket(item.id, item.itemname_id),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

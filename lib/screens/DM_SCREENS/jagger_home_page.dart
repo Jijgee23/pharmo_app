@@ -57,7 +57,7 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
         return Scaffold(
           drawer: Drawer(
             shape: const RoundedRectangleBorder(),
-            width: size.width * 0.7,
+            width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
             child: ListView(
               children: [
                 SizedBox(
@@ -68,28 +68,40 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                       color: AppColors.primary,
                     ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: size.width * 0.1,
-                          height: size.width * 0.1,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                          ),
-                          child: Icon(
-                            Icons.person,
-                            color: AppColors.secondary,
-                            size: size.width * 0.1,
+                        Align(
+                          alignment: Alignment.center,
+                          child: ClipOval(
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                              child: Icon(
+                                Icons.person,
+                                color: AppColors.secondary,
+                                size: size.width * 0.1,
+                              ),
+                            ),
                           ),
                         ),
-                        Text(
-                          authProvider.userInfo['email'],
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: size.height * 0.02),
-                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              authProvider.userInfo['email'],
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 16),
+                            ),
+                            const Text(
+                              'Хэрэглэгчийн төрөл: Түгээгч',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   ),

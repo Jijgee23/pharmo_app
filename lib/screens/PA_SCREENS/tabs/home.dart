@@ -302,8 +302,8 @@ class _HomeState extends State<Home> {
       showNewPageErrorIndicatorAsGridChild: false,
       showNoMoreItemsIndicatorAsGridChild: false,
       pagingController: _pagingController,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: MediaQuery.of(context).size.width > 480 ? 3 : 2,
       ),
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
         animateTransitions: true,
@@ -366,9 +366,7 @@ class _HomeState extends State<Home> {
             message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Админтай холбогдоно уу',
-          context: context);
+      showFailedMessage(message: 'Админтай холбогдоно уу', context: context);
     }
   }
 
@@ -388,7 +386,6 @@ class _HomeState extends State<Home> {
       showFailedMessage(message: 'Алдаа гарлаа', context: context);
     }
   }
-
 
   Future<void> _fetchbySearching(int pageKey, String type, String key) async {
     try {

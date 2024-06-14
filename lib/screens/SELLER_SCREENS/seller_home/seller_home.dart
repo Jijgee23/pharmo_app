@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/screens/DM_SCREENS/jagger_dialog.dart';
@@ -111,12 +113,13 @@ class _SellerHomePageState extends State<SellerHomePage> {
                 ),
           drawer: Drawer(
             shape: const RoundedRectangleBorder(),
-            width: size.width * 0.7,
+            width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   width: size.width,
+                  height: size.height * 0.2,
                   child: DrawerHeader(
                     curve: Curves.easeInOut,
                     decoration: const BoxDecoration(
@@ -124,33 +127,39 @@ class _SellerHomePageState extends State<SellerHomePage> {
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: size.width * 0.1,
-                          height: size.width * 0.1,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
+                        Align(
+                          alignment: Alignment.center,
+                          child: ClipOval(
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                              child: Icon(
+                                Icons.person,
+                                color: AppColors.secondary,
+                                size: size.width * 0.1,
+                              ),
+                            ),
                           ),
-                          child: Icon(
-                            Icons.person,
-                            color: AppColors.secondary,
-                            size: size.width * 0.1,
-                          ),
                         ),
-                        Text(
-                          'Имейл хаяг: ${homeProvider.userEmail}',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: size.height * 0.016),
-                        ),
-                        Text(
-                          'Хэрэглэгчийн төрөл: ${homeProvider.userRole}',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: size.height * 0.016),
-                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Имейл хаяг: ${homeProvider.userEmail}',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 14),
+                            ),
+                            Text(
+                              'Хэрэглэгчийн төрөл: ${homeProvider.userRole == 'S' ? 'Борлуулагч' : 'Түгээгч'}',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 14),
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   ),
