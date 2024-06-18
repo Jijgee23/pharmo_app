@@ -7,9 +7,11 @@ class CustomTextField extends StatelessWidget {
   final bool? obscureText;
   final bool? isPassword;
   final IconButton? suffixIcon;
+  final Iterable<String>? autofillHints;
 
   final Function(String?)? validator;
   final Function(String?)? onChanged;
+  final Function(String?)? onSubmitted;
 
   const CustomTextField({
     super.key,
@@ -20,17 +22,18 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType,
     this.suffixIcon,
     this.onChanged,
+    this.onSubmitted,
     this.isPassword,
+    this.autofillHints,
   });
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return SizedBox(
-      width: size.width * 0.9,
       child: TextFormField(
         onChanged: onChanged,
+        onFieldSubmitted: onSubmitted,
+        autofillHints: autofillHints,
         key: key,
         controller: controller,
         keyboardType: keyboardType,

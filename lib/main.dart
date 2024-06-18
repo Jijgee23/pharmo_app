@@ -11,7 +11,7 @@ import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
-import 'package:pharmo_app/screens/auth/login_page.dart';
+import 'package:pharmo_app/views/auth/login_page.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:provider/provider.dart';
 
@@ -61,3 +61,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

@@ -8,10 +8,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/screens/DM_SCREENS/jagger_home_page.dart';
-import 'package:pharmo_app/screens/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/screens/SELLER_SCREENS/seller_home/seller_home.dart';
-import 'package:pharmo_app/screens/auth/login_page.dart';
+import 'package:pharmo_app/views/DM_SCREENS/jagger_home_page.dart';
+import 'package:pharmo_app/views/PA_SCREENS/pharma_home_page.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/seller_home/seller_home.dart';
+import 'package:pharmo_app/views/auth/login_page.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -153,6 +153,7 @@ class AuthController extends ChangeNotifier {
       );
       if (responseLogin.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(responseLogin.body);
+
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', res['access_token']);
         String? accessToken = prefs.getString('access_token').toString();
