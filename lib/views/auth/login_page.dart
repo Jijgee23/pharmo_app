@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/views/auth/signup_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -17,17 +18,38 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-final emailController = TextEditingController();
-final passwordController = TextEditingController();
+final TextEditingController emailController = TextEditingController();
+final TextEditingController passwordController = TextEditingController();
 final _formKey = GlobalKey<FormState>();
 
 class _LoginPageState extends State<LoginPage> {
   bool hover = false;
+  bool rememberMe = false;
+  late Box box1;
   late AuthController authController;
   @override
   void initState() {
     super.initState();
+    _openBox();
     authController = Provider.of<AuthController>(context, listen: false);
+  }
+
+  Future<void> _openBox() async {
+    try {
+      box1 = await Hive.openBox('auth');
+      getLocalData();
+    } catch (e) {
+      debugPrint('Error opening Hive box: $e');
+    }
+  }
+
+  void getLocalData() {
+    if (box1.get('email') != null) {
+      emailController.text = box1.get('email');
+    }
+    if (box1.get('password') != null) {
+      passwordController.text = box1.get('password');
+    }
   }
 
   @override
@@ -113,7 +135,21 @@ class _LoginPageState extends State<LoginPage> {
                                   : Icons.visibility)),
                         ),
                       ),
-                      const SizedBox(height: 15),
+                      Visibility(
+                        visible: !authController.invisible,
+                        child: Row(
+                          children: [
+                            const Text('Намайг сана'),
+                            Checkbox(
+                                value: rememberMe,
+                                onChanged: (val) {
+                                  setState(() {
+                                    rememberMe = !rememberMe;
+                                  });
+                                }),
+                          ],
+                        ),
+                      ),
                       CustomButton(
                           text: !authController.invisible
                               ? 'Үргэлжлүүлэх'
@@ -124,8 +160,17 @@ class _LoginPageState extends State<LoginPage> {
                             }
                             if (!authController.invisible) {
                               if (passwordController.text.isNotEmpty) {
-                                await authController.login(emailController.text,
-                                    passwordController.text, context);
+                                await authController
+                                    .login(emailController.text,
+                                        passwordController.text, context)
+                                    .whenComplete(() async {
+                                  if (rememberMe) {
+                                    await box1.put(
+                                        'email', emailController.text);
+                                    await box1.put(
+                                        'password', passwordController.text);
+                                  }
+                                });
                               } else {
                                 showFailedMessage(
                                     context: context,
@@ -139,6 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                               }
                             }
                           }),
+                      const SizedBox(height: 15),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

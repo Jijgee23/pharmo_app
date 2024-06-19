@@ -48,7 +48,9 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+    var a = const SizedBox(
+      height: 10,
+    );
     return Consumer2<HomeProvider, AddressProvider>(
         builder: (_, homeProvider, addressProvider, child) {
       return Scaffold(
@@ -57,18 +59,15 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
           title: const Text('Эмийн сан бүртгэл'),
         ),
         body: Padding(
-          padding: EdgeInsets.symmetric(
-              vertical: size.height * 0.05, horizontal: size.width * 0.05),
+          padding: const EdgeInsets.symmetric(horizontal: 15),
           child: SingleChildScrollView(
-            child: Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              direction: Axis.vertical,
-              spacing: 10,
+            child: Column(
               children: [
                 const Text(
                   'Байгууллага',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
+                a,
                 CustomTextField(
                   controller: cRdController,
                   hintText: 'Байгууллагын РД',
@@ -78,120 +77,117 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                     checkCompany(cRdController.text);
                   },
                 ),
+                a,
                 CustomTextField(
                   controller: cNameController,
                   hintText: 'Байгууллагын нэр',
                 ),
+                a,
                 CustomTextField(
                   controller: emailController,
                   hintText: 'Имэйл хаяг',
                   validator: validateEmail,
                 ),
+                a,
                 CustomTextField(
                   controller: phoneController,
                   hintText: 'Утасны дугаар',
                   validator: validatePhone,
                   keyboardType: TextInputType.number,
                 ),
+                a,
                 const Text(
                   'Хаяг',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(
-                  width: size.width * 0.9,
-                  child: DropdownButtonFormField<Province>(
-                    decoration: InputDecoration(
-                      label: const Text('Аймаг/Хот сонгох'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(0),
-                      ),
+                a,
+                DropdownButtonFormField<Province>(
+                  decoration: InputDecoration(
+                    label: const Text('Аймаг/Хот сонгох'),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(0),
                     ),
-                    onChanged: (newValue) {
-                      addressProvider.districts.clear();
-                      if (newValue != null) {
-                        addressProvider.getDistrictId(newValue.id, context);
-                      }
-                    },
-                    items: addressProvider.provinces
-                        .map<DropdownMenuItem<Province>>((Province province) {
-                      return DropdownMenuItem<Province>(
-                        value: province,
-                        child: Text(
-                          province.name,
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.normal),
-                        ),
-                      );
-                    }).toList(),
                   ),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: DropdownButtonFormField<District>(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(0),
+                  onChanged: (newValue) {
+                    addressProvider.districts.clear();
+                    if (newValue != null) {
+                      addressProvider.getDistrictId(newValue.id, context);
+                    }
+                  },
+                  items: addressProvider.provinces
+                      .map<DropdownMenuItem<Province>>((Province province) {
+                    return DropdownMenuItem<Province>(
+                      value: province,
+                      child: Text(
+                        province.name,
+                        style: const TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.normal),
                       ),
-                    ),
-                    hint: const Text('Сум/Дүүрэг сонгох'),
-                    onChanged: (newValue) {
-                      if (newValue != null) {
-                        addressProvider.getKhoroo(newValue.id, context);
-                      }
-                    },
-                    items: addressProvider.districts
-                        .map<DropdownMenuItem<District>>((District district) {
-                      return DropdownMenuItem<District>(
-                        value: district,
-                        child: Text(district.ner),
-                      );
-                    }).toList(),
-                  ),
+                    );
+                  }).toList(),
                 ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: DropdownButtonFormField<Khoroo>(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(0),
-                      ),
+                a,
+                DropdownButtonFormField<District>(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(0),
                     ),
-                    hint: const Text('Баг/Хороо сонгох'),
-                    onChanged: (newValue) {
-                      setState(() {
-                        provinceId = newValue!.aimag;
-                        districtId = newValue.sum;
-                        khorooId = newValue.id;
-                      });
-                    },
-                    items: addressProvider.khoroos
-                        .map<DropdownMenuItem<Khoroo>>((Khoroo khoroo) {
-                      return DropdownMenuItem<Khoroo>(
-                        value: khoroo,
-                        child: Text(khoroo.ner),
-                      );
-                    }).toList(),
                   ),
+                  hint: const Text('Сум/Дүүрэг сонгох'),
+                  onChanged: (newValue) {
+                    if (newValue != null) {
+                      addressProvider.getKhoroo(newValue.id, context);
+                    }
+                  },
+                  items: addressProvider.districts
+                      .map<DropdownMenuItem<District>>((District district) {
+                    return DropdownMenuItem<District>(
+                      value: district,
+                      child: Text(district.ner),
+                    );
+                  }).toList(),
                 ),
+                a,
+                DropdownButtonFormField<Khoroo>(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(0),
+                    ),
+                  ),
+                  hint: const Text('Баг/Хороо сонгох'),
+                  onChanged: (newValue) {
+                    setState(() {
+                      provinceId = newValue!.aimag;
+                      districtId = newValue.sum;
+                      khorooId = newValue.id;
+                    });
+                  },
+                  items: addressProvider.khoroos
+                      .map<DropdownMenuItem<Khoroo>>((Khoroo khoroo) {
+                    return DropdownMenuItem<Khoroo>(
+                      value: khoroo,
+                      child: Text(khoroo.ner),
+                    );
+                  }).toList(),
+                ),
+                a,
                 const Text(
                   'Тайлбар',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(
-                  width: size.width * 0.9,
-                  child: TextFormField(
-                    onChanged: (value) {
-                      homeProvider.detail = detailedController.text;
-                    },
-                    minLines: 1,
-                    controller: detailedController,
-                    decoration: const InputDecoration(
-                      labelText: 'Тайлбар',
-                      border: OutlineInputBorder(),
-                    ),
+                a,
+                TextFormField(
+                  onChanged: (value) {
+                    homeProvider.detail = detailedController.text;
+                  },
+                  minLines: 1,
+                  controller: detailedController,
+                  decoration: const InputDecoration(
+                    labelText: 'Тайлбар',
+                    border: OutlineInputBorder(),
                   ),
                 ),
+                a,
                 CustomButton(
                   text: 'Бүртгэх',
                   ontap: () {

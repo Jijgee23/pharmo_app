@@ -161,45 +161,74 @@ class _JaggerDialogState extends State<JaggerDialog> {
   }
 }
 
-class LogoutDialog extends StatelessWidget {
-  const LogoutDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
-    //  final size = MediaQuery.of(context).size;
-    return ChangeNotifierProvider(
-      create: (context) => AuthController(),
-      child: AlertDialog(
-        title: const Center(
-          child: Text('Системээс гарах'),
+void showLogoutDialog(BuildContext context) {
+  Widget button(String text, VoidCallback onPressed) {
+    return SizedBox(
+      width: 100,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Colors.grey, width: 2),
         ),
-        content: const Text('Та системээс гарахдаа итгэлтэй байна уу?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Үгүй'),
-          ),
-          TextButton(
-            onPressed: () {
-              authController.logout(context);
-              authController.toggleVisibile();
-            },
-            child: const Text('Тийм'),
-          ),
-        ],
+        onPressed: onPressed,
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.black87),
+        ),
       ),
     );
   }
-}
 
-void showLogoutDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return const LogoutDialog();
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 100),
+            child: Container(
+              height: 250,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  const Text(
+                    'Системээс гарахдаа итгэлтэй байна уу?',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.primary,
+                      decoration: TextDecoration.none,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const Icon(Icons.logout_sharp,
+                      color: AppColors.secondary, size: 50),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      button('Үгүй', () => Navigator.pop(context)),
+                      button(
+                        'Тийм',
+                        () {
+                          Provider.of<AuthController>(context, listen: false)
+                              .logout(context);
+                          Provider.of<AuthController>(context, listen: false)
+                              .toggleVisibile();
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      );
     },
   );
 }

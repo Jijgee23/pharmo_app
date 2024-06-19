@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
@@ -31,6 +32,7 @@ Future<void> main() async {
     );
   }
   await FirebaseApi.initNotification();
+  await Hive.initFlutter();
   await dotenv.load(fileName: ".env");
   runApp(
     MultiProvider(
@@ -49,16 +51,32 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late AuthController authController;
+
+  @override
+  void initState() {
+    super.initState();
+    authController = Provider.of<AuthController>(context, listen: false);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Pharmo app',
-      debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+    return Consumer<AuthController>(
+      builder: (context, authProvider, child) {
+        return const MaterialApp(
+            title: 'Pharmo app',
+            debugShowCheckedModeBanner: false,
+            home: LoginPage());
+      },
     );
   }
 }
-
+  

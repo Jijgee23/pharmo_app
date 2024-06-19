@@ -109,6 +109,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
       child: Consumer2<AuthController, HomeProvider>(
         builder: (context, authController, homeProvider, _) {
           return Scaffold(
+           
             drawer: Drawer(
               shape: const RoundedRectangleBorder(),
               width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,

@@ -5,9 +5,11 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/views/DM_SCREENS/jagger_home_page.dart';
 import 'package:pharmo_app/views/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/seller_home/seller_home.dart';
@@ -84,7 +86,10 @@ class AuthController extends ChangeNotifier {
     );
     if (response.statusCode == 200) {
       String? accessToken = json.decode(response.body)['access'];
-      await prefs.setString('access_token', accessToken!);
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken!);
+      await prefs.setString('access_token', accessToken);
+      await prefs.setString('role', decodedToken['role']);
+      await prefs.setString('useremail', decodedToken['email']);
     }
   }
 
@@ -168,16 +173,16 @@ class AuthController extends ChangeNotifier {
             Provider.of<BasketProvider>(context, listen: false);
         shoppingCart.getBasket();
         // await prefs.setString('basket_count', count.toString());
-
+        Hive.box('auth').put('role', decodedToken['role']);
         notifyListeners();
         if (decodedToken['role'] == 'S') {
           gotoRemoveUntil(const SellerHomePage(), context);
-        }
-        if (decodedToken['role'] == 'PA') {
+        } else if (decodedToken['role'] == 'PA') {
           gotoRemoveUntil(const PharmaHomePage(), context);
-        }
-        if (decodedToken['role'] == 'D') {
+        } else if (decodedToken['role'] == 'D') {
           gotoRemoveUntil(const JaggerHomePage(), context);
+        } else {
+          showFailedDialog(context);
         }
         await prefs.setString('access_token', res['access_token']);
         await prefs.setString('refresh_token', res['refresh_token']);
@@ -327,5 +332,64 @@ class AuthController extends ChangeNotifier {
       showFailedMessage(message: 'Амжилтгүй!', context: context);
     }
     notifyListeners();
+  }
+
+  void showFailedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 50, vertical: 100),
+              child: Container(
+                height: 250,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    const Text(
+                      'Таний эрх хүрэхгүй байна!',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.primary,
+                        decoration: TextDecoration.none,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const Icon(Icons.error_sharp,
+                        color: AppColors.secondary, size: 50),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side:
+                                const BorderSide(color: Colors.grey, width: 2),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            'Хаах',
+                            style: TextStyle(color: Colors.black87),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+        );
+      },
+    );
   }
 }
