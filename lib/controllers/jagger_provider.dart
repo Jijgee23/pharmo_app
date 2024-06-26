@@ -11,7 +11,7 @@ import 'package:pharmo_app/models/jagger_expense_order.dart';
 import 'package:pharmo_app/models/jagger_order.dart';
 import 'package:pharmo_app/models/jagger_order_item.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class JaggerProvider extends ChangeNotifier {

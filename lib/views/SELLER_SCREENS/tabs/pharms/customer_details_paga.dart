@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/brainch_detail.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 

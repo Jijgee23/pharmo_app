@@ -7,7 +7,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class ProductDetail extends StatefulWidget {

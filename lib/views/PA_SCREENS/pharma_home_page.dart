@@ -15,7 +15,7 @@ import 'package:pharmo_app/views/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/views/public_uses/filter.dart';
 import 'package:pharmo_app/views/public_uses/suppliers/supplier_page.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/drawer_item.dart';
+import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';

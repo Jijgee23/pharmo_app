@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/widgets/custom_button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 
 class ProductDetail extends StatelessWidget {
   final String productName;

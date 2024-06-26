@@ -16,8 +16,8 @@ import 'package:pharmo_app/views/DM_SCREENS/jagger_home_page.dart';
 import 'package:pharmo_app/views/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/views/auth/login_page.dart';
-import 'package:pharmo_app/widgets/create_pass_dialog.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -9,7 +9,7 @@ import 'package:pharmo_app/views/DM_SCREENS/tabs/jagger_home.dart';
 import 'package:pharmo_app/views/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
-import 'package:pharmo_app/widgets/drawer_item.dart';
+import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

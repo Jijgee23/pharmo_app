@@ -5,11 +5,11 @@ import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/signup_page.dart';
-import 'package:pharmo_app/widgets/create_pass_dialog.dart';
-import 'package:pharmo_app/widgets/custom_button.dart';
-import 'package:pharmo_app/widgets/custom_text_button.dart';
-import 'package:pharmo_app/widgets/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {

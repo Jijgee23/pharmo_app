@@ -8,9 +8,9 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart.dart';
-import 'package:pharmo_app/widgets/no_items.dart';
-import 'package:pharmo_app/widgets/product_widget.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/others/no_items.dart';
+import 'package:pharmo_app/widgets/others/product_widget.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class FilteredProducts extends StatefulWidget {

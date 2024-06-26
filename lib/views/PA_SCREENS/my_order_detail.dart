@@ -5,9 +5,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/custom_text_field_icon.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_field_icon.dart';
 import 'package:provider/provider.dart';
 
 class MyOrderDetail extends StatefulWidget {

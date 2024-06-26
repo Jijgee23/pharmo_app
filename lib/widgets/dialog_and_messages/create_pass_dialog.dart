@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/login_page.dart';
-import 'package:pharmo_app/widgets/custom_button.dart';
-import 'package:pharmo_app/widgets/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:provider/provider.dart';
 
 class CreatePassDialog extends StatefulWidget {

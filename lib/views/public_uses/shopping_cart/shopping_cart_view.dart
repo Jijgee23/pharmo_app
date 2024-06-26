@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/widgets/custom_alert_dialog.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/custom_alert_dialog.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class ShoppingCartView extends StatefulWidget {

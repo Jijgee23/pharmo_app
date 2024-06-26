@@ -13,8 +13,8 @@ import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/seller_shopping_cart/seller_qr_code.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

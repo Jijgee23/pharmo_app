@@ -12,7 +12,7 @@ import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/models/filters.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeProvider extends ChangeNotifier {

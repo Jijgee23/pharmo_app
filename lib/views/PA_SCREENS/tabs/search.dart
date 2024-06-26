@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/widgets/product_detail.dart';
+import 'package:pharmo_app/widgets/others/product_detail.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});

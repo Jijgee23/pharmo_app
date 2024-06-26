@@ -12,8 +12,8 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/favorite.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
-import 'package:pharmo_app/widgets/custom_button.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

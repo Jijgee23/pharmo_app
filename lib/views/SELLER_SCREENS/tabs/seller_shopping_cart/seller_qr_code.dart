@@ -11,7 +11,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
-import 'package:pharmo_app/widgets/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
