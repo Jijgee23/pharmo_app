@@ -14,8 +14,9 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
-import 'package:pharmo_app/widgets/others/product_widget.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/others/no_items.dart';
+import 'package:pharmo_app/widgets/others/product_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -179,6 +180,25 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
     return PagedSliverList<int, dynamic>(
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
+        animateTransitions: true,
+        firstPageProgressIndicatorBuilder: (context) {
+          return const Center(
+            child: CircularProgressIndicator.adaptive(
+              valueColor: AlwaysStoppedAnimation(Colors.red),
+            ),
+          );
+        },
+        firstPageErrorIndicatorBuilder: (context) {
+          _pagingController.refresh();
+          return const Center(
+            child: CircularProgressIndicator.adaptive(
+              valueColor: AlwaysStoppedAnimation(Colors.red),
+            ),
+          );
+        },
+        noItemsFoundIndicatorBuilder: (context) {
+          return const NoItems();
+        },
         itemBuilder: (context, item, index) => InkWell(
           onTap: () {
             goto(ProductDetail(prod: item), context);
@@ -236,7 +256,26 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
         crossAxisCount: MediaQuery.of(context).size.width > 480 ? 3 : 2,
       ),
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
+        firstPageProgressIndicatorBuilder: (context) {
+          return const Center(
+            child: CircularProgressIndicator.adaptive(
+              valueColor: AlwaysStoppedAnimation(Colors.red),
+            ),
+          );
+        },
+        firstPageErrorIndicatorBuilder: (context) {
+          _pagingController.refresh();
+          return const Center(
+            child: CircularProgressIndicator.adaptive(
+              valueColor: AlwaysStoppedAnimation(Colors.red),
+            ),
+          );
+        },
+        noItemsFoundIndicatorBuilder: (context) {
+          return const NoItems();
+        },
         animateTransitions: true,
+        transitionDuration: const Duration(milliseconds: 700),
         itemBuilder: (_, item, index) => ProductWidget(
           item: item,
           onButtonTab: () => addBasket(item.id),
