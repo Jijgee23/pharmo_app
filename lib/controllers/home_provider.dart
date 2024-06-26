@@ -11,7 +11,6 @@ import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/models/filters.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,7 +40,7 @@ class HomeProvider extends ChangeNotifier {
   List<Filters> categories = <Filters>[];
   List<Manufacturer> mnfrs = <Manufacturer>[];
   List<Manufacturer> vndrs = <Manufacturer>[];
-  final List<Supplier> supList = <Supplier>[];
+  
   changeIndex(int index) {
     currentIndex = index;
     notifyListeners();
@@ -139,31 +138,7 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  getSuppliers(BuildContext context) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': bearerToken,
-          });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        res.forEach((key, value) {
-          var model = Supplier(key, value);
-          supList.add(model);
-        });
-      } else {
-        showFailedMessage(
-            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Админтай холбогдоно уу', context: context);
-    }
-  }
+  
 
   getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

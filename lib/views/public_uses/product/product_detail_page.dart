@@ -56,7 +56,7 @@ class _ProductDetailState extends State<ProductDetail> {
         basketProvider.getBasket();
         showSuccessMessage(message: res['message'], context: context);
         Navigator.pop(context);
-        // if (_userRole == 'S') {
+        // if (_userRole == 'S') { 
         //   Navigator.pop(context);
         // }
         // if (_userRole == 'D') {

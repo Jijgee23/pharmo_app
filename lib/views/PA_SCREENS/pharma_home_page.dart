@@ -46,7 +46,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     homeProvider.getUserInfo();
     homeProvider.getDeviceInfo();
     homeProvider.getFilters();
-    homeProvider.getSuppliers(context);
   }
 
   @override

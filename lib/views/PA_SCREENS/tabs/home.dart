@@ -15,9 +15,9 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/others/product_widget.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,6 +46,7 @@ class _HomeState extends State<Home> {
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
   Color selectedFilterColor = Colors.black;
+  final List<Supplier> supList = <Supplier>[];
 
   @override
   void initState() {
@@ -54,6 +55,7 @@ class _HomeState extends State<Home> {
     _pagingController.addPageRequestListener(_handlePageRequest);
     super.initState();
     basketProvider.getBasket();
+    getSuppliers(context);
   }
 
   void _handlePageRequest(int pageKey) {
@@ -107,7 +109,7 @@ class _HomeState extends State<Home> {
                       basketProvider.getBasket();
                       refresh();
                     },
-                    items: homeProvider.supList
+                    items: supList
                         .map<DropdownMenuItem<Supplier>>((Supplier supplier) {
                       return DropdownMenuItem<Supplier>(
                         value: supplier,
@@ -343,6 +345,34 @@ class _HomeState extends State<Home> {
         valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
       ),
     );
+  }
+
+  getSuppliers(BuildContext context) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      final response = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': bearerToken,
+          });
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+       setState(() {
+          res.forEach((key, value) {
+            var model = Supplier(key, value);
+            supList.add(model);
+          });
+       });
+      } else {
+        showFailedMessage(
+            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Админтай холбогдоно уу', context: context);
+    }
   }
 
   pickSupplier(int supId) async {
