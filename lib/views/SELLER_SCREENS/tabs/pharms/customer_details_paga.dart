@@ -4,12 +4,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/branch.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/pharms/brainch_detail.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/brainch_detail.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher_string.dart';
 
 class CustomerDetailsPage extends StatefulWidget {
@@ -34,6 +34,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
     getPharmaInfo();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     final Uri emailLaunchUri = Uri(
@@ -49,69 +50,66 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
           '${widget.custName} -ийн дэлгэрэнгүй',
           style: const TextStyle(fontSize: 18),
         ),
-        centerTitle: !false,
+        centerTitle: true,
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              flex: 2,
-              child: Wrap(
-                direction: Axis.vertical,
-                children: [
-                  Text('Эмийн сангийн нэр: ${companyInfo['name']}'),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  Text('Регистрийн дугаар: ${companyInfo['rd']}'),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const Text('Имейл хаяг:'),
-                      TextButton(
-                        onPressed: () async {
-                          if (await canLaunchUrlString(
-                              emailLaunchUri.toString())) {
-                            await launchUrlString(emailLaunchUri.toString());
-                          } else {
-                            showFailedMessage(
-                              context: context,
-                              message:
-                                  'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
-                            );
-                          }
-                        },
-                        child: Text(
-                          '${companyInfo['email']}',
-                          style: const TextStyle(color: Colors.black87),
-                        ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Эмийн сангийн нэр: ${companyInfo['name']}'),
+                const SizedBox(
+                  height: 15,
+                ),
+                //  Text('Регистрийн дугаар: ${companyInfo['rd']}'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Text('Имейл хаяг:'),
+                    TextButton(
+                      onPressed: () async {
+                        if (await canLaunchUrlString(
+                            emailLaunchUri.toString())) {
+                          await launchUrlString(emailLaunchUri.toString());
+                        } else {
+                          showFailedMessage(
+                            context: context,
+                            message:
+                                'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
+                          );
+                        }
+                      },
+                      child: Text(
+                        '${companyInfo['email']}',
+                        style: const TextStyle(color: Colors.black87),
                       ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text('Утасны дугаарууд:'),
-                      TextButton(
-                        onPressed: () {
-                          launchUrlString('tel://+976${companyInfo['phone']}');
-                        },
-                        child: Text(
-                          '${companyInfo['phone']}',
-                          style: const TextStyle(color: Colors.black87),
-                        ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text('Утасны дугаарууд:'),
+                    TextButton(
+                      onPressed: () {
+                        launchUrlString('tel://+976${companyInfo['phone']}');
+                      },
+                      child: Text(
+                        '${companyInfo['phone']}',
+                        style: const TextStyle(color: Colors.black87),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
             Expanded(
-              flex: 5,
               child: ListView.builder(
                 itemCount: _branchList.length,
                 itemBuilder: (context, index) {
@@ -131,11 +129,10 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                       ),
                       title: Text(_branchList[index].name),
                     ),
-                  );  
+                  );
                 },
               ),
             ),
-            
           ],
         ),
       ),

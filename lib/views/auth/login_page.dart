@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/views/auth/signup_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
+import 'package:pharmo_app/views/auth/signup_page.dart';
 import 'package:pharmo_app/widgets/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/custom_button.dart';
 import 'package:pharmo_app/widgets/custom_text_button.dart';
@@ -105,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 15),
-                      const Text('Нэвтрэх'),
+                      const Text('Нэвтрэх', style: TextStyle(fontSize: 20,),),
                       const SizedBox(height: 15),
                       CustomTextField(
                         controller: emailController,
@@ -125,14 +125,15 @@ class _LoginPageState extends State<LoginPage> {
                           validator: validatePassword,
                           keyboardType: TextInputType.visiblePassword,
                           suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  hover = !hover;
-                                });
-                              },
-                              icon: Icon(hover
-                                  ? Icons.visibility_off
-                                  : Icons.visibility)),
+                            onPressed: () {
+                              setState(() {
+                                hover = !hover;
+                              });
+                            },
+                            icon: Icon(hover
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                          ),
                         ),
                       ),
                       Visibility(
@@ -152,8 +153,8 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       CustomButton(
                           text: !authController.invisible
-                              ? 'Үргэлжлүүлэх'
-                              : 'Нэвтрэх',
+                              ? 'Нэвтрэх'
+                              : 'Үргэлжлүүлэх',
                           ontap: () async {
                             if (_formKey.currentState!.validate()) {
                               TextInput.finishAutofillContext();

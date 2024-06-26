@@ -4,14 +4,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/models/order_list.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/order/order_detail.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/order/order_detail.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class OrderhistoryListPage extends StatefulWidget {
   final int customerId;

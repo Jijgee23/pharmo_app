@@ -1,21 +1,23 @@
 // ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/product_widget.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class SellerHomeTab extends StatefulWidget {
   const SellerHomeTab({
@@ -213,7 +215,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                   onPressed: () {
                     addBasket(item.id);
                   },
-                  icon:const Icon(
+                  icon: const Icon(
                     Icons.add_shopping_cart,
                     size: 15,
                     color: AppColors.primary,
@@ -232,7 +234,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
       pagingController: _pagingController,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: MediaQuery.of(context).size.width > 480 ? 3 : 2,
-        childAspectRatio: 0.7,
       ),
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
         animateTransitions: true,
@@ -305,8 +306,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
         showFailedMessage(message: res['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа.!', context: context);
+      showFailedMessage(message: 'Алдаа гарлаа!', context: context);
     }
   }
 }

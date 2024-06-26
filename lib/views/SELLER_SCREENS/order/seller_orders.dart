@@ -191,7 +191,7 @@ class _SellerOrdersState extends State<SellerOrders> {
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 5),
-                              child: Row(
+                              child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Column(
                                     crossAxisAlignment:
@@ -205,9 +205,6 @@ class _SellerOrdersState extends State<SellerOrders> {
                                       wtxt('Захиалга дууссан огноо:'),
                                       wtxt('Тайлбартай:'),
                                     ],
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
                                   ),
                                   Column(
                                     crossAxisAlignment:

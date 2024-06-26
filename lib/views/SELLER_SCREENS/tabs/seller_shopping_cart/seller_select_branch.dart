@@ -1,16 +1,17 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/seller_home/seller_home.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/seller_shopping_cart/seller_qr_code.dart';
-import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/tabs/seller_shopping_cart/seller_qr_code.dart';
+import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
@@ -60,6 +61,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                     Radio(
                       value: 'DELIVERY',
                       groupValue: homeProvider.orderType,
+                      fillColor: const MaterialStatePropertyAll(AppColors.succesColor),
                       onChanged: (value) {
                         setState(() {
                           invisible = !invisible;
@@ -76,6 +78,8 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                     ),
                     Radio(
                       value: 'NODELIVERY',
+                      fillColor:
+                          const MaterialStatePropertyAll(AppColors.succesColor),
                       groupValue: homeProvider.orderType,
                       onChanged: (value) {
                         setState(() {
@@ -176,6 +180,8 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                 children: [
                                   Radio(
                                     value: 'NOW',
+                                    fillColor: const MaterialStatePropertyAll(
+                                        AppColors.succesColor),
                                     groupValue: payType,
                                     onChanged: (String? value) {
                                       setState(() {
@@ -193,6 +199,8 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                   ),
                                   Radio(
                                     value: 'LATER',
+                                    fillColor: const MaterialStatePropertyAll(
+                                        AppColors.succesColor),
                                     groupValue: payType,
                                     onChanged: (value) {
                                       setState(() {

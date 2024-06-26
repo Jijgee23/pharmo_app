@@ -1,22 +1,22 @@
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/views/DM_SCREENS/jagger_home_page.dart';
 import 'package:pharmo_app/views/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/income_record/income_list.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/order/history.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/order/seller_orders.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/pharms/pharmacy_list.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/pharms/register_pharm.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/seller_home/seller_home_tab.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/seller_shopping_cart/seller_shopping_cart.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/tabs/home/seller_home_tab.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/pharmacy_list.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/register_pharm.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/tabs/seller_shopping_cart/seller_shopping_cart.dart';
 import 'package:pharmo_app/views/public_uses/filter.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/drawer_item.dart';
 import 'package:provider/provider.dart';
-import 'package:badges/badges.dart' as badges;
 
 class SellerHomePage extends StatefulWidget {
   const SellerHomePage({
@@ -127,21 +127,21 @@ class _SellerHomePageState extends State<SellerHomePage> {
                 ),
                 DrawerItem(
                   title: 'Орлогын жагсаалт',
-                  icon: Icons.attach_money,
+                  icon: Icons.money,
                   onTap: () {
                     goto(const IncomeList(), context);
                   },
                 ),
                 DrawerItem(
                   title: 'Захиалгууд',
-                  icon: Icons.list_rounded,
+                  icon: Icons.article_outlined,
                   onTap: () {
                     goto(const SellerOrders(), context);
                   },
                 ),
                 DrawerItem(
                   title: 'Харилцагчийн захиалгын түүх',
-                  icon: Icons.history_outlined,
+                  icon: Icons.clear_all,
                   onTap: () {
                     goto(const SellerCustomerOrderHisrtory(), context);
                   },

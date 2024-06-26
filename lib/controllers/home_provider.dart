@@ -7,12 +7,13 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/models/filters.dart';
 import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class HomeProvider extends ChangeNotifier {
   int currentIndex = 0;
@@ -40,7 +41,7 @@ class HomeProvider extends ChangeNotifier {
   List<Filters> categories = <Filters>[];
   List<Manufacturer> mnfrs = <Manufacturer>[];
   List<Manufacturer> vndrs = <Manufacturer>[];
-
+  final List<Supplier> supList = <Supplier>[];
   changeIndex(int index) {
     currentIndex = index;
     notifyListeners();
@@ -71,7 +72,6 @@ class HomeProvider extends ChangeNotifier {
           'Authorization': 'Bearer $accestoken',
         },
       );
-
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
 
@@ -91,7 +91,31 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  filter(int filters, int page, int pageSize) async {
+  filter(String type, int filters, int page, int pageSize) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      final response = await http.get(
+          Uri.parse(
+              '${dotenv.env['SERVER_URL']}products/?$type=[$filters]&page=$page&page_size=$pageSize'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': bearerToken,
+          });
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
+        return prods;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  filterCate(int filters, int page, int pageSize) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
@@ -112,6 +136,32 @@ class HomeProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint(e.toString());
+    }
+  }
+
+  getSuppliers(BuildContext context) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("access_token");
+      String bearerToken = "Bearer $token";
+      final response = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': bearerToken,
+          });
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        res.forEach((key, value) {
+          var model = Supplier(key, value);
+          supList.add(model);
+        });
+      } else {
+        showFailedMessage(
+            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+      }
+    } catch (e) {
+      showFailedMessage(message: 'Админтай холбогдоно уу', context: context);
     }
   }
 
@@ -296,4 +346,3 @@ class HomeProvider extends ChangeNotifier {
     return token;
   }
 }
-

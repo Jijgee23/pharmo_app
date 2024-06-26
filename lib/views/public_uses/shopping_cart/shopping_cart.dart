@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/views/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/seller_home/seller_home.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/seller_shopping_cart/seller_select_branch.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
+import 'package:pharmo_app/views/SELLER_SCREENS/tabs/seller_shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

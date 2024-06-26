@@ -5,7 +5,11 @@ class CustomAlertDialog extends StatelessWidget {
   final Function submitFunction;
   final Function? cancelFunction;
 
-  const CustomAlertDialog({super.key, this.text = "Устгахдаа итгэлтэй байна уу? ", required this.submitFunction, this.cancelFunction});
+  const CustomAlertDialog(
+      {super.key,
+      this.text = "Устгахдаа итгэлтэй байна уу? ",
+      required this.submitFunction,
+      this.cancelFunction});
 
   @override
   Widget build(BuildContext context) {

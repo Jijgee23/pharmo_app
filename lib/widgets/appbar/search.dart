@@ -22,12 +22,8 @@ class CustomSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      height: 40,
+    return SizedBox(
+      height: 45,
       width: double.infinity,
       child: TextField(
         cursorColor: Colors.black,
@@ -37,7 +33,7 @@ class CustomSearchBar extends StatelessWidget {
         onSubmitted: onSubmitted,
         decoration: InputDecoration(
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(5),
           ),
           hintText: title,
           hintStyle: const TextStyle(height: 1),

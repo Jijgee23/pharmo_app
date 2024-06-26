@@ -3,7 +3,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
-import 'package:pharmo_app/models/income.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 
@@ -32,222 +31,273 @@ class _IncomeListState extends State<IncomeList> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Consumer<IncomeProvider>(builder: (_, income, child) {
-      return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          title: const Text('Орлогын жагсаалт'),
-          centerTitle: true,
-        ),
-        floatingActionButton: FloatingActionButton(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40),
+    return Consumer<IncomeProvider>(
+      builder: (_, income, child) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            title: const Text('Орлогын жагсаалт'),
+            centerTitle: true,
           ),
-          backgroundColor: AppColors.primary,
-          child: const Icon(
-            Icons.add,
-            color: AppColors.secondary,
-          ),
-          onPressed: () {
-            amuontController.clear();
-            noteController.clear();
-            showCupertinoDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Center(
-                    child: Text('Орлого бүртгэх'),
-                  ),
-                  content: SizedBox(
-                    height: size.height * 0.2,
-                    child: Column(
-                      children: [
-                        TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'Тайлбар',
-                          ),
-                          controller: noteController,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          controller: amuontController,
-                          decoration: const InputDecoration(
-                            hintText: 'Дүн',
-                          ),
-                          keyboardType: TextInputType.number,
-                        ),
-                      ],
+          floatingActionButton: FloatingActionButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
+            ),
+            backgroundColor: AppColors.primary,
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              amuontController.clear();
+              noteController.clear();
+              showCupertinoDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Center(
+                      child: Text('Орлого бүртгэх'),
                     ),
-                  ),
-                  actions: <Widget>[
+                    content: SizedBox(
+                      height: size.height * 0.2,
+                      child: Column(
+                        children: [
+                          TextField(
+                            decoration: const InputDecoration(
+                              hintText: 'Тайлбар',
+                            ),
+                            controller: noteController,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          TextFormField(
+                            controller: amuontController,
+                            decoration: const InputDecoration(
+                              hintText: 'Дүн',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Цуцлах'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          income.recordIncome(noteController.text,
+                              amuontController.text, context);
+                          income.getIncomeList(context);
+                          noteController.clear();
+                          amuontController.clear();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Бүртгэх'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        _selectDate(context);
                       },
-                      child: const Text('Цуцлах'),
+                      child: Text(date1,
+                          style: const TextStyle(color: AppColors.primary)),
                     ),
+                    const Icon(Icons.arrow_right_alt),
                     TextButton(
                       onPressed: () {
-                        income.recordIncome(noteController.text,
-                            amuontController.text, context);
-                        income.getIncomeList(context);
-                        noteController.clear();
-                        amuontController.clear();
-                        Navigator.of(context).pop();
+                        _selectDate2(context);
                       },
-                      child: const Text('Бүртгэх'),
+                      child: Text(date2,
+                          style: const TextStyle(color: AppColors.primary)),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        if (date1 == date2) {
+                          income.getIncomeListByDateSinlge(context, date1);
+                        } else {
+                          income.getIncomeListByDateRanged(
+                              context, date1, date2);
+                        }
+                      },
+                      style: const ButtonStyle(
+                          backgroundColor:
+                              MaterialStatePropertyAll(AppColors.primary)),
+                      child: const Text(
+                        'Шүүх',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
-                );
-              },
-            );
-          },
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      _selectDate(context);
-                    },
-                    child: Text(date1,
-                        style: const TextStyle(color: AppColors.primary)),
-                  ),
-                  const Icon(Icons.arrow_right_alt),
-                  TextButton(
-                    onPressed: () {
-                      _selectDate2(context);
-                    },
-                    child: Text(date2,
-                        style: const TextStyle(color: AppColors.primary)),
-                  ),
-                  OutlinedButton(
-                    onPressed: () {
-                      if (date1 == date2) {
-                        income.getIncomeListByDateSinlge(context, date1);
-                      } else {
-                        income.getIncomeListByDateRanged(context, date1, date2);
-                      }
-                    },
-                    style: const ButtonStyle(
-                        backgroundColor:
-                            MaterialStatePropertyAll(AppColors.primary)),
-                    child: const Text(
-                      'Шүүх',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-            Expanded(
-              flex: 10,
-              child: income.incomeList.isEmpty
-                  ? const Center(
-                      child: Text('Хоосон'),
-                    )
-                  : ListView.builder(
-                      itemCount: income.incomeList.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          child: ListTile(
-                            onTap: () {
-                              showBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return _details(income.incomeList[index]);
-                                },
-                              );
-                            },
-                            title: mText(
-                                'Тайлбар: ${income.incomeList[index].note.toString()}'),
-                            subtitle: mText(
-                                'Дүн: ${income.incomeList[index].amount.toString()}'),
-                            trailing: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  noteController.text =
-                                      income.incomeList[index].note!;
-                                  amuontController.text = income
-                                      .incomeList[index].amount
-                                      .toString();
-                                });
-                                showCupertinoDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Center(
-                                        child: Text('Засах'),
-                                      ),
-                                      content: SizedBox(
-                                        height: size.height * 0.2,
-                                        child: Column(
-                                          children: [
-                                            TextField(
-                                              decoration: const InputDecoration(
-                                                hintText: 'Тайлбар',
-                                              ),
-                                              controller: noteController,
-                                            ),
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                            TextFormField(
-                                              controller: amuontController,
-                                              decoration: const InputDecoration(
-                                                hintText: 'Дүн',
-                                              ),
-                                              keyboardType:
-                                                  TextInputType.number,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text('Буцах'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            income.updateIncome(
-                                                income.incomeList[index].id,
-                                                noteController.text,
-                                                amuontController.text,
-                                                context);
-                                            income.getIncomeList(context);
-                                            noteController.clear();
-                                            amuontController.clear();
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text('Хадгалах'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Colors.green,
+              Expanded(
+                flex: 10,
+                child: income.incomeList.isEmpty
+                    ? const Center(
+                        child: Text('Хоосон'),
+                      )
+                    : ListView.builder(
+                        itemCount: income.incomeList.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            child: ExpansionTile(
+                              childrenPadding: const EdgeInsets.all(10),
+                              iconColor: AppColors.primary,
+                              title: ListTile(
+                                title: mText(
+                                    'Тайлбар: ${income.incomeList[index].note.toString()}'),
                               ),
+                              subtitle: mText(
+                                  'Дүн: ${income.incomeList[index].amount.toString()}'),
+                              leading: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    noteController.text =
+                                        income.incomeList[index].note!;
+                                    amuontController.text = income
+                                        .incomeList[index].amount
+                                        .toString();
+                                  });
+                                  showCupertinoDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Center(
+                                          child: Text('Засах'),
+                                        ),
+                                        content: SizedBox(
+                                          height: size.height > 480
+                                              ? size.height * 0.2
+                                              : size.height * 0.3,
+                                              width: 300,
+                                          child: Column(
+                                            children: [
+                                              TextField(
+                                                decoration:
+                                                    const InputDecoration(
+                                                  hintText: 'Тайлбар',
+                                                  border: OutlineInputBorder()
+                                                ),
+                                                controller: noteController,
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              TextFormField(
+                                                controller: amuontController,
+                                                decoration:
+                                                    const InputDecoration(
+                                                  hintText: 'Дүн',
+                                                  border:  OutlineInputBorder()
+                                                ),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('Буцах'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              income.updateIncome(
+                                                  income.incomeList[index].id,
+                                                  noteController.text,
+                                                  amuontController.text,
+                                                  context);
+                                              income.getIncomeList(context);
+                                              noteController.clear();
+                                              amuontController.clear();
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('Хадгалах'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              children: [
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          mText('Тайлбар: '),
+                                          mText('Дүн:'),
+                                          mText('Огноо:'),
+                                          mText('Хүргэлт:'),
+                                          mText('Нийлүүлэгч:'),
+                                          mText('Харилцагч:'),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          mText(income.incomeList[index].note
+                                              .toString()),
+                                          mText(income.incomeList[index].amount
+                                              .toString()),
+                                          mText(income
+                                              .incomeList[index].createdOn
+                                              .toString()),
+                                          mText(income.incomeList[index].delman
+                                              .toString()),
+                                          mText(income
+                                              .incomeList[index].supplier
+                                              .toString()),
+                                          mText(income
+                                              .incomeList[index].customer
+                                              .toString()),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      );
-    });
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   _selectDate(BuildContext context) async {
@@ -278,60 +328,6 @@ class _IncomeListState extends State<IncomeList> {
         selectedDate2 = picked;
       });
     }
-  }
-
-  Widget _details(Income data) {
-    Size size = MediaQuery.of(context).size;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-      width: double.infinity,
-      height: size.height * 0.5,
-      decoration: const BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 5,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                mText('Тайлбар: ${data.note.toString()}'),
-                mText('Дүн: ${data.amount.toString()}'),
-                mText('Огноо: ${data.createdOn.toString()}'),
-                mText('Хүргэлт: ${data.delman.toString()}'),
-                mText('Нийлүүлэгч: ${data.supplier.toString()}'),
-                mText('Харилцагч: ${data.customer.toString()}'),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(),
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.arrow_downward,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget mText(String text) {

@@ -31,8 +31,8 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
       }
     }
 
-    Future<void> changeBasketItem(int item_id, String type, int qty) async {
-      dynamic res = await basketProvider.changeBasketItem(item_id: item_id, type: type, qty: qty);
+    Future<void> changeBasketItem(int itemId, String type, int qty) async {
+      dynamic res = await basketProvider.changeBasketItem(item_id: itemId, type: type, qty: qty);
       if (res['errorType'] == 1) {
         showSuccessMessage(message: res['message'], context: context);
       } else {

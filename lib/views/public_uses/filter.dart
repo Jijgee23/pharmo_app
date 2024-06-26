@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/views/public_uses/filtered_products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/public_uses/filtered_products.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
@@ -89,6 +89,7 @@ class _FilterPageState extends State<FilterPage> {
               onTap: () {
                 goto(
                     FilteredProducts(
+                        type: 'category',
                         title: homeProvider.categories[index].name,
                         filterKey: homeProvider.categories[index].id),
                     context);
@@ -119,6 +120,7 @@ class _FilterPageState extends State<FilterPage> {
                 onTap: () {
                   goto(
                       FilteredProducts(
+                          type: 'mnfr',
                           title: homeProvider.mnfrs[idx].name,
                           filterKey: homeProvider.mnfrs[idx].id),
                       context);
@@ -150,6 +152,7 @@ class _FilterPageState extends State<FilterPage> {
               onTap: () {
                 goto(
                     FilteredProducts(
+                        type: 'vndr',
                         title: homeProvider.vndrs[idx].name,
                         filterKey: homeProvider.vndrs[idx].id),
                     context);

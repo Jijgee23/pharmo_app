@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/order_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class PharmProvider extends ChangeNotifier {
   String baseUrl = '${dotenv.env['SERVER_URL']}';
@@ -15,7 +15,6 @@ class PharmProvider extends ChangeNotifier {
   List<PharmFullInfo> badlist = <PharmFullInfo>[];
   List<PharmFullInfo> limitedlist = <PharmFullInfo>[];
   List<OrderList> orderList = <OrderList>[];
-
   getPharmacyList() async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -36,10 +35,27 @@ class PharmProvider extends ChangeNotifier {
         badlist.clear();
         goodlist.clear();
         limitedlist.clear();
+         
         for (int i = 0; i < pharms.length; i++) {
           fullList.add(PharmFullInfo.fromJson(pharms[i]));
-          if (pharms[i]['isCustomer'] == true) {
+          final bool isCustomer = pharms[i]['isCustomer'];
+          final bool isBad = pharms[i]['isBad'];
+          final bool isLimited = pharms[i]['debtLimit'] != 0 &&
+              pharms[i]['debt'] != 0 &&
+              pharms[i]['debt'] > pharms[i]['debtLimit'];
+          if (isCustomer == true) {
             customeList.add(PharmFullInfo.fromJson(pharms[i]));
+          } else {
+            pharmList.add(PharmFullInfo.fromJson(pharms[i]));
+          }
+          if (isBad == true) {
+            badlist.add(PharmFullInfo.fromJson(pharms[i]));
+          }
+          if(isBad == false && isCustomer == true && isLimited == false){
+            goodlist.add(PharmFullInfo.fromJson(pharms[i]));
+          }
+          if (isLimited == true) {
+            limitedlist.add(PharmFullInfo.fromJson(pharms[i]));
           }
           notifyListeners();
         }

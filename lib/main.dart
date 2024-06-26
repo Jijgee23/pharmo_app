@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,8 +13,8 @@ import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
-import 'package:pharmo_app/views/auth/login_page.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
+import 'package:pharmo_app/views/auth/login_page.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -72,11 +73,11 @@ class _MyAppState extends State<MyApp> {
     return Consumer<AuthController>(
       builder: (context, authProvider, child) {
         return const MaterialApp(
-            title: 'Pharmo app',
-            debugShowCheckedModeBanner: false,
-            home: LoginPage());
+          title: 'Pharmo app',
+          debugShowCheckedModeBanner: false,
+          home: LoginPage(),
+        );
       },
     );
   }
 }
-  

@@ -1,23 +1,25 @@
 // ignore_for_file: use_build_context_synchronously, non_constant_identifier_names
 
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
+import 'package:pharmo_app/widgets/no_items.dart';
 import 'package:pharmo_app/widgets/product_widget.dart';
 import 'package:pharmo_app/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class Home extends StatefulWidget {
   const Home({
@@ -29,7 +31,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final List<Supplier> _supList = <Supplier>[];
   final int _pageSize = 20;
   bool isList = false;
   final PagingController<int, dynamic> _pagingController =
@@ -50,25 +51,27 @@ class _HomeState extends State<Home> {
   void initState() {
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    getSuppliers();
-    _pagingController.addPageRequestListener(
-      (pageKey) {
-        if (!searching) {
-          _fetchPage(pageKey);
-        } else {
-          _fetchbySearching(pageKey, type, searchQuery!);
-        }
-        _pagingController.refresh();
-      },
-    );
+    _pagingController.addPageRequestListener(_handlePageRequest);
     super.initState();
     basketProvider.getBasket();
+  }
+
+  void _handlePageRequest(int pageKey) {
+    if (!searching) {
+      _fetchPage(pageKey);
+    } else {
+      _fetchbySearching(pageKey, type, searchQuery!);
+    }
   }
 
   @override
   void dispose() {
     _pagingController.dispose();
     super.dispose();
+  }
+
+  void refresh() {
+    _pagingController.refresh();
   }
 
   @override
@@ -87,38 +90,35 @@ class _HomeState extends State<Home> {
                 centerTitle: true,
                 title: ChangeNotifierProvider(
                   create: (context) => BasketProvider(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    height: 50,
-                    child: DropdownButtonFormField<Supplier>(
-                      style: const TextStyle(),
-                      decoration: const InputDecoration(
-                          border: UnderlineInputBorder(),
-                          hintText: 'Нийлүүлэгч сонгох'),
-                      icon: const Icon(Icons.arrow_drop_down),
-                      value: selectedSupplier,
-                      onSaved: (newValue) {
-                        _pagingController.refresh();
-                      },
-                      onChanged: (Supplier? newValue) {
-                        pickSupplier(int.parse(newValue!.id));
-                        homeProvider.getFilters();
-                        basketProvider.getBasket();
-                        _pagingController.refresh();
-                      },
-                      items: _supList
-                          .map<DropdownMenuItem<Supplier>>((Supplier supplier) {
-                        return DropdownMenuItem<Supplier>(
-                          value: supplier,
-                          child: Text(
-                            supplier.name,
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.normal),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                  child: DropdownButtonFormField<Supplier>(
+                    decoration: const InputDecoration(
+                        contentPadding:
+                            EdgeInsetsDirectional.symmetric(horizontal: 20),
+                        border: OutlineInputBorder(),
+                        hintText: 'Нийлүүлэгч сонгох'),
+                    icon: const Icon(Icons.arrow_drop_down),
+                    value: selectedSupplier,
+                    onSaved: (newValue) {
+                      _pagingController.refresh();
+                    },
+                    onChanged: (Supplier? newValue) {
+                      pickSupplier(int.parse(newValue!.id));
+                      homeProvider.getFilters();
+                      basketProvider.getBasket();
+                      refresh();
+                    },
+                    items: homeProvider.supList
+                        .map<DropdownMenuItem<Supplier>>((Supplier supplier) {
+                      return DropdownMenuItem<Supplier>(
+                        value: supplier,
+                        child: Text(
+                          supplier.name,
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
@@ -130,79 +130,76 @@ class _HomeState extends State<Home> {
                   children: [
                     Expanded(
                       flex: 10,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: CustomSearchBar(
-                          searchController: _searchController,
-                          onChanged: (value) {
-                            Future.delayed(const Duration(milliseconds: 1000),
-                                () {
-                              if (_searchController.text.isNotEmpty) {
-                                setState(() {
-                                  searching = true;
-                                  searchQuery = value.isEmpty
-                                      ? null
-                                      : _searchController.text;
-                                });
-                                _pagingController.refresh();
-                              } else {
-                                setState(() {
-                                  searching = false;
-                                  _pagingController
-                                      .removePageRequestListener((pageKey) {});
-                                });
-                                _pagingController.refresh();
-                              }
-                            });
-                          },
-                          onSubmitted: (p0) {
-                            if (p0.isEmpty) {
+                      child: CustomSearchBar(
+                        searchController: _searchController,
+                        onChanged: (value) {
+                          Future.delayed(const Duration(milliseconds: 1000),
+                              () {
+                            if (_searchController.text.isNotEmpty) {
+                              setState(() {
+                                searching = true;
+                                searchQuery = value.isEmpty
+                                    ? null
+                                    : _searchController.text;
+                              });
+                              _pagingController.refresh();
+                            } else {
                               setState(() {
                                 searching = false;
-                                _pagingController.refresh();
+                                _pagingController
+                                    .removePageRequestListener((pageKey) {});
                               });
+                              _pagingController.refresh();
                             }
+                          });
+                        },
+                        onSubmitted: (p0) {
+                          if (p0.isEmpty) {
+                            setState(() {
+                              searching = false;
+                              _pagingController.refresh();
+                            });
+                          }
+                        },
+                        title: '$searchBarText хайх',
+                        suffix: IconButton(
+                          icon: const Icon(Icons.swap_vert),
+                          onPressed: () {
+                            showMenu(
+                              context: context,
+                              position:
+                                  const RelativeRect.fromLTRB(150, 20, 0, 0),
+                              items: <PopupMenuEntry>[
+                                PopupMenuItem(
+                                  onTap: () {
+                                    setState(() {
+                                      searchBarText = 'Нэрээр';
+                                      type = 'name';
+                                    });
+                                  },
+                                  child: const Text('Нэрээр'),
+                                ),
+                                PopupMenuItem(
+                                  onTap: () {
+                                    setState(() {
+                                      searchBarText = 'Баркодоор';
+                                      type = 'barcode';
+                                    });
+                                  },
+                                  child: const Text('Баркодоор'),
+                                ),
+                                PopupMenuItem(
+                                  onTap: () {
+                                    setState(() {
+                                      searchBarText = 'Ерөнхий нэршлээр';
+                                      type = 'intName';
+                                    });
+                                  },
+                                  child: const Text('Ерөнхий нэршлээр'),
+                                ),
+                              ],
+                            ).then((value) {});
                           },
-                          title: '$searchBarText хайх',
-                          suffix: IconButton(
-                            icon: const Icon(Icons.swap_vert),
-                            onPressed: () {
-                              showMenu(
-                                context: context,
-                                position:
-                                    const RelativeRect.fromLTRB(150, 20, 0, 0),
-                                items: <PopupMenuEntry>[
-                                  PopupMenuItem(
-                                    onTap: () {
-                                      setState(() {
-                                        searchBarText = 'Нэрээр';
-                                        type = 'name';
-                                      });
-                                    },
-                                    child: const Text('Нэрээр'),
-                                  ),
-                                  PopupMenuItem(
-                                    onTap: () {
-                                      setState(() {
-                                        searchBarText = 'Баркодоор';
-                                        type = 'barcode';
-                                      });
-                                    },
-                                    child: const Text('Баркодоор'),
-                                  ),
-                                  PopupMenuItem(
-                                    onTap: () {
-                                      setState(() {
-                                        searchBarText = 'Ерөнхий нэршлээр';
-                                        type = 'intName';
-                                      });
-                                    },
-                                    child: const Text('Ерөнхий нэршлээр'),
-                                  ),
-                                ],
-                              ).then((value) {});
-                            },
-                          ),
                         ),
                       ),
                     ),
@@ -246,6 +243,17 @@ class _HomeState extends State<Home> {
     return PagedSliverList<int, dynamic>(
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
+        firstPageErrorIndicatorBuilder: (context) {
+          _pagingController.refresh();
+          return indicator();
+        },
+        firstPageProgressIndicatorBuilder: (context) {
+          _pagingController.refresh();
+          return indicator();
+        },
+        noItemsFoundIndicatorBuilder: (context) {
+          return const NoItems();
+        },
         itemBuilder: (context, item, index) => InkWell(
           onTap: () {
             goto(ProductDetail(prod: item), context);
@@ -306,6 +314,17 @@ class _HomeState extends State<Home> {
         crossAxisCount: MediaQuery.of(context).size.width > 480 ? 3 : 2,
       ),
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
+        noItemsFoundIndicatorBuilder: (context) {
+          return const NoItems();
+        },
+        firstPageErrorIndicatorBuilder: (context) {
+          _pagingController.refresh();
+          return indicator();
+        },
+        firstPageProgressIndicatorBuilder: (context) {
+          _pagingController.refresh();
+          return indicator();
+        },
         animateTransitions: true,
         itemBuilder: (_, item, index) => ProductWidget(
           item: item,
@@ -314,6 +333,14 @@ class _HomeState extends State<Home> {
           },
           onButtonTab: () => addBasket(item.id, item.itemname_id),
         ),
+      ),
+    );
+  }
+
+  indicator() {
+    return const Center(
+      child: CircularProgressIndicator.adaptive(
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
       ),
     );
   }
@@ -333,40 +360,13 @@ class _HomeState extends State<Home> {
       Map<String, dynamic> res = jsonDecode(response.body);
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
+      await prefs.setInt('picked_suplier', res['id']);
     } else if (response.statusCode == 403) {
       showFailedMessage(
           message: 'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.',
           context: context);
     } else {
       showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
-    }
-  }
-
-  getSuppliers() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': bearerToken,
-          });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        setState(() {
-          res.forEach((key, value) {
-            var model = Supplier(key, value);
-            _supList.add(model);
-          });
-        });
-      } else {
-        showFailedMessage(
-            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Админтай холбогдоно уу', context: context);
     }
   }
 
