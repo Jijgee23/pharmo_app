@@ -3,8 +3,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/customer_details_paga.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,15 +69,16 @@ class _BranchDetailsState extends State<BranchDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: chevronBack(context),
         title: Text(
-          '${widget.branchName}-н дэлгэрэнгүй мэдээлэл',
+          widget.branchName,
           style: const TextStyle(fontSize: 14),
         ),
         centerTitle: true,
       ),
       body: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: Center(
           child: storeList.isEmpty
               ? const Center(
@@ -91,9 +94,10 @@ class _BranchDetailsState extends State<BranchDetails> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Wrap(
+                      direction: Axis.vertical,
+                      alignment: WrapAlignment.start,
+                      spacing: 10,
                       children: [
                         const Text(
                           'Салбарын мэдээлэл',
@@ -101,31 +105,20 @@ class _BranchDetailsState extends State<BranchDetails> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Text(
-                          'Салбарын нэр: ${storeList['name']}',
-                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('Салбарын утас:'),
-                            TextButton(
-                              onPressed: () {
-                                launchUrlString(
-                                    'tel://+976${storeList['phone']}');
-                              },
-                              child: Text(
-                                '${storeList['phone']}',
-                                style: const TextStyle(color: Colors.black87),
-                              ),
+                            const Text('Салбарын утас:    '),
+                            InkWell(
+                              child: Text('${storeList['phone'] ?? '-'}'),
+                              onTap: () => launchUrlString(
+                                  'tel://+976${storeList['phone']}'),
                             ),
                           ],
                         ),
                         Text(
-                          'Салбарын хаяг: ${storeList['address']}',
+                          'Салбарын хаяг: ${storeList['address'] ?? '-'}',
                         ),
                         const SizedBox(
                           height: 15,
@@ -136,21 +129,19 @@ class _BranchDetailsState extends State<BranchDetails> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(
-                          height: 15,
-                        ),
                         Text(
-                          'Салбарын менежерийн нэр: ${storeList['manager']['name']}',
+                          'Салбарын менежерийн нэр:    ${storeList['manager']['name'] ?? '-'}',
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const Text('Салбарын менежер имейл:'),
-                            TextButton(
-                              onPressed: () async {
+                            const Text('Салбарын менежер имейл:  '),
+                            InkWell(
+                              child: Text('${storeList['manager']['email'] ?? '-'}'),
+                              onTap: () async {
                                 final Uri emailLaunchUri = Uri(
                                   scheme: 'mailto',
-                                  path: '${storeList['manager']['email']}',
+                                  path: '${storeList['manager']['email'] ?? '-'}',
                                   query: EmailHelper
                                       .encodeQueryParameters(<String, String>{
                                     'subject': 'Бичих зүйлээ оруулна уу!',
@@ -168,10 +159,6 @@ class _BranchDetailsState extends State<BranchDetails> {
                                   );
                                 }
                               },
-                              child: Text(
-                                '${storeList['manager']['email']}',
-                                style: const TextStyle(color: Colors.black87),
-                              ),
                             ),
                           ],
                         ),
@@ -180,15 +167,12 @@ class _BranchDetailsState extends State<BranchDetails> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const Text('Салбарын менежер утас:'),
-                            TextButton(
-                              onPressed: () {
-                                launchUrlString(
-                                    'tel://+976${storeList['manager']['phone']}');
-                              },
+                            InkWell(
                               child: Text(
-                                '${storeList['manager']['phone']}',
-                                style: const TextStyle(color: Colors.black87),
+                                '${storeList['manager']['phone'] ?? '-'}',
                               ),
+                              onTap: () => launchUrlString(
+                                  'tel://+976${storeList['manager']['phone']}'),
                             ),
                           ],
                         ),

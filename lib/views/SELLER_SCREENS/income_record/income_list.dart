@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, unnecessary_null_comparison
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,17 +37,21 @@ class _IncomeListState extends State<IncomeList> {
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
             title: const Text('Орлогын жагсаалт'),
-            centerTitle: true,
+            centerTitle: true,leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.chevron_left,
+                color: AppColors.primary,
+              ),
+            ),
           ),
           floatingActionButton: FloatingActionButton(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(40),
-            ),
-            backgroundColor: AppColors.primary,
-            child: const Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            highlightElevation: 0,
+            child: Image.asset(
+                  'assets/icons/wallet.png',
+                ),
             onPressed: () {
               amuontController.clear();
               noteController.clear();
@@ -155,24 +159,27 @@ class _IncomeListState extends State<IncomeList> {
                     : ListView.builder(
                         itemCount: income.incomeList.length,
                         itemBuilder: (context, index) {
-                          return Card(
+                          final incomee = income.incomeList[index];
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(width: 1, color: Colors.grey),
+                            ),
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 2),
                             child: ExpansionTile(
-                              childrenPadding: const EdgeInsets.all(10),
+                              childrenPadding: const EdgeInsets.all(5),
                               iconColor: AppColors.primary,
-                              title: ListTile(
-                                title: mText(
-                                    'Тайлбар: ${income.incomeList[index].note.toString()}'),
-                              ),
-                              subtitle: mText(
-                                  'Дүн: ${income.incomeList[index].amount.toString()}'),
+                              title:
+                                  mText('Тайлбар: ${incomee.note.toString()}'),
+                              subtitle:
+                                  mText('Дүн: ${incomee.amount.toString()}'),
                               leading: IconButton(
                                 onPressed: () {
                                   setState(() {
-                                    noteController.text =
-                                        income.incomeList[index].note!;
-                                    amuontController.text = income
-                                        .incomeList[index].amount
-                                        .toString();
+                                    noteController.text = incomee.note!;
+                                    amuontController.text =
+                                        incomee.amount.toString();
                                   });
                                   showCupertinoDialog(
                                     context: context,
@@ -185,15 +192,14 @@ class _IncomeListState extends State<IncomeList> {
                                           height: size.height > 480
                                               ? size.height * 0.2
                                               : size.height * 0.3,
-                                              width: 300,
+                                          width: 300,
                                           child: Column(
                                             children: [
                                               TextField(
-                                                decoration:
-                                                    const InputDecoration(
-                                                  hintText: 'Тайлбар',
-                                                  border: OutlineInputBorder()
-                                                ),
+                                                decoration: const InputDecoration(
+                                                    hintText: 'Тайлбар',
+                                                    border:
+                                                        OutlineInputBorder()),
                                                 controller: noteController,
                                               ),
                                               const SizedBox(
@@ -201,11 +207,10 @@ class _IncomeListState extends State<IncomeList> {
                                               ),
                                               TextFormField(
                                                 controller: amuontController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  hintText: 'Дүн',
-                                                  border:  OutlineInputBorder()
-                                                ),
+                                                decoration: const InputDecoration(
+                                                    hintText: 'Дүн',
+                                                    border:
+                                                        OutlineInputBorder()),
                                                 keyboardType:
                                                     TextInputType.number,
                                               ),
@@ -244,47 +249,39 @@ class _IncomeListState extends State<IncomeList> {
                                 ),
                               ),
                               children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          mText('Тайлбар: '),
-                                          mText('Дүн:'),
-                                          mText('Огноо:'),
-                                          mText('Хүргэлт:'),
-                                          mText('Нийлүүлэгч:'),
-                                          mText('Харилцагч:'),
-                                        ],
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          mText(income.incomeList[index].note
-                                              .toString()),
-                                          mText(income.incomeList[index].amount
-                                              .toString()),
-                                          mText(income
-                                              .incomeList[index].createdOn
-                                              .toString()),
-                                          mText(income.incomeList[index].delman
-                                              .toString()),
-                                          mText(income
-                                              .incomeList[index].supplier
-                                              .toString()),
-                                          mText(income
-                                              .incomeList[index].customer
-                                              .toString()),
-                                        ],
-                                      ),
-                                    ],
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Column(
+                                      children: [
+                                        _infoRow(
+                                            'Огноо',
+                                            incomee.createdOn != null
+                                                ? incomee.createdOn.toString()
+                                                : '-'),
+                                        _infoRow(
+                                            'Хүргэлт',
+                                            incomee.delman != null
+                                                ? incomee.delman.toString()
+                                                : '-'),
+                                        _infoRow(
+                                            'Нийлүүлэгч',
+                                            incomee.supplier != null
+                                                ? incomee.supplier.toString()
+                                                : '-'),
+                                        _infoRow(
+                                            'Харилцагч',
+                                            incomee.customer != null
+                                                ? incomee.customer.toString()
+                                                : '-'),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -297,6 +294,16 @@ class _IncomeListState extends State<IncomeList> {
           ),
         );
       },
+    );
+  }
+
+  _infoRow(String title, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        mText(title),
+        mText(value),
+      ],
     );
   }
 

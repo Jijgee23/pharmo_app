@@ -10,7 +10,6 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
@@ -104,7 +103,11 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                           },
                           title: '$searchType хайх',
                           suffix: IconButton(
-                            icon: const Icon(Icons.swap_vert),
+                            icon: Image.asset(
+                              'assets/icons/refresh.png',
+                              height: 24,
+                              width: 24,
+                            ),
                             onPressed: () {
                               showMenu(
                                 surfaceTintColor: Colors.white,
@@ -235,10 +238,10 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                   onPressed: () {
                     addBasket(item.id);
                   },
-                  icon: const Icon(
-                    Icons.add_shopping_cart,
-                    size: 15,
-                    color: AppColors.primary,
+                  icon: Image.asset(
+                    'assets/icons/add-basket.png',
+                    height: 24,
+                    width: 24,
                   ),
                 ),
               ],

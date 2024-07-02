@@ -1,7 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 
 class ProductWidget extends StatelessWidget {
   final Product item;
@@ -11,7 +11,7 @@ class ProductWidget extends StatelessWidget {
   const ProductWidget(
       {super.key, required this.item, this.onTap, this.onButtonTab});
   final String noImageUrl =
-      'https://static.vecteezy.com/system/resources/thumbnails/004/141/669/small/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
+      'https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg';
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -19,10 +19,10 @@ class ProductWidget extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(13),
         ),
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
+        margin: const EdgeInsets.only(right: 10,left: 15, bottom: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,13 +31,13 @@ class ProductWidget extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(9),
                   image: DecorationImage(
                     fit: BoxFit.cover,
                     image: item.image != null
                         ? NetworkImage(
                             '${dotenv.env['IMAGE_URL']}${item.image.toString().substring(1)}')
-                        : NetworkImage(noImageUrl),
+                        : NetworkImage(noImageUrl, scale: 1,),
                   ),
                 ),
               ),
@@ -58,11 +58,7 @@ class ProductWidget extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: onButtonTab,
-                  icon: const Icon(
-                    Icons.add_shopping_cart,
-                    size: 15,
-                    color: AppColors.primary,
-                  ),
+                  icon: Image.asset('assets/icons/add-basket.png', height: 24, width: 24,)
                 ),
               ],
             ),

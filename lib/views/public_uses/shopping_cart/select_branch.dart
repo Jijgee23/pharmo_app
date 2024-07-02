@@ -26,6 +26,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
   String _selectedRadioValue = '';
   int _selectedIndex = -1;
   int _selectedAddress = 0;
+  final radioColor = const MaterialStatePropertyAll(AppColors.primary);
 
   @override
   void initState() {
@@ -38,48 +39,64 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
       String bearerToken = "Bearer $token";
-      final response = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}branch'), headers: <String, String>{
-        'Content-Type': 'application/json; charset=utf-8',
-        'Authorization': bearerToken,
-      });
+      final response = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}branch'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': bearerToken,
+          });
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
           _branchList = (res).map((data) => Sector.fromJson(data)).toList();
         });
       } else {
-        showFailedMessage(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+        showFailedMessage(
+            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
-      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          context: context);
     }
   }
 
   void createOrder() async {
     try {
       if (_selectedRadioValue == '') {
-        showFailedMessage(message: 'Төлбөрийн хэлбэр сонгоно уу!', context: context);
+        showFailedMessage(
+            message: 'Төлбөрийн хэлбэр сонгоно уу!', context: context);
         return;
       }
       if (_selectedIndex == -1) {
         showFailedMessage(message: 'Салбар сонгоно уу!', context: context);
         return;
       }
-      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
       dynamic resCheck = await basketProvider.checkQTYs();
       if (resCheck['errorType'] == 1) {
         if (_selectedRadioValue == 'L') {
-          dynamic res = await basketProvider.createQR(basket_id: basketProvider.basket.id, branch_id: _selectedAddress, pay_type: _selectedRadioValue, note: '');
+          dynamic res = await basketProvider.createQR(
+              basket_id: basketProvider.basket.id,
+              branch_id: _selectedAddress,
+              pay_type: _selectedRadioValue,
+              note: '');
           if (res['errorType'] == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const QRCode()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => const QRCode()));
           } else {
             showFailedMessage(message: res['message'], context: context);
           }
         } else {
-          dynamic res = await basketProvider.createOrder(basket_id: basketProvider.basket.id, branch_id: _selectedAddress, note: '');
+          dynamic res = await basketProvider.createOrder(
+              basket_id: basketProvider.basket.id,
+              branch_id: _selectedAddress,
+              note: '');
           if (res['errorType'] == 1) {
             String order = res['data']['orderNo'].toString();
-            Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDone(orderNo: order)));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => OrderDone(orderNo: order)));
           } else {
             showFailedMessage(message: res['message'], context: context);
           }
@@ -88,12 +105,18 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
         showFailedMessage(message: resCheck['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!', context: context);
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          context: context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    var bd = BoxDecoration(
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.grey),
+    );
     return Scaffold(
       appBar: const CustomAppBar(
         title: 'Төлбөрийн хэлбэр',
@@ -103,12 +126,18 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
         child: Container(
           margin: const EdgeInsets.all(15),
           child: Column(children: [
-            Container(margin: const EdgeInsets.only(bottom: 5), child: const Align(alignment: Alignment.centerLeft, child: Text('Салбар сонгоно уу : '))),
+            Container(
+                margin: const EdgeInsets.only(bottom: 5),
+                child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Салбар сонгоно уу : '))),
             Expanded(
               child: ListView.builder(
                   itemCount: _branchList.length,
                   itemBuilder: (context, index) {
-                    return Card(
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 5),
+                      decoration: bd,
                       child: ListTile(
                         onTap: () async {
                           setState(() {
@@ -116,64 +145,73 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
                             _selectedAddress = _branchList[index].id;
                           });
                         },
-                        tileColor: _selectedIndex == index ? Colors.grey : null,
-                        leading: const Icon(Icons.home),
+                        leading: Icon(
+                          Icons.home,
+                          color: _selectedIndex == index
+                              ? AppColors.succesColor
+                              : AppColors.primary,
+                        ),
                         title: Text(_branchList[index].name.toString()),
-                        subtitle: Text(_branchList[index].address != null ? _branchList[index].address!["address"] : ''),
+                        subtitle: Text(_branchList[index].address != null
+                            ? _branchList[index].address!["address"]
+                            : ''),
                       ),
                     );
                   }),
             ),
-            Card(
-              child: Container(
-                margin: const EdgeInsets.only(left: 15, right: 15, top: 15),
-                child: Column(children: [
-                  const Align(alignment: Alignment.centerLeft, child: Text('Төлбөрийн хэлбэр сонгоно уу : ')),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Radio(
-                        value: 'L',
-                        groupValue: _selectedRadioValue,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _selectedRadioValue = value!;
-                          });
-                        },
-                      ),
-                      const Text(
-                        'Бэлнээр',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      Radio(
-                        value: 'C',
-                        groupValue: _selectedRadioValue,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _selectedRadioValue = value!;
-                          });
-                        },
-                      ),
-                      const Text(
-                        'Зээлээр',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                    ],
-                  ),
-                ]),
-              ),
+            Container(
+              decoration: bd,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Column(children: [
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Төлбөрийн хэлбэр сонгоно уу : ')),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Radio(
+                      value: 'L',
+                      fillColor: radioColor,
+                      groupValue: _selectedRadioValue,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedRadioValue = value!;
+                        });
+                      },
+                    ),
+                    const Text(
+                      'Бэлнээр',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Radio(
+                      value: 'C',
+                      fillColor: radioColor,
+                      groupValue: _selectedRadioValue,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedRadioValue = value!;
+                        });
+                      },
+                    ),
+                    const Text(
+                      'Зээлээр',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ],
+                ),
+              ]),
             ),
             Row(mainAxisAlignment: MainAxisAlignment.end, children: [
               OutlinedButton.icon(
                 onPressed: () {
                   createOrder();
                 },
-                icon: const Icon(
-                  Icons.add,
-                  color: Colors.white,
+                icon: Image.asset(
+                  'assets/icons/checkout.png',
+                  height: 24,
                 ),
                 label: const Text(
                   'Захиалга үүсгэх',

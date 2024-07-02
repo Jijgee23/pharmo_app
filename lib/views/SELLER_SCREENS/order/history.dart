@@ -62,88 +62,110 @@ class _SellerCustomerOrderHisrtoryState
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PharmProvider>(builder: (_, provider, child) {
-      return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text('Харилцагчид'),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: Container(
+    return Consumer<PharmProvider>(
+      builder: (_, provider, child) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            centerTitle: true,
+            title: const Text('Харилцагчид'),
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: Container(
                   padding: const EdgeInsets.all(10),
-                child: CustomSearchBar(
-                  searchController: searchController,
-                  title: 'Хайх',
-                  onChanged: (value) {
-                    searchPharmacy(value);
+                  child: CustomSearchBar(
+                    searchController: searchController,
+                    title: 'Хайх',
+                    onChanged: (value) {
+                      searchPharmacy(value);
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 10,
+                child: ListView.builder(
+                  itemCount: provider.customeList.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () {
+                        provider.getOrderList(provider.customeList[index].id);
+                        goto(
+                            OrderhistoryListPage(
+                                customerId: provider.customeList[index].id),
+                            context);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 1,
+                              blurRadius: 3,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              RichText(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                text: TextSpan(
+                                  text: provider.customeList[index].name,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: provider.customeList[index].isBad
+                                          ? Colors.red
+                                          : provider.customeList[index].debt !=
+                                                      0 &&
+                                                  provider.customeList[index]
+                                                          .debtLimit !=
+                                                      0 &&
+                                                  provider.customeList[index]
+                                                          .debt >=
+                                                      provider
+                                                          .customeList[index]
+                                                          .debtLimit
+                                              ? AppColors.failedColor
+                                              : AppColors.primary,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  goto(
+                                      FavoriteList(
+                                          customerId:
+                                              provider.customeList[index].id),
+                                      context);
+                                },
+                                icon: const Icon(
+                                  Icons.favorite,
+                                  color: AppColors.secondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),
-            ),
-            Expanded(
-              flex: 10,
-              child: ListView.builder(
-                itemCount: provider.customeList.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 15),
-                        child: ListTile(
-                          title: RichText(
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            text: TextSpan(
-                              text: provider.customeList[index].name,
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: provider.customeList[index].isBad
-                                      ? Colors.red
-                                      : provider.customeList[index].debt != 0 &&
-                                              provider.customeList[index]
-                                                      .debtLimit !=
-                                                  0 &&
-                                              provider.customeList[index]
-                                                      .debt >=
-                                                  provider.customeList[index]
-                                                      .debtLimit
-                                          ? AppColors.failedColor
-                                          : AppColors.primary,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          trailing: IconButton(
-                            onPressed: () {
-                              goto(
-                                  FavoriteList(
-                                      customerId:
-                                          provider.customeList[index].id),
-                                  context);
-                            },
-                            icon: const Icon(
-                              Icons.favorite,
-                              color: AppColors.secondary,
-                            ),
-                          ),
-                          onTap: () {
-                            provider
-                                .getOrderList(provider.customeList[index].id);
-                            goto(
-                                OrderhistoryListPage(
-                                    customerId: provider.customeList[index].id),
-                                context);
-                          },
-                        ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      );
+            ],
+          ),
+        );
       },
     );
   }

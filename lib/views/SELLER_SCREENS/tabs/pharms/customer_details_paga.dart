@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -46,69 +45,60 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
     );
     return Scaffold(
       appBar: AppBar(
+        leading: chevronBack(context),
         title: Text(
-          '${widget.custName} -ийн дэлгэрэнгүй',
-          style: const TextStyle(fontSize: 18),
+          widget.custName,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 15),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
-                Text('Эмийн сангийн нэр: ${companyInfo['name']}'),
-                const SizedBox(
-                  height: 15,
-                ),
-                //  Text('Регистрийн дугаар: ${companyInfo['rd']}'),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Text('Имейл хаяг:'),
-                    TextButton(
-                      onPressed: () async {
-                        if (await canLaunchUrlString(
-                            emailLaunchUri.toString())) {
-                          await launchUrlString(emailLaunchUri.toString());
-                        } else {
-                          showFailedMessage(
-                            context: context,
-                            message:
-                                'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
-                          );
-                        }
-                      },
-                      child: Text(
-                        '${companyInfo['email']}',
-                        style: const TextStyle(color: Colors.black87),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('Утасны дугаарууд:'),
-                    TextButton(
-                      onPressed: () {
-                        launchUrlString('tel://+976${companyInfo['phone']}');
-                      },
-                      child: Text(
-                        '${companyInfo['phone']}',
-                        style: const TextStyle(color: Colors.black87),
-                      ),
-                    ),
-                  ],
+                const Text('Имейл: ', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 10),
+                InkWell(
+                  child: Text('${companyInfo['email'] ?? '-'}',
+                      style: const TextStyle(fontSize: 16)),
+                  onTap: () async {
+                    if (await canLaunchUrlString(emailLaunchUri.toString())) {
+                      await launchUrlString(emailLaunchUri.toString());
+                    } else {
+                      showFailedMessage(
+                        context: context,
+                        message:
+                            'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
+                      );
+                    }
+                  },
                 ),
               ],
             ),
+            Row(
+              children: [
+                const Text('Утас: ', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 10),
+                InkWell(
+                  child: Text(
+                    '${companyInfo['phone'] ?? '-'}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  onTap: () =>
+                      launchUrlString('tel://+976${companyInfo['phone']}'),
+                )
+              ],
+            ),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Салбарууд:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: _branchList.length,

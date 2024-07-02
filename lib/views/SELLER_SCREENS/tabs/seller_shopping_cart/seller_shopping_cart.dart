@@ -6,6 +6,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/seller_shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
+import 'package:pharmo_app/widgets/others/empty_basket.dart';
 import 'package:provider/provider.dart';
 
 class SellerShoppingCart extends StatefulWidget {
@@ -64,14 +65,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                               ),
                             ),
                           )
-                        : const SizedBox(
-                            height: 200,
-                            child: Center(
-                              child: Text(
-                                "Сагс хоосон байна ...",
-                              ),
-                            ),
-                          ),
+                        : const EmptyBasket()
                   ],
                 ),
               ),
@@ -144,18 +138,22 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                           onPressed: () {
                             clearBasket(basket.id);
                           },
-                          icon: const Icon(
-                            Icons.delete_forever,
+                          icon: Image.asset(
+                            'assets/icons/basket.png',
+                            height: 24,
                           ),
                           label: const Text('Сагс хоослох'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                          ),
                         ),
                         OutlinedButton.icon(
                           onPressed: () {
                             purchase(basket.id);
                           },
-                          icon: const Icon(
-                            Icons.paid_rounded,
-                            color: Colors.white,
+                          icon: Image.asset(
+                            'assets/icons/checkout.png',
+                            height: 24,
                           ),
                           label: const Text(
                             'Захиалах',

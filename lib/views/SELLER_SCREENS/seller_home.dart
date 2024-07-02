@@ -14,6 +14,7 @@ import 'package:pharmo_app/views/SELLER_SCREENS/tabs/home/seller_home_tab.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/register_pharm.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/seller_shopping_cart/seller_shopping_cart.dart';
+import 'package:pharmo_app/views/public_uses/Notification/notification.dart';
 import 'package:pharmo_app/views/public_uses/filter.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
@@ -58,6 +59,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
           appBar: homeProvider.invisible
               ? null
               : AppBar(
+                  backgroundColor: Colors.white,
                   centerTitle: true,
                   title: homePrvdr.selectedCustomerId == 0
                       ? const Text('Захиалагч сонгоно уу')
@@ -85,6 +87,13 @@ class _SellerHomePageState extends State<SellerHomePage> {
                           ),
                         ),
                   actions: [
+                    IconButton(
+                      icon: Image.asset(
+                        'assets/icons/notification.png',
+                        height: 24,
+                      ),
+                      onPressed: () => goto(const NotificationPage(), context),
+                    ),
                     Container(
                       margin: const EdgeInsets.only(right: 15),
                       child: InkWell(
@@ -102,9 +111,10 @@ class _SellerHomePageState extends State<SellerHomePage> {
                           badgeStyle: const badges.BadgeStyle(
                             badgeColor: Colors.blue,
                           ),
-                          child: const Icon(
-                            Icons.shopping_cart,
-                            color: Colors.red,
+                          child: Image.asset(
+                            'assets/icons/shop-tab.png',
+                            height: 24,
+                            width: 24,
                           ),
                         ),
                       ),
@@ -112,6 +122,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   ],
                 ),
           drawer: Drawer(
+            backgroundColor: AppColors.cleanWhite,
             shape: const RoundedRectangleBorder(),
             width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
             child: Column(
@@ -119,49 +130,35 @@ class _SellerHomePageState extends State<SellerHomePage> {
               children: [
                 CustomDrawerHeader(size: size),
                 DrawerItem(
-                  title: 'Эмийг сан бүртгэх',
-                  icon: Icons.medical_services,
-                  onTap: () {
-                    goto(const RegisterPharmPage(), context);
-                  },
-                ),
+                    title: 'Эмийг сан бүртгэх',
+                    onTap: () => goto(const RegisterPharmPage(), context),
+                    asset: 'assets/icons/drugstore.png'),
                 DrawerItem(
-                  title: 'Орлогын жагсаалт',
-                  icon: Icons.money,
-                  onTap: () {
-                    goto(const IncomeList(), context);
-                  },
-                ),
+                    title: 'Орлогын жагсаалт',
+                    onTap: () => goto(const IncomeList(), context),
+                    asset: 'assets/icons/icnome.png'),
                 DrawerItem(
-                  title: 'Захиалгууд',
-                  icon: Icons.article_outlined,
-                  onTap: () {
-                    goto(const SellerOrders(), context);
-                  },
-                ),
+                    title: 'Захиалгууд',
+                    onTap: () => goto(const SellerOrders(), context),
+                    asset: 'assets/icons/order.png'),
                 DrawerItem(
-                  title: 'Харилцагчийн захиалгын түүх',
-                  icon: Icons.clear_all,
-                  onTap: () {
-                    goto(const SellerCustomerOrderHisrtory(), context);
-                  },
-                ),
+                    title: 'Харилцагчийн захиалгын түүх',
+                    onTap: () =>
+                        goto(const SellerCustomerOrderHisrtory(), context),
+                    asset: 'assets/icons/clock.png'),
                 homeProvider.userRole == 'D'
                     ? DrawerItem(
                         title: 'Түгээгчрүү шилжих',
-                        icon: Icons.swap_vert,
                         onTap: () {
                           gotoRemoveUntil(const JaggerHomePage(), context);
                         },
+                        asset: 'assets/icons/swap.png',
                       )
                     : const SizedBox(),
                 DrawerItem(
-                  title: 'Гарах',
-                  icon: Icons.logout,
-                  onTap: () {
-                    showLogoutDialog(context);
-                  },
-                ),
+                    title: 'Гарах',
+                    onTap: () => showLogoutDialog(context),
+                    asset: 'assets/icons/check-out.png'),
               ],
             ),
           ),
@@ -191,27 +188,44 @@ class _SellerHomePageState extends State<SellerHomePage> {
           bottomNavigationBar: homeProvider.invisible
               ? null
               : BottomNavigationBar(
+                  useLegacyColorScheme: true,
                   currentIndex: homeProvider.currentIndex,
                   onTap: homeProvider.changeIndex,
                   selectedItemColor: AppColors.primary,
                   unselectedItemColor: AppColors.primary,
-                  items: const [
+                  showSelectedLabels: true,
+                  showUnselectedLabels: false,
+                  iconSize: 20,
+                  type: BottomNavigationBarType.fixed,
+                  items: [
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.person_outlined),
-                        label: 'Захиалагч',
-                        activeIcon: Icon(Icons.person)),
+                      icon: Image.asset(
+                        'assets/icons/user.png',
+                        height: 20,
+                      ),
+                      label: 'Захиалагч',
+                    ),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.home_outlined),
-                        label: 'Бараа',
-                        activeIcon: Icon(Icons.home)),
+                      icon: Image.asset(
+                        'assets/icons/house.png',
+                        height: 20,
+                      ),
+                      label: 'Бараа',
+                    ),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.category_outlined),
-                        label: 'Ангилал',
-                        activeIcon: Icon(Icons.category)),
+                      icon: Image.asset(
+                        'assets/icons/options.png',
+                        height: 20,
+                      ),
+                      label: 'Ангилал',
+                    ),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.shopping_cart_outlined),
-                        label: 'Сагс',
-                        activeIcon: Icon(Icons.shopping_cart)),
+                      icon: Image.asset(
+                        'assets/icons/shop-tab.png',
+                        height: 20,
+                      ),
+                      label: 'Сагс',
+                    ),
                   ],
                 ),
         );

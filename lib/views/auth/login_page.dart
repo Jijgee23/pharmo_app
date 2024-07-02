@@ -97,15 +97,17 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      const CircleAvatar(
-                        backgroundColor: AppColors.secondary,
-                        child: Icon(
-                          Icons.lock_outline,
-                          color: Colors.white,
+                      Image.asset(
+                        'assets/icons/login.png',
+                        height: 75,
+                      ),
+                      const SizedBox(height: 5),
+                      const Text(
+                        'Нэвтрэх',
+                        style: TextStyle(
+                          fontSize: 20,
                         ),
                       ),
-                      const SizedBox(height: 15),
-                      const Text('Нэвтрэх', style: TextStyle(fontSize: 20,),),
                       const SizedBox(height: 15),
                       CustomTextField(
                         controller: emailController,

@@ -32,12 +32,21 @@ class CustomSearchBar extends StatelessWidget {
         onChanged: onChanged,
         onSubmitted: onSubmitted,
         decoration: InputDecoration(
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: const BorderSide(
+              color: Colors.black,
+            ),
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
           ),
           hintText: title,
           hintStyle: const TextStyle(height: 1),
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.all(10.5),
+            child: Image.asset('assets/icons/search.png', width: 20,),
+          ),
           suffixIcon: suffix,
           prefix: prefix,
         ),

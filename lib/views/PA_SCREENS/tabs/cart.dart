@@ -3,6 +3,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/others/empty_basket.dart';
 import 'package:provider/provider.dart';
 
 class ShoppingCartHome extends StatefulWidget {
@@ -56,14 +57,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                               },
                             ),
                           )
-                        : const SizedBox(
-                            height: 200,
-                            child: Center(
-                              child: Text(
-                                "Сагс хоосон байна ...",
-                              ),
-                            ),
-                          ),
+                        : const EmptyBasket()
                   ],
                 ),
               ),
@@ -136,8 +130,9 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                           onPressed: () {
                             clearBasket(basket.id);
                           },
-                          icon: const Icon(
-                            Icons.delete_forever,
+                          icon: Image.asset(
+                            'assets/icons/basket.png',
+                            height: 24,
                           ),
                           label: const Text('Сагс хоослох'),
                         ),
@@ -145,9 +140,9 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                           onPressed: () {
                             purchase(basket.id);
                           },
-                          icon: const Icon(
-                            Icons.paid_rounded,
-                            color: Colors.white,
+                          icon: Image.asset(
+                            'assets/icons/checkout.png',
+                            height: 24,
                           ),
                           label: const Text(
                             'Төлбөр төлөх',

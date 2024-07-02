@@ -5,6 +5,7 @@ import 'package:pharmo_app/views/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/views/public_uses/suppliers/supplier_page.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/custom_alert_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -143,14 +144,6 @@ class _JaggerDialogState extends State<JaggerDialog> {
                 icon: Icon(Icons.shopping_cart),
                 label: 'Миний сагс',
               ),
-              // BottomNavigationBarItem(
-              //   icon: Icon(Icons.medical_information),
-              //   label: 'Эмийн сан',
-              // ),
-              // BottomNavigationBarItem(
-              //   icon: Icon(Icons.person_sharp),
-              //   label: 'Бүртгэл',
-              // ),
             ],
             selectedItemColor: AppColors.secondary,
             unselectedItemColor: AppColors.primary,
@@ -162,72 +155,16 @@ class _JaggerDialogState extends State<JaggerDialog> {
 }
 
 void showLogoutDialog(BuildContext context) {
-  Widget button(String text, VoidCallback onPressed) {
-    return SizedBox(
-      width: 100,
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Colors.grey, width: 2),
-        ),
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.black87),
-        ),
-      ),
-    );
-  }
-
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 100),
-            child: Container(
-              height: 250,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text(
-                    'Системээс гарахдаа итгэлтэй байна уу?',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.primary,
-                      decoration: TextDecoration.none,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const Icon(Icons.logout_sharp,
-                      color: AppColors.secondary, size: 50),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      button('Үгүй', () => Navigator.pop(context)),
-                      button(
-                        'Тийм',
-                        () {
-                          Provider.of<AuthController>(context, listen: false)
-                              .logout(context);
-                          Provider.of<AuthController>(context, listen: false)
-                              .toggleVisibile();
-                        },
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          )
-        ],
+      return CustomAlertDialog(
+        submitFunction: () {
+          Provider.of<AuthController>(context, listen: false).logout(context);
+          Provider.of<AuthController>(context, listen: false).toggleVisibile();
+        },
+        text: "Системээс гарахдаа итгэлтэй байна уу?",
+        icon: Icons.logout_sharp,
       );
     },
   );

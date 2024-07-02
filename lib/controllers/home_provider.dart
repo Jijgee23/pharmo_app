@@ -40,7 +40,8 @@ class HomeProvider extends ChangeNotifier {
   List<Filters> categories = <Filters>[];
   List<Manufacturer> mnfrs = <Manufacturer>[];
   List<Manufacturer> vndrs = <Manufacturer>[];
-  
+
+
   changeIndex(int index) {
     currentIndex = index;
     notifyListeners();
@@ -137,8 +138,6 @@ class HomeProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
   }
-
-  
 
   getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -314,6 +313,8 @@ class HomeProvider extends ChangeNotifier {
           message: 'Интернет холболтоо шалгана уу!.', context: context);
     }
   }
+
+  
 
   getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

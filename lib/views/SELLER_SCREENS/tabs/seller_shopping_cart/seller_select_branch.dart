@@ -32,7 +32,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
   final noteController = TextEditingController();
-
+  final radioColor = const MaterialStatePropertyAll(AppColors.primary);
   @override
   void initState() {
     super.initState();
@@ -44,6 +44,12 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
 
   @override
   Widget build(BuildContext context) {
+    var bd = BoxDecoration(
+      border: Border.all(
+        color: Colors.grey,
+      ),
+      borderRadius: BorderRadius.circular(10),
+    );
     return Consumer<HomeProvider>(
       builder: (_, provider, child) {
         return Scaffold(
@@ -55,44 +61,47 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Radio(
-                      value: 'DELIVERY',
-                      groupValue: homeProvider.orderType,
-                      fillColor: const MaterialStatePropertyAll(AppColors.succesColor),
-                      onChanged: (value) {
-                        setState(() {
-                          invisible = !invisible;
-                          homeProvider.orderType = value!;
-                        });
-                      },
-                    ),
-                    const Text(
-                      'Хүргэлтээр',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Radio(
-                      value: 'NODELIVERY',
-                      fillColor:
-                          const MaterialStatePropertyAll(AppColors.succesColor),
-                      groupValue: homeProvider.orderType,
-                      onChanged: (value) {
-                        setState(() {
-                          homeProvider.orderType = value!;
-                          invisible = false;
-                        });
-                      },
-                    ),
-                    const Text(
-                      'Очиж авах',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                  ],
+                Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: bd,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Radio(
+                        value: 'DELIVERY',
+                        groupValue: homeProvider.orderType,
+                        fillColor:radioColor,
+                        onChanged: (value) {
+                          setState(() {
+                            invisible = !invisible;
+                            homeProvider.orderType = value!;
+                          });
+                        },
+                      ),
+                      const Text(
+                        'Хүргэлтээр',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      const SizedBox(
+                        width: 20,
+                      ),
+                      Radio(
+                        value: 'NODELIVERY',
+                        fillColor: radioColor,
+                        groupValue: homeProvider.orderType,
+                        onChanged: (value) {
+                          setState(() {
+                            homeProvider.orderType = value!;
+                            invisible = false;
+                          });
+                        },
+                      ),
+                      const Text(
+                        'Очиж авах',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ],
+                  ),
                 ),
                 Visibility(
                   visible: invisible,
@@ -169,54 +178,51 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                         alignment: Alignment.centerLeft,
                         child: Text('Төлбөрийн хэлбэр сонгоно уу : '),
                       ),
-                      Card(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 5),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Radio(
-                                    value: 'NOW',
-                                    fillColor: const MaterialStatePropertyAll(
-                                        AppColors.succesColor),
-                                    groupValue: payType,
-                                    onChanged: (String? value) {
-                                      setState(() {
-                                        payType = value!;
-                                        homeProvider.payType = value;
-                                      });
-                                    },
-                                  ),
-                                  const Text(
-                                    'Бэлнээр',
-                                    style: TextStyle(fontSize: 16.0),
-                                  ),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
-                                  Radio(
-                                    value: 'LATER',
-                                    fillColor: const MaterialStatePropertyAll(
-                                        AppColors.succesColor),
-                                    groupValue: payType,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        payType = value!;
-                                        homeProvider.payType = value;
-                                      });
-                                    },
-                                  ),
-                                  const Text(
-                                    'Зээлээр',
-                                    style: TextStyle(fontSize: 16.0),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                      Container(
+                        decoration: bd,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 5),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Radio(
+                                  value: 'NOW',
+                                  fillColor: radioColor,
+                                  groupValue: payType,
+                                  onChanged: (String? value) {
+                                    setState(() {
+                                      payType = value!;
+                                      homeProvider.payType = value;
+                                    });
+                                  },
+                                ),
+                                const Text(
+                                  'Бэлнээр',
+                                  style: TextStyle(fontSize: 16.0),
+                                ),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                Radio(
+                                  value: 'LATER',
+                                  fillColor:radioColor,
+                                  groupValue: payType,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      payType = value!;
+                                      homeProvider.payType = value;
+                                    });
+                                  },
+                                ),
+                                const Text(
+                                  'Зээлээр',
+                                  style: TextStyle(fontSize: 16.0),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       Row(
@@ -242,9 +248,9 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                 createSellerOrder();
                               }
                             },
-                            icon: const Icon(
-                              Icons.add,
-                              color: Colors.white,
+                            icon: Image.asset(
+                              'assets/icons/checkout.png',
+                              height: 24,
                             ),
                             label: const Text(
                               'Захиалга үүсгэх',

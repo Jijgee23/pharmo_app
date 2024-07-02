@@ -110,7 +110,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
       child: Consumer2<AuthController, HomeProvider>(
         builder: (context, authController, homeProvider, _) {
           return Scaffold(
-           
             drawer: Drawer(
               shape: const RoundedRectangleBorder(),
               width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
@@ -122,21 +121,17 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                     CustomDrawerHeader(size: size),
                     DrawerItem(
                       title: 'Миний захиалгууд',
-                      icon: Icons.shopping_cart,
-                      onTap: () {
-                        goto(const MyOrder(), context);
-                      },
+                      asset: 'assets/icons/order.png',
+                      onTap: () => goto(const MyOrder(), context),
                     ),
                     DrawerItem(
                       title: 'Нийлүүлэгч',
-                      icon: Icons.people,
-                      onTap: () {
-                        goto(const SupplierPage(), context);
-                      },
+                      asset: 'assets/icons/partnership.png',
+                      onTap: () => goto(const SupplierPage(), context),
                     ),
                     DrawerItem(
                       title: 'Гарах',
-                      icon: Icons.logout,
+                      asset: 'assets/icons/check-out.png',
                       onTap: () {
                         showLogoutDialog(context);
                       },
@@ -178,26 +173,35 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                 ? null
                 : BottomNavigationBar(
                     currentIndex: homeProvider.currentIndex,
+                    useLegacyColorScheme: true,
+                    type: BottomNavigationBarType.fixed,
                     onTap: homeProvider.changeIndex,
-                    items: const [
+                    showSelectedLabels: true,
+                    showUnselectedLabels: false,
+                    items: [
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.home_outlined),
-                        activeIcon: Icon(Icons.home),
+                        icon: Image.asset(
+                          'assets/icons/house.png',
+                          height: 20,
+                        ),
                         label: 'Нүүр',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.category_outlined),
-                        activeIcon: Icon(Icons.category),
+                        icon: Image.asset(
+                          'assets/icons/options.png',
+                          height: 20,
+                        ),
                         label: 'Ангилал',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.shopping_cart_outlined),
-                        activeIcon: Icon(Icons.shopping_cart),
-                        label: 'Миний сагс',
+                        icon: Image.asset(
+                          'assets/icons/shop-tab.png',
+                          height: 20,
+                        ),
+                        label: 'Сагс',
                       ),
                     ],
                     selectedItemColor: AppColors.primary,
-                    unselectedItemColor: AppColors.primary,
                   ),
           );
         },
@@ -227,14 +231,12 @@ class CustomDrawerHeader extends StatelessWidget {
               alignment: Alignment.center,
               child: ClipOval(
                 child: Container(
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.white),
-                  child: Icon(
-                    Icons.person,
-                    color: AppColors.secondary,
-                    size: size.width * 0.1,
-                  ),
-                ),
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle, color: Colors.white),
+                    child: Image.asset(
+                      'assets/icons/boy.png',
+                      height: 50,
+                    )),
               ),
             ),
             Column(
@@ -245,9 +247,7 @@ class CustomDrawerHeader extends StatelessWidget {
                   style: style,
                 ),
                 Text(
-                  'Хэрэглэгчийн төрөл: ${homeProvider.userRole == 'S' ? 'Борлуулагч' : 
-                      homeProvider.userRole == 'D' ? 'Түгээгч' : 'Эмийн сан'
-                    }',
+                  'Хэрэглэгчийн төрөл: ${homeProvider.userRole == 'S' ? 'Борлуулагч' : homeProvider.userRole == 'D' ? 'Түгээгч' : 'Эмийн сан'}',
                   style: style,
                 ),
               ],

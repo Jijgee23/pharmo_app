@@ -12,6 +12,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showIcon;
   final String title;
   final IconData? icon;
+  final Widget? leading;
 
   const CustomAppBar({
     super.key,
@@ -19,6 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showIcon = false,
     this.title = "",
     this.icon,
+    this.leading,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
 
   @override
@@ -38,11 +40,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             title,
             style: const TextStyle(fontSize: 16),
           ),
+          leading: leading,
           actions: [
             IconButton(
-                icon: const Icon(
-                  Icons.notifications,
-                  color: Colors.blue,
+                icon: Image.asset(
+                  'assets/icons/notification.png',
+                  height: 24,
                 ),
                 onPressed: () {}),
             Container(
@@ -56,18 +59,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   }
                 },
                 child: badges.Badge(
-                  badgeContent: Text(
-                    "${basketProvider.count}",
-                    style: const TextStyle(color: Colors.white, fontSize: 11),
-                  ),
-                  badgeStyle: const badges.BadgeStyle(
-                    badgeColor: Colors.blue,
-                  ),
-                  child: const Icon(
-                    Icons.shopping_cart,
-                    color: Colors.red,
-                  ),
-                ),
+                    badgeContent: Text(
+                      "${basketProvider.count}",
+                      style: const TextStyle(color: Colors.white, fontSize: 11),
+                    ),
+                    badgeStyle: const badges.BadgeStyle(
+                      badgeColor: Colors.blue,
+                    ),
+                    child: Image.asset(
+                      'assets/icons/shop-tab.png',
+                      height: 24,
+                      width: 24,
+                    ),),
               ),
             ),
           ],

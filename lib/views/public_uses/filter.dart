@@ -38,6 +38,7 @@ class _FilterPageState extends State<FilterPage> {
     return Consumer<HomeProvider>(
       builder: (context, homeProvider, child) {
         return Scaffold(
+          backgroundColor: AppColors.cleanWhite,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(

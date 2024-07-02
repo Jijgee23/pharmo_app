@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
@@ -28,8 +29,16 @@ class _SellerOrdersState extends State<SellerOrders> {
     return Consumer<MyOrderProvider>(
       builder: (_, provider, child) {
         return Scaffold(
+          backgroundColor: AppColors.cleanWhite,
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
+            leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.chevron_left,
+                color: AppColors.primary,
+              ),
+            ),
             title: Column(
               children: [
                 const Text(
@@ -59,206 +68,170 @@ class _SellerOrdersState extends State<SellerOrders> {
             ),
             centerTitle: true,
           ),
-          body: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification is ScrollEndNotification) {
-                if (notification.metrics.atEdge) {
-                  setState(() {
-                    scrolling = false;
-                  });
-                } else {
-                  setState(() {
-                    scrolling = true;
-                  });
-                }
-              }
-              if (notification is ScrollUpdateNotification &&
-                  notification.scrollDelta! < 0) {
-                setState(() {
-                  scrolling = false;
-                });
-              }
-              if (notification is ScrollUpdateNotification &&
-                  notification.scrollDelta! > 0) {
-                setState(() {
-                  scrolling = true;
-                });
-              }
-              return true;
-            },
-            child: Column(
-              children: [
-                scrolling
-                    ? const SizedBox(
-                        height: 0,
+          body: Column(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          TextButton(
+                              onPressed: () {
+                                _selectDate(context);
+                              },
+                              child: Text(
+                                  selectedDate.toString().substring(0, 10),
+                                  style: const TextStyle(
+                                      color: AppColors.primary))),
+                          const Icon(Icons.arrow_right_alt),
+                          TextButton(
+                              onPressed: () {
+                                _selectDate2(context);
+                              },
+                              child: Text(
+                                  selectedDate2.toString().substring(0, 10),
+                                  style: const TextStyle(
+                                      color: AppColors.primary))),
+                          OutlinedButton(
+                            onPressed: () {
+                              if (selectedDate == selectedDate2) {
+                                orderProvider.getSellerOrdersByDateSingle(
+                                    selectedDate.toString().substring(0, 10));
+                              } else {
+                                orderProvider.getSellerOrdersByDateRanged(
+                                    selectedDate.toString().substring(0, 10),
+                                    selectedDate2.toString().substring(0, 10));
+                              }
+                            },
+                            style: const ButtonStyle(
+                                backgroundColor: MaterialStatePropertyAll(
+                                    AppColors.primary)),
+                            child: const Text(
+                              'Шүүх',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
                       )
-                    : Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.all(10),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  TextButton(
-                                      onPressed: () {
-                                        _selectDate(context);
-                                      },
-                                      child: Text(
-                                          selectedDate
-                                              .toString()
-                                              .substring(0, 10),
-                                          style: const TextStyle(
-                                              color: AppColors.primary))),
-                                  const Icon(Icons.arrow_right_alt),
-                                  TextButton(
-                                      onPressed: () {
-                                        _selectDate2(context);
-                                      },
-                                      child: Text(
-                                          selectedDate2
-                                              .toString()
-                                              .substring(0, 10),
-                                          style: const TextStyle(
-                                              color: AppColors.primary))),
-                                  OutlinedButton(
-                                    onPressed: () {
-                                      if (selectedDate == selectedDate2) {
-                                        orderProvider
-                                            .getSellerOrdersByDateSingle(
-                                                selectedDate
-                                                    .toString()
-                                                    .substring(0, 10));
-                                      } else {
-                                        orderProvider
-                                            .getSellerOrdersByDateRanged(
-                                                selectedDate
-                                                    .toString()
-                                                    .substring(0, 10),
-                                                selectedDate2
-                                                    .toString()
-                                                    .substring(0, 10));
-                                      }
-                                    },
-                                    style: const ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStatePropertyAll(
-                                                AppColors.primary)),
-                                    child: const Text(
-                                      'Шүүх',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                Expanded(
-                  flex: 9,
-                  child: ListView.builder(
-                    itemCount: provider.sellerOrders.length,
-                    itemBuilder: (context, index) {
-                      String? process = provider.sellerOrders[index].process;
-                      String? status = provider.sellerOrders[index].status;
-                      return Card(
-                        child: ExpansionTile(
-                          childrenPadding: const EdgeInsets.all(10),
-                          iconColor: AppColors.primary,
-                          title: ListTile(
-                            title: Text(
-                              '${provider.sellerOrders[index].user} ,${provider.sellerOrders[index].id}',
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                            subtitle: Text(
-                                provider.sellerOrders[index].branch?.address ??
-                                    'Хоосон',
-                                style: const TextStyle(color: Colors.black)),
-                            leading: Icon(
-                              Icons.circle,
-                              color: status == 'W'
-                                  ? AppColors.failedColor
-                                  : status == 'P'
-                                      ? AppColors.succesColor
-                                      : status == 'S'
-                                          ? AppColors.secondary
-                                          : AppColors.primary,
-                            ),
-                          ),
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 5),
-                              child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      wtxt('Захиалгын явц:'),
-                                      wtxt('Нийт барааны тоо ширхэг:'),
-                                      wtxt('Нийт үнийн дүн:'),
-                                      wtxt('Qpay-ээр төлсөн эсэх:'),
-                                      wtxt('Захиалга үүссэн огноо:'),
-                                      wtxt('Захиалга дууссан огноо:'),
-                                      wtxt('Тайлбартай:'),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          process == 'M'
-                                              ? 'Бэлтгэж эхэлсэн'
-                                              : process == 'N'
-                                                  ? 'Шинэ'
-                                                  : process == 'P'
-                                                      ? 'Бэлэн болсон'
-                                                      : process == 'A'
-                                                          ? 'Хүлээн авсан'
-                                                          : process == 'C'
-                                                              ? 'Хааллтай'
-                                                              : 'Буцаагдсан',
-                                          style: const TextStyle(
-                                              color: Colors.black)),
-                                      wtxt(provider
-                                          .sellerOrders[index].totalCount
-                                          .toString()),
-                                      wtxt(provider
-                                          .sellerOrders[index].totalPrice
-                                          .toString()),
-                                      wtxt(provider.sellerOrders[index].qp ==
-                                              true
-                                          ? 'Тийм'
-                                          : 'Үгүй'),
-                                      wtxt(
-                                          '${provider.sellerOrders[index].createdOn}'),
-                                      wtxt(provider
-                                              .sellerOrders[index].endedOn ??
-                                          'Дуусаагүй'),
-                                      wtxt(provider.sellerOrders[index].note ==
-                                              true
-                                          ? 'Тийм'
-                                          : 'Үгүй'),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+              Expanded(
+                flex: 9,
+                child: ListView.builder(
+                  itemCount: provider.sellerOrders.length,
+                  itemBuilder: (context, index) {
+                    String? process = provider.sellerOrders[index].process;
+                    String? status = provider.sellerOrders[index].status;
+                    return Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(width: 1, color: Colors.grey)),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 2),
+                      child: ExpansionTile(
+                        expansionAnimationStyle: AnimationStyle(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.fastOutSlowIn),
+                        tilePadding: EdgeInsets.zero,
+                        childrenPadding: const EdgeInsets.all(5),
+                        iconColor: AppColors.primary,
+                        title: ListTile(
+                          title: Text(
+                            '${provider.sellerOrders[index].user} ,${provider.sellerOrders[index].id}',
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                          subtitle: Text(
+                              provider.sellerOrders[index].createdOn ??
+                                  'Хоосон',
+                              style: const TextStyle(color: Colors.black)),
+                          leading: Icon(
+                            Icons.circle,
+                            color: status == 'W'
+                                ? AppColors.failedColor
+                                : status == 'P'
+                                    ? AppColors.succesColor
+                                    : status == 'S'
+                                        ? AppColors.secondary
+                                        : AppColors.primary,
+                          ),
+                        ),
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: Column(
+                              children: [
+                                _infoRow(
+                                  'Явц:',
+                                  process == 'M'
+                                      ? 'Бэлтгэж эхэлсэн'
+                                      : process == 'N'
+                                          ? 'Шинэ'
+                                          : process == 'P'
+                                              ? 'Бэлэн болсон'
+                                              : process == 'A'
+                                                  ? 'Хүлээн авсан'
+                                                  : process == 'C'
+                                                      ? 'Хааллтай'
+                                                      : 'Буцаагдсан',
+                                ),
+                                _infoRow(
+                                    'Нийт барааны тоо ширхэг:',
+                                    provider.sellerOrders[index].totalCount
+                                        .toString()) ?? '-',
+                                _infoRow(
+                                    'Нийт үнийн дүн:',
+                                    provider.sellerOrders[index].totalPrice
+                                        .toString()) ?? '-',
+                                _infoRow(
+                                    'Qpay-ээр төлсөн эсэх:',
+                                    provider.sellerOrders[index].qp == true
+                                        ? 'Тийм'
+                                        : 'Үгүй') ,
+                                _infoRow('Хаяг:',
+                                    '${provider.sellerOrders[index].branch?.address}'),
+                                _infoRow(
+                                    'Дууссан огноо:',
+                                    provider.sellerOrders[index].endedOn ??
+                                        'Дуусаагүй') ?? '-',
+                                _infoRow(
+                                    'Тайлбартай:',
+                                    provider.sellerOrders[index].note == true
+                                        ? 'Тийм'
+                                        : 'Үгүй') ?? '-',
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         );
       },
+    );
+  }
+
+  _infoRow(String title, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        wtxt(title),
+        wtxt(value),
+      ],
     );
   }
 

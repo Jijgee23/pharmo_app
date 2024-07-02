@@ -13,6 +13,7 @@ import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
+import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/views/auth/login_page.dart';
 import 'package:provider/provider.dart';
@@ -60,24 +61,20 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late AuthController authController;
 
   @override
   void initState() {
     super.initState();
-    authController = Provider.of<AuthController>(context, listen: false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthController>(
-      builder: (context, authProvider, child) {
-        return const MaterialApp(
-          title: 'Pharmo app',
-          debugShowCheckedModeBanner: false,
-          home: LoginPage(),
-        );
-      },
+    return MaterialApp(
+      title: 'Pharmo app',
+      debugShowCheckedModeBanner: false,
+      theme: lightTheme,
+      darkTheme: null,
+      home: const LoginPage(),
     );
   }
 }

@@ -38,12 +38,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const CircleAvatar(
-                      backgroundColor: Color(0xFF843333),
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                      ),
+                    Image.asset(
+                      'assets/icons/user.png',
+                      height: 75,
                     ),
                     const SizedBox(height: 15),
                     const Text('Бүртгүүлэх'),

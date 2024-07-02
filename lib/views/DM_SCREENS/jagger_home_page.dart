@@ -67,18 +67,18 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                   CustomDrawerHeader(size: size),
                   DrawerItem(
                     title: 'Захиалга',
-                    icon: Icons.shopping_cart,
+                    asset: 'assets/icons/order.png',
                     onTap: () => goto(const JaggerOrderPage(), context),
                   ),
                   DrawerItem(
                     title: 'Борлуулагчруу шилжих',
-                    icon: Icons.swap_vert,
+                    asset: 'assets/icons/swap.png',
                     onTap: () =>
                         gotoRemoveUntil(const SellerHomePage(), context),
                   ),
                   DrawerItem(
                     title: 'Гарах',
-                    icon: Icons.logout,
+                    asset: 'assets/icons/check-out.png',
                     onTap: () {
                       showLogoutDialog(context);
                     },
@@ -92,22 +92,28 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
           ),
           body: _pages[_selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
+            showSelectedLabels: true,
+            showUnselectedLabels: false,
+            type: BottomNavigationBarType.fixed,
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
-                activeIcon: Icon(Icons.home),
+                icon: Image.asset(
+                  'assets/icons/house.png',
+                  height: 20,
+                ),
                 label: 'Түгээлт',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.shopping_cart_outlined),
-                activeIcon: Icon(Icons.shopping_cart),
+                icon: Image.asset(
+                  'assets/icons/shop-tab.png',
+                  height: 20,
+                ),
                 label: 'Захиалгууд',
               ),
             ],
             selectedItemColor: AppColors.primary,
-            unselectedItemColor: AppColors.primary,
           ),
         );
       }),

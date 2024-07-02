@@ -8,9 +8,9 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/others/product_widget.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class FilteredProducts extends StatefulWidget {
@@ -57,11 +57,10 @@ class _FilteredProductsState extends State<FilteredProducts> {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title, style: const TextStyle(color: Colors.black, fontSize: 20),),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 15),

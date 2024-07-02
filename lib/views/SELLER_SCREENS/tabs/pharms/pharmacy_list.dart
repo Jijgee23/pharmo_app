@@ -90,18 +90,15 @@ class _PharmacyListState extends State<PharmacyList> {
                           padding: const EdgeInsets.only(right: 5),
                           width: 40,
                           child: FloatingActionButton(
-                            shape: const CircleBorder(
-                              side: BorderSide(
-                                width: 1,
-                                color: AppColors.secondary,
-                              ),
-                            ),
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            highlightElevation: 0,
                             onPressed: () {
                               homeProvider.searchByLocation(context);
                             },
-                            child: const Icon(Icons.location_on,
-                                color: Colors.blue),
+                            child: Image.asset(
+                              'assets/icons/locaiton.png',
+                            ),
                           ),
                         ),
                       ],
@@ -211,7 +208,8 @@ class _PharmacyListState extends State<PharmacyList> {
                                                     _displayItems[index].id
                                                 ? const Icon(
                                                     Icons.check,
-                                                    color: AppColors.succesColor,
+                                                    color:
+                                                        AppColors.succesColor,
                                                   )
                                                 : const Text(''),
                                             const SizedBox(
@@ -243,20 +241,23 @@ class _PharmacyListState extends State<PharmacyList> {
                                                             ? AppColors
                                                                 .failedColor
                                                             : AppColors.primary,
-                                                    fontWeight: FontWeight.bold),
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
                                             ),
                                           ],
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                            if (_displayItems[index].isCustomer) {
+                                            if (_displayItems[index]
+                                                .isCustomer) {
                                               goto(
                                                   CustomerDetailsPage(
                                                     customerId:
                                                         _displayItems[index].id,
                                                     custName:
-                                                        _displayItems[index].name,
+                                                        _displayItems[index]
+                                                            .name,
                                                   ),
                                                   context);
                                             } else {}

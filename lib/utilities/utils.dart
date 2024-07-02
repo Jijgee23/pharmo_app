@@ -14,3 +14,12 @@ void gotoRemoveUntil(Widget widget, BuildContext context) {
     (route) => false,
   );
 }
+
+chevronBack(BuildContext context) {
+  return IconButton(
+    onPressed: () {
+      Navigator.pop(context);
+    },
+    icon: const Icon(Icons.chevron_left),
+  );
+}

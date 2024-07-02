@@ -1,9 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
@@ -24,11 +27,10 @@ class _ProductDetailState extends State<ProductDetail> {
     Image.network(
         'https://12bb6ecf-bda5-4c99-816b-12bda79f6bd9.selcdn.net/upload//Photo_Tovar/396999_2_1687352103.jpeg'),
     Image.network('https://iskamed.by/wp-content/uploads/1433.jpg'),
-    Image.network(
-        'https://612611.selcdn.ru/prod-s3/resize_cache/1583648/8d98eab21f83652e055a2f8c91f3543a/iblock/2dd/2dddefb762666acf79f34cdeb455be4b/617f02e7aaece58849e3acf3e5651c89.png'),
   ];
   TextEditingController qtyController = TextEditingController();
   final _focusNode = FocusNode();
+  late HomeProvider homeProvider;
   @override
   void initState() {
     super.initState();
@@ -56,14 +58,6 @@ class _ProductDetailState extends State<ProductDetail> {
         basketProvider.getBasket();
         showSuccessMessage(message: res['message'], context: context);
         Navigator.pop(context);
-        // if (_userRole == 'S') { 
-        //   Navigator.pop(context);
-        // }
-        // if (_userRole == 'D') {
-        //   Navigator.pop(context);
-        // } else {
-        //   goto(const PharmaHomePage(), context);
-        // }
       } else {
         showFailedMessage(message: res['message'], context: context);
       }
@@ -79,51 +73,16 @@ class _ProductDetailState extends State<ProductDetail> {
     final size = MediaQuery.of(context).size;
     final basketProvider = Provider.of<BasketProvider>(context);
     return Scaffold(
+      backgroundColor: AppColors.cleanWhite,
       resizeToAvoidBottomInset: false,
-      // appBar: AppBar(
-      //   centerTitle: true,
-      //   title: const Text(
-      //     'Барааны дэлгэрэнгүй',
-      //     style: TextStyle(fontSize: 18),
-      //   ),
-      //   actions: [
-      //     IconButton(
-      //         icon: const Icon(
-      //           Icons.notifications,
-      //           color: Colors.blue,
-      //         ),
-      //         onPressed: () {}),
-      //     Container(
-      //       margin: const EdgeInsets.only(right: 15),
-      //       child: InkWell(
-      //         onTap: () {
-      //           Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingCart()));
-      //         },
-      //         child: badges.Badge(
-      //           badgeContent: Text(
-      //             '${basketProvider.count}',
-      //             style: const TextStyle(color: Colors.white, fontSize: 10),
-      //           ),
-      //           badgeStyle: const badges.BadgeStyle(
-      //             badgeColor: Colors.blue,
-      //           ),
-      //           child: const Icon(
-      //             Icons.shopping_basket,
-      //             color: Colors.red,
-      //           ),
-      //         ),
-      //       ),
-      //     )
-      //   ],
-      // ),
-      appBar: const CustomAppBar(
-        title: 'Барааны дэлгэрэнгүй',
+      appBar: CustomAppBar(
+        title: widget.prod.name.toString(),
       ),
       body: ChangeNotifierProvider(
         create: (context) => BasketProvider(),
         child: Center(
           child: Padding(
-            padding: EdgeInsets.all(size.width * 0.05),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -132,21 +91,16 @@ class _ProductDetailState extends State<ProductDetail> {
                   child: CarouselSlider(
                     items: carouselItems,
                     options: CarouselOptions(
-                      height: size.height *
-                          0.2, // Customize the height of the carousel
-                      autoPlay: true, // Enable auto-play
-                      enlargeCenterPage:
-                          true, // Increase the size of the center item
-                      enableInfiniteScroll: true, // Enable infinite scroll
-                      onPageChanged: (index, reason) {
-                        // Optional callback when the page changes
-                        // You can use it to update any additional UI components
-                      },
+                      height: size.height * 0.2,
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      enableInfiniteScroll: true,
+                      onPageChanged: (index, reason) {},
                     ),
                   ),
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
@@ -154,7 +108,7 @@ class _ProductDetailState extends State<ProductDetail> {
                         _focusNode.unfocus();
                       },
                       child: SizedBox(
-                        width: size.width * 0.35,
+                        width: 150,
                         height: 50,
                         child: TextField(
                           textInputAction: TextInputAction.done,
@@ -167,52 +121,106 @@ class _ProductDetailState extends State<ProductDetail> {
                             FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                             FilteringTextInputFormatter.digitsOnly
                           ],
-                          decoration: const InputDecoration(
-                            border: UnderlineInputBorder(),
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(left: 10),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                  color: AppColors.secondary, width: 2),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             hintText: 'Тоо хэмжээ',
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: size.width * 0.5,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          addBasket();
-                        },
-                        icon: const Icon(
-                          color: Colors.white,
-                          Icons.add,
+                    GestureDetector(
+                      onTap: () => addBasket(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 25, vertical: 14),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: AppColors.secondary,
                         ),
-                        label: const Text(
-                          'Сагсанд нэмэх',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.secondary,
+                        child: const Center(
+                          child: Row(
+                            children: [
+                              Text(
+                                'Сагсанд нэмэх',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
                 Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.prod.name.toString(),
-                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Баркод:'),
+                          Text('${widget.prod.barcode}'),
+                        ],
                       ),
-                      Text('Баркод: ${widget.prod.barcode}'),
-                      Text('Үнэ: ${widget.prod.price}₮'),
-                      Text('Барааны дуусах хугацаа: ${widget.prod.expDate}'),
-                      Text('Бөөний үнэ: ${widget.prod.discount}'),
-                      Text('Бөөний тоо: ${widget.prod.in_stock}'),
-                      Text('Хямдрал: ${widget.prod.sale_price}'),
-                      Text('Үйлдвэрлэгч: ${widget.prod.supplier}'),
-                      Text('Тоо ширхэг: ${basketProvider.count}'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Үнэ:'),
+                          Text('${widget.prod.price}₮'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Барааны дуусах хугацаа:'),
+                          Text(widget.prod.expDate ?? '-'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Бөөний үнэ:'),
+                          Text(widget.prod.discount ?? '-'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Бөөний тоо:'),
+                          Text('${widget.prod.in_stock ?? '-'}'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Хямдрал:'),
+                          Text(widget.prod.sale_price ?? '-'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Нийүүлэгч:'),
+                          Text('${widget.prod.supplier ?? '-'}'),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Тоо ширхэг:'),
+                          Text('${basketProvider.count}'),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -225,11 +233,3 @@ class _ProductDetailState extends State<ProductDetail> {
   }
 }
 
-
-class Helper extends ChangeNotifier{
-  bool hidden =  false;
-  void toglleAppBar(){
-    hidden = !hidden;
-    notifyListeners();
-  }
-}
