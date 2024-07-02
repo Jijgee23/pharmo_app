@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
@@ -125,6 +124,7 @@ class _SellerOrdersState extends State<SellerOrders> {
                 child: ListView.builder(
                   itemCount: provider.sellerOrders.length,
                   itemBuilder: (context, index) {
+                    final order = provider.sellerOrders[index];
                     String? process = provider.sellerOrders[index].process;
                     String? status = provider.sellerOrders[index].status;
                     return Container(
@@ -134,20 +134,15 @@ class _SellerOrdersState extends State<SellerOrders> {
                       margin: const EdgeInsets.symmetric(
                           horizontal: 5, vertical: 2),
                       child: ExpansionTile(
-                        expansionAnimationStyle: AnimationStyle(
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.fastOutSlowIn),
                         tilePadding: EdgeInsets.zero,
                         childrenPadding: const EdgeInsets.all(5),
                         iconColor: AppColors.primary,
                         title: ListTile(
                           title: Text(
-                            '${provider.sellerOrders[index].user} ,${provider.sellerOrders[index].id}',
+                            '${order.user}',
                             style: const TextStyle(color: Colors.black),
                           ),
-                          subtitle: Text(
-                              provider.sellerOrders[index].createdOn ??
-                                  'Хоосон',
+                          subtitle: Text('${order.id}, ${order.createdOn}',
                               style: const TextStyle(color: Colors.black)),
                           leading: Icon(
                             Icons.circle,
@@ -185,30 +180,21 @@ class _SellerOrdersState extends State<SellerOrders> {
                                                       ? 'Хааллтай'
                                                       : 'Буцаагдсан',
                                 ),
-                                _infoRow(
-                                    'Нийт барааны тоо ширхэг:',
-                                    provider.sellerOrders[index].totalCount
-                                        .toString()) ?? '-',
-                                _infoRow(
-                                    'Нийт үнийн дүн:',
-                                    provider.sellerOrders[index].totalPrice
-                                        .toString()) ?? '-',
-                                _infoRow(
-                                    'Qpay-ээр төлсөн эсэх:',
-                                    provider.sellerOrders[index].qp == true
-                                        ? 'Тийм'
-                                        : 'Үгүй') ,
-                                _infoRow('Хаяг:',
-                                    '${provider.sellerOrders[index].branch?.address}'),
-                                _infoRow(
-                                    'Дууссан огноо:',
-                                    provider.sellerOrders[index].endedOn ??
-                                        'Дуусаагүй') ?? '-',
-                                _infoRow(
-                                    'Тайлбартай:',
-                                    provider.sellerOrders[index].note == true
-                                        ? 'Тийм'
-                                        : 'Үгүй') ?? '-',
+                                _infoRow('Нийт барааны тоо ширхэг:',
+                                        order.totalCount.toString()) ??
+                                    '-',
+                                _infoRow('Нийт үнийн дүн:',
+                                        order.totalPrice.toString()) ??
+                                    '-',
+                                _infoRow('Qpay-ээр төлсөн эсэх:',
+                                    order.qp == true ? 'Тийм' : 'Үгүй'),
+                                _infoRow('Хаяг:', order.branch?.address ?? '-'),
+                                _infoRow('Дууссан огноо:',
+                                        order.endedOn ?? 'Дуусаагүй') ??
+                                    '-',
+                                _infoRow('Тайлбартай:',
+                                        order.note == true ? 'Тийм' : 'Үгүй') ??
+                                    '-',
                               ],
                             ),
                           )

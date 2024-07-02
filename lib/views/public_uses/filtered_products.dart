@@ -60,6 +60,9 @@ class _FilteredProductsState extends State<FilteredProducts> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
         title: Text(widget.title, style: const TextStyle(color: Colors.black, fontSize: 20),),
         actions: [
           Container(
@@ -76,10 +79,11 @@ class _FilteredProductsState extends State<FilteredProducts> {
                 badgeStyle: const badges.BadgeStyle(
                   badgeColor: Colors.blue,
                 ),
-                child: const Icon(
-                  Icons.shopping_cart,
-                  color: Colors.red,
-                ),
+                child: Image.asset(
+                    'assets/icons/shop-tab.png',
+                    height: 24,
+                    width: 24,
+                  ),
               ),
             ),
           ),

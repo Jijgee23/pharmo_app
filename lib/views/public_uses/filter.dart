@@ -79,23 +79,24 @@ class _FilterPageState extends State<FilterPage> {
     return SliverList.builder(
       itemBuilder: (context, index) {
         return Padding(
-            padding: const EdgeInsets.only(left: 30, top: 5),
-            child: GestureDetector(
-              child: Text(
-                homeProvider.categories[index].name,
-                style: const TextStyle(
-                  color: Colors.black,
-                ),
+          padding: const EdgeInsets.only(left: 30, top: 5),
+          child: GestureDetector(
+            child: Text(
+              homeProvider.categories[index].name,
+              style: const TextStyle(
+                color: Colors.black,
               ),
-              onTap: () {
-                goto(
-                    FilteredProducts(
-                        type: 'category',
-                        title: homeProvider.categories[index].name,
-                        filterKey: homeProvider.categories[index].id),
-                    context);
-              },
-            ));
+            ),
+            onTap: () {
+              goto(
+                  FilteredProducts(
+                      type: 'category',
+                      title: homeProvider.categories[index].name,
+                      filterKey: homeProvider.categories[index].id),
+                  context);
+            },
+          ),
+        );
       },
       itemCount: homeProvider.categories.length,
     );

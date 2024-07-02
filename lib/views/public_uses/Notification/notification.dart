@@ -8,10 +8,10 @@ class NotificationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.lime[50],
-      appBar:const CustomAppBar(
+      appBar: const CustomAppBar(
         title: 'Мэдэгдэлүүд',
       ),
-      body:const Center(
+      body: const Center(
         child: Text('Notification Page'),
       ),
     );

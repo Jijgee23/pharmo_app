@@ -2,6 +2,7 @@ import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/views/public_uses/Notification/notification.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -43,11 +44,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           leading: leading,
           actions: [
             IconButton(
-                icon: Image.asset(
-                  'assets/icons/notification.png',
-                  height: 24,
-                ),
-                onPressed: () {}),
+              icon: Image.asset(
+                'assets/icons/notification.png',
+                height: 24,
+              ),
+              onPressed: () => goto(const NotificationPage(), context),
+            ),
             Container(
               margin: const EdgeInsets.only(right: 15),
               child: InkWell(
@@ -59,18 +61,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   }
                 },
                 child: badges.Badge(
-                    badgeContent: Text(
-                      "${basketProvider.count}",
-                      style: const TextStyle(color: Colors.white, fontSize: 11),
-                    ),
-                    badgeStyle: const badges.BadgeStyle(
-                      badgeColor: Colors.blue,
-                    ),
-                    child: Image.asset(
-                      'assets/icons/shop-tab.png',
-                      height: 24,
-                      width: 24,
-                    ),),
+                  badgeContent: Text(
+                    "${basketProvider.count}",
+                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                  ),
+                  badgeStyle: const badges.BadgeStyle(
+                    badgeColor: Colors.blue,
+                  ),
+                  child: Image.asset(
+                    'assets/icons/shop-tab.png',
+                    height: 24,
+                    width: 24,
+                  ),
+                ),
               ),
             ),
           ],
