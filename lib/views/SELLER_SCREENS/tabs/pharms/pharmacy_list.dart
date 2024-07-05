@@ -7,6 +7,7 @@ import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/customer_details_pag
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/register_pharm.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
+import 'package:pharmo_app/widgets/icon/custom_icon.dart';
 import 'package:provider/provider.dart';
 
 class PharmacyList extends StatefulWidget {
@@ -159,129 +160,111 @@ class _PharmacyListState extends State<PharmacyList> {
                   : SliverList.builder(
                       itemCount: _displayItems.length,
                       itemBuilder: ((context, index) {
+                        final item = _displayItems[index];
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: Card(
-                            borderOnForeground: false,
-                            elevation: 3,
-                            child: InkWell(
-                              onTap: () async {
-                                if (_displayItems[index].isBad == true) {
+                          child: InkWell(
+                            onTap: () async {
+                              if (item.isBad == true) {
+                                showFailedMessage(
+                                    context: context,
+                                    message: 'Найдваргүй харилцагч байна!');
+                              } else {
+                                if (item.debt != 0 &&
+                                    item.debtLimit != 0 &&
+                                    item.debt >= item.debtLimit) {
                                   showFailedMessage(
                                       context: context,
-                                      message: 'Найдваргүй харилцагч байна!');
+                                      message:
+                                          'Зээлийн хэмжээ хэтэрсэн байна!');
                                 } else {
-                                  if (_displayItems[index].debt != 0 &&
-                                      _displayItems[index].debtLimit != 0 &&
-                                      _displayItems[index].debt >=
-                                          _displayItems[index].debtLimit) {
-                                    showFailedMessage(
-                                        context: context,
-                                        message:
-                                            'Зээлийн хэмжээ хэтэрсэн байна!');
-                                  } else {
-                                    setState(() {
-                                      homeProvider.selectedCustomerId =
-                                          _displayItems[index].id;
-                                      homeProvider.selectedCustomerName =
-                                          _displayItems[index].name;
-                                      homeProvider.getSelectedUser(
-                                          _displayItems[index].id,
-                                          _displayItems[index].name);
-                                    });
-                                  }
+                                  setState(() {
+                                    homeProvider.selectedCustomerId = item.id;
+                                    homeProvider.selectedCustomerName =
+                                        item.name;
+                                    homeProvider.getSelectedUser(
+                                        item.id, item.name);
+                                  });
                                 }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            homeProvider.selectedCustomerId ==
-                                                    _displayItems[index].id
-                                                ? const Icon(
-                                                    Icons.check,
-                                                    color:
-                                                        AppColors.succesColor,
-                                                  )
-                                                : const Text(''),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            RichText(
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                              text: TextSpan(
-                                                text: _displayItems[index].name,
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: _displayItems[index]
-                                                            .isBad
-                                                        ? Colors.red
-                                                        : _displayItems[index]
-                                                                        .debt !=
-                                                                    0 &&
-                                                                _displayItems[
-                                                                            index]
-                                                                        .debtLimit !=
-                                                                    0 &&
-                                                                _displayItems[
-                                                                            index]
-                                                                        .debt >=
-                                                                    _displayItems[
-                                                                            index]
-                                                                        .debtLimit
-                                                            ? AppColors
-                                                                .failedColor
-                                                            : AppColors.primary,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            if (_displayItems[index]
-                                                .isCustomer) {
-                                              goto(
-                                                  CustomerDetailsPage(
-                                                    customerId:
-                                                        _displayItems[index].id,
-                                                    custName:
-                                                        _displayItems[index]
-                                                            .name,
-                                                  ),
-                                                  context);
-                                            } else {}
-                                          },
-                                          child: Text(
-                                            _displayItems[index].isCustomer
-                                                ? 'Дэлгэрэнгүй'
-                                                : 'Найдваргүй: ${_displayItems[index].badCnt.toString() == 'null' ? 0 : _displayItems[index].badCnt.toString()} ',
-                                            style: const TextStyle(
-                                                color: AppColors.primary,
-                                                fontSize: 12),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      _displayItems[index].isCustomer
-                                          ? 'Харилцагч'
-                                          : 'Эмийн сан',
-                                      style: const TextStyle(
-                                          color: AppColors.primary),
-                                    ),
-                                  ],
+                              }
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: AppColors.primary,
                                 ),
+                              ),
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 3, horizontal: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      homeProvider.selectedCustomerId ==
+                                              item.id
+                                          ? const Icon(
+                                              Icons.check,
+                                              color: AppColors.succesColor,
+                                            )
+                                          : const Text(''),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      RichText(
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        text: TextSpan(
+                                          text: item.name,
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: item.isBad
+                                                  ? Colors.red
+                                                  : item.debt != 0 &&
+                                                          item.debtLimit !=
+                                                              0 &&
+                                                          item.debt >=
+                                                              item.debtLimit
+                                                      ? AppColors
+                                                          .failedColor
+                                                      : AppColors.primary,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  IconButton(
+                                    padding: const EdgeInsets.all(0),
+                                    alignment: Alignment.center,
+                                    onPressed: () {
+                                      if (item.isCustomer) {
+                                        goto(
+                                            CustomerDetailsPage(
+                                              customerId: item.id,
+                                              custName: item.name,
+                                            ),
+                                            context);
+                                      } else {
+                                        showFailedMessage(
+                                            context: context,
+                                            message:
+                                                'Харилцагчийн мэдээллийг харах боломжгүй!');
+                                      }
+                                    },
+                                    icon: item.isCustomer == true
+                                        ? const CustomIcon(name: 'agreement.png')
+                                        : const CustomIcon(
+                                            name: 'user.png'),
+                                    style: const ButtonStyle(
+                                      tapTargetSize: MaterialTapTargetSize
+                                          .shrinkWrap,
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
                           ),
@@ -338,20 +321,19 @@ class _PharmacyListState extends State<PharmacyList> {
     setState(() {
       searchQuery = _searchController.text;
     });
-    for (int i = 0; i < pharmProvider.fullList.length; i++) {
+    final mylist = pharmProvider.fullList;
+    for (int i = 0; i < mylist.length; i++) {
       if (searchQuery.isNotEmpty &&
-          pharmProvider.fullList[i].name
-              .toLowerCase()
-              .contains(searchQuery.toLowerCase())) {
+          mylist[i].name.toLowerCase().contains(searchQuery.toLowerCase())) {
         filteredItems.add(
           PharmFullInfo(
-            pharmProvider.fullList[i].id,
-            pharmProvider.fullList[i].name,
-            pharmProvider.fullList[i].isCustomer,
-            pharmProvider.fullList[i].badCnt,
-            pharmProvider.fullList[i].isBad,
-            pharmProvider.fullList[i].debt,
-            pharmProvider.fullList[i].debtLimit,
+            mylist[i].id,
+            mylist[i].name,
+            mylist[i].isCustomer,
+            mylist[i].badCnt,
+            mylist[i].isBad,
+            mylist[i].debt,
+            mylist[i].debtLimit,
           ),
         );
         setState(() {
@@ -360,7 +342,7 @@ class _PharmacyListState extends State<PharmacyList> {
       }
       if (searchQuery.isEmpty) {
         setState(() {
-          _displayItems = pharmProvider.fullList;
+          _displayItems = mylist;
         });
       }
     }

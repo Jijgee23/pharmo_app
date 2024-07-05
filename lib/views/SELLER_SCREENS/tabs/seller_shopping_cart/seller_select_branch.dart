@@ -135,7 +135,8 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                         : ListView.builder(
                             itemCount: provider.branchList.length,
                             itemBuilder: (context, index) {
-                              return Card(
+                              return Container(
+                                decoration: bd,
                                 child: ListTile(
                                   onTap: () {
                                     setState(() {

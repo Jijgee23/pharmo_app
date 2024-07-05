@@ -40,6 +40,7 @@ class HomeProvider extends ChangeNotifier {
   List<Filters> categories = <Filters>[];
   List<Manufacturer> mnfrs = <Manufacturer>[];
   List<Manufacturer> vndrs = <Manufacturer>[];
+  
 
 
   changeIndex(int index) {

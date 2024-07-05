@@ -252,6 +252,9 @@ class _SellerOrdersState extends State<SellerOrders> {
   _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
+      helpText: 'Огноо сонгох',
+      cancelText: 'Буцах',
+      confirmText: "Сонгох",
       initialDate: selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
@@ -266,6 +269,9 @@ class _SellerOrdersState extends State<SellerOrders> {
   _selectDate2(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
+      helpText: 'Огноо сонгох',
+      cancelText: 'Буцах',
+      confirmText: "Сонгох",
       initialDate: selectedDate2,
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
