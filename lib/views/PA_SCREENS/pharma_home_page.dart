@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
@@ -12,7 +13,8 @@ import 'package:pharmo_app/views/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/views/PA_SCREENS/my_orders.dart';
 import 'package:pharmo_app/views/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/views/PA_SCREENS/tabs/home.dart';
-import 'package:pharmo_app/views/public_uses/filter.dart';
+import 'package:pharmo_app/views/PA_SCREENS/tabs/promotion_screen.dart';
+import 'package:pharmo_app/views/public_uses/filtered/filter.dart';
 import 'package:pharmo_app/views/public_uses/suppliers/supplier_page.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';
@@ -130,6 +132,11 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                       onTap: () => goto(const SupplierPage(), context),
                     ),
                     DrawerItem(
+                      title: 'Урамшуулал',
+                      asset: 'assets/icons/gift.png',
+                      onTap: () => goto(const PromotionWidget(), context),
+                    ),
+                    DrawerItem(
                       title: 'Гарах',
                       asset: 'assets/icons/check-out.png',
                       onTap: () {
@@ -145,25 +152,12 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                 : const CustomAppBar(
                     title: 'Нүүр хуудас',
                   ),
-            body: NotificationListener<ScrollNotification>(
-              onNotification: (scrollNotification) {
-                if (scrollNotification is ScrollUpdateNotification &&
-                    scrollNotification.scrollDelta! > 0) {
-                  setState(() {
-                    hidden = true;
-                  });
-                }
-                if (scrollNotification is ScrollUpdateNotification &&
-                    scrollNotification.scrollDelta! < 0) {
-                  setState(() {
-                    hidden = false;
-                  });
-                }
-                if (scrollNotification is ScrollUpdateNotification &&
-                    scrollNotification.metrics.atEdge) {
-                  setState(() {
-                    hidden = false;
-                  });
+            body: NotificationListener<UserScrollNotification>(
+              onNotification: (notification) {
+                if (notification.direction == ScrollDirection.reverse) {
+                  setState(() => hidden = true);
+                } else if (notification.direction == ScrollDirection.forward) {
+                  setState(() => hidden = false);
                 }
                 return true;
               },

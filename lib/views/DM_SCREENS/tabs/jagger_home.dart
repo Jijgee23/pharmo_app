@@ -57,7 +57,7 @@ class _HomeJaggerState extends State<HomeJagger> {
       final jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
       dynamic res = await jaggerProvider.getJaggers();
       if (res['errorType'] == 1) {
-        showSuccessMessage(message: res['message'], context: context);
+       // showSuccessMessage(message: res['message'], context: context);
       } else {
         showFailedMessage(message: res['message'], context: context);
       }

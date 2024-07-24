@@ -205,8 +205,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                 children: [
                                   Row(
                                     children: [
-                                      homeProvider.selectedCustomerId ==
-                                              item.id
+                                      homeProvider.selectedCustomerId == item.id
                                           ? const Icon(
                                               Icons.check,
                                               color: AppColors.succesColor,
@@ -225,12 +224,10 @@ class _PharmacyListState extends State<PharmacyList> {
                                               color: item.isBad
                                                   ? Colors.red
                                                   : item.debt != 0 &&
-                                                          item.debtLimit !=
-                                                              0 &&
+                                                          item.debtLimit != 0 &&
                                                           item.debt >=
                                                               item.debtLimit
-                                                      ? AppColors
-                                                          .failedColor
+                                                      ? AppColors.failedColor
                                                       : AppColors.primary,
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -252,16 +249,16 @@ class _PharmacyListState extends State<PharmacyList> {
                                         showFailedMessage(
                                             context: context,
                                             message:
-                                                'Харилцагчийн мэдээллийг харах боломжгүй!');
+                                                'Эмийн сангийн мэдээллийг харах боломжгүй!');
                                       }
                                     },
                                     icon: item.isCustomer == true
-                                        ? const CustomIcon(name: 'agreement.png')
-                                        : const CustomIcon(
-                                            name: 'user.png'),
+                                        ? const CustomIcon(
+                                            name: 'agreement.png')
+                                        : const CustomIcon(name: 'user.png'),
                                     style: const ButtonStyle(
-                                      tapTargetSize: MaterialTapTargetSize
-                                          .shrinkWrap,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
                                     ),
                                   )
                                 ],

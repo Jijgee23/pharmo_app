@@ -6,6 +6,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/DM_SCREENS/jagger_dialog.dart';
 import 'package:pharmo_app/views/DM_SCREENS/jagger_order_page.dart';
 import 'package:pharmo_app/views/DM_SCREENS/tabs/jagger_home.dart';
+import 'package:pharmo_app/views/DM_SCREENS/tabs/shipment_history.dart';
 import 'package:pharmo_app/views/PA_SCREENS/pharma_home_page.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
@@ -69,6 +70,11 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                     title: 'Захиалга',
                     asset: 'assets/icons/order.png',
                     onTap: () => goto(const JaggerOrderPage(), context),
+                  ),
+                  DrawerItem(
+                    title: 'Түгээлтийн түүх',
+                    asset: 'assets/icons/transaction-history.png',
+                    onTap: () => goto(const ShipmentHistory(), context),
                   ),
                   DrawerItem(
                     title: 'Борлуулагчруу шилжих',

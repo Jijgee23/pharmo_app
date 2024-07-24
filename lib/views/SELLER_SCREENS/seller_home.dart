@@ -1,5 +1,6 @@
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -15,7 +16,7 @@ import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/register_pharm.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/seller_shopping_cart/seller_shopping_cart.dart';
 import 'package:pharmo_app/views/public_uses/Notification/notification.dart';
-import 'package:pharmo_app/views/public_uses/filter.dart';
+import 'package:pharmo_app/views/public_uses/filtered/filter.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
 
@@ -162,26 +163,14 @@ class _SellerHomePageState extends State<SellerHomePage> {
               ],
             ),
           ),
-          body: NotificationListener<ScrollNotification>(
-            onNotification: (scrollNotification) {
-              if (scrollNotification.metrics.atEdge == true) {
-                setState(() {
-                  homeProvider.invisible = false;
-                });
-              }
-              if (scrollNotification is ScrollUpdateNotification &&
-                  scrollNotification.scrollDelta! < 0) {
-                setState(() {
-                  homeProvider.invisible = false;
-                });
-              }
-              if (scrollNotification is ScrollUpdateNotification &&
-                  scrollNotification.scrollDelta! > 0) {
-                setState(() {
-                  homeProvider.invisible = true;
-                });
-              }
-              return true;
+          body: NotificationListener<UserScrollNotification>(
+            onNotification: (notification) {
+               if (notification.direction == ScrollDirection.reverse) {
+                  setState(() => homeProvider.invisible = true);
+                } else if (notification.direction == ScrollDirection.forward) {
+                  setState(() => homeProvider.invisible = false);
+                }
+                return true;
             },
             child: _pages[homeProvider.currentIndex],
           ),
