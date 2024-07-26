@@ -30,6 +30,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   bool isStartDate = true;
   final TextEditingController _countController =
       TextEditingController(text: '1');
+
   void getWidget(String filter, String type, JaggerProvider provider) {
     setState(() {
       if (filter == 'Түгээгчээр') {
@@ -80,16 +81,13 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
     });
   }
 
-
   @override
   build(BuildContext context) {
     return Consumer<JaggerProvider>(
       builder: (_, provider, child) {
-        return SafeArea(
-          child: Scaffold(
-            appBar: _appBar(),
-            body: body(provider),
-          ),
+        return Scaffold(
+          appBar: _appBar(),
+          body: body(provider),
         );
       },
     );

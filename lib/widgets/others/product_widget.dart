@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/products.dart';
@@ -21,9 +20,8 @@ class ProductWidget extends StatelessWidget {
           border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(13),
         ),
-        margin: const EdgeInsets.only(right: 10,left: 15, bottom: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 5),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -37,7 +35,10 @@ class ProductWidget extends StatelessWidget {
                     image: item.image != null
                         ? NetworkImage(
                             '${dotenv.env['IMAGE_URL']}${item.image.toString().substring(1)}')
-                        : NetworkImage(noImageUrl, scale: 1,),
+                        : NetworkImage(
+                            noImageUrl,
+                            scale: 1,
+                          ),
                   ),
                 ),
               ),
@@ -56,10 +57,13 @@ class ProductWidget extends StatelessWidget {
                   style: const TextStyle(
                       color: Colors.red, fontWeight: FontWeight.w500),
                 ),
-                IconButton(
-                  onPressed: onButtonTab,
-                  icon: Image.asset('assets/icons/add-basket.png', height: 24, width: 24,)
-                ),
+                GestureDetector(
+                    onTap: onButtonTab,
+                    child: Image.asset(
+                      'assets/icons/add-basket.png',
+                      height: 24,
+                      width: 24,
+                    )),
               ],
             ),
           ],

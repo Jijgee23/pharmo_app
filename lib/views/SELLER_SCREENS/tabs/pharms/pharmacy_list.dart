@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -7,7 +8,6 @@ import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/customer_details_pag
 import 'package:pharmo_app/views/SELLER_SCREENS/tabs/pharms/register_pharm.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
-import 'package:pharmo_app/widgets/icon/custom_icon.dart';
 import 'package:provider/provider.dart';
 
 class PharmacyList extends StatefulWidget {
@@ -106,6 +106,7 @@ class _PharmacyListState extends State<PharmacyList> {
                     ),
               SliverAppBar(
                 pinned: false,
+                toolbarHeight: 20,
                 automaticallyImplyLeading: false,
                 title: NotificationListener<ScrollNotification>(
                   onNotification: (notification) {
@@ -220,7 +221,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                         text: TextSpan(
                                           text: item.name,
                                           style: TextStyle(
-                                              fontSize: 18,
+                                              fontSize: 14,
                                               color: item.isBad
                                                   ? Colors.red
                                                   : item.debt != 0 &&
@@ -228,8 +229,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                                           item.debt >=
                                                               item.debtLimit
                                                       ? AppColors.failedColor
-                                                      : AppColors.primary,
-                                              fontWeight: FontWeight.bold),
+                                                      : AppColors.cleanBlack),
                                         ),
                                       ),
                                     ],
@@ -252,10 +252,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                                 'Эмийн сангийн мэдээллийг харах боломжгүй!');
                                       }
                                     },
-                                    icon: item.isCustomer == true
-                                        ? const CustomIcon(
-                                            name: 'agreement.png')
-                                        : const CustomIcon(name: 'user.png'),
+                                    icon: const Icon(Icons.chevron_right),
                                     style: const ButtonStyle(
                                       tapTargetSize:
                                           MaterialTapTargetSize.shrinkWrap,
@@ -285,30 +282,35 @@ class _PharmacyListState extends State<PharmacyList> {
   Widget radioText(String text) {
     return Text(
       text,
-      style: const TextStyle(fontSize: 14),
+      style: const TextStyle(fontSize: 12),
     );
   }
 
   Widget custRadio(String value, String title, List<PharmFullInfo> viewList) {
     return Row(
       children: [
-        Radio(
-          fillColor: MaterialStateProperty.all(AppColors.primary),
-          value: value,
-          groupValue: selectedRadioValue,
-          onChanged: (value) {
-            setState(() {
-              if (value == 'A') {
-                onSearch = false;
-              } else {
-                onSearch = true;
-              }
-              selectedRadioValue = value!;
-              _displayItems = viewList;
-            });
-          },
+        Transform.scale(
+          scale: 0.8,
+          child: Radio(
+            fillColor: MaterialStateProperty.all(AppColors.primary),
+            value: value,
+            groupValue: selectedRadioValue,
+            onChanged: (value) {
+              setState(() {
+                if (value == 'A') {
+                  onSearch = false;
+                } else {
+                  onSearch = true;
+                }
+                selectedRadioValue = value!;
+                _displayItems = viewList;
+              });
+            },
+          ),
         ),
-        radioText(title),
+        radioText(
+          title,
+        ),
       ],
     );
   }

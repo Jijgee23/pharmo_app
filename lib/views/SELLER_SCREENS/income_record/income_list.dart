@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
 class IncomeList extends StatefulWidget {
@@ -38,16 +40,9 @@ class _IncomeListState extends State<IncomeList> {
         return Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
-            title: const Text('Орлогын жагсаалт'),
-            centerTitle: true,
-            leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.chevron_left,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
+              title: const Text('Орлогын жагсаалт'),
+              centerTitle: true,
+              leading: const ChevronBack()),
           floatingActionButton: invisible
               ? const SizedBox()
               : FloatingActionButton(
@@ -171,137 +166,81 @@ class _IncomeListState extends State<IncomeList> {
                 Expanded(
                   flex: 10,
                   child: income.incomeList.isEmpty
-                      ? const Center(
-                          child: Text('Хоосон'),
-                        )
+                      ? const NoResult()
                       : ListView.builder(
                           itemCount: income.incomeList.length,
                           itemBuilder: (context, index) {
                             final incomee = income.incomeList[index];
                             return Container(
                               decoration: BoxDecoration(
-                                color: Colors.white,
-                                border:
-                                    Border.all(width: 1, color: Colors.grey),
-                              ),
+                                  color: Colors.white,
+                                  border:
+                                      Border.all(color: Colors.grey.shade700),
+                                  borderRadius: BorderRadius.circular(10)),
                               margin: const EdgeInsets.symmetric(
                                   horizontal: 5, vertical: 2),
                               child: ExpansionTile(
-                                childrenPadding: const EdgeInsets.all(5),
+                                childrenPadding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 5),
                                 iconColor: AppColors.primary,
-                                title: mText(
-                                    'Тайлбар: ${incomee.note.toString()}'),
-                                subtitle:
-                                    mText('Дүн: ${incomee.amount.toString()}'),
-                                leading: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      noteController.text = incomee.note!;
-                                      amuontController.text =
-                                          incomee.amount.toString();
-                                    });
-                                    showCupertinoDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: const Center(
-                                            child: Text('Засах'),
-                                          ),
-                                          content: SizedBox(
-                                            height: size.height > 480
-                                                ? size.height * 0.2
-                                                : size.height * 0.3,
-                                            width: 300,
-                                            child: Column(
-                                              children: [
-                                                TextField(
-                                                  decoration: const InputDecoration(
-                                                      hintText: 'Тайлбар',
-                                                      border:
-                                                          OutlineInputBorder()),
-                                                  controller: noteController,
-                                                ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                TextFormField(
-                                                  controller: amuontController,
-                                                  decoration: const InputDecoration(
-                                                      hintText: 'Дүн',
-                                                      border:
-                                                          OutlineInputBorder()),
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text('Буцах'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                income.updateIncome(
-                                                    income.incomeList[index].id,
-                                                    noteController.text,
-                                                    amuontController.text,
-                                                    context);
-                                                income.getIncomeList(context);
-                                                noteController.clear();
-                                                amuontController.clear();
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text('Хадгалах'),
-                                            ),
-                                          ],
+                                title: Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          noteController.text = incomee.note!;
+                                          amuontController.text =
+                                              incomee.amount.toString();
+                                        });
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return editDialog(
+                                                size, context, income, index);
+                                          },
                                         );
                                       },
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.edit,
-                                    color: Colors.green,
-                                  ),
+                                      icon: const Icon(
+                                        Icons.edit,
+                                        color: AppColors.green,
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        mText(
+                                            'Тайлбар: ${incomee.note.toString()}'),
+                                        mText(
+                                            'Дүн: ${incomee.amount.toString()}'),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                                 children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.primary,
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      child: Column(
-                                        children: [
-                                          _infoRow(
-                                              'Огноо',
-                                              incomee.createdOn != null
-                                                  ? incomee.createdOn.toString()
-                                                  : '-'),
-                                          _infoRow(
-                                              'Хүргэлт',
-                                              incomee.delman != null
-                                                  ? incomee.delman.toString()
-                                                  : '-'),
-                                          _infoRow(
-                                              'Нийлүүлэгч',
-                                              incomee.supplier != null
-                                                  ? incomee.supplier.toString()
-                                                  : '-'),
-                                          _infoRow(
-                                              'Харилцагч',
-                                              incomee.customer != null
-                                                  ? incomee.customer.toString()
-                                                  : '-'),
-                                        ],
-                                      ),
-                                    ),
+                                  Column(
+                                    children: [
+                                      _infoRow(
+                                          'Огноо',
+                                          incomee.createdOn != null
+                                              ? incomee.createdOn.toString()
+                                              : '-'),
+                                      _infoRow(
+                                          'Хүргэлт',
+                                          incomee.delman != null
+                                              ? incomee.delman.toString()
+                                              : '-'),
+                                      _infoRow(
+                                          'Нийлүүлэгч',
+                                          incomee.supplier != null
+                                              ? incomee.supplier.toString()
+                                              : '-'),
+                                      _infoRow(
+                                          'Харилцагч',
+                                          incomee.customer != null
+                                              ? incomee.customer.toString()
+                                              : '-'),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -317,12 +256,85 @@ class _IncomeListState extends State<IncomeList> {
     );
   }
 
+  Dialog editDialog(
+      Size size, BuildContext context, IncomeProvider income, int index) {
+    var decoration = const InputDecoration(
+      contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      hintStyle: TextStyle(fontSize: 14),
+    );
+    return Dialog(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        height: size.height > 480 ? size.height * 0.34 : size.height * 0.3,
+        width: 300,
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(30)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            const Center(
+              child: Text(
+                'Шинэчлэх',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+            TextField(
+              controller: noteController,
+              decoration: decoration,
+            ),
+            TextFormField(
+                controller: amuontController,
+                keyboardType: TextInputType.number,
+                decoration: decoration),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                dialogButton(context, 'Буцах', Navigator.of(context).pop),
+                dialogButton(
+                  context,
+                  'Хадгалах',
+                  () {
+                    income.updateIncome(income.incomeList[index].id,
+                        noteController.text, amuontController.text, context);
+                    income.getIncomeList(context);
+                    noteController.clear();
+                    amuontController.clear();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  dialogButton(BuildContext context, String title, VoidCallback ontap) {
+    return GestureDetector(
+      onTap: ontap,
+      child: Container(
+        width: 120,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.grey.shade700,
+          ),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Center(child: Text(title)),
+      ),
+    );
+  }
+
   _infoRow(String title, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         mText(title),
-        mText(value),
+        mText(
+          value,
+        ),
       ],
     );
   }
@@ -366,7 +378,8 @@ class _IncomeListState extends State<IncomeList> {
   Widget mText(String text) {
     return Text(
       text,
-      style: const TextStyle(color: Colors.black),
+      style: const TextStyle(fontSize: 14),
     );
   }
 }
+

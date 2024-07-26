@@ -113,35 +113,40 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
         builder: (context, authController, homeProvider, _) {
           return Scaffold(
             drawer: Drawer(
-              shape: const RoundedRectangleBorder(),
+              elevation: 0,
+              backgroundColor: Colors.white,
               width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
               child: MediaQuery.removePadding(
                 removeTop: true,
                 context: context,
                 child: ListView(
                   children: [
-                    CustomDrawerHeader(size: size),
-                    DrawerItem(
-                      title: 'Миний захиалгууд',
-                      asset: 'assets/icons/order.png',
-                      onTap: () => goto(const MyOrder(), context),
-                    ),
-                    DrawerItem(
-                      title: 'Нийлүүлэгч',
-                      asset: 'assets/icons/partnership.png',
-                      onTap: () => goto(const SupplierPage(), context),
-                    ),
-                    DrawerItem(
-                      title: 'Урамшуулал',
-                      asset: 'assets/icons/gift.png',
-                      onTap: () => goto(const PromotionWidget(), context),
-                    ),
-                    DrawerItem(
-                      title: 'Гарах',
-                      asset: 'assets/icons/check-out.png',
-                      onTap: () {
-                        showLogoutDialog(context);
-                      },
+                    const CustomDrawerHeader(),
+                    Column(
+                      children: [
+                        DrawerItem(
+                          title: 'Миний захиалгууд',
+                          asset: 'assets/icons/order.png',
+                          onTap: () => goto(const MyOrder(), context),
+                        ),
+                        DrawerItem(
+                          title: 'Нийлүүлэгч',
+                          asset: 'assets/icons/partnership.png',
+                          onTap: () => goto(const SupplierPage(), context),
+                        ),
+                        DrawerItem(
+                          title: 'Урамшуулал',
+                          asset: 'assets/icons/gift.png',
+                          onTap: () => goto(const PromotionWidget(), context),
+                        ),
+                        DrawerItem(
+                          title: 'Гарах',
+                          asset: 'assets/icons/check-out.png',
+                          onTap: () {
+                            showLogoutDialog(context);
+                          },
+                        )
+                      ],
                     )
                   ],
                 ),
@@ -195,7 +200,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                         label: 'Сагс',
                       ),
                     ],
-                    selectedItemColor: AppColors.primary,
                   ),
           );
         },
@@ -205,18 +209,21 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
 }
 
 class CustomDrawerHeader extends StatelessWidget {
-  final Size size;
-  const CustomDrawerHeader({super.key, required this.size});
+  const CustomDrawerHeader({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    var style = const TextStyle(color: Colors.white, fontSize: 14);
+    final size = MediaQuery.of(context).size;
+    var style = const TextStyle(color: AppColors.mainDark, fontSize: 14);
     return Consumer<HomeProvider>(builder: (context, homeProvider, child) {
-      return DrawerHeader(
+      return Container(
+        height: size.height * 0.2,
         decoration: const BoxDecoration(
-          color: AppColors.primary,
+          color: AppColors.cleanWhite,
         ),
-        curve: Curves.easeInOut,
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,13 +231,10 @@ class CustomDrawerHeader extends StatelessWidget {
             Align(
               alignment: Alignment.center,
               child: ClipOval(
-                child: Container(
-                    decoration: const BoxDecoration(
-                        shape: BoxShape.circle, color: Colors.white),
-                    child: Image.asset(
-                      'assets/icons/boy.png',
-                      height: 50,
-                    )),
+                child: Image.asset(
+                  'assets/icons/boy.png',
+                  height: 50,
+                ),
               ),
             ),
             Column(

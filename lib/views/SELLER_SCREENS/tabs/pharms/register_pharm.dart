@@ -2,7 +2,10 @@
 
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/address_provider.dart';
@@ -51,21 +54,28 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     var a = const SizedBox(
       height: 10,
     );
+    final style = TextStyle(fontSize: 14.0, color: Colors.grey.shade700);
     return Consumer2<HomeProvider, AddressProvider>(
         builder: (_, homeProvider, addressProvider, child) {
       return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Эмийн сан бүртгэл'),
+          title: const Text(
+            'Эмийн сангийн бүртгэл',
+            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Байгууллага',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  'Байгууллага:',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(fontSize: 16),
                 ),
                 a,
                 CustomTextField(
@@ -97,15 +107,16 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                 ),
                 a,
                 const Text(
-                  'Хаяг',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  'Хаяг:',
+                  style: TextStyle(fontSize: 16),
                 ),
                 a,
                 DropdownButtonFormField<Province>(
                   decoration: InputDecoration(
-                    label: const Text('Аймаг/Хот сонгох'),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                    label: const Text('Аймаг/Хот '),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(0),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   onChanged: (newValue) {
@@ -118,22 +129,19 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                       .map<DropdownMenuItem<Province>>((Province province) {
                     return DropdownMenuItem<Province>(
                       value: province,
-                      child: Text(
-                        province.name,
-                        style: const TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.normal),
-                      ),
+                      child: Text(province.name, style: style),
                     );
                   }).toList(),
                 ),
                 a,
                 DropdownButtonFormField<District>(
                   decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(0),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  hint: const Text('Сум/Дүүрэг сонгох'),
+                  hint: const Text('Сум/Дүүрэг '),
                   onChanged: (newValue) {
                     if (newValue != null) {
                       addressProvider.getKhoroo(newValue.id, context);
@@ -143,18 +151,22 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                       .map<DropdownMenuItem<District>>((District district) {
                     return DropdownMenuItem<District>(
                       value: district,
-                      child: Text(district.ner),
+                      child: Text(
+                        district.ner,
+                        style: style,
+                      ),
                     );
                   }).toList(),
                 ),
                 a,
                 DropdownButtonFormField<Khoroo>(
                   decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(0),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  hint: const Text('Баг/Хороо сонгох'),
+                  hint: const Text('Баг/Хороо '),
                   onChanged: (newValue) {
                     setState(() {
                       provinceId = newValue!.aimag;
@@ -166,14 +178,14 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                       .map<DropdownMenuItem<Khoroo>>((Khoroo khoroo) {
                     return DropdownMenuItem<Khoroo>(
                       value: khoroo,
-                      child: Text(khoroo.ner),
+                      child: Text(khoroo.ner, style: style),
                     );
                   }).toList(),
                 ),
                 a,
                 const Text(
-                  'Тайлбар',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  'Тайлбар:',
+                  style: TextStyle(fontSize: 16),
                 ),
                 a,
                 TextFormField(
@@ -182,9 +194,15 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                   },
                   minLines: 1,
                   controller: detailedController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                    ),
                     labelText: 'Тайлбар',
-                    border: OutlineInputBorder(),
+                    labelStyle: style,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
                 a,
@@ -225,8 +243,9 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                     if (detailedController.text.isEmpty) {
                       showFailedMessage(
                           message: 'Тайлбар оруулна уу.', context: context);
+                    } else {
+                      registerPharm();
                     }
-                    registerPharm();
                   },
                 ),
               ],

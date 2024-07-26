@@ -207,7 +207,12 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
             goto(ProductDetail(prod: item), context);
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             width: double.infinity,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

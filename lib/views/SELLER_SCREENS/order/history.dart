@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/models/pharm.dart';
@@ -6,6 +7,7 @@ import 'package:pharmo_app/views/SELLER_SCREENS/order/order_history_list.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class SellerCustomerOrderHisrtory extends StatefulWidget {
@@ -67,25 +69,22 @@ class _SellerCustomerOrderHisrtoryState
         return Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
-            centerTitle: true,
-            title: const Text('Харилцагчид'),
-          ),
+              leading: const ChevronBack(),
+              centerTitle: true,
+              title: const Text('Харилцагчид', style: TextStyle(fontSize: 16))),
           body: Column(
             children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  child: CustomSearchBar(
-                    searchController: searchController,
-                    title: 'Хайх',
-                    onChanged: (value) {
-                      searchPharmacy(value);
-                    },
-                  ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: CustomSearchBar(
+                  searchController: searchController,
+                  title: 'Хайх',
+                  onChanged: (value) {
+                    searchPharmacy(value);
+                  },
                 ),
               ),
               Expanded(
-                flex: 10,
                 child: ListView.builder(
                   itemCount: provider.customeList.length,
                   itemBuilder: (context, index) {
@@ -99,64 +98,46 @@ class _SellerCustomerOrderHisrtoryState
                       },
                       child: Container(
                         margin: const EdgeInsets.symmetric(
-                            vertical: 5, horizontal: 10),
-                        padding: const EdgeInsets.all(10),
+                            vertical: 2, horizontal: 10),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 15),
                         decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
                           borderRadius: BorderRadius.circular(10),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 1,
-                              blurRadius: 3,
-                              offset: const Offset(0, 3),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${index + 1}.${provider.customeList[index].name}',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: provider.customeList[index].isBad
+                                      ? Colors.red
+                                      : provider.customeList[index].debt != 0 &&
+                                              provider.customeList[index]
+                                                      .debtLimit !=
+                                                  0 &&
+                                              provider.customeList[index]
+                                                      .debt >=
+                                                  provider.customeList[index]
+                                                      .debtLimit
+                                          ? AppColors.failedColor
+                                          : AppColors.primary,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            GestureDetector(
+                              onTap: () => goto(
+                                  FavoriteList(
+                                      customerId:
+                                          provider.customeList[index].id),
+                                  context),
+                              child: const Icon(
+                                Icons.favorite,
+                                color: AppColors.secondary,
+                              ),
                             ),
                           ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              RichText(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                text: TextSpan(
-                                  text: provider.customeList[index].name,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: provider.customeList[index].isBad
-                                          ? Colors.red
-                                          : provider.customeList[index].debt !=
-                                                      0 &&
-                                                  provider.customeList[index]
-                                                          .debtLimit !=
-                                                      0 &&
-                                                  provider.customeList[index]
-                                                          .debt >=
-                                                      provider
-                                                          .customeList[index]
-                                                          .debtLimit
-                                              ? AppColors.failedColor
-                                              : AppColors.primary,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  goto(
-                                      FavoriteList(
-                                          customerId:
-                                              provider.customeList[index].id),
-                                      context);
-                                },
-                                icon: const Icon(
-                                  Icons.favorite,
-                                  color: AppColors.secondary,
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     );

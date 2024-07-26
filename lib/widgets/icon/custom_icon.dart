@@ -13,6 +13,7 @@ class CustomIcon extends StatelessWidget {
       margin: const EdgeInsets.all(0),
       child: Image.asset(
         'assets/icons/$name',
+        scale: 1,
         width: size ?? 24,
       ),
     );

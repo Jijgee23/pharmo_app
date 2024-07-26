@@ -532,7 +532,7 @@ class JaggerProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ships = data['results'];
-        debugPrint('ships: $ships');
+        //debugPrint('ships: $ships');
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
         notifyListeners();
       }
@@ -542,7 +542,7 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   filterShipment(String type, String value) async {
-    print('type: $type, value: $value');
+    debugPrint('type: $type, value: $value');
     String bearerToken = await getAccessToken();
     try {
       final res = await http.get(
@@ -552,7 +552,7 @@ class JaggerProvider extends ChangeNotifier {
           'Authorization': bearerToken,
         },
       );
-      print(res.statusCode);
+      debugPrint(res.statusCode.toString());
       if (res.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
         shipments.clear();

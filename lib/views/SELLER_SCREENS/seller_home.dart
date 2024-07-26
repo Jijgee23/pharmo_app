@@ -55,6 +55,8 @@ class _SellerHomePageState extends State<SellerHomePage> {
     final homePrvdr = Provider.of<HomeProvider>(context);
     return Consumer<HomeProvider>(
       builder: (_, homeProvider, child) {
+        var textStyle =
+            TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0);
         return Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: homeProvider.invisible
@@ -63,7 +65,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   backgroundColor: Colors.white,
                   centerTitle: true,
                   title: homePrvdr.selectedCustomerId == 0
-                      ? const Text('Захиалагч сонгоно уу')
+                      ? Text('Захиалагч сонгоно уу', style: textStyle)
                       : TextButton(
                           onPressed: () {
                             setState(() {
@@ -73,9 +75,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                           child: RichText(
                             text: TextSpan(
                               text: 'Сонгосон захиалагч: ',
-                              style: TextStyle(
-                                  color: Colors.blueGrey.shade800,
-                                  fontSize: 13.0),
+                              style: textStyle,
                               children: [
                                 TextSpan(
                                     text: homeProvider.selectedCustomerName,
@@ -123,13 +123,13 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   ],
                 ),
           drawer: Drawer(
+            elevation: 0,
             backgroundColor: AppColors.cleanWhite,
-            shape: const RoundedRectangleBorder(),
             width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomDrawerHeader(size: size),
+                const CustomDrawerHeader(),
                 DrawerItem(
                     title: 'Эмийг сан бүртгэх',
                     onTap: () => goto(const RegisterPharmPage(), context),
@@ -165,23 +165,22 @@ class _SellerHomePageState extends State<SellerHomePage> {
           ),
           body: NotificationListener<UserScrollNotification>(
             onNotification: (notification) {
-               if (notification.direction == ScrollDirection.reverse) {
-                  setState(() => homeProvider.invisible = true);
-                } else if (notification.direction == ScrollDirection.forward) {
-                  setState(() => homeProvider.invisible = false);
-                }
-                return true;
+              if (notification.direction == ScrollDirection.reverse) {
+                setState(() => homeProvider.invisible = true);
+              } else if (notification.direction == ScrollDirection.forward) {
+                setState(() => homeProvider.invisible = false);
+              }
+              return true;
             },
             child: _pages[homeProvider.currentIndex],
           ),
           bottomNavigationBar: homeProvider.invisible
               ? null
               : BottomNavigationBar(
+                  selectedItemColor: AppColors.primary,
                   useLegacyColorScheme: true,
                   currentIndex: homeProvider.currentIndex,
                   onTap: homeProvider.changeIndex,
-                  selectedItemColor: AppColors.primary,
-                  unselectedItemColor: AppColors.primary,
                   showSelectedLabels: true,
                   showUnselectedLabels: false,
                   iconSize: 20,

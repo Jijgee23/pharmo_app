@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
 class SellerOrders extends StatefulWidget {
@@ -11,9 +12,7 @@ class SellerOrders extends StatefulWidget {
 }
 
 class _SellerOrdersState extends State<SellerOrders> {
-  bool scrolling = false;
   late MyOrderProvider orderProvider;
-  List<SellerOrderModel> displayProducts = <SellerOrderModel>[];
   DateTime selectedDate = DateTime.now();
   DateTime selectedDate2 = DateTime.now();
   @override
@@ -120,90 +119,109 @@ class _SellerOrdersState extends State<SellerOrders> {
                 ),
               ),
               Expanded(
-                flex: 9,
-                child: ListView.builder(
-                  itemCount: provider.sellerOrders.length,
-                  itemBuilder: (context, index) {
-                    final order = provider.sellerOrders[index];
-                    String? process = provider.sellerOrders[index].process;
-                    String? status = provider.sellerOrders[index].status;
-                    return Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(width: 1, color: Colors.grey)),
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 2),
-                      child: ExpansionTile(
-                        tilePadding: EdgeInsets.zero,
-                        childrenPadding: const EdgeInsets.all(5),
-                        iconColor: AppColors.primary,
-                        title: ListTile(
-                          title: Text(
-                            '${order.user}',
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                          subtitle: Text('${order.id}, ${order.createdOn}',
-                              style: const TextStyle(color: Colors.black)),
-                          leading: Icon(
-                            Icons.circle,
-                            color: status == 'W'
-                                ? AppColors.failedColor
-                                : status == 'P'
-                                    ? AppColors.succesColor
-                                    : status == 'S'
-                                        ? AppColors.secondary
-                                        : AppColors.primary,
-                          ),
-                        ),
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: Column(
-                              children: [
-                                _infoRow(
-                                  'Явц:',
-                                  process == 'M'
-                                      ? 'Бэлтгэж эхэлсэн'
-                                      : process == 'N'
-                                          ? 'Шинэ'
-                                          : process == 'P'
-                                              ? 'Бэлэн болсон'
-                                              : process == 'A'
-                                                  ? 'Хүлээн авсан'
-                                                  : process == 'C'
-                                                      ? 'Хааллтай'
-                                                      : 'Буцаагдсан',
+                  flex: 9,
+                  child: provider.sellerOrders.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: provider.sellerOrders.length,
+                          itemBuilder: (context, index) {
+                            final order = provider.sellerOrders[index];
+                            String? process =
+                                provider.sellerOrders[index].process;
+                            String? status =
+                                provider.sellerOrders[index].status;
+                            return Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 2),
+                              child: ExpansionTile(
+                                tilePadding: const EdgeInsets.only(right: 10),
+                                childrenPadding: const EdgeInsets.all(5),
+                                iconColor: AppColors.primary,
+                                title: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.circle,
+                                        color: status == 'W'
+                                            ? AppColors.failedColor
+                                            : status == 'P'
+                                                ? AppColors.succesColor
+                                                : status == 'S'
+                                                    ? AppColors.secondary
+                                                    : AppColors.primary,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${order.user}',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text('${order.createdOn}',
+                                              style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 12)),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                _infoRow('Нийт барааны тоо ширхэг:',
-                                        order.totalCount.toString()) ??
-                                    '-',
-                                _infoRow('Нийт үнийн дүн:',
-                                        order.totalPrice.toString()) ??
-                                    '-',
-                                _infoRow('Qpay-ээр төлсөн эсэх:',
-                                    order.qp == true ? 'Тийм' : 'Үгүй'),
-                                _infoRow('Хаяг:', order.branch?.address ?? '-'),
-                                _infoRow('Дууссан огноо:',
-                                        order.endedOn ?? 'Дуусаагүй') ??
-                                    '-',
-                                _infoRow('Тайлбартай:',
-                                        order.note == true ? 'Тийм' : 'Үгүй') ??
-                                    '-',
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 5),
+                                    child: Column(
+                                      children: [
+                                        _infoRow(
+                                          'Явц:',
+                                          process == 'M'
+                                              ? 'Бэлтгэж эхэлсэн'
+                                              : process == 'N'
+                                                  ? 'Шинэ'
+                                                  : process == 'P'
+                                                      ? 'Бэлэн болсон'
+                                                      : process == 'A'
+                                                          ? 'Хүлээн авсан'
+                                                          : process == 'C'
+                                                              ? 'Хааллтай'
+                                                              : 'Буцаагдсан',
+                                        ),
+                                        _infoRow('Нийт барааны тоо ширхэг:',
+                                                order.totalCount.toString()) ??
+                                            '-',
+                                        _infoRow('Нийт үнийн дүн:',
+                                                order.totalPrice.toString()) ??
+                                            '-',
+                                        _infoRow('Qpay-ээр төлсөн эсэх:',
+                                            order.qp == true ? 'Тийм' : 'Үгүй'),
+                                        _infoRow('Хаяг:',
+                                            order.branch?.address ?? '-'),
+                                        _infoRow('Дууссан огноо:',
+                                                order.endedOn ?? 'Дуусаагүй') ??
+                                            '-',
+                                        _infoRow('Дугаар:',
+                                                order.id.toString()) ??
+                                            '-',
+                                        _infoRow(
+                                                'Тайлбартай:',
+                                                order.note == true
+                                                    ? 'Тийм'
+                                                    : 'Үгүй') ??
+                                            '-',
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                        )
+                      : const NoResult()),
             ],
           ),
         );

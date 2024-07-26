@@ -9,6 +9,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/others/product_widget.dart';
 import 'package:provider/provider.dart';
@@ -60,10 +61,11 @@ class _FilteredProductsState extends State<FilteredProducts> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: const ChevronBack(),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(widget.title, style: const TextStyle(color: Colors.black, fontSize: 20),),
+        title: Text(widget.title, style: const TextStyle(color: Colors.black, fontSize: 14),),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 15),
@@ -89,11 +91,10 @@ class _FilteredProductsState extends State<FilteredProducts> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: CustomScrollView(
           slivers: [
-            //
             PagedSliverGrid<int, dynamic>(
               showNewPageProgressIndicatorAsGridChild: false,
               showNewPageErrorIndicatorAsGridChild: false,
@@ -169,7 +170,7 @@ class _FilteredProductsState extends State<FilteredProducts> {
       }
     } catch (e) {
       showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа!',
           context: context);
     }
   }

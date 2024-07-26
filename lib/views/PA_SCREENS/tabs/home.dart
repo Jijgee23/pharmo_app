@@ -8,10 +8,12 @@ import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/PA_SCREENS/tabs/marked_promo.dart';
 import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -19,6 +21,7 @@ import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/others/product_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:badges/badges.dart' as badges;
 
 class Home extends StatefulWidget {
   const Home({
@@ -44,6 +47,7 @@ class _HomeState extends State<Home> {
   Supplier? selectedSupplier;
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
+  late PromotionProvider promotionProvider;
   Color selectedFilterColor = Colors.black;
   final List<Supplier> supList = <Supplier>[];
 
@@ -51,9 +55,11 @@ class _HomeState extends State<Home> {
   void initState() {
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
     _pagingController.addPageRequestListener(_handlePageRequest);
     super.initState();
     basketProvider.getBasket();
+    promotionProvider.getMarkedPromotion(context);
     getSuppliers(context);
   }
 
@@ -82,8 +88,8 @@ class _HomeState extends State<Home> {
         _pagingController.refresh();
         basketProvider.getBasket();
       }),
-      child: Consumer2<HomeProvider, BasketProvider>(
-        builder: (_, homeProvider, basketProvider, child) {
+      child: Consumer3<HomeProvider, BasketProvider, PromotionProvider>(
+        builder: (_, homeProvider, basketProvider, promotionProvider, child) {
           return CustomScrollView(
             slivers: [
               SliverAppBar(
@@ -93,10 +99,13 @@ class _HomeState extends State<Home> {
                   create: (context) => BasketProvider(),
                   child: DropdownButtonFormField<Supplier>(
                     decoration: const InputDecoration(
-                        contentPadding:
-                            EdgeInsetsDirectional.symmetric(horizontal: 20),
+                        contentPadding: EdgeInsetsDirectional.only(start: 20),
                         border: OutlineInputBorder(),
-                        hintText: 'Нийлүүлэгч сонгох'),
+                        hintText: 'Нийлүүлэгч сонгох',
+                        hintStyle: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                        )),
                     icon: const Icon(Icons.arrow_drop_down),
                     value: selectedSupplier,
                     onSaved: (newValue) {
@@ -164,7 +173,10 @@ class _HomeState extends State<Home> {
                         },
                         title: '$searchBarText хайх',
                         suffix: IconButton(
-                          icon: Image.asset('assets/icons/refresh.png', height: 24, width: 24,),
+                          icon: Image.asset(
+                            'assets/icons/swap1.png',
+                            width: 24,
+                          ),
                           onPressed: () {
                             showMenu(
                               context: context,
@@ -225,6 +237,61 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
+              SliverAppBar(
+                toolbarHeight: 70,
+                automaticallyImplyLeading: false,
+                title: Column(
+                  children: [
+                    const Text(
+                      'Онцлох урамшууллууд',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 5),
+                    SingleChildScrollView(
+                      child: Row(
+                          children: promotionProvider.markedPromotions
+                              .map(
+                                (promo) => GestureDetector(
+                                  onTap: () {
+                                    goto(MarkedPromoWidget(promo: promo), context);
+                                  },
+                                  child: badges.Badge(
+                                    onTap: () {
+                                      promotionProvider
+                                          .hidePromo(promo.id, context)
+                                          .then((e) => promotionProvider
+                                              .getMarkedPromotion(context));
+                                    },
+                                    badgeContent: Image.asset(
+                                      'assets/icons/remove.png',
+                                      height: 20,
+                                    ),
+                                    badgeStyle: const badges.BadgeStyle(
+                                      badgeColor: Colors.transparent,
+                                    ),
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 2),
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.grey.shade300),
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Text(
+                                        promo.name!,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList()),
+                    ),
+                  ],
+                ),
+              ),
               searching
                   ? !isList
                       ? _griview()
@@ -260,7 +327,12 @@ class _HomeState extends State<Home> {
             goto(ProductDetail(prod: item), context);
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
             width: double.infinity,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

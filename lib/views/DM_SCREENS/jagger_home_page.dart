@@ -61,11 +61,12 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
             context: context,
             removeTop: true,
             child: Drawer(
-              shape: const RoundedRectangleBorder(),
+              backgroundColor: Colors.white,
+              elevation: 0,
               width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
               child: ListView(
                 children: [
-                  CustomDrawerHeader(size: size),
+                  const CustomDrawerHeader(),
                   DrawerItem(
                     title: 'Захиалга',
                     asset: 'assets/icons/order.png',

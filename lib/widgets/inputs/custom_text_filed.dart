@@ -39,8 +39,14 @@ class CustomTextField extends StatelessWidget {
         keyboardType: keyboardType,
         cursorColor: Colors.black,
         decoration: InputDecoration(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 15,
+          ),
           labelText: hintText,
-          border: const OutlineInputBorder(),
+          labelStyle: TextStyle(color: Colors.grey.shade700, fontSize: 14.0),
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
           suffixIcon: suffixIcon,
         ),
         obscureText: obscureText ?? false,

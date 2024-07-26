@@ -1,15 +1,15 @@
 
 class Promotion {
-  int id;
-  String name;
+  int? id;
+  String? name;
   String? description;
   bool? isActive;
   bool? hasGift;
   String promoType;
   String? startDate;
   String? endDate;
-  String? total;
-  String? procent;
+  double? total;
+  double? procent;
   Promotion(this.id, this.name, this.description, this.isActive, this.hasGift,
       this.promoType, this.startDate, this.endDate, this.total, this.procent);
   Promotion.fromJson(Map<String, dynamic> json)

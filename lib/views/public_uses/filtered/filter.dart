@@ -79,7 +79,7 @@ class _FilterPageState extends State<FilterPage> {
     return SliverList.builder(
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.only(left: 30, top: 5),
+          padding: const EdgeInsets.only(left: 30, top: 3),
           child: GestureDetector(
             child: Text(
               homeProvider.categories[index].name,

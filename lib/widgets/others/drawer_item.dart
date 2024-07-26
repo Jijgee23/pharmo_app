@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 
 class DrawerItem extends StatelessWidget {
   final String title;
@@ -13,24 +14,23 @@ class DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Divider(
-            thickness: 1,
-            color: Colors.grey[300],
-          ),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12.5, horizontal: 20),
+        child: Row(
+          children: [
+            Image.asset(
+              asset,
+              height: 24,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Text(title, style: const TextStyle(color: AppColors.cleanBlack),),
+          ],
         ),
-        ListTile(
-          leading: Image.asset(
-            asset,
-            height: 24,
-          ),
-          title: Text(title),
-          onTap: onTap,
-        ),
-      ],
+      ),
     );
   }
 }

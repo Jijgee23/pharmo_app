@@ -44,10 +44,13 @@ class CustomSearchBar extends StatelessWidget {
           hintText: title,
           hintStyle: const TextStyle(height: 1),
           prefixIcon: Padding(
-            padding: const EdgeInsets.all(10.5),
+            padding: const EdgeInsets.all(12.5),
             child: Image.asset('assets/icons/search.png', width: 20,),
           ),
-          suffixIcon: suffix,
+          suffixIcon: Padding(
+            padding: const EdgeInsets.only(right: 5),
+            child: suffix,
+          ),
           prefix: prefix,
         ),
       ),
