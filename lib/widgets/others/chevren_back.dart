@@ -5,9 +5,10 @@ class ChevronBack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => Navigator.pop(context),
-      icon: const Icon(Icons.chevron_left),
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () => Navigator.pop(context),
+      child: const Icon(Icons.chevron_left),
     );
   }
 }

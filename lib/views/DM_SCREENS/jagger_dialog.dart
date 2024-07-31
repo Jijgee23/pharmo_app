@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/views/DM_SCREENS/tabs/jagger_home.dart';
 import 'package:pharmo_app/views/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/views/public_uses/suppliers/supplier_page.dart';
@@ -162,6 +163,7 @@ void showLogoutDialog(BuildContext context) {
         submitFunction: () {
           Provider.of<AuthController>(context, listen: false).logout(context);
           Provider.of<AuthController>(context, listen: false).toggleVisibile();
+          Provider.of<HomeProvider>(context, listen: false).changeIndex(0);
         },
         text: "Системээс гарахдаа итгэлтэй байна уу?",
         icon: Icons.logout_sharp,

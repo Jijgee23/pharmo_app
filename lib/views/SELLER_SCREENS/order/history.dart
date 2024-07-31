@@ -111,7 +111,7 @@ class _SellerCustomerOrderHisrtoryState
                             Text(
                               '${index + 1}.${provider.customeList[index].name}',
                               style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 14,
                                   color: provider.customeList[index].isBad
                                       ? Colors.red
                                       : provider.customeList[index].debt != 0 &&
@@ -123,8 +123,7 @@ class _SellerCustomerOrderHisrtoryState
                                                   provider.customeList[index]
                                                       .debtLimit
                                           ? AppColors.failedColor
-                                          : AppColors.primary,
-                                  fontWeight: FontWeight.bold),
+                                          : AppColors.primary,),
                             ),
                             GestureDetector(
                               onTap: () => goto(

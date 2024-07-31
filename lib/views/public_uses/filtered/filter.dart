@@ -1,12 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filtered/filtered_products.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class FilterPage extends StatefulWidget {
@@ -20,6 +18,7 @@ class _FilterPageState extends State<FilterPage> {
   List<String> filterList = ['Англилал', 'Үйлдвэрлэгчид', 'Нийлүүлэгчид'];
   int selectedFilter = 0;
   late HomeProvider homeProvider;
+  bool isExpanded = false;
 
   @override
   void initState() {
@@ -46,18 +45,24 @@ class _FilterPageState extends State<FilterPage> {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: filterList.map((e) {
-                    return TextButton(
-                      onPressed: () {
+                    return InkWell(
+                      splashColor: Colors.transparent,
+                      onTap: () {
                         setState(() {
                           selectedFilter = filterList.indexOf(e);
                         });
                       },
-                      child: Text(
-                        e,
-                        style: TextStyle(
-                            color: filterList.indexOf(e) == selectedFilter
-                                ? AppColors.succesColor
-                                : AppColors.primary),
+                      child: Row(
+                        children: [
+                          Text(
+                            e,
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: filterList.indexOf(e) == selectedFilter
+                                    ? AppColors.succesColor
+                                    : AppColors.primary),
+                          ),
+                        ],
                       ),
                     );
                   }).toList(),
@@ -78,22 +83,76 @@ class _FilterPageState extends State<FilterPage> {
   _categories() {
     return SliverList.builder(
       itemBuilder: (context, index) {
+        final cat = homeProvider.categories[index];
         return Padding(
-          padding: const EdgeInsets.only(left: 30, top: 3),
-          child: GestureDetector(
-            child: Text(
-              homeProvider.categories[index].name,
-              style: const TextStyle(
-                color: Colors.black,
-              ),
+          padding: const EdgeInsets.only(left: 30, top: 0),
+          child: InkWell(
+            splashColor: Colors.transparent,
+            child: Row(
+              children: [
+                Text(
+                  homeProvider.categories[index].name,
+                  style: const TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                cat.children!.isNotEmpty
+                    ? const Icon(Icons.chevron_right_rounded)
+                    : const SizedBox()
+              ],
             ),
             onTap: () {
-              goto(
-                  FilteredProducts(
-                      type: 'category',
-                      title: homeProvider.categories[index].name,
-                      filterKey: homeProvider.categories[index].id),
-                  context);
+              if (cat.children!.isNotEmpty) {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Dialog(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                          ),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: cat.children!
+                                  .map((e) => InkWell(
+                                        onTap: () {
+                                          print(e['children']);
+                                          // Navigator.pop(context);
+                                          // goto(
+                                          //     FilteredProducts(
+                                          //         type: 'category',
+                                          //         title: e['name'],
+                                          //         filterKey: e['id']),
+                                          //     context);
+                                        },
+                                        child: Container(
+                                            width: double.infinity,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 10),
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                    color:
+                                                        Colors.grey.shade600),
+                                              ),
+                                            ),
+                                            child:
+                                                Center(child: Text(e['name']))),
+                                      ))
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                      );
+                    });
+              } else {
+                goto(
+                    FilteredProducts(
+                        type: 'category',
+                        title: homeProvider.categories[index].name,
+                        filterKey: homeProvider.categories[index].id),
+                    context);
+              }
             },
           ),
         );
@@ -152,6 +211,7 @@ class _FilterPageState extends State<FilterPage> {
                 ),
               ),
               onTap: () {
+                print(homeProvider.vndrs[idx].id);
                 goto(
                     FilteredProducts(
                         type: 'vndr',
@@ -165,22 +225,5 @@ class _FilterPageState extends State<FilterPage> {
       },
       itemCount: homeProvider.vndrs.length,
     );
-  }
-
-  addBasket(int? id, int? itemnameId) async {
-    try {
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
-      Map<String, dynamic> res = await basketProvider.addBasket(
-          product_id: id, itemname_id: itemnameId, qty: 1);
-      if (res['errorType'] == 1) {
-        basketProvider.getBasket();
-        showSuccessMessage(message: res['message'], context: context);
-      } else {
-        showFailedMessage(message: res['message'], context: context);
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа', context: context);
-    }
   }
 }

@@ -24,7 +24,6 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   }
 
   DateTime selectedDate = DateTime.now();
-  // String date = DateTime.now().toString().substring(0, 10);
   String searchText = '-с өмнөх';
   String counter = '1';
   bool isStartDate = true;
@@ -32,53 +31,40 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
       TextEditingController(text: '1');
 
   void getWidget(String filter, String type, JaggerProvider provider) {
-    setState(() {
-      if (filter == 'Түгээгчээр') {
-        provider.getFilter(byDelman(provider, 12));
-      } else if (filter == 'Огноогоор') {
-        provider.getFilter(byDate());
-      } else if (filter == 'Захиалгын тоогоор') {
-        provider.changeType('ordersCnt');
-        provider.getFilter(byNumber(type));
-      } else if (filter == 'Явцын хувиар') {
-        provider.changeType('progress');
-        provider.getFilter(byNumber(type));
-      } else if (filter == 'Зарлагын дүнгээр') {
-        provider.changeType('expense');
-        provider.getFilter(byNumber(type));
-      }
-    });
-  }
+    // setState(() {
 
-  void setType(String filter, JaggerProvider provider) {
-    setState(() {
-      if (filter == 'Захиалгын тоогоор') {
-        if (provider.operator == '=') {
-          provider.changeType('ordersCnt');
-        } else if (provider.operator == '=<') {
-          provider.changeType('ordersCnt__gte');
-        } else if (provider.operator == '=>') {
-          provider.changeType('ordersCnt__lte');
-        }
-      } else if (filter == 'Явцын хувиар') {
-        if (provider.operator == '=') {
-          provider.changeType('progress');
-        } else if (provider.operator == '=<') {
-          provider.changeType('progress__gte');
-        } else if (provider.operator == '=<') {
-          provider.changeType('progress__lte');
-        }
-        //  provider.changeType('progress');
-      } else if (filter == 'Зарлагын дүнгээр') {
-        provider.changeType('expense');
-      }
-    });
-  }
-
-  void changeOperator(String opr, JaggerProvider provider) {
-    setState(() {
-      provider.changeOperator(opr);
-    });
+    if (filter == 'Огноогоор') {
+      provider.getFilter(byDate());
+    } else if (filter == 'Захиалгын тоогоор') {
+      // if (provider.operator == '=') {
+      //   provider.changeType('ordersCnt');
+      // } else if (provider.operator == '=>') {
+      //   provider.changeType('ordersCnt__gte');
+      // } else if (provider.operator == '=<') {
+      //   provider.changeType('ordersCnt__lte');
+      // }
+      provider.getFilter(byNumber(provider.type));
+    } else if (filter == 'Явцын хувиар') {
+      // if (provider.operator == '=') {
+      //   provider.changeType('progress');
+      // } else if (provider.operator == '=>') {
+      //   provider.changeType('progress__gte');
+      // } else if (provider.operator == '=<') {
+      //   provider.changeType('progress__lte');
+      // }
+      provider.getFilter(byNumber(provider.type));
+    } else if (filter == 'Зарлагын дүнгээр') {
+      // if (provider.operator == '=') {
+      //   provider.changeType('expense');
+      // } else if (provider.operator == '=>') {
+      //   provider.changeType('expense__gte');
+      // } else if (provider.operator == '=<') {
+      //   provider.changeType('expense__lte');
+      // }
+      provider.getFilter(byNumber(provider.type));
+      print('condition: ${provider.operator},type: ${provider.type}');
+    }
+    // });
   }
 
   @override
@@ -152,7 +138,32 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
                 }).toList(),
                 onChanged: (a) {
                   provider.changeFilter(a!);
-                  setType(a, provider);
+
+                  if (a == 'Захиалгын тоогоор') {
+                    if (provider.operator == '=') {
+                      provider.changeType('ordersCnt');
+                    } else if (provider.operator == '=>') {
+                      provider.changeType('ordersCnt__gte');
+                    } else if (provider.operator == '=<') {
+                      provider.changeType('ordersCnt__lte');
+                    }
+                  } else if (a == 'Явцын хувиар') {
+                    if (provider.operator == '=') {
+                      provider.changeType('progress');
+                    } else if (provider.operator == '=>') {
+                      provider.changeType('progress__gte');
+                    } else if (provider.operator == '=<') {
+                      provider.changeType('progress__lte');
+                    }
+                  } else if (a == 'Зарлагын дүнгээр') {
+                    if (provider.operator == '=') {
+                      provider.changeType('expense');
+                    } else if (provider.operator == '=>') {
+                      provider.changeType('expense__gte');
+                    } else if (provider.operator == '=<') {
+                      provider.changeType('expense__lte');
+                    }
+                  }
                   getWidget(a, provider.type, provider);
                 },
                 hint: Text(provider.filter,
@@ -200,7 +211,6 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
     );
     if (picked != null && picked != selectedDate) {
       setState(() {
-        //   date = picked.toString().substring(0, 10);
         selectedDate = picked;
         provider.selectDate(picked);
       });
@@ -247,7 +257,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
     );
   }
 
-  byNumber(String para) {
+  byNumber(String type) {
     return Consumer<JaggerProvider>(
       builder: (_, provider, child) => Row(
         children: [
@@ -265,118 +275,103 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
                 keyboardType: TextInputType.number,
                 onChanged: (v) => setState(() => counter = v),
                 decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(vertical: 10)),
+                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                ),
               ),
             ),
           ),
           const SizedBox(width: 10),
-          DropdownButtonHideUnderline(
-            child: DropdownButton(
-              items: provider.operators.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                var condition = provider.operator;
-                var filter = provider.filter;
-                changeOperator(newValue!, provider);
-                if (filter == 'Захиалгын тоогоор') {
-                  if (condition == '=') {
-                    para = 'ordersCnt';
-                  } else if (condition == '=<') {
-                    para = 'ordersCnt__gte';
-                  } else if (condition == '=>') {
-                    para = 'ordersCnt__lte';
-                  }
-                } else if (filter == 'Явцаар') {
-                  if (condition == '=') {
-                    para = 'progress';
-                  } else if (condition == '=<') {
-                    para = 'progress__gte';
-                  } else if (condition == '=>') {
-                    para = 'progress__lte';
-                  }
-                } else if (filter == 'Зарлагын дүнгээр') {
-                  if (condition == '=') {
-                    para = 'expense';
-                  } else if (condition == '=<') {
-                    para = 'expense__gte';
-                  } else if (condition == '=>') {
-                    para = 'expense__lte';
-                  }
-                }
-              },
-              hint: Text(provider.operator),
+          InkWell(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Text(
+                provider.operator,
+                style: const TextStyle(fontSize: 14),
+              ),
             ),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white,
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: provider.operators
+                              .map(
+                                (e) => InkWell(
+                                  onTap: () {
+                                    provider.changeOperator(e);
+                                    if (e == '=' &&
+                                        provider.filter ==
+                                            'Захиалгын тоогоор') {
+                                      provider.changeType('ordersCnt');
+                                    } else if (e == '=>' &&
+                                        provider.filter ==
+                                            'Захиалгын тоогоор') {
+                                      provider.changeType('ordersCnt__lte');
+                                    } else if (e == '=<' &&
+                                        provider.filter ==
+                                            'Захиалгын тоогоор') {
+                                      provider.changeType('ordersCnt__gte');
+                                    } else if (e == '=' &&
+                                        provider.filter == 'Явцын хувиар') {
+                                      provider.changeType('progress');
+                                    } else if (e == '=>' &&
+                                        provider.filter == 'Явцын хувиар') {
+                                      provider.changeType('progress__lte');
+                                    } else if (e == '=<' &&
+                                        provider.filter == 'Явцын хувиар') {
+                                      provider.changeType('progress__gte');
+                                    } else if (e == '=' &&
+                                        provider.filter == 'Зарлагын дүнгээр') {
+                                      provider.changeType('expense');
+                                    } else if (e == '=>' &&
+                                        provider.filter == 'Зарлагын дүнгээр') {
+                                      provider.changeType('expense__lte');
+                                    } else if (e == '=<' &&
+                                        provider.filter == 'Зарлагын дүнгээр') {
+                                      provider.changeType('expense__gte');
+                                    }
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.grey.shade300,
+                                        ),
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 15),
+                                    child: Center(child: Text(e)),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
           ),
           const SizedBox(width: 10),
           filterButton(() {
-            provider.filterShipment(para, counter);
+            provider.filterShipment(provider.type, counter);
           })
         ],
       ),
-    );
-  }
-
-  byDelman(JaggerProvider provider, int id) {
-    return Row(
-      children: [
-        Container(
-          height: 40,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: Colors.grey),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: DropdownButton(
-            underline: const SizedBox(),
-            items: <String>['Болд', 'Төмөр', 'Баj'].map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: (v) {
-              print(v);
-              provider.changeDelman(v!);
-            },
-            hint: Text(provider.delman,
-                style:
-                    const TextStyle(fontSize: 14, color: AppColors.cleanBlack)),
-          ),
-        ),
-        const SizedBox(width: 10),
-        filterButton(() => provider.filterShipment('delman', id.toString()))
-      ],
-    );
-  }
-
-  filterButton(VoidCallback onPressed) {
-    return OutlinedButton(
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(AppColors.secondary),
-      ),
-      onPressed: onPressed,
-      child: const Text(
-        'Шүүх',
-        style: TextStyle(color: Colors.white),
-      ),
-    );
-  }
-
-  _appBar() {
-    return AppBar(
-      leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.chevron_left)),
-      toolbarHeight: 30,
-      title: const Text(
-        'Түгээлтийн түүх',
-        style: TextStyle(fontSize: 14),
-      ),
-      centerTitle: true,
     );
   }
 
@@ -400,7 +395,10 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('${index + 1}. ${shipment.createdOn!}'),
-                Text(shipment.ordersCnt.toString()),
+                Text(
+                  shipment.expense != null ? shipment.expense.toString() : '-',
+                  style: const TextStyle(color: Colors.red),
+                ),
               ],
             ),
           ],
@@ -451,8 +449,8 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
                           ? shipment.ordersCnt.toString()
                           : '-'),
                       Text(shipment.progress != null
-                          ? shipment.progress.toString()
-                          : '-'),
+                          ? "${shipment.progress.toString()} %"
+                          : '0 %'),
                       Text(shipment.supplier != null
                           ? shipment.delman.toString()
                           : '-'),
@@ -488,6 +486,33 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
         ),
         child: Text(title),
       ),
+    );
+  }
+
+  filterButton(VoidCallback onPressed) {
+    return OutlinedButton(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(AppColors.secondary),
+      ),
+      onPressed: onPressed,
+      child: const Text(
+        'Шүүх',
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  _appBar() {
+    return AppBar(
+      leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.chevron_left)),
+      toolbarHeight: 30,
+      title: const Text(
+        'Түгээлтийн түүх',
+        style: TextStyle(fontSize: 14),
+      ),
+      centerTitle: true,
     );
   }
 }

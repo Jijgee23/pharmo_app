@@ -26,7 +26,6 @@ class CustomSearchBar extends StatelessWidget {
       height: 45,
       width: double.infinity,
       child: TextField(
-        cursorColor: Colors.black,
         keyboardType: keyboardType,
         controller: searchController,
         onChanged: onChanged,
@@ -45,12 +44,12 @@ class CustomSearchBar extends StatelessWidget {
           hintStyle: const TextStyle(height: 1),
           prefixIcon: Padding(
             padding: const EdgeInsets.all(12.5),
-            child: Image.asset('assets/icons/search.png', width: 20,),
+            child: Image.asset(
+              'assets/icons/search.png',
+              width: 20,
+            ),
           ),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 5),
-            child: suffix,
-          ),
+          suffixIcon: suffix,
           prefix: prefix,
         ),
       ),

@@ -20,12 +20,12 @@ class MyOrder extends StatefulWidget {
 
 class _MyOrderState extends State<MyOrder> {
   final Map<String, String> _filters = {
-    "": "",
-    "0": "Статусаар шүүх",
-    "1": "Явцаар шүүх",
-    "2": "Төлбөрийн хэлбэрээр шүүх",
-    "3": "Захиалсан салбараар шүүх",
-    "4": "Нийлүүлэгчээр шүүх",
+    "": "Шүүлтүүр сонгох",
+    "0": "Статус",
+    "1": "Явц",
+    "2": "Төлбөрийн хэлбэр",
+    "3": "Захиалсан салбар",
+    "4": "Нийлүүлэгч",
   };
 
   String _selectedItem = '';
@@ -108,7 +108,7 @@ class _MyOrderState extends State<MyOrder> {
       setState(() {
         if (_selectedFilter == '0') {
           _processess = {
-            "": "",
+            "": "Сонгох",
             "N": "Шинэ",
             "M": "Бэлтгэж эхэлсэн",
             "P": "Бэлэн болсон",
@@ -117,7 +117,7 @@ class _MyOrderState extends State<MyOrder> {
           };
         } else if (_selectedFilter == '1') {
           _processess = {
-            "": "",
+            "": "Сонгох",
             "W": "Төлбөр хүлээгдэж буй",
             "P": "Төлбөр хүлээгдсэн",
             "S": "Цуцлагдсан",
@@ -126,7 +126,7 @@ class _MyOrderState extends State<MyOrder> {
           };
         } else if (_selectedFilter == '2') {
           _processess = {
-            "": "",
+            "": "Сонгох",
             "C": "Бэлнээр",
             "L": "Зээлээр",
           };
@@ -186,6 +186,7 @@ class _MyOrderState extends State<MyOrder> {
         builder: (context, provider, _) {
           final orders = (provider.orders.isNotEmpty) ? provider.orders : null;
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
@@ -197,100 +198,129 @@ class _MyOrderState extends State<MyOrder> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        const Text('Шүүх төрлөө сонгоно уу : '),
-                        DropdownButton<String>(
-                          value: _selectedFilter,
-                          onChanged: (String? value) async {
-                            setState(() {
-                              _selectedFilter = value!;
-                              _selected = _filters[value]!;
-                            });
-                            await fillDropdown();
-                          },
-                          selectedItemBuilder: (BuildContext context) {
-                            return _filters.keys.map<Widget>(
-                              (String item) {
-                                return Container(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    _filters[item].toString(),
-                                    style: const TextStyle(color: Colors.blue),
-                                  ),
-                                );
-                              },
-                            ).toList();
-                          },
-                          items: _filters.keys
-                              .map<DropdownMenuItem<String>>((String item) {
-                            return DropdownMenuItem<String>(
-                              value: item,
-                              child: Text(_filters[item].toString()),
-                            );
-                          }).toList(),
+                        //const Text('Шүүх төрлөө сонгоно уу:'),
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color.fromRGBO(224, 224, 224, 1),
+                              ),
+                              borderRadius: BorderRadius.circular(5)),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: DropdownButton<String>(
+                            underline: const SizedBox(),
+                            value: _selectedFilter,
+                            onChanged: (String? value) async {
+                              setState(() {
+                                _selectedFilter = value!;
+                                _selected = _filters[value]!;
+                              });
+                              await fillDropdown();
+                            },
+                            selectedItemBuilder: (BuildContext context) {
+                              return _filters.keys.map<Widget>(
+                                (String item) {
+                                  return Container(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      _filters[item].toString(),
+                                      style: const TextStyle(
+                                          color: AppColors.main, fontSize: 14),
+                                    ),
+                                  );
+                                },
+                              ).toList();
+                            },
+                            items: _filters.keys
+                                .map<DropdownMenuItem<String>>((String item) {
+                              return DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(_filters[item].toString()),
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(_selected),
-                            DropdownButton<String>(
-                              value: _selectedItem,
-                              onChanged: (String? value) {
-                                setState(() => _selectedItem = value!);
-                              },
-                              selectedItemBuilder: (BuildContext context) {
-                                return _processess.keys
-                                    .map<Widget>((String item) {
-                                  return Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      _processess[item].toString(),
-                                      style:
-                                          const TextStyle(color: Colors.blue),
+                    //  Text('$_selected сонгоно уу:'),
+                    _selectedFilter != ''
+                        ? Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: const Color.fromRGBO(
+                                                224, 224, 224, 1),
+                                          ),
+                                          borderRadius: BorderRadius.circular(5)),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      child: DropdownButton<String>(
+                                        value: _selectedItem,
+                                        underline: const SizedBox(),
+                                        onChanged: (String? value) {
+                                          setState(() => _selectedItem = value!);
+                                        },
+                                        selectedItemBuilder:
+                                            (BuildContext context) {
+                                          return _processess.keys
+                                              .map<Widget>((String item) {
+                                            return Container(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                _processess[item].toString(),
+                                                style: const TextStyle(
+                                                    color: AppColors.main,
+                                                    fontSize: 14),
+                                              ),
+                                            );
+                                          }).toList();
+                                        },
+                                        items: _processess.keys
+                                            .map<DropdownMenuItem<String>>(
+                                          (String item) {
+                                            return DropdownMenuItem<String>(
+                                              value: item,
+                                              child: Text(
+                                                _processess[item].toString(),
+                                              ),
+                                            );
+                                          },
+                                        ).toList(),
+                                      ),
                                     ),
-                                  );
-                                }).toList();
-                              },
-                              items: _processess.keys
-                                  .map<DropdownMenuItem<String>>(
-                                (String item) {
-                                  return DropdownMenuItem<String>(
-                                    value: item,
-                                    child: Text(
-                                      _processess[item].toString(),
-                                    ),
-                                  );
-                                },
-                              ).toList(),
+                                  ],
+                                ),
+                                OutlinedButton.icon(
+                                  onPressed: () {
+                                    filterOrders();
+                                  },
+                                  icon: const Icon(
+                                    Icons.filter_alt,
+                                    color: Colors.white,
+                                  ),
+                                  label: const Text(
+                                    'Шүүх',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.main,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            filterOrders();
-                          },
-                          icon: const Icon(
-                            Icons.filter_alt,
-                            color: Colors.white,
-                          ),
-                          label: const Text(
-                            'Шүүх',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
-                          ),
-                        ),
-                      ],
-                    )
+                        )
+                        : const SizedBox(),
                   ],
                 ),
               ),
@@ -302,159 +332,110 @@ class _MyOrderState extends State<MyOrder> {
                       ? ListView.builder(
                           itemCount: orders.length,
                           itemBuilder: (context, index) {
-                            return Card(
-                              child: InkWell(
-                                onTap: () async => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MyOrderDetail(
-                                        orderId: orders[index].id,
-                                      ),
+                            return InkWell(
+                              onTap: () async => {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MyOrderDetail(
+                                      orderId: orders[index].id,
                                     ),
                                   ),
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      RichText(
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        text: TextSpan(
-                                          text: 'Захиалгын дугаар : ',
-                                          style: TextStyle(
-                                              color: Colors.blueGrey.shade800,
-                                              fontSize: 13.0),
+                                ),
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.grey.shade300,
+                                    )),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 15),
+                                margin: const EdgeInsets.all(10),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            TextSpan(
-                                              text: orders[index]
-                                                  .orderNo
-                                                  .toString(),
+                                            Text('Захиалгын дугаар:'),
+                                            Text('Захиалгын төлөв:'),
+                                            Text('Тоо ширхэг:'),
+                                            Text('Нийт үнэ:'),
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              orders[index].orderNo.toString(),
                                               style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 16.0,
+                                                  color: Colors.red),
+                                            ),
+                                            Text(
+                                                orders[index].status.toString(),
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppColors.mainDark)),
+                                            Text(
+                                                orders[index]
+                                                    .totalCount
+                                                    .toString(),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                )),
+                                            Text(
+                                              '${orders[index].totalPrice} ₮',
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
                                                   color: Colors.red),
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          RichText(
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            text: TextSpan(
-                                              text: 'Төлөв : ',
-                                              style: TextStyle(
-                                                  color:
-                                                      Colors.blueGrey.shade800,
-                                                  fontSize: 13.0),
-                                              children: [
-                                                TextSpan(
-                                                  text: orders[index].status,
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16.0,
-                                                      color: Colors.amber),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          RichText(
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            text: TextSpan(
-                                              text: 'Тоо ширхэг : ',
-                                              style: TextStyle(
-                                                  color:
-                                                      Colors.blueGrey.shade800,
-                                                  fontSize: 13.0),
-                                              children: [
-                                                TextSpan(
-                                                  text: orders[index]
-                                                      .totalCount
-                                                      .toString(),
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16.0),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          RichText(
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            text: TextSpan(
-                                              text: 'Нийт үнэ : ',
-                                              style: TextStyle(
-                                                  color:
-                                                      Colors.blueGrey.shade800,
-                                                  fontSize: 13.0),
-                                              children: [
-                                                TextSpan(
-                                                  text:
-                                                      '${orders[index].totalPrice} ₮',
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16.0,
-                                                      color: Colors.red),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: 7,
-                                      ),
-                                      (orders[index].process ==
-                                                  'Хүргэлтэнд гарсан' ||
-                                              orders[index].address == null)
-                                          ? Center(
-                                              child: OutlinedButton.icon(
-                                                onPressed: () {
-                                                  confirmOrder(
-                                                      orders[index].id);
-                                                },
-                                                icon: const Icon(
-                                                  Icons.done,
-                                                  color: Colors.white,
-                                                ),
-                                                label: const Text(
-                                                  'Баталгаажуулах',
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    (orders[index].process ==
+                                                'Хүргэлтэнд гарсан' ||
+                                            orders[index].address == null)
+                                        ? InkWell(
+                                            onTap: () =>
+                                                confirmOrder(orders[index].id),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: AppColors.main,
+                                                  border: Border.all(
+                                                    color: Colors.grey.shade300,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 5),
+                                              child: const Center(
+                                                child: Text(
+                                                  'Батлагаажуулах',
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                 ),
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      AppColors.primary,
-                                                ),
                                               ),
-                                            )
-                                          : const SizedBox(),
-                                    ],
-                                  ),
+                                            ),
+                                          )
+                                        : const SizedBox(),
+                                  ],
                                 ),
                               ),
                             );
@@ -503,9 +484,7 @@ class _MyOrderState extends State<MyOrder> {
                     errorText: provider.amountVal.error,
                     isNumber: true,
                   ),
-                  const SizedBox(
-                    height: 15,
-                  ),
+                  const SizedBox(height: 15),
                   CustomTextFieldIcon(
                     hintText: "Тайлбар оруулна уу...",
                     prefixIconData: const Icon(Icons.comment_outlined),

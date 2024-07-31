@@ -159,7 +159,6 @@ class AuthController extends ChangeNotifier {
       );
       if (responseLogin.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(responseLogin.body);
-
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', res['access_token']);
         String? accessToken = prefs.getString('access_token').toString();
@@ -169,11 +168,10 @@ class AuthController extends ChangeNotifier {
         await prefs.setString('useremail', decodedToken['email']);
         await prefs.setInt('user_id', decodedToken['user_id']);
         await prefs.setString('userrole', decodedToken['role']);
-        await prefs.setInt('supplierId', decodedToken['supplier']);
+        await prefs.setInt('suppID', decodedToken['supplier']);
         final shoppingCart =
             Provider.of<BasketProvider>(context, listen: false);
         shoppingCart.getBasket();
-        // await prefs.setString('basket_count', count.toString());
         Hive.box('auth').put('role', decodedToken['role']);
         notifyListeners();
         if (decodedToken['role'] == 'S') {

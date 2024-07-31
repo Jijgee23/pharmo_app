@@ -5,7 +5,7 @@ class Shipment {
   double? lon;
   double? lat;
   int? ordersCnt;
-  String? progress;
+  int? progress;
   String? createdOn;
   int? supplier;
   int? delman;

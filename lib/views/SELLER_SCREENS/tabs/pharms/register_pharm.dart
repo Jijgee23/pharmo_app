@@ -1,16 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/models/address.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
@@ -38,6 +33,8 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController detailedController = TextEditingController();
+  final bd = BoxDecoration(
+      borderRadius: BorderRadius.circular(10), color: Colors.white);
 
   @override
   void initState() {
@@ -111,77 +108,13 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                   style: TextStyle(fontSize: 16),
                 ),
                 a,
-                DropdownButtonFormField<Province>(
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                    label: const Text('Аймаг/Хот '),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onChanged: (newValue) {
-                    addressProvider.districts.clear();
-                    if (newValue != null) {
-                      addressProvider.getDistrictId(newValue.id, context);
-                    }
-                  },
-                  items: addressProvider.provinces
-                      .map<DropdownMenuItem<Province>>((Province province) {
-                    return DropdownMenuItem<Province>(
-                      value: province,
-                      child: Text(province.name, style: style),
-                    );
-                  }).toList(),
-                ),
+                provinceSelection(
+                    context, addressProvider, addressProvider.province, style),
                 a,
-                DropdownButtonFormField<District>(
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  hint: const Text('Сум/Дүүрэг '),
-                  onChanged: (newValue) {
-                    if (newValue != null) {
-                      addressProvider.getKhoroo(newValue.id, context);
-                    }
-                  },
-                  items: addressProvider.districts
-                      .map<DropdownMenuItem<District>>((District district) {
-                    return DropdownMenuItem<District>(
-                      value: district,
-                      child: Text(
-                        district.ner,
-                        style: style,
-                      ),
-                    );
-                  }).toList(),
-                ),
+                districtSelection(
+                    context, addressProvider, addressProvider.district, style),
                 a,
-                DropdownButtonFormField<Khoroo>(
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  hint: const Text('Баг/Хороо '),
-                  onChanged: (newValue) {
-                    setState(() {
-                      provinceId = newValue!.aimag;
-                      districtId = newValue.sum;
-                      khorooId = newValue.id;
-                    });
-                  },
-                  items: addressProvider.khoroos
-                      .map<DropdownMenuItem<Khoroo>>((Khoroo khoroo) {
-                    return DropdownMenuItem<Khoroo>(
-                      value: khoroo,
-                      child: Text(khoroo.ner, style: style),
-                    );
-                  }).toList(),
-                ),
+                khoroo(context, addressProvider, addressProvider.khoroo, style),
                 a,
                 const Text(
                   'Тайлбар:',
@@ -208,45 +141,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                 a,
                 CustomButton(
                   text: 'Бүртгэх',
-                  ontap: () {
-                    if (cNameController.text.isEmpty) {
-                      showFailedMessage(
-                          message: 'Байгууллагын нэрээ оруулна уу.',
-                          context: context);
-                    }
-                    if (cRdController.text.isEmpty) {
-                      showFailedMessage(
-                          message: 'Байгууллагын рд оруулна уу.',
-                          context: context);
-                    }
-                    if (emailController.text.isEmpty) {
-                      showFailedMessage(
-                          message: 'Имейл хаяг оруулна уу.', context: context);
-                    }
-                    if (phoneController.text.isEmpty) {
-                      showFailedMessage(
-                          message: 'Утасны дугаар оруулна уу.',
-                          context: context);
-                    }
-                    if (provinceId == 0) {
-                      showFailedMessage(
-                          message: 'Аймаг/Хот сонгоно уу.', context: context);
-                    }
-                    if (districtId == 0) {
-                      showFailedMessage(
-                          message: 'Сум/Дүүрэг сонгоно уу.', context: context);
-                    }
-                    if (provinceId == 0) {
-                      showFailedMessage(
-                          message: 'Баг/Хороо сонгоно уу.', context: context);
-                    }
-                    if (detailedController.text.isEmpty) {
-                      showFailedMessage(
-                          message: 'Тайлбар оруулна уу.', context: context);
-                    } else {
-                      registerPharm();
-                    }
-                  },
+                  ontap: () => registerPharm(context),
                 ),
               ],
             ),
@@ -256,8 +151,193 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     });
   }
 
-  registerPharm() async {
+  provinceSelection(BuildContext context, AddressProvider addressProvider,
+      String text, TextStyle style) {
+    return GestureDetector(
+      onTap: () => showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            child: Container(
+              decoration: bd,
+              height: 300,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: addressProvider.provinces
+                      .map((e) => InkWell(
+                            onTap: () {
+                              addressProvider.getDistrictId(e.id, context);
+                              addressProvider.setProvince(e.name);
+                              addressProvider.setProvinceId(e.id);
+                              Navigator.pop(context);
+                              setState(() => provinceId = e.id);
+                            },
+                            child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 15),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(e.name)),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade700),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(text, style: style),
+            const Icon(Icons.arrow_drop_down)
+          ],
+        ),
+      ),
+    );
+  }
+
+  districtSelection(BuildContext context, AddressProvider addressProvider,
+      String text, TextStyle style) {
+    return GestureDetector(
+      onTap: () => showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            child: Container(
+              decoration: bd,
+              height: 300,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: addressProvider.districts
+                      .map((e) => InkWell(
+                            onTap: () {
+                              addressProvider.getKhoroo(e.id, context);
+                              addressProvider.setDistrict(e.ner);
+                              addressProvider.setDistrictId(e.id);
+                              setState(() => districtId = e.id);
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 15),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(e.ner)),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade700),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(text, style: style),
+            const Icon(Icons.arrow_drop_down)
+          ],
+        ),
+      ),
+    );
+  }
+
+  khoroo(BuildContext context, AddressProvider addressProvider, String text,
+      TextStyle style) {
+    return GestureDetector(
+      onTap: () => showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            child: Container(
+              decoration: bd,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: addressProvider.khoroos
+                      .map((e) => InkWell(
+                            onTap: () {
+                              addressProvider.setKhoroo(e.ner);
+                              addressProvider.setKhorooId(e.id);
+                              setState(() => khorooId = e.id);
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 15),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(e.ner)),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade700),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(text, style: style),
+            const Icon(Icons.arrow_drop_down)
+          ],
+        ),
+      ),
+    );
+  }
+
+  registerPharm(BuildContext context) async {
     try {
+      // print('lat: ${homeProvider.currentLatitude}');
+      // print('lon: ${homeProvider.currentLongitude}');
+      // print('provinceId: $provinceId');
+      // print('districtId: $districtId');
+      // print('khorooId: $khorooId');
+      // print('cNameController.text: ${cNameController.text}');
+      // print('cRdController.text: ${cRdController.text}');
+      // print('emailController.text: ${emailController.text}');
+      // print('phoneController.text: ${phoneController.text}');
+      // print('detailedController.text: ${detailedController.text}');
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
       final response = await http.post(
@@ -292,10 +372,10 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         showSuccessMessage(message: 'Амжилттай бүртгэгдлээ.', context: context);
         goto(const SellerHomePage(), context);
       } else {
-        showFailedMessage(message: 'Бүртгэл амжилтгүй.', context: context);
+        // showFailedMessage(message: 'Бүртгэл амжилтгүй.', context: context);
       }
     } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+      //showFailedMessage(message: 'Алдаа гарлаа.', context: context);
     }
   }
 

@@ -12,11 +12,16 @@ import 'dart:convert';
 class PromotionProvider extends ChangeNotifier {
   List<Promotion> promotions = <Promotion>[];
   List<MarkedPromo> markedPromotions = <MarkedPromo>[];
-  final List<String> filterTypes = [
-    'promo_type',
-    'has_gift',
-    'end_date',
-  ];
+  MarkedPromo promoDetail = MarkedPromo();
+  void setMarkedPromo(MarkedPromo v) {
+    promoDetail = v;
+    notifyListeners();
+  }
+
+  void clearPromoDetail() {
+    promoDetail = MarkedPromo();
+    notifyListeners();
+  }
 
   getPromotion() async {
     try {
@@ -26,17 +31,36 @@ class PromotionProvider extends ChangeNotifier {
           headers: {'Authorization': bearerToken});
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
+        promotions.clear();
         List<dynamic> promos = res['results'];
-        // debugPrint('PROMOS: $promos');
         promotions = (promos).map((data) => Promotion.fromJson(data)).toList();
         notifyListeners();
       }
     } catch (e) {
-      debugPrint('ERROR: ${e.toString()}');
+      debugPrint('ERROR AT PROMO: ${e.toString()}');
     }
   }
 
-  getMarkedPromotion(BuildContext context) async {
+  getDetail(int promoId) async {
+    try {
+      String bearerToken = await getAccessToken();
+      final response = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}get_promos/$promoId/'),
+          headers: {'Authorization': bearerToken});
+      if (response.statusCode == 200) {
+        Map<String, dynamic> p = jsonDecode(utf8.decode(response.bodyBytes));
+        MarkedPromo mp = MarkedPromo.fromJson(p);
+        clearPromoDetail();
+        setMarkedPromo(mp);
+        notifyListeners();
+        return mp;
+      }
+    } catch (e) {
+      debugPrint('ERROR AT PROMO: ${e.toString()}');
+    }
+  }
+
+  getMarkedPromotion() async {
     try {
       String bearerToken = await getAccessToken();
       final response = await http.get(
@@ -44,13 +68,16 @@ class PromotionProvider extends ChangeNotifier {
           headers: {'Authorization': bearerToken});
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-        debugPrint('MARKED PROMOS: ${res[0]['bundle']}');
+        markedPromotions.clear();
         markedPromotions =
             (res).map((data) => MarkedPromo.fromJson(data)).toList();
         notifyListeners();
-      } else if (response.statusCode == 204) {}
+      } else if (response.statusCode == 204) {
+        markedPromotions.clear();
+        notifyListeners();
+      }
     } catch (e) {
-      debugPrint('ERROR: ${e.toString()}');
+      debugPrint('ERROR AT MPROMO: ${e.toString()}');
     }
   }
 
@@ -63,7 +90,6 @@ class PromotionProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> pro = res['results'];
-        // debugPrint('FILTERED PROMOS: $pro');
         promotions.clear();
         promotions = (pro).map((data) => Promotion.fromJson(data)).toList();
         notifyListeners();

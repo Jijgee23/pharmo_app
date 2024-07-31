@@ -183,7 +183,6 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   onTap: homeProvider.changeIndex,
                   showSelectedLabels: true,
                   showUnselectedLabels: false,
-                  iconSize: 20,
                   type: BottomNavigationBarType.fixed,
                   items: [
                     BottomNavigationBarItem(

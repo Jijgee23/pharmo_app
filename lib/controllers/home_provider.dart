@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/models/filters.dart';
 import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +19,7 @@ class HomeProvider extends ChangeNotifier {
   int currentIndex = 0;
   bool invisible = false;
   String selectedCustomerName = '';
+
   int selectedCustomerId = 0;
   String? userEmail;
   String? userRole;
@@ -40,8 +42,17 @@ class HomeProvider extends ChangeNotifier {
   List<Filters> categories = <Filters>[];
   List<Manufacturer> mnfrs = <Manufacturer>[];
   List<Manufacturer> vndrs = <Manufacturer>[];
-  
+  late Map<String, dynamic> _userInfo;
+  Map<String, dynamic> get userInfo => _userInfo;
+  final List<Supplier> _supList = <Supplier>[];
+  List<Supplier> get supList => _supList;
+  String _supName = 'Нийлүүлэгч сонгох';
+  String get supName => _supName;
 
+  changeSupName(String name) async {
+    _supName = name;
+    notifyListeners();
+  }
 
   changeIndex(int index) {
     currentIndex = index;
@@ -70,12 +81,11 @@ class HomeProvider extends ChangeNotifier {
         Uri.parse('${dotenv.env['SERVER_URL']}product/filters/'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $accestoken',
+          'Authorization': accestoken,
         },
       );
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-
         categories = (res['cats'] as List)
             .map((data) => Filters.fromJson(data))
             .toList();
@@ -94,9 +104,7 @@ class HomeProvider extends ChangeNotifier {
 
   filter(String type, int filters, int page, int pageSize) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
+      final bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse(
               '${dotenv.env['SERVER_URL']}products/?$type=[$filters]&page=$page&page_size=$pageSize'),
@@ -118,9 +126,7 @@ class HomeProvider extends ChangeNotifier {
 
   filterCate(int filters, int page, int pageSize) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
+      final bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse(
               '${dotenv.env['SERVER_URL']}products/?category=$filters&page=$page&page_size=$pageSize'),
@@ -137,6 +143,61 @@ class HomeProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint(e.toString());
+    }
+  }
+
+  getSuppliers() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+       final accestoken = await getAccessToken();
+      int? id = prefs.getInt('suppID');
+      final response = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': accestoken,
+          });
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        _supList.clear();
+        res.forEach((key, value) {
+          var model = Supplier(key, value);
+          if (int.parse(model.id) == id) {
+            changeSupName(model.name);
+          }
+          _supList.add(model);
+        });
+        notifyListeners();
+      } else {
+        debugPrint('Түр хүлээгээд дахин оролдоно уу!');
+        // showFailedMessage(
+        //     message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+      }
+    } catch (e) {
+      debugPrint('SERVER ERROR: $e');
+      //showFailedMessage(message: 'Админтай холбогдоно уу', context: context);
+    }
+  }
+
+  pickSupplier(int supId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final accestoken = await getAccessToken();
+    final response =
+        await http.post(Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': accestoken,
+            },
+            body: jsonEncode({'supplierId': supId}));
+    if (response.statusCode == 200) {
+      Map<String, dynamic> res = jsonDecode(response.body);
+      await prefs.setString('access_token', res['access_token']);
+      await prefs.setString('refresh_token', res['refresh_token']);
+      await prefs.setInt('picked_suplier', res['id']);
+    } else if (response.statusCode == 403) {
+      debugPrint('PERMISSION DENIED');
+    } else {
+      debugPrint('SERVER ERROR');
     }
   }
 
@@ -161,7 +222,7 @@ class HomeProvider extends ChangeNotifier {
       Uri.parse('${dotenv.env['SERVER_URL']}get_basket/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $accestoken',
+        'Authorization': accestoken,
       },
     );
     final res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -178,7 +239,7 @@ class HomeProvider extends ChangeNotifier {
           Uri.parse('${dotenv.env['SERVER_URL']}seller/customer_branch/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $accestoken',
+            'Authorization': accestoken,
           },
           body: jsonEncode({'customerId': selectedCustomerId}));
       branchList.clear();
@@ -196,7 +257,6 @@ class HomeProvider extends ChangeNotifier {
 
   Future<Map<String, String>> getDeviceInfo() async {
     final accestoken = await getAccessToken();
-    String bearerToken = "Bearer $accestoken";
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
     try {
@@ -227,7 +287,7 @@ class HomeProvider extends ChangeNotifier {
           await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
               headers: <String, String>{
                 'Content-Type': 'application/json; charset=UTF-8',
-                'Authorization': bearerToken,
+                'Authorization': accestoken,
               },
               body: jsonEncode({
                 'deviceId': deviceData['deviceId'],
@@ -272,12 +332,12 @@ class HomeProvider extends ChangeNotifier {
 
   searchByLocation(BuildContext context) async {
     try {
-      final accestoken = await getAccessToken();
+      final token = await getAccessToken();
       final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}seller/search_by_location/'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $accestoken',
+            'Authorization': token,
           },
           body: jsonEncode({
             'lat': currentLatitude,
@@ -315,11 +375,10 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  
-
   getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
-    return token;
+    String bearerToken = "Bearer $token";
+    return bearerToken;
   }
 }

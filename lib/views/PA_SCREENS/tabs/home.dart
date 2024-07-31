@@ -11,17 +11,17 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/controllers/search_provider.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/models/supplier.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/PA_SCREENS/tabs/marked_promo.dart';
 import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
-import 'package:pharmo_app/widgets/others/product_widget.dart';
+import 'package:pharmo_app/widgets/product/product_widget.dart';
+import 'package:pharmo_app/widgets/product/product_widget_list.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:badges/badges.dart' as badges;
 
 class Home extends StatefulWidget {
   const Home({
@@ -40,29 +40,23 @@ class _HomeState extends State<Home> {
   String? searchQuery = '';
   bool searching = false;
   final TextEditingController _searchController = TextEditingController();
-  List<Product> displayProducts = <Product>[];
   IconData viewIcon = Icons.grid_view;
   String searchBarText = 'Нэрээр';
   String type = 'name';
-  Supplier? selectedSupplier;
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
   late PromotionProvider promotionProvider;
-  Color selectedFilterColor = Colors.black;
-  final List<Supplier> supList = <Supplier>[];
 
   @override
   void initState() {
+    super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
     _pagingController.addPageRequestListener(_handlePageRequest);
-    super.initState();
     basketProvider.getBasket();
-    promotionProvider.getMarkedPromotion(context);
-    getSuppliers(context);
+    promotionProvider.getMarkedPromotion();
   }
-
   void _handlePageRequest(int pageKey) {
     if (!searching) {
       _fetchPage(pageKey);
@@ -77,7 +71,10 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
-  void refresh() {
+  void refresh() async {
+    basketProvider.getBasket();
+    await homeProvider.getFilters();
+    await promotionProvider.getMarkedPromotion();
     _pagingController.refresh();
   }
 
@@ -85,8 +82,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () => Future.sync(() {
-        _pagingController.refresh();
-        basketProvider.getBasket();
+        refresh();
       }),
       child: Consumer3<HomeProvider, BasketProvider, PromotionProvider>(
         builder: (_, homeProvider, basketProvider, promotionProvider, child) {
@@ -94,41 +90,33 @@ class _HomeState extends State<Home> {
             slivers: [
               SliverAppBar(
                 automaticallyImplyLeading: false,
-                centerTitle: true,
                 title: ChangeNotifierProvider(
                   create: (context) => BasketProvider(),
-                  child: DropdownButtonFormField<Supplier>(
-                    decoration: const InputDecoration(
-                        contentPadding: EdgeInsetsDirectional.only(start: 20),
-                        border: OutlineInputBorder(),
-                        hintText: 'Нийлүүлэгч сонгох',
-                        hintStyle: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
-                        )),
-                    icon: const Icon(Icons.arrow_drop_down),
-                    value: selectedSupplier,
-                    onSaved: (newValue) {
-                      _pagingController.refresh();
+                  child: InkWell(
+                    onTap: () {
+                      _picksupp(context, homeProvider, basketProvider);
                     },
-                    onChanged: (Supplier? newValue) {
-                      pickSupplier(int.parse(newValue!.id));
-                      homeProvider.getFilters();
-                      basketProvider.getBasket();
-                      refresh();
-                    },
-                    items: supList
-                        .map<DropdownMenuItem<Supplier>>((Supplier supplier) {
-                      return DropdownMenuItem<Supplier>(
-                        value: supplier,
-                        child: Text(
-                          supplier.name,
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.normal),
-                        ),
-                      );
-                    }).toList(),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey.shade300,
+                          ),
+                          borderRadius: BorderRadius.circular(5)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            homeProvider.supName,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const Icon(Icons.keyboard_double_arrow_down_sharp)
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -173,10 +161,7 @@ class _HomeState extends State<Home> {
                         },
                         title: '$searchBarText хайх',
                         suffix: IconButton(
-                          icon: Image.asset(
-                            'assets/icons/swap1.png',
-                            width: 24,
-                          ),
+                          icon: const Icon(Icons.arrow_drop_down),
                           onPressed: () {
                             showMenu(
                               context: context,
@@ -237,61 +222,75 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
-              SliverAppBar(
-                toolbarHeight: 70,
-                automaticallyImplyLeading: false,
-                title: Column(
-                  children: [
-                    const Text(
-                      'Онцлох урамшууллууд',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 5),
-                    SingleChildScrollView(
-                      child: Row(
-                          children: promotionProvider.markedPromotions
-                              .map(
-                                (promo) => GestureDetector(
-                                  onTap: () {
-                                    goto(MarkedPromoWidget(promo: promo), context);
-                                  },
-                                  child: badges.Badge(
-                                    onTap: () {
-                                      promotionProvider
-                                          .hidePromo(promo.id, context)
-                                          .then((e) => promotionProvider
-                                              .getMarkedPromotion(context));
-                                    },
-                                    badgeContent: Image.asset(
-                                      'assets/icons/remove.png',
-                                      height: 20,
-                                    ),
-                                    badgeStyle: const badges.BadgeStyle(
-                                      badgeColor: Colors.transparent,
-                                    ),
-                                    child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 2),
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                              color: Colors.grey.shade300),
-                                          borderRadius:
-                                              BorderRadius.circular(20)),
-                                      child: Text(
-                                        promo.name!,
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList()),
-                    ),
-                  ],
-                ),
-              ),
+              promotionProvider.markedPromotions.isNotEmpty == true
+                  ? SliverAppBar(
+                      toolbarHeight: 70,
+                      automaticallyImplyLeading: false,
+                      title: Column(
+                        children: [
+                          const Text(
+                            'Онцлох урамшууллууд',
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 5),
+                          SingleChildScrollView(
+                            child: Row(
+                                children: promotionProvider.markedPromotions
+                                    .map(
+                                      (promo) => GestureDetector(
+                                          onTap: () => goto(
+                                              MarkedPromoWidget(promo: promo),
+                                              context),
+                                          child: Stack(
+                                              fit: StackFit.loose,
+                                              children: [
+                                                Positioned(
+                                                  right: 3,
+                                                  top: -4,
+                                                  child: InkWell(
+                                                    onTap: () => promotionProvider
+                                                        .hidePromo(
+                                                            promo.id!, context)
+                                                        .then((e) =>
+                                                            promotionProvider
+                                                                .getMarkedPromotion()),
+                                                    child: Icon(
+                                                      Icons.close_rounded,
+                                                      color:
+                                                          Colors.red.shade600,
+                                                      size: 16,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Container(
+                                                    margin: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 2),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                            color:
+                                                                AppColors.main),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20)),
+                                                    child: Text(promo.name!,
+                                                        style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: AppColors
+                                                                .secondary)))
+                                              ])),
+                                    )
+                                    .toList()),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SliverAppBar(toolbarHeight: 0),
               searching
                   ? !isList
                       ? _griview()
@@ -306,74 +305,67 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Future<dynamic> _picksupp(BuildContext context, HomeProvider homeProvider,
+      BasketProvider basketProvider) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: homeProvider.supList
+                        .map((e) => InkWell(
+                              onTap: () {
+                                homeProvider.pickSupplier(int.parse(e.id));
+                                basketProvider.getBasket();
+                                homeProvider.changeSupName(e.name);
+                                refresh();
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 10),
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                    bottom:
+                                        BorderSide(color: Colors.grey.shade300),
+                                  )),
+                                  child: Text(e.name)),
+                            ))
+                        .toList(),
+                  ),
+                )),
+          );
+        });
+  }
+
   _listview() {
-    Size size = MediaQuery.of(context).size;
     return PagedSliverList<int, dynamic>(
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
-        firstPageErrorIndicatorBuilder: (context) {
-          _pagingController.refresh();
-          return indicator();
-        },
-        firstPageProgressIndicatorBuilder: (context) {
-          _pagingController.refresh();
-          return indicator();
-        },
-        noItemsFoundIndicatorBuilder: (context) {
-          return const NoItems();
-        },
-        itemBuilder: (context, item, index) => InkWell(
-          onTap: () {
-            goto(ProductDetail(prod: item), context);
+          firstPageErrorIndicatorBuilder: (context) {
+            _pagingController.refresh();
+            return indicator();
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
-            width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: size.width / 6 * 3,
-                      child: Text(
-                        item.name,
-                        style: const TextStyle(color: Colors.black),
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 3,
-                      ),
-                    ),
-                    Text(
-                      '${item.price} ₮',
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  onPressed: () {
-                    addBasket(item.id, item.itemname_id);
-                  },
-                  icon: Image.asset(
-                    'assets/icons/add-basket.png',
-                    height: 24,
-                    width: 24,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+          firstPageProgressIndicatorBuilder: (context) {
+            _pagingController.refresh();
+            return indicator();
+          },
+          noItemsFoundIndicatorBuilder: (context) {
+            return const NoItems();
+          },
+          itemBuilder: (context, item, index) => ProductWidgetListView(
+                item: item,
+                onButtonTab: () => addBasket(item.id, item.itemname_id),
+              ),
+          newPageProgressIndicatorBuilder: (context) => indicator(),
+          newPageErrorIndicatorBuilder: (context) => indicator()),
     );
   }
 
@@ -401,9 +393,7 @@ class _HomeState extends State<Home> {
         animateTransitions: true,
         itemBuilder: (_, item, index) => ProductWidget(
           item: item,
-          onTap: () {
-            goto(ProductDetail(prod: item), context);
-          },
+          onTap: () => goto(ProductDetail(prod: item), context),
           onButtonTab: () => addBasket(item.id, item.itemname_id),
         ),
       ),
@@ -416,59 +406,6 @@ class _HomeState extends State<Home> {
         valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
       ),
     );
-  }
-
-  getSuppliers(BuildContext context) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': bearerToken,
-          });
-      if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        setState(() {
-          res.forEach((key, value) {
-            var model = Supplier(key, value);
-            supList.add(model);
-          });
-        });
-      } else {
-        showFailedMessage(
-            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
-      }
-    } catch (e) {
-      showFailedMessage(message: 'Админтай холбогдоно уу', context: context);
-    }
-  }
-
-  pickSupplier(int supId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
-    final response =
-        await http.post(Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': bearerToken,
-            },
-            body: jsonEncode({'supplierId': supId}));
-    if (response.statusCode == 200) {
-      Map<String, dynamic> res = jsonDecode(response.body);
-      await prefs.setString('access_token', res['access_token']);
-      await prefs.setString('refresh_token', res['refresh_token']);
-      await prefs.setInt('picked_suplier', res['id']);
-    } else if (response.statusCode == 403) {
-      showFailedMessage(
-          message: 'Энэ үйлдлийг хийхэд таны эрх хүрэхгүй байна.',
-          context: context);
-    } else {
-      showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
-    }
   }
 
   void addBasket(int? id, int? itemnameId) async {

@@ -1,5 +1,7 @@
+
+
 class MarkedPromo {
-  int id;
+  int? id;
   String? name;
   int? code;
   String? desc;
@@ -17,13 +19,13 @@ class MarkedPromo {
   bool? isCash;
   bool? hasGift;
   List<dynamic>? gift;
-  int? procent;
+  double? procent;
   String? updatedAt;
   String? createdAt;
   int? supplier;
 
   MarkedPromo({
-    required this.id,
+     this.id,
     this.name,
     this.code,
     this.desc,

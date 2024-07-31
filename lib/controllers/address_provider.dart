@@ -12,7 +12,49 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AddressProvider extends ChangeNotifier {
   List<Province> provinces = <Province>[];
   List<District> districts = <District>[];
+  int _selectedProvince = 0;
+  int get selectedProvince => _selectedProvince;
+  int _selectedDistrict = 0;
+  int get selectedDistrict => _selectedDistrict;
+  int _selectedKhoroo = 0;
+  int get selectedKhoroo => _selectedKhoroo;
   List<Khoroo> khoroos = <Khoroo>[];
+  String _province = 'Аймаг/Хот';
+  String get province => _province;
+  String _district = 'Сум/Дүүрэг';
+  String get district => _district;
+  String _khoroo = 'Баг/Хороо';
+  String get khoroo => _khoroo;
+  setProvinceId(int id) {
+    _selectedProvince = id;
+    notifyListeners();
+  }
+
+  setDistrictId(int id) {
+    _selectedDistrict = id;
+    notifyListeners();
+  }
+
+  setKhorooId(int id) {
+    _selectedKhoroo = id;
+    notifyListeners();
+  }
+
+  setProvince(String province) {
+    _province = province;
+    notifyListeners();
+  }
+
+  setDistrict(String district) {
+    _district = district;
+    notifyListeners();
+  }
+
+  setKhoroo(String khoroo) {
+    _khoroo = khoroo;
+    notifyListeners();
+  }
+
   getProvince() async {
     try {
       String bearerToken = await getAccessToken();
@@ -56,7 +98,7 @@ class AddressProvider extends ChangeNotifier {
 
   getKhoroo(int distId, BuildContext context) async {
     try {
-    String bearerToken = await getAccessToken();
+      String bearerToken = await getAccessToken();
       final response = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}bag_horoo/?sum=$distId'),
         headers: <String, String>{

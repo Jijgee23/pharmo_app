@@ -11,7 +11,7 @@ import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
-import 'package:pharmo_app/widgets/others/product_widget.dart';
+import 'package:pharmo_app/widgets/product/product_widget.dart';
 import 'package:provider/provider.dart';
 
 class FilteredProducts extends StatefulWidget {
@@ -38,12 +38,12 @@ class _FilteredProductsState extends State<FilteredProducts> {
   late HomeProvider homeProvider;
   @override
   void initState() {
+    debugPrint(widget.type);
     _pagingController.addPageRequestListener((pageKey) {
       if (widget.type == 'category') {
         _fetchByCategory(widget.filterKey, pageKey);
-      } else {
-        _fetchByMnfrsOrVndrs(widget.type!, widget.filterKey, pageKey);
       }
+      _fetchByMnfrsOrVndrs(widget.type!, widget.filterKey, pageKey);
     });
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
@@ -65,7 +65,10 @@ class _FilteredProductsState extends State<FilteredProducts> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(widget.title, style: const TextStyle(color: Colors.black, fontSize: 14),),
+        title: Text(
+          widget.title,
+          style: const TextStyle(color: Colors.black, fontSize: 14),
+        ),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 15),
@@ -82,10 +85,10 @@ class _FilteredProductsState extends State<FilteredProducts> {
                   badgeColor: Colors.blue,
                 ),
                 child: Image.asset(
-                    'assets/icons/shop-tab.png',
-                    height: 24,
-                    width: 24,
-                  ),
+                  'assets/icons/shop-tab.png',
+                  height: 24,
+                  width: 24,
+                ),
               ),
             ),
           ),
@@ -142,8 +145,7 @@ class _FilteredProductsState extends State<FilteredProducts> {
 
   Future<void> _fetchByCategory(int filters, int pageKey) async {
     try {
-      final newItems =
-          await homeProvider.filterCate(filters, pageKey, _pageSize);
+      final newItems = await homeProvider.filterCate(filters, pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -170,8 +172,7 @@ class _FilteredProductsState extends State<FilteredProducts> {
       }
     } catch (e) {
       showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа!',
-          context: context);
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа!', context: context);
     }
   }
 }

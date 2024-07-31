@@ -15,7 +15,8 @@ import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
-import 'package:pharmo_app/widgets/others/product_widget.dart';
+import 'package:pharmo_app/widgets/product/product_widget.dart';
+import 'package:pharmo_app/widgets/product/product_widget_list.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -149,21 +150,25 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                         ),
                       ),
                       Expanded(
-                        child: IconButton(
-                          onPressed: () {
-                            setState(
-                              () {
-                                if (isList) {
-                                  isList = false;
-                                  viewIcon = Icons.list;
-                                } else {
-                                  isList = true;
-                                  viewIcon = Icons.grid_view_sharp;
-                                }
-                              },
-                            );
-                          },
-                          icon: Icon(viewIcon),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(10),
+                            onTap: () {
+                              setState(
+                                () {
+                                  if (isList) {
+                                    isList = false;
+                                    viewIcon = Icons.list;
+                                  } else {
+                                    isList = true;
+                                    viewIcon = Icons.grid_view_sharp;
+                                  }
+                                },
+                              );
+                            },
+                            child: Icon(viewIcon),
+                          ),
                         ),
                       ),
                     ],
@@ -179,7 +184,6 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
   }
 
   _listview() {
-    Size size = MediaQuery.of(context).size;
     return PagedSliverList<int, dynamic>(
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
@@ -202,55 +206,12 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
         noItemsFoundIndicatorBuilder: (context) {
           return const NoItems();
         },
-        itemBuilder: (context, item, index) => InkWell(
-          onTap: () {
-            goto(ProductDetail(prod: item), context);
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: size.width / 6 * 3,
-                      child: Text(
-                        item.name,
-                        style: const TextStyle(color: Colors.black),
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 3,
-                      ),
-                    ),
-                    Text(
-                      '${item.price} ₮',
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  onPressed: () {
-                    addBasket(item.id);
-                  },
-                  icon: Image.asset(
-                    'assets/icons/add-basket.png',
-                    height: 24,
-                    width: 24,
-                  ),
-                ),
-              ],
-            ),
+        itemBuilder: (context, item, index) => ProductWidgetListView(
+          item: item,
+          onButtonTab: () => addBasket(item.id),
+          onTap: () => goto(
+            ProductDetail(prod: item),
+            context,
           ),
         ),
       ),

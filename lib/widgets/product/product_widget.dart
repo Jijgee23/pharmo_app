@@ -14,22 +14,29 @@ class ProductWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      borderRadius: BorderRadius.circular(13),
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: Colors.grey.shade500),
           borderRadius: BorderRadius.circular(13),
         ),
         margin: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 5),
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.only(bottom: 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Expanded(
               child: Container(
+                height: 120,
+                width: double.infinity,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(9),
+                  border:
+                      Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(13),
+                      topRight: Radius.circular(13)),
                   image: DecorationImage(
                     fit: BoxFit.cover,
                     image: item.image != null
@@ -43,28 +50,36 @@ class ProductWidget extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              item.name!,
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.black),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                item.name!,
+                softWrap: true,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.black),
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${item.price.toString()} ₮',
-                  style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w500),
-                ),
-                GestureDetector(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${item.price.toString()} ₮',
+                    style: const TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.w500),
+                  ),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(10),
                     onTap: onButtonTab,
                     child: Image.asset(
                       'assets/icons/add-basket.png',
                       height: 24,
                       width: 24,
-                    )),
-              ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

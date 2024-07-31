@@ -1,4 +1,3 @@
-
 class Promotion {
   int? id;
   String? name;

@@ -48,6 +48,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     homeProvider.getUserInfo();
     homeProvider.getDeviceInfo();
     homeProvider.getFilters();
+    homeProvider.getSuppliers();
   }
 
   @override
@@ -221,8 +222,10 @@ class CustomDrawerHeader extends StatelessWidget {
       return Container(
         height: size.height * 0.2,
         decoration: const BoxDecoration(
-          color: AppColors.cleanWhite,
-        ),
+            color: AppColors.cleanWhite,
+            border: Border(
+              bottom: BorderSide(color: Colors.grey),
+            )),
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

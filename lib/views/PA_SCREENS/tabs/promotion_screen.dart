@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/PA_SCREENS/tabs/promo_detail.dart';
+import 'package:pharmo_app/views/PA_SCREENS/tabs/marked_promo.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +31,8 @@ class _PromotionWidgetState extends State<PromotionWidget> {
   ];
   String selectedPromoType = 'Багцын урамшуулал';
   bool hasGift = false;
-  DateTime date = DateTime.now();
+  DateTime start = DateTime.now();
+  DateTime end = DateTime.now();
   String iconurl = 'gitf_filled.png';
 
   @override
@@ -44,6 +45,20 @@ class _PromotionWidgetState extends State<PromotionWidget> {
           leading: const ChevronBack(),
           toolbarHeight: 40,
         ),
+        // floatingActionButton: FloatingActionButton(onPressed: () {
+        //   showDateRangePicker(
+        //     context: context,
+        //     firstDate: DateTime.now(),
+        //     lastDate: DateTime(2030),
+        //     initialDateRange: DateTimeRange(
+        //       start: DateTime.now(),
+        //       end: DateTime.now(),
+        //     ),
+        //     helpText: 'Огноо сонгох',
+        //     cancelText: 'Буцах',
+        //     saveText: 'Хадгалах',
+        //   );
+        // }),
         body: CustomScrollView(
           slivers: [
             SliverAppBar(
@@ -97,15 +112,26 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                                 : 'gift_empty.png')),
                     GestureDetector(
                       onTap: () {
-                        _selectDate(context, provider);
-                        debugPrint(date.toString().substring(0, 10));
+                        //  _selectDate(context, provider);
+                        _datePicker(context);
+                        debugPrint(start.toString().substring(0, 10));
                       },
-                      child: Text(
-                        date.toString().substring(0, 10),
-                        style: const TextStyle(fontSize: 12),
+                      child: Column(
+                        children: [
+                          Text(
+                            start.toString().substring(0, 10),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          Text(
+                            end.toString().substring(0, 10),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
                       ),
                     ),
-                    GestureDetector(
+                    InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        splashColor: Colors.blue.shade100,
                         onTap: provider.getPromotion,
                         child: const CustomIcon(name: 'list.png')),
                   ],
@@ -117,7 +143,11 @@ class _PromotionWidgetState extends State<PromotionWidget> {
               itemBuilder: (context, index) {
                 final promo = promotionProvider.promotions[index];
                 return InkWell(
-                  onTap: () => goto(PromoDetail(promotion: promo), context),
+                  onTap: () => promotionProvider.getDetail(promo.id!).then(
+                      (e) => goto(
+                          MarkedPromoWidget(
+                              promo: promotionProvider.promoDetail),
+                          context)),
                   splashColor: Colors.transparent,
                   child: Container(
                     margin:
@@ -160,7 +190,7 @@ class _PromotionWidgetState extends State<PromotionWidget> {
       helpText: 'Огноо сонгох',
       cancelText: 'Буцах',
       confirmText: "Сонгох",
-      initialDate: date,
+      initialDate: start,
       firstDate: DateTime(2023),
       lastDate: DateTime(2030),
       builder: (context, child) {
@@ -172,11 +202,45 @@ class _PromotionWidgetState extends State<PromotionWidget> {
         );
       },
     );
-    if (picked != null && picked != date) {
+    if (picked != null && picked != start) {
       setState(() {
-        date = picked;
+        start = picked;
       });
-      provider.filterPromotion('end_date', date.toString().substring(0, 10));
+      provider.filterPromotion('end_date', start.toString().substring(0, 10));
+    }
+  }
+
+  _datePicker(BuildContext context) async {
+    final DateTimeRange? result = await showDateRangePicker(
+        context: context,
+        firstDate: DateTime(2023),
+        lastDate: DateTime(2100),
+        initialEntryMode: DatePickerEntryMode.input,
+        helpText: 'Огноо сонгох',
+        cancelText: 'Буцах',
+        confirmText: "Сонгох",
+        saveText: 'Хадгалах',
+        errorFormatText: 'Огноо буруу байна',
+        fieldEndHintText: 'Дуусах огноо',
+        fieldEndLabelText: 'Дуусах огноо',
+        fieldStartLabelText: 'Эхлэх огноо',
+        fieldStartHintText: 'Эхлэх огноо',
+        locale: null,
+        builder: (context, child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: const ColorScheme.light(primary: AppColors.main),
+            ),
+            child: child!,
+          );
+        },
+        initialDateRange:
+            DateTimeRange(start: DateTime.now(), end: DateTime.now()));
+    if (result != null && result.start != start) {
+      setState(() {
+        start = result.start;
+        end = result.end;
+      });
     }
   }
 }

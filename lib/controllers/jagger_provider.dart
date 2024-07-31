@@ -60,6 +60,8 @@ class JaggerProvider extends ChangeNotifier {
 
   final List<String> _operators = ['=', '=<', '=>'];
   List<String> get operators => _operators;
+  String _operator = '=';
+  String get operator => _operator;
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
   void selectDate(DateTime date) {
@@ -68,7 +70,6 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   final List<String> _filters = [
-    'Түгээгчээр',
     'Огноогоор',
     'Захиалгын тоогоор',
     'Явцын хувиар',
@@ -77,18 +78,12 @@ class JaggerProvider extends ChangeNotifier {
   List<String> get filters => _filters;
   String _filter = 'сонгох';
   String get filter => _filter;
-  String _operator = '=';
-  String get operator => _operator;
+  
   String _type = 'ordersCnt';
   String get type => _type;
   Widget _selecterFilter = const SizedBox();
   Widget get selecterFilter => _selecterFilter;
-  String _delman = 'Түгээгч сонгох';
-  String get delman => _delman;
-  void changeDelman(String del) {
-    _delman = del;
-    notifyListeners();
-  }
+  
 
   void getFilter(Widget filter) {
     _selecterFilter = filter;
@@ -532,7 +527,7 @@ class JaggerProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ships = data['results'];
-        //debugPrint('ships: $ships');
+        debugPrint('ships: ${ships[0]}');
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
         notifyListeners();
       }
@@ -542,7 +537,7 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   filterShipment(String type, String value) async {
-    debugPrint('type: $type, value: $value');
+    print('$type , $value');
     String bearerToken = await getAccessToken();
     try {
       final res = await http.get(
@@ -557,6 +552,7 @@ class JaggerProvider extends ChangeNotifier {
         Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
         shipments.clear();
         List<dynamic> ships = data['results'];
+        debugPrint('ships: $data');
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
         notifyListeners();
       }
@@ -571,3 +567,4 @@ class ValidationModel {
   String? error;
   ValidationModel(this.value, this.error);
 }
+
