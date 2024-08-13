@@ -284,9 +284,9 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           });
+          print(response.statusCode);
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-
         final newItems = (res).map((data) => Product.fromJson(data)).toList();
         final isLastPage = newItems.length < _pageSize;
         if (isLastPage) {

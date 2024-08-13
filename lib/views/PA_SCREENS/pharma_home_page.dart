@@ -14,7 +14,7 @@ import 'package:pharmo_app/views/PA_SCREENS/my_orders.dart';
 import 'package:pharmo_app/views/PA_SCREENS/tabs/cart.dart';
 import 'package:pharmo_app/views/PA_SCREENS/tabs/home.dart';
 import 'package:pharmo_app/views/PA_SCREENS/tabs/promotion_screen.dart';
-import 'package:pharmo_app/views/public_uses/filtered/filter.dart';
+import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/views/public_uses/suppliers/supplier_page.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';

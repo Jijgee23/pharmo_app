@@ -7,6 +7,7 @@ class ChevronBack extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(10),
+      splashColor: Colors.transparent,
       onTap: () => Navigator.pop(context),
       child: const Icon(Icons.chevron_left),
     );

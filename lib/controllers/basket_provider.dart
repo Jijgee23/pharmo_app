@@ -171,10 +171,7 @@ class BasketProvider extends ChangeNotifier {
 
   void getBasket() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
-
+     String bearerToken = await getAccessToken();
       final resBasket = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}get_basket'),
         headers: <String, String>{
@@ -209,9 +206,7 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket({required int basket_id}) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
-      String bearerToken = "Bearer $token";
+      String bearerToken = await getAccessToken();
       final response =
           await http.post(Uri.parse('${dotenv.env['SERVER_URL']}clear_basket/'),
               headers: <String, String>{

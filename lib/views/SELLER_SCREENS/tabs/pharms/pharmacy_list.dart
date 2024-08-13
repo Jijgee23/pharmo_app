@@ -129,6 +129,8 @@ class _PharmacyListState extends State<PharmacyList> {
                   ? SliverFillRemaining(
                       child: Center(
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
                               'Эмийн сан олдсонгүй.',
@@ -137,6 +139,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                 color: AppColors.secondary,
                               ),
                             ),
+                            const SizedBox(height: 20),
                             OutlinedButton.icon(
                               style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(

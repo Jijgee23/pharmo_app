@@ -297,7 +297,6 @@ class MyOrderProvider extends ChangeNotifier {
             'Authorization': bearerToken,
           },
           body: jsonEncode({"id": orderId}));
-
       if (res.statusCode == 200) {
         notifyListeners();
         return {
@@ -306,6 +305,7 @@ class MyOrderProvider extends ChangeNotifier {
           'message': 'Таны захиалга амжилттай баталгаажлаа.'
         };
       } else {
+        print(res.body);
         notifyListeners();
         return {
           'errorType': 2,

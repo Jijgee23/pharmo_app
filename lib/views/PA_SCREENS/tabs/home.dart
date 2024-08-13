@@ -57,6 +57,7 @@ class _HomeState extends State<Home> {
     basketProvider.getBasket();
     promotionProvider.getMarkedPromotion();
   }
+
   void _handlePageRequest(int pageKey) {
     if (!searching) {
       _fetchPage(pageKey);
@@ -131,25 +132,21 @@ class _HomeState extends State<Home> {
                       child: CustomSearchBar(
                         searchController: _searchController,
                         onChanged: (value) {
-                          Future.delayed(const Duration(milliseconds: 1000),
-                              () {
-                            if (_searchController.text.isNotEmpty) {
-                              setState(() {
-                                searching = true;
-                                searchQuery = value.isEmpty
-                                    ? null
-                                    : _searchController.text;
-                              });
-                              _pagingController.refresh();
-                            } else {
-                              setState(() {
-                                searching = false;
-                                _pagingController
-                                    .removePageRequestListener((pageKey) {});
-                              });
-                              _pagingController.refresh();
-                            }
-                          });
+                          if (_searchController.text.isNotEmpty) {
+                            setState(() {
+                              searching = true;
+                              searchQuery =
+                                  value.isEmpty ? null : _searchController.text;
+                            });
+                            _pagingController.refresh();
+                          } else {
+                            setState(() {
+                              searching = false;
+                              _pagingController
+                                  .removePageRequestListener((pageKey) {});
+                            });
+                            _pagingController.refresh();
+                          }
                         },
                         onSubmitted: (p0) {
                           if (p0.isEmpty) {
@@ -324,6 +321,8 @@ class _HomeState extends State<Home> {
                                 homeProvider.pickSupplier(int.parse(e.id));
                                 basketProvider.getBasket();
                                 homeProvider.changeSupName(e.name);
+                                homeProvider.getFilters();
+                                promotionProvider.getMarkedPromotion();
                                 refresh();
                                 Navigator.pop(context);
                               },
@@ -426,6 +425,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _fetchbySearching(int pageKey, String type, String key) async {
+    print([pageKey, type, key]);
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString("access_token");
@@ -437,12 +437,13 @@ class _HomeState extends State<Home> {
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           });
+      print(response.statusCode);
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         final newItems = (res).map((data) => Product.fromJson(data)).toList();
         final isLastPage = newItems.length < _pageSize;
         if (isLastPage) {
-          _pagingController.appendLastPage(newItems);
+          // _pagingController.appendLastPage(newItems);
         } else {
           final nextPageKey = pageKey + 1;
           _pagingController.appendPage(newItems, nextPageKey);

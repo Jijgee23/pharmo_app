@@ -9,7 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/branch.dart';
-import 'package:pharmo_app/models/filters.dart';
+import 'package:pharmo_app/models/category.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -39,7 +39,7 @@ class HomeProvider extends ChangeNotifier {
   String? email;
   String? phone;
   String? detail;
-  List<Filters> categories = <Filters>[];
+  List<Category> categories = <Category>[];
   List<Manufacturer> mnfrs = <Manufacturer>[];
   List<Manufacturer> vndrs = <Manufacturer>[];
   late Map<String, dynamic> _userInfo;
@@ -86,9 +86,10 @@ class HomeProvider extends ChangeNotifier {
       );
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        categories = (res['cats'] as List)
-            .map((data) => Filters.fromJson(data))
-            .toList();
+        print(res['cats'][0]['name']);
+        categories =
+            (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
+
         mnfrs = (res['mnfrs'] as List)
             .map((e) => Manufacturer.fromJson(e))
             .toList();
@@ -124,18 +125,20 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  filterCate(int filters, int page, int pageSize) async {
+  filterCate(int id, int page, int pageSize) async {
+    print('id: $id page: $page pageSize: $pageSize');
     try {
       final bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse(
-              '${dotenv.env['SERVER_URL']}products/?category=$filters&page=$page&page_size=$pageSize'),
+              '${dotenv.env['SERVER_URL']}products/?category=$id&page=$page&page_size=$pageSize'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           });
       if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+        print(res);
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
@@ -149,7 +152,7 @@ class HomeProvider extends ChangeNotifier {
   getSuppliers() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-       final accestoken = await getAccessToken();
+      final accestoken = await getAccessToken();
       int? id = prefs.getInt('suppID');
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),

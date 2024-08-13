@@ -42,8 +42,9 @@ class _FilteredProductsState extends State<FilteredProducts> {
     _pagingController.addPageRequestListener((pageKey) {
       if (widget.type == 'category') {
         _fetchByCategory(widget.filterKey, pageKey);
+      } else {
+        _fetchByMnfrsOrVndrs(widget.type!, widget.filterKey, pageKey);
       }
-      _fetchByMnfrsOrVndrs(widget.type!, widget.filterKey, pageKey);
     });
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
@@ -143,9 +144,11 @@ class _FilteredProductsState extends State<FilteredProducts> {
     }
   }
 
-  Future<void> _fetchByCategory(int filters, int pageKey) async {
+  Future<void> _fetchByCategory(int key, int pageKey) async {
+    print(key);
     try {
-      final newItems = await homeProvider.filterCate(filters, pageKey, _pageSize);
+      final newItems =
+          await homeProvider.filterCate(key, pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);

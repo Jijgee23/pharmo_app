@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/models/category.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/public_uses/filtered/filtered_products.dart';
+import 'package:pharmo_app/views/public_uses/filter/filtered_products.dart';
 import 'package:provider/provider.dart';
 
 class FilterPage extends StatefulWidget {
@@ -16,7 +17,8 @@ class FilterPage extends StatefulWidget {
 
 class _FilterPageState extends State<FilterPage> {
   List<String> filterList = ['Англилал', 'Үйлдвэрлэгчид', 'Нийлүүлэгчид'];
-  int selectedFilter = 0;
+  int selectedIdx = 0;
+  int selectId = -1;
   late HomeProvider homeProvider;
   bool isExpanded = false;
 
@@ -34,6 +36,7 @@ class _FilterPageState extends State<FilterPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<dynamic> list = [_categories(), _mnfrs(), _vndrs()];
     return Consumer<HomeProvider>(
       builder: (context, homeProvider, child) {
         return Scaffold(
@@ -41,24 +44,22 @@ class _FilterPageState extends State<FilterPage> {
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
+                foregroundColor: Colors.transparent,
                 toolbarHeight: 14,
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: filterList.map((e) {
                     return InkWell(
                       splashColor: Colors.transparent,
-                      onTap: () {
-                        setState(() {
-                          selectedFilter = filterList.indexOf(e);
-                        });
-                      },
+                      onTap: () =>
+                          setState(() => selectedIdx = filterList.indexOf(e)),
                       child: Row(
                         children: [
                           Text(
                             e,
                             style: TextStyle(
                                 fontSize: 14,
-                                color: filterList.indexOf(e) == selectedFilter
+                                color: filterList.indexOf(e) == selectedIdx
                                     ? AppColors.succesColor
                                     : AppColors.primary),
                           ),
@@ -68,11 +69,7 @@ class _FilterPageState extends State<FilterPage> {
                   }).toList(),
                 ),
               ),
-              selectedFilter == 0
-                  ? _categories()
-                  : selectedFilter == 1
-                      ? _mnfrs()
-                      : _vndrs(),
+              list[selectedIdx]
             ],
           ),
         );
@@ -81,83 +78,16 @@ class _FilterPageState extends State<FilterPage> {
   }
 
   _categories() {
+    final cats = homeProvider.categories;
     return SliverList.builder(
       itemBuilder: (context, index) {
         final cat = homeProvider.categories[index];
         return Padding(
-          padding: const EdgeInsets.only(left: 30, top: 0),
-          child: InkWell(
-            splashColor: Colors.transparent,
-            child: Row(
-              children: [
-                Text(
-                  homeProvider.categories[index].name,
-                  style: const TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-                cat.children!.isNotEmpty
-                    ? const Icon(Icons.chevron_right_rounded)
-                    : const SizedBox()
-              ],
-            ),
-            onTap: () {
-              if (cat.children!.isNotEmpty) {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return Dialog(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                          ),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: cat.children!
-                                  .map((e) => InkWell(
-                                        onTap: () {
-                                          print(e['children']);
-                                          // Navigator.pop(context);
-                                          // goto(
-                                          //     FilteredProducts(
-                                          //         type: 'category',
-                                          //         title: e['name'],
-                                          //         filterKey: e['id']),
-                                          //     context);
-                                        },
-                                        child: Container(
-                                            width: double.infinity,
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 10),
-                                            decoration: BoxDecoration(
-                                              border: Border(
-                                                bottom: BorderSide(
-                                                    color:
-                                                        Colors.grey.shade600),
-                                              ),
-                                            ),
-                                            child:
-                                                Center(child: Text(e['name']))),
-                                      ))
-                                  .toList(),
-                            ),
-                          ),
-                        ),
-                      );
-                    });
-              } else {
-                goto(
-                    FilteredProducts(
-                        type: 'category',
-                        title: homeProvider.categories[index].name,
-                        filterKey: homeProvider.categories[index].id),
-                    context);
-              }
-            },
-          ),
+          padding: const EdgeInsets.only(left: 20),
+          child: CategoryItem(cat: cat),
         );
       },
-      itemCount: homeProvider.categories.length,
+      itemCount: cats.length,
     );
   }
 
@@ -167,7 +97,7 @@ class _FilterPageState extends State<FilterPage> {
         return Padding(
           padding: const EdgeInsets.only(
             left: 30,
-            top: 5,
+            top: 2,
           ),
           child: Align(
               alignment: Alignment.centerLeft,
@@ -211,7 +141,6 @@ class _FilterPageState extends State<FilterPage> {
                 ),
               ),
               onTap: () {
-                print(homeProvider.vndrs[idx].id);
                 goto(
                     FilteredProducts(
                         type: 'vndr',
@@ -224,6 +153,69 @@ class _FilterPageState extends State<FilterPage> {
         );
       },
       itemCount: homeProvider.vndrs.length,
+    );
+  }
+}
+
+class CategoryItem extends StatefulWidget {
+  final Category cat;
+
+  const CategoryItem({super.key, required this.cat});
+
+  @override
+  State<CategoryItem> createState() => _CategoryItemState();
+}
+
+class _CategoryItemState extends State<CategoryItem> {
+  bool isExpanded = false;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        if (widget.cat.children!.isNotEmpty) {
+          setState(() => isExpanded = !isExpanded);
+        } else {
+          goto(
+              FilteredProducts(
+                  type: 'cat',
+                  title: widget.cat.name,
+                  filterKey: widget.cat.id),
+              context);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(left: 10, top: 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  widget.cat.name,
+                  style:  TextStyle(
+                    color: isExpanded ? AppColors.secondary : Colors.black,
+                  ),
+                ),
+                widget.cat.children!.isNotEmpty
+                    ? Icon(isExpanded
+                        ? Icons.keyboard_arrow_down_outlined
+                        : Icons.chevron_right_rounded, color: isExpanded
+                        ? AppColors.secondary
+                        : Colors.black, size: 20,)
+                    : const SizedBox()
+              ],
+            ),
+            (widget.cat.children!.isNotEmpty && isExpanded == true)
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: widget.cat.children!.map((e) {
+                      return CategoryItem(cat: e);
+                    }).toList(),
+                  )
+                : const SizedBox(),
+          ],
+        ),
+      ),
     );
   }
 }

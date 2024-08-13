@@ -30,7 +30,7 @@ class _MyOrderState extends State<MyOrder> {
 
   String _selectedItem = '';
   String _selectedFilter = '';
-  String _selected = '';
+  String selected = '';
   Map<String, String> _processess = {};
   final Map<String, String> _branches = {};
   final Map<String, String> _suppliers = {};
@@ -213,7 +213,7 @@ class _MyOrderState extends State<MyOrder> {
                             onChanged: (String? value) async {
                               setState(() {
                                 _selectedFilter = value!;
-                                _selected = _filters[value]!;
+                                selected = _filters[value]!;
                               });
                               await fillDropdown();
                             },
@@ -248,8 +248,8 @@ class _MyOrderState extends State<MyOrder> {
                     //  Text('$_selected сонгоно уу:'),
                     _selectedFilter != ''
                         ? Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Row(
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -262,14 +262,16 @@ class _MyOrderState extends State<MyOrder> {
                                             color: const Color.fromRGBO(
                                                 224, 224, 224, 1),
                                           ),
-                                          borderRadius: BorderRadius.circular(5)),
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 10),
                                       child: DropdownButton<String>(
                                         value: _selectedItem,
                                         underline: const SizedBox(),
                                         onChanged: (String? value) {
-                                          setState(() => _selectedItem = value!);
+                                          setState(
+                                              () => _selectedItem = value!);
                                         },
                                         selectedItemBuilder:
                                             (BuildContext context) {
@@ -319,7 +321,7 @@ class _MyOrderState extends State<MyOrder> {
                                 ),
                               ],
                             ),
-                        )
+                          )
                         : const SizedBox(),
                   ],
                 ),
@@ -406,12 +408,12 @@ class _MyOrderState extends State<MyOrder> {
                                     const SizedBox(
                                       height: 10,
                                     ),
-                                    (orders[index].process ==
-                                                'Хүргэлтэнд гарсан' ||
-                                            orders[index].address == null)
-                                        ? InkWell(
+                                    (orders[index].status == 'Цуцлагдсан' ||
+                                            orders[index].status == 'Биелсэн')
+                                        ? const SizedBox()
+                                        : InkWell(
                                             onTap: () =>
-                                                confirmOrder(orders[index].id),
+                                            provider.confirmOrder(orders[index].id),
                                             child: Container(
                                               decoration: BoxDecoration(
                                                   color: AppColors.main,
@@ -434,7 +436,6 @@ class _MyOrderState extends State<MyOrder> {
                                               ),
                                             ),
                                           )
-                                        : const SizedBox(),
                                   ],
                                 ),
                               ),
