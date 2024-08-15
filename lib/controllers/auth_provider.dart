@@ -1,9 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive/hive.dart';
@@ -12,9 +9,9 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/DM_SCREENS/jagger_home_page.dart';
-import 'package:pharmo_app/views/PA_SCREENS/pharma_home_page.dart';
-import 'package:pharmo_app/views/SELLER_SCREENS/seller_home.dart';
+import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
+import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
+import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/auth/login_page.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -37,40 +34,7 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Map<String, String>> getDeviceInfo() async {
-    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    Map<String, String> deviceData = {};
-    try {
-      if (Platform.isAndroid) {
-        AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
-        deviceData = {
-          "deviceId": androidInfo.id,
-          "platform": "Android",
-          "brand": androidInfo.brand,
-          "model": androidInfo.model,
-          "modelVersion": androidInfo.device,
-          "os": "Android",
-          "osVersion": androidInfo.version.release,
-        };
-      } else if (Platform.isIOS) {
-        IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
-        deviceData = {
-          "deviceId": iosInfo.identifierForVendor ?? "unknown",
-          "platform": "iOS",
-          "brand": "Apple",
-          "model": iosInfo.name,
-          "modelVersion": iosInfo.utsname.machine,
-          "os": "iOS",
-          "osVersion": iosInfo.systemVersion,
-        };
-      }
-      notifyListeners();
-      return deviceData;
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-    return deviceData;
-  }
+  
 
   Future<void> refresh() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -182,6 +146,8 @@ class AuthController extends ChangeNotifier {
           gotoRemoveUntil(const JaggerHomePage(), context);
         } else {
           showFailedDialog(context);
+          toggleVisibile();
+          notifyListeners();
         }
         await prefs.setString('access_token', res['access_token']);
         await prefs.setString('refresh_token', res['refresh_token']);
@@ -192,7 +158,7 @@ class AuthController extends ChangeNotifier {
       } else if (responseLogin.statusCode == 400) {
         final res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
         List<dynamic> message = res['password'];
-        showFailedMessage(context: context, message: message.toString());
+        showFailedMessage(context: context, message: message.toString().substring(1, message.toString().length - 1));
       } else {
         {
           showFailedMessage(message: 'Нууц үг буруу байна!', context: context);

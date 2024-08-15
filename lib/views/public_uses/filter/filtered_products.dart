@@ -1,17 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/public_uses/product/product_detail_page.dart';
-import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/icon/cart_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:pharmo_app/widgets/others/no_items.dart';
-import 'package:pharmo_app/widgets/product/product_widget.dart';
+import 'package:pharmo_app/widgets/products_views/paged_sliver_grid.dart';
 import 'package:provider/provider.dart';
 
 class FilteredProducts extends StatefulWidget {
@@ -29,8 +23,6 @@ class FilteredProducts extends StatefulWidget {
 }
 
 class _FilteredProductsState extends State<FilteredProducts> {
-  final String noImageUrl =
-      'https://static.vecteezy.com/system/resources/thumbnails/004/141/669/small/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
   final int _pageSize = 20;
 
   final PagingController<int, dynamic> _pagingController =
@@ -38,9 +30,8 @@ class _FilteredProductsState extends State<FilteredProducts> {
   late HomeProvider homeProvider;
   @override
   void initState() {
-    debugPrint(widget.type);
     _pagingController.addPageRequestListener((pageKey) {
-      if (widget.type == 'category') {
+      if (widget.type == 'cat') {
         _fetchByCategory(widget.filterKey, pageKey);
       } else {
         _fetchByMnfrsOrVndrs(widget.type!, widget.filterKey, pageKey);
@@ -58,7 +49,6 @@ class _FilteredProductsState extends State<FilteredProducts> {
 
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -70,57 +60,13 @@ class _FilteredProductsState extends State<FilteredProducts> {
           widget.title,
           style: const TextStyle(color: Colors.black, fontSize: 14),
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 15),
-            child: InkWell(
-              onTap: () {
-                goto(const ShoppingCart(), context);
-              },
-              child: badges.Badge(
-                badgeContent: Text(
-                  "${basketProvider.count}",
-                  style: const TextStyle(color: Colors.white, fontSize: 11),
-                ),
-                badgeStyle: const badges.BadgeStyle(
-                  badgeColor: Colors.blue,
-                ),
-                child: Image.asset(
-                  'assets/icons/shop-tab.png',
-                  height: 24,
-                  width: 24,
-                ),
-              ),
-            ),
-          ),
-        ],
+        actions: const [CartIcon()],
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: CustomScrollView(
           slivers: [
-            PagedSliverGrid<int, dynamic>(
-              showNewPageProgressIndicatorAsGridChild: false,
-              showNewPageErrorIndicatorAsGridChild: false,
-              showNoMoreItemsIndicatorAsGridChild: false,
-              pagingController: _pagingController,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
-              ),
-              builderDelegate: PagedChildBuilderDelegate<dynamic>(
-                animateTransitions: true,
-                itemBuilder: (_, item, index) => ProductWidget(
-                  item: item,
-                  onTap: () {
-                    goto(ProductDetail(prod: item), context);
-                  },
-                  onButtonTab: () => addBasket(item.id, item.itemname_id),
-                ),
-                noItemsFoundIndicatorBuilder: (context) {
-                  return const NoItems();
-                },
-              ),
-            )
+            CustomGridView(pagingController: _pagingController),
           ],
         ),
       ),
@@ -145,10 +91,8 @@ class _FilteredProductsState extends State<FilteredProducts> {
   }
 
   Future<void> _fetchByCategory(int key, int pageKey) async {
-    print(key);
     try {
-      final newItems =
-          await homeProvider.filterCate(key, pageKey, _pageSize);
+      final newItems = await homeProvider.filterCate(key, pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -158,24 +102,6 @@ class _FilteredProductsState extends State<FilteredProducts> {
       }
     } catch (error) {
       _pagingController.error = error;
-    }
-  }
-
-  void addBasket(int? id, int? itemnameId) async {
-    try {
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
-      Map<String, dynamic> res = await basketProvider.addBasket(
-          product_id: id, itemname_id: itemnameId, qty: 1);
-      if (res['errorType'] == 1) {
-        basketProvider.getBasket();
-        showSuccessMessage(message: res['message'], context: context);
-      } else {
-        showFailedMessage(message: res['message'], context: context);
-      }
-    } catch (e) {
-      showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа!', context: context);
     }
   }
 }

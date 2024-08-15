@@ -5,8 +5,9 @@ class CustomSearchBar extends StatelessWidget {
   final String title;
   final TextEditingController searchController;
   void Function(String)? onChanged;
-  final IconButton? suffix;
+  final Widget? suffix;
   final IconButton? prefix;
+  final Function()? onTapSuffux;
   final TextInputType? keyboardType;
   final Function(String)? onSubmitted;
   CustomSearchBar({
@@ -18,6 +19,7 @@ class CustomSearchBar extends StatelessWidget {
     this.prefix,
     this.keyboardType,
     this.onSubmitted,
+    this.onTapSuffux,
   });
 
   @override
@@ -49,7 +51,10 @@ class CustomSearchBar extends StatelessWidget {
               width: 20,
             ),
           ),
-          suffixIcon: suffix,
+          suffixIcon: InkWell(
+            onTap: onTapSuffux,
+            child: suffix,
+          ),
           prefix: prefix,
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class DMAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -22,17 +23,16 @@ class DMAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return ChangeNotifierProvider(
       create: (context) => BasketProvider(),
       child: AppBar(
+        leading: const ChevronBack(),
         iconTheme: const IconThemeData(color: AppColors.primary),
         centerTitle: true,
         title: Text(
           title,
           style: const TextStyle(fontSize: 16),
         ),
-        
       ),
     );
   }

@@ -19,7 +19,6 @@ class HomeProvider extends ChangeNotifier {
   int currentIndex = 0;
   bool invisible = false;
   String selectedCustomerName = '';
-
   int selectedCustomerId = 0;
   String? userEmail;
   String? userRole;
@@ -86,7 +85,6 @@ class HomeProvider extends ChangeNotifier {
       );
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
-        print(res['cats'][0]['name']);
         categories =
             (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
 
@@ -104,6 +102,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   filter(String type, int filters, int page, int pageSize) async {
+    // print([type, filters, page, pageSize]);
     try {
       final bearerToken = await getAccessToken();
       final response = await http.get(
@@ -113,6 +112,7 @@ class HomeProvider extends ChangeNotifier {
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           });
+      // print(['status:' ,   response.statusCode,  'body:', response.body]);
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         List<Product> prods = (res['results'] as List)
@@ -126,19 +126,19 @@ class HomeProvider extends ChangeNotifier {
   }
 
   filterCate(int id, int page, int pageSize) async {
-    print('id: $id page: $page pageSize: $pageSize');
+    // print('id: $id , page: $page , pageSize: $pageSize');
     try {
       final bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse(
-              '${dotenv.env['SERVER_URL']}products/?category=$id&page=$page&page_size=$pageSize'),
+              '${dotenv.env['SERVER_URL']}products/?category=[$id]&page=$page&page_size=$pageSize'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': bearerToken,
           });
+      //     print(['status:' ,   response.statusCode,  'body:', response.body]);
       if (response.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-        print(res);
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
@@ -377,6 +377,7 @@ class HomeProvider extends ChangeNotifier {
           message: 'Интернет холболтоо шалгана уу!.', context: context);
     }
   }
+  
 
   getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

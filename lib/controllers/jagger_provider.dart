@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -449,11 +451,11 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Position> _getCurrentLocation() async {
+  Future<Position> _getCurrentLocation(BuildContext context) async {
     servicePermission = await Geolocator.isLocationServiceEnabled();
 
     if (!servicePermission) {
-      showFailedMessage(message: 'Permission тохируулна уу');
+      showFailedMessage(message: 'Permission тохируулна уу', context: context);
     }
     permission = await Geolocator.checkPermission();
 
@@ -464,8 +466,8 @@ class JaggerProvider extends ChangeNotifier {
     return await Geolocator.getCurrentPosition();
   }
 
-  getLocation() async {
-    _currentLocation = await _getCurrentLocation();
+  getLocation(BuildContext context) async {
+    _currentLocation = await _getCurrentLocation(context);
     _latitude = _currentLocation!.latitude.toString().substring(0, 7);
     _longitude = _currentLocation!.longitude.toString().substring(0, 7);
   }

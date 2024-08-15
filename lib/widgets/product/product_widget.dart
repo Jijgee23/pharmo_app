@@ -10,7 +10,7 @@ class ProductWidget extends StatelessWidget {
   const ProductWidget(
       {super.key, required this.item, this.onTap, this.onButtonTab});
   final String noImageUrl =
-      'https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg';
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTueR-EitVLUmrOKHMmAujo8S9uV7geSq0Gw&s';
   @override
   Widget build(BuildContext context) {
     return InkWell(
