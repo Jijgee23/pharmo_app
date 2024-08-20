@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/category.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -16,7 +17,7 @@ class FilterPage extends StatefulWidget {
 }
 
 class _FilterPageState extends State<FilterPage> {
-  List<String> filterList = ['Англилал', 'Үйлдвэрлэгчид', 'Нийлүүлэгчид'];
+  List<String> filterList = ['Ангилал', 'Нийлүүлэгчид', 'Үйлдвэрлэгчид'];
   int selectedIdx = 0;
   int selectId = -1;
   late HomeProvider homeProvider;
@@ -37,43 +38,48 @@ class _FilterPageState extends State<FilterPage> {
   @override
   Widget build(BuildContext context) {
     List<dynamic> list = [_categories(), _mnfrs(), _vndrs()];
-    return Consumer<HomeProvider>(
-      builder: (context, homeProvider, child) {
-        return Scaffold(
-          backgroundColor: AppColors.cleanWhite,
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                foregroundColor: Colors.transparent,
-                toolbarHeight: 14,
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: filterList.map((e) {
-                    return InkWell(
-                      splashColor: Colors.transparent,
-                      onTap: () =>
-                          setState(() => selectedIdx = filterList.indexOf(e)),
-                      child: Row(
-                        children: [
-                          Text(
-                            e,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: filterList.indexOf(e) == selectedIdx
-                                    ? AppColors.succesColor
-                                    : AppColors.primary),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+    return RefreshIndicator(
+      onRefresh: () => Future.sync(() async {
+        homeProvider.refresh(context, homeProvider, PromotionProvider());
+      }),
+      child: Consumer<HomeProvider>(
+        builder: (context, homeProvider, child) {
+          return Scaffold(
+            backgroundColor: AppColors.cleanWhite,
+            body: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  foregroundColor: Colors.transparent,
+                  toolbarHeight: 14,
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: filterList.map((e) {
+                      return InkWell(
+                        splashColor: Colors.transparent,
+                        onTap: () =>
+                            setState(() => selectedIdx = filterList.indexOf(e)),
+                        child: Row(
+                          children: [
+                            Text(
+                              e,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: filterList.indexOf(e) == selectedIdx
+                                      ? AppColors.succesColor
+                                      : AppColors.primary),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
-              ),
-              list[selectedIdx]
-            ],
-          ),
-        );
-      },
+                list[selectedIdx]
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -82,9 +88,17 @@ class _FilterPageState extends State<FilterPage> {
     return SliverList.builder(
       itemBuilder: (context, index) {
         final cat = homeProvider.categories[index];
-        return Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: CategoryItem(cat: cat),
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            CategoryItem(cat: cat),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: Divider(
+                color: Colors.grey.shade300,
+              ),
+            )
+          ],
         );
       },
       itemCount: cats.length,
@@ -97,7 +111,7 @@ class _FilterPageState extends State<FilterPage> {
         return Padding(
           padding: const EdgeInsets.only(
             left: 30,
-            top: 2,
+            top: 10,
           ),
           child: Align(
               alignment: Alignment.centerLeft,
@@ -184,7 +198,7 @@ class _CategoryItemState extends State<CategoryItem> {
         }
       },
       child: Container(
-        margin: const EdgeInsets.only(left: 10, top: 2),
+        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -192,16 +206,18 @@ class _CategoryItemState extends State<CategoryItem> {
               children: [
                 Text(
                   widget.cat.name,
-                  style:  TextStyle(
+                  style: TextStyle(
                     color: isExpanded ? AppColors.secondary : Colors.black,
                   ),
                 ),
                 widget.cat.children!.isNotEmpty
-                    ? Icon(isExpanded
-                        ? Icons.keyboard_arrow_down_outlined
-                        : Icons.chevron_right_rounded, color: isExpanded
-                        ? AppColors.secondary
-                        : Colors.black, size: 20,)
+                    ? Icon(
+                        isExpanded
+                            ? Icons.keyboard_arrow_down_outlined
+                            : Icons.chevron_right_rounded,
+                        color: isExpanded ? AppColors.secondary : Colors.black,
+                        size: 20,
+                      )
                     : const SizedBox()
               ],
             ),

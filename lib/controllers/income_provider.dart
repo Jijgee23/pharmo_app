@@ -6,23 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/income.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class IncomeProvider extends ChangeNotifier {
   List<Income> incomeList = <Income>[];
 
   getIncomeList(BuildContext context) async {
     try {
-      final SharedPreferences preferences =
-          await SharedPreferences.getInstance();
-      String? token = preferences.getString('access_token');
+      final bearerToken = await getAccessToken();
       final response = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}income_record/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
+        headers: getHeader(bearerToken),
       );
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -39,16 +34,11 @@ class IncomeProvider extends ChangeNotifier {
 
   getIncomeListByDateSinlge(BuildContext context, String date) async {
     try {
-      final SharedPreferences preferences =
-          await SharedPreferences.getInstance();
-      String? token = preferences.getString('access_token');
+      final bearerToken = await getAccessToken();
       final response = await http.get(
         Uri.parse(
             '${dotenv.env['SERVER_URL']}income_record/?createdOn__date=$date'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
+        headers: getHeader(bearerToken),
       );
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -66,16 +56,11 @@ class IncomeProvider extends ChangeNotifier {
   getIncomeListByDateRanged(
       BuildContext context, String date1, String date2) async {
     try {
-      final SharedPreferences preferences =
-          await SharedPreferences.getInstance();
-      String? token = preferences.getString('access_token');
+      final bearerToken = await getAccessToken();
       final response = await http.get(
         Uri.parse(
             '${dotenv.env['SERVER_URL']}income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
+        headers: getHeader(bearerToken),
       );
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -92,15 +77,10 @@ class IncomeProvider extends ChangeNotifier {
 
   recordIncome(String note, String amount, BuildContext context) async {
     try {
-      final SharedPreferences preferences =
-          await SharedPreferences.getInstance();
-      String? token = preferences.getString('access_token');
+      final bearerToken = await getAccessToken();
       final response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}income_record/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
+        headers: getHeader(bearerToken),
         body: jsonEncode(<String, String>{
           'note': note,
           'amount': amount,
@@ -118,15 +98,10 @@ class IncomeProvider extends ChangeNotifier {
 
   updateIncome(int id, String note, String amount, BuildContext context) async {
     try {
-      final SharedPreferences preferences =
-          await SharedPreferences.getInstance();
-      String? token = preferences.getString('access_token');
+      final bearerToken = await getAccessToken();
       final response = await http.patch(
         Uri.parse('${dotenv.env['SERVER_URL']}income_record/$id/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
+        headers: getHeader(bearerToken),
         body: jsonEncode(
           {
             'note': note,

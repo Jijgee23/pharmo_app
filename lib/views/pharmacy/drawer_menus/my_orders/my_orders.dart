@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -179,8 +180,8 @@ class _MyOrderState extends State<MyOrder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Миний захиалгууд',
+      appBar:  CustomAppBar(
+        title: Text('Миний захиалгууд', style: Constants.headerTextStyle),
       ),
       body: Consumer<MyOrderProvider>(
         builder: (context, provider, _) {

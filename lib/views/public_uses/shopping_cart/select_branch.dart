@@ -119,7 +119,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
     );
     return Scaffold(
       appBar: const CustomAppBar(
-        title: 'Төлбөрийн хэлбэр',
+        title: Text('Төлбөрийн хэлбэр'),
       ),
       body: ChangeNotifierProvider(
         create: (context) => BasketProvider(),

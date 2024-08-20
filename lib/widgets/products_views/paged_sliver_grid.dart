@@ -31,7 +31,7 @@ class CustomGridView extends StatelessWidget {
         noItemsFoundIndicatorBuilder: (context) => const NoItems(),
         firstPageErrorIndicatorBuilder: (context) {
           pagingController.refresh();
-          return const MyIndicator();
+          return const NoItems();
         },
         firstPageProgressIndicatorBuilder: (context) {
           pagingController.refresh();

@@ -54,7 +54,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
       builder: (_, provider, child) {
         return Scaffold(
           appBar: const CustomAppBar(
-            title: 'Захиалга үүсгэх',
+            title: Text('Захиалга үүсгэх'),
           ),
           body: Container(
             margin: const EdgeInsets.all(15),

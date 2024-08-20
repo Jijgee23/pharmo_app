@@ -18,7 +18,7 @@ class QRCode extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: const CustomAppBar(
-          title: 'Бэлнээр төлөх',
+          title: Text('Бэлнээр төлөх'),
         ),
         body: Consumer<BasketProvider>(
           builder: (context, provider, _) {

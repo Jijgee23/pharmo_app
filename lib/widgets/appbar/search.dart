@@ -25,7 +25,7 @@ class CustomSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 45,
+      height: 35,
       width: double.infinity,
       child: TextField(
         keyboardType: keyboardType,
@@ -45,7 +45,7 @@ class CustomSearchBar extends StatelessWidget {
           hintText: title,
           hintStyle: const TextStyle(height: 1),
           prefixIcon: Padding(
-            padding: const EdgeInsets.all(12.5),
+            padding: const EdgeInsets.all(8),
             child: Image.asset(
               'assets/icons/search.png',
               width: 20,

@@ -15,7 +15,7 @@ class NotificationPage extends StatelessWidget {
             Icons.chevron_left,
           ),
         ),
-        title: 'Мэдэгдэлүүд',
+        title:const Text('Мэдэгдэлүүд'),
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),

@@ -5,9 +5,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/models/promotion.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PromotionProvider extends ChangeNotifier {
   List<Promotion> promotions = <Promotion>[];
@@ -28,7 +29,7 @@ class PromotionProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}get_promos/'),
-          headers: {'Authorization': bearerToken});
+          headers: getHeader(bearerToken));
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         promotions.clear();
@@ -46,7 +47,7 @@ class PromotionProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}get_promos/$promoId/'),
-          headers: {'Authorization': bearerToken});
+          headers: getHeader(bearerToken));
       if (response.statusCode == 200) {
         Map<String, dynamic> p = jsonDecode(utf8.decode(response.bodyBytes));
         MarkedPromo mp = MarkedPromo.fromJson(p);
@@ -65,7 +66,7 @@ class PromotionProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}marked_promos/'),
-          headers: {'Authorization': bearerToken});
+          headers: getHeader(bearerToken));
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         markedPromotions.clear();
@@ -86,7 +87,7 @@ class PromotionProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}get_promos/?$type=$value'),
-          headers: {'Authorization': bearerToken});
+          headers: getHeader(bearerToken));
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> pro = res['results'];
@@ -104,7 +105,7 @@ class PromotionProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}marked_promos/$id/'),
-          headers: {'Authorization': bearerToken});
+          headers:getHeader(bearerToken));
       if (response.statusCode == 200) {
         showSuccessMessage(message: 'Амжилттай', context: context);
       } else {
@@ -114,11 +115,18 @@ class PromotionProvider extends ChangeNotifier {
       debugPrint('ERROR: ${e.toString()}');
     }
   }
-
   Future<String> getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
     return bearerToken;
+  }
+
+  getHeader(String token) {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': token
+    };
+    return headers;
   }
 }

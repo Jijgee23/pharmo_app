@@ -11,17 +11,17 @@ import 'package:provider/provider.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? leadingOnTap;
   final bool showIcon;
-  final String title;
   final IconData? icon;
   final Widget? leading;
+  final Widget? title;
 
   const CustomAppBar({
     super.key,
     this.leadingOnTap,
     this.showIcon = false,
-    this.title = "",
     this.icon,
     this.leading,
+    this.title,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
 
   @override
@@ -36,10 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: AppBar(
           iconTheme: const IconThemeData(color: AppColors.primary),
           centerTitle: true,
-          title: Text(
-            title,
-            style: const TextStyle(fontSize: 16),
-          ),
+          title: title,
           leading: leading,
           actions: [
             IconButton(

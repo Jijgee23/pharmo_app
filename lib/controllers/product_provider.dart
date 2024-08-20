@@ -12,10 +12,7 @@ class ProductProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}products/$productID/'),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -28,10 +25,18 @@ class ProductProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
   }
-   Future<String> getAccessToken() async {
+  Future<String> getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
     return bearerToken;
+  }
+
+  getHeader(String token) {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': token
+    };
+    return headers;
   }
 }

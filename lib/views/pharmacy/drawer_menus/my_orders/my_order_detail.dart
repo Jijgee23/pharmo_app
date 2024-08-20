@@ -42,7 +42,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(
-        title: 'Миний захиалгын дэлгэрэнгүй',
+        title:Text( 'Миний захиалгын дэлгэрэнгүй'),
       ),
       body: Consumer<MyOrderProvider>(builder: (context, provider, _) {
         final details = (provider.orderDetails.isNotEmpty) ? provider.orderDetails : null;

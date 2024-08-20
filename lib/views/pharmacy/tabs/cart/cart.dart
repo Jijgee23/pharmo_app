@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -15,6 +16,8 @@ class ShoppingCartHome extends StatefulWidget {
 
 class _ShoppingCartHomeState extends State<ShoppingCartHome> {
   late BasketProvider basketProvider;
+ 
+
   @override
   void initState() {
     super.initState();
@@ -29,11 +32,6 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
-    }
-
-    void purchase(int basketId) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const SelectBranchPage()));
     }
 
     return Scaffold(
@@ -62,8 +60,8 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 5.0, horizontal: 15.0),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   border: Border(
@@ -127,9 +125,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         OutlinedButton.icon(
-                          onPressed: () {
-                            clearBasket(basket.id);
-                          },
+                          onPressed: () => clearBasket(basket.id),
                           icon: Image.asset(
                             'assets/icons/basket.png',
                             height: 24,
@@ -137,9 +133,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                           label: const Text('Сагс хоослох'),
                         ),
                         OutlinedButton.icon(
-                          onPressed: () {
-                            purchase(basket.id);
-                          },
+                          onPressed: () => goto(const SelectBranchPage(), context),
                           icon: Image.asset(
                             'assets/icons/checkout.png',
                             height: 24,

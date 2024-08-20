@@ -119,7 +119,7 @@ class _JaggerDialogState extends State<JaggerDialog> {
             ),
           ),
           appBar: const CustomAppBar(
-            title: 'Нүүр хуудас',
+            title: Text('Нүүр хуудас'),
           ),
           body: _pages[_selectedIndex],
           bottomNavigationBar: BottomNavigationBar(

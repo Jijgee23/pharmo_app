@@ -5,7 +5,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
-import 'package:pharmo_app/views/delivery_man/drawer_menus/orders/jagger_order_page.dart';
+import 'package:pharmo_app/views/delivery_man/drawer_menus/expend/jagger_order_page.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
 import 'package:pharmo_app/views/delivery_man/drawer_menus/shipment_history/shipment_history.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';

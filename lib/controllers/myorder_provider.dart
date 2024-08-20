@@ -21,10 +21,7 @@ class MyOrderProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}order/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -45,10 +42,7 @@ class MyOrderProvider extends ChangeNotifier {
       final res = await http.get(
         Uri.parse(
             '${dotenv.env['SERVER_URL']}order/?start=$startDate&end=$endDate'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -68,10 +62,7 @@ class MyOrderProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}order/?start=$date'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -91,10 +82,7 @@ class MyOrderProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+          headers: getHeader(bearerToken));
       if (res.statusCode == 200) {
         _orders.clear();
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -125,10 +113,7 @@ class MyOrderProvider extends ChangeNotifier {
       final res = await http.get(
           Uri.parse(
               '${dotenv.env['SERVER_URL']}pharmacy/orders/$orderId/items/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+          headers: getHeader(bearerToken));
       if (res.statusCode == 200) {
         _orderDetails.clear();
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -159,10 +144,7 @@ class MyOrderProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': bearerToken,
-          });
+          headers: getHeader(bearerToken));
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         return {
@@ -187,10 +169,7 @@ class MyOrderProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}branch'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': bearerToken,
-          });
+          headers: getHeader(bearerToken));
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         return {
@@ -219,49 +198,31 @@ class MyOrderProvider extends ChangeNotifier {
         res = await http.get(
             Uri.parse(
                 '${dotenv.env['SERVER_URL']}pharmacy/orders/?process=$selectedItem'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=utf-8',
-              'Authorization': bearerToken,
-            });
+            headers: getHeader(bearerToken));
       } else if (selectedFilter == '1') {
         res = await http.get(
             Uri.parse(
                 '${dotenv.env['SERVER_URL']}pharmacy/orders/?status=$selectedItem'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=utf-8',
-              'Authorization': bearerToken,
-            });
+            headers: getHeader(bearerToken));
       } else if (selectedFilter == '2') {
         res = await http.get(
             Uri.parse(
                 '${dotenv.env['SERVER_URL']}pharmacy/orders/?payType=$selectedItem'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=utf-8',
-              'Authorization': bearerToken,
-            });
+            headers: getHeader(bearerToken));
       } else if (selectedFilter == '3') {
         res = await http.get(
             Uri.parse(
                 '${dotenv.env['SERVER_URL']}pharmacy/orders/?address=$selectedItem'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=utf-8',
-              'Authorization': bearerToken,
-            });
+            headers: getHeader(bearerToken));
       } else if (selectedFilter == '4') {
         res = await http.get(
             Uri.parse(
                 '${dotenv.env['SERVER_URL']}pharmacy/orders/?supplier=$selectedItem'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=utf-8',
-              'Authorization': bearerToken,
-            });
+            headers: getHeader(bearerToken));
       } else {
         res = await http.get(
             Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=utf-8',
-              'Authorization': bearerToken,
-            });
+            headers: getHeader(bearerToken));
       }
       if (res.statusCode == 200) {
         _orders.clear();
@@ -292,10 +253,7 @@ class MyOrderProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/accept_order/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({"id": orderId}));
       if (res.statusCode == 200) {
         notifyListeners();
@@ -305,7 +263,6 @@ class MyOrderProvider extends ChangeNotifier {
           'message': 'Таны захиалга амжилттай баталгаажлаа.'
         };
       } else {
-        print(res.body);
         notifyListeners();
         return {
           'errorType': 2,
@@ -323,6 +280,14 @@ class MyOrderProvider extends ChangeNotifier {
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
     return bearerToken;
+  }
+
+  getHeader(String token) {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': token
+    };
+    return headers;
   }
 }
 

@@ -7,6 +7,8 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
@@ -33,8 +35,6 @@ class AuthController extends ChangeNotifier {
     invisible2 = !invisible2;
     notifyListeners();
   }
-
-  
 
   Future<void> refresh() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -158,7 +158,10 @@ class AuthController extends ChangeNotifier {
       } else if (responseLogin.statusCode == 400) {
         final res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
         List<dynamic> message = res['password'];
-        showFailedMessage(context: context, message: message.toString().substring(1, message.toString().length - 1));
+        showFailedMessage(
+            context: context,
+            message:
+                message.toString().substring(1, message.toString().length - 1));
       } else {
         {
           showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
@@ -166,7 +169,7 @@ class AuthController extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('error=================> ${e.toString()} ');
     }
   }
 
@@ -182,6 +185,9 @@ class AuthController extends ChangeNotifier {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.remove('access_token');
       prefs.remove('refresh_token');
+      HomeProvider().dispose();
+      BasketProvider().dispose();
+      PromotionProvider().dispose();
       gotoRemoveUntil(const LoginPage(), context);
     }
     notifyListeners();

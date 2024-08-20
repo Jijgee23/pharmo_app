@@ -177,7 +177,7 @@ class _SellerQRCodeState extends State<SellerQRCode> {
       builder: (_, basketprovider, homeprovider, child) {
         return Scaffold(
           appBar: const CustomAppBar(
-            title: 'Бэлнээр төлөх',
+            title: Text('Бэлнээр төлөх'),
           ),
           body: Container(
             margin: const EdgeInsets.all(20),

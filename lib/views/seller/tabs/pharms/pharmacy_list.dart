@@ -190,74 +190,88 @@ class _PharmacyListState extends State<PharmacyList> {
                                 }
                               }
                             },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 2),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 7.5, horizontal: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
+                            child: Column(
+                              children: [
+                                Container(
+                                  // decoration: BoxDecoration(
+                                  //   borderRadius: BorderRadius.circular(10),
+                                  //   border: Border.all(
+                                  //     color: AppColors.primary,
+                                  //   ),
+                                  // ),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 7.5, horizontal: 10),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      homeProvider.selectedCustomerId == item.id
-                                          ? const Icon(
-                                              Icons.check,
-                                              color: AppColors.succesColor,
-                                            )
-                                          : const Text(''),
-                                      const SizedBox(
-                                        width: 10,
+                                      Row(
+                                        children: [
+                                          homeProvider.selectedCustomerId ==
+                                                  item.id
+                                              ? const Icon(
+                                                  Icons.check,
+                                                  color: AppColors.succesColor,
+                                                )
+                                              : const Text(''),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          RichText(
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            text: TextSpan(
+                                              text: item.name,
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: item.isBad
+                                                      ? Colors.red
+                                                      : item.debt != 0 &&
+                                                              item.debtLimit !=
+                                                                  0 &&
+                                                              item.debt >=
+                                                                  item.debtLimit
+                                                          ? AppColors
+                                                              .failedColor
+                                                          : AppColors
+                                                              .cleanBlack),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      RichText(
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        text: TextSpan(
-                                          text: item.name,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: item.isBad
-                                                  ? Colors.red
-                                                  : item.debt != 0 &&
-                                                          item.debtLimit != 0 &&
-                                                          item.debt >=
-                                                              item.debtLimit
-                                                      ? AppColors.failedColor
-                                                      : AppColors.cleanBlack),
-                                        ),
-                                      ),
+                                      InkWell(
+                                        borderRadius: BorderRadius.circular(10),
+                                        onTap: () {
+                                          if (item.isCustomer) {
+                                            goto(
+                                                CustomerDetailsPage(
+                                                  customerId: item.id,
+                                                  custName: item.name,
+                                                ),
+                                                context);
+                                          } else {
+                                            showFailedMessage(
+                                                context: context,
+                                                message:
+                                                    'Эмийн сангийн мэдээллийг харах боломжгүй!');
+                                          }
+                                        },
+                                        child: Icon((item.isCustomer == false)
+                                            ? Icons.lock_outline_rounded
+                                            : Icons.chevron_right),
+                                      )
                                     ],
                                   ),
-                                  InkWell(
-                                    borderRadius: BorderRadius.circular(10),
-                                    onTap: () {
-                                      if (item.isCustomer) {
-                                        goto(
-                                            CustomerDetailsPage(
-                                              customerId: item.id,
-                                              custName: item.name,
-                                            ),
-                                            context);
-                                      } else {
-                                        showFailedMessage(
-                                            context: context,
-                                            message:
-                                                'Эмийн сангийн мэдээллийг харах боломжгүй!');
-                                      }
-                                    },
-                                    child: Icon((item.isCustomer == false)
-                                        ? Icons.lock_outline_rounded
-                                        : Icons.chevron_right),
-                                  )
-                                ],
-                              ),
+                                ),
+                                Container(
+                                  padding:const EdgeInsets.symmetric(horizontal: 20),
+                                  child: Divider(
+                                    color: Colors.grey.shade700,
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                         );

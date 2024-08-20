@@ -17,14 +17,10 @@ class PharmProvider extends ChangeNotifier {
   List<OrderList> orderList = <OrderList>[];
   getPharmacyList() async {
     try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
+      final beareToken = await getAccessToken();
       final response = await http.get(
         Uri.parse('${baseUrl}seller/pharmacy_list/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
+        headers: getHeader(beareToken),
       );
       if (response.statusCode == 200) {
         Map data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -35,7 +31,6 @@ class PharmProvider extends ChangeNotifier {
         badlist.clear();
         goodlist.clear();
         limitedlist.clear();
-         
         for (int i = 0; i < pharms.length; i++) {
           fullList.add(PharmFullInfo.fromJson(pharms[i]));
           final bool isCustomer = pharms[i]['isCustomer'];
@@ -68,15 +63,11 @@ class PharmProvider extends ChangeNotifier {
 
   getOrderList(int customerId) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
+     final token = await getAccessToken();
       final response = await http.get(
         Uri.parse(
             '${dotenv.env['SERVER_URL']}seller/order_history/?pharmacyId=$customerId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
+        headers: getHeader(token),
       );
       notifyListeners();
       if (response.statusCode == 200) {
@@ -90,6 +81,20 @@ class PharmProvider extends ChangeNotifier {
       // showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
       notifyListeners();
     }
+  }
+  Future<String> getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("access_token");
+    String bearerToken = "Bearer $token";
+    return bearerToken;
+  }
+
+  getHeader(String token) {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': token
+    };
+    return headers;
   }
 }
 

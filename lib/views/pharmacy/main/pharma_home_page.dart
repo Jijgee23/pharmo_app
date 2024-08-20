@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -5,8 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
@@ -38,12 +43,21 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
   bool hidden = false;
 
   late HomeProvider homeProvider;
+  late PromotionProvider promotionProvider;
+  // final TextEditingController _searchController = TextEditingController();
+  String searchBarText = 'Нэрээр';
+  String type = 'name';
+  List stype = ['Нэрээр', 'Баркодоор', 'Ерөнхий нэршлээр'];
+  IconData viewIcon = Icons.grid_view;
+  bool searching = false;
+  String? searchQuery = '';
 
   @override
   void initState() {
     init();
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
     homeProvider.getUserInfo();
     homeProvider.getDeviceInfo();
     homeProvider.getFilters();
@@ -73,7 +87,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
       String? title = remoteMessage.notification!.title;
       String? description = remoteMessage.notification!.body;
-
       Alert(
         context: context,
         type: AlertType.info,
@@ -109,8 +122,8 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
         ChangeNotifierProvider<AuthController>(
             create: (context) => AuthController()),
       ],
-      child: Consumer2<AuthController, HomeProvider>(
-        builder: (context, authController, homeProvider, _) {
+      child: Consumer3<AuthController, HomeProvider, BasketProvider>(
+        builder: (context, authController, homeProvider, basketProvider, _) {
           return Scaffold(
             drawer: Drawer(
               elevation: 0,
@@ -149,8 +162,36 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
             ),
             appBar: hidden
                 ? null
-                : const CustomAppBar(
-                    title: 'Нүүр хуудас',
+                : CustomAppBar(
+                    title: ChangeNotifierProvider(
+                      create: (context) => BasketProvider(),
+                      child: InkWell(
+                        onTap: () {
+                          _picksupp(context, homeProvider, basketProvider);
+                        },
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                              ),
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                homeProvider.supName,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              const Icon(Icons.keyboard_arrow_down_rounded)
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
             body: NotificationListener<UserScrollNotification>(
               onNotification: (notification) {
@@ -200,6 +241,66 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
         },
       ),
     );
+  }
+
+  final PagingController<int, dynamic> pagingController =
+      PagingController(firstPageKey: 1);
+
+  Future<dynamic> _picksupp(BuildContext context, HomeProvider homeProvider,
+      BasketProvider basketProvider) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(width: 1, color: AppColors.cleanBlack)),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: homeProvider.supList
+                        .map((e) => InkWell(
+                              onTap: () async {
+                                await homeProvider.pickSupplier(
+                                    int.parse(e.id), context);
+                                // homeProvider.pagingController.itemList?.clear();
+                                //  homeProvider.pagingController.refresh();
+                                basketProvider.getBasket();
+                                await homeProvider.getFilters();
+                                await homeProvider.changeSupName(e.name);
+                                await promotionProvider.getMarkedPromotion();
+                                homeProvider.refresh(
+                                    context, homeProvider, promotionProvider);
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  if (promotionProvider
+                                      .markedPromotions.isNotEmpty) {
+                                    homeProvider.showMarkedPromos(
+                                        context, promotionProvider);
+                                  }
+                                });
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                    bottom:
+                                        BorderSide(color: Colors.grey.shade700),
+                                  )),
+                                  child: Text(e.name,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.primary))),
+                            ))
+                        .toList(),
+                  ),
+                )),
+          );
+        });
   }
 }
 

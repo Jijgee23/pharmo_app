@@ -4,18 +4,38 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/models/category.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
+import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeProvider extends ChangeNotifier {
+  final PagingController<int, dynamic> _pagingController =
+      PagingController(firstPageKey: 1);
+  PagingController<int, dynamic> get pagingController => _pagingController;
+  final TextEditingController _searchController = TextEditingController();
+  TextEditingController get searchController => _searchController;
+  final PageController _pageController = PageController();
+  PageController get pageController => _pageController;
+  List<String> stype = ['Нэрээр', 'Баркодоор', 'Ерөнхий нэршлээр'];
+  String queryType = 'name';
+  String searchType = 'Нэрээр';
+  bool isList = false;
+  String query = '';
+  bool searching = false;
+  final int page = 1;
+  final int pageSize = 20;
   int currentIndex = 0;
   bool invisible = false;
   String selectedCustomerName = '';
@@ -48,29 +68,135 @@ class HomeProvider extends ChangeNotifier {
   String _supName = 'Нийлүүлэгч сонгох';
   String get supName => _supName;
 
-  changeSupName(String name) async {
-    _supName = name;
+ 
+
+  paging() {
+    try {
+      pagingController.addPageRequestListener((pageKey) {
+        fetchPage(pageKey);
+        pagingController.refresh();
+        notifyListeners();
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void refresh(BuildContext context, HomeProvider homeProvider,
+      PromotionProvider promotionProvider) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      pagingController.refresh();
+      if (PromotionProvider().markedPromotions.isNotEmpty) {
+        showMarkedPromos(context, promotionProvider);
+      }
+      notifyListeners();
+    });
+  }
+
+  void refreshCntrl() {
+    pagingController.refresh();
     notifyListeners();
   }
 
-  changeIndex(int index) {
-    currentIndex = index;
-    notifyListeners();
+  getProducts() async {
+    try {
+      final bearerToken = await getAccessToken();
+      final response = await http.get(
+          Uri.parse(!searching
+              ? '${dotenv.env['SERVER_URL']}products/?page=$page&page_size=$pageSize'
+              : '${dotenv.env['SERVER_URL']}products/search/?k=$queryType&v=$query'),
+          headers: getHeader(bearerToken));
+      pagingController.itemList?.clear();
+      if (response.statusCode == 200) {
+        if (!searching) {
+          Map res = jsonDecode(utf8.decode(response.bodyBytes));
+          List<Product> prods = (res['results'] as List)
+              .map((data) => Product.fromJson(data))
+              .toList();
+          return prods;
+        } else {
+          List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+          final prods = (res).map((data) => Product.fromJson(data)).toList();
+          return prods;
+        }
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      notifyListeners();
+    }
   }
 
-  changeSelectedCustomerId(int customerId) {
-    selectedCustomerId = customerId;
-    notifyListeners();
+  Future<void> fetchPage(int pageKey) async {
+    try {
+      final items = await getProducts();
+      notifyListeners();
+      final isLastPage = items!.length < pageSize;
+      final nextPageKey = pageKey + 1;
+      if (isLastPage) {
+        pagingController.appendLastPage(items);
+        notifyListeners();
+      } else {
+        pagingController.appendPage(items, nextPageKey);
+        notifyListeners();
+      }
+    } catch (error) {
+      pagingController.error = error;
+      notifyListeners();
+    }
   }
 
-  changeSelectedCustomerName(String customerName) {
-    selectedCustomerName = customerName;
-    notifyListeners();
-  }
-
-  toggleInvisible() {
-    invisible = !invisible;
-    notifyListeners();
+  showMarkedPromos(BuildContext context, PromotionProvider promotionProvider) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Container(
+                height: double.infinity,
+                padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.cleanWhite,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: PageView(
+                        scrollDirection: Axis.horizontal,
+                        controller: pageController,
+                        pageSnapping: true,
+                        children: promotionProvider.markedPromotions
+                            .map((e) => MarkedPromoWidget(promo: e))
+                            .toList(),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          onTap: () => pageController.previousPage(
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.linear),
+                          child: const Text('Өмнөх'),
+                        ),
+                        InkWell(
+                            onTap: () {
+                              if (pageController.page ==
+                                  promotionProvider.markedPromotions.length -
+                                      1) {
+                                Navigator.pop(context);
+                              } else {
+                                pageController.nextPage(
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.linear);
+                              }
+                            },
+                            child: const Text('Дараах')),
+                      ],
+                    )
+                  ],
+                )),
+          );
+        });
   }
 
   getFilters() async {
@@ -78,10 +204,7 @@ class HomeProvider extends ChangeNotifier {
       final accestoken = await getAccessToken();
       final response = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}product/filters/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': accestoken,
-        },
+        headers: getHeader(accestoken),
       );
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -102,17 +225,12 @@ class HomeProvider extends ChangeNotifier {
   }
 
   filter(String type, int filters, int page, int pageSize) async {
-    // print([type, filters, page, pageSize]);
     try {
       final bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse(
               '${dotenv.env['SERVER_URL']}products/?$type=[$filters]&page=$page&page_size=$pageSize'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
-      // print(['status:' ,   response.statusCode,  'body:', response.body]);
+          headers: getHeader(bearerToken));
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         List<Product> prods = (res['results'] as List)
@@ -126,17 +244,12 @@ class HomeProvider extends ChangeNotifier {
   }
 
   filterCate(int id, int page, int pageSize) async {
-    // print('id: $id , page: $page , pageSize: $pageSize');
     try {
       final bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse(
               '${dotenv.env['SERVER_URL']}products/?category=[$id]&page=$page&page_size=$pageSize'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
-      //     print(['status:' ,   response.statusCode,  'body:', response.body]);
+          headers: getHeader(bearerToken));
       if (response.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         List<Product> prods = (res['results'] as List)
@@ -152,14 +265,11 @@ class HomeProvider extends ChangeNotifier {
   getSuppliers() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      final accestoken = await getAccessToken();
+      final bearerToken = await getAccessToken();
       int? id = prefs.getInt('suppID');
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': accestoken,
-          });
+          headers: getHeader(bearerToken));
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         _supList.clear();
@@ -173,30 +283,34 @@ class HomeProvider extends ChangeNotifier {
         notifyListeners();
       } else {
         debugPrint('Түр хүлээгээд дахин оролдоно уу!');
-        // showFailedMessage(
-        //     message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
       debugPrint('SERVER ERROR: $e');
-      //showFailedMessage(message: 'Админтай холбогдоно уу', context: context);
     }
   }
 
-  pickSupplier(int supId) async {
+  pickSupplier(int supId, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final accestoken = await getAccessToken();
-    final response =
-        await http.post(Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': accestoken,
-            },
-            body: jsonEncode({'supplierId': supId}));
+    final bearertoken = await getAccessToken();
+    final response = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
+        headers: getHeader(bearertoken),
+        body: jsonEncode({'supplierId': supId}));
     if (response.statusCode == 200) {
       Map<String, dynamic> res = jsonDecode(response.body);
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
       await prefs.setInt('picked_suplier', res['id']);
+      await PromotionProvider().getMarkedPromotion();
+      await getFilters();
+      BasketProvider().getBasket();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (PromotionProvider().markedPromotions.isNotEmpty) {
+          showMarkedPromos(context, PromotionProvider());
+        }
+      });
+
+      notifyListeners();
     } else if (response.statusCode == 403) {
       debugPrint('PERMISSION DENIED');
     } else {
@@ -220,13 +334,10 @@ class HomeProvider extends ChangeNotifier {
   }
 
   getBasketId() async {
-    final accestoken = await getAccessToken();
+    final bearerToken = await getAccessToken();
     final response = await http.get(
       Uri.parse('${dotenv.env['SERVER_URL']}get_basket/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': accestoken,
-      },
+      headers: getHeader(bearerToken),
     );
     final res = jsonDecode(utf8.decode(response.bodyBytes));
     if (response.statusCode == 200) {
@@ -237,13 +348,10 @@ class HomeProvider extends ChangeNotifier {
 
   getCustomerBranch() async {
     try {
-      final accestoken = await getAccessToken();
+      final bearerToken = await getAccessToken();
       final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}seller/customer_branch/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': accestoken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({'customerId': selectedCustomerId}));
       branchList.clear();
       if (response.statusCode == 200) {
@@ -259,7 +367,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   Future<Map<String, String>> getDeviceInfo() async {
-    final accestoken = await getAccessToken();
+    final bearerToken = await getAccessToken();
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
     try {
@@ -288,10 +396,7 @@ class HomeProvider extends ChangeNotifier {
       }
       final response =
           await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-                'Authorization': accestoken,
-              },
+              headers: getHeader(bearerToken),
               body: jsonEncode({
                 'deviceId': deviceData['deviceId'],
                 'platform': deviceData['platform'],
@@ -335,13 +440,10 @@ class HomeProvider extends ChangeNotifier {
 
   searchByLocation(BuildContext context) async {
     try {
-      final token = await getAccessToken();
+      final bearerToken = await getAccessToken();
       final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}seller/search_by_location/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': token,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({
             'lat': currentLatitude,
             'lon': currentLongitude,
@@ -377,12 +479,67 @@ class HomeProvider extends ChangeNotifier {
           message: 'Интернет холболтоо шалгана уу!.', context: context);
     }
   }
-  
+   setQueryType(String type) {
+    queryType = type;
+    notifyListeners();
+  }
 
-  getAccessToken() async {
+  setQueryTypeName(String newValue) {
+    searchType = newValue;
+    notifyListeners();
+  }
+
+  changeQueryValue(String? value) {
+    query = value ?? '';
+    notifyListeners();
+  }
+
+  changeSearching(bool newValue) {
+    searching = newValue;
+    notifyListeners();
+  }
+
+  changeSupName(String name) async {
+    _supName = name;
+    notifyListeners();
+  }
+
+  changeIndex(int index) {
+    currentIndex = index;
+    notifyListeners();
+  }
+
+  changeSelectedCustomerId(int customerId) {
+    selectedCustomerId = customerId;
+    notifyListeners();
+  }
+
+  changeSelectedCustomerName(String customerName) {
+    selectedCustomerName = customerName;
+    notifyListeners();
+  }
+
+  toggleInvisible() {
+    invisible = !invisible;
+    notifyListeners();
+  }
+
+  switchView() {
+    isList = !isList;
+    notifyListeners();
+  }
+  Future<String> getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('access_token');
+    String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
     return bearerToken;
+  }
+
+  getHeader(String token) {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': token
+    };
+    return headers;
   }
 }

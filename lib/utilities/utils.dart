@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void goto(Widget widget, BuildContext context) {
   Navigator.push(
@@ -42,4 +43,19 @@ extension AppContext on BuildContext {
   void pop() async {
     return Navigator.pop(this);
   }
+}
+
+getHeader(String token) async {
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+    'Authorization': await getAccessToken()
+  };
+  return headers;
+}
+
+Future<String> getAccessToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString("access_token");
+  String bearerToken = "Bearer $token";
+  return bearerToken;
 }

@@ -40,7 +40,7 @@ class _OrderDoneState extends State<OrderDone> {
 
     return Scaffold(
       appBar: const CustomAppBar(
-        title: 'Миний захиалга',
+        title: Text('Миний захиалга'),
       ),
       body: SizedBox(
         width: double.infinity,

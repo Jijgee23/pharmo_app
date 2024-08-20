@@ -8,6 +8,7 @@ import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 class BasketProvider extends ChangeNotifier {
   int _count = 0;
   int get count => _count;
@@ -50,13 +51,10 @@ class BasketProvider extends ChangeNotifier {
                 shoppingCarts[i]["qty"];
           }
         }
-        final response =
-            await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
-                headers: <String, String>{
-                  'Content-Type': 'application/json; charset=UTF-8',
-                  'Authorization': bearerToken,
-                },
-                body: jsonEncode({"data": bodyStr}));
+        final response = await http.patch(
+            Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
+            headers: getHeader(bearerToken),
+            body: jsonEncode({"data": bodyStr}));
         if (response.statusCode == 200) {
           Map<String, dynamic> res =
               jsonDecode(utf8.decode(response.bodyBytes));
@@ -102,13 +100,10 @@ class BasketProvider extends ChangeNotifier {
         bodyStr = {'$product_id': qty};
         isProduct = product_id.toString();
       }
-      final response =
-          await http.patch(Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-                'Authorization': bearerToken,
-              },
-              body: jsonEncode({"data": bodyStr}));
+      final response = await http.patch(
+          Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
+          headers: getHeader(bearerToken),
+          body: jsonEncode({"data": bodyStr}));
       if (response.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         if (res[isProduct] == null) {
@@ -143,10 +138,7 @@ class BasketProvider extends ChangeNotifier {
         String bearerToken = await getAccessToken();
         final response = await http.post(
             Uri.parse('${dotenv.env['SERVER_URL']}basket_item/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': bearerToken,
-            },
+            headers: getHeader(bearerToken),
             body: jsonEncode({'product': product_id, 'qty': qty}));
         if (response.statusCode == 201) {
           return {
@@ -171,13 +163,10 @@ class BasketProvider extends ChangeNotifier {
 
   void getBasket() async {
     try {
-     String bearerToken = await getAccessToken();
+      String bearerToken = await getAccessToken();
       final resBasket = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}get_basket'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       if (resBasket.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(utf8.decode(resBasket.bodyBytes));
@@ -207,13 +196,10 @@ class BasketProvider extends ChangeNotifier {
   Future<dynamic> clearBasket({required int basket_id}) async {
     try {
       String bearerToken = await getAccessToken();
-      final response =
-          await http.post(Uri.parse('${dotenv.env['SERVER_URL']}clear_basket/'),
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-                'Authorization': bearerToken,
-              },
-              body: jsonEncode({'basketId': basket_id}));
+      final response = await http.post(
+          Uri.parse('${dotenv.env['SERVER_URL']}clear_basket/'),
+          headers: getHeader(bearerToken),
+          body: jsonEncode({'basketId': basket_id}));
       notifyListeners();
       if (response.statusCode == 200) {
         return {
@@ -241,10 +227,7 @@ class BasketProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/order/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({
             'basketId': basket_id,
             'branchId': branch_id,
@@ -276,10 +259,7 @@ class BasketProvider extends ChangeNotifier {
     try {
       String bearerToken = await getAccessToken();
       final resQR = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}ci/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode(
               {'branchId': branch_id, 'note': note != '' ? note : null}));
       if (resQR.statusCode == 200) {
@@ -340,10 +320,7 @@ class BasketProvider extends ChangeNotifier {
     try {
       String bearerToken = await getAccessToken();
       final resQR = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}cp/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+          headers: getHeader(bearerToken));
       if (resQR.statusCode == 200) {
         dynamic response = jsonDecode(utf8.decode(resQR.bodyBytes));
         await clearBasket(basket_id: basket.id);
@@ -372,10 +349,7 @@ class BasketProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final resQR = await http.delete(
           Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+          headers: getHeader(bearerToken));
       if (resQR.statusCode == 204) {
         getBasket();
         notifyListeners();
@@ -410,10 +384,7 @@ class BasketProvider extends ChangeNotifier {
       }
       final resQR = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({"qty": qty}));
       if (resQR.statusCode == 200) {
         getBasket();
@@ -441,5 +412,13 @@ class BasketProvider extends ChangeNotifier {
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
     return bearerToken;
+  }
+
+  getHeader(String token) {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': token
+    };
+    return headers;
   }
 }

@@ -60,10 +60,7 @@ class AddressProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}aimag_hot/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       if (response.statusCode == 200) {
         List res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -80,10 +77,7 @@ class AddressProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}sum_duureg/?aimag=$provId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       if (response.statusCode == 200) {
         List res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -101,10 +95,7 @@ class AddressProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final response = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}bag_horoo/?sum=$distId'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       if (response.statusCode == 200) {
         List res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -121,5 +112,13 @@ class AddressProvider extends ChangeNotifier {
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
     return bearerToken;
+  }
+
+  getHeader(String token) {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': token
+    };
+    return headers;
   }
 }

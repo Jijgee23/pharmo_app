@@ -80,12 +80,11 @@ class JaggerProvider extends ChangeNotifier {
   List<String> get filters => _filters;
   String _filter = 'сонгох';
   String get filter => _filter;
-  
+
   String _type = 'ordersCnt';
   String get type => _type;
   Widget _selecterFilter = const SizedBox();
   Widget get selecterFilter => _selecterFilter;
-  
 
   void getFilter(Widget filter) {
     _selecterFilter = filter;
@@ -112,10 +111,7 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}shipment/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+          headers: getHeader(bearerToken));
       if (res.statusCode == 200) {
         _jaggers.clear();
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -160,10 +156,7 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          });
+          headers: getHeader(bearerToken));
       _jaggerOrders.clear();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -196,10 +189,7 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}start_shipment/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({"shipmentId": shipmentId}));
       notifyListeners();
       if (res.statusCode == 200) {
@@ -226,10 +216,7 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({"shipmentId": shipmentId, "force": true}));
       notifyListeners();
       if (res.statusCode == 200) {
@@ -256,10 +243,7 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({"shipmentId": shipmentId}));
       notifyListeners();
       if (res.statusCode == 200) {
@@ -280,23 +264,12 @@ class JaggerProvider extends ChangeNotifier {
       return {'fail': e};
     }
   }
-
-  Future<String> getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
-    return bearerToken;
-  }
-
   Future<dynamic> addExpenseAmount() async {
     try {
       String bearerToken = await getAccessToken();
       final res = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({"note": note.text, "amount": amount.text}));
       notifyListeners();
       if (res.statusCode == 201) {
@@ -322,10 +295,7 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}shipment_add_note/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode(
               {"shipId": shipId, "itemId": itemId, "note": feedback.text}));
       notifyListeners();
@@ -350,10 +320,7 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/$id/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': bearerToken,
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({"note": note.text, "amount": amount.text}));
       notifyListeners();
       if (res.statusCode == 200) {
@@ -386,10 +353,7 @@ class JaggerProvider extends ChangeNotifier {
         int diff = int.parse(rQty.text) - iqty;
         res = await http.patch(
             Uri.parse('${dotenv.env['SERVER_URL']}update_item_qty/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': bearerToken,
-            },
+            headers: getHeader(bearerToken),
             body: jsonEncode({"itemId": itemId, "rQty": diff, "add": true}));
       } else {
         int diff = iqty - int.parse(rQty.text);
@@ -484,10 +448,7 @@ class JaggerProvider extends ChangeNotifier {
         await prefs.setString('longitude', longitude);
         final res = await http.patch(
             Uri.parse('${dotenv.env['SERVER_URL']}update_shipment_location/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': bearerToken,
-            },
+            headers: getHeader(bearerToken),
             body: jsonEncode({"lat": latitude, "lon": longitude}));
         notifyListeners();
         if (res.statusCode == 200) {
@@ -521,10 +482,7 @@ class JaggerProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final res = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}shipment/history/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       if (res.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -539,15 +497,11 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   filterShipment(String type, String value) async {
-    print('$type , $value');
     String bearerToken = await getAccessToken();
     try {
       final res = await http.get(
         Uri.parse('${dotenv.env['SERVER_URL']}shipment/history/?$type=$value'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
+        headers: getHeader(bearerToken),
       );
       debugPrint(res.statusCode.toString());
       if (res.statusCode == 200) {
@@ -562,6 +516,20 @@ class JaggerProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
   }
+  Future<String> getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("access_token");
+    String bearerToken = "Bearer $token";
+    return bearerToken;
+  }
+
+  getHeader(String token) {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': token
+    };
+    return headers;
+  }
 }
 
 class ValidationModel {
@@ -569,4 +537,3 @@ class ValidationModel {
   String? error;
   ValidationModel(this.value, this.error);
 }
-

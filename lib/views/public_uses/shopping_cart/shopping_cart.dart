@@ -71,7 +71,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
 
     return Scaffold(
       appBar: const CustomAppBar(
-        title: 'Миний сагс',
+        title: Text('Миний сагс'),
       ),
       body: Consumer<BasketProvider>(
         builder: (context, provider, _) {

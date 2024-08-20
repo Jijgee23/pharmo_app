@@ -30,15 +30,10 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: true);
-
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
       gotoRemoveUntil(const SellerHomePage(), context);
-    }
-
-    void purchase(int basketId) {
-      goto(const SelectSellerBranchPage(), context);
     }
 
     return Scaffold(
@@ -135,9 +130,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         OutlinedButton.icon(
-                          onPressed: () {
-                            clearBasket(basket.id);
-                          },
+                          onPressed: () => clearBasket(basket.id),
                           icon: Image.asset(
                             'assets/icons/basket.png',
                             height: 24,
@@ -148,9 +141,8 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                           ),
                         ),
                         OutlinedButton.icon(
-                          onPressed: () {
-                            purchase(basket.id);
-                          },
+                          onPressed: () =>
+                              goto(const SelectSellerBranchPage(), context),
                           icon: Image.asset(
                             'assets/icons/checkout.png',
                             height: 24,
