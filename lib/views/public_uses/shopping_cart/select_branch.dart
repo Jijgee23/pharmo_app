@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
@@ -27,10 +28,12 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
   int _selectedIndex = -1;
   int _selectedAddress = 0;
   final radioColor = const MaterialStatePropertyAll(AppColors.primary);
+  late HomeProvider homeProvider;
 
   @override
   void initState() {
     getData();
+    homeProvider = Provider.of<HomeProvider>(context, listen: false);
     super.initState();
   }
 

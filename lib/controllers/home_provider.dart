@@ -8,22 +8,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/branch.dart';
 import 'package:pharmo_app/models/category.dart';
 import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/buying_promo.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeProvider extends ChangeNotifier {
-  final PagingController<int, dynamic> _pagingController =
-      PagingController(firstPageKey: 1);
-  PagingController<int, dynamic> get pagingController => _pagingController;
   final TextEditingController _searchController = TextEditingController();
   TextEditingController get searchController => _searchController;
   final PageController _pageController = PageController();
@@ -34,7 +33,7 @@ class HomeProvider extends ChangeNotifier {
   bool isList = false;
   String query = '';
   bool searching = false;
-  final int page = 1;
+  // final int page = 1;
   final int pageSize = 20;
   int currentIndex = 0;
   bool invisible = false;
@@ -67,46 +66,26 @@ class HomeProvider extends ChangeNotifier {
   List<Supplier> get supList => _supList;
   String _supName = 'Нийлүүлэгч сонгох';
   String get supName => _supName;
-
- 
-
-  paging() {
-    try {
-      pagingController.addPageRequestListener((pageKey) {
-        fetchPage(pageKey);
-        pagingController.refresh();
-        notifyListeners();
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
+  List<Sector> branches = <Sector>[];
 
   void refresh(BuildContext context, HomeProvider homeProvider,
       PromotionProvider promotionProvider) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      pagingController.refresh();
       if (PromotionProvider().markedPromotions.isNotEmpty) {
         showMarkedPromos(context, promotionProvider);
       }
-      notifyListeners();
     });
   }
 
-  void refreshCntrl() {
-    pagingController.refresh();
-    notifyListeners();
-  }
-
-  getProducts() async {
+  // Барааний жагсаалт & бараа хайх
+  getProducts(int pageKey) async {
     try {
       final bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse(!searching
-              ? '${dotenv.env['SERVER_URL']}products/?page=$page&page_size=$pageSize'
+              ? '${dotenv.env['SERVER_URL']}products/?page=$pageKey&page_size=$pageSize'
               : '${dotenv.env['SERVER_URL']}products/search/?k=$queryType&v=$query'),
           headers: getHeader(bearerToken));
-      pagingController.itemList?.clear();
       if (response.statusCode == 200) {
         if (!searching) {
           Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -115,36 +94,57 @@ class HomeProvider extends ChangeNotifier {
               .toList();
           return prods;
         } else {
-          List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-          final prods = (res).map((data) => Product.fromJson(data)).toList();
+          final res = jsonDecode(utf8.decode(response.bodyBytes));
+          List<Product> prods =
+              (res as List).map((data) => Product.fromJson(data)).toList();
           return prods;
         }
       }
     } catch (e) {
-      debugPrint(e.toString());
-      notifyListeners();
+      debugPrint('error============= on getProduct> ${e.toString()}');
     }
   }
 
-  Future<void> fetchPage(int pageKey) async {
+  getBranches(BuildContext context) async {
     try {
-      final items = await getProducts();
-      notifyListeners();
-      final isLastPage = items!.length < pageSize;
-      final nextPageKey = pageKey + 1;
-      if (isLastPage) {
-        pagingController.appendLastPage(items);
-        notifyListeners();
+      final bearerToken = await getAccessToken();
+      final response = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}branch'),
+          headers: getHeader(bearerToken));
+      if (response.statusCode == 200) {
+        List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+        branches = (res).map((data) => Sector.fromJson(data)).toList();
       } else {
-        pagingController.appendPage(items, nextPageKey);
-        notifyListeners();
+        showFailedMessage(
+            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
-    } catch (error) {
-      pagingController.error = error;
-      notifyListeners();
+    } catch (e) {
+      showFailedMessage(
+          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+          context: context);
     }
   }
 
+  // хямдралтай, эрэлттэй, шинэ бараа
+  filterProducts(String filter) async {
+    try {
+      final bearerToken = await getAccessToken();
+      final response = await http.get(
+          Uri.parse('${dotenv.env['SERVER_URL']}products/?$filter'),
+          headers: getHeader(bearerToken));
+      if (response.statusCode == 200) {
+        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
+        return prods;
+      }
+    } catch (e) {
+      debugPrint('error============= on filterProduct > ${e.toString()}');
+    }
+  }
+
+  // Онцлох урамшуулал харуулах
   showMarkedPromos(BuildContext context, PromotionProvider promotionProvider) {
     showDialog(
         context: context,
@@ -152,7 +152,7 @@ class HomeProvider extends ChangeNotifier {
           return Dialog(
             child: Container(
                 height: double.infinity,
-                padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 decoration: BoxDecoration(
                   color: AppColors.cleanWhite,
                   borderRadius: BorderRadius.circular(10),
@@ -165,7 +165,9 @@ class HomeProvider extends ChangeNotifier {
                         controller: pageController,
                         pageSnapping: true,
                         children: promotionProvider.markedPromotions
-                            .map((e) => MarkedPromoWidget(promo: e))
+                            .map((e) => (e.promoType == 2)
+                                ? BuyinPromo(promo: e)
+                                : MarkedPromoWidget(promo: e))
                             .toList(),
                       ),
                     ),
@@ -199,6 +201,7 @@ class HomeProvider extends ChangeNotifier {
         });
   }
 
+  // Ангилалийн жагсаалт авах
   getFilters() async {
     try {
       final accestoken = await getAccessToken();
@@ -224,6 +227,7 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
+// Бараа ангиллаар шүүх
   filter(String type, int filters, int page, int pageSize) async {
     try {
       final bearerToken = await getAccessToken();
@@ -262,6 +266,7 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
+  // Нийлүүлэгчдийн жагсаалт авах
   getSuppliers() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -289,6 +294,7 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
+  // Нийлүүлэгч сонгох
   pickSupplier(int supId, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final bearertoken = await getAccessToken();
@@ -309,7 +315,6 @@ class HomeProvider extends ChangeNotifier {
           showMarkedPromos(context, PromotionProvider());
         }
       });
-
       notifyListeners();
     } else if (response.statusCode == 403) {
       debugPrint('PERMISSION DENIED');
@@ -333,6 +338,7 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Сагсны id авах
   getBasketId() async {
     final bearerToken = await getAccessToken();
     final response = await http.get(
@@ -479,7 +485,8 @@ class HomeProvider extends ChangeNotifier {
           message: 'Интернет холболтоо шалгана уу!.', context: context);
     }
   }
-   setQueryType(String type) {
+
+  setQueryType(String type) {
     queryType = type;
     notifyListeners();
   }
@@ -494,8 +501,8 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  changeSearching(bool newValue) {
-    searching = newValue;
+  changeSearching(bool a) {
+    searching = a;
     notifyListeners();
   }
 
@@ -527,19 +534,5 @@ class HomeProvider extends ChangeNotifier {
   switchView() {
     isList = !isList;
     notifyListeners();
-  }
-  Future<String> getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
-    return bearerToken;
-  }
-
-  getHeader(String token) {
-    Map<String, String> headers = {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': token
-    };
-    return headers;
   }
 }

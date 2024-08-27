@@ -121,6 +121,7 @@ class AuthController extends ChangeNotifier {
           'password': password,
         }),
       );
+      print(jsonDecode(utf8.decode(responseLogin.bodyBytes)));
       if (responseLogin.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(responseLogin.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -169,7 +170,7 @@ class AuthController extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      debugPrint('error=================> ${e.toString()} ');
+      debugPrint('error================= on login> ${e.toString()} ');
     }
   }
 

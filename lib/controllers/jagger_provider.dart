@@ -14,6 +14,7 @@ import 'package:pharmo_app/models/jagger_order.dart';
 import 'package:pharmo_app/models/jagger_order_item.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
 import 'package:pharmo_app/models/shipment.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -515,20 +516,6 @@ class JaggerProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint(e.toString());
     }
-  }
-  Future<String> getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
-    return bearerToken;
-  }
-
-  getHeader(String token) {
-    Map<String, String> headers = {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': token
-    };
-    return headers;
   }
 }
 

@@ -1,19 +1,86 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/models/promotion.dart';
+import 'package:pharmo_app/models/qr_data.dart';
+import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PromotionProvider extends ChangeNotifier {
   List<Promotion> promotions = <Promotion>[];
   List<MarkedPromo> markedPromotions = <MarkedPromo>[];
   MarkedPromo promoDetail = MarkedPromo();
+  Map<String, dynamic> qrCode = {};
+  QrData qrData = QrData();
+  String payType = 'C';
+  bool hasNote = false;
+  bool useBank = false;
+  bool showQr = false;
+  bool isCash = true;
+  bool orderStarted = false;
+  bool delivery = false;
+  dis() {
+    setDelivery(false);
+    setBank(false);
+    setHasnote(false);
+    setQr(false);
+    setIsCash(true);
+    setOrderStartedWithVal(false);
+    notifyListeners();
+  }
+
+  setOrderStartedWithVal(bool v) {
+    orderStarted = v;
+    notifyListeners();
+  }
+
+  setPayType() {
+    if (payType == 'C') {
+      payType = 'L';
+    } else {
+      payType = 'C';
+    }
+    notifyListeners();
+  }
+
+  setDelivery(bool v) {
+    delivery = v;
+    notifyListeners();
+  }
+
+  setOrderStarted() {
+    orderStarted = !orderStarted;
+    notifyListeners();
+  }
+
+  setIsCash(bool v) {
+    isCash = v;
+    notifyListeners();
+  }
+
+  setQr(bool v) {
+    showQr = v;
+    notifyListeners();
+  }
+
+  setHasnote(bool v) {
+    hasNote = v;
+    notifyListeners();
+  }
+
+  setBank(bool v) {
+    useBank = v;
+    notifyListeners();
+  }
+
+  setQrCode(Map<String, dynamic> v) {
+    qrCode = v;
+    notifyListeners();
+  }
+
   void setMarkedPromo(MarkedPromo v) {
     promoDetail = v;
     notifyListeners();
@@ -26,10 +93,10 @@ class PromotionProvider extends ChangeNotifier {
 
   getPromotion() async {
     try {
-      String bearerToken = await getAccessToken();
+      final token = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}get_promos/'),
-          headers: getHeader(bearerToken));
+          headers: getHeader(token));
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         promotions.clear();
@@ -43,30 +110,30 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   getDetail(int promoId) async {
+    final token = await getAccessToken();
     try {
-      String bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}get_promos/$promoId/'),
-          headers: getHeader(bearerToken));
+          headers: getHeader(token));
       if (response.statusCode == 200) {
         Map<String, dynamic> p = jsonDecode(utf8.decode(response.bodyBytes));
         MarkedPromo mp = MarkedPromo.fromJson(p);
-        clearPromoDetail();
+        // clearPromoDetail();
         setMarkedPromo(mp);
         notifyListeners();
         return mp;
       }
     } catch (e) {
-      debugPrint('ERROR AT PROMO: ${e.toString()}');
+      debugPrint('ERROR AT PROMODETAIL: ${e.toString()}');
     }
   }
 
   getMarkedPromotion() async {
     try {
-      String bearerToken = await getAccessToken();
+      final token = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}marked_promos/'),
-          headers: getHeader(bearerToken));
+          headers: getHeader(token));
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         markedPromotions.clear();
@@ -83,11 +150,11 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   filterPromotion(String type, String value) async {
+    final token = await getAccessToken();
     try {
-      String bearerToken = await getAccessToken();
       final response = await http.get(
           Uri.parse('${dotenv.env['SERVER_URL']}get_promos/?$type=$value'),
-          headers: getHeader(bearerToken));
+          headers: getHeader(token));
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> pro = res['results'];
@@ -96,37 +163,76 @@ class PromotionProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      debugPrint('ERROR: ${e.toString()}');
+      debugPrint('ERROR AT FILTER PROMO: ${e.toString()}');
     }
   }
 
   hidePromo(int id, BuildContext context) async {
+    final token = await getAccessToken();
     try {
-      String bearerToken = await getAccessToken();
       final response = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}marked_promos/$id/'),
-          headers:getHeader(bearerToken));
+          headers: getHeader(token));
       if (response.statusCode == 200) {
         showSuccessMessage(message: 'Амжилттай', context: context);
       } else {
         showFailedMessage(message: 'Амжилтгүй', context: context);
       }
     } catch (e) {
-      debugPrint('ERROR: ${e.toString()}');
+      debugPrint('ERROR AT HIDE PROMO: ${e.toString()}');
     }
   }
-  Future<String> getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
-    return bearerToken;
+
+  orderPromo(
+      int promoId, int branchId, String? note, BuildContext context) async {
+    final token = await getAccessToken();
+    try {
+      final response = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/promo_order/'),
+        headers: getHeader(token),
+        body: jsonEncode(
+          {
+            "payType": payType,
+            "promoId": promoId,
+            (delivery == false) ? "branchId" : branchId: null,
+            note != null ? "note" : note: null,
+          },
+        ),
+      );
+      var data = jsonDecode(utf8.decode(response.bodyBytes));
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        qrData = QrData.fromJson(data);
+        setQr(true);
+      } else if (response.statusCode == 400) {
+        showFailedMessage(
+            message: 'Урамшууллын хугацаа дууссан', context: context);
+      } else {}
+    } catch (e) {
+      debugPrint('ERROR AT ORDER PROMO: ${e.toString()}');
+    }
   }
 
-  getHeader(String token) {
-    Map<String, String> headers = {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': token
-    };
-    return headers;
+  checkPayment(BuildContext context) async {
+    final token = await getAccessToken();
+    final response = await http.patch(
+      Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/promo_order/cp/'),
+      headers: getHeader(token),
+      body: jsonEncode(
+        {
+          "invoiceId": qrData.invoiceId,
+        },
+      ),
+    );
+    final data = jsonDecode(utf8.decode(response.bodyBytes));
+    print(data);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      goto(OrderDone(orderNo: data['orderNo'].toString()), context);
+      showSuccessMessage(message: 'Төлбөр төлөгдсөн байна', context: context);
+      return true;
+    } else {
+      showFailedMessage(message: 'Төлбөр төлөгдөөгүй байна', context: context);
+    }
   }
 }

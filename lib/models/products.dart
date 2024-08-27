@@ -3,12 +3,12 @@ class Product {
   String? expDate;
   String? discount_expireddate;
   String? name;
-  String? price;
+  double? price;
   int? itemname_id;
   String? barcode;
   String? sale_price;
   int? sale_qty;
-  String? discount;
+  double? discount;
   int? in_stock;
   String? intName;
   String? description;
@@ -53,12 +53,12 @@ class Product {
         expDate = json['expDate'].toString(),
         discount_expireddate = json['discount_expireddate'].toString(),
         name = json['name'],
-        price = json['price'].toString(),
+        price = json['price'],
         itemname_id = json['itemname_id'],
         barcode = json['barcode'],
         sale_price = json['sale_price'],
         sale_qty = json['sale_qty'],
-        discount = json['discount'].toString(),
+        discount = json['discount'],
         in_stock = json['in_stock'],
         intName = json['intName'],
         description = json['description'],

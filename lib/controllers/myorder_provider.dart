@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 
 class MyOrderProvider extends ChangeNotifier {
   List<MyOrderModel> _orders = <MyOrderModel>[];
@@ -273,21 +273,6 @@ class MyOrderProvider extends ChangeNotifier {
     } catch (e) {
       return {'errorType': 3, 'data': e, 'message': e};
     }
-  }
-
-  Future<String> getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
-    return bearerToken;
-  }
-
-  getHeader(String token) {
-    Map<String, String> headers = {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': token
-    };
-    return headers;
   }
 }
 

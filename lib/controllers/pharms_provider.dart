@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/order_list.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 
 class PharmProvider extends ChangeNotifier {
   String baseUrl = '${dotenv.env['SERVER_URL']}';
@@ -81,20 +81,6 @@ class PharmProvider extends ChangeNotifier {
       // showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
       notifyListeners();
     }
-  }
-  Future<String> getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
-    return bearerToken;
-  }
-
-  getHeader(String token) {
-    Map<String, String> headers = {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': token
-    };
-    return headers;
   }
 }
 

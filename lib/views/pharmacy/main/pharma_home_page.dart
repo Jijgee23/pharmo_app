@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart';
@@ -39,18 +39,9 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     const FilterPage(),
     const ShoppingCartHome(),
   ];
-  late SharedPreferences prefs;
   bool hidden = false;
-
   late HomeProvider homeProvider;
   late PromotionProvider promotionProvider;
-  // final TextEditingController _searchController = TextEditingController();
-  String searchBarText = 'Нэрээр';
-  String type = 'name';
-  List stype = ['Нэрээр', 'Баркодоор', 'Ерөнхий нэршлээр'];
-  IconData viewIcon = Icons.grid_view;
-  bool searching = false;
-  String? searchQuery = '';
 
   @override
   void initState() {
@@ -62,6 +53,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     homeProvider.getDeviceInfo();
     homeProvider.getFilters();
     homeProvider.getSuppliers();
+    homeProvider.getBranches(context);
   }
 
   @override
@@ -71,18 +63,13 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
 
   init() async {
     String deviceToken = await getDeviceToken();
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("access_token");
     String bearerToken = "Bearer $token";
-
-    final response =
-        await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': bearerToken,
-            },
-            body: jsonEncode({"deviceId": deviceToken}));
+    final response = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
+        headers: getHeader(bearerToken),
+        body: jsonEncode({"deviceId": deviceToken}));
     if (response.statusCode == 200) {}
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
       String? title = remoteMessage.notification!.title;
@@ -125,10 +112,11 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
       child: Consumer3<AuthController, HomeProvider, BasketProvider>(
         builder: (context, authController, homeProvider, basketProvider, _) {
           return Scaffold(
+            
             drawer: Drawer(
               elevation: 0,
               backgroundColor: Colors.white,
-              width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
+              width: size.width > 480 ? size.width * 0.5 : size.width * 0.8,
               child: MediaQuery.removePadding(
                 removeTop: true,
                 context: context,
@@ -163,36 +151,10 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
             appBar: hidden
                 ? null
                 : CustomAppBar(
-                    title: ChangeNotifierProvider(
-                      create: (context) => BasketProvider(),
-                      child: InkWell(
-                        onTap: () {
-                          _picksupp(context, homeProvider, basketProvider);
-                        },
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey.shade300,
-                              ),
-                              borderRadius: BorderRadius.circular(5)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                homeProvider.supName,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              const Icon(Icons.keyboard_arrow_down_rounded)
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                    title: Text(
+                    'Нүүр хуудас',
+                    style: Constants.headerTextStyle,
+                  )),
             body: NotificationListener<UserScrollNotification>(
               onNotification: (notification) {
                 if (notification.direction == ScrollDirection.reverse) {
@@ -241,66 +203,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
         },
       ),
     );
-  }
-
-  final PagingController<int, dynamic> pagingController =
-      PagingController(firstPageKey: 1);
-
-  Future<dynamic> _picksupp(BuildContext context, HomeProvider homeProvider,
-      BasketProvider basketProvider) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return Dialog(
-            child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(width: 1, color: AppColors.cleanBlack)),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: homeProvider.supList
-                        .map((e) => InkWell(
-                              onTap: () async {
-                                await homeProvider.pickSupplier(
-                                    int.parse(e.id), context);
-                                // homeProvider.pagingController.itemList?.clear();
-                                //  homeProvider.pagingController.refresh();
-                                basketProvider.getBasket();
-                                await homeProvider.getFilters();
-                                await homeProvider.changeSupName(e.name);
-                                await promotionProvider.getMarkedPromotion();
-                                homeProvider.refresh(
-                                    context, homeProvider, promotionProvider);
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                  if (promotionProvider
-                                      .markedPromotions.isNotEmpty) {
-                                    homeProvider.showMarkedPromos(
-                                        context, promotionProvider);
-                                  }
-                                });
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                  decoration: BoxDecoration(
-                                      border: Border(
-                                    bottom:
-                                        BorderSide(color: Colors.grey.shade700),
-                                  )),
-                                  child: Text(e.name,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.primary))),
-                            ))
-                        .toList(),
-                  ),
-                )),
-          );
-        });
   }
 }
 

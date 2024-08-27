@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/products_views/paged_sliver_grid.dart';
@@ -19,112 +20,136 @@ class SellerHomeTab extends StatefulWidget {
 class _SellerHomeTabState extends State<SellerHomeTab> {
   late HomeProvider homeProvider;
   bool isList = false;
+  final PagingController<int, dynamic> _pagingController =
+      PagingController(firstPageKey: 1);
   IconData viewIcon = Icons.grid_view;
   @override
   void initState() {
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    homeProvider.paging();
-    WidgetsBinding.instance
-        .addPostFrameCallback((timeStamp) => homeProvider.refreshCntrl());
+    _pagingController.addPageRequestListener((pageKey) {
+      fetchPage(pageKey);
+    });
     super.initState();
+  }
+
+  Future<void> fetchPage(int pageKey) async {
+    try {
+      final items = await homeProvider.getProducts(pageKey);
+      final isLastPage = items!.length < homeProvider.pageSize;
+      final nextPageKey = pageKey + 1;
+      if (isLastPage) {
+        _pagingController.appendLastPage(items);
+      } else {
+        _pagingController.appendPage(items, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(
-        () => homeProvider.pagingController.refresh(),
-      ),
-      child: Consumer<HomeProvider>(
-        builder: (_, homeProvider, child) {
-          final search = homeProvider.searchController;
-          return Scaffold(
-            resizeToAvoidBottomInset: false,
-            body: CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        flex: 10,
-                        child: CustomSearchBar(
-                          searchController: search,
-                          onChanged: (v) {
-                            Future.delayed(const Duration(milliseconds: 1500),
-                                () {
-                              WidgetsBinding.instance
-                                  .addPostFrameCallback((timeStamp) {
-                                if (search.text.isNotEmpty) {
-                                  homeProvider.changeSearching(true);
-                                  homeProvider.changeQueryValue(v);
-                                  homeProvider.pagingController.refresh();
+    return Consumer<HomeProvider>(
+      builder: (_, homeProvider, child) {
+        final search = homeProvider.searchController;
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 10,
+                      child: CustomSearchBar(
+                        searchController: search,
+                        onChanged: (v) {
+                          try {
+                            Future.delayed(
+                              const Duration(milliseconds: 1500),
+                              () {
+                                if (v.isNotEmpty) {
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((t) {
+                                    homeProvider.changeSearching(true);
+                                    homeProvider.changeQueryValue(v);
+                                    _pagingController.refresh();
+                                  });
                                 } else {
-                                  homeProvider.changeSearching(false);
-                                  homeProvider.pagingController
-                                      .removePageRequestListener((pageKey) {});
-                                  homeProvider.pagingController.refresh();
+                                  print('v: $v');
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((t) {
+                                    homeProvider.changeSearching(false);
+                                    _pagingController.refresh();
+                                  });
                                 }
-                              });
-                            });
-                          },
-                          title: '${homeProvider.searchType} хайх',
-                          suffix: const Icon(Icons.keyboard_arrow_down_rounded),
-                          onTapSuffux: () {
-                            showMenu(
-                                    surfaceTintColor: Colors.white,
-                                    context: context,
-                                    position: const RelativeRect.fromLTRB(
-                                        150, 140, 0, 0),
-                                    items: homeProvider.stype
-                                        .map((e) => PopupMenuItem(
-                                            onTap: () {
-                                              homeProvider.setQueryTypeName(e);
-                                              int index =
-                                                  homeProvider.stype.indexOf(e);
-                                              if (index == 0) {
-                                                homeProvider
-                                                    .setQueryType('name');
-                                              } else if (index == 1) {
-                                                homeProvider
-                                                    .setQueryType('barcode');
-                                              } else {
-                                                homeProvider
-                                                    .setQueryType('intName');
-                                              }
-                                            },
-                                            child: Text(e)))
-                                        .toList())
-                                .then((value) {});
-                          },
+                                print(search.text);
+                              },
+                            );
+                          } catch (e) {
+                            print('=============> $e');
+                          }
+                        },
+                        onSubmitted: (v) {
+                          if (v.isEmpty) {
+                            homeProvider.changeSearching(false);
+                            _pagingController.refresh();
+                          }
+                        },
+                        title: '${homeProvider.searchType} хайх',
+                        suffix: const Icon(Icons.keyboard_arrow_down_rounded),
+                        onTapSuffux: () {
+                          showMenu(
+                                  surfaceTintColor: Colors.white,
+                                  context: context,
+                                  position: const RelativeRect.fromLTRB(
+                                      150, 140, 0, 0),
+                                  items: homeProvider.stype
+                                      .map((e) => PopupMenuItem(
+                                          onTap: () {
+                                            homeProvider.setQueryTypeName(e);
+                                            int index =
+                                                homeProvider.stype.indexOf(e);
+                                            if (index == 0) {
+                                              homeProvider.setQueryType('name');
+                                            } else if (index == 1) {
+                                              homeProvider
+                                                  .setQueryType('barcode');
+                                            } else {
+                                              homeProvider
+                                                  .setQueryType('intName');
+                                            }
+                                          },
+                                          child: Text(e)))
+                                      .toList())
+                              .then((value) {});
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () => homeProvider.switchView(),
+                          child: Icon(homeProvider.isList
+                              ? Icons.grid_view
+                              : Icons.list),
                         ),
                       ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(10),
-                            onTap: () => homeProvider.switchView(),
-                            child: Icon(homeProvider.isList
-                                ? Icons.grid_view
-                                : Icons.list),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                !homeProvider.isList
-                    ? CustomGridView(
-                        pagingController: homeProvider.pagingController)
-                    : CustomListView(
-                        pagingController: homeProvider.pagingController)
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+              !homeProvider.isList
+                  ? CustomGridView(pagingController: _pagingController)
+                  : CustomListView(pagingController: _pagingController)
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -5,9 +5,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/tabs/pharms/customer_details_paga.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -68,7 +68,7 @@ class _BranchDetailsState extends State<BranchDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: chevronBack(context),
+        leading: const ChevronBack(),
         title: Text(
           widget.branchName,
           style: const TextStyle(fontSize: 14),

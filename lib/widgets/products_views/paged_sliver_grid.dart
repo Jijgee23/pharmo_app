@@ -13,14 +13,16 @@ import 'package:provider/provider.dart';
 
 class CustomGridView extends StatelessWidget {
   final PagingController<int, dynamic> pagingController;
-  const CustomGridView({super.key, required this.pagingController});
+  final bool? hasSale;
+  const CustomGridView(
+      {super.key, required this.pagingController, this.hasSale});
 
   @override
   Widget build(BuildContext context) {
     return PagedSliverGrid<int, dynamic>(
-      showNewPageProgressIndicatorAsGridChild: false,
-      showNewPageErrorIndicatorAsGridChild: false,
-      showNoMoreItemsIndicatorAsGridChild: false,
+      showNewPageProgressIndicatorAsGridChild: true,
+      showNewPageErrorIndicatorAsGridChild: true,
+      showNoMoreItemsIndicatorAsGridChild: true,
       pagingController: pagingController,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: MediaQuery.of(context).size.width > 480 ? 3 : 2,
@@ -40,6 +42,7 @@ class CustomGridView extends StatelessWidget {
         animateTransitions: true,
         itemBuilder: (_, item, index) => ProductWidget(
           item: item,
+          hasSale: hasSale,
           onTap: () => goto(ProductDetail(prod: item), context),
           onButtonTab: () => addBasket(item.id, item.itemname_id, context),
         ),

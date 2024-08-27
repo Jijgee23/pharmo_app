@@ -95,7 +95,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                                     fontSize: 13.0),
                                 children: [
                                   TextSpan(
-                                      text: '${basket.totalCount}',
+                                      text: '${basket.totalCount ?? 0}',
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16.0)),
@@ -111,7 +111,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                                     fontSize: 13.0),
                                 children: [
                                   TextSpan(
-                                      text: '${basket.totalPrice} ₮',
+                                      text: '${basket.totalPrice ?? 0} ₮',
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16.0,

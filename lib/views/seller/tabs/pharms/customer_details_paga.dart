@@ -9,6 +9,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/tabs/pharms/brainch_detail.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -46,7 +47,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
     );
     return Scaffold(
       appBar: AppBar(
-        leading: chevronBack(context),
+        leading: const ChevronBack(),
         title: Text(
           widget.custName,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -114,7 +115,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                                 branchName: _branchList[index].name),
                             context);
                       },
-                      leading:const CustomIcon(name: 'drugstore1.png'),
+                      leading: const CustomIcon(name: 'drugstore1.png'),
                       title: Text(_branchList[index].name),
                     ),
                   );

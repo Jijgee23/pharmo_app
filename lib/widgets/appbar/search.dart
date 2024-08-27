@@ -6,7 +6,7 @@ class CustomSearchBar extends StatelessWidget {
   final TextEditingController searchController;
   void Function(String)? onChanged;
   final Widget? suffix;
-  final IconButton? prefix;
+  final Widget? prefix;
   final Function()? onTapSuffux;
   final TextInputType? keyboardType;
   final Function(String)? onSubmitted;
@@ -44,7 +44,7 @@ class CustomSearchBar extends StatelessWidget {
           ),
           hintText: title,
           hintStyle: const TextStyle(height: 1),
-          prefixIcon: Padding(
+          prefixIcon: prefix ?? Padding(
             padding: const EdgeInsets.all(8),
             child: Image.asset(
               'assets/icons/search.png',

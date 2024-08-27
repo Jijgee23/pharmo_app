@@ -49,7 +49,6 @@ class _FilterPageState extends State<FilterPage> {
             body: CustomScrollView(
               slivers: [
                 SliverAppBar(
-                  foregroundColor: Colors.transparent,
                   toolbarHeight: 14,
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -75,31 +74,33 @@ class _FilterPageState extends State<FilterPage> {
                   ),
                 ),
                 list[selectedIdx]
-              ],
+              ],  
             ),
           );
         },
       ),
     );
-  }
+  } 
 
   _categories() {
     final cats = homeProvider.categories;
     return SliverList.builder(
       itemBuilder: (context, index) {
         final cat = homeProvider.categories[index];
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            CategoryItem(cat: cat),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              child: Divider(
-                color: Colors.grey.shade300,
-              ),
-            )
-          ],
-        );
+        return SizedBox(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              CategoryItem(cat: cat),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                child: Divider(
+                  color: Colors.grey.shade300,
+                ),
+              )
+            ],
+          ),
+        );    
       },
       itemCount: cats.length,
     );
@@ -198,7 +199,7 @@ class _CategoryItemState extends State<CategoryItem> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 20),
+        padding: const EdgeInsets.only(top: 5,  left: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

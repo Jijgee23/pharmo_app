@@ -43,7 +43,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     return Scaffold(
       appBar: const CustomAppBar(
         title:Text( 'Миний захиалгын дэлгэрэнгүй'),
-      ),
+      ),  
       body: Consumer<MyOrderProvider>(builder: (context, provider, _) {
         final details = (provider.orderDetails.isNotEmpty) ? provider.orderDetails : null;
         return Container(

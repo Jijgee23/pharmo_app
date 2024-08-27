@@ -15,16 +15,6 @@ void gotoRemoveUntil(Widget widget, BuildContext context) {
     (route) => false,
   );
 }
-
-chevronBack(BuildContext context) {
-  return IconButton(
-    onPressed: () {
-      Navigator.pop(context);
-    },
-    icon: const Icon(Icons.chevron_left),
-  );
-}
-
 const ts1 = TextStyle(color: Colors.blueGrey, fontSize: 12.0);
 const ts2 = TextStyle(color: Colors.blueGrey, fontSize: 16.0);
 const ts3 = TextStyle(color: Colors.blueGrey, fontSize: 20.0);
@@ -45,17 +35,19 @@ extension AppContext on BuildContext {
   }
 }
 
-getHeader(String token) async {
-  Map<String, String> headers = {
-    'Content-Type': 'application/json; charset=UTF-8',
-    'Authorization': await getAccessToken()
-  };
-  return headers;
-}
-
 Future<String> getAccessToken() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("access_token");
   String bearerToken = "Bearer $token";
   return bearerToken;
 }
+
+getHeader(String token) {
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+    'Authorization': token
+  };
+  return headers;
+}
+ String noImage =
+        'https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg';
