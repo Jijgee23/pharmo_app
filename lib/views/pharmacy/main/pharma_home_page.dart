@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
@@ -120,31 +121,35 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
               child: MediaQuery.removePadding(
                 removeTop: true,
                 context: context,
-                child: ListView(
-                  children: [
-                    const CustomDrawerHeader(),
-                    Column(
-                      children: [
-                        DrawerItem(
-                          title: 'Миний захиалгууд',
-                          asset: 'assets/icons/order.png',
-                          onTap: () => goto(const MyOrder(), context),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const CustomDrawerHeader(),
+                      SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            DrawerItem(
+                              title: 'Миний захиалгууд',
+                              asset: 'assets/icons/order.png',
+                              onTap: () => goto(const MyOrder(), context),
+                            ),
+                            DrawerItem(
+                              title: 'Урамшуулал',
+                              asset: 'assets/icons/gift.png',
+                              onTap: () => goto(const PromotionWidget(), context),
+                            ),
+                            DrawerItem(
+                              title: 'Гарах',
+                              asset: 'assets/icons/check-out.png',
+                              onTap: () {
+                                showLogoutDialog(context);
+                              },
+                            )
+                          ],
                         ),
-                        DrawerItem(
-                          title: 'Урамшуулал',
-                          asset: 'assets/icons/gift.png',
-                          onTap: () => goto(const PromotionWidget(), context),
-                        ),
-                        DrawerItem(
-                          title: 'Гарах',
-                          asset: 'assets/icons/check-out.png',
-                          onTap: () {
-                            showLogoutDialog(context);
-                          },
-                        )
-                      ],
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -217,7 +222,7 @@ class CustomDrawerHeader extends StatelessWidget {
     var style = const TextStyle(color: AppColors.mainDark, fontSize: 14);
     return Consumer<HomeProvider>(builder: (context, homeProvider, child) {
       return Container(
-        height: size.height * 0.2,
+        height: size.height > 600 ? size.height * 0.2 : size.height * 0.4,
         decoration: const BoxDecoration(
             color: AppColors.cleanWhite,
             border: Border(

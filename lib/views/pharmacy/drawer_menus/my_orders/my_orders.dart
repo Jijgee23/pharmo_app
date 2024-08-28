@@ -7,7 +7,6 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_field_icon.dart';
@@ -337,16 +336,10 @@ class _MyOrderState extends State<MyOrder> {
                           child: ListView.builder(
                             itemCount: orders.length,
                             itemBuilder: (context, index) {
+                              var order = orders[index];
                               return InkWell(
-                                onTap: () async => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MyOrderDetail(
-                                        orderId: orders[index].id,
-                                      ),
-                                    ),
-                                  ),
+                                onTap: () {
+                                  print(order.process);
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -417,10 +410,11 @@ class _MyOrderState extends State<MyOrder> {
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      (orders[index].status == 'Цуцлагдсан' ||
-                                              orders[index].status == 'Биелсэн')
-                                          ? const SizedBox()
-                                          : InkWell(
+                                      (orders[index].process ==
+                                                  'Бэлэн болсон' ||
+                                              orders[index].process ==
+                                                  'Түгээлтэнд гарсан')
+                                          ? InkWell(
                                               onTap: () =>
                                                   provider.confirmOrder(
                                                       orders[index].id),
@@ -447,6 +441,7 @@ class _MyOrderState extends State<MyOrder> {
                                                 ),
                                               ),
                                             )
+                                          : const SizedBox(),
                                     ],
                                   ),
                                 ),
@@ -519,7 +514,7 @@ class _MyOrderState extends State<MyOrder> {
                 ),
                 child: const Text('Хаах'),
                 onPressed: () => Navigator.of(context).pop(),
-              ),  
+              ),
               TextButton(
                 style: TextButton.styleFrom(
                   textStyle: Theme.of(context).textTheme.labelLarge,

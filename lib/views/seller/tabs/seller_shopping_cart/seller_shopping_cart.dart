@@ -36,58 +36,47 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
       gotoRemoveUntil(const SellerHomePage(), context);
     }
 
-    return Scaffold(
-      body: Consumer<BasketProvider>(
-        builder: (context, provider, _) {
-          final cartDatas = provider.shoppingCarts;
-          final basket = provider.basket;
-          return Column(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    cartDatas.isNotEmpty
-                        ? Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ListView.builder(
-                                itemCount: cartDatas.length,
-                                itemBuilder: (context, index) {
-                                  return ShoppingCartView(
-                                      detail: cartDatas[index] ?? {});
-                                },
-                              ),
-                            ),
-                          )
-                        : const EmptyBasket()
-                  ],
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border(
-                    top: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                      style: BorderStyle.solid,
-                    ),
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 0),
-                      child: Row(
+    return Consumer<BasketProvider>(builder: (context, provider, _) {
+      final orientaion = MediaQuery.of(context).orientation;
+      final cartDatas = provider.shoppingCarts;
+      final basket = provider.basket;
+      return Scaffold(
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: cartDatas.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: cartDatas
+                              .map((e) => ShoppingCartView(
+                                  detail: cartDatas[cartDatas.indexOf(e)]))
+                              .toList(),
+                        ),
+                      ),
+                    )
+                  : const SingleChildScrollView(child: EmptyBasket()),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                  color: AppColors.cleanWhite,
+                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              height: orientaion == Orientation.landscape ? 100 : 100,
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           RichText(
@@ -125,45 +114,52 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                           ),
                         ],
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: () => clearBasket(basket.id),
-                          icon: Image.asset(
-                            'assets/icons/basket.png',
-                            height: 24,
-                          ),
-                          label: const Text('Сагс хоослох'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 20),
+                        decoration: BoxDecoration(
+                            color: AppColors.main,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Colors.white)),
+                        child: InkWell(
+                          onTap: () {
+                            clearBasket(basket.id);
+                          },
+                          child: const Center(
+                            child: Text('Сагс хоослох',
+                                style: TextStyle(color: Colors.white)),
                           ),
                         ),
-                        OutlinedButton.icon(
-                          onPressed: () =>
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 20),
+                        decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Colors.white)),
+                        child: InkWell(
+                          onTap: () =>
                               goto(const SelectSellerBranchPage(), context),
-                          icon: Image.asset(
-                            'assets/icons/checkout.png',
-                            height: 24,
-                          ),
-                          label: const Text(
-                            'Захиалах',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
+                          child: const Center(
+                            child: Text('Захиалах',
+                                style: TextStyle(color: Colors.white)),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          );
-        },
-      ),
-    );
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

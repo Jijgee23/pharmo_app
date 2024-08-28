@@ -126,41 +126,43 @@ class _SellerHomePageState extends State<SellerHomePage> {
             elevation: 0,
             backgroundColor: AppColors.cleanWhite,
             width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const CustomDrawerHeader(),
-                DrawerItem(
-                    title: 'Эмийг сан бүртгэх',
-                    onTap: () => goto(const RegisterPharmPage(), context),
-                    asset: 'assets/icons/drugstore.png'),
-                DrawerItem(
-                    title: 'Орлогын жагсаалт',
-                    onTap: () => goto(const IncomeList(), context),
-                    asset: 'assets/icons/icnome.png'),
-                DrawerItem(
-                    title: 'Захиалгууд',
-                    onTap: () => goto(const SellerOrders(), context),
-                    asset: 'assets/icons/order.png'),
-                DrawerItem(
-                    title: 'Харилцагчийн захиалгын түүх',
-                    onTap: () =>
-                        goto(const SellerCustomerOrderHisrtory(), context),
-                    asset: 'assets/icons/clock.png'),
-                homeProvider.userRole == 'D'
-                    ? DrawerItem(
-                        title: 'Түгээгчрүү шилжих',
-                        onTap: () {
-                          gotoRemoveUntil(const JaggerHomePage(), context);
-                        },
-                        asset: 'assets/icons/swap.png',
-                      )
-                    : const SizedBox(),
-                DrawerItem(
-                    title: 'Гарах',
-                    onTap: () => showLogoutDialog(context),
-                    asset: 'assets/icons/check-out.png'),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const CustomDrawerHeader(),
+                  DrawerItem(
+                      title: 'Эмийг сан бүртгэх',
+                      onTap: () => goto(const RegisterPharmPage(), context),
+                      asset: 'assets/icons/drugstore.png'),
+                  DrawerItem(
+                      title: 'Орлогын жагсаалт',
+                      onTap: () => goto(const IncomeList(), context),
+                      asset: 'assets/icons/icnome.png'),
+                  DrawerItem(
+                      title: 'Захиалгууд',
+                      onTap: () => goto(const SellerOrders(), context),
+                      asset: 'assets/icons/order.png'),
+                  DrawerItem(
+                      title: 'Харилцагчийн захиалгын түүх',
+                      onTap: () =>
+                          goto(const SellerCustomerOrderHisrtory(), context),
+                      asset: 'assets/icons/clock.png'),
+                  homeProvider.userRole == 'D'
+                      ? DrawerItem(
+                          title: 'Түгээгчрүү шилжих',
+                          onTap: () {
+                            gotoRemoveUntil(const JaggerHomePage(), context);
+                          },
+                          asset: 'assets/icons/swap.png',
+                        )
+                      : const SizedBox(),
+                  DrawerItem(
+                      title: 'Гарах',
+                      onTap: () => showLogoutDialog(context),
+                      asset: 'assets/icons/check-out.png'),
+                ],
+              ),
             ),
           ),
           body: NotificationListener<UserScrollNotification>(

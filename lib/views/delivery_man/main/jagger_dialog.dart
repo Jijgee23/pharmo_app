@@ -5,7 +5,6 @@ import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
 import 'package:pharmo_app/views/pharmacy/tabs/cart/cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/custom_alert_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -145,17 +144,76 @@ class _JaggerDialogState extends State<JaggerDialog> {
 }
 
 void showLogoutDialog(BuildContext context) {
+  Widget button(String text, VoidCallback onPressed) {
+    return SizedBox(
+      width: 100,
+      child: InkWell(
+        onTap: onPressed,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade700),
+              borderRadius: BorderRadius.circular(15)),
+          child: Center(
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.black87),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return CustomAlertDialog(
-        submitFunction: () {
-          Provider.of<AuthController>(context, listen: false).logout(context);
-          Provider.of<AuthController>(context, listen: false).toggleVisibile();
-          Provider.of<HomeProvider>(context, listen: false).changeIndex(0);
-        },
-        text: "Системээс гарахдаа итгэлтэй байна уу?",
-        icon: Icons.logout_sharp,
+      return Dialog(
+        backgroundColor: AppColors.cleanWhite,
+        child: Container(
+
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                const Text(
+                  "Системээс гарахдаа итгэлтэй байна уу?",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                    decoration: TextDecoration.none,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const Icon(Icons.login, color: AppColors.secondary, size: 50),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    button('Үгүй', () {
+                      Navigator.of(context).pop();
+                    }),
+                    button(
+                      'Тийм',
+                      () {
+                        Provider.of<AuthController>(context, listen: false)
+                            .logout(context);
+                        Provider.of<AuthController>(context, listen: false)
+                            .toggleVisibile();
+                        Provider.of<HomeProvider>(context, listen: false)
+                            .changeIndex(0);
+                      },
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
       );
     },
   );

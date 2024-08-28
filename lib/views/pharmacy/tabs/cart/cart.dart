@@ -16,7 +16,6 @@ class ShoppingCartHome extends StatefulWidget {
 
 class _ShoppingCartHomeState extends State<ShoppingCartHome> {
   late BasketProvider basketProvider;
- 
 
   @override
   void initState() {
@@ -60,8 +59,8 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 5.0, horizontal: 15.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   border: Border(
@@ -124,26 +123,37 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        OutlinedButton.icon(
-                          onPressed: () => clearBasket(basket.id),
-                          icon: Image.asset(
-                            'assets/icons/basket.png',
-                            height: 24,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          decoration: BoxDecoration(
+                              color: AppColors.main,
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(color: Colors.white)),
+                          child: InkWell(
+                            onTap: () {
+                              clearBasket(basket.id);
+                            },
+                            child: const Center(
+                              child: Text('Сагс хоослох',
+                                  style: TextStyle(color: Colors.white)),
+                            ),
                           ),
-                          label: const Text('Сагс хоослох'),
                         ),
-                        OutlinedButton.icon(
-                          onPressed: () => goto(const SelectBranchPage(), context),
-                          icon: Image.asset(
-                            'assets/icons/checkout.png',
-                            height: 24,
-                          ),
-                          label: const Text(
-                            'Төлбөр төлөх',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          decoration: BoxDecoration(
+                              color: AppColors.secondary,
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(color: Colors.white)),
+                          child: InkWell(
+                            onTap: () =>
+                                goto(const SelectBranchPage(), context),
+                            child: const Center(
+                              child: Text('Захиалах',
+                                  style: TextStyle(color: Colors.white)),
+                            ),
                           ),
                         ),
                       ],

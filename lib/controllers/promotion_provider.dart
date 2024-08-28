@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
@@ -225,8 +227,6 @@ class PromotionProvider extends ChangeNotifier {
       ),
     );
     final data = jsonDecode(utf8.decode(response.bodyBytes));
-    print(data);
-    print(response.statusCode);
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()), context);
       showSuccessMessage(message: 'Төлбөр төлөгдсөн байна', context: context);

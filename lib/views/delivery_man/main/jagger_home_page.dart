@@ -64,33 +64,35 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
               backgroundColor: Colors.white,
               elevation: 0,
               width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
-              child: ListView(
-                children: [
-                  const CustomDrawerHeader(),
-                  DrawerItem(
-                    title: 'Зарлага',
-                    asset: 'assets/icons/order.png',
-                    onTap: () => goto(const JaggerOrderPage(), context),
-                  ),
-                  DrawerItem(
-                    title: 'Түгээлтийн түүх',
-                    asset: 'assets/icons/transaction-history.png',
-                    onTap: () => goto(const ShipmentHistory(), context),
-                  ),
-                  DrawerItem(
-                    title: 'Борлуулагчруу шилжих',
-                    asset: 'assets/icons/swap.png',
-                    onTap: () =>
-                        gotoRemoveUntil(const SellerHomePage(), context),
-                  ),
-                  DrawerItem(
-                    title: 'Гарах',
-                    asset: 'assets/icons/check-out.png',
-                    onTap: () {
-                      showLogoutDialog(context);
-                    },
-                  ),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const CustomDrawerHeader(),
+                    DrawerItem(
+                      title: 'Зарлага',
+                      asset: 'assets/icons/order.png',
+                      onTap: () => goto(const JaggerOrderPage(), context),
+                    ),
+                    DrawerItem(
+                      title: 'Түгээлтийн түүх',
+                      asset: 'assets/icons/transaction-history.png',
+                      onTap: () => goto(const ShipmentHistory(), context),
+                    ),
+                    DrawerItem(
+                      title: 'Борлуулагчруу шилжих',
+                      asset: 'assets/icons/swap.png',
+                      onTap: () =>
+                          gotoRemoveUntil(const SellerHomePage(), context),
+                    ),
+                    DrawerItem(
+                      title: 'Гарах',
+                      asset: 'assets/icons/check-out.png',
+                      onTap: () {
+                        showLogoutDialog(context);
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

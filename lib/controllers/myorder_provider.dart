@@ -255,6 +255,8 @@ class MyOrderProvider extends ChangeNotifier {
           Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/accept_order/'),
           headers: getHeader(bearerToken),
           body: jsonEncode({"id": orderId}));
+          print(res.statusCode);
+          
       if (res.statusCode == 200) {
         notifyListeners();
         return {

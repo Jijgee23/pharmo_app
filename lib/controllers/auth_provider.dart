@@ -8,6 +8,9 @@ import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/income_provider.dart';
+import 'package:pharmo_app/controllers/jagger_provider.dart';
+import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -121,7 +124,7 @@ class AuthController extends ChangeNotifier {
           'password': password,
         }),
       );
-      print(jsonDecode(utf8.decode(responseLogin.bodyBytes)));
+      // print(jsonDecode(utf8.decode(responseLogin.bodyBytes)));
       if (responseLogin.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(responseLogin.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -189,6 +192,10 @@ class AuthController extends ChangeNotifier {
       HomeProvider().dispose();
       BasketProvider().dispose();
       PromotionProvider().dispose();
+      JaggerProvider().dispose();
+      BasketProvider().dispose();
+      IncomeProvider().dispose();
+      ProductProvider().dispose();
       gotoRemoveUntil(const LoginPage(), context);
     }
     notifyListeners();
