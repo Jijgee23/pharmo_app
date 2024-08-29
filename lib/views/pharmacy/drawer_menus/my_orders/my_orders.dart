@@ -10,6 +10,7 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_field_icon.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
 class MyOrder extends StatefulWidget {
@@ -49,7 +50,7 @@ class _MyOrderState extends State<MyOrder> {
           Provider.of<MyOrderProvider>(context, listen: false);
       dynamic res = await orderProvider.getMyorders();
       if (res['errorType'] == 1) {
-        showSuccessMessage(message: res['message'], context: context);
+       // showSuccessMessage(message: res['message'], context: context);
       } else {
         showFailedMessage(message: res['message'], context: context);
       }
@@ -449,14 +450,7 @@ class _MyOrderState extends State<MyOrder> {
                             },
                           ),
                         )
-                      : const SizedBox(
-                          height: 200,
-                          child: Center(
-                            child: Text(
-                              "Түгээлтийн мэдээлэл олдсонгүй ...",
-                            ),
-                          ),
-                        ),
+                      : const NoResult()
                 ),
               ),
             ],

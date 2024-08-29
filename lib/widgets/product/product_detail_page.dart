@@ -127,8 +127,10 @@ class _ProductDetailState extends State<ProductDetail> {
                     children: [
                       const ChevronBack(),
                       const SizedBox(width: 10),
-                      Text(widget.prod.name.toString(),
-                          style: Constants.headerTextStyle),
+                      Expanded(
+                        child: Text(widget.prod.name.toString(),
+                            style: Constants.headerTextStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ),
                     ],
                   ),
                 ),

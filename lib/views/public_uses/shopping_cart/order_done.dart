@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
@@ -87,6 +88,10 @@ class _OrderDoneState extends State<OrderDone> {
                         children: [
                           OutlinedButton.icon(
                             onPressed: () {
+                              final HomeProvider homeProvider =
+                                  Provider.of<HomeProvider>(context,
+                                      listen: false);
+                              homeProvider.changeIndex(0);
                               if (_userRole == 'S') {
                                 gotoRemoveUntil(
                                     const SellerHomePage(), context);

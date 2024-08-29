@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +9,9 @@ import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class BasketProvider extends ChangeNotifier {
   int _count = 0;
@@ -223,7 +226,8 @@ class BasketProvider extends ChangeNotifier {
   Future<dynamic> createOrder(
       {required int basket_id,
       required int branch_id,
-      required String note}) async {
+      required String note,
+      required BuildContext context}) async {
     try {
       String bearerToken = await getAccessToken();
       final response = await http.post(
@@ -231,89 +235,73 @@ class BasketProvider extends ChangeNotifier {
           headers: getHeader(bearerToken),
           body: jsonEncode({
             'basketId': basket_id,
-            'branchId': branch_id,
+            'branchId': (branch_id == 0) ? null : branch_id,
             'note': note != '' ? note : null
           }));
-
-      notifyListeners();
+      final res = jsonDecode(utf8.decode(response.bodyBytes));
+      final status = response.statusCode;
+      debugPrint('basket_id: $basket_id, status code: $status, body: ${res}');
       if (response.statusCode == 200) {
-        final res = jsonDecode(utf8.decode(response.bodyBytes));
-        await clearBasket(basket_id: basket_id);
-        return {
-          'errorType': 1,
-          'data': res,
-          'message': 'Захиалга амжилттай үүслээ.'
-        };
+        Future(() async {
+          await clearBasket(basket_id: basket_id);
+        }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString()), context));
+        // goto(OrderDone(orderNo: res['orderNo']), context);
+        // await clearBasket(basket_id: basket_id);
+        return res['orderNo'];
+      } else if (response.statusCode == 400) {
+        showFailedMessage(message: 'Сагс хоосон байна!', context: context);
       } else {
-        return {'errorType': 2, 'data': null, 'message': response.body};
+        // return {'errorType': 2, 'data': null, 'message': response.body};
+        showFailedMessage(message: res, context: context);
       }
     } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
+      // return {'errorType': 3, 'data': e, 'message': e};
     }
   }
 
   Future<dynamic> createQR(
       {required int basket_id,
       required int branch_id,
-      required String pay_type,
-      String? note}) async {
+      String? note,
+      required BuildContext context}) async {
     try {
       String bearerToken = await getAccessToken();
       final resQR = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}ci/'),
           headers: getHeader(bearerToken),
-          body: jsonEncode(
-              {'branchId': branch_id, 'note': note != '' ? note : null}));
-      if (resQR.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(resQR.bodyBytes));
-        _qrCode = OrderQRCode.fromJson(response);
-        notifyListeners();
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'QR code амжилттай үүслээ.'
-        };
-      } else if (resQR.statusCode == 404) {
-        notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Нийлүүлэгч QPay холбоогүй байна.'
-        };
-      } else if (resQR.statusCode == 400) {
-        if (resQR.body == 'qpay') {
-          notifyListeners();
-          return {
-            'errorType': 2,
-            'data': null,
-            'message': 'Нийлүүлэгч QPay холбоогүй байна.'
-          };
-        } else if (resQR.body == 'bad qpay') {
-          notifyListeners();
-          return {
-            'errorType': 2,
-            'data': null,
-            'message': 'Нийлүүлэгчийн Qpay тохиргоо алдаатай.'
-          };
-        } else if (resQR.body == 'min') {
-          notifyListeners();
-          return {
-            'errorType': 2,
-            'data': null,
-            'message': 'Төлбөрийн дүн 10 төг буюу түүнээс дээш байх.'
-          };
-        } else if (resQR.body == 'empty') {
-          notifyListeners();
-          return {
-            'errorType': 2,
-            'data': null,
-            'message': 'Захиалганд бараа байхгүй буюу сагс хоосон.'
-          };
+          body: jsonEncode({
+            'branchId': (branch_id == 0) ? null : branch_id,
+            'note': note != '' ? note : null
+          }));
+
+      final data = jsonDecode(utf8.decode(resQR.bodyBytes));
+      final status = resQR.statusCode;
+      debugPrint('status code: $status, body: $data');
+      if (status == 200) {
+        _qrCode = OrderQRCode.fromJson(data);
+      } else if (status == 404) {
+        if (data == 'qpay') {
+          showFailedMessage(
+              message: 'Нийлүүлэгч Qpay холбоогүй.', context: context);
         }
-      } else if (resQR.statusCode == 500) {
-        return {'errorType': 2, 'data': null, 'message': 'Серверийн алдаа.'};
+      } else if (status == 400) {
+        if (data == 'bad qpay') {
+          showFailedMessage(
+              message: 'Нийлүүлэгчийн Qpay тохиргоо алдаатай!',
+              context: context);
+        } else if (data == 'min') {
+          showFailedMessage(
+              message: 'Төлбөрийн дүн 10₮-с дээш байх', context: context);
+        } else if (data == 'empty') {
+          showFailedMessage(message: 'Сагс хоосон байна!', context: context);
+        } else if (data == 'branch not match') {
+          showFailedMessage(
+              message: 'Салбарын мэдээлэл буруу!', context: context);
+        }
+      } else if (status == 500) {
+        showFailedMessage(message: 'Админтай холбогдоно уу!', context: context);
       }
     } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
+      debugPrint('ERROR AT CREATE QR: $e');
     }
   }
 

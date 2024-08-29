@@ -23,26 +23,25 @@ class ProductWidgetListView extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  child: Text(
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     item.name!,
                     style: const TextStyle(color: Colors.black),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  Text(
+                    '${item.price} ₮',
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,
-                    maxLines: 3,
+                    style: const TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.w500),
                   ),
-                ),
-                Text(
-                  '${item.price} ₮',
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w500),
-                ),
-              ],
+                ],
+              ),
             ),
             InkWell(
               borderRadius: BorderRadius.circular(10),

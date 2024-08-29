@@ -127,16 +127,16 @@ class _HomeState extends State<Home> {
               SliverAppBar(
                 automaticallyImplyLeading: false,
                 pinned: true,
-                toolbarHeight: 40,
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       flex: 10,
                       child: Container(
-                        height: 40,
                         decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.primary)),
+                            border: Border.all(color: AppColors.primary),
+                            borderRadius: BorderRadius.circular(15)
+                            ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
