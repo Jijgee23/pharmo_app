@@ -31,13 +31,13 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
   createOrder() async {
     debugPrint(_selectedRadioValue);
     if (_selectedRadioValue == 'C') {
-     await basketProvider.createOrder(
+      await basketProvider.createOrder(
           basket_id: basketProvider.basket.id,
           branch_id: _selectedAddress,
           note: '',
           context: context);
     } else {
-    await   basketProvider.createQR(
+      await basketProvider.createQR(
         basket_id: basketProvider.basket.id,
         branch_id: _selectedAddress,
         note: '',

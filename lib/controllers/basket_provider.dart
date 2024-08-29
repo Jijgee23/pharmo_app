@@ -240,7 +240,7 @@ class BasketProvider extends ChangeNotifier {
           }));
       final res = jsonDecode(utf8.decode(response.bodyBytes));
       final status = response.statusCode;
-      debugPrint('basket_id: $basket_id, status code: $status, body: ${res}');
+      debugPrint('basket_id: $basket_id, status code: $status, body: $res');
       if (response.statusCode == 200) {
         Future(() async {
           await clearBasket(basket_id: basket_id);

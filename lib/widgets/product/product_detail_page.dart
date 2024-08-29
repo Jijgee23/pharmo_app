@@ -129,7 +129,9 @@ class _ProductDetailState extends State<ProductDetail> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(widget.prod.name.toString(),
-                            style: Constants.headerTextStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            style: Constants.headerTextStyle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
                       ),
                     ],
                   ),

@@ -6,7 +6,6 @@ import 'package:pharmo_app/views/public_uses/notification/notification.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -38,7 +37,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           iconTheme: const IconThemeData(color: AppColors.primary),
           centerTitle: true,
           title: title,
-          leading: leading ?? const ChevronBack(),
+          leading: leading,
           backgroundColor: Colors.white,
           foregroundColor: Colors.white,
           shadowColor: Colors.white,
