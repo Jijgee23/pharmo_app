@@ -27,8 +27,6 @@ class ProductWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(13),
-      onTap: onTap,
       child: Stack(
         children: [
           Container(
@@ -38,87 +36,93 @@ class ProductWidget extends StatelessWidget {
             ),
             margin: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 5),
             padding: const EdgeInsets.only(bottom: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 120,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(color: Colors.grey.shade300)),
-                      borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(13),
-                          topRight: Radius.circular(13)),
-                      image: DecorationImage(
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.high,
-                        image: item.image != null &&
-                                splitURL(item.image!).length == 2
-                            ? NetworkImage(
-                                '${dotenv.env['IMAGE_URL']}${splitURL(item.image!)[0]}_150x150.${splitURL(item.image!)[1]}')
-                            : NetworkImage(
-                                noImageUrl,
-                                scale: 1,
-                              ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(13),
+              splashColor: Colors.grey.shade300,
+              onTap: onTap,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 120,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(color: Colors.grey.shade300)),
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(13),
+                            topRight: Radius.circular(13)),
+                        image: DecorationImage(
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
+                          image: item.image != null &&
+                                  splitURL(item.image!).length == 2
+                              ? NetworkImage(
+                                  '${dotenv.env['IMAGE_URL']}${splitURL(item.image!)[0]}_150x150.${splitURL(item.image!)[1]}')
+                              : NetworkImage(
+                                  noImageUrl,
+                                  scale: 1,
+                                ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(
-                    item.name!,
-                    softWrap: true,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.black),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                      item.name!,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.black),
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            hasSale == true
-                                ? '${item.price == 0 ? '0' : (item.price! - (item.price! / 100 * item.discount!)).toString().substring(0, 7)}₮'
-                                : '${item.price.toString()}₮',
-                            style: const TextStyle(
-                                color: Colors.red, fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                      InkWell(
-                        borderRadius: BorderRadius.circular(10),
-                        onTap: onButtonTab,
-                        child: Image.asset(
-                          'assets/icons/add-basket.png',
-                          height: 24,
-                          width: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                hasSale == true
-                    ? Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Text('${item.price.toString()}₮',
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              (hasSale == true && sale != null)
+                                  ? '${item.price == 0 ? '0' : (item.price! - (item.price! / 100 * item.discount!)).toString().substring(0, 7)}₮'
+                                  : '${item.price.toString()}₮',
                               style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
-                                  decoration: TextDecoration.lineThrough,
-                                  fontWeight: FontWeight.w500)),
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ],
                         ),
-                      )
-                    : const SizedBox(),
-              ],
+                        InkWell(
+                          borderRadius: BorderRadius.circular(24),
+                          onTap: onButtonTab,
+                          child: Image.asset(
+                            'assets/icons/add-basket.png',
+                            height: 24,
+                            width: 24,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  hasSale == true
+                      ? Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Text('${item.price.toString()}₮',
+                                style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                    decoration: TextDecoration.lineThrough,
+                                    fontWeight: FontWeight.w500)),
+                          ),
+                        )
+                      : const SizedBox(),
+                ],
+              ),
             ),
           ),
           hasSale == true

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/jagger.dart';
 import 'package:pharmo_app/models/jagger_expense_order.dart';
@@ -137,7 +138,7 @@ class JaggerProvider extends ChangeNotifier {
         return {
           'errorType': 1,
           'data': response,
-          'message': 'Түгээлт амжилттай авчирлаа.'
+          'message': 'Түгээлт авчирлаа.'
         };
       } else {
         notifyListeners();
@@ -185,81 +186,63 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> startShipment(int shipmentId) async {
+  Future<dynamic> startShipment(
+      int shipmentId, double? lat, double? lng, BuildContext context) async {
     try {
       String bearerToken = await getAccessToken();
+      await HomeProvider().getPosition();
       final res = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}start_shipment/'),
           headers: getHeader(bearerToken),
-          body: jsonEncode({"shipmentId": shipmentId}));
+          body: jsonEncode({
+            "shipmentId": shipmentId,
+            "lat": (lat != null) ? lat : null,
+            "lng": (lng != null) ? lng : null
+          }));
       notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Түгээлт амжилттай эхэллээ.'
-        };
+        print(response);
+        showSuccessMessage(
+            message: '$response Цагт түгээлт эхлэлээ', context: context);
+        print(response.replaceAll(RegExp(r'[\[\]]'), ""));
       } else {
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Түгээлт эхлэхэд алдаа гарлаа.'
-        };
+        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        showFailedMessage(
+            message: 'Түгээлт эхлэхэд алдаа гарлаа', context: context);
+        print(response['shipmentId']
+            .toString()
+            .replaceAll(RegExp(r'[\[\]]'), ""));
       }
     } catch (e) {
       return {'fail': e};
     }
   }
 
-  Future<dynamic> endShipment(int shipmentId) async {
+  Future<dynamic> endShipment(int shipmentId, double? lat, double? lng,
+      bool force, BuildContext context) async {
     try {
+      await HomeProvider().getPosition();
       String bearerToken = await getAccessToken();
       final res = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
           headers: getHeader(bearerToken),
-          body: jsonEncode({"shipmentId": shipmentId, "force": true}));
+          body: jsonEncode({
+            "shipmentId": shipmentId,
+            "lat": (lat != null) ? lat : null,
+            "lng": (lng != null) ? lng : null,
+            "force": force
+          }));
       notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Түгээлт амжилттай дууслаа.'
-        };
+        showSuccessMessage(message: 'Түгээлт дууслаа.', context: context);
+        print('response: $response');
       } else {
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Түгээлт дуусгахад алдаа гарлаа.'
-        };
-      }
-    } catch (e) {
-      return {'fail': e};
-    }
-  }
-
-  Future<dynamic> textShipment(int shipmentId) async {
-    try {
-      String bearerToken = await getAccessToken();
-      final res = await http.patch(
-          Uri.parse('${dotenv.env['SERVER_URL']}end_shipment/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({"shipmentId": shipmentId}));
-      notifyListeners();
-      if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Түгээлт амжилттай дууслаа.'
-        };
-      } else {
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Түгээлт дуусгахад алдаа гарлаа.'
-        };
+        print(response);
+        showFailedMessage(
+            message: 'Түгээлт дуусгахад алдаа гарлаа.', context: context);
       }
     } catch (e) {
       return {'fail': e};
@@ -511,6 +494,26 @@ class JaggerProvider extends ChangeNotifier {
         List<dynamic> ships = data['results'];
         debugPrint('ships: $data');
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  updateLocation(double lat, double lng) async {
+    String bearerToken = await getAccessToken();
+    try {
+      final res = await http.patch(
+          Uri.parse('${dotenv.env['SERVER_URL']}update_shipment_location/'),
+          headers: getHeader(bearerToken),
+          body: ({
+            "lat": lat,
+            "lng": lng,
+          }));
+      debugPrint(res.statusCode.toString());
+      if (res.statusCode == 200) {
+        debugPrint('Success');
         notifyListeners();
       }
     } catch (e) {

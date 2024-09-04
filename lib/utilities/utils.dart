@@ -15,6 +15,7 @@ void gotoRemoveUntil(Widget widget, BuildContext context) {
     (route) => false,
   );
 }
+
 const ts1 = TextStyle(color: Colors.blueGrey, fontSize: 12.0);
 const ts2 = TextStyle(color: Colors.blueGrey, fontSize: 16.0);
 const ts3 = TextStyle(color: Colors.blueGrey, fontSize: 20.0);
@@ -49,5 +50,6 @@ getHeader(String token) {
   };
   return headers;
 }
- String noImage =
-        'https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg';
+
+String noImage =
+    'https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg';

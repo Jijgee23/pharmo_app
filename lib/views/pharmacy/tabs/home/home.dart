@@ -254,6 +254,8 @@ class _HomeState extends State<Home> {
                     children: filters
                         .map(
                           (e) => InkWell(
+                            borderRadius: BorderRadius.circular(5),
+                            splashColor: AppColors.secondary.withOpacity(0.5),
                             onTap: () {
                               _filtering.itemList?.clear();
                               if (filters.indexOf(e) == 0) {
@@ -268,7 +270,7 @@ class _HomeState extends State<Home> {
                               }
                             },
                             child: Container(
-                              margin: const EdgeInsets.only(right: 10, top: 5),
+                            //  margin: const EdgeInsets.only(right: 10, top: 5),
                               decoration: BoxDecoration(
                                 border: Border.all(color: AppColors.secondary),
                                 borderRadius: BorderRadius.circular(5),

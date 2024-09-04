@@ -62,7 +62,7 @@ class HomeProvider extends ChangeNotifier {
   List<Manufacturer> vndrs = <Manufacturer>[];
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
-  final List<Supplier> _supList = <Supplier>[];
+  List<Supplier> _supList = <Supplier>[];
   List<Supplier> get supList => _supList;
   String _supName = 'Нийлүүлэгч сонгох';
   String get supName => _supName;
@@ -152,7 +152,8 @@ class HomeProvider extends ChangeNotifier {
           return Dialog(
             child: Container(
                 height: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 decoration: BoxDecoration(
                   color: AppColors.cleanWhite,
                   borderRadius: BorderRadius.circular(10),
@@ -280,7 +281,7 @@ class HomeProvider extends ChangeNotifier {
         _supList.clear();
         res.forEach((key, value) {
           var model = Supplier(key, value);
-          if (int.parse(model.id) == id) {
+          if (id != null && int.parse(model.id) == id) {
             changeSupName(model.name);
           }
           _supList.add(model);

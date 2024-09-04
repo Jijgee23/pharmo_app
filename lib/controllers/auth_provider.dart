@@ -124,19 +124,22 @@ class AuthController extends ChangeNotifier {
           'password': password,
         }),
       );
-      // print(jsonDecode(utf8.decode(responseLogin.bodyBytes)));
       if (responseLogin.statusCode == 200) {
-        Map<String, dynamic> res = jsonDecode(responseLogin.body);
+        final res = jsonDecode(responseLogin.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', res['access_token']);
         String? accessToken = prefs.getString('access_token').toString();
-        Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+        final decodedToken = JwtDecoder.decode(accessToken);
+        HomeProvider().getSuppliers();
+        print(decodedToken);
         _userInfo = decodedToken;
         await prefs.setString('refresh_token', res['refresh_token']);
         await prefs.setString('useremail', decodedToken['email']);
         await prefs.setInt('user_id', decodedToken['user_id']);
         await prefs.setString('userrole', decodedToken['role']);
-        await prefs.setInt('suppID', decodedToken['supplier']);
+        decodedToken['supplier'] != null
+            ? await prefs.setInt('suppID', decodedToken['supplier'])
+            : showFailedMessage(message: 'Нийлүүлэгч сонгоно уу!', context: context);
         final shoppingCart =
             Provider.of<BasketProvider>(context, listen: false);
         shoppingCart.getBasket();

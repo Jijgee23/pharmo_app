@@ -40,6 +40,8 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     homeProvider.getDeviceInfo();
+    homeProvider.getUserInfo();
+    homeProvider.getPosition();
   }
 
   @override
@@ -68,11 +70,11 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                 child: Column(
                   children: [
                     const CustomDrawerHeader(),
-                    DrawerItem(
-                      title: 'Зарлага',
-                      asset: 'assets/icons/order.png',
-                      onTap: () => goto(const JaggerOrderPage(), context),
-                    ),
+                    // DrawerItem(
+                    //   title: 'Зарлага',
+                    //   asset: 'assets/icons/order.png',
+                    //   onTap: () => goto(const JaggerOrderPage(), context),
+                    // ),
                     DrawerItem(
                       title: 'Түгээлтийн түүх',
                       asset: 'assets/icons/transaction-history.png',
@@ -96,8 +98,8 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
               ),
             ),
           ),
-          appBar: const DMAppBar(
-            title: 'Нүүр хуудас',
+          appBar:  DMAppBar(
+            title: (_selectedIndex == 0) ?  'Өнөөдрийн түгээлтүүд' : 'Зарлагууд',
           ),
           body: _pages[_selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
@@ -116,10 +118,10 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
               ),
               BottomNavigationBarItem(
                 icon: Image.asset(
-                  'assets/icons/shop-tab.png',
+                  'assets/icons/order.png',
                   height: 20,
                 ),
-                label: 'Захиалгууд',
+                label: 'Зарлагууд',
               ),
             ],
             selectedItemColor: AppColors.primary,
