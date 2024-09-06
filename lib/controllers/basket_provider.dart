@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -10,6 +9,7 @@ import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
+import 'package:pharmo_app/views/public_uses/shopping_cart/qr_code.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -278,6 +278,7 @@ class BasketProvider extends ChangeNotifier {
       debugPrint('status code: $status, body: $data');
       if (status == 200) {
         _qrCode = OrderQRCode.fromJson(data);
+        goto(const QRCode(), context);
       } else if (status == 404) {
         if (data == 'qpay') {
           showFailedMessage(

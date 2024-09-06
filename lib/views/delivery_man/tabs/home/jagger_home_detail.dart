@@ -18,6 +18,7 @@ class JaggerHomeDetail extends StatelessWidget {
     return Scaffold(
       appBar: const DMAppBar(
         title: 'Түгээлтийн дэлгэрэнгүй',
+        
       ),
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
         final orderItems = (provider.jaggers[0].jaggerOrders != null &&

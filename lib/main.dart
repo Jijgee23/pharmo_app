@@ -27,11 +27,11 @@ Future<void> main() async {
   } else {
     await Firebase.initializeApp(
       options: const FirebaseOptions(
-        apiKey: "AIzaSyDeLPH1bXffKSXckF-RShuZgIfP023TEps",
-        appId: "1:757366069753:android:fda14c67afe6ef7c068528",
-        messagingSenderId: "757366069753",
-        projectId: "android-pharmo",
-        storageBucket: 'android-pharmo.appspot.com',
+        apiKey: "AIzaSyAGC_D61SrEpsw9ztwPD2PQiWfm6rtsb3A",
+        appId: "1:620995763880:android:198720fd6fe5406a05ec9d",
+        messagingSenderId: "620995763880",
+        projectId: "fcm-pharmo",
+        storageBucket: 'fcm-pharmo.appspot.com',
       ),
     );
   }

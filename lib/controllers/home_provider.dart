@@ -67,6 +67,11 @@ class HomeProvider extends ChangeNotifier {
   String _supName = 'Нийлүүлэгч сонгох';
   String get supName => _supName;
   List<Sector> branches = <Sector>[];
+  String demo = 'demo';
+  void changeDemo(String d) {
+    demo = d;
+    notifyListeners();
+  }
 
   void refresh(BuildContext context, HomeProvider homeProvider,
       PromotionProvider promotionProvider) {

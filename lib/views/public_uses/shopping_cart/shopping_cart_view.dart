@@ -133,7 +133,6 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                               ),
                             ),
                             SizedBox(
-                              height: 30,
                               width: 50,
                               child: TextField(
                                 controller: TextEditingController(
