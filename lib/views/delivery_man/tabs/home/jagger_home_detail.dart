@@ -39,6 +39,7 @@ class JaggerHomeDetail extends StatelessWidget {
                           border: Border.all(color: Colors.grey.shade700),
                           borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.all(15),
+                      margin: const EdgeInsets.symmetric(vertical: 2.5),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,

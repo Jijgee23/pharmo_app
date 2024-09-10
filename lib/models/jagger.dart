@@ -8,10 +8,11 @@ class Jagger {
   String? endTime;
   double? lon;
   double? lat;
-  String? progress;
+  int? progress;
   bool? isActive;
   String? createdOn;
   int? supplier;
+  int? ordersCnt;
   int? delman;
   double? expense;
   List<dynamic>? inItems;  
@@ -27,6 +28,7 @@ class Jagger {
     this.isActive,
     this.createdOn,
     this.supplier,
+    this.ordersCnt,
     this.delman,
     this.expense,
     this.inItems,
@@ -44,6 +46,7 @@ class Jagger {
         supplier = json['supplier'],
         delman = json['delman'],
         expense = json['expense'],
+        ordersCnt = json['ordersCnt'],
         inItems = json['inItems'];
 
   Map<String, dynamic> toJson() {
@@ -59,6 +62,7 @@ class Jagger {
       'supplier': supplier,
       'delman': delman,
       'expense': expense,
+      'ordersCnt': ordersCnt,
       'inItems': inItems,
     };
   }

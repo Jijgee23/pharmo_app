@@ -5,7 +5,13 @@ class JaggerOrderItem {
   String? itemTotalPrice;
   int itemQty;
   int iQty;
-
+  int? rQty;
+  int? itemNameId;
+  bool? isPromoItem;
+  bool? isPromoGift;
+  int? giftCount;
+  int? order;
+  int? product;
   JaggerOrderItem(
     this.itemId,
     this.itemName,
@@ -13,6 +19,13 @@ class JaggerOrderItem {
     this.itemTotalPrice,
     this.itemQty,
     this.iQty,
+    this.rQty,
+    this.itemNameId,
+    this.isPromoItem,
+    this.isPromoGift,
+    this.giftCount,
+    this.order,
+    this.product,
   );
 
   JaggerOrderItem.fromJson(Map<String, dynamic> json)
@@ -21,7 +34,15 @@ class JaggerOrderItem {
         itemPrice = json['itemPrice'],
         itemTotalPrice = json['itemTotalPrice'],
         itemQty = json['itemQty'],
-        iQty = json['iQty'];
+        iQty = json['iQty'],
+        rQty = json['rQty'],
+        itemNameId = json['itemname_id'],
+        isPromoItem = json['is_promo_item'],
+        isPromoGift = json['is_promo_gift'],
+        giftCount = json['gift_cnt'],
+        order = json['order'],
+        product = json['product'];
+
 
   Map<String, dynamic> toJson() {
     return {
@@ -31,6 +52,13 @@ class JaggerOrderItem {
       'itemTotalPrice': itemTotalPrice,
       'itemQty': itemQty,
       'iQty': iQty,
+      'rQty': rQty,
+      'itemname_id': itemNameId,
+      'is_promo_item': isPromoItem,
+      'is_promo_gift': isPromoGift,
+      'gift_cnt': giftCount,
+      'order': order,
+      'product': product,
     };
   }
 }

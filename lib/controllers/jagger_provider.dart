@@ -189,6 +189,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> startShipment(
       int shipmentId, double? lat, double? lng, BuildContext context) async {
     try {
+      print('shipmentId: $shipmentId , lat: $lat, lng: $lng');
       String bearerToken = await getAccessToken();
       await HomeProvider().getPosition();
       final res = await http.patch(
@@ -410,7 +411,6 @@ class JaggerProvider extends ChangeNotifier {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-
     return await Geolocator.getCurrentPosition();
   }
 

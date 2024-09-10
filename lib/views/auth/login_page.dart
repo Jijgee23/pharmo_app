@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/signup_page.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
@@ -11,7 +10,6 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/no_data.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -68,16 +66,28 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: AppColors.primary,
           title: Padding(
             padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
-            child: const Column(
+            child: Column(
               children: [
-                Text(
-                  'Pharmo',
-                  style: TextStyle(
-                      fontSize: 40,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.white),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipOval(
+                      child: Image.asset(
+                        'assets/1024.png',
+                        height: 40,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Pharmo',
+                      style: TextStyle(
+                          fontSize: 40,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.white),
+                    ),
+                  ],
                 ),
-                Text(
+                const Text(
                   'Эмийн бөөний худалдаа,\n захиалгын систем',
                   style: TextStyle(
                       fontSize: 18,
@@ -97,20 +107,17 @@ class _LoginPageState extends State<LoginPage> {
                 key: _formKey,
                 child: AutofillGroup(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Image.asset(
-                        'assets/icons/login.png',
+                        'assets/1024.png',
                         height: 75,
                       ),
                       const SizedBox(height: 5),
-                      InkWell(
-                        onTap: () => goto(const NoData(), context),
-                        child: const Text(
-                          'Нэвтрэх',
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
+                      const Text(
+                        'Нэвтрэх',
+                        style: TextStyle(
+                          fontSize: 20,
                         ),
                       ),
                       const SizedBox(height: 15),

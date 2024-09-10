@@ -12,7 +12,6 @@ import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class JaggerHomePage extends StatefulWidget {
   const JaggerHomePage({super.key});
@@ -26,7 +25,6 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
     const HomeJagger(),
     const JaggerOrderPage(),
   ];
-  late SharedPreferences prefs;
   late HomeProvider homeProvider;
   int _selectedIndex = 0;
   void _onItemTapped(int index) {
@@ -70,11 +68,6 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                 child: Column(
                   children: [
                     const CustomDrawerHeader(),
-                    // DrawerItem(
-                    //   title: 'Зарлага',
-                    //   asset: 'assets/icons/order.png',
-                    //   onTap: () => goto(const JaggerOrderPage(), context),
-                    // ),
                     DrawerItem(
                       title: 'Түгээлтийн түүх',
                       asset: 'assets/icons/transaction-history.png',

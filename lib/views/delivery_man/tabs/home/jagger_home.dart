@@ -124,7 +124,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                                         context,
                                         'Түгээлтэнд тайлбар бичих',
                                         jagger.id,
-                                        jagger.jaggerOrders![index].id!);
+                                        shipment.id!);
                                   },
                                   child: const Text(
                                     'Тайлбар бичих',
@@ -135,7 +135,8 @@ class _HomeJaggerState extends State<HomeJagger> {
                                 ),
                                 InkWell(
                                   onTap: () => _dialogBuilder(
-                                      context, 'Түгээлтийн зарлага нэмэх'),
+                                      context: context,
+                                      title: 'Түгээлтийн зарлага нэмэх'),
                                   child: const Text(
                                     'Зарлага нэмэх',
                                     style: TextStyle(color: AppColors.main),
@@ -226,7 +227,8 @@ class _HomeJaggerState extends State<HomeJagger> {
     );
   }
 
-  Future<void> _dialogBuilder(BuildContext context, String title) {
+  Future<void> _dialogBuilder(
+      {required BuildContext context, required String title}) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -332,24 +334,13 @@ class _HomeJaggerState extends State<HomeJagger> {
                     Constants.boxV10,
                     buttonRow(
                         dialogButton(
-                            onTap: () => Navigator.of(context),
+                            onTap: () => Navigator.pop(context),
                             title: 'Хаах',
                             color: AppColors.main),
                         dialogButton(
                             onTap: () async {
                               if (provider.formKey.currentState!.validate()) {
-                                dynamic res =
-                                    await provider.setFeedback(shipId, itemId);
-                                if (res['errorType'] == 1) {
-                                  showSuccessMessage(
-                                      message: res['message'],
-                                      context: context);
-                                  Navigator.of(context).pop();
-                                } else {
-                                  showFailedMessage(
-                                      message: res['message'],
-                                      context: context);
-                                }
+                               provider.setFeedback(shipId, itemId);
                               }
                             },
                             title: 'Хадгалах',

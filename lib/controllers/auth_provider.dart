@@ -72,7 +72,10 @@ class AuthController extends ChangeNotifier {
           {'email': email},
         ),
       );
+      print('response.statusCode: ${response.statusCode} body: ${response.body}');
+      
       if (response.statusCode == 200) {
+        
         final responseData = json.decode(response.body);
         final isPasswordCreated = responseData['pwd'];
         final email = responseData['ema'];

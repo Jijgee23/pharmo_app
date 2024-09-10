@@ -11,6 +11,7 @@ class Shipment {
   int? delman;
   double? duration;
   double? expense;
+  
   Shipment(
       this.id,
       this.startTime,

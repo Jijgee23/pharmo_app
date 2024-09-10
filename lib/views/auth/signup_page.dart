@@ -39,7 +39,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Image.asset(
-                      'assets/icons/user.png',
+                      'assets/1024.png',
                       height: 75,
                     ),
                     const SizedBox(height: 15),
