@@ -31,40 +31,15 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
       TextEditingController(text: '1');
 
   void getWidget(String filter, String type, JaggerProvider provider) {
-    // setState(() {
-
     if (filter == 'Огноогоор') {
       provider.getFilter(byDate());
     } else if (filter == 'Захиалгын тоогоор') {
-      // if (provider.operator == '=') {
-      //   provider.changeType('ordersCnt');
-      // } else if (provider.operator == '=>') {
-      //   provider.changeType('ordersCnt__gte');
-      // } else if (provider.operator == '=<') {
-      //   provider.changeType('ordersCnt__lte');
-      // }
       provider.getFilter(byNumber(provider.type));
     } else if (filter == 'Явцын хувиар') {
-      // if (provider.operator == '=') {
-      //   provider.changeType('progress');
-      // } else if (provider.operator == '=>') {
-      //   provider.changeType('progress__gte');
-      // } else if (provider.operator == '=<') {
-      //   provider.changeType('progress__lte');
-      // }
       provider.getFilter(byNumber(provider.type));
     } else if (filter == 'Зарлагын дүнгээр') {
-      // if (provider.operator == '=') {
-      //   provider.changeType('expense');
-      // } else if (provider.operator == '=>') {
-      //   provider.changeType('expense__gte');
-      // } else if (provider.operator == '=<') {
-      //   provider.changeType('expense__lte');
-      // }
       provider.getFilter(byNumber(provider.type));
-      print('condition: ${provider.operator},type: ${provider.type}');
     }
-    // });
   }
 
   @override
@@ -186,8 +161,9 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
                 itemCount: provider.shipments.length,
                 itemBuilder: (context, index) {
                   final shipment = provider.shipments[index];
-                  return shipWidget(
-                      shipment, () => showDetail(shipment), index);
+                  return ShipmentBuilder(shipment: shipment);
+                  //  shipWidget(
+                  //     shipment, () => showDetail(shipment), index);
                 },
               )
             : const Center(
@@ -514,5 +490,101 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
       ),
       centerTitle: true,
     );
+  }
+}
+
+class ShipmentBuilder extends StatefulWidget {
+  final Shipment shipment;
+  const ShipmentBuilder({super.key, required this.shipment});
+
+  @override
+  State<ShipmentBuilder> createState() => _ShipmentBuilderState();
+}
+
+class _ShipmentBuilderState extends State<ShipmentBuilder> {
+  bool isExpanded = false;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey, width: 1),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      margin: const EdgeInsets.symmetric(vertical: 2.5),
+      child: InkWell(
+        onTap: () => setState(() => isExpanded = !isExpanded),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            row(
+                title: 'Эхлэсэн цаг:',
+                value: (widget.shipment.startTime != null)
+                    ? widget.shipment.startTime!
+                    : '-'),
+            row(
+                title: 'Дууссан цаг:',
+                value: (widget.shipment.endTime != null)
+                    ? widget.shipment.endTime!
+                    : '-'),
+            row(
+                title: 'Үүссэн огноо:',
+                value: (widget.shipment.createdOn != null)
+                    ? widget.shipment.createdOn!.substring(0, 10)
+                    : '-'),
+            isExpanded
+                ? Column(
+                    children: [
+                      row(
+                          title: 'Хугацаа:',
+                          value: (widget.shipment.duration != null)
+                              ? formatTime(widget.shipment.duration!)
+                              : '-'),
+                      row(
+                          title: 'Зарлага:',
+                          value: (widget.shipment.expense != null)
+                              ? '${widget.shipment.expense!.toString()}₮'
+                              : '-'),
+                      row(
+                          title: 'Явц:',
+                          value: (widget.shipment.progress != null)
+                              ? '${widget.shipment.progress!.toString()}%'
+                              : '-'),
+                      row(
+                          title: 'Тоо ширхэг:',
+                          value: (widget.shipment.ordersCnt != null)
+                              ? widget.shipment.ordersCnt!.toString()
+                              : '-'),
+                    ],
+                  )
+                : const SizedBox(),
+            !isExpanded
+                ? const Center(child: Icon(Icons.arrow_drop_down_rounded))
+                : const Center(child: Icon(Icons.arrow_drop_up_rounded))
+          ],
+        ),
+      ),
+    );
+  }
+
+  row({required String title, required String value}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: TextStyle(color: Colors.grey.shade700)),
+        Text(value,
+            style: const TextStyle(
+                color: AppColors.primary, fontWeight: FontWeight.bold))
+      ],
+    );
+  }
+
+  formatTime(double duration) {
+    int totalSeconds = duration.toInt();
+    int hours = (totalSeconds ~/ 3600);
+    int mins = ((totalSeconds % 3600) ~/ 60);
+    int seconds = (totalSeconds % 60);
+    return '${hours > 0 ? '${hours.toString()} цаг' : ''}  ${mins.toString()} минут ${seconds.toString()} секунд';
   }
 }

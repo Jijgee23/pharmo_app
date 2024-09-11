@@ -161,7 +161,7 @@ class _OrderWidgetState extends State<OrderWidget> {
         border: Border.all(color: Colors.grey.shade800),
       ),
       child: InkWell(
-        onTap: () => setState(() =>isExpanded = !isExpanded),
+        onTap: () => setState(() => isExpanded = !isExpanded),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -204,6 +204,9 @@ class _OrderWidgetState extends State<OrderWidget> {
                     ],
                   )
                 : const SizedBox(),
+                !isExpanded
+                ? const Center(child: Icon(Icons.arrow_drop_down_rounded))
+                : const Center(child: Icon(Icons.arrow_drop_up_rounded))
           ],
         ),
       ),
