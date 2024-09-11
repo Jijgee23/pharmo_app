@@ -3,6 +3,7 @@ import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
 import 'package:pharmo_app/views/delivery_man/drawer_menus/expend/jagger_order_page.dart';
@@ -80,6 +81,11 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                           gotoRemoveUntil(const SellerHomePage(), context),
                     ),
                     DrawerItem(
+                      title: 'Нууцлалын бодлого',
+                      asset: 'assets/icons/pp.png',
+                      onTap: () => goto(const PrivacyPolicy(), context),
+                    ),
+                    DrawerItem(
                       title: 'Гарах',
                       asset: 'assets/icons/check-out.png',
                       onTap: () {
@@ -91,8 +97,8 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
               ),
             ),
           ),
-          appBar:  DMAppBar(
-            title: (_selectedIndex == 0) ?  'Өнөөдрийн түгээлтүүд' : 'Зарлагууд',
+          appBar: DMAppBar(
+            title: (_selectedIndex == 0) ? 'Өнөөдрийн түгээлтүүд' : 'Зарлагууд',
           ),
           body: _pages[_selectedIndex],
           bottomNavigationBar: BottomNavigationBar(

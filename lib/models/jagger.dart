@@ -14,6 +14,7 @@ class Jagger {
   int? supplier;
   int? ordersCnt;
   int? delman;
+  String? duration;
   double? expense;
   List<dynamic>? inItems;  
   List<JaggerOrder>? jaggerOrders;  
@@ -29,6 +30,7 @@ class Jagger {
     this.createdOn,
     this.supplier,
     this.ordersCnt,
+    this.duration,
     this.delman,
     this.expense,
     this.inItems,
@@ -42,6 +44,7 @@ class Jagger {
         lat = json['lat'],
         progress = json['progress'],
         isActive = json['isActive'],
+        duration = json['duration'],
         createdOn = json['createdOn'],
         supplier = json['supplier'],
         delman = json['delman'],

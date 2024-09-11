@@ -5,7 +5,11 @@ class JaggerOrder {
   bool? isGiven;
   String? givenOn;
   String? note;
-  int? orderNo;
+  String? orderNo;
+  int? branchId;
+  double? lat;
+  double? lng;
+  String? branch;
   String? user;
   String? process;
   List<JaggerOrderItem>? jaggerOrderItems;
@@ -16,6 +20,10 @@ class JaggerOrder {
     this.isGiven,
     this.givenOn,
     this.note,
+    this.branchId,
+    this.lat,
+    this.lng,
+    this.branch,
     this.orderNo,
     this.user,
     this.process,
@@ -25,6 +33,10 @@ class JaggerOrder {
     id = json['id'];
     isGiven = json['isGiven'];
     givenOn = json['givenOn'];
+    branchId = json['branchId'];
+    branch = json['branch'];
+    lat = json['lat'];
+    lng = json['lng'];
     note = json['note'];
     orderNo = json['orderNo'];
     user = json['user'];

@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
@@ -21,6 +20,7 @@ import 'package:pharmo_app/views/pharmacy/tabs/cart/cart.dart';
 import 'package:pharmo_app/views/pharmacy/tabs/home/home.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
+import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
@@ -137,6 +137,11 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                               title: 'Урамшуулал',
                               asset: 'assets/icons/gift.png',
                               onTap: () => goto(const PromotionWidget(), context),
+                            ),
+                            DrawerItem(
+                              title: 'Нууцлалын бодлого',
+                              asset: 'assets/icons/pp.png',
+                              onTap: () => goto(const PrivacyPolicy(), context),
                             ),
                             DrawerItem(
                               title: 'Гарах',

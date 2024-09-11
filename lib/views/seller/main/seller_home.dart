@@ -8,6 +8,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
+import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/income/income_list.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/customer_order_history/history.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
@@ -158,6 +159,11 @@ class _SellerHomePageState extends State<SellerHomePage> {
                         )
                       : const SizedBox(),
                   DrawerItem(
+                    title: 'Нууцлалын бодлого',
+                    asset: 'assets/icons/pp.png',
+                    onTap: () => goto(const PrivacyPolicy(), context),
+                  ),
+                  DrawerItem(
                       title: 'Гарах',
                       onTap: () => showLogoutDialog(context),
                       asset: 'assets/icons/check-out.png'),
@@ -179,44 +185,44 @@ class _SellerHomePageState extends State<SellerHomePage> {
           bottomNavigationBar: homeProvider.invisible
               ? null
               : BottomNavigationBar(
-                selectedItemColor: AppColors.primary,
-                useLegacyColorScheme: true,
-                currentIndex: homeProvider.currentIndex,
-                onTap: homeProvider.changeIndex,
-                showSelectedLabels: true,
-                showUnselectedLabels: false,
-                type: BottomNavigationBarType.fixed,
-                items: [
-                  BottomNavigationBarItem(
-                    icon: Image.asset(
-                      'assets/icons/user.png',
-                      height: 20,
+                  selectedItemColor: AppColors.primary,
+                  useLegacyColorScheme: true,
+                  currentIndex: homeProvider.currentIndex,
+                  onTap: homeProvider.changeIndex,
+                  showSelectedLabels: true,
+                  showUnselectedLabels: false,
+                  type: BottomNavigationBarType.fixed,
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: Image.asset(
+                        'assets/icons/user.png',
+                        height: 20,
+                      ),
+                      label: 'Захиалагч',
                     ),
-                    label: 'Захиалагч',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Image.asset(
-                      'assets/icons/house.png',
-                      height: 20,
+                    BottomNavigationBarItem(
+                      icon: Image.asset(
+                        'assets/icons/house.png',
+                        height: 20,
+                      ),
+                      label: 'Бараа',
                     ),
-                    label: 'Бараа',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Image.asset(
-                      'assets/icons/options.png',
-                      height: 20,
+                    BottomNavigationBarItem(
+                      icon: Image.asset(
+                        'assets/icons/options.png',
+                        height: 20,
+                      ),
+                      label: 'Ангилал',
                     ),
-                    label: 'Ангилал',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Image.asset(
-                      'assets/icons/shop-tab.png',
-                      height: 20,
+                    BottomNavigationBarItem(
+                      icon: Image.asset(
+                        'assets/icons/shop-tab.png',
+                        height: 20,
+                      ),
+                      label: 'Сагс',
                     ),
-                    label: 'Сагс',
-                  ),
-                ],
-              ),
+                  ],
+                ),
         );
       },
     );

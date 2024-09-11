@@ -149,7 +149,9 @@ class JaggerProvider extends ChangeNotifier {
         };
       }
     } catch (e) {
+      debugPrint(e.toString());
       return {'errorType': 3, 'data': e, 'message': e};
+
     }
   }
 
@@ -189,7 +191,6 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> startShipment(
       int shipmentId, double? lat, double? lng, BuildContext context) async {
     try {
-      print('shipmentId: $shipmentId , lat: $lat, lng: $lng');
       String bearerToken = await getAccessToken();
       await HomeProvider().getPosition();
       final res = await http.patch(
@@ -203,17 +204,12 @@ class JaggerProvider extends ChangeNotifier {
       notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        print(response);
+        debugPrint(response);
         showSuccessMessage(
-            message: '$response Цагт түгээлт эхлэлээ', context: context);
-        print(response.replaceAll(RegExp(r'[\[\]]'), ""));
+            message: '$response цагт түгээлт эхлэлээ', context: context);
       } else {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
         showFailedMessage(
             message: 'Түгээлт эхлэхэд алдаа гарлаа', context: context);
-        print(response['shipmentId']
-            .toString()
-            .replaceAll(RegExp(r'[\[\]]'), ""));
       }
     } catch (e) {
       return {'fail': e};
@@ -236,12 +232,8 @@ class JaggerProvider extends ChangeNotifier {
           }));
       notifyListeners();
       if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
         showSuccessMessage(message: 'Түгээлт дууслаа.', context: context);
-        print('response: $response');
       } else {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
-        print(response);
         showFailedMessage(
             message: 'Түгээлт дуусгахад алдаа гарлаа.', context: context);
       }
