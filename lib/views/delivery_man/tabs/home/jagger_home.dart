@@ -8,8 +8,8 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home_detail.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_field_icon.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/others/dialog_button.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
@@ -82,9 +82,9 @@ class _HomeJaggerState extends State<HomeJagger> {
                 ? ListView.builder(
                     itemCount: jagger.jaggerOrders?.length,
                     itemBuilder: (context, index) {
-                      final shipment = jagger.jaggerOrders?[index];
+                      final order = jagger.jaggerOrders?[index];
                       return InkWell(
-                        onTap: () async => {
+                        onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -92,13 +92,13 @@ class _HomeJaggerState extends State<HomeJagger> {
                                 index: index,
                               ),
                             ),
-                          )
+                          );
                         },
                         child: Container(
                           decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade700),
                               borderRadius: BorderRadius.circular(10)),
-                          margin: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.all(5),
                           padding: const EdgeInsets.all(10),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -110,36 +110,26 @@ class _HomeJaggerState extends State<HomeJagger> {
                               ),
                               myRow(
                                 'Захиалагч:',
-                                shipment!.user.toString(),
+                                order!.user.toString(),
                               ),
                               myRow(
                                 'Захиалгын дугаар:',
-                                shipment.orderNo.toString(),
+                                order.orderNo.toString(),
                               ),
-                              myRow('Төлөв', shipment.process.toString()),
-                              buttonRow(
-                                InkWell(
-                                  onTap: () {
-                                    _jaggerFeedbackDialog(
-                                        context,
-                                        'Түгээлтэнд тайлбар бичих',
-                                        jagger.id,
-                                        shipment.id!);
+                              myRow('Төлөв', order.process.toString()),
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 2.5),
+                                child: InkWell(
+                                  onTap: () async {
+                                    await _addNote(
+                                        context, order.id!, jagger.id);
                                   },
                                   child: const Text(
                                     'Тайлбар бичих',
                                     style: TextStyle(
                                       color: AppColors.main,
                                     ),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () => _dialogBuilder(
-                                      context: context,
-                                      title: 'Түгээлтийн зарлага нэмэх'),
-                                  child: const Text(
-                                    'Зарлага нэмэх',
-                                    style: TextStyle(color: AppColors.main),
                                   ),
                                 ),
                               ),
@@ -227,8 +217,7 @@ class _HomeJaggerState extends State<HomeJagger> {
     );
   }
 
-  Future<void> _dialogBuilder(
-      {required BuildContext context, required String title}) {
+  Future<void> _addNote(BuildContext context, int shipId, int itemId) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -240,61 +229,21 @@ class _HomeJaggerState extends State<HomeJagger> {
                 color: Colors.white,
               ),
               padding: const EdgeInsets.all(10),
-              child: Form(
-                key: provider.formKey,
-                child: SingleChildScrollView(
-                  child: Column(children: [
-                    Text(title, style: const TextStyle(fontSize: 14)),
-                    CustomTextFieldIcon(
-                      hintText: "Дүн оруулна уу...",
-                      prefixIconData: const Icon(Icons.numbers_rounded),
-                      validatorText: "Дүн оруулна уу.",
-                      fillColor: Colors.white,
-                      expands: false,
-                      controller: provider.amount,
-                      onChanged: provider.validateAmount,
-                      errorText: provider.amountVal.error,
-                      isNumber: true,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    CustomTextFieldIcon(
-                      hintText: "Тайлбар оруулна уу...",
-                      prefixIconData: const Icon(Icons.comment_outlined),
-                      validatorText: "Тайлбар оруулна уу.",
-                      fillColor: Colors.white,
-                      expands: false,
-                      controller: provider.note,
-                      onChanged: provider.validateNote,
-                      errorText: provider.noteVal.error,
-                      isNumber: false,
-                    ),
-                    Constants.boxV10,
-                    buttonRow(
-                      dialogButton(
-                          title: 'Хаах',
-                          color: AppColors.main,
-                          onTap: () => Navigator.of(context).pop()),
-                      dialogButton(
-                          title: 'Хадгалах',
-                          color: AppColors.main,
-                          onTap: () async {
-                            if (provider.formKey.currentState!.validate()) {
-                              dynamic res = await provider.addExpenseAmount();
-                              if (res['errorType'] == 1) {
-                                showSuccessMessage(
-                                    message: res['message'], context: context);
-                                Navigator.of(context).pop();
-                              } else {
-                                showFailedMessage(
-                                    message: res['message'], context: context);
-                              }
-                            }
-                          }),
-                    )
-                  ]),
-                ),
+              child: SingleChildScrollView(
+                child: Column(children: [
+                  const Text('Түгээлтэнд тайлбар бичих',
+                      style: TextStyle(fontSize: 14)),
+                  Constants.boxV10,
+                  CustomTextField(controller: provider.feedback, hintText: 'Тайлбар'),
+                  Constants.boxV10,
+                  buttonRow(
+                    const DialogBtn(),
+                    DialogBtn(
+                        title: 'Хадгалах',
+                        onTap: () async =>
+                            await provider.addnote(shipId, itemId, context)),
+                  )
+                ]),
               ),
             ),
           );
@@ -303,66 +252,12 @@ class _HomeJaggerState extends State<HomeJagger> {
     );
   }
 
-  Future<void> _jaggerFeedbackDialog(
-      BuildContext context, String title, int shipId, int itemId) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return Consumer<JaggerProvider>(builder: (context, provider, _) {
-          return Dialog(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              padding: const EdgeInsets.all(10),
-              child: Form(
-                key: provider.formKey,
-                child: SingleChildScrollView(
-                  child: Column(children: [
-                    Text(title, style: const TextStyle(fontSize: 14)),
-                    Constants.boxV10,
-                    CustomTextFieldIcon(
-                        hintText: "Тайлбар оруулна уу...",
-                        prefixIconData: const Icon(Icons.comment_outlined),
-                        validatorText: "Тайлбар оруулна уу.",
-                        fillColor: Colors.white,
-                        expands: false,
-                        controller: provider.feedback,
-                        isNumber: false,
-                        maxLine: 4),
-                    Constants.boxV10,
-                    buttonRow(
-                        dialogButton(
-                            onTap: () => Navigator.pop(context),
-                            title: 'Хаах',
-                            color: AppColors.main),
-                        dialogButton(
-                            onTap: () async {
-                              if (provider.formKey.currentState!.validate()) {
-                               provider.setFeedback(shipId, itemId);
-                              }
-                            },
-                            title: 'Хадгалах',
-                            color: AppColors.main))
-                  ]),
-                ),
-              ),
-            ),
-          );
-        });
-      },
-    );
-  }
-
-  dialogButton(
-      {required GestureTapCallback onTap, String? title, Color? color}) {
+  dialogButton({required Function() onTap, String? title}) {
     return Container(
       width: 100,
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.primary),
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.symmetric(vertical: 7.5),
       child: InkWell(

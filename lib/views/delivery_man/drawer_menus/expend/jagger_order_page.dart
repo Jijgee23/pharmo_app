@@ -6,7 +6,9 @@ import 'package:pharmo_app/models/jagger_expense_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_field_icon.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/others/dialog_button.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
 class JaggerOrderPage extends StatefulWidget {
@@ -16,32 +18,26 @@ class JaggerOrderPage extends StatefulWidget {
 }
 
 class _JaggerOrderPageState extends State<JaggerOrderPage> {
+  late JaggerProvider jaggerProvider;
   @override
   void initState() {
+    jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
+    jaggerProvider.getExpenses();
     super.initState();
-    getData();
   }
 
-  getData() async {
-    try {
-      final jaggerProvider =
-          Provider.of<JaggerProvider>(context, listen: false);
-      dynamic res = await jaggerProvider.getJaggerOrders();
-      if (res['errorType'] == 1) {
-        showSuccessMessage(message: res['message'], context: context);
-      } else {
-        showFailedMessage(message: res['message'], context: context);
-      }
-    } catch (e) {
-      showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          context: context);
-    }
-  }
+  final TextEditingController amount = TextEditingController();
+  final TextEditingController note = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          highlightElevation: 0,
+          child: Image.asset('assets/icons/wallet.png'),
+          onPressed: () => addExpense()),
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
         final jaggerOrders =
             (provider.jaggerOrders.isNotEmpty) ? provider.jaggerOrders : null;
@@ -84,7 +80,12 @@ class _JaggerOrderPageState extends State<JaggerOrderPage> {
                                         ),
                                         InkWell(
                                             onTap: () {
-                                              _dialogBuilder(
+                                              note.text =
+                                                  jaggerOrders[index].note!;
+                                              amount.text = jaggerOrders[index]
+                                                  .amount
+                                                  .toString();
+                                              editExpense(
                                                   context, jaggerOrders[index]);
                                               provider.amount =
                                                   TextEditingController(
@@ -119,18 +120,116 @@ class _JaggerOrderPageState extends State<JaggerOrderPage> {
                             );
                           }),
                     )
-                  : const SizedBox(
-                      height: 200,
-                      child: Center(
-                        child: Text(
-                          "Түгээлтийн мэдээлэл олдсонгүй ...",
-                        ),
-                      ),
-                    ),
+                  : const Center(
+                    child: NoResult()
+                  ),
             ],
           ),
         );
       }),
+    );
+  }
+
+  final bd = BoxDecoration(
+      borderRadius: BorderRadius.circular(10), color: Colors.white);
+  final pad = const EdgeInsets.all(10);
+
+  addExpenseAmount() async {
+    await jaggerProvider.addExpense(note.text, amount.text, context).then((e) {
+      jaggerProvider.getExpenses();
+      amount.clear();
+      note.clear();
+      Navigator.pop(context);
+    });
+  }
+
+  addExpense() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: dialogChild(
+              title: 'Түгээлтийн зарлага нэмэх',
+              children: [
+                CustomTextField(
+                  controller: note,
+                  hintText: 'Тайлбар',
+                ),
+                Constants.boxV10,
+                CustomTextField(
+                  controller: amount,
+                  hintText: 'Дүн',
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+              submit: addExpenseAmount),
+        );
+      },
+    );
+  }
+
+  editExpense(BuildContext context, JaggerExpenseOrder order) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<JaggerProvider>(builder: (context, provider, _) {
+          return Dialog(
+              child: dialogChild(
+                  title: 'Түгээлтийн зарлага хасах',
+                  children: [
+                    CustomTextField(controller: note, hintText: 'Тайлбар'),
+                    Constants.boxV10,
+                    CustomTextField(
+                      controller: amount,
+                      hintText: 'Дүн',
+                      keyboardType: TextInputType.number,
+                    ),
+                  ],
+                  submit: () async {
+                    if (provider.formKey.currentState!.validate()) {
+                      dynamic res = await provider.editExpenseAmount(order.id);
+                      if (res['errorType'] == 1) {
+                        showSuccessMessage(
+                            message: res['message'], context: context);
+                        Navigator.of(context).pop();
+                      } else {
+                        showFailedMessage(
+                            message: res['message'], context: context);
+                      }
+                    }
+                  }));
+        });
+      },
+    );
+  }
+
+  dialogChild(
+      {required String title,
+      required List<Widget> children,
+      required Function() submit}) {
+    return Container(
+      decoration: bd,
+      padding: pad,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            Constants.boxV10,
+            ...children,
+            Constants.boxV10,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const DialogBtn(),
+                DialogBtn(title: 'Хадгалах', onTap: submit)
+              ],
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -148,106 +247,6 @@ class _JaggerOrderPageState extends State<JaggerOrderPage> {
               style: const TextStyle(
                   fontWeight: FontWeight.bold, color: AppColors.cleanBlack)),
         ],
-      ),
-    );
-  }
-
-  Future<void> _dialogBuilder(BuildContext context, JaggerExpenseOrder order) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return Consumer<JaggerProvider>(builder: (context, provider, _) {
-          return Dialog(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              padding: const EdgeInsets.all(10),
-              child: Form(
-                key: provider.formKey,
-                child: SingleChildScrollView(
-                  child: Column(children: [
-                    const Text('Түгээлтийн зарлага хасах',
-                        style: TextStyle(fontSize: 14)),
-                    Constants.boxV10,
-                    CustomTextFieldIcon(
-                      hintText: "Дүн оруулна уу...",
-                      prefixIconData: const Icon(Icons.numbers_rounded),
-                      validatorText: "Дүн оруулна уу.",
-                      fillColor: Colors.white,
-                      expands: false,
-                      controller: provider.amount,
-                      onChanged: provider.validateAmount,
-                      errorText: provider.amountVal.error,
-                      isNumber: true,
-                    ),
-                    Constants.boxV10,
-                    CustomTextFieldIcon(
-                      hintText: "Тайлбар оруулна уу...",
-                      prefixIconData: const Icon(Icons.comment_outlined),
-                      validatorText: "Тайлбар оруулна уу.",
-                      fillColor: Colors.white,
-                      expands: false,
-                      controller: provider.note,
-                      onChanged: provider.validateNote,
-                      errorText: provider.noteVal.error,
-                      isNumber: false,
-                    ),
-                    Constants.boxV10,
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          dialogButton(
-                              onTap: () => Navigator.of(context).pop(),
-                              title: 'Хаах',
-                              color: AppColors.main),
-                          dialogButton(
-                              onTap: () async {
-                                if (provider.formKey.currentState!.validate()) {
-                                  dynamic res = await provider
-                                      .editExpenseAmount(order.id);
-                                  if (res['errorType'] == 1) {
-                                    showSuccessMessage(
-                                        message: res['message'],
-                                        context: context);
-                                    Navigator.of(context).pop();
-                                  } else {
-                                    showFailedMessage(
-                                        message: res['message'],
-                                        context: context);
-                                  }
-                                }
-                              },
-                              title: 'Хадгалах',
-                              color: AppColors.main)
-                        ])
-                  ]),
-                ),
-              ),
-            ),
-          );
-        });
-      },
-    );
-  }
-
-  dialogButton(
-      {required GestureTapCallback onTap, String? title, Color? color}) {
-    return Container(
-      width: 100,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.primary),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 7.5),
-      child: InkWell(
-        onTap: onTap,
-        child: Center(
-          child:
-              Text(title!, style: const TextStyle(color: AppColors.cleanWhite)),
-        ),
       ),
     );
   }

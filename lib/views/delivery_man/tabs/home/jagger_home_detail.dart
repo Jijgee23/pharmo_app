@@ -18,7 +18,6 @@ class JaggerHomeDetail extends StatelessWidget {
     return Scaffold(
       appBar: const DMAppBar(
         title: 'Түгээлтийн дэлгэрэнгүй',
-        
       ),
       body: Consumer<JaggerProvider>(builder: (context, provider, _) {
         final orderItems = (provider.jaggers[0].jaggerOrders != null &&
@@ -224,8 +223,8 @@ class JaggerHomeDetail extends StatelessWidget {
                         dialogButton(
                             onTap: () async {
                               if (provider.formKey.currentState!.validate()) {
-                                dynamic res =
-                                    await provider.setFeedback(shipId, itemId);
+                                dynamic res = await provider.setFeedback(
+                                    shipId, itemId, context);
                                 if (res['errorType'] == 1) {
                                   showSuccessMessage(
                                       message: res['message'],

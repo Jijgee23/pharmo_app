@@ -19,7 +19,7 @@ class DrawerItem extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 12.5, horizontal: 20),
+            padding: const EdgeInsets.only(top: 12.5, bottom: 12.5, left: 15),
             child: Row(
               children: [
                 Image.asset(
@@ -31,7 +31,9 @@ class DrawerItem extends StatelessWidget {
                 ),
                 Text(
                   title,
-                  style: const TextStyle(color: AppColors.cleanBlack),
+                  style: const TextStyle(
+                      color: AppColors.cleanBlack,
+                      overflow: TextOverflow.ellipsis),
                 ),
               ],
             ),

@@ -171,13 +171,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
                 child: const Text('Хадгалах'),
                 onPressed: () async {
                   if (provider.formKey.currentState!.validate()) {
-                    dynamic res = await provider.addExpenseAmount();
-                    if (res['errorType'] == 1) {
-                      showSuccessMessage(message: res['message'], context: context);
-                      Navigator.of(context).pop();
-                    } else {
-                      showFailedMessage(message: res['message'], context: context);
-                    }
+                    await provider.addExpenseAmount(context);
                   }
                 },
               ),
@@ -233,13 +227,8 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
                 child: const Text('Хадгалах'),
                 onPressed: () async {
                   if (provider.formKey.currentState!.validate()) {
-                    dynamic res = await provider.setFeedback(shipId, itemId);
-                    if (res['errorType'] == 1) {
-                      showSuccessMessage(message: res['message'], context: context);
-                      Navigator.of(context).pop();
-                    } else {
-                      showFailedMessage(message: res['message'], context: context);
-                    }
+                     await provider.setFeedback(shipId, itemId, context);
+                    
                   }
                 },
               ),

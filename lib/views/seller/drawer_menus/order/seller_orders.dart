@@ -204,7 +204,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                     ],
                   )
                 : const SizedBox(),
-                !isExpanded
+            !isExpanded
                 ? const Center(child: Icon(Icons.arrow_drop_down_rounded))
                 : const Center(child: Icon(Icons.arrow_drop_up_rounded))
           ],
