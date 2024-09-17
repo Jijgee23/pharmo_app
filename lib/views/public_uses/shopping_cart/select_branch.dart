@@ -4,6 +4,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:provider/provider.dart';
 
 class SelectBranchPage extends StatefulWidget {
@@ -174,26 +175,12 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
                   ),
                 ]),
               ),
+              const SizedBox(height: 5),
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  splashColor: const Color.fromRGBO(22, 121, 171, 1).withOpacity(.5),
-                  onTap: createOrder(),
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: AppColors.main,
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Захиалга үүсгэх',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
+                Button(
+                  text: 'Захиалга үүсгэх',
+                  onTap: () => createOrder(),
+                  color: Colors.green.shade700
                 ),
               ]),
             ]),

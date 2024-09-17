@@ -3,7 +3,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
-import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
 import 'package:provider/provider.dart';
 
@@ -123,38 +123,15 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          decoration: BoxDecoration(
-                              color: AppColors.main,
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(color: Colors.white)),
-                          child: InkWell(
-                            onTap: () {
-                              clearBasket(basket.id);
-                            },
-                            child: const Center(
-                              child: Text('Сагс хоослох',
-                                  style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
+                        Button(
+                          text: 'Сагс хоослох',
+                          onTap: () => clearBasket(basket.id),
+                          color: Colors.red.shade700
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          decoration: BoxDecoration(
-                              color: AppColors.secondary,
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(color: Colors.white)),
-                          child: InkWell(
-                            onTap: () =>
-                                goto(const SelectBranchPage(), context),
-                            child: const Center(
-                              child: Text('Захиалах',
-                                  style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
+                        Button(
+                          text: 'Захиалга үүсгэх',
+                          onTap: () => goto(const SelectBranchPage(), context),
+                          color: Colors.green.shade700
                         ),
                       ],
                     ),

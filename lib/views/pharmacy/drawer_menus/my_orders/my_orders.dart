@@ -421,9 +421,12 @@ class _MyOrderState extends State<MyOrder> {
                                                 orders[index].process ==
                                                     'Түгээлтэнд гарсан')
                                             ? InkWell(
-                                                onTap: () =>
-                                                    provider.confirmOrder(
-                                                        orders[index].id),
+                                                onTap: () {
+                                                  provider
+                                                      .confirmOrder(
+                                                          orders[index].id)
+                                                      .then((e) => getData());
+                                                },
                                                 child: Container(
                                                   decoration: BoxDecoration(
                                                       color: AppColors.main,
