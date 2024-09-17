@@ -9,6 +9,7 @@ import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
+import 'package:pharmo_app/views/public_uses/user_information/user_information.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/income/income_list.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/customer_order_history/history.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
@@ -158,6 +159,11 @@ class _SellerHomePageState extends State<SellerHomePage> {
                           asset: 'assets/icons/swap.png',
                         )
                       : const SizedBox(),
+                  DrawerItem(
+                    title: 'Миний бүртгэл',
+                    asset: 'assets/icons/user.png',
+                    onTap: () => goto(const UserInformation(), context),
+                  ),
                   DrawerItem(
                     title: 'Нууцлалын бодлого',
                     asset: 'assets/icons/pp.png',

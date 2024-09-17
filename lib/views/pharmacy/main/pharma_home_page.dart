@@ -21,6 +21,7 @@ import 'package:pharmo_app/views/pharmacy/tabs/home/home.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
+import 'package:pharmo_app/views/public_uses/user_information/user_information.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
@@ -113,7 +114,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
       child: Consumer3<AuthController, HomeProvider, BasketProvider>(
         builder: (context, authController, homeProvider, basketProvider, _) {
           return Scaffold(
-            
             drawer: Drawer(
               elevation: 0,
               backgroundColor: Colors.white,
@@ -136,7 +136,14 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                             DrawerItem(
                               title: 'Урамшуулал',
                               asset: 'assets/icons/gift.png',
-                              onTap: () => goto(const PromotionWidget(), context),
+                              onTap: () =>
+                                  goto(const PromotionWidget(), context),
+                            ),
+                            DrawerItem(
+                              title: 'Миний бүртгэл',
+                              asset: 'assets/icons/user.png',
+                              onTap: () =>
+                                  goto(const UserInformation(), context),
                             ),
                             DrawerItem(
                               title: 'Нууцлалын бодлого',
@@ -223,11 +230,9 @@ class CustomDrawerHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     var style = const TextStyle(color: AppColors.mainDark, fontSize: 14);
     return Consumer<HomeProvider>(builder: (context, homeProvider, child) {
       return Container(
-        height: size.height > 600 ? size.height * 0.2 : size.height * 0.4,
         decoration: const BoxDecoration(
             color: AppColors.cleanWhite,
             border: Border(
@@ -236,7 +241,7 @@ class CustomDrawerHeader extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Align(
               alignment: Alignment.center,
@@ -247,19 +252,12 @@ class CustomDrawerHeader extends StatelessWidget {
                 ),
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Имейл хаяг: ${homeProvider.userEmail}',
-                  style: style,
-                ),
-                Text(
-                  'Хэрэглэгчийн төрөл: ${homeProvider.userRole == 'S' ? 'Борлуулагч' : homeProvider.userRole == 'D' ? 'Түгээгч' : 'Эмийн сан'}',
-                  style: style,
-                ),
-              ],
-            ),
+            homeProvider.userEmail != null
+                ? Text(
+                    homeProvider.userEmail!,
+                    style: style,
+                  )
+                : const SizedBox()
           ],
         ),
       );

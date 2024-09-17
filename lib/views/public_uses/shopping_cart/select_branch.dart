@@ -177,8 +177,8 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                 InkWell(
                   borderRadius: BorderRadius.circular(20),
-                  splashColor: AppColors.main.withOpacity(.5),
-                  onTap: createOrder,
+                  splashColor: const Color.fromRGBO(22, 121, 171, 1).withOpacity(.5),
+                  onTap: createOrder(),
                   child: Container(
                     margin: const EdgeInsets.only(top: 10),
                     padding: const EdgeInsets.symmetric(

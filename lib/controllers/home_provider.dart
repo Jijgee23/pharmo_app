@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/branch.dart';
@@ -41,6 +42,7 @@ class HomeProvider extends ChangeNotifier {
   int selectedCustomerId = 0;
   String? userEmail;
   String? userRole;
+  int userId = 0;
   int? basketId;
   int selectedBranchId = -1;
   String payType = '';
@@ -333,8 +335,10 @@ class HomeProvider extends ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? useremail = prefs.getString('useremail');
     String? userrole = prefs.getString('userrole');
+    int? uid = prefs.getInt('user_id');
     userEmail = useremail.toString();
     userRole = userrole.toString();
+    userId = int.parse(uid.toString());
     notifyListeners();
   }
 
@@ -489,6 +493,24 @@ class HomeProvider extends ChangeNotifier {
     } catch (e) {
       showFailedMessage(
           message: 'Интернет холболтоо шалгана уу!.', context: context);
+    }
+  }
+
+  deactiveUser(BuildContext context) async {
+    try {
+      final bearerToken = await getAccessToken();
+      final response = await http.patch(
+        Uri.parse('${dotenv.env['SERVER_URL']}delete_user_account/'),
+        headers: getHeader(bearerToken),
+        body: jsonEncode({'userId': userId}),
+      );
+      if (response.statusCode == 200) {
+        AuthController().logout(context);
+      } else {
+        showFailedMessage(message: 'Алдаа гарлаа', context: context);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 
