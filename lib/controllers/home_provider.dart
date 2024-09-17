@@ -496,16 +496,18 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  deactiveUser(BuildContext context) async {
+  deactiveUser(String password, BuildContext context) async {
     try {
       final bearerToken = await getAccessToken();
       final response = await http.patch(
-        Uri.parse('${dotenv.env['SERVER_URL']}delete_user_account/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}auth/delete_user_account/'),
         headers: getHeader(bearerToken),
-        body: jsonEncode({'userId': userId}),
+        body: jsonEncode({'pwd': password}),
       );
+      debugPrint(response.statusCode.toString());
       if (response.statusCode == 200) {
         AuthController().logout(context);
+        showSuccessMessage(message: '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа', context: context);
       } else {
         showFailedMessage(message: 'Алдаа гарлаа', context: context);
       }

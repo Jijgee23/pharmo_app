@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/inputs/button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:provider/provider.dart';
 
 class UserInformation extends StatefulWidget {
@@ -56,7 +58,7 @@ class _UserInformationState extends State<UserInformation> {
               ),
               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               child: InkWell(
-                onTap: () => home.deactiveUser(context),
+                onTap: () => confirmDeletion(),
                 child: Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -102,4 +104,57 @@ class _UserInformationState extends State<UserInformation> {
       ),
     );
   }
+
+  confirmDeletion() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.grey.shade300,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const Text(
+                    'Нууц үгээ оруулна уу?',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  CustomTextField(
+                    controller: pwd,
+                    obscureText: true,
+                    hintText: 'Нууц үг',
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Button(
+                        text: 'Буцах',
+                        onTap: () => Navigator.pop(context),
+                        width: 150,
+                      ),
+                      Button(
+                        text: 'Устгах',
+                        onTap: () {
+                          home.deactiveUser(pwd.text, context);
+                        },
+                        width: 150,
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  final TextEditingController pwd = TextEditingController();
 }

@@ -5,14 +5,15 @@ class Button extends StatelessWidget {
   final String text;
   final Function() onTap;
   final Color? color;
+  final double? width;
   const Button(
-      {super.key, required this.text, required this.onTap, this.color});
+      {super.key, required this.text, required this.onTap, this.color, this.width});
 
   @override
   Widget build(BuildContext context) {
     final meqiaQuery = MediaQuery.of(context).size.width;
     return Container(
-      width: meqiaQuery * 0.4,
+      width: width ?? meqiaQuery * 0.4,
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
           color: color ?? AppColors.main,

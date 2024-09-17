@@ -180,108 +180,113 @@ class _SellerQRCodeState extends State<SellerQRCode> {
           ),
           body: Container(
             margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-            child: Column(children: [
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Center(
-                      child: Text(
-                        'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 15),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Center(
+                        child: Text(
+                          'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontWeight: FontWeight.w400, fontSize: 15),
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 10
-                    ),
-                    Center(
-                      child: QrImageView(
-                        data: qrData['qrTxt'].toString(),
-                        size: 200,
+                      const SizedBox(
+                        height: 10
                       ),
-                    ),
-                    const SizedBox(
-                      height: 10
-                    ),
-                    const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Төлбөрийн хэлбэр : ',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                          Text(
-                            'Бэлнээр',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 17),
-                          ),
-                        ]),
-                    Row(
+                      Center(
+                        child: QrImageView(
+                          data: qrData['qrTxt'].toString(),
+                          size: 200,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10
+                      ),
+                      const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Төлбөрийн хэлбэр : ',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            Text(
+                              'Бэлнээр',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 17),
+                            ),
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Нийт үнэ : ',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            Text(
+                              '${qrData['totalPrice']} ₮',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18,
+                                  color: Colors.red),
+                            ),
+                          ]),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'Нийт үнэ : ',
+                            'Нийт тоо ширхэг: ',
                             style: TextStyle(fontSize: 15),
                           ),
                           Text(
-                            '${qrData['totalPrice']} ₮',
+                            '${qrData['totalCount']}',
                             style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                                color: Colors.red),
+                                fontWeight: FontWeight.w600, fontSize: 17),
                           ),
-                        ]),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Нийт тоо ширхэг: ',
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        Text(
-                          '${qrData['totalCount']}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 17),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
+                        ],
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 5),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            padding:const EdgeInsets.all(5),
+                        child: SingleChildScrollView(
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: urls.map((i) => InkWell(
+                                  onTap: () async {
+                                    bool found = await canLaunchUrl(
+                                        Uri.parse(i['link']));
+                                    if (found) {
+                                      await launchUrl(Uri.parse(i['link']),
+                                          mode: LaunchMode.externalApplication);
+                                    } else {
+                                      showFailedMessage(
+                                          message: i['description'] +
+                                              ' апп олдсонгүй.',
+                                          context: context);
+                                    }
+                                  },
+                                  child: Container(
+                                    width: 60,
+                                    height: 60,
+                                    margin: const EdgeInsets.all(5),
+                                    child: Image.network(i['logo']),
+                                  ),
+                                )).toList()
                           ),
-                          padding:const EdgeInsets.all(5),
-                      child: SingleChildScrollView(
-                        child: Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: urls.map((i) => InkWell(
-                                onTap: () async {
-                                  bool found = await canLaunchUrl(
-                                      Uri.parse(i['link']));
-                                  if (found) {
-                                    await launchUrl(Uri.parse(i['link']),
-                                        mode: LaunchMode.externalApplication);
-                                  } else {
-                                    showFailedMessage(
-                                        message: i['description'] +
-                                            ' банкны апп олдсонгүй.',
-                                        context: context);
-                                  }
-                                },
-                                child: Container(
-                                  width: 60,
-                                  height: 60,
-                                  margin: const EdgeInsets.all(5),
-                                  child: Image.network(i['logo']),
-                                ),
-                              )).toList()
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Row(
