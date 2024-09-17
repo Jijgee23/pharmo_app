@@ -6,6 +6,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
+import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
 import 'package:provider/provider.dart';
 
@@ -119,39 +120,51 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 20),
-                        decoration: BoxDecoration(
-                            color: AppColors.main,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: Colors.white)),
-                        child: InkWell(
-                          onTap: () {
-                            clearBasket(basket.id);
-                          },
-                          child: const Center(
-                            child: Text('Сагс хоослох',
-                                style: TextStyle(color: Colors.white)),
-                          ),
-                        ),
+                      Button(
+                        text: 'Сагс хоослох',
+                        onTap: () => clearBasket(basket.id),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 20),
-                        decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: Colors.white)),
-                        child: InkWell(
-                          onTap: () =>
-                              goto(const SelectSellerBranchPage(), context),
-                          child: const Center(
-                            child: Text('Захиалах',
-                                style: TextStyle(color: Colors.white)),
-                          ),
+                      Button(
+                        text: 'Захиалах',
+                        onTap: () => goto(
+                          const SelectSellerBranchPage(),
+                          context,
                         ),
-                      ),
+                        color: Colors.green.shade700,
+                      )
+                      // Container(
+                      //   padding: const EdgeInsets.symmetric(
+                      //       vertical: 10, horizontal: 20),
+                      //   decoration: BoxDecoration(
+                      //       color: AppColors.main,
+                      //       borderRadius: BorderRadius.circular(15),
+                      //       border: Border.all(color: Colors.white)),
+                      //   child: InkWell(
+                      //     onTap: () {
+                      //       clearBasket(basket.id);
+                      //     },
+                      //     child: const Center(
+                      //       child: Text('Сагс хоослох',
+                      //           style: TextStyle(color: Colors.white)),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Container(
+                      //   padding: const EdgeInsets.symmetric(
+                      //       vertical: 10, horizontal: 20),
+                      //   decoration: BoxDecoration(
+                      //       color: AppColors.secondary,
+                      //       borderRadius: BorderRadius.circular(15),
+                      //       border: Border.all(color: Colors.white)),
+                      //   child: InkWell(
+                      //     onTap: () =>
+                      //         goto(const SelectSellerBranchPage(), context),
+                      //     child: const Center(
+                      //       child: Text('Захиалах',
+                      //           style: TextStyle(color: Colors.white)),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ],

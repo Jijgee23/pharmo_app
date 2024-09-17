@@ -12,7 +12,7 @@ class Button extends StatelessWidget {
   Widget build(BuildContext context) {
     final meqiaQuery = MediaQuery.of(context).size.width;
     return Container(
-      width: meqiaQuery * 0.35,
+      width: meqiaQuery * 0.4,
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
           color: color ?? AppColors.main,

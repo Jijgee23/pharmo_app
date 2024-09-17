@@ -7,13 +7,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_qr_code.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +32,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
   final noteController = TextEditingController();
-  final radioColor = const MaterialStatePropertyAll(AppColors.primary);
+  final radioColor = MaterialStatePropertyAll(Colors.green.shade700);
   @override
   void initState() {
     super.initState();
@@ -70,7 +70,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                       Radio(
                         value: 'DELIVERY',
                         groupValue: homeProvider.orderType,
-                        fillColor:radioColor,
+                        fillColor: radioColor,
                         onChanged: (value) {
                           setState(() {
                             invisible = !invisible;
@@ -208,7 +208,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                 ),
                                 Radio(
                                   value: 'LATER',
-                                  fillColor:radioColor,
+                                  fillColor: radioColor,
                                   groupValue: payType,
                                   onChanged: (value) {
                                     setState(() {
@@ -229,38 +229,28 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              if (payType == 'NOW' &&
-                                  homeProvider.orderType == 'NODELIVERY') {
-                                goto(const SellerQRCode(), context);
-                              }
-                              if (payType == 'NOW' &&
-                                  homeProvider.orderType == 'DELIVERY') {
-                                if (_selectedIndex == -1) {
-                                  showFailedMessage(
-                                      message: 'Салбар сонгоно уу!',
-                                      context: context);
-                                } else {
+                          Button(
+                              text: 'Захиалга үүсгэх',
+                              color: Colors.green.shade700,
+                              onTap: () {
+                                if (payType == 'NOW' &&
+                                    homeProvider.orderType == 'NODELIVERY') {
                                   goto(const SellerQRCode(), context);
                                 }
-                              }
-                              if (payType == 'LATER') {
-                                createSellerOrder();
-                              }
-                            },
-                            icon: Image.asset(
-                              'assets/icons/checkout.png',
-                              height: 24,
-                            ),
-                            label: const Text(
-                              'Захиалга үүсгэх',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.secondary,
-                            ),
-                          ),
+                                if (payType == 'NOW' &&
+                                    homeProvider.orderType == 'DELIVERY') {
+                                  if (_selectedIndex == -1) {
+                                    showFailedMessage(
+                                        message: 'Салбар сонгоно уу!',
+                                        context: context);
+                                  } else {
+                                    goto(const SellerQRCode(), context);
+                                  }
+                                }
+                                if (payType == 'LATER') {
+                                  createSellerOrder();
+                                }
+                              })
                         ],
                       ),
                     ],

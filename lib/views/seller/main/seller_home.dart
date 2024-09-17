@@ -11,7 +11,6 @@ import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/public_uses/user_information/user_information.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/income/income_list.dart';
-import 'package:pharmo_app/views/seller/drawer_menus/customer_order_history/history.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
 import 'package:pharmo_app/views/seller/tabs/home/seller_home_tab.dart';
 import 'package:pharmo_app/views/seller/tabs/pharms/pharmacy_list.dart';
@@ -145,11 +144,11 @@ class _SellerHomePageState extends State<SellerHomePage> {
                       title: 'Захиалгууд',
                       onTap: () => goto(const SellerOrders(), context),
                       asset: 'assets/icons/order.png'),
-                  DrawerItem(
-                      title: 'Харилцагчийн захиалгын түүх',
-                      onTap: () =>
-                          goto(const SellerCustomerOrderHisrtory(), context),
-                      asset: 'assets/icons/clock.png'),
+                  // DrawerItem(
+                  //     title: 'Харилцагчийн захиалгын түүх',
+                  //     onTap: () =>
+                  //         goto(const SellerCustomerOrderHisrtory(), context),
+                  //     asset: 'assets/icons/clock.png'),
                   homeProvider.userRole == 'D'
                       ? DrawerItem(
                           title: 'Түгээгчрүү шилжих',

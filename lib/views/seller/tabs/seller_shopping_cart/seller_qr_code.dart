@@ -7,12 +7,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -180,7 +179,7 @@ class _SellerQRCodeState extends State<SellerQRCode> {
             title: Text('Бэлнээр төлөх'),
           ),
           body: Container(
-            margin: const EdgeInsets.all(20),
+            margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
             child: Column(children: [
               Expanded(
                 child: Column(
@@ -195,16 +194,16 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                       ),
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 10
                     ),
                     Center(
                       child: QrImageView(
                         data: qrData['qrTxt'].toString(),
-                        size: 250,
+                        size: 200,
                       ),
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 10
                     ),
                     const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -248,38 +247,37 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                         ),
                       ],
                     ),
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 0),
-                        child: SingleChildScrollView(
-                          child: Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              for (var i in urls)
-                                InkWell(
-                                  onTap: () async {
-                                    bool found = await canLaunchUrl(
-                                        Uri.parse(i['link']));
-                                    if (found) {
-                                      await launchUrl(Uri.parse(i['link']),
-                                          mode: LaunchMode.externalApplication);
-                                    } else {
-                                      showFailedMessage(
-                                          message: i['description'] +
-                                              ' банкны апп олдсонгүй.',
-                                          context: context);
-                                    }
-                                  },
-                                  child: Container(
-                                    width: 60,
-                                    height: 60,
-                                    margin: const EdgeInsets.all(5),
-                                    child: Image.network(i['logo']),
-                                  ),
-                                )
-                            ],
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 5),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
                           ),
+                          padding:const EdgeInsets.all(5),
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: urls.map((i) => InkWell(
+                                onTap: () async {
+                                  bool found = await canLaunchUrl(
+                                      Uri.parse(i['link']));
+                                  if (found) {
+                                    await launchUrl(Uri.parse(i['link']),
+                                        mode: LaunchMode.externalApplication);
+                                  } else {
+                                    showFailedMessage(
+                                        message: i['description'] +
+                                            ' банкны апп олдсонгүй.',
+                                        context: context);
+                                  }
+                                },
+                                child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  margin: const EdgeInsets.all(5),
+                                  child: Image.network(i['logo']),
+                                ),
+                              )).toList()
                         ),
                       ),
                     ),
@@ -287,44 +285,9 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                 ),
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      homeProvider.changeIndex(0);
-                      gotoRemoveUntil(const SellerHomePage(), context);
-                      basketProvider.getBasket();
-                    },
-                    icon: const Icon(
-                      color: Colors.white,
-                      Icons.home,
-                      size: 24.0,
-                    ),
-                    label: const Text(
-                      'Нүүр хуудас',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      checkPayment();
-                    },
-                    icon: const Icon(
-                      color: Colors.white,
-                      Icons.home,
-                      size: 24.0,
-                    ),
-                    label: const Text(
-                      'Төлбөр шалгах',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.secondary,
-                    ),
-                  ),
+                  Button(text: 'Төлбөр шалгах', onTap: ()=>checkPayment())
                 ],
               )
             ]),
