@@ -507,7 +507,9 @@ class HomeProvider extends ChangeNotifier {
       debugPrint(response.statusCode.toString());
       if (response.statusCode == 200) {
         AuthController().logout(context);
-        showSuccessMessage(message: '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа', context: context);
+        showSuccessMessage(
+            message: '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа',
+            context: context);
       } else {
         showFailedMessage(message: 'Алдаа гарлаа', context: context);
       }

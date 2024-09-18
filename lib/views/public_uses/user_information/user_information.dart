@@ -136,14 +136,14 @@ class _UserInformationState extends State<UserInformation> {
                       Button(
                         text: 'Буцах',
                         onTap: () => Navigator.pop(context),
-                        width: 150,
+                        width: 100,
                       ),
                       Button(
                         text: 'Устгах',
                         onTap: () {
                           home.deactiveUser(pwd.text, context);
                         },
-                        width: 150,
+                        width: 100,
                       )
                     ],
                   )

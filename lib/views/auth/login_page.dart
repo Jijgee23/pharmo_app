@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -20,7 +19,7 @@ class LoginPage extends StatefulWidget {
 
 final TextEditingController emailController = TextEditingController();
 final TextEditingController passwordController = TextEditingController();
-final _formKey = GlobalKey<FormState>();
+//final _formKey = GlobalKey<FormState>();
 
 class _LoginPageState extends State<LoginPage> {
   bool hover = false;
@@ -61,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          toolbarHeight: size.height * 0.13,
+          toolbarHeight: size.height * 0.14,
           centerTitle: true,
           backgroundColor: AppColors.primary,
           title: Padding(
@@ -100,155 +99,112 @@ class _LoginPageState extends State<LoginPage> {
         ),
         body: Container(
           padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-          child: Center(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Form(
-                key: _formKey,
-                child: AutofillGroup(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  SizedBox(height: size.height * 0.05),
+                  Image.asset('assets/1024.png', height: 75),
+                  const Text(
+                    'Нэвтрэх',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  SizedBox(height: size.height * 0.08),
+                  CustomTextField(
+                    controller: emailController,
+                    autofillHints: const [AutofillHints.email],
+                    hintText: 'Имейл хаяг',
+                    validator: validateEmail,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 15),
+                  CustomTextField(
+                    autofillHints: const [AutofillHints.password],
+                    controller: passwordController,
+                    hintText: 'Нууц үг',
+                    obscureText: !hover,
+                    validator: validatePassword,
+                    keyboardType: TextInputType.visiblePassword,
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          hover = !hover;
+                        });
+                      },
+                      icon:
+                          Icon(hover ? Icons.visibility_off : Icons.visibility),
+                    ),
+                  ),
+                  Row(
                     children: [
-                      Image.asset(
-                        'assets/1024.png',
-                        height: 75,
-                      ),
-                      const SizedBox(height: 5),
-                      const Text(
-                        'Нэвтрэх',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      CustomTextField(
-                        controller: emailController,
-                        autofillHints: const [AutofillHints.email],
-                        hintText: 'Имейл хаяг',
-                        validator: validateEmail,
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: 15),
-                      Visibility(
-                        visible: !authController.invisible,
-                        child: CustomTextField(
-                          autofillHints: const [AutofillHints.password],
-                          controller: passwordController,
-                          hintText: 'Нууц үг',
-                          obscureText: !hover,
-                          validator: validatePassword,
-                          keyboardType: TextInputType.visiblePassword,
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                hover = !hover;
-                              });
-                            },
-                            icon: Icon(hover
-                                ? Icons.visibility_off
-                                : Icons.visibility),
-                          ),
-                        ),
-                      ),
-                      Visibility(
-                        visible: !authController.invisible,
-                        child: Row(
-                          children: [
-                            const Text('Намайг сана'),
-                            Checkbox(
-                                value: rememberMe,
-                                onChanged: (val) {
-                                  setState(() {
-                                    rememberMe = !rememberMe;
-                                  });
-                                }),
-                          ],
-                        ),
-                      ),
-                      CustomButton(
-                          text: !authController.invisible
-                              ? 'Нэвтрэх'
-                              : 'Үргэлжлүүлэх',
-                          ontap: () async {
-                            if (_formKey.currentState!.validate()) {
-                              TextInput.finishAutofillContext();
-                            }
-                            if (!authController.invisible) {
-                              if (passwordController.text.isNotEmpty) {
-                                await authController
-                                    .login(emailController.text,
-                                        passwordController.text, context)
-                                    .whenComplete(() async {
-                                  if (rememberMe) {
-                                    await box1.put(
-                                        'email', emailController.text);
-                                    await box1.put(
-                                        'password', passwordController.text);
-                                  }
-                                });
-                              } else {
-                                showFailedMessage(
-                                    context: context,
-                                    message: 'Нууц үгээ оруулна уу');
-                              }
-                            } else {
-                              final bool reged = await authController
-                                  .checkEmail(emailController.text, context);
-                              if (reged) {
-                                authController.toggleVisibile();
-                              }
-                            }
+                      const Text('Намайг сана'),
+                      Checkbox(
+                          value: rememberMe,
+                          onChanged: (val) {
+                            setState(() {
+                              rememberMe = !rememberMe;
+                            });
                           }),
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          authController.invisible
-                              ? const Text('')
-                              : CustomTextButton(
-                                  text: 'Буцах',
-                                  onTap: () {
-                                    setState(() {
-                                      authController.invisible =
-                                          !authController.invisible;
-                                    });
-                                  }),
-                          authController.invisible
-                              ? CustomTextButton(
-                                  text: 'Бүртгүүлэх',
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (_) =>
-                                                const SignUpPage()));
-                                  })
-                              : CustomTextButton(
-                                  text: 'Нууц үг сэргээх',
-                                  onTap: () {
-                                    setState(() {
-                                      authController.invisible2 = false;
-                                    });
-                                    passwordController.clear();
-                                    passwordConfirmController.clear();
-                                    newPasswordController.clear();
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return CreatePassDialog(
-                                          email: emailController.text,
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                        ],
-                      ),
                     ],
                   ),
-                ),
+                  CustomButton(
+                      text: 'Нэвтрэх',
+                      ontap: () async {
+                        if (passwordController.text.isNotEmpty &&
+                            emailController.text.isNotEmpty) {
+                          await authController
+                              .login(emailController.text,
+                                  passwordController.text, context)
+                              .whenComplete(() async {
+                            if (rememberMe) {
+                              await box1.put('email', emailController.text);
+                              await box1.put(
+                                  'password', passwordController.text);
+                            }
+                          });
+                        } else {
+                          showFailedMessage(
+                              context: context,
+                              message: 'Нэврэх нэр, нууц үг оруулна уу');
+                        }
+                      }),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CustomTextButton(
+                        text: 'Нууц үг сэргээх',
+                        onTap: () {
+                          setState(() {
+                            authController.invisible2 = false;
+                          });
+                          passwordController.clear();
+                          passwordConfirmController.clear();
+                          newPasswordController.clear();
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CreatePassDialog(
+                                email: emailController.text,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      CustomTextButton(
+                          text: 'Бүртгүүлэх',
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const SignUpPage()));
+                          }),
+                    ],
+                  )
+                ],
               ),
-            ),
+            ],
           ),
         ),
       ),

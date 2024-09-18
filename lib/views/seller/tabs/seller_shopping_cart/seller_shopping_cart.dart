@@ -30,7 +30,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
 
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context, listen: true);
+   // final basketProvider = Provider.of<BasketProvider>(context, listen: true);
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
