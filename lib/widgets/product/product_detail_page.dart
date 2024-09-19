@@ -28,8 +28,8 @@ class ProductDetail extends StatefulWidget {
 }
 
 class _ProductDetailState extends State<ProductDetail> {
-  TextEditingController qtyController = TextEditingController();
-  final _focusNode = FocusNode();
+  TextEditingController qtyController =
+      TextEditingController(text: 1.toString());
   late HomeProvider homeProvider;
   late ProductProvider productProvider;
   late ProductDetails detail;
@@ -250,57 +250,61 @@ class _ProductDetailState extends State<ProductDetail> {
         height: 70,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         width: double.infinity,
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-          GestureDetector(
-            onTap: () {
-              _focusNode.unfocus();
-            },
-            child: SizedBox(
-              width: 150,
-              child: TextField(
-                textInputAction: TextInputAction.done,
-                controller: qtyController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                  signed: true,
-                ),
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.only(left: 10),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        const BorderSide(color: AppColors.secondary, width: 2),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex: 3,
+              child: SizedBox(
+                width: double.infinity,
+                child: TextField(
+                  textInputAction: TextInputAction.done,
+                  controller: qtyController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.only(left: 10),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                          color: AppColors.secondary, width: 2),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    hintText: 'Тоо хэмжээ',
                   ),
-                  hintText: 'Тоо хэмжээ',
                 ),
               ),
             ),
-          ),
-          GestureDetector(
-            onTap: () => addBasket(),
-            child: Container(
-              width: 150,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppColors.secondary,
-              ),
-              child: const Center(
-                child: Text(
-                  'Сагсанд нэмэх',
-                  style: TextStyle(color: Colors.white),
+            Expanded(
+              flex: 7,
+              child: InkWell(
+                onTap: () => addBasket(),
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.secondary,
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Сагсанд нэмэх',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }

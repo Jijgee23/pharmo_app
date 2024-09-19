@@ -127,6 +127,7 @@ class _HomeState extends State<Home> {
               SliverAppBar(
                 automaticallyImplyLeading: false,
                 pinned: true,
+                surfaceTintColor: Colors.transparent,
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -135,8 +136,7 @@ class _HomeState extends State<Home> {
                       child: Container(
                         decoration: BoxDecoration(
                             border: Border.all(color: AppColors.primary),
-                            borderRadius: BorderRadius.circular(15)
-                            ),
+                            borderRadius: BorderRadius.circular(15)),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -249,6 +249,7 @@ class _HomeState extends State<Home> {
               SliverAppBar(
                 toolbarHeight: 40,
                 automaticallyImplyLeading: false,
+                surfaceTintColor: Colors.white,
                 title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: filters
@@ -270,7 +271,7 @@ class _HomeState extends State<Home> {
                               }
                             },
                             child: Container(
-                            //  margin: const EdgeInsets.only(right: 10, top: 5),
+                              //  margin: const EdgeInsets.only(right: 10, top: 5),
                               decoration: BoxDecoration(
                                 border: Border.all(color: AppColors.secondary),
                                 borderRadius: BorderRadius.circular(5),

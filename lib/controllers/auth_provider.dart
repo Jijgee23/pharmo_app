@@ -174,7 +174,7 @@ class AuthController extends ChangeNotifier {
                 message.toString().substring(1, message.toString().length - 1));
       } else {
         {
-          showFailedMessage(message: 'Нууц үг буруу байна!', context: context);
+          showFailedMessage(message: 'Имейл эсвэл нууц үг буруу байна!', context: context);
         }
       }
       notifyListeners();

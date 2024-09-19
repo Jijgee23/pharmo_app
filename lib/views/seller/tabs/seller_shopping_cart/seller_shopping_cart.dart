@@ -69,6 +69,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
               width: double.infinity,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -77,8 +78,9 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                         'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
                         style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
-                      Row(
+                      Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           RichText(
                             overflow: TextOverflow.ellipsis,
@@ -132,39 +134,6 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                         ),
                         color: Colors.green.shade700,
                       )
-                      // Container(
-                      //   padding: const EdgeInsets.symmetric(
-                      //       vertical: 10, horizontal: 20),
-                      //   decoration: BoxDecoration(
-                      //       color: AppColors.main,
-                      //       borderRadius: BorderRadius.circular(15),
-                      //       border: Border.all(color: Colors.white)),
-                      //   child: InkWell(
-                      //     onTap: () {
-                      //       clearBasket(basket.id);
-                      //     },
-                      //     child: const Center(
-                      //       child: Text('Сагс хоослох',
-                      //           style: TextStyle(color: Colors.white)),
-                      //     ),
-                      //   ),
-                      // ),
-                      // Container(
-                      //   padding: const EdgeInsets.symmetric(
-                      //       vertical: 10, horizontal: 20),
-                      //   decoration: BoxDecoration(
-                      //       color: AppColors.secondary,
-                      //       borderRadius: BorderRadius.circular(15),
-                      //       border: Border.all(color: Colors.white)),
-                      //   child: InkWell(
-                      //     onTap: () =>
-                      //         goto(const SelectSellerBranchPage(), context),
-                      //     child: const Center(
-                      //       child: Text('Захиалах',
-                      //           style: TextStyle(color: Colors.white)),
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ],

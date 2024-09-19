@@ -72,17 +72,21 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                   ),
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    Align(
+                      child: Text(
+                        'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 0),
-                      child: Row(
+                          vertical: 4.0, horizontal: 0),
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           RichText(
                             overflow: TextOverflow.ellipsis,
