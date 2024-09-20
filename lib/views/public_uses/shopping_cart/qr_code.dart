@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -16,113 +17,115 @@ class QRCode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: const CustomAppBar(
-          title: Text('Бэлнээр төлөх'),
-        ),
+        appBar: const SideMenuAppbar(title: 'Бэлнээр төлөх'),
         body: Consumer<BasketProvider>(
           builder: (context, provider, _) {
             List? urls = provider.qrCode.urls;
             return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: Column(children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                     const Text(
-                        'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 15),
-                      ),
-                      const SizedBox(
-                        height: 10
-                      ),
-                      Center(
-                          child: QrImageView(
-                        data: provider.qrCode.qrTxt.toString(),
-                        size: 200,
-                      )),
-                      const SizedBox(
-                        height: 10
-                      ),
-                      const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Төлбөрийн хэлбэр : ',
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            Text(
-                              'Бэлнээр',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 17),
-                            ),
-                          ]),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Нийт үнэ : ',
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            Text(
-                              '${provider.qrCode.totalPrice} ₮',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18,
-                                  color: Colors.red),
-                            ),
-                          ]),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Нийт тоо ширхэг: ',
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            Text(
-                              provider.qrCode.totalCount.toString(),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 17),
-                            ),
-                          ]),
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 0),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            padding:const EdgeInsets.all(5),
-                        child: SingleChildScrollView(
-                          child: Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: urls!.map((el)=> InkWell(
-                                  onTap: () async {
-                                    bool found = await canLaunchUrl(
-                                        Uri.parse(el['link']));
-                                    if (found) {
-                                      await launchUrl(Uri.parse(el['link']),
-                                          mode:
-                                              LaunchMode.externalApplication);
-                                    } else {
-                                      showFailedMessage(
-                                          message: el['description'] +
-                                              ' апп олдсонгүй.',
-                                          context: context);
-                                    }
-                                  },
-                                  child: Container(
-                                    width: 60,
-                                    height: 60,
-                                    margin: const EdgeInsets.all(5),
-                                    child: Image.network(el['logo']),
-                                  ),
-                                )).toList()
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          child: const Text(
+                            'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 15,
+                                color: AppColors.primary),
                           ),
                         ),
-                      ),
-                    ],
+                        Center(
+                            child: QrImageView(
+                          data: provider.qrCode.qrTxt.toString(),
+                          size: 200,
+                        )),
+                        const SizedBox(height: 10),
+                        const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Төлбөрийн хэлбэр : ',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              Text(
+                                'Бэлнээр',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 17),
+                              ),
+                            ]),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Нийт үнэ : ',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              Text(
+                                '${provider.qrCode.totalPrice} ₮',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18,
+                                    color: Colors.red),
+                              ),
+                            ]),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Нийт тоо ширхэг: ',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              Text(
+                                provider.qrCode.totalCount.toString(),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 17),
+                              ),
+                            ]),
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          padding: const EdgeInsets.all(5),
+                          child: SingleChildScrollView(
+                            child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: urls!
+                                    .map((el) => InkWell(
+                                          onTap: () async {
+                                            bool found = await canLaunchUrl(
+                                                Uri.parse(el['link']));
+                                            if (found) {
+                                              await launchUrl(
+                                                  Uri.parse(el['link']),
+                                                  mode: LaunchMode
+                                                      .externalApplication);
+                                            } else {
+                                              showFailedMessage(
+                                                  message: el['description'] +
+                                                      ' апп олдсонгүй.',
+                                                  context: context);
+                                            }
+                                          },
+                                          child: Container(
+                                            width: 60,
+                                            height: 60,
+                                            margin: const EdgeInsets.all(5),
+                                            child: Image.network(el['logo']),
+                                          ),
+                                        ))
+                                    .toList()),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Row(

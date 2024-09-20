@@ -7,9 +7,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:provider/provider.dart';
@@ -105,7 +106,7 @@ class _SellerQRCodeState extends State<SellerQRCode> {
         }
       } else if (stcode == 500) {
         showFailedMessage(message: 'Серверийн алдаа', context: context);
-         Navigator.pop(context);
+        Navigator.pop(context);
       }
     } catch (e) {
       debugPrint(
@@ -187,9 +188,7 @@ class _SellerQRCodeState extends State<SellerQRCode> {
     return Consumer2<BasketProvider, HomeProvider>(
       builder: (_, basketprovider, homeprovider, child) {
         return Scaffold(
-          appBar: const CustomAppBar(
-            title: Text('Бэлнээр төлөх'),
-          ),
+          appBar: const SideMenuAppbar(title: 'Бэлнээр төлөх'),
           body: Container(
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             child: Column(
@@ -201,12 +200,15 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Center(
-                            child: Text(
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            child: const Text(
                               'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                  fontWeight: FontWeight.w400, fontSize: 15),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15,
+                                  color: AppColors.primary),
                             ),
                           ),
                           const SizedBox(height: 10),

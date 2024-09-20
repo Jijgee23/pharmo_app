@@ -132,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                       controller: passwordController,
                       hintText: 'Нууц үг',
                       obscureText: !hover,
-                      validator: (v){
+                      validator: (v) {
                         if (v!.isNotEmpty) {
                           return validatePassword(v);
                         } else {
