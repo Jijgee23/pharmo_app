@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
 class MyOrderProvider extends ChangeNotifier {
   List<MyOrderModel> _orders = <MyOrderModel>[];
@@ -248,15 +250,15 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> confirmOrder(int orderId) async {
+  Future<dynamic> confirmOrder(int orderId, BuildContext context) async {
     try {
       String bearerToken = await getAccessToken();
       final res = await http.patch(
           Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/accept_order/'),
           headers: getHeader(bearerToken),
           body: jsonEncode({"id": orderId}));
-          print(res.statusCode);
-          
+      final response = jsonDecode(utf8.decode(res.bodyBytes));
+      print('response: $response ConfirmOrderStatus: ${res.statusCode}');
       if (res.statusCode == 200) {
         notifyListeners();
         return {
@@ -264,6 +266,9 @@ class MyOrderProvider extends ChangeNotifier {
           'data': null,
           'message': 'Таны захиалга амжилттай баталгаажлаа.'
         };
+      } else if (res.statusCode == 400) {
+        showFailedMessage(
+            message: 'Захиалгын түгээлт эхлээгүй', context: context);
       } else {
         notifyListeners();
         return {

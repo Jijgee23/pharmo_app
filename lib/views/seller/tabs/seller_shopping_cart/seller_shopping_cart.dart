@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
+import 'package:pharmo_app/widgets/others/twoItemsRow.dart';
 import 'package:provider/provider.dart';
 
 class SellerShoppingCart extends StatefulWidget {
@@ -30,7 +30,6 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
 
   @override
   Widget build(BuildContext context) {
-   // final basketProvider = Provider.of<BasketProvider>(context, listen: true);
     void clearBasket(int basketId) {
       basketProvider.clearBasket(basket_id: basketId);
       basketProvider.getBasket();
@@ -38,7 +37,6 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
     }
 
     return Consumer<BasketProvider>(builder: (context, provider, _) {
-      final orientaion = MediaQuery.of(context).orientation;
       final cartDatas = provider.shoppingCarts;
       final basket = provider.basket;
       return Scaffold(
@@ -61,80 +59,50 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                   : const SingleChildScrollView(child: EmptyBasket()),
             ),
             Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+              margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
-                  color: AppColors.cleanWhite,
-                  border: Border(top: BorderSide(color: Colors.grey.shade300))),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              height: orientaion == Orientation.landscape ? 100 : 100,
-              width: double.infinity,
+                color: Colors.transparent,
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.grey.shade400,
+                    width: 1.0,
+                    style: BorderStyle.solid,
+                  ),
+                ),
+              ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
-                        style: const TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          RichText(
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            text: TextSpan(
-                                text: 'Нийт тоо ширхэг: ',
-                                style: TextStyle(
-                                    color: Colors.blueGrey.shade800,
-                                    fontSize: 13.0),
-                                children: [
-                                  TextSpan(
-                                      text: '${basket.totalCount ?? 0}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.0)),
-                                ]),
-                          ),
-                          RichText(
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            text: TextSpan(
-                                text: 'Нийт төлөх дүн: ',
-                                style: TextStyle(
-                                    color: Colors.blueGrey.shade800,
-                                    fontSize: 13.0),
-                                children: [
-                                  TextSpan(
-                                      text: '${basket.totalPrice ?? 0} ₮',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.0,
-                                          color: Colors.red)),
-                                ]),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Button(
-                        text: 'Сагс хоослох',
-                        onTap: () => clearBasket(basket.id),
-                      ),
-                      Button(
-                        text: 'Захиалах',
-                        onTap: () => goto(
-                          const SelectSellerBranchPage(),
-                          context,
-                        ),
-                        color: Colors.green.shade700,
-                      )
-                    ],
+                  Text(
+                      'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
+                      style: TextStyle(
+                          color: Colors.blueGrey.shade800,
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.bold)),
+                  TwoitemsRow(
+                      title: 'Нийт тоо ширхэг: ',
+                      text: '${basket.totalCount ?? 0}'),
+                  TwoitemsRow(
+                      title: 'Нийт төлөх дүн: ',
+                      text: '${basket.totalPrice ?? 0} ₮'),
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Button(
+                            text: 'Сагс хоослох',
+                            onTap: () => clearBasket(basket.id),
+                            color: Colors.red.shade700),
+                        Button(
+                            text: 'Захиалга үүсгэх',
+                            onTap: () =>
+                                goto(const SelectSellerBranchPage(), context),
+                            color: Colors.green.shade700),
+                      ],
+                    ),
                   ),
                 ],
               ),

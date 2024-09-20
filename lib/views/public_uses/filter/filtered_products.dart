@@ -51,7 +51,8 @@ class _FilteredProductsState extends State<FilteredProducts> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
+      appBar: 
+      AppBar(
         leading: const ChevronBack(),
         centerTitle: true,
         backgroundColor: Colors.white,

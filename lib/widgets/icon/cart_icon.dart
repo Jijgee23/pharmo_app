@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
 
-class CartIcon extends StatelessWidget {
+class CartIcon extends StatefulWidget {
   const CartIcon({super.key});
+
+  @override
+  State<CartIcon> createState() => _CartIconState();
+}
+
+class _CartIconState extends State<CartIcon> {
+  late HomeProvider home;
+  @override
+  void initState() {
+    super.initState();
+    home = Provider.of<HomeProvider>(context, listen: false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +28,8 @@ class CartIcon extends StatelessWidget {
         margin: const EdgeInsets.only(right: 15),
         child: InkWell(
           onTap: () {
-            goto(const ShoppingCart(), context);
+            home.changeIndex(home.userRole == 'PA' ? 2 : 3);
+            Navigator.pop(context);
           },
           child: badges.Badge(
             badgeContent: Text(

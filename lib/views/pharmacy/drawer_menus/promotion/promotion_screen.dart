@@ -4,8 +4,8 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/buying_promo.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class PromotionWidget extends StatefulWidget {
@@ -40,12 +40,8 @@ class _PromotionWidgetState extends State<PromotionWidget> {
   Widget build(BuildContext context) {
     return Consumer<PromotionProvider>(builder: (_, provider, child) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Урамшуулалууд', style: TextStyle(fontSize: 14)),
-          centerTitle: true,
-          leading: const ChevronBack(),
-          toolbarHeight: 40,
-        ),
+        appBar: 
+        const SideMenuAppbar(title: 'Урамшуулалууд'),
         body: CustomScrollView(
           slivers: [
             SliverAppBar(

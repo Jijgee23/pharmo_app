@@ -136,24 +136,37 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                             itemCount: provider.branchList.length,
                             itemBuilder: (context, index) {
                               return Container(
-                                decoration: bd,
-                                child: ListTile(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedIndex = index;
-                                      homeProvider.selectedBranchId =
-                                          provider.branchList[index].id;
-                                    });
-                                  },
-                                  leading: Icon(
-                                    Icons.home,
-                                    color: _selectedIndex == index
-                                        ? Colors.green
-                                        : Colors.grey,
-                                  ),
-                                  title: Text(provider.branchList[index].name
-                                      .toString()),
-                                ),
+                                margin: const EdgeInsets.only(top: 10),
+                                child: InkWell(
+                                   borderRadius: BorderRadius.circular(10),
+                                    splashColor:Colors.green.shade300,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedIndex = index;
+                                        homeProvider.selectedBranchId =
+                                            provider.branchList[index].id;
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: bd,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15, vertical: 5),
+                                      child: Center(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.home,
+                                              color: _selectedIndex == index
+                                                  ? Colors.green
+                                                  : Colors.grey,
+                                            ),
+                                            Text(provider.branchList[index].name
+                                                .toString())
+                                          ],
+                                        ),
+                                      ),
+                                    )),
                               );
                             },
                           ),

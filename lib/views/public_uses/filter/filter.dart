@@ -17,7 +17,6 @@ class FilterPage extends StatefulWidget {
 }
 
 class _FilterPageState extends State<FilterPage> {
-  List<String> filterList = ['Ангилал', 'Нийлүүлэгчид', 'Үйлдвэрлэгчид'];
   int selectedIdx = 0;
   int selectId = -1;
   late HomeProvider homeProvider;
@@ -34,6 +33,15 @@ class _FilterPageState extends State<FilterPage> {
   void dispose() {
     super.dispose();
   }
+
+  List<String> filterList = [
+    !(HomeProvider().categories.isNotEmpty &&
+            HomeProvider().categories.length > 1)
+        ? 'Ангилал'
+        : '',
+    (HomeProvider().mnfrs.isNotEmpty) ? 'Нийлүүлэгчид' : '',
+    (HomeProvider().vndrs.isNotEmpty) ? 'Үйлдвэрлэгчид' : '',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -57,30 +65,29 @@ class _FilterPageState extends State<FilterPage> {
                         splashColor: Colors.transparent,
                         onTap: () =>
                             setState(() => selectedIdx = filterList.indexOf(e)),
-                        child: Row(
-                          children: [
-                            Text(
-                              e,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: filterList.indexOf(e) == selectedIdx
-                                      ? AppColors.succesColor
-                                      : AppColors.primary),
-                            ),
-                          ],
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 5),
+                          child: Text(
+                            e,
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: filterList.indexOf(e) == selectedIdx
+                                    ? AppColors.succesColor
+                                    : AppColors.primary),
+                          ),
                         ),
                       );
                     }).toList(),
                   ),
                 ),
                 list[selectedIdx]
-              ],  
+              ],
             ),
           );
         },
       ),
     );
-  } 
+  }
 
   _categories() {
     final cats = homeProvider.categories;
@@ -100,7 +107,7 @@ class _FilterPageState extends State<FilterPage> {
               )
             ],
           ),
-        );    
+        );
       },
       itemCount: cats.length,
     );
@@ -199,7 +206,7 @@ class _CategoryItemState extends State<CategoryItem> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.only(top: 5,  left: 20),
+        padding: const EdgeInsets.only(top: 5, left: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -10,6 +10,7 @@ import 'package:pharmo_app/views/seller/tabs/pharms/brainch_detail.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/others/twoItemsRow.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -58,40 +59,30 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: Column(
           children: [
-            Row(
-              children: [
-                const Text('Имейл: ', style: TextStyle(fontSize: 16)),
-                const SizedBox(width: 10),
-                InkWell(
-                  child: Text('${companyInfo['email'] ?? '-'}',
-                      style: const TextStyle(fontSize: 16)),
-                  onTap: () async {
-                    if (await canLaunchUrlString(emailLaunchUri.toString())) {
-                      await launchUrlString(emailLaunchUri.toString());
-                    } else {
-                      showFailedMessage(
-                        context: context,
-                        message:
-                            'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
-                      );
-                    }
-                  },
-                ),
-              ],
+            TwoitemsRow(
+              title: 'Имейл:',
+              text: '${companyInfo['email'] ?? '-'}',
+              onTapText: () async {
+                if (await canLaunchUrlString(emailLaunchUri.toString())) {
+                  await launchUrlString(emailLaunchUri.toString());
+                } else {
+                  showFailedMessage(
+                    context: context,
+                    message:
+                        'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
+                  );
+                }
+              },
+              fontSize: 16,
+              color: Colors.blueGrey.shade800,
             ),
-            Row(
-              children: [
-                const Text('Утас: ', style: TextStyle(fontSize: 16)),
-                const SizedBox(width: 10),
-                InkWell(
-                  child: Text(
-                    '${companyInfo['phone'] ?? '-'}',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  onTap: () =>
-                      launchUrlString('tel://+976${companyInfo['phone']}'),
-                )
-              ],
+            TwoitemsRow(
+              title: 'Утас:',
+              text: '${companyInfo['phone'] ?? '-'}',
+              fontSize: 16,
+              color: Colors.blueGrey.shade800,
+              onTapText: () =>
+                  launchUrlString('tel://+976${companyInfo['phone']}'),
             ),
             const Align(
               alignment: Alignment.centerLeft,
@@ -105,20 +96,36 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
               child: ListView.builder(
                 itemCount: _branchList.length,
                 itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      onTap: () {
-                        goto(
-                            BranchDetails(
-                                customerId: widget.customerId,
-                                branchId: _branchList[index].id,
-                                branchName: _branchList[index].name),
-                            context);
-                      },
-                      leading: const CustomIcon(name: 'drugstore1.png'),
-                      title: Text(_branchList[index].name),
-                    ),
-                  );
+                  return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey.shade600)),
+                      child: InkWell(
+                        splashColor: Colors.grey.shade300,
+                        onTap: () {
+                          goto(
+                              BranchDetails(
+                                  customerId: widget.customerId,
+                                  branchId: _branchList[index].id,
+                                  branchName: _branchList[index].name),
+                              context);
+                        },
+                        child: Row(
+                          children: [
+                            const CustomIcon(name: 'drugstore1.png'),
+                            const SizedBox(width: 10),
+                            Text(
+                              _branchList[index].name,
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ));
                 },
               ),
             ),
@@ -130,14 +137,10 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
 
   getPharmaInfo() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString("access_token");
+      String token = await getAccessToken();
       final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}seller/get_pharmacy_info/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
+          headers: getHeader(token),
           body: jsonEncode({
             'pharmaId': widget.customerId,
           }));
@@ -160,14 +163,11 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
   getBranchList() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
+      String bearerToken = await getAccessToken();
       prefs.remove('branchId');
-      String? token = prefs.getString("access_token");
       final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}seller/customer_branch/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
+          headers: getHeader(bearerToken),
           body: jsonEncode({
             'customerId': widget.customerId,
           }));

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:pharmo_app/views/seller/tabs/pharms/customer_details_paga.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/others/twoItemsRow.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -71,7 +72,7 @@ class _BranchDetailsState extends State<BranchDetails> {
         leading: const ChevronBack(),
         title: Text(
           widget.branchName,
-          style: const TextStyle(fontSize: 14),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -90,92 +91,64 @@ class _BranchDetailsState extends State<BranchDetails> {
                   ),
                 )
               : Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      direction: Axis.vertical,
-                      alignment: WrapAlignment.start,
-                      spacing: 10,
-                      children: [
-                        const Text(
-                          'Салбарын мэдээлэл',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text('Салбарын утас:    '),
-                            InkWell(
-                              child: Text('${storeList['phone'] ?? '-'}'),
-                              onTap: () => launchUrlString(
-                                  'tel://+976${storeList['phone']}'),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          'Салбарын хаяг: ${storeList['address'] ?? '-'}',
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        const Text(
-                          'Салбарын менежерийн мэдээлэл',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Салбарын менежерийн нэр:    ${storeList['manager']['name'] ?? '-'}',
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Text('Салбарын менежер имейл:  '),
-                            InkWell(
-                              child: Text('${storeList['manager']['email'] ?? '-'}'),
-                              onTap: () async {
-                                final Uri emailLaunchUri = Uri(
-                                  scheme: 'mailto',
-                                  path: '${storeList['manager']['email'] ?? '-'}',
-                                  query: EmailHelper
-                                      .encodeQueryParameters(<String, String>{
-                                    'subject': 'Бичих зүйлээ оруулна уу!',
-                                  }),
-                                );
-                                if (await canLaunchUrlString(
-                                    emailLaunchUri.toString())) {
-                                  await launchUrlString(
-                                      emailLaunchUri.toString());
-                                } else {
-                                  showFailedMessage(
-                                    context: context,
-                                    message:
-                                        'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text('Салбарын менежер утас:'),
-                            InkWell(
-                              child: Text(
-                                '${storeList['manager']['phone'] ?? '-'}',
-                              ),
-                              onTap: () => launchUrlString(
-                                  'tel://+976${storeList['manager']['phone']}'),
-                            ),
-                          ],
-                        ),
-                      ],
+                    const Text(
+                      'Салбарын мэдээлэл',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TwoitemsRow(
+                      title: 'Утас:',
+                      text: '${storeList['phone'] ?? '-'}',
+                      onTapText: () =>
+                          launchUrlString('tel://+976${storeList['phone']}'),
+                      fontSize: 16,
+                    ),
+                    TwoitemsRow(
+                        title: 'Хаяг:', text: '${storeList['address'] ?? '-'}'),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    const Text(
+                      'Салбарын менежерийн мэдээлэл',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TwoitemsRow(
+                        title: 'Нэр:',
+                        text: '${storeList['manager']['name'] ?? '-'}'),
+                    TwoitemsRow(
+                      title: 'Имейл:',
+                      text: '${storeList['manager']['email'] ?? '-'}',
+                      onTapText: () async {
+                        final Uri emailLaunchUri = Uri(
+                          scheme: 'mailto',
+                          path: '${storeList['manager']['email'] ?? '-'}',
+                          query: EmailHelper
+                              .encodeQueryParameters(<String, String>{
+                            'subject': 'Бичих зүйлээ оруулна уу!',
+                          }),
+                        );
+                        if (await canLaunchUrlString(
+                            emailLaunchUri.toString())) {
+                          await launchUrlString(emailLaunchUri.toString());
+                        } else {
+                          showFailedMessage(
+                            context: context,
+                            message:
+                                'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
+                          );
+                        }
+                      },
+                    ),
+                    TwoitemsRow(
+                      title: 'Утас:',
+                      text: '${storeList['manager']['phone'] ?? '-'}',
+                      onTapText: () => launchUrlString(
+                          'tel://+976${storeList['manager']['phone']}'),
                     ),
                   ],
                 ),

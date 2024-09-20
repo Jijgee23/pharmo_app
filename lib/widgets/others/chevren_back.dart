@@ -9,9 +9,7 @@ class ChevronBack extends StatelessWidget {
       borderRadius: BorderRadius.circular(24),
       splashColor: Colors.black.withOpacity(0.3),
       onTap: () => Navigator.pop(context),
-      child: Container(
-          margin: const EdgeInsets.all(3),
-          child: const Icon(Icons.chevron_left)),
+      child: const Icon(Icons.chevron_left),
     );
   }
 }

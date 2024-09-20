@@ -238,9 +238,8 @@ class CustomDrawerHeader extends StatelessWidget {
             border: Border(
               bottom: BorderSide(color: Colors.grey),
             )),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 40),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Align(
@@ -252,6 +251,7 @@ class CustomDrawerHeader extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 10),
             homeProvider.userEmail != null
                 ? Text(
                     homeProvider.userEmail!,

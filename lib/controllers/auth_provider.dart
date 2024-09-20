@@ -72,10 +72,10 @@ class AuthController extends ChangeNotifier {
           {'email': email},
         ),
       );
-      print('response.statusCode: ${response.statusCode} body: ${response.body}');
-      
+      print(
+          'response.statusCode: ${response.statusCode} body: ${response.body}');
+
       if (response.statusCode == 200) {
-        
         final responseData = json.decode(response.body);
         final isPasswordCreated = responseData['pwd'];
         final email = responseData['ema'];
@@ -142,7 +142,8 @@ class AuthController extends ChangeNotifier {
         await prefs.setString('userrole', decodedToken['role']);
         decodedToken['supplier'] != null
             ? await prefs.setInt('suppID', decodedToken['supplier'])
-            : showFailedMessage(message: 'Нийлүүлэгч сонгоно уу!', context: context);
+            : showFailedMessage(
+                message: 'Нийлүүлэгч сонгоно уу!', context: context);
         final shoppingCart =
             Provider.of<BasketProvider>(context, listen: false);
         shoppingCart.getBasket();
@@ -166,15 +167,12 @@ class AuthController extends ChangeNotifier {
 
         notifyListeners();
       } else if (responseLogin.statusCode == 400) {
-        final res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
-        List<dynamic> message = res['password'];
         showFailedMessage(
-            context: context,
-            message:
-                message.toString().substring(1, message.toString().length - 1));
+            context: context, message: 'Имейл эсвэл нууц үг буруу байна!');
       } else {
         {
-          showFailedMessage(message: 'Имейл эсвэл нууц үг буруу байна!', context: context);
+          showFailedMessage(
+              message: 'Имейл эсвэл нууц үг буруу байна!', context: context);
         }
       }
       notifyListeners();

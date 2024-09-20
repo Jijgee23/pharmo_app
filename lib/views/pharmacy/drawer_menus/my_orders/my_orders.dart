@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_field_icon.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
@@ -120,7 +119,7 @@ class _MyOrderState extends State<MyOrder> {
           _processess = {
             "": "Сонгох",
             "W": "Төлбөр хүлээгдэж буй",
-            "P": "Төлбөр хүлээгдсэн",
+            "P": "Төлбөр төлөгдсөн",
             "S": "Цуцлагдсан",
             "R": "Буцаагдсан",
             "C": "Биелсэн",
@@ -164,7 +163,7 @@ class _MyOrderState extends State<MyOrder> {
     try {
       final orderProvider =
           Provider.of<MyOrderProvider>(context, listen: false);
-      dynamic res = await orderProvider.confirmOrder(orderId);
+      dynamic res = await orderProvider.confirmOrder(orderId, context);
       if (res['errorType'] == 1) {
         showSuccessMessage(message: res['message'], context: context);
       } else {
@@ -180,9 +179,7 @@ class _MyOrderState extends State<MyOrder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: Text('Миний захиалгууд', style: Constants.headerTextStyle),
-      ),
+      appBar: const SideMenuAppbar(title: 'Миний захиалгууд'),
       body: Consumer<MyOrderProvider>(
         builder: (context, provider, _) {
           final orders = (provider.orders.isNotEmpty) ? provider.orders : null;
@@ -332,130 +329,138 @@ class _MyOrderState extends State<MyOrder> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                     child: orders != null && orders.isNotEmpty
-                        ? Scrollbar(
-                            thickness: 1,
-                            child: ListView.builder(
-                              itemCount: orders.length,
-                              itemBuilder: (context, index) {
-                                var order = orders[index];
-                                return InkWell(
-                                  onTap: () {
-                                    print(order.process);
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: Colors.grey.shade300,
-                                        )),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 15),
-                                    margin: const EdgeInsets.all(10),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text('Захиалгын дугаар:'),
-                                                Text('Захиалгын төлөв:'),
-                                                Text('Тоо ширхэг:'),
-                                                Text('Нийт үнэ:'),
-                                              ],
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  orders[index]
-                                                      .orderNo
-                                                      .toString(),
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.red),
-                                                ),
-                                                Text(
+                        ? RefreshIndicator(
+                            onRefresh: () async {
+                              getData();
+                            },
+                            child: Scrollbar(
+                              thickness: 1,
+                              child: ListView.builder(
+                                itemCount: orders.length,
+                                itemBuilder: (context, index) {
+                                  var order = orders[index];
+                                  return InkWell(
+                                    onTap: () {
+                                      print(order.process);
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border: Border.all(
+                                            color: Colors.grey.shade300,
+                                          )),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 15),
+                                      margin: const EdgeInsets.all(10),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text('Захиалгын дугаар:'),
+                                                  Text('Захиалгын төлөв:'),
+                                                  Text('Тоо ширхэг:'),
+                                                  Text('Нийт үнэ:'),
+                                                ],
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
                                                     orders[index]
-                                                        .status
+                                                        .orderNo
                                                         .toString(),
                                                     style: const TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
-                                                        color: AppColors
-                                                            .mainDark)),
-                                                Text(
-                                                    orders[index]
-                                                        .totalCount
-                                                        .toString(),
+                                                        color: Colors.red),
+                                                  ),
+                                                  Text(
+                                                      orders[index]
+                                                          .status
+                                                          .toString(),
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: AppColors
+                                                              .mainDark)),
+                                                  Text(
+                                                      orders[index]
+                                                          .totalCount
+                                                          .toString(),
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      )),
+                                                  Text(
+                                                    '${orders[index].totalPrice} ₮',
                                                     style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    )),
-                                                Text(
-                                                  '${orders[index].totalPrice} ₮',
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.red),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        (orders[index].process ==
-                                                    'Бэлэн болсон' ||
-                                                orders[index].process ==
-                                                    'Түгээлтэнд гарсан')
-                                            ? InkWell(
-                                                onTap: () {
-                                                  provider
-                                                      .confirmOrder(
-                                                          orders[index].id)
-                                                      .then((e) => getData());
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                      color: AppColors.main,
-                                                      border: Border.all(
-                                                        color: Colors
-                                                            .grey.shade300,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.red),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          (orders[index].process ==
+                                                      'Бэлэн болсон' ||
+                                                  orders[index].process ==
+                                                      'Түгээлтэнд гарсан')
+                                              ? InkWell(
+                                                  onTap: () {
+                                                    provider
+                                                        .confirmOrder(
+                                                            orders[index].id,
+                                                            context)
+                                                        .then((e) => getData());
+                                                  },
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: AppColors.main,
+                                                        border: Border.all(
+                                                          color: Colors
+                                                              .grey.shade300,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10)),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 5),
+                                                    child: const Center(
+                                                      child: Text(
+                                                        'Батлагаажуулах',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
                                                       ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10)),
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 5),
-                                                  child: const Center(
-                                                    child: Text(
-                                                      'Батлагаажуулах',
-                                                      style: TextStyle(
-                                                          color: Colors.white),
                                                     ),
                                                   ),
-                                                ),
-                                              )
-                                            : const SizedBox(),
-                                      ],
+                                                )
+                                              : const SizedBox(),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
                           )
                         : const NoResult()),

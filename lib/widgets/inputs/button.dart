@@ -3,11 +3,11 @@ import 'package:pharmo_app/utilities/colors.dart';
 
 class Button extends StatelessWidget {
   final String text;
-  final Function() onTap;
+  final Function()? onTap;
   final Color? color;
   final double? width;
   const Button(
-      {super.key, required this.text, required this.onTap, this.color, this.width});
+      {super.key, required this.text, this.onTap, this.color, this.width});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,8 @@ class Button extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           border: Border.all(color: Colors.white)),
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap ?? () => Navigator.pop(context) ,
+        splashColor: Colors.white,
         child: Center(
           child: Text(text, style: const TextStyle(color: Colors.white)),
         ),
