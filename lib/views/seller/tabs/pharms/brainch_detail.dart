@@ -79,18 +79,18 @@ class _BranchDetailsState extends State<BranchDetails> {
       body: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        child: Center(
-          child: storeList.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Салбарын мэдээлэл олдсонгүй',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.red,
-                    ),
+        child: storeList.isEmpty
+            ? const Center(
+                child: Text(
+                  'Салбарын мэдээлэл олдсонгүй',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.red,
                   ),
-                )
-              : Column(
+                ),
+              )
+            : Center(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
@@ -107,7 +107,11 @@ class _BranchDetailsState extends State<BranchDetails> {
                       fontSize: 16,
                     ),
                     TwoitemsRow(
-                        title: 'Хаяг:', text: '${storeList['address'] ?? '-'}'),
+                      title: 'Хаяг:',
+                      text:
+                          '${storeList['address'] ?? '-'}',
+                      isLong: false,
+                    ),
                     const SizedBox(
                       height: 15,
                     ),
@@ -152,7 +156,7 @@ class _BranchDetailsState extends State<BranchDetails> {
                     ),
                   ],
                 ),
-        ),
+              ),
       ),
     );
   }

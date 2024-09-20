@@ -6,6 +6,7 @@ class TwoitemsRow extends StatelessWidget {
   final Color? color;
   final Function()? onTapText;
   final double? fontSize;
+  final bool? isLong;
 
   const TwoitemsRow(
       {super.key,
@@ -13,7 +14,8 @@ class TwoitemsRow extends StatelessWidget {
       required this.text,
       this.color,
       this.onTapText,
-      this.fontSize});
+      this.fontSize,
+      this.isLong});
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +32,23 @@ class TwoitemsRow extends StatelessWidget {
               fontWeight: FontWeight.bold,
               overflow: TextOverflow.ellipsis,
             ),
+            maxLines: 1,
+            softWrap: true,
           ),
-          InkWell(
-            onTap: onTapText,
-            child: Text(
-              text,
-              style: TextStyle(
-                color: color ?? Colors.red.shade800,
-                fontSize: fontSize ?? 14.0,
-                fontWeight: FontWeight.bold,
-                overflow: TextOverflow.ellipsis,
+          SizedBox(
+            width: isLong ?? true ? null : MediaQuery.of(context).size.width * 0.7,
+            child: InkWell(
+              onTap: onTapText,
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: color ?? Colors.red.shade800,
+                  fontSize: fontSize ?? 14.0,
+                  fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                maxLines: 2,
+                softWrap: true,
               ),
             ),
           ),
