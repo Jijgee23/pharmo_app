@@ -187,6 +187,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                     homeProvider.getSelectedUser(
                                         item.id, item.name);
                                   });
+                                    homeProvider.changeIndex(1);
                                 }
                               }
                             },

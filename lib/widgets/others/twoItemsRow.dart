@@ -23,6 +23,7 @@ class TwoitemsRow extends StatelessWidget {
       margin: const EdgeInsets.only(top: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
@@ -41,6 +42,7 @@ class TwoitemsRow extends StatelessWidget {
               onTap: onTapText,
               child: Text(
                 text,
+                textAlign: TextAlign.end,
                 style: TextStyle(
                   color: color ?? Colors.red.shade800,
                   fontSize: fontSize ?? 14.0,

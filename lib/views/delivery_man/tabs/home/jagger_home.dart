@@ -63,7 +63,7 @@ class _HomeJaggerState extends State<HomeJagger> {
           });
         }
         await jaggerProvider.getLocation(context);
-        await jaggerProvider.sendJaggerLocation();
+        await jaggerProvider.sendJaggerLocation(context);
       },
     );
   }
@@ -234,7 +234,8 @@ class _HomeJaggerState extends State<HomeJagger> {
                   const Text('Түгээлтэнд тайлбар бичих',
                       style: TextStyle(fontSize: 14)),
                   Constants.boxV10,
-                  CustomTextField(controller: provider.feedback, hintText: 'Тайлбар'),
+                  CustomTextField(
+                      controller: provider.feedback, hintText: 'Тайлбар'),
                   Constants.boxV10,
                   buttonRow(
                     const DialogBtn(),

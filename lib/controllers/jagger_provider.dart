@@ -306,11 +306,9 @@ class JaggerProvider extends ChangeNotifier {
               {"shipId": shipId, "itemId": itemId, "note": feedback.text}));
       notifyListeners();
       if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
         showFailedMessage(
             message: 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.',
             context: context);
-        print(response);
         feedback.text = '';
         // return {
         //   'errorType': 1,
@@ -318,8 +316,6 @@ class JaggerProvider extends ChangeNotifier {
         //   'message': 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.'
         // };
       } else {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
-        print(response);
         // return {'errorType': 2, 'data': null, 'message': res.body};
       }
     } catch (e) {
@@ -448,12 +444,12 @@ class JaggerProvider extends ChangeNotifier {
     _longitude = _currentLocation!.longitude.toString().substring(0, 7);
   }
 
-  Future<dynamic> sendJaggerLocation() async {
+  Future<dynamic> sendJaggerLocation(BuildContext context) async {
     try {
       String bearerToken = await getAccessToken();
       // print('lat: $latitude, long: $longitude');
       SharedPreferences prefs = await SharedPreferences.getInstance();
-
+      _getCurrentLocation(context);
       if (prefs.getString('latitude') != latitude ||
           prefs.getString('longitude') != longitude) {
         await prefs.setString('latitude', latitude);
