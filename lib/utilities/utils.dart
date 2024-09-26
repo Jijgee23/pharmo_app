@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void goto(Widget widget, BuildContext context) {
@@ -49,6 +50,11 @@ getHeader(String token) {
     'Authorization': token
   };
   return headers;
+}
+
+setUrl(String endPoint) {
+  Uri url = Uri.parse('${dotenv.env['SERVER_URL']}$endPoint');
+  return url;
 }
 
 String noImage =

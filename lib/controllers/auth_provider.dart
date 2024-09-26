@@ -53,11 +53,8 @@ class AuthController extends ChangeNotifier {
       }),
     );
     if (response.statusCode == 200) {
-      String? accessToken = json.decode(response.body)['access'];
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken!);
+      String accessToken = json.decode(response.body)['access'];
       await prefs.setString('access_token', accessToken);
-      await prefs.setString('role', decodedToken['role']);
-      await prefs.setString('useremail', decodedToken['email']);
     }
   }
 
@@ -72,9 +69,6 @@ class AuthController extends ChangeNotifier {
           {'email': email},
         ),
       );
-      print(
-          'response.statusCode: ${response.statusCode} body: ${response.body}');
-
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         final isPasswordCreated = responseData['pwd'];
@@ -131,10 +125,10 @@ class AuthController extends ChangeNotifier {
         final res = jsonDecode(responseLogin.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', res['access_token']);
+        await prefs.setString('refresh_token', res['refresh_token']);
         String? accessToken = prefs.getString('access_token').toString();
         final decodedToken = JwtDecoder.decode(accessToken);
         HomeProvider().getSuppliers();
-        print(decodedToken);
         _userInfo = decodedToken;
         await prefs.setString('refresh_token', res['refresh_token']);
         await prefs.setString('useremail', decodedToken['email']);
@@ -148,27 +142,32 @@ class AuthController extends ChangeNotifier {
             Provider.of<BasketProvider>(context, listen: false);
         shoppingCart.getBasket();
         Hive.box('auth').put('role', decodedToken['role']);
-        notifyListeners();
-        if (decodedToken['role'] == 'S') {
-          gotoRemoveUntil(const SellerHomePage(), context);
-        } else if (decodedToken['role'] == 'PA') {
-          gotoRemoveUntil(const PharmaHomePage(), context);
-        } else if (decodedToken['role'] == 'D') {
-          gotoRemoveUntil(const JaggerHomePage(), context);
-        } else {
-          showFailedDialog(context);
-          toggleVisibile();
-          notifyListeners();
-        }
-        await prefs.setString('access_token', res['access_token']);
-        await prefs.setString('refresh_token', res['refresh_token']);
-
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          switch (decodedToken['role']) {
+            case 'S':
+              gotoRemoveUntil(const SellerHomePage(), context);
+              break;
+            case 'PA':
+              gotoRemoveUntil(const PharmaHomePage(), context);
+              break;
+            case 'D':
+              gotoRemoveUntil(const JaggerHomePage(), context);
+          }
+        });
         debugPrint(accessToken);
-
         notifyListeners();
       } else if (responseLogin.statusCode == 400) {
         showFailedMessage(
             context: context, message: 'Имейл эсвэл нууц үг буруу байна!');
+      } else if (responseLogin.statusCode == 401) {
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return CreatePassDialog(
+              email: email,
+            );
+          },
+        );
       } else {
         {
           showFailedMessage(
@@ -177,6 +176,8 @@ class AuthController extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
+      showFailedMessage(
+          message: 'Интернет холболтоо шалгана уу!', context: context);
       debugPrint('error================= on login> ${e.toString()} ');
     }
   }

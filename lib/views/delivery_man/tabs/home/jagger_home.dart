@@ -5,11 +5,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
+import 'package:pharmo_app/models/ship.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home_detail.dart';
+import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/dialog_button.dart';
+import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
@@ -26,20 +30,25 @@ bool mounted = true;
 class _HomeJaggerState extends State<HomeJagger> {
   late JaggerProvider jaggerProvider;
   late HomeProvider homeProvider;
+  late Future<void> future;
   @override
-  void initState() {
-    jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
-    homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    jaggerProvider.getJaggers();
-    homeProvider.getPosition();
-    startTimer(context);
+  initState() {
     super.initState();
+    homeProvider = Provider.of(context, listen: false);
+    jaggerProvider = Provider.of(context, listen: false);
+    future = getData();
   }
 
   @override
   void dispose() {
     timer?.cancel();
     super.dispose();
+  }
+
+  Future<void> getData() async {
+    await Provider.of<JaggerProvider>(context, listen: false)
+        .getJaggers(context);
+    await Provider.of<HomeProvider>(context, listen: false).getPosition();
   }
 
   startShipment(int shipmentId) async {
@@ -55,7 +64,7 @@ class _HomeJaggerState extends State<HomeJagger> {
   Future startTimer(BuildContext context) async {
     final jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
     timer = Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 30),
       (timer) async {
         if (mounted) {
           setState(() {
@@ -68,90 +77,165 @@ class _HomeJaggerState extends State<HomeJagger> {
     );
   }
 
+  refreshScreen() async {
+    await jaggerProvider.getJaggers(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<JaggerProvider>(builder: (context, provider, _) {
-        final jagger =
-            (provider.jaggers.isNotEmpty) ? provider.jaggers[0] : null;
-        return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-            child: (jagger != null &&
-                    jagger.jaggerOrders != null &&
-                    jagger.jaggerOrders!.isNotEmpty)
-                ? ListView.builder(
-                    itemCount: jagger.jaggerOrders?.length,
-                    itemBuilder: (context, index) {
-                      final order = jagger.jaggerOrders?[index];
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => JaggerHomeDetail(
-                                index: index,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade700),
-                              borderRadius: BorderRadius.circular(10)),
-                          margin: const EdgeInsets.all(5),
-                          padding: const EdgeInsets.all(10),
+      body: RefreshIndicator(
+        onRefresh: () => Future.sync(() {
+          future;
+        }),
+        child: FutureBuilder<void>(
+          future: future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: MyIndicator());
+            } else if (snapshot.hasError) {
+              return const Center(child: NoResult());
+            } else {
+              return Consumer<JaggerProvider>(
+                builder: (context, provider, child) {
+                  final ships = provider.ships;
+                  if (ships.isEmpty) {
+                    return const NoResult();
+                  } else {
+                    return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 0),
+                        child: SingleChildScrollView(
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              myRow(
-                                'Байршил илгээсэн:',
-                                count.toString(),
-                              ),
-                              myRow(
-                                'Захиалагч:',
-                                order!.user.toString(),
-                              ),
-                              myRow(
-                                'Захиалгын дугаар:',
-                                order.orderNo.toString(),
-                              ),
-                              myRow('Төлөв', order.process.toString()),
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 2.5),
-                                child: InkWell(
-                                  onTap: () async {
-                                    await _addNote(
-                                        context, order.id!, jagger.id);
-                                  },
-                                  child: const Text(
-                                    'Тайлбар бичих',
-                                    style: TextStyle(
-                                      color: AppColors.main,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              buttonRow(
-                                button(
-                                    title: 'Эхлүүлэх',
-                                    color: AppColors.secondary,
-                                    onTap: () => startShipment(jagger.id),
-                                    icon: Icons.arrow_right_rounded),
-                                button(
-                                    title: 'Дуусгах',
-                                    color: AppColors.main,
-                                    onTap: () => endShipment(jagger.id),
-                                    icon: Icons.close),
-                              ),
-                            ],
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: (ships.isEmpty)
+                                ? [const NoResult()]
+                                : ships
+                                    .map(
+                                      (e) => Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5, horizontal: 10),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                                color: Colors.grey.shade700)),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                (e.startTime != null &&
+                                                        e.startTime!.isNotEmpty)
+                                                    ? Align(
+                                                        child: Text(
+                                                          'Түгээлт эхлэсэн: ${e.startTime}',
+                                                          style: const TextStyle(
+                                                              color: AppColors
+                                                                  .succesColor,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 18),
+                                                        ),
+                                                      )
+                                                    : Button(
+                                                        text:
+                                                            'Түгээлт эхлүүлэх',
+                                                        onTap: () => Future(() {
+                                                              startShipment(
+                                                                  e.id);
+                                                            }).whenComplete(() {
+                                                              startTimer(
+                                                                  context);
+                                                              refreshScreen();
+                                                            }),
+                                                        width: double.infinity,
+                                                        color: Colors.green),
+                                                const Text(
+                                                    'Түгээлтийн захиалгууд:'),
+                                                Column(
+                                                  children: e.inItems
+                                                      .map((order) =>
+                                                          orderItem(e, order))
+                                                      .toList(),
+                                                ),
+                                              ],
+                                            ),
+                                            (!e.endTime!.isNotEmpty &&
+                                                    e.endTime != null)
+                                                ? Align(
+                                                    child: Text(
+                                                      'Түгээлт дууссан: ${e.endTime}',
+                                                      style: const TextStyle(
+                                                          color: AppColors
+                                                              .succesColor,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18),
+                                                    ),
+                                                  )
+                                                : Button(
+                                                    text: 'Түгээлт дууусгах',
+                                                    onTap: () => Future(() {
+                                                      endShipment(e.id);
+                                                    }).whenComplete(() {
+                                                      startTimer(context);
+                                                      refreshScreen();
+                                                    }),
+                                                    width: double.infinity,
+                                                    color: Colors.red,
+                                                  ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
                           ),
-                        ),
-                      );
-                    })
-                : const NoResult());
-      }),
+                        ));
+                  }
+                },
+              );
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget orderItem(Ship e, ShipOrders order) {
+    return InkWell(
+      onTap: () => goto(JaggerHomeDetail(order: order, shipId: e.id), context),
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade700),
+            borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            myRow('Байршил илгээсэн:', count.toString()),
+            myRow('Захиалагч:', order.user.toString()),
+            myRow('Захиалгын дугаар:', order.orderNo.toString()),
+            myRow('Төлөв', order.process.toString()),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 2.5),
+              child: InkWell(
+                onTap: () async => await _addNote(context, e.id, order.id),
+                child: const Text(
+                  'Тайлбар бичих',
+                  style: TextStyle(color: AppColors.main),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -240,9 +324,12 @@ class _HomeJaggerState extends State<HomeJagger> {
                   buttonRow(
                     const DialogBtn(),
                     DialogBtn(
-                        title: 'Хадгалах',
-                        onTap: () async =>
-                            await provider.addnote(shipId, itemId, context)),
+                      title: 'Хадгалах',
+                      onTap: () async =>
+                          await provider.addnote(shipId, itemId, context).then(
+                                (e) => Navigator.pop(context),
+                              ),
+                    ),
                   )
                 ]),
               ),

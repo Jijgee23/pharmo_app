@@ -74,6 +74,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Pharmo app',
+      restorationScopeId: 'root',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: null,

@@ -7,7 +7,7 @@ import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart'
 import 'package:pharmo_app/views/public_uses/user_information/user_information.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
-import 'package:pharmo_app/views/delivery_man/drawer_menus/expend/jagger_order_page.dart';
+import 'package:pharmo_app/views/delivery_man/drawer_menus/expend/shipment_expense.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
 import 'package:pharmo_app/views/delivery_man/drawer_menus/shipment_history/shipment_history.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
@@ -25,7 +25,7 @@ class JaggerHomePage extends StatefulWidget {
 class _JaggerHomePageState extends State<JaggerHomePage> {
   final List _pages = [
     const HomeJagger(),
-    const JaggerOrderPage(),
+    const ShipmentExpensePage(),
   ];
   late HomeProvider homeProvider;
   int _selectedIndex = 0;

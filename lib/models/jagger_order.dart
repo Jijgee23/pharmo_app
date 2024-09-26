@@ -3,12 +3,12 @@ import 'package:pharmo_app/models/jagger_order_item.dart';
 class JaggerOrder {
   int? id;
   bool? isGiven;
-  String? givenOn;
+  int? givenOn;
   String? note;
   String? orderNo;
   int? branchId;
-  double? lat;
-  double? lng;
+  String? lat;
+  String? lng;
   String? branch;
   String? user;
   String? process;

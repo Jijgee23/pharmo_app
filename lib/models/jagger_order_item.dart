@@ -6,7 +6,7 @@ class JaggerOrderItem {
   int itemQty;
   int iQty;
   int? rQty;
-  int? itemNameId;
+  String? itemNameId;
   bool? isPromoItem;
   bool? isPromoGift;
   int? giftCount;
