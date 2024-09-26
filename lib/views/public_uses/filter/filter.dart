@@ -206,7 +206,7 @@ class _CategoryItemState extends State<CategoryItem> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.only(top: 5, left: 20),
+        padding: const EdgeInsets.only(top: 5, left: 20, bottom: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

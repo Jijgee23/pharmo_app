@@ -128,8 +128,8 @@ class _HomeJaggerState extends State<HomeJagger> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                (e.startTime != null &&
-                                                        e.startTime!.isNotEmpty)
+                                                (e.startTime!.isNotEmpty &&
+                                                        e.startTime != null)
                                                     ? Align(
                                                         child: Text(
                                                           'Түгээлт эхлэсэн: ${e.startTime}',
@@ -183,7 +183,6 @@ class _HomeJaggerState extends State<HomeJagger> {
                                                     onTap: () => Future(() {
                                                       endShipment(e.id);
                                                     }).whenComplete(() {
-                                                      startTimer(context);
                                                       refreshScreen();
                                                     }),
                                                     width: double.infinity,
