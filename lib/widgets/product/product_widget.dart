@@ -31,7 +31,7 @@ class ProductWidget extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade500),
+              border: Border.all(color: AppColors.primary, width: 0.5),
               borderRadius: BorderRadius.circular(13),
             ),
             margin: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 5),
@@ -63,6 +63,7 @@ class ProductWidget extends StatelessWidget {
                                   '${dotenv.env['IMAGE_URL']}${splitURL(item.image!)[0]}_150x150.${splitURL(item.image!)[1]}')
                               : NetworkImage(
                                   noImageUrl,
+                                  
                                   scale: 1,
                                 ),
                         ),
@@ -75,7 +76,8 @@ class ProductWidget extends StatelessWidget {
                       item.name!,
                       softWrap: true,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.black),
+                      style: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.w400),
                     ),
                   ),
                   Padding(
@@ -90,7 +92,7 @@ class ProductWidget extends StatelessWidget {
                                   ? '${item.price == 0 ? '0' : (item.price! - (item.price! / 100 * item.discount!)).toString().substring(0, 7)}₮'
                                   : '${item.price.toString()}₮',
                               style: const TextStyle(
-                                  color: Colors.red,
+                                  color: AppColors.secondary,
                                   fontWeight: FontWeight.w500),
                             ),
                           ],
@@ -99,7 +101,8 @@ class ProductWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(24),
                           onTap: onButtonTab,
                           child: Image.asset(
-                            'assets/icons/add-basket.png',
+                            'assets/icons_2/add.png',
+                            color: AppColors.primary,
                             height: 24,
                             width: 24,
                           ),

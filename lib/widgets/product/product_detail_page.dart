@@ -292,7 +292,7 @@ class _ProductDetailState extends State<ProductDetail> {
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: AppColors.secondary,
+                    color: AppColors.primary,
                   ),
                   child: const Center(
                     child: Text(

@@ -43,7 +43,7 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
@@ -54,8 +54,17 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
               const Text(
                 'Нууц үг үүсгэх',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
+              ),
+              const SizedBox(height: 15),
+              CustomTextField(
+                controller: emailController,
+                obscureText: false,
+                hintText: 'Имейл хаяг',
+                validator: validateEmail,
+                keyboardType: TextInputType.visiblePassword,
               ),
               const SizedBox(height: 15),
               CustomTextField(

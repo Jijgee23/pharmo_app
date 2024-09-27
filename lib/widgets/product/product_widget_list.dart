@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 
 class ProductWidgetListView extends StatelessWidget {
   final Product item;
@@ -38,7 +39,7 @@ class ProductWidgetListView extends StatelessWidget {
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        color: Colors.red, fontWeight: FontWeight.w500),
+                        color: AppColors.secondary, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -47,7 +48,7 @@ class ProductWidgetListView extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               onTap: onButtonTab,
               child: Image.asset(
-                'assets/icons/add-basket.png',
+                'assets/icons_2/cart.png',
                 height: 24,
                 width: 24,
               ),

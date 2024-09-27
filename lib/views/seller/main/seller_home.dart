@@ -5,7 +5,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
+import 'package:pharmo_app/views/delivery_man/main/logout_dialog.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
@@ -18,6 +18,7 @@ import 'package:pharmo_app/views/seller/drawer_menus/register_pharm/register_pha
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_shopping_cart.dart';
 import 'package:pharmo_app/views/public_uses/notification/notification.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
+import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
 
@@ -81,7 +82,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                                 TextSpan(
                                     text: homeProvider.selectedCustomerName,
                                     style: const TextStyle(
-                                        color: AppColors.succesColor,
+                                        color: AppColors.secondary,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13.0)),
                               ],
@@ -91,7 +92,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   actions: [
                     IconButton(
                       icon: Image.asset(
-                        'assets/icons/notification.png',
+                        'assets/icons_2/bell.png',
                         height: 24,
                       ),
                       onPressed: () => goto(const NotificationPage(), context),
@@ -111,10 +112,10 @@ class _SellerHomePageState extends State<SellerHomePage> {
                                 color: Colors.white, fontSize: 11),
                           ),
                           badgeStyle: const badges.BadgeStyle(
-                            badgeColor: Colors.blue,
+                            badgeColor: AppColors.secondary,
                           ),
                           child: Image.asset(
-                            'assets/icons/shop-tab.png',
+                            'assets/icons_2/cart.png',
                             height: 24,
                             width: 24,
                           ),
@@ -135,43 +136,38 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   DrawerItem(
                       title: 'Эмийг сан бүртгэх',
                       onTap: () => goto(const RegisterPharmPage(), context),
-                      asset: 'assets/icons/drugstore.png'),
+                      asset: 'assets/icons_2/doctor.png'),
                   DrawerItem(
                       title: 'Орлогын жагсаалт',
                       onTap: () => goto(const IncomeList(), context),
-                      asset: 'assets/icons/icnome.png'),
+                      asset: 'assets/icons_2/wallet-income.png'),
                   DrawerItem(
                       title: 'Захиалгууд',
                       onTap: () => goto(const SellerOrders(), context),
-                      asset: 'assets/icons/order.png'),
-                  // DrawerItem(
-                  //     title: 'Харилцагчийн захиалгын түүх',
-                  //     onTap: () =>
-                  //         goto(const SellerCustomerOrderHisrtory(), context),
-                  //     asset: 'assets/icons/clock.png'),
+                      asset: 'assets/icons_2/time-past.png'),
                   homeProvider.userRole == 'D'
                       ? DrawerItem(
                           title: 'Түгээгчрүү шилжих',
                           onTap: () {
                             gotoRemoveUntil(const JaggerHomePage(), context);
                           },
-                          asset: 'assets/icons/swap.png',
+                          asset: 'assets/icons_2/swap.png',
                         )
                       : const SizedBox(),
                   DrawerItem(
                     title: 'Миний бүртгэл',
-                    asset: 'assets/icons/user.png',
+                    asset: 'assets/icons_2/user.png',
                     onTap: () => goto(const UserInformation(), context),
                   ),
                   DrawerItem(
                     title: 'Нууцлалын бодлого',
-                    asset: 'assets/icons/pp.png',
+                    asset: 'assets/icons_2/privacy.png',
                     onTap: () => goto(const PrivacyPolicy(), context),
                   ),
                   DrawerItem(
                       title: 'Гарах',
                       onTap: () => showLogoutDialog(context),
-                      asset: 'assets/icons/check-out.png'),
+                      asset: 'assets/icons_2/signout.png'),
                 ],
               ),
             ),
@@ -191,45 +187,34 @@ class _SellerHomePageState extends State<SellerHomePage> {
               ? null
               : BottomNavigationBar(
                   selectedItemColor: AppColors.primary,
-                  useLegacyColorScheme: true,
                   currentIndex: homeProvider.currentIndex,
                   onTap: homeProvider.changeIndex,
-                  showSelectedLabels: true,
+                  showSelectedLabels: false,
                   showUnselectedLabels: false,
                   type: BottomNavigationBarType.fixed,
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: Image.asset(
-                        'assets/icons/user.png',
-                        height: 20,
-                      ),
-                      label: 'Захиалагч',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Image.asset(
-                        'assets/icons/house.png',
-                        height: 20,
-                      ),
-                      label: 'Бараа',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Image.asset(
-                        'assets/icons/options.png',
-                        height: 20,
-                      ),
-                      label: 'Ангилал',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Image.asset(
-                        'assets/icons/shop-tab.png',
-                        height: 20,
-                      ),
-                      label: 'Сагс',
-                    ),
-                  ],
+                  items: navBarItems,
                 ),
         );
       },
     );
   }
+
+  List<BottomNavigationBarItem> navBarItems = [
+    const BottomNavigationBarItem(
+      icon: NavBarIcon(url: 'user'),
+      label: 'Захиалагч',
+    ),
+    const BottomNavigationBarItem(
+      icon: NavBarIcon(url: 'category'),
+      label: 'Бараа',
+    ),
+    const BottomNavigationBarItem(
+      icon: NavBarIcon(url: 'bars-sort'),
+      label: 'Ангилал',
+    ),
+    const BottomNavigationBarItem(
+      icon: NavBarIcon(url: 'cart'),
+      label: 'Сагс',
+    ),
+  ];
 }

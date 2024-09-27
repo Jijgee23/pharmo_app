@@ -5,8 +5,8 @@ import 'package:flutter/rendering.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/models/income.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
@@ -118,10 +118,7 @@ class _IncomeListState extends State<IncomeList> {
       builder: (_, income, child) {
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-              title: const Text('Орлогын жагсаалт'),
-              centerTitle: true,
-              leading: const ChevronBack()),
+          appBar: const SideMenuAppbar(title: 'Орлогын жагсаалт'),
           floatingActionButton: invisible
               ? const SizedBox()
               : FloatingActionButton(

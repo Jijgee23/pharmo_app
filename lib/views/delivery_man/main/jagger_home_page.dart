@@ -6,12 +6,13 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/public_uses/user_information/user_information.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
-import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
+import 'package:pharmo_app/views/delivery_man/main/logout_dialog.dart';
 import 'package:pharmo_app/views/delivery_man/drawer_menus/expend/shipment_expense.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
 import 'package:pharmo_app/views/delivery_man/drawer_menus/shipment_history/shipment_history.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
+import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
 
@@ -72,29 +73,28 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
                     const CustomDrawerHeader(),
                     DrawerItem(
                       title: 'Түгээлтийн түүх',
-                      asset: 'assets/icons/transaction-history.png',
+                      asset: 'assets/icons_2/time-past.png',
                       onTap: () => goto(const ShipmentHistory(), context),
                     ),
                     DrawerItem(
                       title: 'Борлуулагчруу шилжих',
-                      asset: 'assets/icons/swap.png',
+                      asset: 'assets/icons_2/swap.png',
                       onTap: () =>
                           gotoRemoveUntil(const SellerHomePage(), context),
                     ),
                     DrawerItem(
-                              title: 'Миний бүртгэл',
-                              asset: 'assets/icons/user.png',
-                              onTap: () =>
-                                  goto(const UserInformation(), context),
-                            ),
+                      title: 'Миний бүртгэл',
+                      asset: 'assets/icons_2/user.png',
+                      onTap: () => goto(const UserInformation(), context),
+                    ),
                     DrawerItem(
                       title: 'Нууцлалын бодлого',
-                      asset: 'assets/icons/pp.png',
+                      asset: 'assets/icons_2/privacy.png',
                       onTap: () => goto(const PrivacyPolicy(), context),
                     ),
                     DrawerItem(
                       title: 'Гарах',
-                      asset: 'assets/icons/check-out.png',
+                      asset: 'assets/icons_2/signout.png',
                       onTap: () {
                         showLogoutDialog(context);
                       },
@@ -109,24 +109,18 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
           ),
           body: _pages[_selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
-            showSelectedLabels: true,
+            showSelectedLabels: false,
             showUnselectedLabels: false,
             type: BottomNavigationBarType.fixed,
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
-            items: [
+            items: const [
               BottomNavigationBarItem(
-                icon: Image.asset(
-                  'assets/icons/house.png',
-                  height: 20,
-                ),
+                icon: NavBarIcon(url: 'truck-side'),
                 label: 'Түгээлт',
               ),
               BottomNavigationBarItem(
-                icon: Image.asset(
-                  'assets/icons/order.png',
-                  height: 20,
-                ),
+                icon: NavBarIcon(url: 'expense'),
                 label: 'Зарлагууд',
               ),
             ],

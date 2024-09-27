@@ -72,7 +72,7 @@ class _FilterPageState extends State<FilterPage> {
                             style: TextStyle(
                                 fontSize: 14,
                                 color: filterList.indexOf(e) == selectedIdx
-                                    ? AppColors.succesColor
+                                    ? AppColors.secondary
                                     : AppColors.primary),
                           ),
                         ),

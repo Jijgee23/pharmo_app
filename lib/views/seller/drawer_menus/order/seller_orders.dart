@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
@@ -29,15 +29,7 @@ class _SellerOrdersState extends State<SellerOrders> {
       builder: (_, provider, child) {
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            surfaceTintColor: Colors.white,
-            leading: const ChevronBack(),
-            title: const Text(
-              'Захиалгууд',
-              style: TextStyle(fontSize: 16),
-            ),
-            centerTitle: true,
-          ),
+          appBar: const SideMenuAppbar(title: 'Захиалгууд'),
           body: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [

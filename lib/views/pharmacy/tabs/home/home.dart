@@ -122,188 +122,200 @@ class _HomeState extends State<Home> {
       child: Consumer3<HomeProvider, BasketProvider, PromotionProvider>(
         builder: (_, homeProvider, basketProvider, promotionProvider, child) {
           final search = homeProvider.searchController;
-          return CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                automaticallyImplyLeading: false,
-                pinned: true,
-                surfaceTintColor: Colors.transparent,
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      flex: 10,
-                      child: Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.primary),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(width: 10),
-                            InkWell(
-                              onTap: () => _picksupp(
-                                  context, homeProvider, basketProvider),
-                              borderRadius: BorderRadius.circular(10),
-                              child: Text(
-                                '${homeProvider.supName} :',
-                                style: const TextStyle(
-                                    fontSize: 14, color: AppColors.secondary),
+          return Scaffold(
+            body: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  pinned: true,
+                  surfaceTintColor: Colors.transparent,
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        flex: 10,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.cleanBlack),
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(width: 10),
+                              IntrinsicWidth(
+                                child: InkWell(
+                                  onTap: () => _picksupp(
+                                      context, homeProvider, basketProvider),
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Text(
+                                    '${homeProvider.supName} :',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                                child: TextFormField(
-                              decoration: InputDecoration(
-                                hintText: '${homeProvider.searchType} хайх',
-                                hintStyle: const TextStyle(fontSize: 14),
-                                border: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                              ),
-                              onChanged: (v) {
-                                try {
-                                  Future.delayed(
-                                    const Duration(milliseconds: 1500),
-                                    () {
-                                      if (v.isNotEmpty) {
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((t) {
-                                          homeProvider.changeSearching(true);
-                                          homeProvider.changeQueryValue(v);
-                                          _pagingController.refresh();
-                                        });
-                                      } else {
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((t) {
-                                          homeProvider.changeSearching(false);
-                                          _pagingController.refresh();
-                                        });
-                                      }
-                                      print(search.text);
-                                    },
-                                  );
-                                } catch (e) {
-                                  print('=============> $e');
-                                }
-                              },
-                              onFieldSubmitted: (v) {
-                                if (v.isEmpty) {
-                                  homeProvider.changeSearching(false);
-                                  _pagingController.refresh();
-                                }
-                              },
-                            )),
-                            InkWell(
-                                onTap: () {
-                                  showMenu(
-                                          surfaceTintColor: Colors.white,
-                                          context: context,
-                                          position: const RelativeRect.fromLTRB(
-                                              150, 120, 0, 0),
-                                          items: homeProvider.stype
-                                              .map((e) => PopupMenuItem(
-                                                  onTap: () {
-                                                    homeProvider
-                                                        .setQueryTypeName(e);
-                                                    int index = homeProvider
-                                                        .stype
-                                                        .indexOf(e);
-                                                    if (index == 0) {
-                                                      homeProvider
-                                                          .setQueryType('name');
-                                                    } else if (index == 1) {
-                                                      homeProvider.setQueryType(
-                                                          'barcode');
-                                                    } else {
-                                                      homeProvider.setQueryType(
-                                                          'intName');
-                                                    }
-                                                  },
-                                                  child: Text(e)))
-                                              .toList())
-                                      .then((value) {});
+                              Expanded(
+                                  child: TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: '${homeProvider.searchType} хайх',
+                                  hintStyle: const TextStyle(fontSize: 14),
+                                  border: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                ),
+                                onChanged: (v) {
+                                  try {
+                                    Future.delayed(
+                                      const Duration(milliseconds: 1500),
+                                      () {
+                                        if (v.isNotEmpty) {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((t) {
+                                            homeProvider.changeSearching(true);
+                                            homeProvider.changeQueryValue(v);
+                                            _pagingController.refresh();
+                                          });
+                                        } else {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((t) {
+                                            homeProvider.changeSearching(false);
+                                            _pagingController.refresh();
+                                          });
+                                        }
+                                        print(search.text);
+                                      },
+                                    );
+                                  } catch (e) {
+                                    print('=============> $e');
+                                  }
                                 },
-                                child: const Icon(
-                                    Icons.keyboard_arrow_down_rounded)),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                          ],
+                                onFieldSubmitted: (v) {
+                                  if (v.isEmpty) {
+                                    homeProvider.changeSearching(false);
+                                    _pagingController.refresh();
+                                  }
+                                },
+                              )),
+                              InkWell(
+                                  onTap: () {
+                                    showMenu(
+                                            surfaceTintColor: Colors.white,
+                                            context: context,
+                                            position:
+                                                const RelativeRect.fromLTRB(
+                                                    150, 120, 0, 0),
+                                            items: homeProvider.stype
+                                                .map((e) => PopupMenuItem(
+                                                    onTap: () {
+                                                      homeProvider
+                                                          .setQueryTypeName(e);
+                                                      int index = homeProvider
+                                                          .stype
+                                                          .indexOf(e);
+                                                      if (index == 0) {
+                                                        homeProvider
+                                                            .setQueryType(
+                                                                'name');
+                                                      } else if (index == 1) {
+                                                        homeProvider
+                                                            .setQueryType(
+                                                                'barcode');
+                                                      } else {
+                                                        homeProvider
+                                                            .setQueryType(
+                                                                'intName');
+                                                      }
+                                                    },
+                                                    child: Text(e)))
+                                                .toList())
+                                        .then((value) {});
+                                  },
+                                  child: const Icon(
+                                      Icons.keyboard_arrow_down_rounded)),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(10),
-                        onTap: () => homeProvider.switchView(),
-                        child: Icon(
-                            homeProvider.isList ? Icons.grid_view : Icons.list,
-                            color: AppColors.secondary),
+                      Expanded(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () => homeProvider.switchView(),
+                          child: Icon(
+                              homeProvider.isList
+                                  ? Icons.grid_view
+                                  : Icons.list,
+                              color: AppColors.secondary),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              SliverAppBar(
-                toolbarHeight: 40,
-                automaticallyImplyLeading: false,
-                surfaceTintColor: Colors.white,
-                title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: filters
-                        .map(
-                          (e) => InkWell(
-                            borderRadius: BorderRadius.circular(5),
-                            splashColor: AppColors.secondary.withOpacity(0.5),
-                            onTap: () {
-                              _filtering.itemList?.clear();
-                              if (filters.indexOf(e) == 0) {
-                                goFilt('discount__gt=0', 'Хямдралтай', pageKey,
-                                    true);
-                              } else if (filters.indexOf(e) == 1) {
-                                goFilt('ordering=-created_at', 'Эрэлттэй',
-                                    pageKey, false);
-                              } else {
-                                goFilt('supplier_indemand_products/', 'Шинэ',
-                                    pageKey, false);
-                              }
-                            },
-                            child: Container(
-                              //  margin: const EdgeInsets.only(right: 10, top: 5),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.secondary),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 10),
-                              child: Row(
-                                children: [
-                                  Icon(icons[filters.indexOf(e)],
-                                      color: AppColors.secondary),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    e,
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ],
+                SliverAppBar(
+                  toolbarHeight: 40,
+                  automaticallyImplyLeading: false,
+                  surfaceTintColor: Colors.white,
+                  title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: filters
+                          .map(
+                            (e) => InkWell(
+                              borderRadius: BorderRadius.circular(5),
+                              splashColor: AppColors.secondary.withOpacity(0.5),
+                              onTap: () {
+                                _filtering.itemList?.clear();
+                                if (filters.indexOf(e) == 0) {
+                                  goFilt('discount__gt=0', 'Хямдралтай',
+                                      pageKey, true);
+                                } else if (filters.indexOf(e) == 1) {
+                                  goFilt('ordering=-created_at', 'Эрэлттэй',
+                                      pageKey, false);
+                                } else {
+                                  goFilt('supplier_indemand_products/', 'Шинэ',
+                                      pageKey, false);
+                                }
+                              },
+                              child: Container(
+                                //  margin: const EdgeInsets.only(right: 10, top: 5),
+                                decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: AppColors.secondary),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    Icon(icons[filters.indexOf(e)],
+                                        color: AppColors.secondary),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      e,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                        .toList()),
-              ),
-              homeProvider.searching
-                  ? !homeProvider.isList
-                      ? CustomGridView(pagingController: _pagingController)
-                      : CustomListView(pagingController: _pagingController)
-                  : !homeProvider.isList
-                      ? CustomGridView(pagingController: _pagingController)
-                      : CustomListView(
-                          pagingController: _pagingController,
-                        )
-            ],
+                          )
+                          .toList()),
+                ),
+                homeProvider.searching
+                    ? !homeProvider.isList
+                        ? CustomGridView(pagingController: _pagingController)
+                        : CustomListView(pagingController: _pagingController)
+                    : !homeProvider.isList
+                        ? CustomGridView(pagingController: _pagingController)
+                        : CustomListView(
+                            pagingController: _pagingController,
+                          )
+              ],
+            ),
           );
         },
       ),

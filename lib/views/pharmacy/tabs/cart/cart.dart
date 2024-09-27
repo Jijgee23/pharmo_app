@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
-import 'package:pharmo_app/widgets/others/twoItemsRow.dart';
 import 'package:provider/provider.dart';
 
 class ShoppingCartHome extends StatefulWidget {
@@ -35,6 +35,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade200,
       body: Consumer<BasketProvider>(
         builder: (context, provider, _) {
           final cartDatas = provider.shoppingCarts;
@@ -76,18 +77,17 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                        'Сагсанд ${provider.shoppingCarts.length} төрлийн бараа байна.',
-                        style: TextStyle(
-                            color: Colors.blueGrey.shade800,
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.bold)),
-                    TwoitemsRow(
-                        title: 'Нийт тоо ширхэг: ',
-                        text: '${basket.totalCount ?? 0}'),
-                    TwoitemsRow(
-                        title: 'Нийт төлөх дүн: ',
-                        text: '${basket.totalPrice ?? 0} ₮'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        info(
+                            title: 'Төлөх дүн',
+                            text: '${basket.totalPrice ?? 0} ₮'),
+                        info(
+                            title: 'Тоо ширхэг',
+                            text: '${basket.totalCount ?? 0}')
+                      ],
+                    ),
                     Container(
                       margin: const EdgeInsets.only(top: 10),
                       child: Row(
@@ -96,12 +96,12 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                           Button(
                               text: 'Сагс хоослох',
                               onTap: () => clearBasket(basket.id),
-                              color: Colors.red.shade700),
+                              color: AppColors.primary),
                           Button(
                               text: 'Захиалга үүсгэх',
                               onTap: () =>
                                   goto(const SelectBranchPage(), context),
-                              color: Colors.green.shade700),
+                              color: AppColors.primary),
                         ],
                       ),
                     ),
@@ -112,6 +112,29 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
           );
         },
       ),
+    );
+  }
+
+  Widget info({required String title, required String text}) {
+    return Column(
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: AppColors.primary,
+            fontSize: 14.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          text,
+          style: const TextStyle(
+            color: AppColors.cleanBlack,
+            fontSize: 14.0,
+            fontWeight: FontWeight.bold,
+          ),
+        )
+      ],
     );
   }
 }

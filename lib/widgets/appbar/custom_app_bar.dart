@@ -41,7 +41,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           actions: [
             IconButton(
                 icon: Image.asset(
-                  'assets/icons/notification.png',
+                  'assets/icons_2/bell.png',
+                  color: AppColors.primary,
                   height: 24,
                 ),
                 onPressed: () {}),
@@ -55,13 +56,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 child: badges.Badge(
                   badgeContent: Text(
                     "${basketProvider.count}",
-                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                    style: const TextStyle(color: AppColors.primary, fontSize: 11),
                   ),
                   badgeStyle: const badges.BadgeStyle(
-                    badgeColor: Colors.blue,
+                    badgeColor: Colors.amber,
                   ),
                   child: Image.asset(
-                    'assets/icons/shop-tab.png',
+                    color: AppColors.primary,
+                    'assets/icons_2/cart.png',
                     height: 24,
                     width: 24,
                   ),

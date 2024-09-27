@@ -14,10 +14,10 @@ class Button extends StatelessWidget {
     final meqiaQuery = MediaQuery.of(context).size.width;
     return Container(
       width: width ?? meqiaQuery * 0.4,
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
       decoration: BoxDecoration(
           color: color ?? AppColors.main,
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(25),
           border: Border.all(color: Colors.white)),
       child: InkWell(
         onTap: onTap ?? () => Navigator.pop(context) ,

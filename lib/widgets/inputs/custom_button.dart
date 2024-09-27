@@ -8,20 +8,19 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.primary,
-      child: InkWell(
-        onTap: ontap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(
-            child: Text(
-              text,
-              style: const TextStyle(color: Colors.white, fontSize: 12.0),
-            ),
+    return InkWell(
+      onTap: ontap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15.0),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(25.0),
+          border: Border.all(color: Colors.white),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.white, fontSize: 12.0),
           ),
         ),
       ),

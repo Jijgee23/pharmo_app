@@ -19,12 +19,13 @@ class DrawerItem extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.only(top: 12.5, bottom: 12.5, left: 15),
+            padding: const EdgeInsets.only(top: 15, bottom: 15, left: 20),
             child: Row(
               children: [
                 Image.asset(
                   asset,
                   height: 24,
+                  color: AppColors.primary,
                 ),
                 const SizedBox(
                   width: 10,
@@ -38,6 +39,16 @@ class DrawerItem extends StatelessWidget {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Container(
+              decoration:const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: AppColors.primary, width: 1)
+                )
+              ),
+            ),
+          )
           // Container(
           //     margin: const EdgeInsets.symmetric(horizontal: 20),
           //     child: const Divider())

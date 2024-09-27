@@ -9,6 +9,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -56,13 +57,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         builder: (_, homeProvider, addressProvider, child) {
       return Scaffold(
         resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'Эмийн сангийн бүртгэл',
-            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-          ),
-        ),
+        appBar: const SideMenuAppbar(title: 'Эмийн сангийн бүртгэл'),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: SingleChildScrollView(
@@ -213,44 +208,50 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
   districtSelection(BuildContext context, AddressProvider addressProvider,
       String text, TextStyle style) {
     return GestureDetector(
-      onTap: () => showDialog(
-        context: context,
-        builder: (context) {
-          return Dialog(
-            child: Container(
-              decoration: bd,
-              height: 300,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: addressProvider.districts
-                      .map((e) => InkWell(
-                            onTap: () {
-                              addressProvider.getKhoroo(e.id, context);
-                              addressProvider.setDistrict(e.ner);
-                              addressProvider.setDistrictId(e.id);
-                              setState(() => districtId = e.id);
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 15),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade300,
+      onTap: () {
+        if (addressProvider.selectedProvince == 0) {
+          showFailedMessage(message: 'Аймаг/Хот сонгоно уу.', context: context);
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return Dialog(
+                child: Container(
+                  decoration: bd,
+                  height: 300,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: addressProvider.districts
+                          .map((e) => InkWell(
+                                onTap: () {
+                                  addressProvider.getKhoroo(e.id, context);
+                                  addressProvider.setDistrict(e.ner);
+                                  addressProvider.setDistrictId(e.id);
+                                  setState(() => districtId = e.id);
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 15),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.grey.shade300,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                child: Text(e.ner)),
-                          ))
-                      .toList(),
+                                    child: Text(e.ner)),
+                              ))
+                          .toList(),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           );
-        },
-      ),
+        }
+      },
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -272,42 +273,49 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
   khoroo(BuildContext context, AddressProvider addressProvider, String text,
       TextStyle style) {
     return GestureDetector(
-      onTap: () => showDialog(
-        context: context,
-        builder: (context) {
-          return Dialog(
-            child: Container(
-              decoration: bd,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: addressProvider.khoroos
-                      .map((e) => InkWell(
-                            onTap: () {
-                              addressProvider.setKhoroo(e.ner);
-                              addressProvider.setKhorooId(e.id);
-                              setState(() => khorooId = e.id);
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 15),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade300,
+      onTap: () {
+        if (addressProvider.selectedDistrict == 0) {
+          showFailedMessage(
+              message: 'Сум/Дүүрэг сонгоно уу.', context: context);
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return Dialog(
+                child: Container(
+                  decoration: bd,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: addressProvider.khoroos
+                          .map((e) => InkWell(
+                                onTap: () {
+                                  addressProvider.setKhoroo(e.ner);
+                                  addressProvider.setKhorooId(e.id);
+                                  setState(() => khorooId = e.id);
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 15),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.grey.shade300,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                child: Text(e.ner)),
-                          ))
-                      .toList(),
+                                    child: Text(e.ner)),
+                              ))
+                          .toList(),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           );
-        },
-      ),
+        }
+      },
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(

@@ -18,7 +18,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
   int _selectedIndex = -1;
   int _selectedAddress = 0;
   bool delivery = false;
-  final radioColor = const WidgetStatePropertyAll(AppColors.succesColor);
+  final radioColor = const WidgetStatePropertyAll(AppColors.primary);
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
 
@@ -75,7 +75,9 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
                               () => setState(() {
                                     delivery = true;
                                   }),
-                              delivery == true ? AppColors.main : Colors.grey,
+                              delivery == true
+                                  ? AppColors.primary
+                                  : Colors.grey,
                               delivery == true ? Colors.white : Colors.black),
                           button(
                               'Очиж авах',
@@ -84,7 +86,9 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
                                     _selectedIndex = -1;
                                     _selectedAddress = 0;
                                   }),
-                              delivery == false ? AppColors.main : Colors.grey,
+                              delivery == false
+                                  ? AppColors.primary
+                                  : Colors.grey,
                               delivery == true ? Colors.black : Colors.white)
                         ],
                       ),
@@ -178,10 +182,9 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
               const SizedBox(height: 5),
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                 Button(
-                  text: 'Захиалга үүсгэх',
-                  onTap: () => createOrder(),
-                  color: Colors.green.shade700
-                ),
+                    text: 'Захиалга үүсгэх',
+                    onTap: () => createOrder(),
+                    color: AppColors.primary),
               ]),
             ]),
           ),
@@ -240,8 +243,8 @@ class _BranchWidgetState extends State<BranchWidget> {
                   children: [
                     Icon(Icons.home_filled,
                         color: widget.isSelected == true
-                            ? Colors.green
-                            : Colors.blueGrey),
+                            ? AppColors.secondary
+                            : AppColors.primary),
                     const SizedBox(
                       width: 10,
                     ),
@@ -252,8 +255,8 @@ class _BranchWidgetState extends State<BranchWidget> {
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: widget.isSelected == true
-                                  ? Colors.green
-                                  : Colors.black),
+                                  ? AppColors.secondary
+                                  : AppColors.primary),
                         ),
                       ],
                     ),

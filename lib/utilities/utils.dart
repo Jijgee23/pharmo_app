@@ -59,3 +59,30 @@ setUrl(String endPoint) {
 
 String noImage =
     'https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg';
+
+
+double parseDouble(dynamic value) {
+  if (value == null) {
+    return 0.0;
+  } else if (value is int) {
+    return value.toDouble();
+  } else if (value is String) {
+    return double.parse(value);
+  }
+  {
+    return value;
+  }
+}
+
+int parseInt(dynamic value) {
+  if (value == null) {
+    return 0;
+  } else if (value is double) {
+    return value.round();
+  } else if (value is String) {
+    return int.parse(value);
+  }
+  {
+    return value;
+  }
+}

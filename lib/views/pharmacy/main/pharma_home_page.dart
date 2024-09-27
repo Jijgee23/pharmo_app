@@ -12,9 +12,8 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/delivery_man/main/jagger_dialog.dart';
+import 'package:pharmo_app/views/delivery_man/main/logout_dialog.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/pharmacy/tabs/cart/cart.dart';
 import 'package:pharmo_app/views/pharmacy/tabs/home/home.dart';
@@ -23,6 +22,7 @@ import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/public_uses/user_information/user_information.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/others/drawer_item.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -130,29 +130,29 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                           children: [
                             DrawerItem(
                               title: 'Миний захиалгууд',
-                              asset: 'assets/icons/order.png',
+                              asset: 'assets/icons_2/time-past.png',
                               onTap: () => goto(const MyOrder(), context),
                             ),
                             DrawerItem(
                               title: 'Урамшуулал',
-                              asset: 'assets/icons/gift.png',
+                              asset: 'assets/icons_2/gift-box-benefits.png',
                               onTap: () =>
                                   goto(const PromotionWidget(), context),
                             ),
                             DrawerItem(
                               title: 'Миний бүртгэл',
-                              asset: 'assets/icons/user.png',
+                              asset: 'assets/icons_2/user.png',
                               onTap: () =>
                                   goto(const UserInformation(), context),
                             ),
                             DrawerItem(
                               title: 'Нууцлалын бодлого',
-                              asset: 'assets/icons/pp.png',
+                              asset: 'assets/icons_2/privacy.png',
                               onTap: () => goto(const PrivacyPolicy(), context),
                             ),
                             DrawerItem(
                               title: 'Гарах',
-                              asset: 'assets/icons/check-out.png',
+                              asset: 'assets/icons_2/signout.png',
                               onTap: () {
                                 showLogoutDialog(context);
                               },
@@ -169,8 +169,11 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                 ? null
                 : CustomAppBar(
                     title: Text(
-                    'Нүүр хуудас',
-                    style: Constants.headerTextStyle,
+                    getAppBarText(homeProvider.currentIndex),
+                    style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400),
                   )),
             body: NotificationListener<UserScrollNotification>(
               onNotification: (notification) {
@@ -187,31 +190,24 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                 ? null
                 : BottomNavigationBar(
                     currentIndex: homeProvider.currentIndex,
-                    useLegacyColorScheme: true,
+                    useLegacyColorScheme: false,
+                    showUnselectedLabels: false,
                     type: BottomNavigationBarType.fixed,
                     onTap: homeProvider.changeIndex,
                     showSelectedLabels: true,
-                    showUnselectedLabels: false,
-                    items: [
+                    selectedLabelStyle:
+                        const TextStyle(color: AppColors.primary),
+                    items:const [
                       BottomNavigationBarItem(
-                        icon: Image.asset(
-                          'assets/icons/house.png',
-                          height: 20,
-                        ),
+                        icon: NavBarIcon(url: 'category'),
                         label: 'Нүүр',
                       ),
                       BottomNavigationBarItem(
-                        icon: Image.asset(
-                          'assets/icons/options.png',
-                          height: 20,
-                        ),
+                        icon: NavBarIcon(url: 'bars-sort'),
                         label: 'Ангилал',
                       ),
                       BottomNavigationBarItem(
-                        icon: Image.asset(
-                          'assets/icons/shop-tab.png',
-                          height: 20,
-                        ),
+                        icon: NavBarIcon(url: 'cart'),
                         label: 'Сагс',
                       ),
                     ],
@@ -220,6 +216,17 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
         },
       ),
     );
+  }
+
+  getAppBarText(int index) {
+    switch (index) {
+      case 0:
+        return 'Бараа';
+      case 1:
+        return 'Ангилал';
+      case 2:
+        return 'Сагс';
+    }
   }
 }
 
@@ -230,11 +237,11 @@ class CustomDrawerHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var style = const TextStyle(color: AppColors.mainDark, fontSize: 14);
+    var style = const TextStyle(color: AppColors.cleanWhite, fontSize: 14);
     return Consumer<HomeProvider>(builder: (context, homeProvider, child) {
       return Container(
         decoration: const BoxDecoration(
-            color: AppColors.cleanWhite,
+            color: AppColors.priLight,
             border: Border(
               bottom: BorderSide(color: Colors.grey),
             )),

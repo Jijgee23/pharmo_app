@@ -11,8 +11,8 @@ final lightTheme = ThemeData(
     hintStyle: const TextStyle(
       color: AppColors.primary,
     ),
-    focusedBorder:const OutlineInputBorder(
-      borderSide:  BorderSide(
+    focusedBorder: const OutlineInputBorder(
+      borderSide: BorderSide(
         color: AppColors.primary,
         width: 1,
       ),
@@ -23,5 +23,10 @@ final lightTheme = ThemeData(
     labelStyle: const TextStyle(
       color: AppColors.primary,
     ),
+  ),
+  checkboxTheme: CheckboxThemeData(
+    fillColor: WidgetStateProperty.all(AppColors.primary),
+    checkColor: WidgetStateProperty.all(AppColors.primary),
+    overlayColor: WidgetStateProperty.all(AppColors.primary),
   ),
 );

@@ -1,5 +1,7 @@
 
 
+import 'package:pharmo_app/utilities/utils.dart';
+
 class Ship {
   int id;
   String? name;
@@ -35,20 +37,20 @@ class Ship {
   );
   factory Ship.fromJson(Map<String, dynamic> json) {
     return Ship(
-      json['id'],
+      parseInt(json['id']),
       json['name'].toString(),
-      json['startTime'].toString(),
-      json['endTime'].toString(),
+      json['startTime'],
+      json['endTime'],
       json['lng'].toString(),
       json['lat'].toString(),
-      json['ordersCnt'],
+      parseInt(json['ordersCnt']),
       json['progress'],
-      json['createdOn'].toString(),
+      json['createdOn'],
       json['supplier'],
       json['delman'],
       json['duration'],
       json['expense'],
-      json['stopsCnt'],
+      parseInt(json['stopsCnt']),
       (json['inItems'] as List)
           .map((item) => ShipOrders.fromJson(item))
           .toList(),
@@ -86,8 +88,8 @@ class ShipOrders {
       this.items);
   factory ShipOrders.fromJson(Map<String, dynamic> json) {
     return ShipOrders(
-      json['id'],
-      json['orderNo'],
+      parseInt(json['id']),
+      json['orderNo'].toString(),
       json['isGiven'],
       json['givenOn'],
       json['note'],

@@ -3,6 +3,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:provider/provider.dart';
 
@@ -46,29 +47,8 @@ class _UserInformationState extends State<UserInformation> {
                 ),
               ],
             ),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.grey.shade300,
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              child: InkWell(
-                onTap: () => confirmDeletion(),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.delete,
-                        color: Colors.purple.shade700,
-                      ),
-                      const SizedBox(width: 20),
-                      const Text('Бүртгэл устгах'),
-                    ],
-                  ),
-                ),
-              ),
-            )
+            CustomButton(
+                text: 'Бүртгэл устгах', ontap: () => confirmDeletion()),
           ],
         ),
       ),
@@ -130,11 +110,13 @@ class _UserInformationState extends State<UserInformation> {
                     children: [
                       Button(
                         text: 'Буцах',
+                        color: AppColors.primary,
                         onTap: () => Navigator.pop(context),
                         width: 100,
                       ),
                       Button(
                         text: 'Устгах',
+                        color: AppColors.primary,
                         onTap: () {
                           home.deactiveUser(pwd.text, context);
                         },

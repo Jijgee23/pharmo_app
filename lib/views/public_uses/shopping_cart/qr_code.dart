@@ -71,7 +71,7 @@ class QRCode extends StatelessWidget {
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 18,
-                                    color: Colors.red),
+                                    color: AppColors.secondary),
                               ),
                             ]),
                         Row(
@@ -133,6 +133,7 @@ class QRCode extends StatelessWidget {
                   children: [
                     Button(
                         text: 'Төлбөр шалгах',
+                        color: AppColors.primary,
                         onTap: () async {
                           dynamic res = await provider.checkPayment();
                           if (res['errorType'] == 1) {

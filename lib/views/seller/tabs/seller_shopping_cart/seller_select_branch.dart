@@ -7,11 +7,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_qr_code.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -32,7 +33,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
   final noteController = TextEditingController();
-  final radioColor = MaterialStatePropertyAll(Colors.green.shade700);
+  final radioColor = const MaterialStatePropertyAll(AppColors.primary);
   @override
   void initState() {
     super.initState();
@@ -53,9 +54,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
     return Consumer<HomeProvider>(
       builder: (_, provider, child) {
         return Scaffold(
-          appBar: const CustomAppBar(
-            title: Text('Захиалга үүсгэх'),
-          ),
+          appBar: const SideMenuAppbar(title: 'Захиалга үүсгэх'),
           body: Container(
             margin: const EdgeInsets.all(15),
             child: Column(
@@ -138,8 +137,8 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                               return Container(
                                 margin: const EdgeInsets.only(top: 10),
                                 child: InkWell(
-                                   borderRadius: BorderRadius.circular(10),
-                                    splashColor:Colors.green.shade300,
+                                    borderRadius: BorderRadius.circular(10),
+                                    splashColor: Colors.green.shade300,
                                     highlightColor: Colors.transparent,
                                     onTap: () {
                                       setState(() {
@@ -151,18 +150,26 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                     child: Container(
                                       decoration: bd,
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 15, vertical: 5),
+                                          horizontal: 15, vertical: 10),
                                       child: Center(
                                         child: Row(
                                           children: [
                                             Icon(
                                               Icons.home,
                                               color: _selectedIndex == index
-                                                  ? Colors.green
-                                                  : Colors.grey,
+                                                  ? AppColors.secondary
+                                                  : AppColors.primary,
                                             ),
-                                            Text(provider.branchList[index].name
-                                                .toString())
+                                            const SizedBox(width: 10),
+                                            Text(
+                                              provider.branchList[index].name
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: _selectedIndex == index
+                                                    ? AppColors.secondary
+                                                    : AppColors.primary,
+                                              ),
+                                            )
                                           ],
                                         ),
                                       ),
@@ -244,7 +251,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                         children: [
                           Button(
                               text: 'Захиалга үүсгэх',
-                              color: Colors.green.shade700,
+                              color: AppColors.primary,
                               onTap: () {
                                 if (payType == 'NOW' &&
                                     homeProvider.orderType == 'NODELIVERY') {

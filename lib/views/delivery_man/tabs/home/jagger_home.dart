@@ -128,9 +128,24 @@ class _HomeJaggerState extends State<HomeJagger> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                (e.startTime!.isNotEmpty &&
-                                                        e.startTime != null)
-                                                    ? Align(
+                                                (e.startTime == null)
+                                                    ? Button(
+                                                        text:
+                                                            'Түгээлт эхлүүлэх',
+                                                        onTap: () => Future(() {
+                                                              debugPrint(
+                                                                  e.startTime);
+                                                              startShipment(
+                                                                  e.id);
+                                                            }).whenComplete(() {
+                                                              startTimer(
+                                                                  context);
+                                                              refreshScreen();
+                                                            }),
+                                                        width: double.infinity,
+                                                        color:
+                                                            AppColors.primary)
+                                                    : Align(
                                                         child: Text(
                                                           'Түгээлт эхлэсэн: ${e.startTime}',
                                                           style: const TextStyle(
@@ -141,20 +156,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                                                                       .bold,
                                                               fontSize: 18),
                                                         ),
-                                                      )
-                                                    : Button(
-                                                        text:
-                                                            'Түгээлт эхлүүлэх',
-                                                        onTap: () => Future(() {
-                                                              startShipment(
-                                                                  e.id);
-                                                            }).whenComplete(() {
-                                                              startTimer(
-                                                                  context);
-                                                              refreshScreen();
-                                                            }),
-                                                        width: double.infinity,
-                                                        color: Colors.green),
+                                                      ),
                                                 const Text(
                                                     'Түгээлтийн захиалгууд:'),
                                                 Column(
@@ -165,20 +167,8 @@ class _HomeJaggerState extends State<HomeJagger> {
                                                 ),
                                               ],
                                             ),
-                                            (!e.endTime!.isNotEmpty &&
-                                                    e.endTime != null)
-                                                ? Align(
-                                                    child: Text(
-                                                      'Түгээлт дууссан: ${e.endTime}',
-                                                      style: const TextStyle(
-                                                          color: AppColors
-                                                              .succesColor,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 18),
-                                                    ),
-                                                  )
-                                                : Button(
+                                            (e.endTime == null)
+                                                ? Button(
                                                     text: 'Түгээлт дууусгах',
                                                     onTap: () => Future(() {
                                                       endShipment(e.id);
@@ -186,8 +176,19 @@ class _HomeJaggerState extends State<HomeJagger> {
                                                       refreshScreen();
                                                     }),
                                                     width: double.infinity,
-                                                    color: Colors.red,
-                                                  ),
+                                                    color: AppColors.primary,
+                                                  )
+                                                : Align(
+                                                    child: Text(
+                                                      'Түгээлт дууссан: ${e.endTime}',
+                                                      style: const TextStyle(
+                                                          color:
+                                                              AppColors.primary,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18),
+                                                    ),
+                                                  )
                                           ],
                                         ),
                                       ),
