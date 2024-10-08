@@ -16,7 +16,7 @@ class Button extends StatelessWidget {
       width: width ?? meqiaQuery * 0.4,
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
       decoration: BoxDecoration(
-          color: color ?? AppColors.main,
+          color: color ?? AppColors.primary,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(color: Colors.white)),
       child: InkWell(

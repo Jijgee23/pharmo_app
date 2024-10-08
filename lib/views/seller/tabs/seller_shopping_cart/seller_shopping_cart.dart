@@ -6,6 +6,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
 import 'package:provider/provider.dart';
@@ -76,16 +77,16 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        info(
-                            title: 'Төлөх дүн',
-                            text: '${basket.totalPrice ?? 0} ₮'),
-                        info(
-                            title: 'Тоо ширхэг',
-                            text: '${basket.totalCount ?? 0}')
-                      ],
-                    ),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      info(
+                          title: 'Төлөх дүн',
+                          text: '${basket.totalPrice ?? 0} ₮'),
+                      info(
+                          title: 'Тоо ширхэг',
+                          text: '${basket.totalCount ?? 0}')
+                    ],
+                  ),
                   Container(
                     margin: const EdgeInsets.only(top: 10),
                     child: Row(
@@ -94,11 +95,10 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                         Button(
                             text: 'Сагс хоослох',
                             onTap: () => clearBasket(basket.id),
-                            color:AppColors.primary),
+                            color: AppColors.primary),
                         Button(
                             text: 'Захиалга үүсгэх',
-                            onTap: () =>
-                                goto(const SelectSellerBranchPage(), context),
+                            onTap: () => gotoBranch(),
                             color: AppColors.primary),
                       ],
                     ),
@@ -111,7 +111,21 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
       );
     });
   }
-   Widget info({required String title, required String text}) {
+
+  gotoBranch() {
+    if (basketProvider.basket.totalCount == 0) {
+      showFailedMessage(message: 'Сагс хоосон байна!', context: context);
+    } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
+      showFailedMessage(
+          message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
+    } else if (homeprovider.selectedCustomerId == 0) {
+      showFailedMessage(message: 'Захиалагч сонгоно уу!', context: context);
+    } else {
+      goto(const SelectSellerBranchPage(), context);
+    }
+  }
+
+  Widget info({required String title, required String text}) {
     return Column(
       children: [
         Text(

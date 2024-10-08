@@ -116,7 +116,7 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(5),
                 boxShadow: [
-                  BoxShadow(color: Colors.grey.shade300, blurRadius: 5)
+                  BoxShadow(color: Colors.grey.shade500, blurRadius: 5)
                 ]),
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
@@ -197,13 +197,13 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                     Text(
                       '${widget.detail['main_price']} ₮',
                       style: const TextStyle(
-                          color: AppColors.primary,
+                          color: AppColors.secondary,
                           fontWeight: FontWeight.w500),
                     ),
                     Text(
                       '${widget.detail['qty'] * widget.detail['main_price']} ₮',
                       style: const TextStyle(
-                          color: AppColors.primary,
+                          color: AppColors.secondary,
                           fontWeight: FontWeight.w500),
                     )
                   ],

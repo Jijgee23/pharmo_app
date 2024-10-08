@@ -68,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 Container(
                   color: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 5),
                   child: Column(
                     children: [
                       Row(
@@ -94,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 Container(
-                  height: 200,
+                  height: 150,
                   decoration: const BoxDecoration(
                       image: DecorationImage(
                           fit: BoxFit.contain,
@@ -103,14 +103,15 @@ class _LoginPageState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    tapItem('Нэвтрэх', true),
+                    tapItem('Нэвтрэх'),
                     const SizedBox(width: 20),
-                    tapItem('Бүртгүүлэх', false),
+                    tapItem('Бүртгүүлэх'),
                   ],
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: isLogin ? loginForm() : signUpForm(),
+                  child:
+                      (selectedMenu == 'Нэвтрэх') ? loginForm() : signUpForm(),
                 )
               ],
             ),
@@ -120,12 +121,13 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  tapItem(String txt, bool newVal) {
+  tapItem(String txt) {
     return Expanded(
       child: InkWell(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         onTap: () => setState(() {
-          isLogin = newVal;
           selectedMenu = txt;
         }),
         child: Column(
@@ -196,14 +198,17 @@ class _LoginPageState extends State<LoginPage> {
                 hover = !hover;
               });
             },
-            icon: Icon(hover ? Icons.visibility_off : Icons.visibility),
+            icon: Icon(hover ? Icons.visibility_off : Icons.visibility, color: AppColors.primary),
           ),
         ),
         Row(
           children: [
             const Text(
               'Намайг сана',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primary),
             ),
             Checkbox(
                 value: rememberMe,
@@ -300,7 +305,7 @@ class _LoginPageState extends State<LoginPage> {
                   showPasss = !showPasss;
                 });
               },
-              icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off),
+              icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,  color: AppColors.primary),
             ),
           ),
           const SizedBox(height: 15),
@@ -316,7 +321,8 @@ class _LoginPageState extends State<LoginPage> {
                   showPasss = !showPasss;
                 });
               },
-              icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off),
+              icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
+                  color: AppColors.primary),
             ),
           ),
           const SizedBox(height: 15),

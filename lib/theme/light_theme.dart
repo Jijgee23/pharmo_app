@@ -6,6 +6,7 @@ final lightTheme = ThemeData(
   scaffoldBackgroundColor: AppColors.cleanWhite,
   appBarTheme: const AppBarTheme(
     backgroundColor: AppColors.cleanWhite,
+    surfaceTintColor: Colors.white,
   ),
   inputDecorationTheme: InputDecorationTheme(
     hintStyle: const TextStyle(
@@ -25,8 +26,10 @@ final lightTheme = ThemeData(
     ),
   ),
   checkboxTheme: CheckboxThemeData(
-    fillColor: WidgetStateProperty.all(AppColors.primary),
     checkColor: WidgetStateProperty.all(AppColors.primary),
     overlayColor: WidgetStateProperty.all(AppColors.primary),
+    side:const BorderSide(color: AppColors.primary, width: 1),
+    fillColor:const WidgetStatePropertyAll(AppColors.cleanWhite)
   ),
+  fontFamily: 'Inter'
 );

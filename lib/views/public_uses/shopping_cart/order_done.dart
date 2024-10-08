@@ -21,6 +21,9 @@ class _OrderDoneState extends State<OrderDone> {
   @override
   void initState() {
     getUser();
+    Future.delayed(const Duration(seconds: 3), () {
+      goHome(Provider.of<BasketProvider>(context, listen: false));
+    });
     super.initState();
   }
 
@@ -31,6 +34,20 @@ class _OrderDoneState extends State<OrderDone> {
     setState(() {
       _userRole = userRole;
     });
+  }
+
+  goHome(BasketProvider provider) {
+    final HomeProvider homeProvider =
+        Provider.of<HomeProvider>(context, listen: false);
+    homeProvider.changeIndex(0);
+    if (_userRole == 'S') {
+      gotoRemoveUntil(const SellerHomePage(), context);
+    } else if (_userRole == 'D') {
+      gotoRemoveUntil(const SellerHomePage(), context);
+    } else {
+      gotoRemoveUntil(const PharmaHomePage(), context);
+    }
+    provider.getBasket();
   }
 
   @override
@@ -45,21 +62,22 @@ class _OrderDoneState extends State<OrderDone> {
       ),
       body: SizedBox(
         width: double.infinity,
-        child: Center(
-          child: SizedBox(
-            width: screenWidth <= maxWidth ? screenWidth : maxWidth,
-            child: Consumer<BasketProvider>(
-              builder: (context, provider, _) {
-                return Stack(children: [
-                  Column(
+        child: SizedBox(
+          width: screenWidth <= maxWidth ? screenWidth : maxWidth,
+          child: Consumer<BasketProvider>(
+            builder: (context, provider, _) {
+              return Stack(children: [
+                SingleChildScrollView(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         padding: const EdgeInsets.only(top: 130, bottom: 25),
                         alignment: Alignment.topCenter,
                         child: SizedBox(
                           width: 180,
-                          child: Image.asset('assets/order_success.jpg'),
+                          child: Image.asset('assets/stickers/verified.gif'),
                         ),
                       ),
                       const Text(
@@ -83,47 +101,38 @@ class _OrderDoneState extends State<OrderDone> {
                               ),
                             ]),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              final HomeProvider homeProvider =
-                                  Provider.of<HomeProvider>(context,
-                                      listen: false);
-                              homeProvider.changeIndex(0);
-                              if (_userRole == 'S') {
-                                gotoRemoveUntil(
-                                    const SellerHomePage(), context);
-                              } else if (_userRole == 'D') {
-                                gotoRemoveUntil(
-                                    const SellerHomePage(), context);
-                              } else {
-                                gotoRemoveUntil(
-                                    const PharmaHomePage(), context);
-                              }
-                              provider.getBasket();
-                            },
-                            icon: const Icon(
-                              color: Colors.white,
-                              Icons.home,
-                              size: 24.0,
-                            ),
-                            label: const Text(
-                              'Нүүр хуудас',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
+                      Container(
+                        width: 200,
+                        margin: const EdgeInsets.symmetric(horizontal: 39),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: AppColors.primary),
+                        child: InkWell(
+                          onTap: () => goHome(provider),
+                          child: const Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.home_filled,
+                                    color: AppColors.cleanWhite),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Нүүр хуудас',
+                                  style: TextStyle(
+                                      color: AppColors.cleanWhite,
+                                      fontWeight: FontWeight.w600),
+                                )
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       )
                     ],
                   ),
-                ]);
-              },
-            ),
+                ),
+              ]);
+            },
           ),
         ),
       ),

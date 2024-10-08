@@ -333,125 +333,121 @@ class _MyOrderState extends State<MyOrder> {
                               child: ListView.builder(
                                 itemCount: orders.length,
                                 itemBuilder: (context, index) {
-                                  var order = orders[index];
-                                  return InkWell(
-                                    onTap: () {
-                                      print(order.process);
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border: Border.all(
-                                            color: Colors.grey.shade300,
-                                          )),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 15),
-                                      margin: const EdgeInsets.all(10),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text('Захиалгын дугаар:'),
-                                                  Text('Захиалгын төлөв:'),
-                                                  Text('Тоо ширхэг:'),
-                                                  Text('Нийт үнэ:'),
-                                                ],
-                                              ),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: [
-                                                  Text(
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.shade700,
+                                            blurRadius: 5,
+                                          )
+                                        ]),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 15),
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 5, horizontal: 10),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text('Захиалгын дугаар:'),
+                                                Text('Захиалгын төлөв:'),
+                                                Text('Тоо ширхэг:'),
+                                                Text('Нийт үнэ:'),
+                                              ],
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  orders[index]
+                                                      .orderNo
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.red),
+                                                ),
+                                                Text(
                                                     orders[index]
-                                                        .orderNo
+                                                        .status
                                                         .toString(),
                                                     style: const TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
-                                                        color: Colors.red),
-                                                  ),
-                                                  Text(
-                                                      orders[index]
-                                                          .status
-                                                          .toString(),
-                                                      style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: AppColors
-                                                              .mainDark)),
-                                                  Text(
-                                                      orders[index]
-                                                          .totalCount
-                                                          .toString(),
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      )),
-                                                  Text(
-                                                    '${orders[index].totalPrice} ₮',
+                                                        color: AppColors
+                                                            .mainDark)),
+                                                Text(
+                                                    orders[index]
+                                                        .totalCount
+                                                        .toString(),
                                                     style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.red),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          (orders[index].process ==
-                                                      'Бэлэн болсон' ||
-                                                  orders[index].process ==
-                                                      'Түгээлтэнд гарсан')
-                                              ? InkWell(
-                                                  onTap: () {
-                                                    provider
-                                                        .confirmOrder(
-                                                            orders[index].id,
-                                                            context)
-                                                        .then((e) => getData());
-                                                  },
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                        color: AppColors.main,
-                                                        border: Border.all(
-                                                          color: Colors
-                                                              .grey.shade300,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10)),
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 5),
-                                                    child: const Center(
-                                                      child: Text(
-                                                        'Батлагаажуулах',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    )),
+                                                Text(
+                                                  '${orders[index].totalPrice} ₮',
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.red),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        (orders[index].process ==
+                                                    'Бэлэн болсон' ||
+                                                orders[index].process ==
+                                                    'Түгээлтэнд гарсан')
+                                            ? InkWell(
+                                                onTap: () {
+                                                  provider
+                                                      .confirmOrder(
+                                                          orders[index].id,
+                                                          context)
+                                                      .then((e) => getData());
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      color: AppColors.main,
+                                                      border: Border.all(
+                                                        color: Colors
+                                                            .grey.shade300,
                                                       ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10)),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 5),
+                                                  child: const Center(
+                                                    child: Text(
+                                                      'Батлагаажуулах',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
                                                     ),
                                                   ),
-                                                )
-                                              : const SizedBox(),
-                                        ],
-                                      ),
+                                                ),
+                                              )
+                                            : const SizedBox(),
+                                      ],
                                     ),
                                   );
                                 },
@@ -466,6 +462,4 @@ class _MyOrderState extends State<MyOrder> {
       ),
     );
   }
-
-  
 }

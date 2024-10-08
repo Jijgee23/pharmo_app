@@ -197,7 +197,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                     showSelectedLabels: true,
                     selectedLabelStyle:
                         const TextStyle(color: AppColors.primary),
-                    items:const [
+                    items: const [
                       BottomNavigationBarItem(
                         icon: NavBarIcon(url: 'category'),
                         label: 'Нүүр',

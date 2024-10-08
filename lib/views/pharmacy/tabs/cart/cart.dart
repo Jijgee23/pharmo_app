@@ -4,6 +4,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,6 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
       body: Consumer<BasketProvider>(
         builder: (context, provider, _) {
           final cartDatas = provider.shoppingCarts;
@@ -99,8 +99,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                               color: AppColors.primary),
                           Button(
                               text: 'Захиалга үүсгэх',
-                              onTap: () =>
-                                  goto(const SelectBranchPage(), context),
+                              onTap: () => gotoBranch(context),
                               color: AppColors.primary),
                         ],
                       ),
@@ -113,6 +112,17 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
         },
       ),
     );
+  }
+
+  gotoBranch(BuildContext c) {
+    if (basketProvider.basket.totalCount == 0) {
+      showFailedMessage(message: 'Сагс хоосон байна!', context: c);
+    } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
+      showFailedMessage(
+          message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: c);
+    } else {
+      goto(const SelectBranchPage(), c);
+    }
   }
 
   Widget info({required String title, required String text}) {
@@ -129,7 +139,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
         Text(
           text,
           style: const TextStyle(
-            color: AppColors.cleanBlack,
+            color: AppColors.secondary,
             fontSize: 14.0,
             fontWeight: FontWeight.bold,
           ),

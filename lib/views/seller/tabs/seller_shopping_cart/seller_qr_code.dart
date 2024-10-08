@@ -245,7 +245,7 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 18,
-                                      color: Colors.red),
+                                      color: AppColors.secondary),
                                 ),
                               ]),
                           Row(
@@ -265,7 +265,9 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                           Container(
                             margin: const EdgeInsets.symmetric(vertical: 5),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
+                              border: Border.all(
+                                color: AppColors.primary,
+                              ),
                             ),
                             padding: const EdgeInsets.all(5),
                             child: SingleChildScrollView(

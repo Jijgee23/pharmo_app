@@ -15,10 +15,15 @@ class ProductWidgetListView extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade500,
+                blurRadius: 5,
+              )
+            ]),
+        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         padding: const EdgeInsets.symmetric(horizontal: 15),
         width: double.infinity,
         child: Row(
@@ -39,18 +44,19 @@ class ProductWidgetListView extends StatelessWidget {
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        color: AppColors.secondary, fontWeight: FontWeight.w500),
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
             ),
             InkWell(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(24),
               onTap: onButtonTab,
               child: Image.asset(
-                'assets/icons_2/cart.png',
+                'assets/icons_2/add.png',
+                color: AppColors.primary,
                 height: 24,
-                width: 24,
               ),
             ),
           ],

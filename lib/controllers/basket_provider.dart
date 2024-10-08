@@ -272,7 +272,6 @@ class BasketProvider extends ChangeNotifier {
             'branchId': (branch_id == 0) ? null : branch_id,
             'note': note != '' ? note : null
           }));
-
       final data = jsonDecode(utf8.decode(resQR.bodyBytes));
       final status = resQR.statusCode;
       debugPrint('status code: $status, body: $data');

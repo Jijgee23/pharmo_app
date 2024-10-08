@@ -31,14 +31,21 @@ class ProductWidget extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.primary, width: 0.5),
-              borderRadius: BorderRadius.circular(13),
+             // border: Border.all(color: AppColors.primary, width: 0.5),
+              borderRadius: BorderRadius.circular(15),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade500,
+                  blurRadius: 5,
+                )
+              ]
             ),
             margin: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 5),
             padding: const EdgeInsets.only(bottom: 10),
             child: InkWell(
-              borderRadius: BorderRadius.circular(13),
-              splashColor: Colors.grey.shade300,
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
               onTap: onTap,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -104,7 +111,6 @@ class ProductWidget extends StatelessWidget {
                             'assets/icons_2/add.png',
                             color: AppColors.primary,
                             height: 24,
-                            width: 24,
                           ),
                         ),
                       ],

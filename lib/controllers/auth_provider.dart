@@ -58,7 +58,7 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<bool> checkEmail(String email, BuildContext context) async {
+   checkEmail(String email, BuildContext context) async {
     try {
       var response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/reged/'),
@@ -71,40 +71,36 @@ class AuthController extends ChangeNotifier {
       );
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        final isPasswordCreated = responseData['pwd'];
         final email = responseData['ema'];
         if (email == false) {
           showFailedMessage(
             message: 'Имейл хаяг бүртгэлгүй байна!',
             context: context,
           );
-          return false;
-        } else {
-          if (email == emailController.text && isPasswordCreated) {
-            notifyListeners();
-            return Future.value(true);
-          } else {
-            if (!isPasswordCreated && email == emailController.text) {
-              await showDialog(
-                context: context,
-                builder: (context) {
-                  return CreatePassDialog(
-                    email: email,
-                  );
-                },
-              );
-            }
-          }
-        }
-        return false;
+        } 
+        // else {
+        //   if (email == emailController.text && isPasswordCreated) {
+        //     notifyListeners();
+        //     return Future.value(true);
+        //   } else {
+        //     if (!isPasswordCreated && email == emailController.text) {
+        //       await showDialog(
+        //         context: context,
+        //         builder: (context) {
+        //           return CreatePassDialog(
+        //             email: email,
+        //           );
+        //         },
+        //       );
+        //     }
+        //   }
+        // }
       }
-      return false;
     } catch (e) {
       showFailedMessage(
         message: 'Интернет холболтоо шалгана уу!.',
         context: context,
       );
-      return Future.value(false);
     }
   }
 
@@ -121,8 +117,11 @@ class AuthController extends ChangeNotifier {
           'password': password,
         }),
       );
+      print(
+          'STATUS: ${responseLogin.statusCode} BODY: ${jsonDecode(utf8.decode(responseLogin.bodyBytes))}');
+
       if (responseLogin.statusCode == 200) {
-        final res = jsonDecode(responseLogin.body);
+        final Map<String, dynamic> res = jsonDecode(responseLogin.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', res['access_token']);
         await prefs.setString('refresh_token', res['refresh_token']);
@@ -142,7 +141,7 @@ class AuthController extends ChangeNotifier {
             Provider.of<BasketProvider>(context, listen: false);
         shoppingCart.getBasket();
         Hive.box('auth').put('role', decodedToken['role']);
-        Future.delayed(const Duration(milliseconds: 1500), () {
+        Future.delayed(const Duration(milliseconds: 100), () {
           switch (decodedToken['role']) {
             case 'S':
               gotoRemoveUntil(const SellerHomePage(), context);
@@ -157,8 +156,29 @@ class AuthController extends ChangeNotifier {
         debugPrint(accessToken);
         notifyListeners();
       } else if (responseLogin.statusCode == 400) {
-        showFailedMessage(
-            context: context, message: 'Имейл эсвэл нууц үг буруу байна!');
+        Map res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
+        if (checker(res, 'noCmp', context) == true) {
+          showFailedMessage(
+              message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
+              context: context);
+        } else if (checker(res, 'noLic', context) == true) {
+          showFailedMessage(
+              message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
+              context: context);
+        } else if (checker(res, 'noRev', context) == true) {
+          showFailedMessage(
+              message: 'Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!',
+              context: context);
+        } else if (checker(res, 'password', context) == true) {
+          showFailedMessage(context: context, message: '${res['password']}');
+        } else if (checker(res, 'noLoc', context) == true) {
+          showFailedMessage(
+              message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
+              context: context);
+        } else if (checker(res, 'email', context)) {
+          showFailedMessage(
+              context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
+        }
       } else if (responseLogin.statusCode == 401) {
         await showDialog(
           context: context,
@@ -230,6 +250,14 @@ class AuthController extends ChangeNotifier {
     } catch (e) {
       showFailedMessage(message: 'Амжилтгүй!', context: context);
       notifyListeners();
+    }
+  }
+
+  checker(Map response, String key, BuildContext context) {
+    if (response.containsKey(key)) {
+      return true;
+    } else {
+      return false;
     }
   }
 

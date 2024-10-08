@@ -4,6 +4,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:provider/provider.dart';
 
@@ -32,18 +33,26 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
   createOrder() async {
     debugPrint(_selectedRadioValue);
     if (_selectedRadioValue == 'C') {
-      await basketProvider.createOrder(
+      if (_selectedAddress == 0 && delivery == true) {
+        showFailedMessage(message: 'Салбар сонгоно уу!', context: context);
+      } else {
+        await basketProvider.createOrder(
+            basket_id: basketProvider.basket.id,
+            branch_id: _selectedAddress,
+            note: '',
+            context: context);
+      }
+    } else {
+      if (_selectedAddress == 0 && delivery == true) {
+        showFailedMessage(message: 'Салбар сонгоно уу!', context: context);
+      } else {
+        await basketProvider.createQR(
           basket_id: basketProvider.basket.id,
           branch_id: _selectedAddress,
           note: '',
-          context: context);
-    } else {
-      await basketProvider.createQR(
-        basket_id: basketProvider.basket.id,
-        branch_id: _selectedAddress,
-        note: '',
-        context: context,
-      );
+          context: context,
+        );
+      }
     }
   }
 

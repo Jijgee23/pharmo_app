@@ -5,39 +5,41 @@ void showFailedMessage(
     {required String message, required BuildContext context}) {
   final snackBar = SnackBar(
     showCloseIcon: true,
-    closeIconColor: AppColors.primary,
+    closeIconColor: AppColors.cleanWhite,
     elevation: 100,
     behavior: SnackBarBehavior.floating,
-    backgroundColor: AppColors.failedColor,
-    duration: const Duration(milliseconds: 1500),
+    backgroundColor: AppColors.main,
+    duration: const Duration(milliseconds: 2000),
     content: Center(
       child: Text(
         message,
-        style: const TextStyle(color: AppColors.primary),
+        style: const TextStyle(color: AppColors.cleanWhite),
         softWrap: true,
       ),
     ),
   );
-  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  ScaffoldMessenger.of(context).showSnackBar(snackBar,
+      snackBarAnimationStyle: AnimationStyle(curve: Curves.easeIn));
 }
 
 void showSuccessMessage(
     {required String message, required BuildContext context}) {
   final snackBar = SnackBar(
     showCloseIcon: true,
-    closeIconColor: AppColors.primary,
+    closeIconColor: AppColors.cleanBlack,
     elevation: 100,
     behavior: SnackBarBehavior.floating,
-    backgroundColor: AppColors.succesColor,
+    backgroundColor:  AppColors.succesColor,
     duration: const Duration(milliseconds: 1500),
     content: Center(
       child: Text(
         message,
-        style: const TextStyle(color: AppColors.primary),
+        style: const TextStyle(color: AppColors.cleanBlack),
         softWrap: true,
       ),
     ),
   );
 
-  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  ScaffoldMessenger.of(context).showSnackBar(snackBar,
+      snackBarAnimationStyle: AnimationStyle(curve: Curves.easeIn));
 }
