@@ -108,7 +108,7 @@ class QRCode extends StatelessWidget {
                                                   mode: LaunchMode
                                                       .externalApplication);
                                             } else {
-                                              showFailedMessage(
+                                              message(
                                                   message: el['description'] +
                                                       ' апп олдсонгүй.',
                                                   context: context);
@@ -138,7 +138,7 @@ class QRCode extends StatelessWidget {
                           dynamic res = await provider.checkPayment();
                           if (res['errorType'] == 1) {
                             if (res['data'] == false) {
-                              showFailedMessage(
+                              message(
                                   message: 'Төлбөр төлөгдөөгүй байна.',
                                   context: context);
                             } else {
@@ -148,11 +148,11 @@ class QRCode extends StatelessWidget {
                                       builder: (_) => OrderDone(
                                           orderNo: res['data']['orderNo']
                                               .toString())));
-                              showSuccessMessage(
+                              message(
                                   message: res['message'], context: context);
                             }
                           } else {
-                            showFailedMessage(
+                            message(
                                 message: res['message'], context: context);
                           }
                         }),

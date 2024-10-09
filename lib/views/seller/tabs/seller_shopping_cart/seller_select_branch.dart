@@ -260,7 +260,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                                 if (payType == 'NOW' &&
                                     homeProvider.orderType == 'DELIVERY') {
                                   if (_selectedIndex == -1) {
-                                    showFailedMessage(
+                                    message(
                                         message: 'Салбар сонгоно уу!',
                                         context: context);
                                   } else {
@@ -290,7 +290,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
       String? token = prefs.getString('access_token');
       if (homeProvider.orderType == 'DELIVERY') {
         if (_selectedIndex == -1) {
-          showFailedMessage(message: 'Салбар сонгоно уу!', context: context);
+          message(message: 'Салбар сонгоно уу!', context: context);
           return;
         } else {
           final response = await http.post(
@@ -319,14 +319,14 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           if (response.statusCode == 200) {
             final res = jsonDecode(utf8.decode(response.bodyBytes));
             final orderNumber = res['orderNo'];
-            showSuccessMessage(
+            message(
                 message: 'Захиалга амжилттай  үүслээ.', context: context);
             goto(OrderDone(orderNo: orderNumber.toString()), context);
             setState(() {
               homeProvider.note = null;
             });
           } else {
-            showFailedMessage(message: 'Сагс хоосон байна', context: context);
+            message(message: 'Сагс хоосон байна', context: context);
           }
         }
       } else {
@@ -352,15 +352,15 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
         if (response.statusCode == 200) {
           final res = jsonDecode(utf8.decode(response.bodyBytes));
           final orderNumber = res['orderNo'];
-          showSuccessMessage(
+          message(
               message: 'Захиалга амжилттай  үүслээ.', context: context);
           goto(OrderDone(orderNo: orderNumber.toString()), context);
         } else {
-          showFailedMessage(message: 'Сагс хоосон байна', context: context);
+          message(message: 'Сагс хоосон байна', context: context);
         }
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
     }
   }

@@ -108,7 +108,7 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                   String password2 = newPasswordController.text;
                   String otp = otpController.text;
                   if (password.isEmpty) {
-                    showFailedMessage(
+                    message(
                         context: context, message: 'Нууц үг оруулна уу');
                   }
                   if (password == password2 && password2.isNotEmpty && password.isNotEmpty) {
@@ -119,7 +119,7 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                       });
                     } else {
                       if (otpController.text.isEmpty) {
-                        showFailedMessage(
+                        message(
                             context: context,
                             message: 'Батлагаажуулах код орууна уу');
                       }
@@ -129,7 +129,7 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                           context,
                           MaterialPageRoute(builder: (_) => const LoginPage()),
                           (route) => false);
-                      showSuccessMessage(
+                      message(
                           message: 'Нууц үг амжилттай үүслээ',
                           context: context);
                       setState(() {
@@ -137,7 +137,7 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                       });
                     }
                   } else {
-                    showFailedMessage(
+                    message(
                         message: 'Нууц үг таарахгүй байна!', context: context);
                   }
                 },

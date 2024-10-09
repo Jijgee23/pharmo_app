@@ -39,7 +39,7 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
       if (res['errorType'] == 1) {
         Navigator.pop(context);
       } else {
-        showFailedMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       }
     }
 
@@ -47,9 +47,9 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
       dynamic res = await basketProvider.changeBasketItem(
           item_id: itemId, type: type, qty: qty);
       if (res['errorType'] == 1) {
-        showSuccessMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       } else {
-        showFailedMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       }
     }
 

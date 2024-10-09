@@ -267,7 +267,7 @@ class MyOrderProvider extends ChangeNotifier {
           'message': 'Таны захиалга амжилттай баталгаажлаа.'
         };
       } else if (res.statusCode == 400) {
-        showFailedMessage(
+        message(
             message: 'Захиалгын түгээлт эхлээгүй', context: context);
       } else {
         notifyListeners();

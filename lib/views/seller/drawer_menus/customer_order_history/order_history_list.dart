@@ -125,7 +125,7 @@ class _OrderhistoryListPageState extends State<OrderhistoryListPage> {
         });
       }
     } catch (e) {
-      showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
+      message(message: 'Дахин оролдоно уу.', context: context);
     }
   }
 }

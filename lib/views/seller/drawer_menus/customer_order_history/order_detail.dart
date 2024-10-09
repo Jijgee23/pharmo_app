@@ -110,10 +110,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           }
         });
       } else {
-        showFailedMessage(message: 'Амжилтгүй боллоо.', context: context);
+        message(message: 'Амжилтгүй боллоо.', context: context);
       }
     } catch (e) {
-      showFailedMessage(message: 'Дахин оролдоно уу.', context: context);
+      message(message: 'Дахин оролдоно уу.', context: context);
     }
   }
 }

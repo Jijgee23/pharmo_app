@@ -122,11 +122,11 @@ class HomeProvider extends ChangeNotifier {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         branches = (res).map((data) => Sector.fromJson(data)).toList();
       } else {
-        showFailedMessage(
+        message(
             message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
           context: context);
     }
@@ -467,11 +467,11 @@ class HomeProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
             'not found') {
-          showFailedMessage(message: 'Харилцагч олдсонгүй', context: context);
+          message(message: 'Харилцагч олдсонгүй', context: context);
         } else {
           Map<String, dynamic> res =
               jsonDecode(utf8.decode(response.bodyBytes));
-          showSuccessMessage(
+          message(
               context: context,
               message:
                   '${res['company']['name']} харилцагчийн ${res['name']} олдлоо');
@@ -488,10 +488,10 @@ class HomeProvider extends ChangeNotifier {
           }
         }
       } else {
-        showFailedMessage(message: 'Серверийн алдаа', context: context);
+        message(message: 'Серверийн алдаа', context: context);
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Интернет холболтоо шалгана уу!.', context: context);
     }
   }
@@ -507,11 +507,11 @@ class HomeProvider extends ChangeNotifier {
       debugPrint(response.statusCode.toString());
       if (response.statusCode == 200) {
         AuthController().logout(context);
-        showSuccessMessage(
+        message(
             message: '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа',
             context: context);
       } else {
-        showFailedMessage(message: 'Алдаа гарлаа', context: context);
+        message(message: 'Алдаа гарлаа', context: context);
       }
     } catch (e) {
       debugPrint(e.toString());

@@ -169,12 +169,13 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                 ? null
                 : CustomAppBar(
                     title: Text(
-                    getAppBarText(homeProvider.currentIndex),
-                    style: const TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400),
-                  )),
+                      getAppBarText(homeProvider.currentIndex),
+                      style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
             body: NotificationListener<UserScrollNotification>(
               onNotification: (notification) {
                 if (notification.direction == ScrollDirection.reverse) {

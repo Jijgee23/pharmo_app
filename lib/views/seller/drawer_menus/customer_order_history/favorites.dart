@@ -145,7 +145,7 @@ class _FavoriteListState extends State<FavoriteList> {
         basketProvider.getBasket();
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Өгөгдөл авчрах үед алдаа гарлаа.!', context: context);
     }
   }

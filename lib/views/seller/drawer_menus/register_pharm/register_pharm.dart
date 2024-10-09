@@ -210,7 +210,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     return GestureDetector(
       onTap: () {
         if (addressProvider.selectedProvince == 0) {
-          showFailedMessage(message: 'Аймаг/Хот сонгоно уу.', context: context);
+          message(message: 'Аймаг/Хот сонгоно уу.', context: context);
         } else {
           showDialog(
             context: context,
@@ -275,7 +275,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     return GestureDetector(
       onTap: () {
         if (addressProvider.selectedDistrict == 0) {
-          showFailedMessage(
+          message(
               message: 'Сум/Дүүрэг сонгоно уу.', context: context);
         } else {
           showDialog(
@@ -377,7 +377,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         homeProvider.selectedCustomerName = res['cName'];
         homeProvider.getSelectedUser(
             homeProvider.selectedCustomerId, homeProvider.selectedCustomerName);
-        showSuccessMessage(message: 'Амжилттай бүртгэгдлээ.', context: context);
+        message(message: 'Амжилттай бүртгэгдлээ.', context: context);
         goto(const SellerHomePage(), context);
       } else {
         // showFailedMessage(message: 'Бүртгэл амжилтгүй.', context: context);
@@ -402,7 +402,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         });
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           context: context, message: 'Интернет холболтоо шалгана уу!');
     }
   }

@@ -34,7 +34,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
     debugPrint(_selectedRadioValue);
     if (_selectedRadioValue == 'C') {
       if (_selectedAddress == 0 && delivery == true) {
-        showFailedMessage(message: 'Салбар сонгоно уу!', context: context);
+        message(message: 'Салбар сонгоно уу!', context: context);
       } else {
         await basketProvider.createOrder(
             basket_id: basketProvider.basket.id,
@@ -44,7 +44,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
       }
     } else {
       if (_selectedAddress == 0 && delivery == true) {
-        showFailedMessage(message: 'Салбар сонгоно уу!', context: context);
+        message(message: 'Салбар сонгоно уу!', context: context);
       } else {
         await basketProvider.createQR(
           basket_id: basketProvider.basket.id,

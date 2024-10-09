@@ -70,24 +70,25 @@ class _SellerQRCodeState extends State<SellerQRCode> {
           }
         });
       } else if (stcode == 404) {
-        showFailedMessage(
+        message(
             context: context, message: 'Нийлүүлэгч Qpay холбоогүй');
       } else if (stcode == 400) {
-        final message = jsonDecode(utf8.decode(response.bodyBytes));
+        final text = jsonDecode(utf8.decode(response.bodyBytes));
         if (message is String) {
-          if (message == 'qpay') {
-            showFailedMessage(
+          if (text == 'qpay') {
+            
+            message(
                 message: 'Нийлүүлэгч Qpay холбоогүй байна', context: context);
-          } else if (message == 'bad qpay') {
-            showFailedMessage(
+          } else if (text == 'bad qpay') {
+            message(
                 message: 'Нийлүүлэгчийн Qpay тохиргоо алдаатай.',
                 context: context);
-          } else if (message == "min") {
-            showFailedMessage(
+          } else if (text == "min") {
+            message(
                 message: 'Төлбөрийн дүн 10 төг буюу түүнээс дээш байх.',
                 context: context);
-          } else if (message == 'empty') {
-            showFailedMessage(
+          } else if (text == 'empty') {
+            message(
                 message: 'Захиалганд бараа байхгүй буюу сагс хоосон.',
                 context: context);
           }
@@ -96,16 +97,16 @@ class _SellerQRCodeState extends State<SellerQRCode> {
           Map data = jsonDecode(utf8.decode(response.bodyBytes));
           List<dynamic> msg = data['branchId'];
           if (msg[0] == 'Branch not found!') {
-            showFailedMessage(
+            message(
                 message: 'Салбарын  мэдээлэл буруу.', context: context);
           } else if (msg[0] == 'User not found') {
-            showFailedMessage(
+            message(
                 message: 'Захиалагчийн мэдээлэл буруу', context: context);
           }
           Navigator.pop(context);
         }
       } else if (stcode == 500) {
-        showFailedMessage(message: 'Серверийн алдаа', context: context);
+        message(message: 'Серверийн алдаа', context: context);
         Navigator.pop(context);
       }
     } catch (e) {
@@ -131,16 +132,16 @@ class _SellerQRCodeState extends State<SellerQRCode> {
         final response = jsonDecode(utf8.decode(resQR.bodyBytes));
         if (response is bool) {
           if (!response) {
-            showFailedMessage(
+            message(
                 context: context, message: 'Төлбөр төлөгдөөгүй байна!');
           } else {
-            showSuccessMessage(
+            message(
                 context: context, message: 'Төлбөр амжилттай хийгдлээ!');
             clearBasket(homeProvider.basketId!);
           }
         } else {
           if (response['isPaid'].toString() == 'true') {
-            showSuccessMessage(
+            message(
                 context: context, message: 'Төлбөр амжилттай хийгдлээ!');
             clearBasket(homeProvider.basketId!);
             gotoRemoveUntil(
@@ -149,21 +150,21 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                 ),
                 context);
           } else {
-            showFailedMessage(
+            message(
                 context: context, message: 'Төлбөр төлөгдөөгүй байна!');
           }
         }
       } else if (resQR.statusCode == 404) {
         final response = jsonDecode(utf8.decode(resQR.bodyBytes));
         if (response == 'invoice') {
-          showFailedMessage(context: context, message: 'Нэхэмжлэх үүсээгүй!');
+          message(context: context, message: 'Нэхэмжлэх үүсээгүй!');
         } else if (response == 'token') {
-          showFailedMessage(context: context, message: 'Нэхэмжлэх үүсээгүй!');
+          message(context: context, message: 'Нэхэмжлэх үүсээгүй!');
         } else if (response == 'basket') {
-          showFailedMessage(
+          message(
               context: context, message: 'Сагсны мэдээлэл олдоогүй!');
         } else {
-          showFailedMessage(context: context, message: 'Серверийн алдаа!');
+          message(context: context, message: 'Серверийн алдаа!');
         }
         return false;
       }
@@ -284,7 +285,7 @@ class _SellerQRCodeState extends State<SellerQRCode> {
                                                     mode: LaunchMode
                                                         .externalApplication);
                                               } else {
-                                                showFailedMessage(
+                                                message(
                                                     message: i['description'] +
                                                         ' апп олдсонгүй.',
                                                     context: context);

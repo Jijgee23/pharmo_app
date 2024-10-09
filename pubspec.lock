@@ -286,6 +286,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  flutter_sliding_toast:
+    dependency: "direct main"
+    description:
+      name: flutter_sliding_toast
+      sha256: e9bf2ba9a5b7b1887cf35f61189161ff1b8d8aec7485b36ca06c04eb33195eca
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.2"
   flutter_staggered_grid_view:
     dependency: transitive
     description:

@@ -176,9 +176,9 @@ class PromotionProvider extends ChangeNotifier {
           Uri.parse('${dotenv.env['SERVER_URL']}marked_promos/$id/'),
           headers: getHeader(token));
       if (response.statusCode == 200) {
-        showSuccessMessage(message: 'Амжилттай', context: context);
+        message(message: 'Амжилттай', context: context);
       } else {
-        showFailedMessage(message: 'Амжилтгүй', context: context);
+        message(message: 'Амжилтгүй', context: context);
       }
     } catch (e) {
       debugPrint('ERROR AT HIDE PROMO: ${e.toString()}');
@@ -207,7 +207,7 @@ class PromotionProvider extends ChangeNotifier {
         qrData = QrData.fromJson(data);
         setQr(true);
       } else if (response.statusCode == 400) {
-        showFailedMessage(
+        message(
             message: 'Урамшууллын хугацаа дууссан', context: context);
       } else {}
     } catch (e) {
@@ -229,10 +229,10 @@ class PromotionProvider extends ChangeNotifier {
     final data = jsonDecode(utf8.decode(response.bodyBytes));
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()), context);
-      showSuccessMessage(message: 'Төлбөр төлөгдсөн байна', context: context);
+      message(message: 'Төлбөр төлөгдсөн байна', context: context);
       return true;
     } else {
-      showFailedMessage(message: 'Төлбөр төлөгдөөгүй байна', context: context);
+      message(message: 'Төлбөр төлөгдөөгүй байна', context: context);
     }
   }
 }

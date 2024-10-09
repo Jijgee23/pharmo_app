@@ -46,10 +46,10 @@ class _MyOrderState extends State<MyOrder> {
       if (res['errorType'] == 1) {
         // showSuccessMessage(message: res['message'], context: context);
       } else {
-        showFailedMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
           context: context);
     }
@@ -67,10 +67,10 @@ class _MyOrderState extends State<MyOrder> {
               res['data'][i]['name'].toString();
         }
       } else {
-        showFailedMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
           context: context);
     }
@@ -87,10 +87,10 @@ class _MyOrderState extends State<MyOrder> {
           _suppliers[key.toString()] = value.toString();
         });
       } else {
-        showFailedMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
           context: context);
     }
@@ -143,12 +143,12 @@ class _MyOrderState extends State<MyOrder> {
       dynamic res =
           await orderProvider.filterOrders(_selectedFilter, _selectedItem);
       if (res['errorType'] == 1) {
-        showSuccessMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       } else {
-        showFailedMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
           context: context);
     }
@@ -160,12 +160,12 @@ class _MyOrderState extends State<MyOrder> {
           Provider.of<MyOrderProvider>(context, listen: false);
       dynamic res = await orderProvider.confirmOrder(orderId, context);
       if (res['errorType'] == 1) {
-        showSuccessMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       } else {
-        showFailedMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
           context: context);
     }

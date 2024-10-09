@@ -27,7 +27,7 @@ class IncomeProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+      message(context: context, message: 'Алдаа гарлаа');
     }
     notifyListeners();
   }
@@ -48,7 +48,7 @@ class IncomeProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+      message(context: context, message: 'Алдаа гарлаа');
     }
     notifyListeners();
   }
@@ -70,7 +70,7 @@ class IncomeProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+      message(context: context, message: 'Алдаа гарлаа');
     }
     notifyListeners();
   }
@@ -87,11 +87,11 @@ class IncomeProvider extends ChangeNotifier {
         }),
       );
       if (response.statusCode == 201) {
-        showSuccessMessage(context: context, message: 'Амжилттай бүртгэгдлээ');
+        message(context: context, message: 'Амжилттай бүртгэгдлээ');
       }
       notifyListeners();
     } catch (e) {
-      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+      message(context: context, message: 'Алдаа гарлаа');
     }
     notifyListeners();
   }
@@ -110,11 +110,11 @@ class IncomeProvider extends ChangeNotifier {
         ),
       );
       if (response.statusCode == 200) {
-        showSuccessMessage(context: context, message: 'Амжилттай');
+        message(context: context, message: 'Амжилттай');
       }
       notifyListeners();
     } catch (e) {
-      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+      message(context: context, message: 'Алдаа гарлаа');
     }
     notifyListeners();
   }

@@ -437,7 +437,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                                                             if (found) {
                                                                               await launchUrl(Uri.parse(e.link!), mode: LaunchMode.externalApplication);
                                                                             } else {
-                                                                              showFailedMessage(message: '${e.description!} банкны апп олдсонгүй.', context: context);
+                                                                              message(message: '${e.description!} банкны апп олдсонгүй.', context: context);
                                                                             }
                                                                           },
                                                                           child: Container(

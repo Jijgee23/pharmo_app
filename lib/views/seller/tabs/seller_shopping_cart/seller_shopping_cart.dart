@@ -114,12 +114,12 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
 
   gotoBranch() {
     if (basketProvider.basket.totalCount == 0) {
-      showFailedMessage(message: 'Сагс хоосон байна!', context: context);
+      message(message: 'Сагс хоосон байна!', context: context);
     } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
-      showFailedMessage(
+      message(
           message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
     } else if (homeprovider.selectedCustomerId == 0) {
-      showFailedMessage(message: 'Захиалагч сонгоно уу!', context: context);
+      message(message: 'Захиалагч сонгоно уу!', context: context);
     } else {
       goto(const SelectSellerBranchPage(), context);
     }

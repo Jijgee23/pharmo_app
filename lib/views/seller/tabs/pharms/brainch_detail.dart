@@ -57,11 +57,11 @@ class _BranchDetailsState extends State<BranchDetails> {
         });
         return res;
       } else {
-        showFailedMessage(
+        message(
             context: context, message: 'Салбарын мэдээлэл татаж чадсангүй');
       }
     } catch (e) {
-      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+      message(context: context, message: 'Алдаа гарлаа');
     }
   }
 
@@ -140,7 +140,7 @@ class _BranchDetailsState extends State<BranchDetails> {
                             emailLaunchUri.toString())) {
                           await launchUrlString(emailLaunchUri.toString());
                         } else {
-                          showFailedMessage(
+                          message(
                             context: context,
                             message:
                                 'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',

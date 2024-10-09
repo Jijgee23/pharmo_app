@@ -66,7 +66,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                 if (await canLaunchUrlString(emailLaunchUri.toString())) {
                   await launchUrlString(emailLaunchUri.toString());
                 } else {
-                  showFailedMessage(
+                  message(
                     context: context,
                     message:
                         'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
@@ -152,11 +152,11 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
           companyInfo = company;
         });
       } else {
-        showFailedMessage(
+        message(
             context: context, message: 'Хүсэлт амжилтгүй боллоо.');
       }
     } catch (e) {
-      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+      message(context: context, message: 'Алдаа гарлаа');
     }
   }
 
@@ -180,11 +180,11 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
           }
         });
       } else {
-        showFailedMessage(
+        message(
             context: context, message: 'Салбарын мэдээлэл татаж чадсангүй');
       }
     } catch (e) {
-      showFailedMessage(context: context, message: 'Алдаа гарлаа');
+      message(context: context, message: 'Алдаа гарлаа');
     }
   }
 }

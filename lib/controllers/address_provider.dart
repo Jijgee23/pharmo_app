@@ -86,7 +86,7 @@ class AddressProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+      message(message: 'Алдаа гарлаа.', context: context);
     }
   }
 
@@ -103,7 +103,7 @@ class AddressProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+      message(message: 'Алдаа гарлаа.', context: context);
     }
   }
 

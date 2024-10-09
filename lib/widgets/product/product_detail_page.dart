@@ -76,8 +76,7 @@ class _ProductDetailState extends State<ProductDetail> {
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
       if (qtyController.text.isEmpty || int.parse(qtyController.text) <= 0) {
-        showFailedMessage(
-            message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
+        message(message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
         return;
       } else {
         Map<String, dynamic> res = await basketProvider.addBasket(
@@ -86,16 +85,16 @@ class _ProductDetailState extends State<ProductDetail> {
             qty: int.parse(qtyController.text));
         if (res['errorType'] == 1) {
           basketProvider.getBasket();
-          showSuccessMessage(message: res['message'], context: context);
+          message(
+              message: '${widget.prod.name} сагсанд нэмэгдлээ.',
+              context: context);
           Navigator.pop(context);
         } else {
-          showFailedMessage(message: res['message'], context: context);
+          message(message: res['message'], context: context);
         }
       }
     } catch (e) {
-      showFailedMessage(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          context: context);
+      message(message: 'Алдаа гарлаа!', context: context);
     }
   }
 

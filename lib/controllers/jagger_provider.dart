@@ -120,7 +120,7 @@ class JaggerProvider extends ChangeNotifier {
         _ships =
             (response['results'] as List).map((e) => Ship.fromJson(e)).toList();
       } else {
-        showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+        message(message: 'Алдаа гарлаа.', context: context);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -159,10 +159,10 @@ class JaggerProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         debugPrint(response);
-        showSuccessMessage(
+        message(
             message: '$response цагт түгээлт эхлэлээ', context: context);
       } else {
-        showFailedMessage(
+        message(
             message: 'Түгээлт эхлэхэд алдаа гарлаа', context: context);
       }
     } catch (e) {
@@ -184,9 +184,9 @@ class JaggerProvider extends ChangeNotifier {
           }));
       notifyListeners();
       if (res.statusCode == 200) {
-        showSuccessMessage(message: 'Түгээлт дууслаа.', context: context);
+        message(message: 'Түгээлт дууслаа.', context: context);
       } else {
-        showFailedMessage(
+        message(
             message: 'Түгээлт дуусгахад алдаа гарлаа.', context: context);
       }
     } catch (e) {
@@ -202,11 +202,11 @@ class JaggerProvider extends ChangeNotifier {
           body: jsonEncode({"note": note, "amount": amount}));
       if (res.statusCode == 201) {
         await getExpenses();
-        showSuccessMessage(
+        message(
             message: 'Түгээлтийн зарлага нэмэгдлээ.', context: context);
       } else {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
-        showFailedMessage(message: response['message'], context: context);
+        message(message: response['message'], context: context);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -221,7 +221,7 @@ class JaggerProvider extends ChangeNotifier {
               {"shipId": shipId, "itemId": itemId, "note": feedback.text}));
 
       if (res.statusCode == 200) {
-        showSuccessMessage(
+        message(
             message: 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.',
             context: context);
         feedback.clear();
@@ -242,7 +242,7 @@ class JaggerProvider extends ChangeNotifier {
               {"shipId": shipId, "itemId": itemId, "note": feedback.text}));
       notifyListeners();
       if (res.statusCode == 200) {
-        showFailedMessage(
+        message(
             message: 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.',
             context: context);
         feedback.text = '';
@@ -299,9 +299,9 @@ class JaggerProvider extends ChangeNotifier {
           body: jsonEncode({"itemId": itemId, "qty": qty}));
       if (res.statusCode == 200) {
         await getJaggers(context);
-        showSuccessMessage(message: 'Амжилттай засагдлаа.', context: context);
+        message(message: 'Амжилттай засагдлаа.', context: context);
       } else {
-        showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+        message(message: 'Алдаа гарлаа.', context: context);
       }
     } catch (e) {
       return {'fail': e};
@@ -339,7 +339,7 @@ class JaggerProvider extends ChangeNotifier {
     servicePermission = await Geolocator.isLocationServiceEnabled();
 
     if (!servicePermission) {
-      showFailedMessage(message: 'Permission тохируулна уу', context: context);
+      message(message: 'Permission тохируулна уу', context: context);
     }
     permission = await Geolocator.checkPermission();
 

@@ -116,9 +116,9 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
 
   gotoBranch(BuildContext c) {
     if (basketProvider.basket.totalCount == 0) {
-      showFailedMessage(message: 'Сагс хоосон байна!', context: c);
+      message(message: 'Сагс хоосон байна!', context: c);
     } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
-      showFailedMessage(
+      message(
           message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: c);
     } else {
       goto(const SelectBranchPage(), c);

@@ -198,7 +198,8 @@ class _LoginPageState extends State<LoginPage> {
                 hover = !hover;
               });
             },
-            icon: Icon(hover ? Icons.visibility_off : Icons.visibility, color: AppColors.primary),
+            icon: Icon(hover ? Icons.visibility_off : Icons.visibility,
+                color: AppColors.primary),
           ),
         ),
         Row(
@@ -238,7 +239,7 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 });
               } else {
-                showFailedMessage(
+                message(
                     context: context,
                     message: 'Нэврэх нэр, нууц үг оруулна уу');
               }
@@ -305,7 +306,8 @@ class _LoginPageState extends State<LoginPage> {
                   showPasss = !showPasss;
                 });
               },
-              icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,  color: AppColors.primary),
+              icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
+                  color: AppColors.primary),
             ),
           ),
           const SizedBox(height: 15),
@@ -347,7 +349,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   );
                 } else {
-                  showFailedMessage(
+                  message(
                       message: 'Нууц үг таарахгүй байна!', context: context);
                 }
               }),

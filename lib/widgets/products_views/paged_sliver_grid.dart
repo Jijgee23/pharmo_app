@@ -44,26 +44,26 @@ class CustomGridView extends StatelessWidget {
           item: item,
           hasSale: hasSale,
           onTap: () => goto(ProductDetail(prod: item), context),
-          onButtonTab: () => addBasket(item.id, item.itemname_id, context),
+          onButtonTab: () => addBasket(item, context),
         ),
       ),
     );
   }
 
-  void addBasket(int? id, int? itemnameId, BuildContext context) async {
+  void addBasket(dynamic item, BuildContext context) async {
     try {
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
       Map<String, dynamic> res = await basketProvider.addBasket(
-          product_id: id, itemname_id: itemnameId, qty: 1);
+          product_id: item.id, itemname_id: item.itemname_id, qty: 1);
       if (res['errorType'] == 1) {
         basketProvider.getBasket();
-        showSuccessMessage(message: res['message'], context: context);
+        message(message: '${item.name} сагсанд нэмэгдлээ', context: context);
       } else {
-        showFailedMessage(message: res['message'], context: context);
+        message(message: res['message'], context: context);
       }
     } catch (e) {
-      showFailedMessage(message: 'Алдаа гарлаа', context: context);
+      message(message: 'Алдаа гарлаа', context: context);
     }
   }
 }

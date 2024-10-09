@@ -249,10 +249,10 @@ class BasketProvider extends ChangeNotifier {
         // await clearBasket(basket_id: basket_id);
         return res['orderNo'];
       } else if (response.statusCode == 400) {
-        showFailedMessage(message: 'Сагс хоосон байна!', context: context);
+        message(message: 'Сагс хоосон байна!', context: context);
       } else {
         // return {'errorType': 2, 'data': null, 'message': response.body};
-        showFailedMessage(message: res, context: context);
+        message(message: res, context: context);
       }
     } catch (e) {
       // return {'errorType': 3, 'data': e, 'message': e};
@@ -280,25 +280,25 @@ class BasketProvider extends ChangeNotifier {
         goto(const QRCode(), context);
       } else if (status == 404) {
         if (data == 'qpay') {
-          showFailedMessage(
+          message(
               message: 'Нийлүүлэгч Qpay холбоогүй.', context: context);
         }
       } else if (status == 400) {
         if (data == 'bad qpay') {
-          showFailedMessage(
+          message(
               message: 'Нийлүүлэгчийн Qpay тохиргоо алдаатай!',
               context: context);
         } else if (data == 'min') {
-          showFailedMessage(
+          message(
               message: 'Төлбөрийн дүн 10₮-с дээш байх', context: context);
         } else if (data == 'empty') {
-          showFailedMessage(message: 'Сагс хоосон байна!', context: context);
+          message(message: 'Сагс хоосон байна!', context: context);
         } else if (data == 'branch not match') {
-          showFailedMessage(
+          message(
               message: 'Салбарын мэдээлэл буруу!', context: context);
         }
       } else if (status == 500) {
-        showFailedMessage(message: 'Админтай холбогдоно уу!', context: context);
+        message(message: 'Админтай холбогдоно уу!', context: context);
       }
     } catch (e) {
       debugPrint('ERROR AT CREATE QR: $e');

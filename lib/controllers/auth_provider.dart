@@ -73,7 +73,7 @@ class AuthController extends ChangeNotifier {
         final responseData = json.decode(response.body);
         final email = responseData['ema'];
         if (email == false) {
-          showFailedMessage(
+          message(
             message: 'Имейл хаяг бүртгэлгүй байна!',
             context: context,
           );
@@ -97,7 +97,7 @@ class AuthController extends ChangeNotifier {
         // }
       }
     } catch (e) {
-      showFailedMessage(
+      message(
         message: 'Интернет холболтоо шалгана уу!.',
         context: context,
       );
@@ -135,7 +135,7 @@ class AuthController extends ChangeNotifier {
         await prefs.setString('userrole', decodedToken['role']);
         decodedToken['supplier'] != null
             ? await prefs.setInt('suppID', decodedToken['supplier'])
-            : showFailedMessage(
+            : message(
                 message: 'Нийлүүлэгч сонгоно уу!', context: context);
         final shoppingCart =
             Provider.of<BasketProvider>(context, listen: false);
@@ -158,25 +158,25 @@ class AuthController extends ChangeNotifier {
       } else if (responseLogin.statusCode == 400) {
         Map res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
         if (checker(res, 'noCmp', context) == true) {
-          showFailedMessage(
+          message(
               message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
               context: context);
         } else if (checker(res, 'noLic', context) == true) {
-          showFailedMessage(
+          message(
               message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
               context: context);
         } else if (checker(res, 'noRev', context) == true) {
-          showFailedMessage(
+          message(
               message: 'Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!',
               context: context);
         } else if (checker(res, 'password', context) == true) {
-          showFailedMessage(context: context, message: '${res['password']}');
+          message(context: context, message: '${res['password']}');
         } else if (checker(res, 'noLoc', context) == true) {
-          showFailedMessage(
+          message(
               message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
               context: context);
         } else if (checker(res, 'email', context)) {
-          showFailedMessage(
+          message(
               context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
         }
       } else if (responseLogin.statusCode == 401) {
@@ -190,13 +190,13 @@ class AuthController extends ChangeNotifier {
         );
       } else {
         {
-          showFailedMessage(
+          message(
               message: 'Имейл эсвэл нууц үг буруу байна!', context: context);
         }
       }
       notifyListeners();
     } catch (e) {
-      showFailedMessage(
+      message(
           message: 'Интернет холболтоо шалгана уу!', context: context);
       debugPrint('error================= on login> ${e.toString()} ');
     }
@@ -243,12 +243,12 @@ class AuthController extends ChangeNotifier {
       );
       notifyListeners();
       if (response.statusCode == 200) {
-        showSuccessMessage(
+        message(
             message: 'Батлагаажуулах код илгээлээ!', context: context);
         notifyListeners();
       }
     } catch (e) {
-      showFailedMessage(message: 'Амжилтгүй!', context: context);
+      message(message: 'Амжилтгүй!', context: context);
       notifyListeners();
     }
   }
@@ -278,17 +278,17 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (response.statusCode == 200) {
         gotoRemoveUntil(const LoginPage(), context);
-        showSuccessMessage(
+        message(
             message: 'Бүртгэл амжилттай үүслээ', context: context);
         notifyListeners();
       }
       if (response.statusCode == 500) {
-        showFailedMessage(
+        message(
             message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
         notifyListeners();
       }
     } catch (e) {
-      showFailedMessage(message: 'Амжилтгүй!', context: context);
+      message(message: 'Амжилтгүй!', context: context);
     }
     notifyListeners();
   }
@@ -306,16 +306,16 @@ class AuthController extends ChangeNotifier {
       );
       notifyListeners();
       if (response.statusCode == 200) {
-        showSuccessMessage(
+        message(
             context: context, message: 'Батлагаажуулах код илгээлээ');
         notifyListeners();
       } else {
-        showFailedMessage(message: 'Амжилтгүй!', context: context);
+        message(message: 'Амжилтгүй!', context: context);
         notifyListeners();
       }
       notifyListeners();
     } catch (e) {
-      showFailedMessage(context: context, message: 'Амжилтгүй!');
+      message(context: context, message: 'Амжилтгүй!');
     }
     notifyListeners();
   }
@@ -336,12 +336,12 @@ class AuthController extends ChangeNotifier {
       );
       notifyListeners();
       if (response.statusCode == 200) {
-        showSuccessMessage(
+        message(
             message: 'Нууц үг амжилттай үүслээ', context: context);
         notifyListeners();
       }
     } catch (e) {
-      showFailedMessage(message: 'Амжилтгүй!', context: context);
+      message(message: 'Амжилтгүй!', context: context);
     }
     notifyListeners();
   }

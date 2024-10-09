@@ -168,14 +168,14 @@ class _PharmacyListState extends State<PharmacyList> {
                           child: InkWell(
                             onTap: () async {
                               if (item.isBad == true) {
-                                showFailedMessage(
+                                message(
                                     context: context,
                                     message: 'Найдваргүй харилцагч байна!');
                               } else {
                                 if (item.debt != 0 &&
                                     item.debtLimit != 0 &&
                                     item.debt >= item.debtLimit) {
-                                  showFailedMessage(
+                                  message(
                                       context: context,
                                       message:
                                           'Зээлийн хэмжээ хэтэрсэн байна!');
@@ -253,7 +253,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                                 ),
                                                 context);
                                           } else {
-                                            showFailedMessage(
+                                            message(
                                                 context: context,
                                                 message:
                                                     'Эмийн сангийн мэдээллийг харах боломжгүй!');

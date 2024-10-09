@@ -60,7 +60,7 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     super.dispose();
-    _pagingController.dispose();
+    //_pagingController.dispose();
   }
 
   Future<void> fetchPage(int pageKey) async {
