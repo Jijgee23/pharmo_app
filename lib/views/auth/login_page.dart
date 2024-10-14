@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               children: [
                 Container(
-                  color: AppColors.primary,
+                  color: AppColors.main,
                   padding: const EdgeInsets.symmetric(vertical: 5),
                   child: Column(
                     children: [

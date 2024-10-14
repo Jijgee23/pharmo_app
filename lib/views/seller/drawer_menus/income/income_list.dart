@@ -179,7 +179,7 @@ class _IncomeListState extends State<IncomeList> {
                         },
                         style: const ButtonStyle(
                             backgroundColor:
-                                MaterialStatePropertyAll(AppColors.primary)),
+                                WidgetStatePropertyAll(AppColors.primary)),
                         child: const Text(
                           'Шүүх',
                           style: TextStyle(color: Colors.white),

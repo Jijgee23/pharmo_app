@@ -33,7 +33,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
   final noteController = TextEditingController();
-  final radioColor = const MaterialStatePropertyAll(AppColors.primary);
+  final radioColor = const WidgetStatePropertyAll(AppColors.primary);
   @override
   void initState() {
     super.initState();
@@ -319,8 +319,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
           if (response.statusCode == 200) {
             final res = jsonDecode(utf8.decode(response.bodyBytes));
             final orderNumber = res['orderNo'];
-            message(
-                message: 'Захиалга амжилттай  үүслээ.', context: context);
+            message(message: 'Захиалга амжилттай  үүслээ.', context: context);
             goto(OrderDone(orderNo: orderNumber.toString()), context);
             setState(() {
               homeProvider.note = null;
@@ -352,16 +351,14 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
         if (response.statusCode == 200) {
           final res = jsonDecode(utf8.decode(response.bodyBytes));
           final orderNumber = res['orderNo'];
-          message(
-              message: 'Захиалга амжилттай  үүслээ.', context: context);
+          message(message: 'Захиалга амжилттай  үүслээ.', context: context);
           goto(OrderDone(orderNo: orderNumber.toString()), context);
         } else {
           message(message: 'Сагс хоосон байна', context: context);
         }
       }
     } catch (e) {
-      message(
-          message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
+      message(message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
     }
   }
 }

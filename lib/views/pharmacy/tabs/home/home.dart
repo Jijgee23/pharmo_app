@@ -7,6 +7,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
+import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -136,7 +137,8 @@ class _HomeState extends State<Home> {
                         flex: 10,
                         child: Container(
                           decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.cleanBlack),
+                              border: Border.all(
+                                  color: AppColors.cleanBlack, width: 0.7),
                               borderRadius: BorderRadius.circular(15)),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -147,7 +149,6 @@ class _HomeState extends State<Home> {
                                 child: InkWell(
                                   onTap: () => _picksupp(
                                       context, homeProvider, basketProvider),
-                                  borderRadius: BorderRadius.circular(10),
                                   child: Text(
                                     '${homeProvider.supName} :',
                                     style: const TextStyle(
@@ -157,6 +158,7 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                               ),
+                              const SizedBox(width: 5),
                               Expanded(
                                   child: TextFormField(
                                 decoration: InputDecoration(
@@ -325,55 +327,91 @@ class _HomeState extends State<Home> {
   Future<dynamic> _picksupp(BuildContext context, HomeProvider homeProvider,
       BasketProvider basketProvider) {
     return showDialog(
-        context: context,
-        builder: (context) {
-          return Dialog(
-            child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(width: 1, color: AppColors.cleanBlack)),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: homeProvider.supList
-                        .map((e) => InkWell(
-                              onTap: () async {
-                                await homeProvider.pickSupplier(
-                                    int.parse(e.id), context);
-                                await homeProvider.changeSupName(e.name);
-                                basketProvider.getBasket();
-                                await promotionProvider.getMarkedPromotion();
-                                homeProvider.refresh(
-                                    context, homeProvider, promotionProvider);
-                                _pagingController.refresh();
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                  if (promotionProvider
-                                      .markedPromotions.isNotEmpty) {
-                                    homeProvider.showMarkedPromos(
-                                        context, promotionProvider);
-                                  }
-                                });
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                  decoration: BoxDecoration(
-                                      border: Border(
-                                    bottom:
-                                        BorderSide(color: Colors.grey.shade700),
-                                  )),
-                                  child: Text(e.name,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.primary))),
-                            ))
-                        .toList(),
-                  ),
-                )),
-          );
-        });
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+            ),
+            child: Scrollbar(
+              thickness: 2,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(color: Colors.grey.shade100),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: const Center(
+                        child: Text(
+                          'Нийлүүлэгч сонгох',
+                          style: TextStyle(
+                              color: AppColors.secondary,
+                              fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: const BoxDecoration(color: Colors.white),
+                      child: Column(
+                        children: [
+                          ...homeProvider.supList.map(
+                            (e) => InkWell(
+                              onTap: () async => await onPickSupp(e),
+                              child: supplier(
+                                  e: e,
+                                  isLast: (homeProvider.supList.indexOf(e) ==
+                                          homeProvider.supList.length)
+                                      ? null
+                                      : true),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  onPickSupp(Supplier e) async {
+    await homeProvider.pickSupplier(int.parse(e.id), context);
+    await homeProvider.changeSupName(e.name);
+    basketProvider.getBasket();
+    await promotionProvider.getMarkedPromotion();
+    homeProvider.refresh(context, homeProvider, promotionProvider);
+    _pagingController.refresh();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (promotionProvider.markedPromotions.isNotEmpty) {
+        homeProvider.showMarkedPromos(context, promotionProvider);
+      }
+    });
+    Navigator.pop(context);
+  }
+
+  supplier({required Supplier e, bool? isLast}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.only(top: 2),
+      decoration: BoxDecoration(
+        border:
+            Border(bottom: BorderSide(color: Colors.grey.shade700, width: 2)),
+      ),
+      child: Text(
+        e.name,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: AppColors.primary,
+        ),
+      ),
+    );
   }
 }

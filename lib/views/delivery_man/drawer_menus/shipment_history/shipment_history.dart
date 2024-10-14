@@ -72,7 +72,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
         children: [
           OutlinedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(AppColors.secondary),
+              backgroundColor: WidgetStateProperty.all(AppColors.secondary),
             ),
             onPressed: provider.getShipmentHistory,
             child: const Text('Бүгд', style: TextStyle(color: Colors.white)),
@@ -468,7 +468,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   filterButton(VoidCallback onPressed) {
     return OutlinedButton(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(AppColors.secondary),
+        backgroundColor: WidgetStateProperty.all(AppColors.secondary),
       ),
       onPressed: onPressed,
       child: const Text(

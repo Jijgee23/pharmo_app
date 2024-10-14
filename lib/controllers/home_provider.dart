@@ -64,7 +64,7 @@ class HomeProvider extends ChangeNotifier {
   List<Manufacturer> vndrs = <Manufacturer>[];
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
-  List<Supplier> _supList = <Supplier>[];
+  final List<Supplier> _supList = <Supplier>[];
   List<Supplier> get supList => _supList;
   String _supName = 'Нийлүүлэгч сонгох';
   String get supName => _supName;
@@ -122,8 +122,7 @@ class HomeProvider extends ChangeNotifier {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         branches = (res).map((data) => Sector.fromJson(data)).toList();
       } else {
-        message(
-            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+        message(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
     } catch (e) {
       message(
@@ -491,8 +490,7 @@ class HomeProvider extends ChangeNotifier {
         message(message: 'Серверийн алдаа', context: context);
       }
     } catch (e) {
-      message(
-          message: 'Интернет холболтоо шалгана уу!.', context: context);
+      message(message: 'Интернет холболтоо шалгана уу!.', context: context);
     }
   }
 

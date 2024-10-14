@@ -140,8 +140,8 @@ class _PharmacyListState extends State<PharmacyList> {
                             const SizedBox(height: 20),
                             OutlinedButton.icon(
                               style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    AppColors.primary),
+                                backgroundColor:
+                                    WidgetStateProperty.all(AppColors.primary),
                               ),
                               onPressed: () {
                                 goto(const RegisterPharmPage(), context);
@@ -187,7 +187,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                     homeProvider.getSelectedUser(
                                         item.id, item.name);
                                   });
-                                    homeProvider.changeIndex(1);
+                                  homeProvider.changeIndex(1);
                                 }
                               }
                             },
@@ -267,7 +267,8 @@ class _PharmacyListState extends State<PharmacyList> {
                                   ),
                                 ),
                                 Container(
-                                  padding:const EdgeInsets.symmetric(horizontal: 20),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
                                   child: Divider(
                                     color: Colors.grey.shade700,
                                   ),
@@ -305,7 +306,7 @@ class _PharmacyListState extends State<PharmacyList> {
         Transform.scale(
           scale: 0.8,
           child: Radio(
-            fillColor: MaterialStateProperty.all(AppColors.primary),
+            fillColor: WidgetStateProperty.all(AppColors.primary),
             value: value,
             groupValue: selectedRadioValue,
             onChanged: (value) {

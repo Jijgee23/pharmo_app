@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -267,8 +266,7 @@ class MyOrderProvider extends ChangeNotifier {
           'message': 'Таны захиалга амжилттай баталгаажлаа.'
         };
       } else if (res.statusCode == 400) {
-        message(
-            message: 'Захиалгын түгээлт эхлээгүй', context: context);
+        message(message: 'Захиалгын түгээлт эхлээгүй', context: context);
       } else {
         notifyListeners();
         return {
