@@ -33,49 +33,46 @@ class _SellerOrdersState extends State<SellerOrders> {
           body: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(
-                decoration: BoxDecoration(color: Colors.grey.shade100),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    TextButton(
-                        onPressed: () => _selectDate(context),
-                        child: Text(selectedDate.toString().substring(0, 10),
-                            style: const TextStyle(color: AppColors.primary))),
-                    const Icon(Icons.arrow_right_alt),
-                    TextButton(
-                        onPressed: () => _selectDate2(context),
-                        child: Text(selectedDate2.toString().substring(0, 10),
-                            style: const TextStyle(color: AppColors.primary))),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.grey.shade800,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 7.5, horizontal: 20),
-                      child: InkWell(
-                        onTap: () {
-                          if (selectedDate == selectedDate2) {
-                            orderProvider.getSellerOrdersByDateSingle(
-                                selectedDate.toString().substring(0, 10));
-                          } else {
-                            orderProvider.getSellerOrdersByDateRanged(
-                                selectedDate.toString().substring(0, 10),
-                                selectedDate2.toString().substring(0, 10));
-                          }
-                        },
-                        child: const Text(
-                          'Шүүх',
-                          style: TextStyle(color: Colors.white),
-                        ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                      onPressed: () => _selectDate(context),
+                      child: Text(selectedDate.toString().substring(0, 10),
+                          style: const TextStyle(color: AppColors.primary))),
+                  const Icon(Icons.arrow_right_alt),
+                  TextButton(
+                      onPressed: () => _selectDate2(context),
+                      child: Text(selectedDate2.toString().substring(0, 10),
+                          style: const TextStyle(color: AppColors.primary))),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.grey.shade800,
                       ),
                     ),
-                  ],
-                ),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 7.5, horizontal: 20),
+                    child: InkWell(
+                      onTap: () {
+                        if (selectedDate == selectedDate2) {
+                          orderProvider.getSellerOrdersByDateSingle(
+                              selectedDate.toString().substring(0, 10));
+                        } else {
+                          orderProvider.getSellerOrdersByDateRanged(
+                              selectedDate.toString().substring(0, 10),
+                              selectedDate2.toString().substring(0, 10));
+                        }
+                      },
+                      child: const Text(
+                        'Шүүх',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Expanded(
                   flex: 14,
@@ -146,12 +143,11 @@ class _OrderWidgetState extends State<OrderWidget> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade800),
-      ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 3)]),
       child: InkWell(
         onTap: () => setState(() => isExpanded = !isExpanded),
         child: Column(

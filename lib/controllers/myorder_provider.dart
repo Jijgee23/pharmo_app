@@ -17,6 +17,7 @@ class MyOrderProvider extends ChangeNotifier {
 
   List<MyOrderDetailModel> _orderDetails = <MyOrderDetailModel>[];
   List<MyOrderDetailModel> get orderDetails => _orderDetails;
+  late MyOrderDetailModel fetchedDetail;
   getSellerOrders() async {
     try {
       String bearerToken = await getAccessToken();
@@ -108,7 +109,7 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> getMyorderDetail(int orderId) async {
+  getMyorderDetail(int orderId) async {
     try {
       String bearerToken = await getAccessToken();
       final res = await http.get(
@@ -122,11 +123,6 @@ class MyOrderProvider extends ChangeNotifier {
         _orderDetails =
             (dtls).map((data) => MyOrderDetailModel.fromJson(data)).toList();
         notifyListeners();
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Захиалгуудыг амжилттай авчирлаа.'
-        };
       } else {
         notifyListeners();
         return {
@@ -136,7 +132,7 @@ class MyOrderProvider extends ChangeNotifier {
         };
       }
     } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
+      debugPrint(e.toString());
     }
   }
 

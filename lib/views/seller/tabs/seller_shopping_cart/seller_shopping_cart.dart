@@ -41,72 +41,77 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
       final cartDatas = provider.shoppingCarts;
       final basket = provider.basket;
       return Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: cartDatas.isNotEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: cartDatas
-                              .map((e) => ShoppingCartView(
-                                  detail: cartDatas[cartDatas.indexOf(e)]))
-                              .toList(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: cartDatas.isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: cartDatas
+                                .map((e) => ShoppingCartView(
+                                    detail: cartDatas[cartDatas.indexOf(e)]))
+                                .toList(),
+                          ),
+                        ),
+                      )
+                    : const SingleChildScrollView(child: EmptyBasket()),
+              ),
+              (cartDatas.isEmpty)
+                  ? const SizedBox()
+                  : Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5.0, horizontal: 15.0),
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.grey.shade400,
+                            width: 1.0,
+                            style: BorderStyle.solid,
+                          ),
                         ),
                       ),
-                    )
-                  : const SingleChildScrollView(child: EmptyBasket()),
-            ),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                border: Border(
-                  top: BorderSide(
-                    color: Colors.grey.shade400,
-                    width: 1.0,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      info(
-                          title: 'Төлөх дүн',
-                          text: '${basket.totalPrice ?? 0} ₮'),
-                      info(
-                          title: 'Тоо ширхэг',
-                          text: '${basket.totalCount ?? 0}')
-                    ],
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Button(
-                            text: 'Сагс хоослох',
-                            onTap: () => clearBasket(basket.id),
-                            color: AppColors.primary),
-                        Button(
-                            text: 'Захиалга үүсгэх',
-                            onTap: () => gotoBranch(),
-                            color: AppColors.primary),
-                      ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              info(
+                                  title: 'Төлөх дүн',
+                                  text: '${basket.totalPrice ?? 0} ₮'),
+                              info(
+                                  title: 'Тоо ширхэг',
+                                  text: '${basket.totalCount ?? 0}')
+                            ],
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(top: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Button(
+                                    text: 'Сагс хоослох',
+                                    onTap: () => clearBasket(basket.id),
+                                    color: AppColors.primary),
+                                Button(
+                                    text: 'Захиалга үүсгэх',
+                                    onTap: () => gotoBranch(),
+                                    color: AppColors.primary),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: kToolbarHeight)
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     });
@@ -116,10 +121,10 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
     if (basketProvider.basket.totalCount == 0) {
       message(message: 'Сагс хоосон байна!', context: context);
     } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
-      message(
-          message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
+      message(message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
     } else if (homeprovider.selectedCustomerId == 0) {
       message(message: 'Захиалагч сонгоно уу!', context: context);
+      homeprovider.changeIndex(0);
     } else {
       goto(const SelectSellerBranchPage(), context);
     }

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_conte
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
+import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -333,123 +334,9 @@ class _MyOrderState extends State<MyOrder> {
                               child: ListView.builder(
                                 itemCount: orders.length,
                                 itemBuilder: (context, index) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.shade700,
-                                            blurRadius: 5,
-                                          )
-                                        ]),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 15),
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 5, horizontal: 10),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text('Захиалгын дугаар:'),
-                                                Text('Захиалгын төлөв:'),
-                                                Text('Тоо ширхэг:'),
-                                                Text('Нийт үнэ:'),
-                                              ],
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  orders[index]
-                                                      .orderNo
-                                                      .toString(),
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.red),
-                                                ),
-                                                Text(
-                                                    orders[index]
-                                                        .status
-                                                        .toString(),
-                                                    style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: AppColors
-                                                            .mainDark)),
-                                                Text(
-                                                    orders[index]
-                                                        .totalCount
-                                                        .toString(),
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    )),
-                                                Text(
-                                                  '${orders[index].totalPrice} ₮',
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.red),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        (orders[index].process ==
-                                                    'Бэлэн болсон' ||
-                                                orders[index].process ==
-                                                    'Түгээлтэнд гарсан')
-                                            ? InkWell(
-                                                onTap: () {
-                                                  provider
-                                                      .confirmOrder(
-                                                          orders[index].id,
-                                                          context)
-                                                      .then((e) => getData());
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                      color: AppColors.main,
-                                                      border: Border.all(
-                                                        color: Colors
-                                                            .grey.shade300,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10)),
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 5),
-                                                  child: const Center(
-                                                    child: Text(
-                                                      'Батлагаажуулах',
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            : const SizedBox(),
-                                      ],
-                                    ),
-                                  );
+                                  final order = orders[index];
+                                  return orderWidget(
+                                      order: order, provider: provider);
                                 },
                               ),
                             ),
@@ -459,6 +346,129 @@ class _MyOrderState extends State<MyOrder> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  getProcessNumber(String process) {
+    if (process == 'Шинэ') {
+      return 0;
+    } else if (process == 'Бэлтгэж эхэлсэн') {
+      return 1;
+    } else if (process == 'Бэлэн болсон') {
+      return 2;
+    } else if (process == 'Түгээлтэнд гарсан') {
+      return 3;
+    } else {
+      return 4;
+    }
+  }
+
+  Widget orderWidget(
+      {required MyOrderModel order, required MyOrderProvider provider}) {
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              );
+            },);
+        // print(order.process);
+        // goto(
+        //     MyOrderDetail(
+        //       id: order.id,
+        //       orderNo: order.orderNo.toString(),
+        //       process: getProcessNumber(order.process!),
+        //     ),
+        //     context);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade700,
+              blurRadius: 3,
+            )
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Захиалгын дугаар:'),
+                    Text('Захиалгын төлөв:'),
+                    Text('Тоо ширхэг:'),
+                    Text('Нийт үнэ:'),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      order.orderNo.toString(),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    Text(order.status.toString(),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.mainDark)),
+                    Text(order.totalCount.toString(),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        )),
+                    Text(
+                      '${order.totalPrice} ₮',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            (order.process == 'Бэлэн болсон' ||
+                    order.process == 'Түгээлтэнд гарсан')
+                ? InkWell(
+                    onTap: () {
+                      provider.confirmOrder(order.id, context);
+                      // .then((e) => getData());
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: AppColors.main,
+                          border: Border.all(
+                            color: Colors.grey.shade300,
+                          ),
+                          borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      child: const Center(
+                        child: Text(
+                          'Батлагаажуулах',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  )
+                : const SizedBox(),
+          ],
+        ),
       ),
     );
   }

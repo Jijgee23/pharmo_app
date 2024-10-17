@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,13 +13,12 @@ import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/auth/createPass.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/auth/login_page.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,6 +37,12 @@ class AuthController extends ChangeNotifier {
   void toggleVisibile2() {
     invisible2 = !invisible2;
     notifyListeners();
+  }
+
+  tokerRefresher() async {
+    Timer.periodic(const Duration(minutes: 20), (timer) async {
+      await refresh();
+    });
   }
 
   Future<void> refresh() async {
@@ -58,7 +64,7 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-   checkEmail(String email, BuildContext context) async {
+  checkEmail(String email, BuildContext context) async {
     try {
       var response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/reged/'),
@@ -77,7 +83,7 @@ class AuthController extends ChangeNotifier {
             message: 'Имейл хаяг бүртгэлгүй байна!',
             context: context,
           );
-        } 
+        }
         // else {
         //   if (email == emailController.text && isPasswordCreated) {
         //     notifyListeners();
@@ -135,11 +141,11 @@ class AuthController extends ChangeNotifier {
         await prefs.setString('userrole', decodedToken['role']);
         decodedToken['supplier'] != null
             ? await prefs.setInt('suppID', decodedToken['supplier'])
-            : message(
-                message: 'Нийлүүлэгч сонгоно уу!', context: context);
+            : message(message: 'Нийлүүлэгч сонгоно уу!', context: context);
         final shoppingCart =
             Provider.of<BasketProvider>(context, listen: false);
         shoppingCart.getBasket();
+        tokerRefresher();
         Hive.box('auth').put('role', decodedToken['role']);
         Future.delayed(const Duration(milliseconds: 100), () {
           switch (decodedToken['role']) {
@@ -151,6 +157,16 @@ class AuthController extends ChangeNotifier {
               break;
             case 'D':
               gotoRemoveUntil(const JaggerHomePage(), context);
+            case 'A':
+              message(message: 'Веб хуудсаар хандана уу', context: context);
+            case 'B':
+              message(message: 'Веб хуудсаар хандана уу', context: context);
+            case 'P':
+              message(message: 'Веб хуудсаар хандана уу', context: context);
+            case 'PS':
+              message(message: 'Веб хуудсаар хандана уу', context: context);
+            case 'PM':
+              message(message: 'Веб хуудсаар хандана уу', context: context);
           }
         });
         debugPrint(accessToken);
@@ -176,18 +192,18 @@ class AuthController extends ChangeNotifier {
               message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
               context: context);
         } else if (checker(res, 'email', context)) {
-          message(
-              context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
+          message(context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
         }
       } else if (responseLogin.statusCode == 401) {
-        await showDialog(
-          context: context,
-          builder: (context) {
-            return CreatePassDialog(
-              email: email,
-            );
-          },
-        );
+        goto(CreatePassword(email: email), context);
+        // await showDialog(
+        //   context: context,
+        //   builder: (context) {
+        //     return CreatePassDialog(
+        //       email: email,
+        //     );
+        //   },
+        // );
       } else {
         {
           message(
@@ -196,8 +212,7 @@ class AuthController extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      message(
-          message: 'Интернет холболтоо шалгана уу!', context: context);
+      message(message: 'Интернет холболтоо шалгана уу!', context: context);
       debugPrint('error================= on login> ${e.toString()} ');
     }
   }
@@ -243,8 +258,7 @@ class AuthController extends ChangeNotifier {
       );
       notifyListeners();
       if (response.statusCode == 200) {
-        message(
-            message: 'Батлагаажуулах код илгээлээ!', context: context);
+        message(message: 'Батлагаажуулах код илгээлээ!', context: context);
         notifyListeners();
       }
     } catch (e) {
@@ -278,13 +292,11 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (response.statusCode == 200) {
         gotoRemoveUntil(const LoginPage(), context);
-        message(
-            message: 'Бүртгэл амжилттай үүслээ', context: context);
+        message(message: 'Бүртгэл амжилттай үүслээ', context: context);
         notifyListeners();
       }
       if (response.statusCode == 500) {
-        message(
-            message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+        message(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
         notifyListeners();
       }
     } catch (e) {
@@ -293,7 +305,8 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> resetPassOtp(String email, BuildContext context) async {
+  Future resetPassOtp(
+      {required String email, required BuildContext context}) async {
     try {
       final response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/get_otp/'),
@@ -306,22 +319,25 @@ class AuthController extends ChangeNotifier {
       );
       notifyListeners();
       if (response.statusCode == 200) {
-        message(
-            context: context, message: 'Батлагаажуулах код илгээлээ');
+        message(context: context, message: 'Батлагаажуулах код илгээлээ');
         notifyListeners();
+        return true;
       } else {
         message(message: 'Амжилтгүй!', context: context);
         notifyListeners();
+        return false;
       }
-      notifyListeners();
     } catch (e) {
       message(context: context, message: 'Амжилтгүй!');
+      return false;
     }
-    notifyListeners();
   }
 
-  Future<void> createPassword(String email, String otp, String newPassword,
-      BuildContext context) async {
+  Future<void> createPassword(
+      {required String email,
+      required String otp,
+      required String newPassword,
+      required BuildContext context}) async {
     try {
       final response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/reset/'),
@@ -336,72 +352,13 @@ class AuthController extends ChangeNotifier {
       );
       notifyListeners();
       if (response.statusCode == 200) {
-        message(
-            message: 'Нууц үг амжилттай үүслээ', context: context);
+        message(message: 'Нууц үг амжилттай үүслээ', context: context);
+        goto(const LoginPage(), context);
         notifyListeners();
       }
     } catch (e) {
       message(message: 'Амжилтгүй!', context: context);
     }
     notifyListeners();
-  }
-
-  void showFailedDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 50, vertical: 100),
-              child: Container(
-                height: 250,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    const Text(
-                      'Таний эрх хүрэхгүй байна!',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.primary,
-                        decoration: TextDecoration.none,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const Icon(Icons.error_sharp,
-                        color: AppColors.secondary, size: 50),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            side:
-                                const BorderSide(color: Colors.grey, width: 2),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            'Хаах',
-                            style: TextStyle(color: Colors.black87),
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            )
-          ],
-        );
-      },
-    );
   }
 }

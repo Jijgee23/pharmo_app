@@ -159,11 +159,9 @@ class JaggerProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         debugPrint(response);
-        message(
-            message: '$response цагт түгээлт эхлэлээ', context: context);
+        message(message: '$response цагт түгээлт эхлэлээ', context: context);
       } else {
-        message(
-            message: 'Түгээлт эхлэхэд алдаа гарлаа', context: context);
+        message(message: 'Түгээлт эхлэхэд алдаа гарлаа', context: context);
       }
     } catch (e) {
       return {'fail': e};
@@ -186,8 +184,7 @@ class JaggerProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         message(message: 'Түгээлт дууслаа.', context: context);
       } else {
-        message(
-            message: 'Түгээлт дуусгахад алдаа гарлаа.', context: context);
+        message(message: 'Түгээлт дуусгахад алдаа гарлаа.', context: context);
       }
     } catch (e) {
       return {'fail': e};
@@ -202,8 +199,7 @@ class JaggerProvider extends ChangeNotifier {
           body: jsonEncode({"note": note, "amount": amount}));
       if (res.statusCode == 201) {
         await getExpenses();
-        message(
-            message: 'Түгээлтийн зарлага нэмэгдлээ.', context: context);
+        message(message: 'Түгээлтийн зарлага нэмэгдлээ.', context: context);
       } else {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         message(message: response['message'], context: context);
@@ -290,8 +286,7 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-
-  updateQTY(int itemId, int qty,BuildContext context) async {
+  updateQTY(int itemId, int qty, BuildContext context) async {
     try {
       String bearerToken = await getAccessToken();
       var res = await http.patch(setUrl('update_item_qty/'),
@@ -402,7 +397,7 @@ class JaggerProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ships = data['results'];
-        debugPrint('ships: ${ships[0]}');
+        // debugPrint('ships: ${ships[0]}');
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
         notifyListeners();
       }

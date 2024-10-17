@@ -19,6 +19,7 @@ import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/views/auth/login_page.dart';
 import 'package:provider/provider.dart';
+import 'package:upgrader/upgrader.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,7 +79,15 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: null,
-      home: const LoginPage(),
+      home: Scaffold(
+        body: UpgradeAlert(
+          showIgnore: false,
+          showReleaseNotes: false,
+          dialogStyle: UpgradeDialogStyle.cupertino,
+          upgrader: Upgrader(languageCode: 'mn'),
+          child: const LoginPage(),
+        ),
+      ),
     );
   }
 }

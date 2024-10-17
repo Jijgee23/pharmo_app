@@ -8,7 +8,6 @@ class LogoutDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
-    //  final size = MediaQuery.of(context).size;
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: AlertDialog(

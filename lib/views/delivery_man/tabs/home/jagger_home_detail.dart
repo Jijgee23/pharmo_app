@@ -55,43 +55,33 @@ class JaggerHomeDetail extends StatelessWidget {
           row(title: 'Нэр:', value: ord.itemName.toString()),
           row(title: 'Үнэ:', value: '${ord.itemPrice} ₮'),
           row(title: 'Нийт дүн:', value: '${ord.itemTotalPrice} ₮'),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 2.5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                    child: Text('Тоо ширхэг',
-                        style: TextStyle(color: Colors.grey.shade900))),
-                Expanded(
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: TextField(
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade700),
-                        textAlign: TextAlign.right,
-                        onSubmitted: (value) {
-                          if (ord.itemQTy != int.parse(value) &&
-                              value.isNotEmpty) {
-                            provider.updateQTY(
-                                ord.itemId, int.parse(value), context);
-                          }
-                        },
-                        decoration: const InputDecoration(
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          border: InputBorder.none,
-                        ),
-                        controller:
-                            TextEditingController(text: ord.itemQTy.toString()),
-                      )),
-                )
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                  child: Text('Тоо ширхэг',
+                      style: TextStyle(color: Colors.grey.shade900))),
+              Expanded(
+                child: TextField(
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                  textAlign: TextAlign.right,
+                  onSubmitted: (value) {
+                    if (ord.itemQTy != int.parse(value) && value.isNotEmpty) {
+                      provider.updateQTY(ord.itemId, int.parse(value), context);
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    border: InputBorder.none,
+                  ),
+                  controller:
+                      TextEditingController(text: ord.itemQTy.toString()),
+                ),
+              )
+            ],
           ),
         ],
       ),

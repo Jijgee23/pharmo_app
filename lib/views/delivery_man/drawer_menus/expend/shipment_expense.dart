@@ -44,12 +44,12 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
         onPressed: () => addExpense(),
       ),
       body: FutureBuilder(
-        future: getExpenses(), 
+        future: getExpenses(),
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: MyIndicator()); 
+            return const Center(child: MyIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}')); 
+            return Center(child: Text('Error: ${snapshot.error}'));
           } else {
             return Consumer<JaggerProvider>(builder: (context, provider, _) {
               final jaggerOrders = provider.jaggerOrders.isNotEmpty
@@ -58,55 +58,64 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
               return RefreshIndicator(
                 onRefresh: () => Future.sync(() => provider.getExpenses()),
                 child: jaggerOrders != null && jaggerOrders.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: jaggerOrders.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.grey.shade700),
-                            ),
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 2.5, horizontal: 10),
-                            padding: const EdgeInsets.all(10),
-                            child: InkWell(
-                              splashColor: AppColors.soft4,
-                              onTap: () => {},
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        jaggerOrders[index].note.toString(),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18.0),
-                                      ),
-                                      InkWell(
-                                          onTap: () {
-                                            note.text = jaggerOrders[index].note!;
-                                            amount.text = jaggerOrders[index].amount.toString();
-                                            editExpense(context, jaggerOrders[index]);
-                                          },
-                                          child: const Text(
-                                            'Засах',
-                                            style: TextStyle(
-                                                color: AppColors.main),
-                                          )),
-                                    ],
+                    ? Scrollbar(
+                        thickness: 1.5,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: jaggerOrders
+                                .map(
+                                  (el) => Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: Colors.grey.shade400,
+                                              blurRadius: 3)
+                                        ]),
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 5, horizontal: 10),
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              el.note.toString(),
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18.0),
+                                            ),
+                                            InkWell(
+                                                onTap: () {
+                                                  note.text = el.note!;
+                                                  amount.text =
+                                                      el.amount.toString();
+                                                  editExpense(context, el);
+                                                },
+                                                child: const Text(
+                                                  'Засах',
+                                                  style: TextStyle(
+                                                      color: AppColors.main),
+                                                )),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 5),
+                                        myRow('Дүн:', '${el.amount} ₮'),
+                                        myRow(
+                                            'Огноо:', el.createdOn.toString()),
+                                      ],
+                                    ),
                                   ),
-                                  const SizedBox(height: 5),
-                                  myRow('Дүн:', '${jaggerOrders[index].amount} ₮'),
-                                  myRow('Огноо:', jaggerOrders[index].createdOn.toString()),
-                                ],
-                              ),
-                            ),
-                          );
-                        })
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      )
                     : const Center(child: NoResult()),
               );
             });
@@ -198,7 +207,9 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
             Constants.boxV10,
             ...children,
             Constants.boxV10,

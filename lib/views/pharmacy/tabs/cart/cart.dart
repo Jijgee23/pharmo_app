@@ -35,12 +35,13 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
       basketProvider.getBasket();
     }
 
-    return Scaffold(
-      body: Consumer<BasketProvider>(
-        builder: (context, provider, _) {
-          final cartDatas = provider.shoppingCarts;
-          final basket = provider.basket;
-          return Column(
+    return Consumer<BasketProvider>(
+      builder: (context, provider, _) {
+        final cartDatas = provider.shoppingCarts;
+        final basket = provider.basket;
+        return Container(
+          margin: const EdgeInsets.only(bottom: kToolbarHeight),
+          child: Column(
             children: [
               Expanded(
                 child: Column(
@@ -56,61 +57,63 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                               },
                             ),
                           )
-                        : const EmptyBasket()
+                        : const Center(child: EmptyBasket())
                   ],
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                margin: const EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border(
-                    top: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                      style: BorderStyle.solid,
-                    ),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        info(
-                            title: 'Төлөх дүн',
-                            text: '${basket.totalPrice ?? 0} ₮'),
-                        info(
-                            title: 'Тоо ширхэг',
-                            text: '${basket.totalCount ?? 0}')
-                      ],
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(top: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              (cartDatas.isEmpty)
+                  ? const SizedBox()
+                  : Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5.0, horizontal: 15.0),
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.grey.shade400,
+                            width: 1.0,
+                            style: BorderStyle.solid,
+                          ),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Button(
-                              text: 'Сагс хоослох',
-                              onTap: () => clearBasket(basket.id),
-                              color: AppColors.primary),
-                          Button(
-                              text: 'Захиалга үүсгэх',
-                              onTap: () => gotoBranch(context),
-                              color: AppColors.primary),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              info(
+                                  title: 'Төлөх дүн',
+                                  text: '${basket.totalPrice ?? 0} ₮'),
+                              info(
+                                  title: 'Тоо ширхэг',
+                                  text: '${basket.totalCount ?? 0}')
+                            ],
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(top: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Button(
+                                    text: 'Сагс хоослох',
+                                    onTap: () => clearBasket(basket.id),
+                                    color: AppColors.primary),
+                                Button(
+                                    text: 'Захиалга үүсгэх',
+                                    onTap: () => gotoBranch(context),
+                                    color: AppColors.primary),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -118,8 +121,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
     if (basketProvider.basket.totalCount == 0) {
       message(message: 'Сагс хоосон байна!', context: c);
     } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
-      message(
-          message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: c);
+      message(message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: c);
     } else {
       goto(const SelectBranchPage(), c);
     }

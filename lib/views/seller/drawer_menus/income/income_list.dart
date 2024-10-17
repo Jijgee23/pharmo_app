@@ -371,8 +371,8 @@ class _IncomeWidgetState extends State<IncomeWidget> {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: Colors.grey.shade700),
-          borderRadius: BorderRadius.circular(10)),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 3)]),
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,7 +381,8 @@ class _IncomeWidgetState extends State<IncomeWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(widget.income.note.toString(),
-                  style: const TextStyle(fontSize: 16, color: Colors.red)),
+                  style: const TextStyle(
+                      fontSize: 16, color: AppColors.secondary)),
               InkWell(
                 splashColor: Colors.green.shade700,
                 onTap: () => setState(() {
@@ -412,7 +413,8 @@ class _IncomeWidgetState extends State<IncomeWidget> {
                 ),
           InkWell(
             onTap: widget.ontap,
-            child: const Text('Засах', style: TextStyle(color: Colors.green)),
+            child:
+                const Text('Засах', style: TextStyle(color: AppColors.primary)),
           )
         ],
       ),

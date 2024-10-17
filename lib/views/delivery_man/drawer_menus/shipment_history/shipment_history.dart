@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/shipment.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:provider/provider.dart';
 
 class ShipmentHistory extends StatefulWidget {
@@ -47,7 +48,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
     return Consumer<JaggerProvider>(
       builder: (_, provider, child) {
         return Scaffold(
-          appBar: _appBar(),
+          appBar: const SideMenuAppbar(title: 'Түгээлтийн түүх'),
           body: body(provider),
         );
       },
@@ -70,12 +71,17 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          OutlinedButton(
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all(AppColors.secondary),
-            ),
-            onPressed: provider.getShipmentHistory,
-            child: const Text('Бүгд', style: TextStyle(color: Colors.white)),
+          InkWell(
+            onTap: provider.getShipmentHistory,
+            child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(15)),
+                child: const Text('Бүгд',
+                    style:
+                        TextStyle(color: AppColors.cleanWhite, fontSize: 16))),
           ),
           provider.selecterFilter,
         ],
@@ -383,88 +389,6 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
     );
   }
 
-  showDetail(Shipment shipment) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.3,
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Text('Түгээлтийн дэлгэрэнгүй'),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Үүссэн огноо'),
-                      Text('Эхлэсэн огноо'),
-                      Text('Дуусах огноо'),
-                      Text('Тоо ширхэг'),
-                      Text('Явц'),
-                      Text('Нийлүүлэгч'),
-                      Text('Түгээгч'),
-                      Text('Хугацаа'),
-                      Text('Зарлагын дүн')
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(shipment.createdOn ?? '-'),
-                      Text(shipment.startTime ?? '-'),
-                      Text(shipment.endTime ?? '-'),
-                      Text(shipment.ordersCnt != null
-                          ? shipment.ordersCnt.toString()
-                          : '-'),
-                      Text(shipment.progress != null
-                          ? "${shipment.progress.toString()} %"
-                          : '0 %'),
-                      Text(shipment.supplier != null
-                          ? shipment.delman.toString()
-                          : '-'),
-                      Text(shipment.delman != null
-                          ? shipment.delman.toString()
-                          : '-'),
-                      Text(shipment.duration != null
-                          ? shipment.duration.toString()
-                          : '-'),
-                      Text(shipment.expense != null
-                          ? shipment.expense.toString()
-                          : '-'),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget button(String title, VoidCallback onPressed) {
-    return InkWell(
-      onTap: onPressed,
-      child: Container(
-        height: 30,
-        width: 60,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: AppColors.secondary,
-        ),
-        child: Text(title),
-      ),
-    );
-  }
-
   filterButton(VoidCallback onPressed) {
     return OutlinedButton(
       style: ButtonStyle(
@@ -475,20 +399,6 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
         'Шүүх',
         style: TextStyle(color: Colors.white),
       ),
-    );
-  }
-
-  _appBar() {
-    return AppBar(
-      leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.chevron_left)),
-      toolbarHeight: 30,
-      title: const Text(
-        'Түгээлтийн түүх',
-        style: TextStyle(fontSize: 14),
-      ),
-      centerTitle: true,
     );
   }
 }
@@ -509,10 +419,12 @@ class _ShipmentBuilderState extends State<ShipmentBuilder> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey, width: 1),
+        boxShadow: [
+          BoxShadow(color: Colors.grey.shade500, blurRadius: 3),
+        ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      margin: const EdgeInsets.symmetric(vertical: 2.5),
+      margin: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 5),
       child: InkWell(
         onTap: () => setState(() => isExpanded = !isExpanded),
         child: Column(
@@ -575,7 +487,7 @@ class _ShipmentBuilderState extends State<ShipmentBuilder> {
         Text(title, style: TextStyle(color: Colors.grey.shade700)),
         Text(value,
             style: const TextStyle(
-                color: AppColors.primary, fontWeight: FontWeight.bold))
+                color: AppColors.secondary, fontWeight: FontWeight.bold))
       ],
     );
   }

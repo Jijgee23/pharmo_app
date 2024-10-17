@@ -53,13 +53,15 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final orientation = MediaQuery.of(context).orientation;
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthController>(
-            create: (context) => AuthController()),
+            create: (context) => AuthController())
       ],
       child: Consumer<AuthController>(builder: (context, authController, _) {
         return Scaffold(
+          extendBody: true,
           drawer: MediaQuery.removePadding(
             context: context,
             removeTop: true,
@@ -108,23 +110,36 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
             title: (_selectedIndex == 0) ? 'Өнөөдрийн түгээлтүүд' : 'Зарлагууд',
           ),
           body: _pages[_selectedIndex],
-          bottomNavigationBar: BottomNavigationBar(
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-            items: const [
-              BottomNavigationBarItem(
-                icon: NavBarIcon(url: 'truck-side'),
-                label: 'Түгээлт',
+          bottomNavigationBar: Container(
+            margin: EdgeInsets.symmetric(
+                vertical: 10,
+                horizontal: (orientation == Orientation.portrait)
+                    ? size.width * 0.33
+                    : size.width * 0.4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: BottomNavigationBar(
+                showSelectedLabels: false,
+                backgroundColor: AppColors.primary,
+                showUnselectedLabels: false,
+                type: BottomNavigationBarType.fixed,
+                currentIndex: _selectedIndex,
+                onTap: _onItemTapped,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: NavBarIcon(url: 'truck-side'),
+                    label: 'Түгээлт',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: NavBarIcon(url: 'expense'),
+                    label: 'Зарлагууд',
+                  ),
+                ],
               ),
-              BottomNavigationBarItem(
-                icon: NavBarIcon(url: 'expense'),
-                label: 'Зарлагууд',
-              ),
-            ],
-            selectedItemColor: AppColors.primary,
+            ),
           ),
         );
       }),

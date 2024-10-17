@@ -25,4 +25,8 @@ class Constants {
       bottom: BorderSide(color: Colors.grey, width: 1),
     ),
   );
+  static final defaultShadow = BoxShadow(
+    color: Colors.grey.shade500,
+    blurRadius: 3,
+  );
 }

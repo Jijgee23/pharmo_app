@@ -6,7 +6,7 @@ class MyOrderDetailModel {
   int? itemQty;
   int? rQty;
   int? iQty;
-  Map<String,dynamic>? product;
+  int? product;
 
   MyOrderDetailModel(
     this.itemId,

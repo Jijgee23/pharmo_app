@@ -26,10 +26,11 @@ final lightTheme = ThemeData(
     ),
   ),
   checkboxTheme: CheckboxThemeData(
-    checkColor: WidgetStateProperty.all(AppColors.primary),
-    overlayColor: WidgetStateProperty.all(AppColors.primary),
-    side:const BorderSide(color: AppColors.primary, width: 1),
-    fillColor:const WidgetStatePropertyAll(AppColors.cleanWhite)
-  ),
-  fontFamily: 'Inter'
+      checkColor: WidgetStateProperty.all(AppColors.primary),
+      overlayColor: WidgetStateProperty.all(AppColors.primary),
+      side: const BorderSide(color: AppColors.primary, width: 1),
+      fillColor: const WidgetStatePropertyAll(AppColors.cleanWhite)),
+  fontFamily: 'Inter',
+  splashColor: Colors.transparent,
+  highlightColor: Colors.transparent,
 );

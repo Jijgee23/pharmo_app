@@ -53,6 +53,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    final orientation = MediaQuery.of(context).orientation;
     final basketProvider = Provider.of<BasketProvider>(context);
     final homePrvdr = Provider.of<HomeProvider>(context);
     return Consumer<HomeProvider>(
@@ -60,6 +61,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
         var textStyle =
             TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0);
         return Scaffold(
+          extendBody: true,
           resizeToAvoidBottomInset: false,
           appBar: homeProvider.invisible
               ? null
@@ -174,7 +176,8 @@ class _SellerHomePageState extends State<SellerHomePage> {
           ),
           body: NotificationListener<UserScrollNotification>(
             onNotification: (notification) {
-              if (notification.direction == ScrollDirection.reverse) {
+              if (notification.direction == ScrollDirection.reverse &&
+                  homeProvider.currentIndex == 1) {
                 setState(() => homeProvider.invisible = true);
               } else if (notification.direction == ScrollDirection.forward) {
                 setState(() => homeProvider.invisible = false);
@@ -185,14 +188,28 @@ class _SellerHomePageState extends State<SellerHomePage> {
           ),
           bottomNavigationBar: homeProvider.invisible
               ? null
-              : BottomNavigationBar(
-                  selectedItemColor: AppColors.primary,
-                  currentIndex: homeProvider.currentIndex,
-                  onTap: homeProvider.changeIndex,
-                  showSelectedLabels: false,
-                  showUnselectedLabels: false,
-                  type: BottomNavigationBarType.fixed,
-                  items: navBarItems,
+              : Container(
+                  margin: EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: (orientation == Orientation.portrait)
+                          ? size.width * 0.2
+                          : size.width / 3),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: BottomNavigationBar(
+                      backgroundColor: AppColors.primary,
+                      selectedItemColor: AppColors.primary,
+                      currentIndex: homeProvider.currentIndex,
+                      onTap: homeProvider.changeIndex,
+                      showSelectedLabels: false,
+                      showUnselectedLabels: false,
+                      type: BottomNavigationBarType.fixed,
+                      items: navBarItems,
+                    ),
+                  ),
                 ),
         );
       },

@@ -20,10 +20,11 @@ class Button extends StatelessWidget {
           borderRadius: BorderRadius.circular(25),
           border: Border.all(color: Colors.white)),
       child: InkWell(
-        onTap: onTap ?? () => Navigator.pop(context) ,
+        onTap: onTap ?? () => Navigator.pop(context),
         splashColor: Colors.white,
         child: Center(
-          child: Text(text, style: const TextStyle(color: Colors.white)),
+          child: Text(text,
+              style: const TextStyle(color: Colors.white, fontSize: 16)),
         ),
       ),
     );

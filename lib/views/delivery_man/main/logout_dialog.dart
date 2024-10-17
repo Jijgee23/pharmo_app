@@ -4,7 +4,6 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 
-
 void showLogoutDialog(BuildContext context) {
   Widget button(String text, VoidCallback onPressed) {
     return SizedBox(
@@ -14,8 +13,7 @@ void showLogoutDialog(BuildContext context) {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           decoration: BoxDecoration(
-            color: AppColors.primary,
-              border: Border.all(color: Colors.grey.shade700),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(15)),
           child: Center(
             child: Text(
@@ -34,7 +32,6 @@ void showLogoutDialog(BuildContext context) {
       return Dialog(
         backgroundColor: AppColors.cleanWhite,
         child: Container(
-
           padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),

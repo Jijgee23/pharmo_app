@@ -136,7 +136,22 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                 a,
                 CustomButton(
                   text: 'Бүртгэх',
-                  ontap: () => registerPharm(context),
+                  ontap: () {
+                    if (emailController.text.isEmpty ||
+                        cNameController.text.isEmpty ||
+                        emailController.text.isEmpty ||
+                        phoneController.text.isEmpty ||
+                        detailedController.text.isEmpty ||
+                        provinceId == 0 ||
+                        districtId == 0 ||
+                        khorooId == 0) {
+                      message(
+                          message: 'Бүртгэлийн хэсгийг гүйцээнэ үү!',
+                          context: context);
+                    } else {
+                      registerPharm(context);
+                    }
+                  },
                 ),
               ],
             ),
@@ -275,8 +290,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     return GestureDetector(
       onTap: () {
         if (addressProvider.selectedDistrict == 0) {
-          message(
-              message: 'Сум/Дүүрэг сонгоно уу.', context: context);
+          message(message: 'Сум/Дүүрэг сонгоно уу.', context: context);
         } else {
           showDialog(
             context: context,
@@ -402,8 +416,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         });
       }
     } catch (e) {
-      message(
-          context: context, message: 'Интернет холболтоо шалгана уу!');
+      message(context: context, message: 'Интернет холболтоо шалгана уу!');
     }
   }
 }

@@ -106,6 +106,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final orientation = MediaQuery.of(context).orientation;
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthController>(
@@ -114,6 +115,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
       child: Consumer3<AuthController, HomeProvider, BasketProvider>(
         builder: (context, authController, homeProvider, basketProvider, _) {
           return Scaffold(
+            extendBody: true,
             drawer: Drawer(
               elevation: 0,
               backgroundColor: Colors.white,
@@ -178,7 +180,8 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                   ),
             body: NotificationListener<UserScrollNotification>(
               onNotification: (notification) {
-                if (notification.direction == ScrollDirection.reverse) {
+                if (notification.direction == ScrollDirection.reverse &&
+                    homeProvider.currentIndex == 0) {
                   setState(() => hidden = true);
                 } else if (notification.direction == ScrollDirection.forward) {
                   setState(() => hidden = false);
@@ -187,32 +190,42 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
               },
               child: _pages[homeProvider.currentIndex],
             ),
-            bottomNavigationBar: hidden
-                ? null
-                : BottomNavigationBar(
-                    currentIndex: homeProvider.currentIndex,
-                    useLegacyColorScheme: false,
-                    showUnselectedLabels: false,
-                    type: BottomNavigationBarType.fixed,
-                    onTap: homeProvider.changeIndex,
-                    showSelectedLabels: true,
-                    selectedLabelStyle:
-                        const TextStyle(color: AppColors.primary),
-                    items: const [
-                      BottomNavigationBarItem(
-                        icon: NavBarIcon(url: 'category'),
-                        label: 'Нүүр',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: NavBarIcon(url: 'bars-sort'),
-                        label: 'Ангилал',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: NavBarIcon(url: 'cart'),
-                        label: 'Сагс',
-                      ),
-                    ],
-                  ),
+            bottomNavigationBar: Container(
+              margin: EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: (orientation == Orientation.portrait)
+                      ? size.width * 0.25
+                      : size.width / 3),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: BottomNavigationBar(
+                  backgroundColor: AppColors.primary,
+                  currentIndex: homeProvider.currentIndex,
+                  useLegacyColorScheme: false,
+                  showUnselectedLabels: false,
+                  showSelectedLabels: false,
+                  type: BottomNavigationBarType.fixed,
+                  onTap: homeProvider.changeIndex,
+                  items: const [
+                    BottomNavigationBarItem(
+                      icon: NavBarIcon(url: 'category'),
+                      label: 'Нүүр',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: NavBarIcon(url: 'bars-sort'),
+                      label: 'Ангилал',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: NavBarIcon(url: 'cart'),
+                      label: 'Сагс',
+                    ),
+                  ],
+                ),
+              ),
+            ),
           );
         },
       ),

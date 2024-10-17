@@ -108,12 +108,14 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                   String password2 = newPasswordController.text;
                   String otp = otpController.text;
                   if (password.isEmpty) {
-                    message(
-                        context: context, message: 'Нууц үг оруулна уу');
+                    message(context: context, message: 'Нууц үг оруулна уу');
                   }
-                  if (password == password2 && password2.isNotEmpty && password.isNotEmpty) {
+                  if (password == password2 &&
+                      password2.isNotEmpty &&
+                      password.isNotEmpty) {
                     if (!authController.invisible2) {
-                      authController.resetPassOtp(email, context);
+                      authController.resetPassOtp(
+                          email: email, context: context);
                       setState(() {
                         authController.toggleVisibile2();
                       });
@@ -124,7 +126,10 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                             message: 'Батлагаажуулах код орууна уу');
                       }
                       authController.createPassword(
-                          email, otp, password, context);
+                          email: email,
+                          otp: otp,
+                          newPassword: password,
+                          context: context);
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => const LoginPage()),

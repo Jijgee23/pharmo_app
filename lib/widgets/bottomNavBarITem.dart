@@ -10,7 +10,7 @@ class NavBarIcon extends StatelessWidget {
     return Image.asset(
       'assets/icons_2/$url.png',
       height: 20,
-      color: AppColors.primary,
+      color: AppColors.cleanWhite,
     );
   }
 }

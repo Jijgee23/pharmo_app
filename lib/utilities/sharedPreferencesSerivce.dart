@@ -16,7 +16,7 @@ class SharedPreferencesSerivce {
     return prefs.getString(key);
   }
 
-  Future clearCach() async {
+  Future clearCache() async {
     // final SharedPreferences prefs = await SharedPreferences.getInstance();
     // prefs.clear();
     SharedPreferences prefs = getInstance();
