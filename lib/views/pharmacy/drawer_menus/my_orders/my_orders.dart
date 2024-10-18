@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
@@ -192,7 +195,6 @@ class _MyOrderState extends State<MyOrder> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        //const Text('Шүүх төрлөө сонгоно уу:'),
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 10),
                           decoration: BoxDecoration(
@@ -239,7 +241,6 @@ class _MyOrderState extends State<MyOrder> {
                     const SizedBox(
                       height: 10,
                     ),
-                    //  Text('$_selected сонгоно уу:'),
                     _selectedFilter != ''
                         ? Container(
                             margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -322,8 +323,14 @@ class _MyOrderState extends State<MyOrder> {
               ),
               Expanded(
                 child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                        boxShadow: [Constants.defaultShadow],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
                     child: orders != null && orders.isNotEmpty
                         ? RefreshIndicator(
                             onRefresh: () async {
@@ -367,106 +374,137 @@ class _MyOrderState extends State<MyOrder> {
   Widget orderWidget(
       {required MyOrderModel order, required MyOrderProvider provider}) {
     return InkWell(
-      onTap: () {
-        showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              );
-            },);
-        // print(order.process);
-        // goto(
-        //     MyOrderDetail(
-        //       id: order.id,
-        //       orderNo: order.orderNo.toString(),
-        //       process: getProcessNumber(order.process!),
-        //     ),
-        //     context);
-      },
+      onTap: () => goto(
+          MyOrderDetail(
+            id: order.id,
+            order: order,
+            orderNo: order.orderNo.toString(),
+            process: getProcessNumber(order.process!),
+          ),
+          context),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade700,
-              blurRadius: 3,
-            )
-          ],
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [Constants.defaultShadow],
         ),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Column(
                   children: [
-                    Text('Захиалгын дугаар:'),
-                    Text('Захиалгын төлөв:'),
-                    Text('Тоо ширхэг:'),
-                    Text('Нийт үнэ:'),
+                    Text(
+                      'Дугаар',
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    Text(
+                      order.orderNo.toString(),
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+
+                Column(
+                  children: [
+                    Text(
+                      'Дүн',
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    Text(
+                      '${order.totalPrice.toString()} ₮',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      order.orderNo.toString(),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
-                    ),
-                    Text(order.status.toString(),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.mainDark)),
-                    Text(order.totalCount.toString(),
-                        style: const TextStyle(
+                      'Огноо',
+                      style: TextStyle(
+                          fontSize: 10,
                           fontWeight: FontWeight.bold,
-                        )),
+                          color: Colors.grey),
+                    ),
                     Text(
-                      '${order.totalPrice} ₮',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.red),
+                      order.createdOn.toString().substring(0, 10),
+                      style:
+                      TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ],
-                ),
+                )
               ],
             ),
             const SizedBox(
               height: 10,
             ),
-            (order.process == 'Бэлэн болсон' ||
-                    order.process == 'Түгээлтэнд гарсан')
-                ? InkWell(
-                    onTap: () {
-                      provider.confirmOrder(order.id, context);
-                      // .then((e) => getData());
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: AppColors.main,
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                          ),
-                          borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      child: const Center(
-                        child: Text(
-                          'Батлагаажуулах',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Төлөв',
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
                     ),
-                  )
-                : const SizedBox(),
+                    Text(
+                      order.status!,
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                (order.process == 'Бэлэн болсон' ||
+                        order.process == 'Түгээлтэнд гарсан')
+                    ? InkWell(
+                        onTap: () {
+                          provider.confirmOrder(order.id, context);
+                          // .then((e) => getData());
+                        },
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: IntrinsicWidth(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  borderRadius: BorderRadius.circular(20)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 10),
+                              child: const Center(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Батлагаажуулах',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          letterSpacing: 1,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+              ],
+            ),
           ],
         ),
       ),

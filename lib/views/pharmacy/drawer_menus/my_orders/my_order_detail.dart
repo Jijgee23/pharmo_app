@@ -1,15 +1,23 @@
+import 'package:easy_stepper/easy_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
+import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:provider/provider.dart';
 
 class MyOrderDetail extends StatefulWidget {
   final int id;
+  final MyOrderModel order;
   final String orderNo;
   final int? process;
   const MyOrderDetail(
-      {super.key, required this.id, required this.orderNo, this.process});
+      {super.key,
+      required this.id,
+      required this.order,
+      required this.orderNo,
+      this.process});
 
   @override
   State<MyOrderDetail> createState() => _MyOrderDetailState();
@@ -24,36 +32,6 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     super.initState();
   }
 
-  custom(String text, int index) {
-    bool selected = widget.process == index;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              color: (selected) ? Colors.tealAccent : Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(20)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                text,
-                style: const TextStyle(color: Colors.black),
-              ),
-              const SizedBox(width: 10),
-            ],
-          ),
-        ),
-        Icon(
-          (index == 4) ? null : Icons.arrow_downward,
-          color: Colors.black,
-        )
-      ],
-    );
-  }
-
   List<String> processes = [
     'Шинэ',
     'Бэлтгэж эхэлсэн',
@@ -61,82 +39,168 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     'Түгээлтэнд гарсан',
     'Хүргэгдсэн'
   ];
-  bool isList = false;
-  btn(String t, bool v) {
-    bool selected = (isList == v);
-    return InkWell(
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      onTap: () => setState(() {
-        isList = v;
-      }),
-      child: Container(
-        width: 150,
-        padding: const EdgeInsets.symmetric(
-          vertical: 5,
-          horizontal: 20,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: selected ? Colors.transparent : AppColors.primary,
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<MyOrderProvider>(
+      builder: (context, provider, child) {
+        return Scaffold(
+          backgroundColor: AppColors.primary,
+          extendBody: true,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.chevron_left),
+                      ),
+                      Constants.boxH10,
+                      Text('Захиалгын дугаар: ${widget.orderNo}',
+                          style: const TextStyle(fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 7,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: AppColors.cleanWhite,
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(30),
+                      topLeft: Radius.circular(30),
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        box(
+                          child: EasyStepper(
+                            activeStep: widget.process!,
+                            showLoadingAnimation: false,
+                            activeStepBorderColor: Colors.green,
+                            activeStepBorderType: BorderType.normal,
+                            lineStyle: const LineStyle(
+                                lineType: LineType.normal,
+                                finishedLineColor: Colors.green),
+                            unreachedStepBackgroundColor: Colors.transparent,
+                            unreachedStepBorderColor: Colors.transparent,
+                            finishedStepBackgroundColor: Colors.transparent,
+                            borderThickness: 2,
+                            steps: [
+                              ...processes.map((p) =>
+                                  step(title: p, idx: processes.indexOf(p)))
+                            ],
+                          ),
+                        ),
+                        box(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              col(
+                                  t1: 'Дүн',
+                                  t2: '${widget.order.totalPrice.toString()} ₮'),
+                              col(
+                                  t1: 'Тоо ширхэг',
+                                  t2: widget.order.totalCount.toString()),
+                              col(
+                                  t1: 'Нийлүүлэгч',
+                                  t2: widget.order.supplier.toString()),
+                            ],
+                          ),
+                        ),
+                        box(
+                          child: Scrollbar(
+                            thickness: 1,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  ...provider.orderDetails.map(
+                                    (o) => productBuilder(o),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+        );
+      },
+    );
+  }
+
+  box({required Widget child}) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+          boxShadow: [Constants.defaultShadow],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20)),
+      child: child,
+    );
+  }
+
+  col({required String t1, required String t2}) {
+    return Column(
+      children: [
+        Text(
+          t1,
+          style: const TextStyle(
+              fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
         ),
-        child: Center(
-          child: Text(
-            t,
-          ),
+        Text(
+          t2,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  EasyStep step({required String title, required int idx}) {
+    bool reached = (widget.process == idx || widget.process! >= idx);
+    return EasyStep(
+      customStep: Image.asset(
+        reached ? 'assets/icons/check.png' : 'assets/icons/circle.png',
+        height: 30,
+      ),
+      customTitle: Center(
+        child: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<MyOrderProvider>(builder: (context, provider, child) {
-      return Scaffold(
-        extendBody: true,
-        appBar: AppBar(),
-        body: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                //   children: [btn('Бараанууд', false), btn('Явц', true)],
-                // ),
-                ...processes.map((p) => custom(p, processes.indexOf(p))),
-                Expanded(
-                  child: Scrollbar(
-                    thickness: 1,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          ...provider.orderDetails.map(
-                            (o) => productBuilder(o),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )),
-      );
-    });
-  }
-
   Container productBuilder(MyOrderDetailModel o) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      margin:const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 5)],
-          borderRadius: BorderRadius.circular(10)),
+        color: Colors.white,
+        boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 5)],
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

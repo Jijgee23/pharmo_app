@@ -44,7 +44,6 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
     homeProvider.getUserInfo();
     homeProvider.getPosition();
   }
-
   @override
   void dispose() {
     super.dispose();
