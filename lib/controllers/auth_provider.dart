@@ -2,6 +2,9 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive/hive.dart';
@@ -21,7 +24,10 @@ import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/auth/login_page.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../widgets/dialog_and_messages/create_pass_dialog.dart';
 
 class AuthController extends ChangeNotifier {
   bool invisible = true;
@@ -123,9 +129,6 @@ class AuthController extends ChangeNotifier {
           'password': password,
         }),
       );
-      print(
-          'STATUS: ${responseLogin.statusCode} BODY: ${jsonDecode(utf8.decode(responseLogin.bodyBytes))}');
-
       if (responseLogin.statusCode == 200) {
         final Map<String, dynamic> res = jsonDecode(responseLogin.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -168,7 +171,7 @@ class AuthController extends ChangeNotifier {
             case 'PM':
               message(message: 'Веб хуудсаар хандана уу', context: context);
           }
-        });
+        }).then((e) => getDeviceInfo());
         debugPrint(accessToken);
         notifyListeners();
       } else if (responseLogin.statusCode == 400) {
@@ -195,15 +198,15 @@ class AuthController extends ChangeNotifier {
           message(context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
         }
       } else if (responseLogin.statusCode == 401) {
-        goto(CreatePassword(email: email), context);
-        // await showDialog(
-        //   context: context,
-        //   builder: (context) {
-        //     return CreatePassDialog(
-        //       email: email,
-        //     );
-        //   },
-        // );
+        // goto(CreatePassword(email: email), context);
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return CreatePassDialog(
+              email: email,
+            );
+          },
+        );
       } else {
         {
           message(
@@ -360,5 +363,107 @@ class AuthController extends ChangeNotifier {
       message(message: 'Амжилтгүй!', context: context);
     }
     notifyListeners();
+  }
+
+  String firebaseToken = '';
+  getFireBaseToken(String newValue) {
+    firebaseToken = newValue;
+    notifyListeners();
+  }
+
+   getDeviceToken() async {
+    //request user permission for push notification
+    FirebaseMessaging.instance.requestPermission();
+    FirebaseMessaging firebaseMessage = FirebaseMessaging.instance;
+    String? deviceToken = await firebaseMessage.getToken();
+    // print('FIREBASE TOKEN: $deviceToken');
+    getFireBaseToken(deviceToken!);
+    return (deviceToken == null) ? "" : deviceToken;
+  }
+
+  init(BuildContext context) async {
+    String deviceToken = await getDeviceToken();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("access_token");
+    String bearerToken = "Bearer $token";
+    final response = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
+        headers: getHeader(bearerToken),
+        body: jsonEncode({"deviceId": deviceToken}));
+    if (response.statusCode == 200) {}
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
+      String? title = remoteMessage.notification!.title;
+      String? description = remoteMessage.notification!.body;
+      Alert(
+        context: context,
+        type: AlertType.info,
+        title: title,
+        desc: description,
+        buttons: [
+          DialogButton(
+            onPressed: () => Navigator.pop(context),
+            width: 120,
+            child: const Text(
+              "Хаах",
+              style: TextStyle(color: Colors.white, fontSize: 15),
+            ),
+          )
+        ],
+      ).show();
+    });
+  }
+
+  Future<Map<String, String>> getDeviceInfo() async {
+    final bearerToken = await getAccessToken();
+    await getDeviceToken();
+    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+    // print('FIREBASE TOKEN: =======> $firebaseToken');
+    Map<String, String> deviceData = {};
+    try {
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
+        deviceData = {
+          "deviceId": firebaseToken,
+          "platform": 'android',
+          "brand": androidInfo.brand,
+          "model": androidInfo.model,
+          "modelVersion": androidInfo.device,
+          "os": Platform.operatingSystem,
+          "osVersion": Platform.operatingSystemVersion,
+        };
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
+        deviceData = {
+          "deviceId": firebaseToken,
+          "platform": "ios",
+          "brand": "Apple",
+          "model": iosInfo.name,
+          "modelVersion": iosInfo.utsname.machine,
+          "os": "iOS",
+          "osVersion": iosInfo.systemVersion,
+        };
+      }
+      final response =
+      await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
+          headers: getHeader(bearerToken),
+          body: jsonEncode({
+            'deviceId': deviceData['deviceId'],
+            'platform': deviceData['platform'],
+            'brand': deviceData['brand'],
+            'model': deviceData['model'],
+            'modelVersion': deviceData['modelVersion'],
+            'os': deviceData['os'],
+            'osVersion': deviceData['osVersion'],
+          }));
+      if (response.statusCode == 200) {
+        debugPrint('Device info sent');
+      } else {
+        debugPrint('Device info not sent');
+      }
+      return deviceData;
+    } catch (e) {
+      debugPrint('$e');
+    }
+    return deviceData;
   }
 }

@@ -40,7 +40,6 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
   void initState() {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    homeProvider.getDeviceInfo();
     homeProvider.getUserInfo();
     homeProvider.getPosition();
   }

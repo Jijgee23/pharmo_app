@@ -7,6 +7,8 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../widgets/box.dart';
+
 class MyOrderDetail extends StatefulWidget {
   final int id;
   final MyOrderModel order;
@@ -85,7 +87,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        box(
+                        Box(
                           child: EasyStepper(
                             activeStep: widget.process!,
                             showLoadingAnimation: false,
@@ -104,7 +106,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
                             ],
                           ),
                         ),
-                        box(
+                        Box(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -120,7 +122,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
                             ],
                           ),
                         ),
-                        box(
+                        Box(
                           child: Scrollbar(
                             thickness: 1,
                             child: SingleChildScrollView(
@@ -146,20 +148,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     );
   }
 
-  box({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-          boxShadow: [Constants.defaultShadow],
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20)),
-      child: child,
-    );
-  }
-
-  col({required String t1, required String t2}) {
+  col({required String t1, required String t2, Color? t2Color}) {
     return Column(
       children: [
         Text(
@@ -169,7 +158,8 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
         ),
         Text(
           t2,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: 12, fontWeight: FontWeight.bold, color: t2Color),
         ),
       ],
     );
@@ -194,7 +184,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
   Container productBuilder(MyOrderDetailModel o) {
     return Container(
       width: double.infinity,
-      margin:const EdgeInsets.only(top: 10),
+      margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -204,10 +194,32 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Нэр: ${o.itemName.toString()}'),
-          Text('Үнэ: ${o.itemPrice.toString()}₮'),
-          Text('Тоо ширхэг ${o.iQty.toString()}'),
-          Text('Нийт үнэ: ${o.itemTotalPrice.toString()}₮'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                o.itemName.toString(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.secondary
+                ),
+              ),
+              col(
+                  t1: 'Нэгж үнэ',
+                  t2: '${o.itemPrice}₮',
+                  t2Color: AppColors.primary),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              col(t1: 'Тоо ширхэг', t2: o.iQty.toString()),
+              col(
+                  t1: 'Нийт үнэ',
+                  t2: '${o.itemTotalPrice.toString()}₮',
+                  t2Color: AppColors.primary),
+            ],
+          )
         ],
       ),
     );

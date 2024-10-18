@@ -47,12 +47,11 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
 
   @override
   void initState() {
-    init();
+    // init();
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
     homeProvider.getUserInfo();
-    homeProvider.getDeviceInfo();
     homeProvider.getFilters();
     homeProvider.getSuppliers();
     homeProvider.getBranches(context);
@@ -63,45 +62,9 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     super.dispose();
   }
 
-  init() async {
-    String deviceToken = await getDeviceToken();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
-    final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
-        headers: getHeader(bearerToken),
-        body: jsonEncode({"deviceId": deviceToken}));
-    if (response.statusCode == 200) {}
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
-      String? title = remoteMessage.notification!.title;
-      String? description = remoteMessage.notification!.body;
-      Alert(
-        context: context,
-        type: AlertType.info,
-        title: title,
-        desc: description,
-        buttons: [
-          DialogButton(
-            onPressed: () => Navigator.pop(context),
-            width: 120,
-            child: const Text(
-              "Хаах",
-              style: TextStyle(color: Colors.white, fontSize: 15),
-            ),
-          )
-        ],
-      ).show();
-    });
-  }
 
-  Future getDeviceToken() async {
-    //request user permission for push notification
-    FirebaseMessaging.instance.requestPermission();
-    FirebaseMessaging firebaseMessage = FirebaseMessaging.instance;
-    String? deviceToken = await firebaseMessage.getToken();
-    return (deviceToken == null) ? "" : deviceToken;
-  }
+
+
 
   @override
   Widget build(BuildContext context) {

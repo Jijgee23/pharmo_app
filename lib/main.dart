@@ -66,8 +66,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late AuthController auth;
   @override
   void initState() {
+    auth = Provider.of<AuthController>(context, listen: false);
+    auth.init(context);
     super.initState();
   }
 

@@ -13,6 +13,6 @@ message({required String message, required BuildContext context}) {
       displayDuration: Duration(milliseconds: 1500),
       showProgressBar: false,
     ),
-    toastStyle: const ToastStyle(backgroundColor: AppColors.primary),
+    toastStyle: const ToastStyle(backgroundColor: AppColors.secondary),
   );
 }

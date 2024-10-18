@@ -7,7 +7,9 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/box.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
@@ -178,158 +180,150 @@ class _MyOrderState extends State<MyOrder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const SideMenuAppbar(title: 'Миний захиалгууд'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80.0), // Adjust height
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(20.0), // Adjust border radius
+          ),
+          child: AppBar(
+            centerTitle: true,
+            title: const Text(
+              'Захиалгууд',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: AppColors.primary,
+            leading: const ChevronBack(),
+            elevation: 10, // Create shadow
+          ),
+        ),
+      ),
       body: Consumer<MyOrderProvider>(
         builder: (context, provider, _) {
           final orders = (provider.orders.isNotEmpty) ? provider.orders : null;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              Box(
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 10),
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: const Color.fromRGBO(224, 224, 224, 1),
-                              ),
-                              borderRadius: BorderRadius.circular(5)),
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: DropdownButton<String>(
-                            underline: const SizedBox(),
-                            value: _selectedFilter,
-                            onChanged: (String? value) async {
-                              setState(() {
-                                _selectedFilter = value!;
-                                selected = _filters[value]!;
-                              });
-                              await fillDropdown();
-                            },
-                            selectedItemBuilder: (BuildContext context) {
-                              return _filters.keys.map<Widget>(
-                                (String item) {
-                                  return Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      _filters[item].toString(),
-                                      style: const TextStyle(
-                                          color: AppColors.main, fontSize: 14),
-                                    ),
-                                  );
-                                },
-                              ).toList();
-                            },
-                            items: _filters.keys
-                                .map<DropdownMenuItem<String>>((String item) {
-                              return DropdownMenuItem<String>(
-                                value: item,
-                                child: Text(_filters[item].toString()),
+                    dropContainer(
+                      child: DropdownButton<String>(
+                        dropdownColor: Colors.white,
+                        underline: const SizedBox(),
+                        value: _selectedFilter,
+                        onChanged: (String? value) async {
+                          setState(() {
+                            _selectedFilter = value!;
+                            selected = _filters[value]!;
+                          });
+                          await fillDropdown();
+                        },
+                        selectedItemBuilder: (BuildContext context) {
+                          return _filters.keys.map<Widget>(
+                            (String item) {
+                              return Container(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  _filters[item].toString(),
+                                  style: const TextStyle(
+                                      color: AppColors.main, fontSize: 14),
+                                ),
                               );
-                            }).toList(),
-                          ),
-                        ),
-                      ],
+                            },
+                          ).toList();
+                        },
+                        items: _filters.keys
+                            .map<DropdownMenuItem<String>>((String item) {
+                          return DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(_filters[item].toString()),
+                          );
+                        }).toList(),
+                      ),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     _selectedFilter != ''
-                        ? Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: const Color.fromRGBO(
-                                                224, 224, 224, 1),
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      child: DropdownButton<String>(
-                                        value: _selectedItem,
-                                        underline: const SizedBox(),
-                                        onChanged: (String? value) {
-                                          setState(
-                                              () => _selectedItem = value!);
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  dropContainer(
+                                    child: DropdownButton<String>(
+                                      dropdownColor: Colors.white,
+                                      value: _selectedItem,
+                                      underline: const SizedBox(),
+                                      onChanged: (String? value) {
+                                        setState(() => _selectedItem = value!);
+                                      },
+                                      selectedItemBuilder:
+                                          (BuildContext context) {
+                                        return _processess.keys
+                                            .map<Widget>((String item) {
+                                          return Container(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              _processess[item].toString(),
+                                              style: const TextStyle(
+                                                  color: AppColors.primary,
+                                                  fontSize: 14),
+                                            ),
+                                          );
+                                        }).toList();
+                                      },
+                                      items: _processess.keys
+                                          .map<DropdownMenuItem<String>>(
+                                        (String item) {
+                                          return DropdownMenuItem<String>(
+                                            value: item,
+                                            child: Text(
+                                              _processess[item].toString(),
+                                            ),
+                                          );
                                         },
-                                        selectedItemBuilder:
-                                            (BuildContext context) {
-                                          return _processess.keys
-                                              .map<Widget>((String item) {
-                                            return Container(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                _processess[item].toString(),
-                                                style: const TextStyle(
-                                                    color: AppColors.main,
-                                                    fontSize: 14),
-                                              ),
-                                            );
-                                          }).toList();
-                                        },
-                                        items: _processess.keys
-                                            .map<DropdownMenuItem<String>>(
-                                          (String item) {
-                                            return DropdownMenuItem<String>(
-                                              value: item,
-                                              child: Text(
-                                                _processess[item].toString(),
-                                              ),
-                                            );
-                                          },
-                                        ).toList(),
+                                      ).toList(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              InkWell(
+                                onTap: () => filterOrders(),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30, vertical: 12.5),
+                                  decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(30)),
+                                  child: const Center(
+                                    child: Text(
+                                      'Шүүх',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1,
                                       ),
                                     ),
-                                  ],
-                                ),
-                                OutlinedButton.icon(
-                                  onPressed: () {
-                                    filterOrders();
-                                  },
-                                  icon: const Icon(
-                                    Icons.filter_alt,
-                                    color: Colors.white,
-                                  ),
-                                  label: const Text(
-                                    'Шүүх',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.main,
                                   ),
                                 ),
-                              ],
-                            ),
+                              )
+                            ],
                           )
                         : const SizedBox(),
                   ],
                 ),
               ),
               Expanded(
-                child: Container(
+                child: Box(
                     margin: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 10),
-                    decoration: BoxDecoration(
-                        boxShadow: [Constants.defaultShadow],
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20)),
-                    padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 10),
                     child: orders != null && orders.isNotEmpty
                         ? RefreshIndicator(
@@ -382,79 +376,29 @@ class _MyOrderState extends State<MyOrder> {
             process: getProcessNumber(order.process!),
           ),
           context),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [Constants.defaultShadow],
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+      child: Box(
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  children: [
-                    Text(
-                      'Дугаар',
-                      style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey),
-                    ),
-                    Text(
-                      order.orderNo.toString(),
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-
-                Column(
-                  children: [
-                    Text(
-                      'Дүн',
-                      style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey),
-                    ),
-                    Text(
-                      '${order.totalPrice.toString()} ₮',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Text(
-                      'Огноо',
-                      style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey),
-                    ),
-                    Text(
-                      order.createdOn.toString().substring(0, 10),
-                      style:
-                      TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                )
+                col(t1: 'Дугаар', t2: order.orderNo.toString()),
+                col(t1: 'Дүн', t2: '${order.totalPrice.toString()} ₮'),
+                col(
+                    t1: 'Огноо',
+                    t2: order.createdOn.toString().substring(0, 10))
               ],
             ),
             const SizedBox(
               height: 10,
             ),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Төлөв',
                       style: TextStyle(
                           fontSize: 10,
@@ -463,8 +407,8 @@ class _MyOrderState extends State<MyOrder> {
                     ),
                     Text(
                       order.status!,
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -509,5 +453,32 @@ class _MyOrderState extends State<MyOrder> {
         ),
       ),
     );
+  }
+
+  col({required String t1, required String t2}) {
+    return Column(
+      children: [
+        Text(
+          t1,
+          style: const TextStyle(
+              fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+        ),
+        Text(
+          t2,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  dropContainer({required Widget child}) {
+    return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+            boxShadow: [Constants.defaultShadow],
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(25)),
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: child);
   }
 }

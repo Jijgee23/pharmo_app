@@ -70,6 +70,7 @@ class HomeProvider extends ChangeNotifier {
   String get supName => _supName;
   List<Sector> branches = <Sector>[];
   String demo = 'demo';
+
   void changeDemo(String d) {
     demo = d;
     notifyListeners();
@@ -381,57 +382,7 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, String>> getDeviceInfo() async {
-    final bearerToken = await getAccessToken();
-    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    Map<String, String> deviceData = {};
-    try {
-      if (Platform.isAndroid) {
-        AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
-        deviceData = {
-          "deviceId": androidInfo.id,
-          "platform": 'android',
-          "brand": androidInfo.brand,
-          "model": androidInfo.model,
-          "modelVersion": androidInfo.device,
-          "os": Platform.operatingSystem,
-          "osVersion": Platform.operatingSystemVersion,
-        };
-      } else if (Platform.isIOS) {
-        IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
-        deviceData = {
-          "deviceId": iosInfo.identifierForVendor ?? "unknown",
-          "platform": "ios",
-          "brand": "Apple",
-          "model": iosInfo.name,
-          "modelVersion": iosInfo.utsname.machine,
-          "os": "iOS",
-          "osVersion": iosInfo.systemVersion,
-        };
-      }
-      final response =
-          await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
-              headers: getHeader(bearerToken),
-              body: jsonEncode({
-                'deviceId': deviceData['deviceId'],
-                'platform': deviceData['platform'],
-                'brand': deviceData['brand'],
-                'model': deviceData['model'],
-                'modelVersion': deviceData['modelVersion'],
-                'os': deviceData['os'],
-                'osVersion': deviceData['osVersion'],
-              }));
-      if (response.statusCode == 200) {
-        debugPrint('Device info sent');
-      } else {
-        debugPrint('Device info not sent');
-      }
-      return deviceData;
-    } catch (e) {
-      debugPrint('$e');
-    }
-    return deviceData;
-  }
+
 
   Future getPosition() async {
     _currentLocation = await _getCurrentLocation();

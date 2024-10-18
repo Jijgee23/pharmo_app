@@ -88,11 +88,9 @@ void showFlutterNotification(RemoteMessage message) {
 
 class FirebaseApi {
   static final _firebaseMessaging = FirebaseMessaging.instance;
-
   static Future<void> initNotification() async {
     await _firebaseMessaging.requestPermission();
     String deviceToken = await _firebaseMessaging.getToken() ?? '';
-
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     if (!kIsWeb) {
       await setupFlutterNotifications();
