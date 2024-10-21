@@ -19,8 +19,10 @@ import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_shoppin
 import 'package:pharmo_app/views/public_uses/notification/notification.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
-import 'package:pharmo_app/widgets/others/drawer_item.dart';
+import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
+
+import '../../../widgets/drawer/my_drawer.dart';
 
 class SellerHomePage extends StatefulWidget {
   const SellerHomePage({
@@ -125,53 +127,30 @@ class _SellerHomePageState extends State<SellerHomePage> {
                     ),
                   ],
                 ),
-          drawer: Drawer(
-            elevation: 0,
-            backgroundColor: AppColors.cleanWhite,
-            width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CustomDrawerHeader(),
-                  DrawerItem(
-                      title: 'Эмийг сан бүртгэх',
-                      onTap: () => goto(const RegisterPharmPage(), context),
-                      asset: 'assets/icons_2/doctor.png'),
-                  DrawerItem(
-                      title: 'Орлогын жагсаалт',
-                      onTap: () => goto(const IncomeList(), context),
-                      asset: 'assets/icons_2/wallet-income.png'),
-                  DrawerItem(
-                      title: 'Захиалгууд',
-                      onTap: () => goto(const SellerOrders(), context),
-                      asset: 'assets/icons_2/time-past.png'),
-                  homeProvider.userRole == 'D'
-                      ? DrawerItem(
-                          title: 'Түгээгчрүү шилжих',
-                          onTap: () {
-                            gotoRemoveUntil(const JaggerHomePage(), context);
-                          },
-                          asset: 'assets/icons_2/swap.png',
-                        )
-                      : const SizedBox(),
-                  DrawerItem(
-                    title: 'Миний бүртгэл',
-                    asset: 'assets/icons_2/user.png',
-                    onTap: () => goto(const UserInformation(), context),
-                  ),
-                  DrawerItem(
-                    title: 'Нууцлалын бодлого',
-                    asset: 'assets/icons_2/privacy.png',
-                    onTap: () => goto(const PrivacyPolicy(), context),
-                  ),
-                  DrawerItem(
-                      title: 'Гарах',
-                      onTap: () => showLogoutDialog(context),
-                      asset: 'assets/icons_2/signout.png'),
-                ],
-              ),
-            ),
+          drawer: MyDrawer(
+            drawers: [
+              DrawerItem(
+                  title: 'Эмийг сан бүртгэх',
+                  onTap: () => goto(const RegisterPharmPage(), context),
+                  asset: 'assets/icons_2/doctor.png'),
+              DrawerItem(
+                  title: 'Орлогын жагсаалт',
+                  onTap: () => goto(const IncomeList(), context),
+                  asset: 'assets/icons_2/wallet-income.png'),
+              DrawerItem(
+                  title: 'Захиалгууд',
+                  onTap: () => goto(const SellerOrders(), context),
+                  asset: 'assets/icons_2/time-past.png'),
+              homeProvider.userRole == 'D'
+                  ? DrawerItem(
+                      title: 'Түгээгчрүү шилжих',
+                      onTap: () {
+                        gotoRemoveUntil(const JaggerHomePage(), context);
+                      },
+                      asset: 'assets/icons_2/swap.png',
+                    )
+                  : const SizedBox(),
+            ],
           ),
           body: NotificationListener<UserScrollNotification>(
             onNotification: (notification) {

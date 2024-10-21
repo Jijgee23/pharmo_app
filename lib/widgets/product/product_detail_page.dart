@@ -27,22 +27,31 @@ class ProductDetail extends StatefulWidget {
   State<ProductDetail> createState() => _ProductDetailState();
 }
 
-class _ProductDetailState extends State<ProductDetail> {
+class _ProductDetailState extends State<ProductDetail>
+    with SingleTickerProviderStateMixin {
   TextEditingController qtyController =
       TextEditingController(text: 1.toString());
   late HomeProvider homeProvider;
   late ProductProvider productProvider;
   late ProductDetails detail;
+  late TabController tabController;
 
   @override
   void initState() {
     super.initState();
     detail = ProductDetails(id: widget.prod.id);
+    tabController = TabController(length: 2, vsync: this);
+    tabController.addListener(() {
+      if (tabController.indexIsChanging == false) {
+        setState(() {}); // Call setState when the tab index changes
+      }
+    });
     getProductDetail();
   }
 
   @override
   void dispose() {
+    tabController.dispose();
     super.dispose();
   }
 
@@ -120,7 +129,7 @@ class _ProductDetailState extends State<ProductDetail> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 50),
                 SizedBox(
                   child: Row(
                     children: [
@@ -128,7 +137,10 @@ class _ProductDetailState extends State<ProductDetail> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(widget.prod.name.toString(),
-                            style: Constants.headerTextStyle,
+                            style: const TextStyle(
+                                color: AppColors.secondary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis),
                       ),
@@ -140,7 +152,7 @@ class _ProductDetailState extends State<ProductDetail> {
                   child: Text(
                     '#${widget.prod.barcode.toString()}',
                     style:
-                        const TextStyle(color: Colors.blueGrey, fontSize: 16),
+                        const TextStyle(color: Colors.blueGrey, fontSize: 14),
                   ),
                 ),
                 const Divider(color: Colors.black),
@@ -163,29 +175,25 @@ class _ProductDetailState extends State<ProductDetail> {
                             children: [
                               const Text(
                                 'Бөөний үнэ',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: Colors.white,fontSize: 14),
                               ),
                               Text(
                                   '${detail.salePrice != null ? detail.salePrice.toString() : '-'}₮',
                                   style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 16,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.bold))
                             ],
                           ),
-                          Container(
-                            width: 2,
-                            color: AppColors.cleanWhite,
-                          )
                         ],
                       ),
                       Column(
                         children: [
-                          const Text('Үндсэн үнэ'),
+                          const Text('Үндсэн үнэ',style: TextStyle(fontSize: 14),),
                           Text(
                             '${widget.prod.price.toString()}₮',
                             style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                                fontSize: 12, fontWeight: FontWeight.bold),
                           )
                         ],
                       ),
@@ -199,7 +207,7 @@ class _ProductDetailState extends State<ProductDetail> {
                       ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
                       : 'https://precisionpharmacy.net/wp-content/themes/apexclinic/images/no-image/No-Image-Found-400x264.png',
                   child: Container(
-                    height: 200,
+                    height: size.height * 0.23,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
@@ -216,30 +224,48 @@ class _ProductDetailState extends State<ProductDetail> {
                   ),
                 ),
                 const Divider(color: Colors.black),
-                const Text(
-                  'Барааны мэдээлэл:',
+                Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween, // Or spaceBetween
+                  children: [
+                    myTab(title: 'Барааны мэдээлэл', index: 0),
+                    myTab(title: 'Урамшуулал', index: 1),
+                  ],
                 ),
-                const Divider(color: Colors.black),
-                infoRow('Барааны дуусах хугацаа', detail.expDate ?? '-'),
-                infoRow('Ерөнхий нэршил', detail.intName ?? '-'),
-                infoRow('Тун хэмжээ', '-'),
-                infoRow('Хөнгөлөлт', '-'),
-                infoRow('Хэлбэр', '-'),
-                infoRow('Олгох нөхцөл', '-'),
-                infoRow('Улс', '-'),
-                infoRow('Үйлдвэрлэгч', '-'),
-                const SizedBox(height: 20),
-                const Text('Урамшууллын мэдээлэл:'),
-                const Divider(color: Colors.black),
-                infoRow(
-                    'Бөөний үнэ',
-                    detail.salePrice != null
-                        ? detail.salePrice.toString()
-                        : '-'),
-                infoRow('Бөөний тоо', '${detail.saleQty ?? '-'}'),
-                infoRow('Хямдрал', '${detail.discount ?? '-'}'),
-                infoRow(
-                    'Хямдрал дуусах хугацаа', detail.discountExpireDate ?? '-')
+                SizedBox(
+                  height: 300,
+                  child: TabBarView(
+                    controller: tabController,
+                    children: [
+                      Column(
+                        children: [
+                          infoRow(
+                              'Барааны дуусах хугацаа', detail.expDate ?? '-'),
+                          infoRow('Ерөнхий нэршил', detail.intName ?? '-'),
+                          infoRow('Тун хэмжээ', '-'),
+                          infoRow('Хөнгөлөлт', '-'),
+                          infoRow('Хэлбэр', '-'),
+                          infoRow('Олгох нөхцөл', '-'),
+                          infoRow('Улс', '-'),
+                          infoRow('Үйлдвэрлэгч', '-'),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          infoRow(
+                              'Бөөний үнэ',
+                              detail.salePrice != null
+                                  ? detail.salePrice.toString()
+                                  : '-'),
+                          infoRow('Бөөний тоо', '${detail.saleQty ?? '-'}'),
+                          infoRow('Хямдрал', '${detail.discount ?? '-'}'),
+                          infoRow('Хямдрал дуусах хугацаа',
+                              detail.discountExpireDate ?? '-')
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -252,38 +278,34 @@ class _ProductDetailState extends State<ProductDetail> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              flex: 3,
-              child: SizedBox(
-                width: double.infinity,
-                child: TextField(
-                  textInputAction: TextInputAction.done,
-                  controller: qtyController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                    signed: true,
+            IntrinsicWidth(
+              child: TextField(
+                textAlign: TextAlign.center,
+                textInputAction: TextInputAction.done,
+                controller: qtyController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                  signed: true,
+                ),
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.only(left: 10),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        const BorderSide(color: AppColors.secondary, width: 2),
                   ),
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(left: 10),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(
-                          color: AppColors.secondary, width: 2),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    hintText: 'Тоо хэмжээ',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  hintText: 'Тоо хэмжээ',
                 ),
               ),
             ),
             Expanded(
-              flex: 7,
               child: InkWell(
                 onTap: () => addBasket(),
                 child: Container(
@@ -308,16 +330,47 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
+  myTab({String? title, required int index}) {
+    bool selected = (index == tabController.index);
+    final sw = MediaQuery.of(context).size.width;
+    return InkWell(
+      onTap: () => setState(() {
+        tabController.animateTo(index);
+      }),
+      child: Container(
+        width: sw * 0.4,
+        decoration: BoxDecoration(
+            color: selected ? AppColors.secondary : Colors.transparent,
+            borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Center(
+          child: Text(
+            title!,
+            style: TextStyle(
+                color: selected ? Colors.white : Colors.black, fontSize: 12),
+          ),
+        ),
+      ),
+    );
+  }
+
   infoRow(String title, String text) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
-          style:
-              const TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+          style: TextStyle(
+              color: Colors.grey.shade800,
+              fontWeight: FontWeight.w500,
+              fontSize: 14),
         ),
-        Text(text),
+        Text(
+          text,
+          style: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.w500, fontSize: 14),
+        ),
       ],
     );
   }

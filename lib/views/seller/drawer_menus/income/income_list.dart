@@ -298,17 +298,17 @@ class _IncomeListState extends State<IncomeList> {
     );
   }
 
-  _infoRow(String title, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        mText(title),
-        mText(
-          value,
-        ),
-      ],
-    );
-  }
+  // _infoRow(String title, String value) {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //     children: [
+  //       mText(title),
+  //       mText(
+  //         value,
+  //       ),
+  //     ],
+  //   );
+  // }
 
   _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(

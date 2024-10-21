@@ -13,6 +13,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/delivery_man/main/logout_dialog.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/pharmacy/tabs/cart/cart.dart';
@@ -23,10 +24,12 @@ import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart'
 import 'package:pharmo_app/views/public_uses/user_information/user_information.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
-import 'package:pharmo_app/widgets/others/drawer_item.dart';
+import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../widgets/drawer/my_drawer.dart';
 
 class PharmaHomePage extends StatefulWidget {
   const PharmaHomePage({super.key});
@@ -47,7 +50,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
 
   @override
   void initState() {
-    // init();
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
@@ -62,10 +64,6 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     super.dispose();
   }
 
-
-
-
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -79,56 +77,19 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
         builder: (context, authController, homeProvider, basketProvider, _) {
           return Scaffold(
             extendBody: true,
-            drawer: Drawer(
-              elevation: 0,
-              backgroundColor: Colors.white,
-              width: size.width > 480 ? size.width * 0.5 : size.width * 0.8,
-              child: MediaQuery.removePadding(
-                removeTop: true,
-                context: context,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const CustomDrawerHeader(),
-                      SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            DrawerItem(
-                              title: 'Миний захиалгууд',
-                              asset: 'assets/icons_2/time-past.png',
-                              onTap: () => goto(const MyOrder(), context),
-                            ),
-                            DrawerItem(
-                              title: 'Урамшуулал',
-                              asset: 'assets/icons_2/gift-box-benefits.png',
-                              onTap: () =>
-                                  goto(const PromotionWidget(), context),
-                            ),
-                            DrawerItem(
-                              title: 'Миний бүртгэл',
-                              asset: 'assets/icons_2/user.png',
-                              onTap: () =>
-                                  goto(const UserInformation(), context),
-                            ),
-                            DrawerItem(
-                              title: 'Нууцлалын бодлого',
-                              asset: 'assets/icons_2/privacy.png',
-                              onTap: () => goto(const PrivacyPolicy(), context),
-                            ),
-                            DrawerItem(
-                              title: 'Гарах',
-                              asset: 'assets/icons_2/signout.png',
-                              onTap: () {
-                                showLogoutDialog(context);
-                              },
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
+            drawer: MyDrawer(
+              drawers: [
+                DrawerItem(
+                  title: 'Миний захиалгууд',
+                  asset: 'assets/icons_2/time-past.png',
+                  onTap: () => goto(const MyOrder(), context),
                 ),
-              ),
+                DrawerItem(
+                  title: 'Урамшуулал',
+                  asset: 'assets/icons_2/gift-box-benefits.png',
+                  onTap: () => goto(const PromotionWidget(), context),
+                ),
+              ],
             ),
             appBar: hidden
                 ? null
@@ -207,44 +168,5 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
   }
 }
 
-class CustomDrawerHeader extends StatelessWidget {
-  const CustomDrawerHeader({
-    super.key,
-  });
 
-  @override
-  Widget build(BuildContext context) {
-    var style = const TextStyle(color: AppColors.cleanWhite, fontSize: 14);
-    return Consumer<HomeProvider>(builder: (context, homeProvider, child) {
-      return Container(
-        decoration: const BoxDecoration(
-            color: AppColors.priLight,
-            border: Border(
-              bottom: BorderSide(color: Colors.grey),
-            )),
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/icons/boy.png',
-                  height: 50,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            homeProvider.userEmail != null
-                ? Text(
-                    homeProvider.userEmail!,
-                    style: style,
-                  )
-                : const SizedBox()
-          ],
-        ),
-      );
-    });
-  }
-}
+

@@ -13,8 +13,10 @@ import 'package:pharmo_app/views/delivery_man/drawer_menus/shipment_history/ship
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
-import 'package:pharmo_app/widgets/others/drawer_item.dart';
+import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
+
+import '../../../widgets/drawer/my_drawer.dart';
 
 class JaggerHomePage extends StatefulWidget {
   const JaggerHomePage({super.key});
@@ -43,6 +45,7 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
     homeProvider.getUserInfo();
     homeProvider.getPosition();
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -60,49 +63,19 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
       child: Consumer<AuthController>(builder: (context, authController, _) {
         return Scaffold(
           extendBody: true,
-          drawer: MediaQuery.removePadding(
-            context: context,
-            removeTop: true,
-            child: Drawer(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              width: size.width > 480 ? size.width * 0.5 : size.width * 0.7,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const CustomDrawerHeader(),
-                    DrawerItem(
-                      title: 'Түгээлтийн түүх',
-                      asset: 'assets/icons_2/time-past.png',
-                      onTap: () => goto(const ShipmentHistory(), context),
-                    ),
-                    DrawerItem(
-                      title: 'Борлуулагчруу шилжих',
-                      asset: 'assets/icons_2/swap.png',
-                      onTap: () =>
-                          gotoRemoveUntil(const SellerHomePage(), context),
-                    ),
-                    DrawerItem(
-                      title: 'Миний бүртгэл',
-                      asset: 'assets/icons_2/user.png',
-                      onTap: () => goto(const UserInformation(), context),
-                    ),
-                    DrawerItem(
-                      title: 'Нууцлалын бодлого',
-                      asset: 'assets/icons_2/privacy.png',
-                      onTap: () => goto(const PrivacyPolicy(), context),
-                    ),
-                    DrawerItem(
-                      title: 'Гарах',
-                      asset: 'assets/icons_2/signout.png',
-                      onTap: () {
-                        showLogoutDialog(context);
-                      },
-                    ),
-                  ],
-                ),
+          drawer: MyDrawer(
+            drawers: [
+              DrawerItem(
+                title: 'Түгээлтийн түүх',
+                asset: 'assets/icons_2/time-past.png',
+                onTap: () => goto(const ShipmentHistory(), context),
               ),
-            ),
+              DrawerItem(
+                title: 'Борлуулагчруу шилжих',
+                asset: 'assets/icons_2/swap.png',
+                onTap: () => gotoRemoveUntil(const SellerHomePage(), context),
+              ),
+            ],
           ),
           appBar: DMAppBar(
             title: (_selectedIndex == 0) ? 'Өнөөдрийн түгээлтүүд' : 'Зарлагууд',
