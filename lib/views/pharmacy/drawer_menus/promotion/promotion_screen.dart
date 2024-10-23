@@ -135,19 +135,21 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                   ),
                 ),
                 (promos.isNotEmpty)
-                    ? Box(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: promos
-                                .map(
-                                  (p) => promo(
-                                    promo: promos[promos.indexOf(p)],
-                                  ),
-                                )
-                                .toList(),
+                    ?  Expanded(
+                      child: Box(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: promos
+                                  .map(
+                                    (p) => promo(
+                                      promo: promos[promos.indexOf(p)],
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
                           ),
                         ),
-                      )
+                    )
                     : Container()
               ],
             ),
@@ -170,7 +172,7 @@ class _PromotionWidgetState extends State<PromotionWidget> {
       splashColor: Colors.transparent,
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.symmetric(vertical: 5),
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
             color: Colors.white,

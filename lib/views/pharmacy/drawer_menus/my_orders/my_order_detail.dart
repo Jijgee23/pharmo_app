@@ -199,21 +199,23 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
             children: [
               Text(
                 o.itemName.toString(),
+                softWrap: true,
+                maxLines: 2,
                 style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.secondary
-                ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.secondary,
+                    overflow: TextOverflow.ellipsis),
               ),
-              col(
-                  t1: 'Нэгж үнэ',
-                  t2: '${o.itemPrice}₮',
-                  t2Color: AppColors.primary),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               col(t1: 'Тоо ширхэг', t2: o.iQty.toString()),
+              col(
+                  t1: 'Нэгж үнэ',
+                  t2: '${o.itemPrice}₮',
+                  t2Color: AppColors.primary),
               col(
                   t1: 'Нийт үнэ',
                   t2: '${o.itemTotalPrice.toString()}₮',

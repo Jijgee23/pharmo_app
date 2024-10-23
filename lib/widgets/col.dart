@@ -12,8 +12,14 @@ class Col extends StatelessWidget {
       children: [
         Text(
           t1,
+          softWrap: true ,
+          maxLines: 2,
           style: const TextStyle(
-              fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey),
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey,
+            overflow: TextOverflow.ellipsis
+          ),
         ),
         Text(
           t2,

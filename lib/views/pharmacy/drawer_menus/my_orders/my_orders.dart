@@ -384,44 +384,46 @@ class _MyOrderState extends State<MyOrder> {
                     ),
                   ],
                 ),
-                (order.process == 'Бэлэн болсон' ||
-                        order.process == 'Түгээлтэнд гарсан')
-                    ? InkWell(
-                        onTap: () {
-                          provider
-                              .confirmOrder(order.id, context)
-                              .then((e) => getData());
-                        },
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: IntrinsicWidth(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(20)),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 10),
-                              child: const Center(
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Батлагаажуулах',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          letterSpacing: 1,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : const SizedBox(),
+
               ],
             ),
+            const SizedBox(height: 10),
+            (order.process == 'Бэлэн болсон' ||
+                order.process == 'Түгээлтэнд гарсан')
+                ? InkWell(
+              onTap: () {
+                provider
+                    .confirmOrder(order.id, context)
+                    .then((e) => getData());
+              },
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: IntrinsicWidth(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 10),
+                    child: const Center(
+                      child: Row(
+                        children: [
+                          Text(
+                            'Батлагаажуулах',
+                            style: TextStyle(
+                                color: Colors.white,
+                                letterSpacing: 1,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+                : const SizedBox(),
           ],
         ),
       ),
