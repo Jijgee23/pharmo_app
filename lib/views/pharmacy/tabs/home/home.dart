@@ -123,13 +123,13 @@ class _HomeState extends State<Home> {
       child: Consumer3<HomeProvider, BasketProvider, PromotionProvider>(
         builder: (_, homeProvider, basketProvider, promotionProvider, child) {
           final search = homeProvider.searchController;
-          return Scaffold(
-            body: CustomScrollView(
+          return  CustomScrollView(
               slivers: [
                 SliverAppBar(
                   automaticallyImplyLeading: false,
                   pinned: true,
                   surfaceTintColor: Colors.transparent,
+                  backgroundColor: Colors.transparent,
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -137,14 +137,14 @@ class _HomeState extends State<Home> {
                         flex: 10,
                         child: Container(
                           decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: AppColors.cleanBlack, width: 0.7),
-                              borderRadius: BorderRadius.circular(15)),
+                              color: Colors.white,
+                              boxShadow: [Constants.defaultShadow],
+                              borderRadius: BorderRadius.circular(10)),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 15),
                               IntrinsicWidth(
                                 child: InkWell(
                                   onTap: () => _picksupp(
@@ -158,7 +158,7 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 5),
+                              const SizedBox(width: 15),
                               Expanded(
                                   child: TextFormField(
                                 decoration: InputDecoration(
@@ -167,6 +167,7 @@ class _HomeState extends State<Home> {
                                   border: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                   enabledBorder: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(vertical: 5)
                                 ),
                                 onChanged: (v) {
                                   try {
@@ -205,6 +206,7 @@ class _HomeState extends State<Home> {
                                   onTap: () {
                                     showMenu(
                                             surfaceTintColor: Colors.white,
+                                            color: Colors.white,
                                             context: context,
                                             position:
                                                 const RelativeRect.fromLTRB(
@@ -317,7 +319,7 @@ class _HomeState extends State<Home> {
                             pagingController: _pagingController,
                           )
               ],
-            ),
+
           );
         },
       ),

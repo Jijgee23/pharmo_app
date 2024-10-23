@@ -255,12 +255,9 @@ class MyOrderProvider extends ChangeNotifier {
       final response = jsonDecode(utf8.decode(res.bodyBytes));
       print('response: $response ConfirmOrderStatus: ${res.statusCode}');
       if (res.statusCode == 200) {
+        message(
+            message: 'Таны захиалга амжилттай баталгаажлаа.', context: context);
         notifyListeners();
-        return {
-          'errorType': 1,
-          'data': null,
-          'message': 'Таны захиалга амжилттай баталгаажлаа.'
-        };
       } else if (res.statusCode == 400) {
         message(message: 'Захиалгын түгээлт эхлээгүй', context: context);
       } else {

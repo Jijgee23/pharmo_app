@@ -316,6 +316,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                     },
                   ),
           );
+          print('CREATE SELLER ORDER. STATUS: ${response.statusCode} BODY: ${response.body}');
           if (response.statusCode == 200) {
             final res = jsonDecode(utf8.decode(response.bodyBytes));
             final orderNumber = res['orderNo'];

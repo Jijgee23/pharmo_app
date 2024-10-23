@@ -1,33 +1,21 @@
 // ignore_for_file: use_build_context_synchronously
-
-import 'dart:convert';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
-import 'package:pharmo_app/views/delivery_man/main/logout_dialog.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/pharmacy/tabs/cart/cart.dart';
 import 'package:pharmo_app/views/pharmacy/tabs/home/home.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
-import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
-import 'package:pharmo_app/views/public_uses/user_information/user_information.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../widgets/drawer/my_drawer.dart';
 

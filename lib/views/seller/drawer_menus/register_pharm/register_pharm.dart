@@ -6,10 +6,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -54,111 +57,128 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     );
     final style = TextStyle(fontSize: 14.0, color: Colors.grey.shade700);
     return Consumer2<HomeProvider, AddressProvider>(
-        builder: (_, homeProvider, addressProvider, child) {
-      return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: const SideMenuAppbar(title: 'Эмийн сангийн бүртгэл'),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Байгууллага:',
-                  textAlign: TextAlign.start,
-                  style: TextStyle(fontSize: 16),
-                ),
-                a,
-                CustomTextField(
-                  controller: cRdController,
-                  hintText: 'Байгууллагын РД',
-                  validator: validateCRD,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    checkCompany(cRdController.text);
-                  },
-                ),
-                a,
-                CustomTextField(
-                  controller: cNameController,
-                  hintText: 'Байгууллагын нэр',
-                ),
-                a,
-                CustomTextField(
-                  controller: emailController,
-                  hintText: 'Имэйл хаяг',
-                  validator: validateEmail,
-                ),
-                a,
-                CustomTextField(
-                  controller: phoneController,
-                  hintText: 'Утасны дугаар',
-                  validator: validatePhone,
-                  keyboardType: TextInputType.number,
-                ),
-                a,
-                const Text(
-                  'Хаяг:',
-                  style: TextStyle(fontSize: 16),
-                ),
-                a,
-                provinceSelection(
-                    context, addressProvider, addressProvider.province, style),
-                a,
-                districtSelection(
-                    context, addressProvider, addressProvider.district, style),
-                a,
-                khoroo(context, addressProvider, addressProvider.khoroo, style),
-                a,
-                const Text(
-                  'Тайлбар:',
-                  style: TextStyle(fontSize: 16),
-                ),
-                a,
-                TextFormField(
-                  onChanged: (value) {
-                    homeProvider.detail = detailedController.text;
-                  },
-                  minLines: 1,
-                  controller: detailedController,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                    ),
-                    labelText: 'Тайлбар',
-                    labelStyle: style,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+      builder: (_, homeProvider, addressProvider, child) {
+        return Scaffold(
+          backgroundColor: AppColors.primary,
+          resizeToAvoidBottomInset: false,
+          body: DefaultBox(
+            title: 'Эмийн сангийн бүртгэл',
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Box(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Байгууллага:',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        a,
+                        CustomTextField(
+                          controller: cRdController,
+                          hintText: 'Байгууллагын РД',
+                          validator: validateCRD,
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            checkCompany(cRdController.text);
+                          },
+                        ),
+                        a,
+                        CustomTextField(
+                          controller: cNameController,
+                          hintText: 'Байгууллагын нэр',
+                        ),
+                        a,
+                        CustomTextField(
+                          controller: emailController,
+                          hintText: 'Имэйл хаяг',
+                          validator: validateEmail,
+                        ),
+                        a,
+                        CustomTextField(
+                          controller: phoneController,
+                          hintText: 'Утасны дугаар',
+                          validator: validatePhone,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                a,
-                CustomButton(
-                  text: 'Бүртгэх',
-                  ontap: () {
-                    if (emailController.text.isEmpty ||
-                        cNameController.text.isEmpty ||
-                        emailController.text.isEmpty ||
-                        phoneController.text.isEmpty ||
-                        detailedController.text.isEmpty ||
-                        provinceId == 0 ||
-                        districtId == 0 ||
-                        khorooId == 0) {
-                      message(
-                          message: 'Бүртгэлийн хэсгийг гүйцээнэ үү!',
-                          context: context);
-                    } else {
-                      registerPharm(context);
-                    }
-                  },
-                ),
-              ],
+                  Box(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Хаяг:',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        a,
+                        provinceSelection(context, addressProvider,
+                            addressProvider.province, style),
+                        a,
+                        districtSelection(context, addressProvider,
+                            addressProvider.district, style),
+                        a,
+                        khoroo(context, addressProvider, addressProvider.khoroo,
+                            style),
+                      ],
+                    ),
+                  ),
+                  Box(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Тайлбар:',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        a,
+                        TextFormField(
+                          onChanged: (value) {
+                            homeProvider.detail = detailedController.text;
+                          },
+                          minLines: 1,
+                          controller: detailedController,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                            ),
+                            labelText: 'Тайлбар',
+                            labelStyle: style,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  a,
+                  CustomButton(
+                    text: 'Бүртгэх',
+                    ontap: () {
+                      if (emailController.text.isEmpty ||
+                          cNameController.text.isEmpty ||
+                          emailController.text.isEmpty ||
+                          phoneController.text.isEmpty ||
+                          detailedController.text.isEmpty ||
+                          provinceId == 0 ||
+                          districtId == 0 ||
+                          khorooId == 0) {
+                        message(
+                            message: 'Бүртгэлийн хэсгийг гүйцээнэ үү!',
+                            context: context);
+                      } else {
+                        registerPharm(context);
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   provinceSelection(BuildContext context, AddressProvider addressProvider,

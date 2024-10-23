@@ -1,8 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -11,8 +15,40 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class QRCode extends StatelessWidget {
+class QRCode extends StatefulWidget {
   const QRCode({super.key});
+
+  @override
+  State<QRCode> createState() => _QRCodeState();
+}
+
+class _QRCodeState extends State<QRCode> {
+  Timer? _timer;
+  late BasketProvider basketProvider;
+  @override
+  void initState() {
+    basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    // startCheckingPayment();
+    super.initState();
+  }
+
+  // void startCheckingPayment() {
+  //   _timer = Timer.periodic(
+  //     const Duration(seconds: 3),
+  //     (Timer timer) async {
+  //       dynamic res = await basketProvider.checkPayment();
+  //       print(_timer!.isActive.toString());
+  //       if (res['errorType'] == 1) {
+  //         if (res['data'] == false) {
+  //         } else {
+  //           gotoRemoveUntil(
+  //               OrderDone(orderNo: res['data']['orderNo']), context);
+  //           _timer?.cancel();
+  //         }
+  //       }
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -152,8 +188,7 @@ class QRCode extends StatelessWidget {
                                   message: res['message'], context: context);
                             }
                           } else {
-                            message(
-                                message: res['message'], context: context);
+                            message(message: res['message'], context: context);
                           }
                         }),
                   ],

@@ -310,6 +310,7 @@ class BasketProvider extends ChangeNotifier {
       String bearerToken = await getAccessToken();
       final resQR = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}cp/'),
           headers: getHeader(bearerToken));
+      print(resQR.body);
       if (resQR.statusCode == 200) {
         dynamic response = jsonDecode(utf8.decode(resQR.bodyBytes));
         await clearBasket(basket_id: basket.id);
@@ -324,7 +325,7 @@ class BasketProvider extends ChangeNotifier {
         return {
           'errorType': 2,
           'data': null,
-          'message': 'Төлбөр төлөх үед алдаа гарлаа.'
+          'message': 'Төлбөр шалгах үед алдаа гарлаа.'
         };
       }
     } catch (e) {

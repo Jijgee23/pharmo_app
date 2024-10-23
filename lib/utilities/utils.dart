@@ -60,7 +60,6 @@ setUrl(String endPoint) {
 String noImage =
     'https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg';
 
-
 double parseDouble(dynamic value) {
   if (value == null) {
     return 0.0;
@@ -84,5 +83,42 @@ int parseInt(dynamic value) {
   }
   {
     return value;
+  }
+}
+
+getOrderProcess(String v) {
+  if (v == 'O') {
+    return "Хүргэлтэнд гарсан";
+  } else if (v == 'N') {
+    return 'Шинэ';
+  } else if (v == 'M') {
+    return 'Бэлтгэж эхлэсэн';
+  } else if (v == 'A') {
+    return 'Хүлээн авсан';
+  } else if (v == 'C') {
+    return 'Хаалттай';
+  } else if (v == 'R') {
+    return 'Буцаагдсан';
+  } else if (v == 'P') {
+    return 'Бэлэн болсон';
+  } else {
+    return '';
+  }
+}
+
+toPrice(String v) {
+  return '$v ₮';
+}
+getProcessNumber(String process) {
+  if (process == 'Шинэ') {
+    return 0;
+  } else if (process == 'Бэлтгэж эхэлсэн') {
+    return 1;
+  } else if (process == 'Бэлэн болсон') {
+    return 2;
+  } else if (process == 'Түгээлтэнд гарсан') {
+    return 3;
+  } else {
+    return 4;
   }
 }

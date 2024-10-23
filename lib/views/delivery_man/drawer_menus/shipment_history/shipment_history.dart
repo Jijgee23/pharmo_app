@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/shipment.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:provider/provider.dart';
 
 class ShipmentHistory extends StatefulWidget {
@@ -47,9 +50,27 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   build(BuildContext context) {
     return Consumer<JaggerProvider>(
       builder: (_, provider, child) {
+        final shipmets = provider.shipments;
         return Scaffold(
-          appBar: const SideMenuAppbar(title: 'Түгээлтийн түүх'),
-          body: body(provider),
+          backgroundColor: AppColors.primary,
+          body: DefaultBox(
+            title: 'Түгээлтийн түүх',
+            child: Column(
+              children: [
+                Box(
+                  child: Column(
+                    children: [
+                      selectFilter(),
+                      filters(provider),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Box(child: shipments(provider)),
+                )
+              ],
+            ),
+          ),
         );
       },
     );
@@ -66,119 +87,103 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   }
 
   filters(JaggerProvider provider) {
-    return SliverAppBar(
-      automaticallyImplyLeading: false,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          InkWell(
-            onTap: provider.getShipmentHistory,
-            child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(15)),
-                child: const Text('Бүгд',
-                    style:
-                        TextStyle(color: AppColors.cleanWhite, fontSize: 16))),
-          ),
-          provider.selecterFilter,
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        InkWell(
+          onTap: provider.getShipmentHistory,
+          child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(15)),
+              child: const Text('Бүгд',
+                  style: TextStyle(color: AppColors.cleanWhite, fontSize: 16))),
+        ),
+        provider.selecterFilter,
+      ],
     );
   }
 
   selectFilter() {
     return Consumer<JaggerProvider>(
-      builder: (_, provider, child) => SliverAppBar(
-        automaticallyImplyLeading: false,
-        toolbarHeight: 50,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Шүүх төрөл:',
-              style: TextStyle(fontSize: 14, color: AppColors.cleanBlack),
+      builder: (_, provider, child) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Шүүх төрөл:',
+            style: TextStyle(fontSize: 14, color: AppColors.cleanBlack),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            height: 40,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(5),
             ),
-            const SizedBox(width: 10),
-            Container(
-              height: 40,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: DropdownButton(
-                underline: const SizedBox(),
-                alignment: Alignment.center,
-                items: provider.filters.map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (a) {
-                  provider.changeFilter(a!);
+            child: DropdownButton(
+              underline: const SizedBox(),
+              alignment: Alignment.center,
+              items: provider.filters.map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (a) {
+                provider.changeFilter(a!);
 
-                  if (a == 'Захиалгын тоогоор') {
-                    if (provider.operator == '=') {
-                      provider.changeType('ordersCnt');
-                    } else if (provider.operator == '=>') {
-                      provider.changeType('ordersCnt__gte');
-                    } else if (provider.operator == '=<') {
-                      provider.changeType('ordersCnt__lte');
-                    }
-                  } else if (a == 'Явцын хувиар') {
-                    if (provider.operator == '=') {
-                      provider.changeType('progress');
-                    } else if (provider.operator == '=>') {
-                      provider.changeType('progress__gte');
-                    } else if (provider.operator == '=<') {
-                      provider.changeType('progress__lte');
-                    }
-                  } else if (a == 'Зарлагын дүнгээр') {
-                    if (provider.operator == '=') {
-                      provider.changeType('expense');
-                    } else if (provider.operator == '=>') {
-                      provider.changeType('expense__gte');
-                    } else if (provider.operator == '=<') {
-                      provider.changeType('expense__lte');
-                    }
+                if (a == 'Захиалгын тоогоор') {
+                  if (provider.operator == '=') {
+                    provider.changeType('ordersCnt');
+                  } else if (provider.operator == '=>') {
+                    provider.changeType('ordersCnt__gte');
+                  } else if (provider.operator == '=<') {
+                    provider.changeType('ordersCnt__lte');
                   }
-                  getWidget(a, provider.type, provider);
-                },
-                hint: Text(provider.filter,
-                    style: const TextStyle(
-                        fontSize: 14, color: AppColors.cleanBlack)),
-              ),
+                } else if (a == 'Явцын хувиар') {
+                  if (provider.operator == '=') {
+                    provider.changeType('progress');
+                  } else if (provider.operator == '=>') {
+                    provider.changeType('progress__gte');
+                  } else if (provider.operator == '=<') {
+                    provider.changeType('progress__lte');
+                  }
+                } else if (a == 'Зарлагын дүнгээр') {
+                  if (provider.operator == '=') {
+                    provider.changeType('expense');
+                  } else if (provider.operator == '=>') {
+                    provider.changeType('expense__gte');
+                  } else if (provider.operator == '=<') {
+                    provider.changeType('expense__lte');
+                  }
+                }
+                getWidget(a, provider.type, provider);
+              },
+              hint: Text(provider.filter,
+                  style: const TextStyle(
+                      fontSize: 14, color: AppColors.cleanBlack)),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   shipments(JaggerProvider provider) {
-    return SliverFillRemaining(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: provider.shipments.isNotEmpty
-            ? ListView.builder(
-                itemCount: provider.shipments.length,
-                itemBuilder: (context, index) {
-                  final shipment = provider.shipments[index];
-                  return ShipmentBuilder(shipment: shipment);
-                  //  shipWidget(
-                  //     shipment, () => showDetail(shipment), index);
-                },
-              )
-            : const Center(
-                child: SizedBox(
-                  child: Text('Үр дүр олдсонгүй'),
-                ),
-              ),
-      ),
-    );
+    return provider.shipments.isNotEmpty
+        ? SingleChildScrollView(
+            child: Column(
+              children: provider.shipments
+                  .map((ship) => ShipmentBuilder(shipment: ship))
+                  .toList(),
+            ),
+          )
+        : const Center(
+            child: SizedBox(
+              child: Text('Үр дүр олдсонгүй'),
+            ),
+          );
   }
 
   _selectDate(BuildContext context, JaggerProvider provider) async {
@@ -415,16 +420,17 @@ class _ShipmentBuilderState extends State<ShipmentBuilder> {
   bool isExpanded = false;
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
-          BoxShadow(color: Colors.grey.shade500, blurRadius: 3),
+          Constants.defaultShadow,
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      margin: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 5),
+      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       child: InkWell(
         onTap: () => setState(() => isExpanded = !isExpanded),
         child: Column(
@@ -445,35 +451,42 @@ class _ShipmentBuilderState extends State<ShipmentBuilder> {
                 value: (widget.shipment.createdOn != null)
                     ? widget.shipment.createdOn!.substring(0, 10)
                     : '-'),
-            isExpanded
-                ? Column(
-                    children: [
-                      row(
-                          title: 'Хугацаа:',
-                          value: (widget.shipment.duration != null)
-                              ? formatTime(widget.shipment.duration!)
-                              : '-'),
-                      row(
-                          title: 'Зарлага:',
-                          value: (widget.shipment.expense != null)
-                              ? '${widget.shipment.expense!.toString()}₮'
-                              : '-'),
-                      row(
-                          title: 'Явц:',
-                          value: (widget.shipment.progress != null)
-                              ? '${widget.shipment.progress!.toString()}%'
-                              : '-'),
-                      row(
-                          title: 'Тоо ширхэг:',
-                          value: (widget.shipment.ordersCnt != null)
-                              ? widget.shipment.ordersCnt!.toString()
-                              : '-'),
-                    ],
-                  )
-                : const SizedBox(),
-            !isExpanded
-                ? const Center(child: Icon(Icons.arrow_drop_down_rounded))
-                : const Center(child: Icon(Icons.arrow_drop_up_rounded))
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              reverseDuration: const Duration(milliseconds: 500),
+              switchInCurve: Curves.easeIn,
+              child: isExpanded
+                  ? Column(
+                      children: [
+                        row(
+                            title: 'Хугацаа:',
+                            value: (widget.shipment.duration != null)
+                                ? formatTime(widget.shipment.duration!)
+                                : '-'),
+                        row(
+                            title: 'Зарлага:',
+                            value: (widget.shipment.expense != null)
+                                ? '${widget.shipment.expense!.toString()}₮'
+                                : '-'),
+                        row(
+                            title: 'Явц:',
+                            value: (widget.shipment.progress != null)
+                                ? '${widget.shipment.progress!.toString()}%'
+                                : '-'),
+                        row(
+                            title: 'Тоо ширхэг:',
+                            value: (widget.shipment.ordersCnt != null)
+                                ? widget.shipment.ordersCnt!.toString()
+                                : '-'),
+                      ],
+                    )
+                  : const SizedBox(),
+            ),
+            AnimatedSwitcher(
+                duration: const Duration(milliseconds: 500),
+                child: !isExpanded
+                    ? const Center(child: Icon(Icons.arrow_drop_down_rounded))
+                    : const Center(child: Icon(Icons.arrow_drop_up_rounded)))
           ],
         ),
       ),

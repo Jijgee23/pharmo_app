@@ -5,7 +5,10 @@ import 'package:flutter/rendering.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/models/income.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
@@ -116,9 +119,11 @@ class _IncomeListState extends State<IncomeList> {
   Widget build(BuildContext context) {
     return Consumer<IncomeProvider>(
       builder: (_, income, child) {
+        final incomes = income.incomeList;
         return Scaffold(
-          resizeToAvoidBottomInset: false,
-          appBar: const SideMenuAppbar(title: 'Орлогын жагсаалт'),
+          // resizeToAvoidBottomInset: false,
+          // appBar: const SideMenuAppbar(title: 'Орлогын жагсаалт'),
+          backgroundColor: AppColors.primary,
           floatingActionButton: invisible
               ? const SizedBox()
               : FloatingActionButton(
@@ -134,85 +139,73 @@ class _IncomeListState extends State<IncomeList> {
                     incomeRecoord(contenxt: context);
                   },
                 ),
-          body: NotificationListener<UserScrollNotification>(
-            onNotification: (notification) {
-              if (notification.direction == ScrollDirection.reverse) {
-                setState(() {
-                  invisible = true;
-                });
-              } else if (notification.direction == ScrollDirection.forward) {
-                setState(() {
-                  invisible = false;
-                });
-              }
-              return true;
-            },
-            child: Column(
-              children: [
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          _selectDate(context);
-                        },
-                        child: Text(date1,
-                            style: const TextStyle(color: AppColors.primary)),
-                      ),
-                      const Icon(Icons.arrow_right_alt),
-                      TextButton(
-                        onPressed: () {
-                          _selectDate2(context);
-                        },
-                        child: Text(date2,
-                            style: const TextStyle(color: AppColors.primary)),
-                      ),
-                      OutlinedButton(
-                        onPressed: () {
-                          if (date1 == date2) {
-                            income.getIncomeListByDateSinlge(context, date1);
-                          } else {
-                            income.getIncomeListByDateRanged(
-                                context, date1, date2);
-                          }
-                        },
-                        style: const ButtonStyle(
-                            backgroundColor:
-                                WidgetStatePropertyAll(AppColors.primary)),
-                        child: const Text(
-                          'Шүүх',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 10,
-                  child: income.incomeList.isEmpty
-                      ? const NoResult()
-                      : ListView.builder(
-                          itemCount: income.incomeList.length,
-                          itemBuilder: (context, index) {
-                            final incomee = income.incomeList[index];
-                            return IncomeWidget(
-                              income: incomee,
-                              ontap: () {
-                                setState(() {
-                                  noteController.text =
-                                      income.incomeList[index].note!;
-                                  amuontController.text = income
-                                      .incomeList[index].amount
-                                      .toString();
-                                });
-                                editDialog(context, income, index);
-                              },
-                            );
+          body: DefaultBox(
+            title: 'Орлогын жагсаалт',
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Box(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            _selectDate(context);
                           },
+                          child: Text(date1,
+                              style: const TextStyle(color: AppColors.primary)),
                         ),
-                ),
-              ],
+                        const Icon(Icons.arrow_right_alt),
+                        TextButton(
+                          onPressed: () {
+                            _selectDate2(context);
+                          },
+                          child: Text(date2,
+                              style: const TextStyle(color: AppColors.primary)),
+                        ),
+                        OutlinedButton(
+                          onPressed: () {
+                            if (date1 == date2) {
+                              income.getIncomeListByDateSinlge(context, date1);
+                            } else {
+                              income.getIncomeListByDateRanged(
+                                  context, date1, date2);
+                            }
+                          },
+                          style: const ButtonStyle(
+                              backgroundColor:
+                                  WidgetStatePropertyAll(AppColors.primary)),
+                          child: const Text(
+                            'Шүүх',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  income.incomeList.isEmpty
+                      ? const NoResult()
+                      : Box(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: incomes
+                                  .map((i) => IncomeWidget(
+                                        income: i,
+                                        ontap: () {
+                                          setState(() {
+                                            noteController.text = i.note!;
+                                            amuontController.text =
+                                                i.amount.toString();
+                                          });
+                                          editDialog(context, income, i.id);
+                                        },
+                                      ))
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                ],
+              ),
             ),
           ),
         );
@@ -220,7 +213,7 @@ class _IncomeListState extends State<IncomeList> {
     );
   }
 
-  editDialog(BuildContext context, IncomeProvider income, int index) {
+  editDialog(BuildContext context, IncomeProvider income, int id) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -259,11 +252,8 @@ class _IncomeListState extends State<IncomeList> {
                             title: 'Засах',
                             ontap: () {
                               Future(() {
-                                income.updateIncome(
-                                    income.incomeList[index].id,
-                                    noteController.text,
-                                    amuontController.text,
-                                    context);
+                                income.updateIncome(id, noteController.text,
+                                    amuontController.text, context);
                               }).whenComplete(() {
                                 income.getIncomeList(context);
                                 noteController.clear();
@@ -297,18 +287,6 @@ class _IncomeListState extends State<IncomeList> {
       ),
     );
   }
-
-  // _infoRow(String title, String value) {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //     children: [
-  //       mText(title),
-  //       mText(
-  //         value,
-  //       ),
-  //     ],
-  //   );
-  // }
 
   _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -365,58 +343,71 @@ class IncomeWidget extends StatefulWidget {
 
 class _IncomeWidgetState extends State<IncomeWidget> {
   bool expanded = false;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
+    return InkWell(
+      onTap: () => setState(() {
+        expanded = !expanded;
+      }),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 500), // Animation duration
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 3)]),
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(widget.income.note.toString(),
-                  style: const TextStyle(
-                      fontSize: 16, color: AppColors.secondary)),
-              InkWell(
-                splashColor: Colors.green.shade700,
-                onTap: () => setState(() {
-                  expanded = !expanded;
-                }),
-                child: const Icon(Icons.arrow_drop_down_rounded),
-              ),
-            ],
-          ),
-          row(title: 'Үнэ', value: widget.income.amount.toString()),
-          !expanded
-              ? const SizedBox()
-              : Column(
-                  children: [
-                    row(
-                        title: 'Огноо',
-                        value: widget.income.createdOn.toString()),
-                    row(
-                        title: 'Нийлүүлэгч',
-                        value: widget.income.supplier.toString()),
-                    row(
-                        title: 'Харилцагч',
-                        value: widget.income.customer.toString()),
-                    row(
-                        title: 'Хүргэлт',
-                        value: widget.income.delman.toString()),
-                  ],
+          boxShadow: [Constants.defaultShadow],
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(widget.income.note.toString(),
+                    style: const TextStyle(
+                        fontSize: 16, color: AppColors.secondary)),
+                Icon(
+                  expanded
+                      ? Icons.arrow_drop_up_rounded // Icon changes on toggle
+                      : Icons.arrow_drop_down_rounded,
                 ),
-          InkWell(
-            onTap: widget.ontap,
-            child:
-                const Text('Засах', style: TextStyle(color: AppColors.primary)),
-          )
-        ],
+              ],
+            ),
+            row(title: 'Үнэ', value: widget.income.amount.toString()),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              reverseDuration: const Duration(milliseconds: 500),
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeInOut,
+              child: expanded
+                  ? Column(
+                      key: const ValueKey(1),
+                      children: [
+                        row(
+                            title: 'Огноо',
+                            value: widget.income.createdOn.toString()),
+                        row(
+                            title: 'Нийлүүлэгч',
+                            value: widget.income.supplier.toString()),
+                        row(
+                            title: 'Харилцагч',
+                            value: widget.income.customer.toString()),
+                        row(
+                            title: 'Хүргэлт',
+                            value: widget.income.delman.toString()),
+                      ],
+                    )
+                  : const SizedBox(key: ValueKey(0)),
+            ),
+            InkWell(
+              onTap: widget.ontap,
+              child: const Text('Засах',
+                  style: TextStyle(color: AppColors.primary)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -432,7 +423,7 @@ class _IncomeWidgetState extends State<IncomeWidget> {
         Text(
           value,
           style: const TextStyle(fontSize: 14, color: Colors.black),
-        )
+        ),
       ],
     );
   }

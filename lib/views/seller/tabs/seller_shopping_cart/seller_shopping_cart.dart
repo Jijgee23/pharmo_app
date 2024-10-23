@@ -41,13 +41,14 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
       final cartDatas = provider.shoppingCarts;
       final basket = provider.basket;
       return Scaffold(
+        extendBody: true,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: cartDatas.isNotEmpty
-                    ? Padding(
+                    ? Container(
                         padding: const EdgeInsets.all(8.0),
                         child: SingleChildScrollView(
                           child: Column(
@@ -64,17 +65,10 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                   ? const SizedBox()
                   : Container(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5.0, horizontal: 15.0),
-                      margin: const EdgeInsets.only(bottom: 10),
-                      decoration: BoxDecoration(
+                          vertical: 0, horizontal: 15.0),
+                      margin: const EdgeInsets.only(bottom: 10, top: 5),
+                      decoration: const BoxDecoration(
                         color: Colors.transparent,
-                        border: Border(
-                          top: BorderSide(
-                            color: Colors.grey.shade400,
-                            width: 1.0,
-                            style: BorderStyle.solid,
-                          ),
-                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

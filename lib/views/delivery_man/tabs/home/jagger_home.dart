@@ -76,6 +76,19 @@ class _HomeJaggerState extends State<HomeJagger> {
     );
   }
 
+  Future endTimer(BuildContext context) async {
+    timer = Timer.periodic(
+      const Duration(seconds: 30),
+      (timer) async {
+        if (mounted) {
+          setState(() {
+            count = 0;
+          });
+        }
+      },
+    );
+  }
+
   refreshScreen() async {
     await jaggerProvider.getJaggers(context);
   }
@@ -159,8 +172,8 @@ class _HomeJaggerState extends State<HomeJagger> {
         onTap: () => Future(() {
           debugPrint(e.startTime);
           startShipment(e.id);
-        }).whenComplete(() {
           startTimer(context);
+        }).whenComplete(() {
           refreshScreen();
         }),
       );
@@ -184,6 +197,7 @@ class _HomeJaggerState extends State<HomeJagger> {
           iconName: 'box',
           onTap: () => Future(() {
             endShipment(e.id, false);
+            endTimer(context);
             // print(e.endTime);
           }).whenComplete(
             () {
@@ -192,6 +206,7 @@ class _HomeJaggerState extends State<HomeJagger> {
           ),
           onSecondaryTap: () => Future(() {
             endShipment(e.id, true);
+            endTimer(context);
             // print(e.endTime);
           }).whenComplete(
             () {
@@ -223,14 +238,9 @@ class _HomeJaggerState extends State<HomeJagger> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // myRow('Байршил илгээсэн:', count.toString()),
             myRow('Захиалагч:', order.user.toString()),
             myRow('Захиалгын дугаар:', order.orderNo.toString()),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Image.asset('assets/icons/land-layer-location.png', height: 20),
-              Text(order.branch!,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-            ]),
+            myRow('Салбар:', order.branch!),
             myRow('Төлөв', getOrderProcess(order.process!)),
             Container(
               margin: const EdgeInsets.symmetric(vertical: 2.5),
@@ -248,25 +258,7 @@ class _HomeJaggerState extends State<HomeJagger> {
     );
   }
 
-  getOrderProcess(String v) {
-    if (v == 'O') {
-      return "Хүргэлтэнд гарсан";
-    } else if (v == 'N') {
-      return 'Шинэ';
-    } else if (v == 'M') {
-      return 'Бэлтгэж эхлэсэн';
-    } else if (v == 'A') {
-      return 'Хүлээн авсан';
-    } else if (v == 'C') {
-      return 'Хаалттай';
-    } else if (v == 'R') {
-      return 'Буцаагдсан';
-    } else if (v == 'P') {
-      return 'Бэлэн болсон';
-    } else {
-      return '';
-    }
-  }
+
 
   myRow(String title, String value) {
     return Container(

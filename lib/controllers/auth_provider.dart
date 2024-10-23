@@ -17,7 +17,6 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/auth/createPass.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
@@ -378,7 +377,7 @@ class AuthController extends ChangeNotifier {
     String? deviceToken = await firebaseMessage.getToken();
     // print('FIREBASE TOKEN: $deviceToken');
     getFireBaseToken(deviceToken!);
-    return (deviceToken == null) ? "" : deviceToken;
+    return deviceToken;
   }
 
   init(BuildContext context) async {

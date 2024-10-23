@@ -4,37 +4,84 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/ship.dart';
+import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/col.dart';
+import 'package:pharmo_app/widgets/defaultBox.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
-class JaggerHomeDetail extends StatelessWidget {
+class JaggerHomeDetail extends StatefulWidget {
   final int shipId;
   final ShipOrders order;
   const JaggerHomeDetail(
       {super.key, required this.order, required this.shipId});
 
   @override
+  State<JaggerHomeDetail> createState() => _JaggerHomeDetailState();
+}
+
+class _JaggerHomeDetailState extends State<JaggerHomeDetail> {
+  final TextEditingController qty = TextEditingController();
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const SideMenuAppbar(title: 'Түгээлтийн бараанууд'),
-      body: Consumer<JaggerProvider>(
-        builder: (context, provider, _) {
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-            child: SingleChildScrollView(
-              child: Column(
-                children: order.items.isNotEmpty
-                    ? order.items.map((ord) {
-                        return item(
-                            ord: ord, provider: provider, context: context);
-                      }).toList()
-                    : [const NoResult()],
-              ),
+    return Consumer<JaggerProvider>(
+      builder: (context, provider, _) {
+        return Scaffold(
+          backgroundColor: AppColors.primary,
+          body: DefaultBox(
+            title: 'Захиалгын дэлгэрэнгүй',
+            child: Column(
+              children: [
+                Box(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Col(t1: 'Захиалагч', t2: widget.order.user!),
+                          Col(t1: 'Салбар', t2: widget.order.branch!),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Col(
+                              t1: 'Захиалгын дугаар',
+                              t2: widget.order.orderNo!),
+                          Col(
+                              t1: 'Явц',
+                              t2: getOrderProcess(widget.order.process ?? ''))
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Box(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: widget.order.items.isNotEmpty
+                            ? widget.order.items.map((ord) {
+                                return item(
+                                    ord: ord,
+                                    provider: provider,
+                                    context: context);
+                              }).toList()
+                            : [const NoResult()],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -44,65 +91,81 @@ class JaggerHomeDetail extends StatelessWidget {
       required BuildContext context}) {
     return Container(
       decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade700),
+          color: Colors.white,
+          boxShadow: [Constants.defaultShadow],
           borderRadius: BorderRadius.circular(10)),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      margin: const EdgeInsets.only(top: 5),
+      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          row(title: 'Нэр:', value: ord.itemName.toString()),
-          row(title: 'Үнэ:', value: '${ord.itemPrice} ₮'),
-          row(title: 'Нийт дүн:', value: '${ord.itemTotalPrice} ₮'),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                  child: Text('Тоо ширхэг',
-                      style: TextStyle(color: Colors.grey.shade900))),
-              Expanded(
-                child: TextField(
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.grey.shade700),
-                  textAlign: TextAlign.right,
-                  onSubmitted: (value) {
-                    if (ord.itemQTy != int.parse(value) && value.isNotEmpty) {
-                      provider.updateQTY(ord.itemId, int.parse(value), context);
-                    }
-                  },
-                  decoration: const InputDecoration(
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    border: InputBorder.none,
-                  ),
-                  controller:
-                      TextEditingController(text: ord.itemQTy.toString()),
-                ),
-              )
+              Col(t1: 'Нэр', t2: ord.itemName.toString()),
+              Col(t1: 'Үнэ', t2: toPrice(ord.itemPrice!)),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  row({required String title, required String value}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2.5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(color: Colors.grey.shade900),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Col(t1: 'Тоо ширхэг', t2: ord.itemQTy.toString()),
+              Col(t1: 'Нийт дүн', t2: toPrice(ord.itemTotalPrice!)),
+            ],
           ),
-          Text(
-            value,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, color: Colors.black),
-          ),
+          InkWell(
+            onTap: () {
+              setState(() {
+                qty.text = ord.iQty.toString();
+              });
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return Dialog(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20)),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey.shade700),
+                              textAlign: TextAlign.center,
+                              controller: qty,
+                            ),
+                            const SizedBox(height: 20),
+                            CustomButton(
+                              text: 'Хадгалах',
+                              ontap: () {
+                                if (ord.itemQTy != int.parse(qty.text) &&
+                                    qty.text.isNotEmpty) {
+                                  provider.updateQTY(
+                                      ord.itemId, int.parse(qty.text), context);
+                                  Navigator.pop(context);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            child: const Text(
+              'Тоо ширхэг өөрчлөх',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          )
         ],
       ),
     );

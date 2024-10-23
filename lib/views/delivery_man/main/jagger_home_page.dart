@@ -3,20 +3,16 @@ import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
-import 'package:pharmo_app/views/public_uses/user_information/user_information.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
-import 'package:pharmo_app/views/delivery_man/main/logout_dialog.dart';
-import 'package:pharmo_app/views/delivery_man/drawer_menus/expend/shipment_expense.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
 import 'package:pharmo_app/views/delivery_man/drawer_menus/shipment_history/shipment_history.dart';
-import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
 
 import '../../../widgets/drawer/my_drawer.dart';
+import '../tabs/expend/shipment_expense.dart';
 
 class JaggerHomePage extends StatefulWidget {
   const JaggerHomePage({super.key});

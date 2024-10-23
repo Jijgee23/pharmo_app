@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
@@ -14,49 +17,44 @@ class BuyinPromo extends StatelessWidget {
   Widget build(BuildContext context) {
     var textStyle = TextStyle(
         fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
-    return Consumer<PromotionProvider>(builder: (_, promotion, child) {
-      return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const ChevronBack(),
-              Text(promo.name!,
-                  style: const TextStyle(fontSize: 16, color: AppColors.main)),
-              (promo.isMarked == true)
-                  ? InkWell(
-                      onTap: () => promotion
-                          .hidePromo(promo.id!, context)
-                          .then((e) => Navigator.pop(context)),
-                      child: const Text('Дахиж харахгүй',
-                          style: TextStyle(fontSize: 14)),
-                    )
-                  : const SizedBox(),
-            ],
-          ),
-        ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Center(
+    return Consumer<PromotionProvider>(
+      builder: (_, promotion, child) {
+        return Scaffold(
+          backgroundColor: AppColors.primary,
+          // appBar: AppBar(
+          //   automaticallyImplyLeading: false,
+          //   title: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       const ChevronBack(),
+          //       Text(promo.name!,
+          //           style: const TextStyle(fontSize: 16, color: AppColors.main)),
+          //       (promo.isMarked == true)
+          //           ? InkWell(
+          //               onTap: () => promotion
+          //                   .hidePromo(promo.id!, context)
+          //                   .then((e) => Navigator.pop(context)),
+          //               child: const Text('Дахиж харахгүй',
+          //                   style: TextStyle(fontSize: 14)),
+          //             )
+          //           : const SizedBox(),
+          //     ],
+          //   ),
+          // ),
+          body: DefaultBox(
+            title: promo.name!,
+            child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  promo.desc != null
-                      ? Container(
+                  (promo.desc != null)
+                      ? Box(
+                          child: Container(
+                          width: double.infinity,
                           margin: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(promo.desc!),
-                        )
+                        ))
                       : const SizedBox(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                  Box(
                     child: Wrap(
                       alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,
@@ -65,14 +63,14 @@ class BuyinPromo extends StatelessWidget {
                         const Text('Захиалгын дүн '),
                         Text(
                           '${promo.total}₮ ',
-                          style:
-                              TextStyle(fontSize: 20, color: Colors.red.shade600),
+                          style: TextStyle(
+                              fontSize: 20, color: Colors.red.shade600),
                         ),
                         const Text('-с дээш бол '),
                         Text(
                           '${promo.procent}% ',
-                          style:
-                              TextStyle(fontSize: 20, color: Colors.red.shade600),
+                          style: TextStyle(
+                              fontSize: 20, color: Colors.red.shade600),
                         ),
                         const Text('хямдрал '),
                         promo.gift != null
@@ -81,27 +79,21 @@ class BuyinPromo extends StatelessWidget {
                       ],
                     ),
                   ),
-                  promo.gift != null
-                      ? Icon(Icons.add, color: Colors.grey.shade900, size: 30)
+                  (promo.gift != null)
+                      ? const Icon(Icons.add,
+                          color: AppColors.secondary, size: 30)
                       : const SizedBox(),
-                  promo.gift != null
-                      ? Container(
-                          margin: const EdgeInsets.symmetric(vertical: 10),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 10),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                  (promo.gift != null)
+                      ? Box(
                           child: Column(
                             children: [
-                              promo.gift != null
+                              (promo.gift != null)
                                   ? GridView.builder(
                                       gridDelegate:
                                           const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 2,
-                                        mainAxisSpacing: 10,
-                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 20,
+                                        crossAxisSpacing: 20,
                                       ),
                                       shrinkWrap: true,
                                       physics:
@@ -116,17 +108,11 @@ class BuyinPromo extends StatelessWidget {
                               const SizedBox(height: 15),
                               const Text('бэлгэнд аваарай!')
                             ],
-                          ))
-                      : const SizedBox(),
-                  const SizedBox(height: 20),
-                  promo.endDate != null
-                      ? Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 10),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(10),
                           ),
+                        )
+                      : const SizedBox(),
+                  promo.endDate != null
+                      ? Box(
                           child: Column(
                             children: [
                               const Text('Урамшуулал дуусах хугацаа:'),
@@ -144,9 +130,9 @@ class BuyinPromo extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   product(e, String noImage) {
@@ -154,36 +140,29 @@ class BuyinPromo extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColors.secondary),
-          ),
-          padding: const EdgeInsets.only(bottom: 5),
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              boxShadow: [Constants.defaultShadow]),
+          padding: const EdgeInsets.all(5),
           child: Column(
             children: [
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10)),
-                      border: Border(
-                          bottom: BorderSide(color: Colors.grey.shade300)),
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        scale: 1,
-                        image: NetworkImage(noImage),
-                      )),
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      scale: 1,
+                      image: NetworkImage(noImage),
+                    ),
+                  ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                child: Text(
-                  e['name'] != null ? e['name'].toString() : '-',
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 12),
-                ),
+              Text(
+                e['name'] != null ? e['name'].toString() : '-',
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style:
+                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -203,10 +182,13 @@ class BuyinPromo extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.grey.shade700,
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Text('x ${e['qty']}'),
+            child: Text(
+              'x ${e['qty']}',
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         )
       ],

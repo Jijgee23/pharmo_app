@@ -1,15 +1,20 @@
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../models/sector.dart';
 
 // ignore: must_be_immutable
 class MarkedPromoWidget extends StatefulWidget {
@@ -67,197 +72,181 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
     var textStyle = TextStyle(
         fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
     var box = const SizedBox(height: 10);
+    final promo = widget.promo;
     return Consumer2<HomeProvider, PromotionProvider>(
       builder: (_, home, promotionProvider, child) => Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const ChevronBack(),
-              Text(widget.promo.name!,
-                  style: const TextStyle(fontSize: 16, color: AppColors.main)),
-              (widget.promo.isMarked == true)
-                  ? InkWell(
-                      onTap: () => promotionProvider
-                          .hidePromo(widget.promo.id!, context)
-                          .then((e) => Navigator.pop(context)),
-                      child: const Text('Дахиж харахгүй',
-                          style: TextStyle(fontSize: 14)),
-                    )
-                  : const SizedBox(),
-            ],
-          ),
-        ),
-        body: Center(
-          child: Container(
-            width: double.infinity,
-            margin: const EdgeInsets.all(5),
-            padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
-            child: SingleChildScrollView(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+        backgroundColor: AppColors.primary,
+        extendBody: true,
+        body: DefaultBox(
+          title: promo.name!,
+          child: SingleChildScrollView(
+            child: Column(
               children: [
-                widget.promo.desc != null
-                    ? Container(
-                        margin: const EdgeInsets.symmetric(vertical: 10),
-                        child: Text(widget.promo.desc ?? ''),
+                (promo.desc != null)
+                    ? Box(
+                        child: Text(promo.desc!),
                       )
                     : const SizedBox(),
-                widget.promo.bundles != null
-                    ? Column(
-                        children: [
-                          const Text('Багц:',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          box,
-                          widget.promo.bundles != null
-                              ? GridView.builder(
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 10,
-                                    crossAxisSpacing: 10,
-                                  ),
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemBuilder: (context, index) {
-                                    return product(
-                                        widget.promo.bundles?[index], noImage);
-                                  },
-                                  itemCount: widget.promo.bundles?.length,
-                                )
-                              : const SizedBox(),
-                        ],
+                promo.bundles != null
+                    ? Box(
+                        child: Column(
+                          children: [
+                            const Text('Багц:',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            box,
+                            promo.bundles != null
+                                ? GridView.builder(
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10,
+                                    ),
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemBuilder: (context, index) {
+                                      return product(
+                                          promo.bundles?[index], noImage);
+                                    },
+                                    itemCount: promo.bundles?.length,
+                                  )
+                                : const SizedBox(),
+                          ],
+                        ),
                       )
                     : const SizedBox(),
-                box,
-                widget.promo.bundlePrice != null
-                    ? Column(
-                        children: [
-                          const Text('Багцийн үнэ:',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text(
-                              widget.promo.bundlePrice != null
-                                  ? widget.promo.bundlePrice.toString()
-                                  : '-',
-                              style: textStyle),
-                          box,
-                        ],
+                (promo.bundlePrice != null)
+                    ? Box(
+                        child: Column(
+                          children: [
+                            const Text('Багцийн үнэ:',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(
+                                promo.bundlePrice != null
+                                    ? promo.bundlePrice.toString()
+                                    : '-',
+                                style: textStyle),
+                            box,
+                          ],
+                        ),
                       )
                     : const SizedBox(),
-                widget.promo.gift != null
-                    ? Column(
-                        children: [
-                          Icon(Icons.add,
-                              color: Colors.grey.shade900, size: 30),
-                          box,
-                          const Text('Бэлэг:',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          box,
-                          GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 10,
-                              crossAxisSpacing: 10,
-                            ),
-                            shrinkWrap: true,
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return product(
-                                  widget.promo.gift?[index], noImage);
-                            },
-                            itemCount: widget.promo.gift?.length,
-                          )
-                        ],
+                (promo.gift != null)
+                    ? Box(
+                        child: Column(
+                          children: [
+                            Icon(Icons.add,
+                                color: Colors.grey.shade900, size: 30),
+                            box,
+                            const Text('Бэлэг:',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            box,
+                            GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                              ),
+                              shrinkWrap: true,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return product(promo.gift?[index], noImage);
+                              },
+                              itemCount: promo.gift?.length,
+                            )
+                          ],
+                        ),
                       )
                     : const SizedBox(),
-                widget.promo.endDate != null
-                    ? Column(
-                        children: [
-                          box,
-                          const Text('Урамшуулал дуусах хугацаа:'),
-                          Text(widget.promo.endDate!.substring(0, 10),
-                              style: textStyle),
-                        ],
+                promo.endDate != null
+                    ? Box(
+                        child: Column(
+                          children: [
+                            box,
+                            const Text('Урамшуулал дуусах хугацаа:'),
+                            Text(promo.endDate!.substring(0, 10),
+                                style: textStyle),
+                          ],
+                        ),
                       )
                     : const SizedBox(),
-                box,
-                InkWell(
-                  onTap: () => promotionProvider.setOrderStarted(),
-                  child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.main,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                            promotionProvider.orderStarted
-                                ? 'Цуцлах'
-                                : 'Захиалах',
-                            style: const TextStyle(color: Colors.white)),
-                      )),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  child: CustomButton(
+                    ontap: () => promotionProvider.setOrderStarted(),
+                    text:
+                        promotionProvider.orderStarted ? 'Цуцлах' : 'Захиалах',
+                  ),
                 ),
-                box,
                 (promotionProvider.orderStarted == false)
                     ? const SizedBox()
                     : Column(
                         children: [
-                          Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Нийт тоо, ширхэг:'),
-                                  Text(solveQTY().toString()),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Үнийн дүн:'),
-                                  Text(
-                                      '${promotionProvider.promoDetail.bundlePrice.toString()}₮'),
-                                ],
-                              )
-                            ],
+                          Box(
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('Нийт тоо, ширхэг:'),
+                                    Text(solveQTY().toString()),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('Үнийн дүн:'),
+                                    Text(
+                                        '${promotionProvider.promoDetail.bundlePrice.toString()}₮'),
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
                           box,
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 20),
-                                decoration: BoxDecoration(
-                                  color: promotionProvider.delivery
-                                      ? Colors.grey.shade300
-                                      : AppColors.main,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: InkWell(
-                                  onTap: () =>
-                                      promotionProvider.setDelivery(false),
-                                  child: const Text('Хүргэлтээр'),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(right: 5),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  decoration: BoxDecoration(
+                                    color: promotionProvider.delivery
+                                        ? Colors.grey.shade300
+                                        : AppColors.primary,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: InkWell(
+                                    onTap: () =>
+                                        promotionProvider.setDelivery(false),
+                                    child:
+                                        Center(child: const Text('Хүргэлтээр')),
+                                  ),
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 20),
-                                decoration: BoxDecoration(
-                                  color: !promotionProvider.delivery
-                                      ? Colors.grey.shade300
-                                      : AppColors.main,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: InkWell(
-                                  onTap: () =>
-                                      promotionProvider.setDelivery(true),
-                                  child: const Text('Очиж авах'),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 5),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  decoration: BoxDecoration(
+                                    color: !promotionProvider.delivery
+                                        ? Colors.grey.shade300
+                                        : AppColors.primary,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: InkWell(
+                                    onTap: () =>
+                                        promotionProvider.setDelivery(true),
+                                    child:
+                                        const Center(child: Text('Очиж авах')),
+                                  ),
                                 ),
                               )
                             ],
@@ -265,86 +254,57 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                           box,
                           promotionProvider.delivery
                               ? const SizedBox()
-                              : Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: home.branches
-                                      .map(
-                                        (e) => Column(
-                                          children: [
-                                            InkWell(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              splashColor:
-                                                  Colors.green.shade100,
-                                              onTap: () => setState(
-                                                  () => selectedBranch = e.id),
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.all(10),
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                    color: Colors.grey.shade300,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.home,
-                                                      color:
-                                                          selectedBranch == e.id
-                                                              ? Colors.green
-                                                              : Colors.grey
-                                                                  .shade300,
-                                                    ),
-                                                    Text(e.name!),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5)
-                                          ],
-                                        ),
-                                      )
-                                      .toList(),
+                              : Box(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: home.branches
+                                        .map((e) => branch(e))
+                                        .toList(),
+                                  ),
                                 ),
                           box,
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 20),
-                                decoration: BoxDecoration(
-                                  color: !promotionProvider.isCash
-                                      ? Colors.grey.shade300
-                                      : AppColors.main,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    promotionProvider.setPayType();
-                                    promotionProvider.setIsCash(true);
-                                  },
-                                  child: const Text('Бэлнээр'),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(right: 5),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  decoration: BoxDecoration(
+                                    color: !promotionProvider.isCash
+                                        ? Colors.grey.shade300
+                                        : AppColors.primary,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      promotionProvider.setPayType();
+                                      promotionProvider.setIsCash(true);
+                                    },
+                                    child: Center(child: const Text('Бэлнээр')),
+                                  ),
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 20),
-                                decoration: BoxDecoration(
-                                  color: promotionProvider.isCash
-                                      ? Colors.grey.shade300
-                                      : AppColors.main,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    promotionProvider.setPayType();
-                                    promotionProvider.setIsCash(false);
-                                  },
-                                  child: const Text('Зээлээр'),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 5),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  decoration: BoxDecoration(
+                                    color: promotionProvider.isCash
+                                        ? Colors.grey.shade300
+                                        : AppColors.primary,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      promotionProvider.setPayType();
+                                      promotionProvider.setIsCash(false);
+                                    },
+                                    child: const Center(child: Text('Зээлээр')),
+                                  ),
                                 ),
                               ),
                             ],
@@ -356,30 +316,22 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                               onTap: () => promotionProvider
                                   .setHasnote(!promotionProvider.hasNote),
                               child: const Text('Нэмэлт тайлбар',
-                                  style: TextStyle(color: AppColors.main))),
+                                  style: TextStyle(color: AppColors.primary))),
                           box,
                           !promotionProvider.hasNote
                               ? const SizedBox()
                               : CustomTextField(
                                   hintText: 'Тайлбар', controller: note),
                           box,
-                          InkWell(
-                            onTap: () {
-                              promotionProvider.orderPromo(widget.promo.id!,
-                                  selectedBranch, note.text, context);
-                            },
-                            child: Container(
-                                width: double.infinity,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: AppColors.main,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Center(
-                                  child: Text('Баталгаажуулах',
-                                      style: TextStyle(color: Colors.white)),
-                                )),
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            child: CustomButton(
+                              ontap: () {
+                                promotionProvider.orderPromo(widget.promo.id!,
+                                    selectedBranch, note.text, context);
+                              },
+                              text: 'Баталгаажуулах',
+                            ),
                           ),
                           box,
                           !promotionProvider.showQr
@@ -454,23 +406,12 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                           ),
                                     box,
                                     Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 20),
-                                      decoration: BoxDecoration(
-                                          color: AppColors.main,
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: InkWell(
-                                        onTap: () {
-                                          promotionProvider
-                                              .checkPayment(context);
-                                        },
-                                        child: const Center(
-                                            child: Text(
-                                          'Төлбөр шалгах',
-                                          style: TextStyle(color: Colors.white),
-                                        )),
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 5),
+                                      child: CustomButton(
+                                        ontap: () => promotionProvider
+                                            .checkPayment(context),
+                                        text: 'Төлбөр шалгах',
                                       ),
                                     ),
                                     box,
@@ -479,8 +420,40 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                         ],
                       )
               ],
-            )),
+            ),
           ),
+        ),
+
+        //
+        //     )),
+        //   ),
+        // ),
+      ),
+    );
+  }
+
+  Widget branch(Sector e) {
+    return InkWell(
+      onTap: () => setState(() => selectedBranch = e.id),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.only(top: 10, left: 5, right: 5),
+        decoration: BoxDecoration(
+          boxShadow: [Constants.defaultShadow],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.home,
+              color: selectedBranch == e.id
+                  ? AppColors.secondary
+                  : AppColors.primary,
+            ),
+            Constants.boxH10,
+            Text(e.name!),
+          ],
         ),
       ),
     );
@@ -488,48 +461,49 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
 
   Container product(e, String noImage) {
     return Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.secondary),
-        ),
-        padding: const EdgeInsets.only(bottom: 5),
-        child: Column(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10)),
-                    border:
-                        Border(bottom: BorderSide(color: Colors.grey.shade300)),
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      scale: 1,
-                      image: NetworkImage(noImage),
-                    )),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [Constants.defaultShadow],
+        color: Colors.white
+      ),
+      padding: const EdgeInsets.only(bottom: 5),
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10)),
+                  border:
+                      Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    scale: 1,
+                    image: NetworkImage(noImage),
+                  )),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: Text(
+              e['name'] != null ? e['name'].toString() : '-',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(
+                '${e['price'] != null ? e['price'].toString() : '-'} ₮',
+                style: TextStyle(color: Colors.red.shade600),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0),
-              child: Text(
-                e['name'] != null ? e['name'].toString() : '-',
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  '${e['price'] != null ? e['price'].toString() : '-'} ₮',
-                  style: TextStyle(color: Colors.red.shade600),
-                ),
-              ],
-            ),
-          ],
-        ));
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
