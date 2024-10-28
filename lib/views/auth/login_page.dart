@@ -84,12 +84,12 @@ class _LoginPageState extends State<LoginPage>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ClipOval(
-                              child: Image.asset('assets/1024.png', height: 40),
+                              child: Image.asset('assets/1024.png', height: size.height * 0.055),
                             ),
                             const SizedBox(width: 10),
-                            const Text('Pharmo',
+                             Text('Pharmo',
                                 style: TextStyle(
-                                    fontSize: 40,
+                                    fontSize: size.height * 0.055,
                                     fontStyle: FontStyle.italic,
                                     color: Colors.white)),
                           ],
@@ -103,7 +103,7 @@ class _LoginPageState extends State<LoginPage>
                     ),
                   ),
                   Container(
-                    height: 150,
+                    height: size.height * 0.2,
                     decoration: const BoxDecoration(
                         image: DecorationImage(
                             fit: BoxFit.contain,
@@ -150,6 +150,7 @@ class _LoginPageState extends State<LoginPage>
   myTab({String? title, required int index}) {
     bool selected = (index == tabController.index);
     final sw = MediaQuery.of(context).size.width;
+    final sh = MediaQuery.of(context).size.height;
     return InkWell(
       onTap: () => setState(() {
         tabController.animateTo(index);
@@ -161,7 +162,7 @@ class _LoginPageState extends State<LoginPage>
             border: Border.all(color: AppColors.primary),
             borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.symmetric(vertical: 5),
-        padding: const EdgeInsets.symmetric(vertical: 15),
+        padding: EdgeInsets.symmetric(vertical: sh * 0.015),
         child: Center(
           child: Text(
             title!,
@@ -270,87 +271,91 @@ class _LoginPageState extends State<LoginPage>
   }
 
   signUpForm() {
+    final size = MediaQuery.of(context).size;
+    final box = SizedBox(height: size.height * 0.015);
     return Form(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(height: 15),
-          CustomTextField(
-            controller: emailController,
-            hintText: 'Имейл',
-            obscureText: false,
-            keyboardType: TextInputType.emailAddress,
-            validator: validateEmail,
-          ),
-          const SizedBox(height: 15),
-          CustomTextField(
-            controller: phoneController,
-            hintText: 'Утасны дугаар',
-            obscureText: false,
-            keyboardType: TextInputType.phone,
-            validator: validatePhone,
-          ),
-          const SizedBox(height: 15),
-          CustomTextField(
-            controller: passwordController,
-            hintText: 'Нууц үг',
-            obscureText: !showPasss,
-            keyboardType: TextInputType.visiblePassword,
-            validator: validatePassword,
-            suffixIcon: IconButton(
-              onPressed: () {
-                setState(() {
-                  showPasss = !showPasss;
-                });
-              },
-              icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
-                  color: AppColors.primary),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            box,
+            CustomTextField(
+              controller: emailController,
+              hintText: 'Имейл',
+              obscureText: false,
+              keyboardType: TextInputType.emailAddress,
+              validator: validateEmail,
             ),
-          ),
-          const SizedBox(height: 15),
-          CustomTextField(
-            controller: passwordConfirmController,
-            hintText: 'Нууц үг давтах',
-            obscureText: !showPasss,
-            keyboardType: TextInputType.visiblePassword,
-            validator: validatePassword,
-            suffixIcon: IconButton(
-              onPressed: () {
-                setState(() {
-                  showPasss = !showPasss;
-                });
-              },
-              icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
-                  color: AppColors.primary),
+            box,
+            CustomTextField(
+              controller: phoneController,
+              hintText: 'Утасны дугаар',
+              obscureText: false,
+              keyboardType: TextInputType.phone,
+              validator: validatePhone,
             ),
-          ),
-          const SizedBox(height: 15),
-          CustomButton(
-              text: 'Батлагаажуулах код авах',
-              ontap: () {
-                if (passwordController.text == passwordConfirmController.text &&
-                    passwordController.text.isNotEmpty) {
-                  authController
-                      .signUpGetOtp(emailController.text, phoneController.text,
-                          passwordConfirmController.text, context)
-                      .whenComplete(
-                    () {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return OtpDialog(
-                              email: emailController.text,
-                              otp: otpController.text,
-                            );
-                          });
-                    },
-                  );
-                } else {
-                  message(
-                      message: 'Нууц үг таарахгүй байна!', context: context);
-                }
-              }),
-        ],
+            box,
+            CustomTextField(
+              controller: passwordController,
+              hintText: 'Нууц үг',
+              obscureText: !showPasss,
+              keyboardType: TextInputType.visiblePassword,
+              validator: validatePassword,
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    showPasss = !showPasss;
+                  });
+                },
+                icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
+                    color: AppColors.primary),
+              ),
+            ),
+            box,
+            CustomTextField(
+              controller: passwordConfirmController,
+              hintText: 'Нууц үг давтах',
+              obscureText: !showPasss,
+              keyboardType: TextInputType.visiblePassword,
+              validator: validatePassword,
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    showPasss = !showPasss;
+                  });
+                },
+                icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
+                    color: AppColors.primary),
+              ),
+            ),
+            box,
+            CustomButton(
+                text: 'Батлагаажуулах код авах',
+                ontap: () {
+                  if (passwordController.text == passwordConfirmController.text &&
+                      passwordController.text.isNotEmpty) {
+                    authController
+                        .signUpGetOtp(emailController.text, phoneController.text,
+                            passwordConfirmController.text, context)
+                        .whenComplete(
+                      () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return OtpDialog(
+                                email: emailController.text,
+                                otp: otpController.text,
+                              );
+                            });
+                      },
+                    );
+                  } else {
+                    message(
+                        message: 'Нууц үг таарахгүй байна!', context: context);
+                  }
+                }),
+          ],
+        ),
       ),
     );
   }

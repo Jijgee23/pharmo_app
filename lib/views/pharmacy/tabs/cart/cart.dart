@@ -70,7 +70,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                   ? const SizedBox()
                   : Container(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5.0, horizontal: 15.0),
+                          vertical: 10, horizontal: 15.0),
                       margin: const EdgeInsets.only(bottom: 10),
                       decoration: BoxDecoration(
                         color: Colors.transparent,

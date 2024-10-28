@@ -111,7 +111,9 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                         : size.width / 3),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
+                  color: Colors.red,
                 ),
+                padding: EdgeInsets.symmetric(vertical: 0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(30),
                   child: BottomNavigationBar(

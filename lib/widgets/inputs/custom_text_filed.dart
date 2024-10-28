@@ -29,7 +29,10 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sw = MediaQuery.of(context).size.width;
+    final sh = MediaQuery.of(context).size.height;
     return SizedBox(
+      height: sh * 0.05,
       child: TextFormField(
         onChanged: onChanged,
         onFieldSubmitted: onSubmitted,
@@ -39,13 +42,15 @@ class CustomTextField extends StatelessWidget {
         keyboardType: keyboardType,
         cursorColor: Colors.black,
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 15,
+          contentPadding:  EdgeInsets.symmetric(
+            horizontal: sw * 0.04,
           ),
           labelText: hintText,
           labelStyle: TextStyle(color: Colors.grey.shade700, fontSize: 14.0),
           border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(10),
+            ),
           ),
           suffixIcon: suffixIcon,
         ),

@@ -67,7 +67,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                   ? const SizedBox()
                   : Container(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 15.0),
+                          vertical: 10, horizontal: 15.0),
                       margin: const EdgeInsets.only(bottom: 10, top: 5),
                       decoration: const BoxDecoration(
                         color: Colors.transparent,

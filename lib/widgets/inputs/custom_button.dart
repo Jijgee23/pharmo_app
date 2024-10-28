@@ -8,10 +8,11 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return InkWell(
       onTap: ontap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15.0),
+        padding: EdgeInsets.symmetric(vertical: size.height * 0.015),
         decoration: BoxDecoration(
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(25.0),
