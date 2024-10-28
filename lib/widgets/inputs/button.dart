@@ -11,20 +11,20 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final meqiaQuery = MediaQuery.of(context).size.width;
+    final size = MediaQuery.of(context).size;
     return Container(
-      width: width ?? meqiaQuery * 0.4,
+      width: width ?? size.width * 0.4,
+      height: size.height * 0.06,
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
       decoration: BoxDecoration(
           color: color ?? AppColors.primary,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(size.width * 0.2),
           border: Border.all(color: Colors.white)),
       child: InkWell(
         onTap: onTap ?? () => Navigator.pop(context),
-        splashColor: Colors.white,
         child: Center(
           child: Text(text,
-              style: const TextStyle(color: Colors.white, fontSize: 16)),
+              style: const TextStyle(color: Colors.white, fontSize: 14)),
         ),
       ),
     );

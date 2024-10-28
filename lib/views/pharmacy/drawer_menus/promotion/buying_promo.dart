@@ -4,7 +4,7 @@ import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';

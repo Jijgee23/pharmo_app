@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -29,7 +28,7 @@ class ProductDetail extends StatefulWidget {
 class _ProductDetailState extends State<ProductDetail>
     with SingleTickerProviderStateMixin {
   TextEditingController qtyController =
-      TextEditingController(text: 1.toString());
+  TextEditingController(text: 1.toString());
   late HomeProvider homeProvider;
   late ProductProvider productProvider;
   late ProductDetails detail;
@@ -82,7 +81,7 @@ class _ProductDetailState extends State<ProductDetail>
   void addBasket() async {
     try {
       final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
+      Provider.of<BasketProvider>(context, listen: false);
       if (qtyController.text.isEmpty || int.parse(qtyController.text) <= 0) {
         message(message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
         return;
@@ -151,7 +150,7 @@ class _ProductDetailState extends State<ProductDetail>
                   child: Text(
                     '#${widget.prod.barcode.toString()}',
                     style:
-                        const TextStyle(color: Colors.blueGrey, fontSize: 14),
+                    const TextStyle(color: Colors.blueGrey, fontSize: 14),
                   ),
                 ),
                 const Divider(color: Colors.black),
@@ -202,7 +201,7 @@ class _ProductDetailState extends State<ProductDetail>
                 const Divider(color: Colors.black),
                 InstaImageViewer(
                   imageUrl: widget.prod.image != null &&
-                          splitURL(widget.prod.image!).length == 2
+                      splitURL(widget.prod.image!).length == 2
                       ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
                       : 'https://precisionpharmacy.net/wp-content/themes/apexclinic/images/no-image/No-Image-Found-400x264.png',
                   child: Container(
@@ -215,7 +214,7 @@ class _ProductDetailState extends State<ProductDetail>
                         filterQuality: FilterQuality.high,
                         alignment: Alignment.center,
                         image: NetworkImage(widget.prod.image != null &&
-                                splitURL(widget.prod.image!).length == 2
+                            splitURL(widget.prod.image!).length == 2
                             ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_300x300.${splitURL(widget.prod.image!)[1]}'
                             : 'https://precisionpharmacy.net/wp-content/themes/apexclinic/images/no-image/No-Image-Found-400x264.png'),
                       ),
@@ -225,7 +224,7 @@ class _ProductDetailState extends State<ProductDetail>
                 const Divider(color: Colors.black),
                 Row(
                   mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween, // Or spaceBetween
+                  MainAxisAlignment.spaceBetween, // Or spaceBetween
                   children: [
                     myTab(title: 'Барааны мэдээлэл', index: 0),
                     myTab(title: 'Урамшуулал', index: 1),
@@ -295,7 +294,7 @@ class _ProductDetailState extends State<ProductDetail>
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide:
-                        const BorderSide(color: AppColors.secondary, width: 2),
+                    const BorderSide(color: AppColors.secondary, width: 2),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),

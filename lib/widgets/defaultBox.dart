@@ -11,44 +11,47 @@ class DefaultBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Column(
-      children: [
-        Container(
-          height: size.height * 0.1,
-          decoration: const BoxDecoration(color: AppColors.primary),
-          child: Center(
-            child: Container(
-              margin: EdgeInsets.only(top: size.height * 0.032),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const ChevronBack(
-                    color: Colors.white,
-                  ),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 15, letterSpacing: 2),
-                  ),
-                  SizedBox(width: size.width * 0.08)
-                ],
+    return Scaffold(
+      backgroundColor: AppColors.primary,
+      body: Column(
+        children: [
+          Container(
+            height: size.height * 0.1,
+            decoration: const BoxDecoration(color: AppColors.primary),
+            child: Center(
+              child: Container(
+                margin: EdgeInsets.only(top: size.height * 0.032),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const ChevronBack(
+                      color: Colors.white,
+                    ),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 15, letterSpacing: 2),
+                    ),
+                    SizedBox(width: size.width * 0.08)
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        Container(
-          height: size.height * 0.9,
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(size.width * 0.05),
-              topLeft: Radius.circular(size.width * 0.05),
+          Container(
+            height: size.height * 0.9,
+            padding: EdgeInsets.symmetric(vertical: size.height *0.006, horizontal: size.width *0.006),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(size.height * 0.02),
+                topLeft: Radius.circular(size.height * 0.02),
+              ),
             ),
+            child: child,
           ),
-          child: child,
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

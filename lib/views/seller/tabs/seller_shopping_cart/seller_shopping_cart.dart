@@ -27,6 +27,8 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
     super.initState();
     homeprovider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    basketProvider.getBasket();
+    basketProvider.checkQTYs();
   }
 
   @override
@@ -95,7 +97,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                                     color: AppColors.primary),
                                 Button(
                                     text: 'Захиалга үүсгэх',
-                                    onTap: () => gotoBranch(),
+                                    onTap: () => gotoBranch(context),
                                     color: AppColors.primary),
                               ],
                             ),
@@ -111,16 +113,25 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
     });
   }
 
-  gotoBranch() {
-    if (basketProvider.basket.totalCount == 0) {
-      message(message: 'Сагс хоосон байна!', context: context);
-    } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
-      message(message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
-    } else if (homeprovider.selectedCustomerId == 0) {
-      message(message: 'Захиалагч сонгоно уу!', context: context);
-      homeprovider.changeIndex(0);
+  gotoBranch(BuildContext context) async {
+    await basketProvider.checkQTYs();
+    if (basketProvider.qtys.isNotEmpty) {
+      message(
+          message: 'Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!',
+          context: context);
     } else {
-      goto(const SelectSellerBranchPage(), context);
+      if (basketProvider.basket.totalCount == 0) {
+        message(message: 'Сагс хоосон байна!', context: context);
+      } else if (double.parse(basketProvider.basket.totalPrice.toString()) <
+          10) {
+        message(
+            message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
+      } else if (homeprovider.selectedCustomerId == 0) {
+        message(message: 'Захиалагч сонгоно уу!', context: context);
+        homeprovider.changeIndex(0);
+      } else {
+        goto(const SelectSellerBranchPage(), context);
+      }
     }
   }
 

@@ -17,8 +17,6 @@ class ProductWidget extends StatelessWidget {
       this.onButtonTab,
       this.hasSale,
       this.sale});
-  final String noImageUrl =
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTueR-EitVLUmrOKHMmAujo8S9uV7geSq0Gw&s';
   splitURL(String url) {
     List<String> strings = url.split('.');
     return strings;
@@ -31,16 +29,15 @@ class ProductWidget extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-             // border: Border.all(color: AppColors.primary, width: 0.5),
-              borderRadius: BorderRadius.circular(15),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade500,
-                  blurRadius: 5,
-                )
-              ]
-            ),
+                // border: Border.all(color: AppColors.primary, width: 0.5),
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade500,
+                    blurRadius: 5,
+                  )
+                ]),
             margin: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 5),
             padding: const EdgeInsets.only(bottom: 10),
             child: InkWell(
@@ -68,11 +65,10 @@ class ProductWidget extends StatelessWidget {
                                   splitURL(item.image!).length == 2
                               ? NetworkImage(
                                   '${dotenv.env['IMAGE_URL']}${splitURL(item.image!)[0]}_150x150.${splitURL(item.image!)[1]}')
-                              : NetworkImage(
-                                  noImageUrl,
-                                  
-                                  scale: 1,
-                                ),
+                              : const AssetImage(
+                                  'assets/no-pictures.png',
+                                ) // Fallback image
+                                  as ImageProvider<Object>,
                         ),
                       ),
                     ),

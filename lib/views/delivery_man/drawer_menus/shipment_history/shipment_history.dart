@@ -5,7 +5,7 @@ import 'package:pharmo_app/models/shipment.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
-import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:provider/provider.dart';
 
@@ -90,15 +90,15 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        InkWell(
-          onTap: provider.getShipmentHistory,
-          child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(15)),
-              child: const Text('Бүгд',
-                  style: TextStyle(color: AppColors.cleanWhite, fontSize: 16))),
+        OutlinedButton(
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.all(AppColors.primary),
+          ),
+          onPressed: provider.getShipmentHistory,
+          child: const Text(
+            'Бүгд',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
         provider.selecterFilter,
       ],
@@ -175,7 +175,9 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
         ? SingleChildScrollView(
             child: Column(
               children: provider.shipments
-                  .map((ship) => ShipmentBuilder(shipment: ship))
+                  .map((ship) => !provider.isFetching
+                      ? ShipmentBuilder(shipment: ship)
+                      : shipSkeleton())
                   .toList(),
             ),
           )
@@ -362,6 +364,21 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
     );
   }
 
+  Widget shipSkeleton() {
+    return Container(
+      height: 100,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [Colors.white, Colors.grey.shade300]),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [Constants.defaultShadow],
+      ),
+      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+    );
+  }
+
   shipWidget(
     Shipment shipment,
     final VoidCallback onTap,
@@ -397,7 +414,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   filterButton(VoidCallback onPressed) {
     return OutlinedButton(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(AppColors.secondary),
+        backgroundColor: WidgetStateProperty.all(AppColors.primary),
       ),
       onPressed: onPressed,
       child: const Text(

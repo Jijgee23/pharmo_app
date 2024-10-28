@@ -6,6 +6,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class SelectBranchPage extends StatefulWidget {
@@ -65,7 +66,7 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
     return Consumer<HomeProvider>(
       builder: (context, home, child) => Scaffold(
         appBar: const CustomAppBar(
-            title: Text('Захиалга үүсгэх', style: TextStyle(fontSize: 14))),
+            leading: ChevronBack(color: AppColors.primary),),
         body: ChangeNotifierProvider(
           create: (context) => BasketProvider(),
           child: Container(
@@ -204,16 +205,20 @@ class _SelectBranchPageState extends State<SelectBranchPage> {
 
   InkWell button(
       String text, GestureTapCallback? onTap, Color color, Color textColor) {
+    final size = MediaQuery.of(context).size;
     return InkWell(
       borderRadius: BorderRadius.circular(20),
       onTap: onTap,
       child: Container(
+        width: size.width * 0.4,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20), color: color),
-        child: Text(
-          text,
-          style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+          ),
         ),
       ),
     );

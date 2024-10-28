@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/branch.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/tabs/pharms/brainch_detail.dart';
+import 'package:pharmo_app/widgets/ui_help/box.dart';
+import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
@@ -39,6 +42,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
       path: '${companyInfo['email']}',
@@ -47,86 +51,88 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
       }),
     );
     return Scaffold(
-      appBar: AppBar(
-        leading: const ChevronBack(),
-        title: Text(
-          widget.custName,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+      body: DefaultBox(
+        title: widget.custName,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TwoitemsRow(
-              title: 'Имейл:',
-              text: '${companyInfo['email'] ?? '-'}',
-              onTapText: () async {
-                if (await canLaunchUrlString(emailLaunchUri.toString())) {
-                  await launchUrlString(emailLaunchUri.toString());
-                } else {
-                  message(
-                    context: context,
-                    message:
-                        'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
-                  );
-                }
-              },
-              fontSize: 16,
-              color: Colors.blueGrey.shade800,
-            ),
-            TwoitemsRow(
-              title: 'Утас:',
-              text: '${companyInfo['phone'] ?? '-'}',
-              fontSize: 16,
-              color: Colors.blueGrey.shade800,
-              onTapText: () =>
-                  launchUrlString('tel://+976${companyInfo['phone']}'),
-            ),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Салбарууд:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Box(
+              child: Column(
+                children: [
+                  TwoitemsRow(
+                    title: 'Имейл:',
+                    text: '${companyInfo['email'] ?? '-'}',
+                    onTapText: () async {
+                      if (await canLaunchUrlString(emailLaunchUri.toString())) {
+                        await launchUrlString(emailLaunchUri.toString());
+                      } else {
+                        message(
+                          context: context,
+                          message:
+                              'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
+                        );
+                      }
+                    },
+                    color: Colors.blueGrey.shade800,
+                  ),
+                  TwoitemsRow(
+                    title: 'Утас:',
+                    text: '${companyInfo['phone'] ?? '-'}',
+                    color: Colors.blueGrey.shade800,
+                    onTapText: () =>
+                        launchUrlString('tel://+976${companyInfo['phone']}'),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: const Text(
+                'Салбарууд:',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ),
             Expanded(
-              child: ListView.builder(
-                itemCount: _branchList.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey.shade600)),
-                      child: InkWell(
-                        splashColor: Colors.grey.shade300,
-                        onTap: () {
-                          goto(
-                              BranchDetails(
-                                  customerId: widget.customerId,
-                                  branchId: _branchList[index].id,
-                                  branchName: _branchList[index].name),
-                              context);
-                        },
-                        child: Row(
-                          children: [
-                            const CustomIcon(name: 'drugstore1.png'),
-                            const SizedBox(width: 10),
-                            Text(
-                              _branchList[index].name,
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
+              child: Box(
+                child: SingleChildScrollView(
+                  child: Column(
+                      children: _branchList
+                          .map(
+                            (branch) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [Constants.defaultShadow]),
+                              child: InkWell(
+                                splashColor: Colors.grey.shade300,
+                                onTap: () {
+                                  goto(
+                                      BranchDetails(
+                                          customerId: widget.customerId,
+                                          branchId: branch.id,
+                                          branchName: branch.name),
+                                      context);
+                                },
+                                child: Row(
+                                  children: [
+                                    const CustomIcon(name: 'drugstore1.png'),
+                                    SizedBox(width: size.width * 0.03),
+                                    Text(
+                                      branch.name,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                      ));
-                },
+                          )
+                          .toList()),
+                ),
               ),
             ),
           ],
@@ -152,8 +158,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
           companyInfo = company;
         });
       } else {
-        message(
-            context: context, message: 'Хүсэлт амжилтгүй боллоо.');
+        message(context: context, message: 'Хүсэлт амжилтгүй боллоо.');
       }
     } catch (e) {
       message(context: context, message: 'Алдаа гарлаа');
@@ -180,8 +185,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
           }
         });
       } else {
-        message(
-            context: context, message: 'Салбарын мэдээлэл татаж чадсангүй');
+        message(context: context, message: 'Салбарын мэдээлэл татаж чадсангүй');
       }
     } catch (e) {
       message(context: context, message: 'Алдаа гарлаа');

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -21,6 +22,7 @@ class BasketProvider extends ChangeNotifier {
   Basket get basket => _basket;
   List<dynamic> _shoppingCarts = [];
   List<dynamic> get shoppingCarts => [..._shoppingCarts];
+  List<QTY> qtys = [];
 
   late OrderQRCode _qrCode;
   OrderQRCode get qrCode => _qrCode;
@@ -28,7 +30,7 @@ class BasketProvider extends ChangeNotifier {
     getUser();
     getBasket();
   }
-  void getUser() async {
+  getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userRole = prefs.getString('userrole');
     userrole = userRole;
@@ -37,6 +39,27 @@ class BasketProvider extends ChangeNotifier {
   void increment() {
     _count++;
     notifyListeners();
+  }
+
+  getBasket() async {
+    try {
+      String bearerToken = await getAccessToken();
+      final resBasket = await http.get(
+        Uri.parse('${dotenv.env['SERVER_URL']}get_basket'),
+        headers: getHeader(bearerToken),
+      );
+      if (resBasket.statusCode == 200) {
+        Map<String, dynamic> res = jsonDecode(utf8.decode(resBasket.bodyBytes));
+        _basket = Basket.fromJson(res);
+        _count = _basket.items != null && _basket.items!.isNotEmpty
+            ? _basket.items!.length
+            : 0;
+        _shoppingCarts = _basket.items!;
+        notifyListeners();
+      }
+    } catch (e) {
+      notifyListeners();
+    }
   }
 
   Future<dynamic> checkQTYs() async {
@@ -59,27 +82,21 @@ class BasketProvider extends ChangeNotifier {
             Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
             headers: getHeader(bearerToken),
             body: jsonEncode({"data": bodyStr}));
+        getApiInformation('Check qtys', response);
         if (response.statusCode == 200) {
-          Map<String, dynamic> res =
-              jsonDecode(utf8.decode(response.bodyBytes));
-          for (String key in res.keys) {
-            // dynamic cart = shoppingCarts.firstWhere((s) => s['product_itemname_id'].toString() == key);
-            dynamic cart = shoppingCarts.firstWhere((s) =>
-                s['product_itemname_id'] != null
-                    ? s['product_itemname_id'].toString() == key
-                    : s['product_id'].toString() == key);
-            if (res[key] == null) {
-              errorMessages.add(cart['product_name'] + ' бараа дууссан байна.');
-            } else if (res[key] == false) {
-              errorMessages.add(cart['product_name'] +
-                  ' барааны үлдэгдэл хүрэлцэхгүй байна.');
+          Map res = jsonDecode(utf8.decode(response.bodyBytes));
+          // print(res);
+          qtys.clear();
+          res.forEach((k, v) {
+            if (v == false) {
+              qtys.add(QTY(k, v));
             }
-          }
-          if (errorMessages.isNotEmpty) {
+          });
+          if (qtys.isNotEmpty) {
             return {
-              'errorType': 2,
+              'errorType': 5,
               'data': null,
-              'message': errorMessages.join("\n")
+              'message': 'Барааны үлдэгдэл хүрэлцэхгүй байна!'
             };
           } else {
             return {'errorType': 1, 'data': res, 'message': ''};
@@ -91,59 +108,65 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> checkQTY(
-      {int? product_id, int? itemname_id, required int qty}) async {
+  errorAt(String type, String e) {
+    debugPrint('ERROR AT $type e: $e');
+  }
+
+  checkItemQty(int id, int qty) async {
     try {
       String bearerToken = await getAccessToken();
-      Map<String, int?> bodyStr;
-      String isProduct;
-      if (itemname_id != null && itemname_id > 0) {
-        bodyStr = {'$itemname_id': qty};
-        isProduct = itemname_id.toString();
-      } else {
-        bodyStr = {'$product_id': qty};
-        isProduct = product_id.toString();
-      }
       final response = await http.patch(
-          Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({"data": bodyStr}));
+        Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
+        headers: getHeader(bearerToken),
+        body: jsonEncode(
+          {
+            "data": {"$id": qty}
+          },
+        ),
+      );
+      debugPrint(
+          'CHECK QTY ID:${id} STATUS: ${response.statusCode} BODY: ${response.body}');
       if (response.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-        if (res[isProduct] == null) {
-          return {'errorType': 2, 'data': null, 'message': 'Бараа дууссан.'};
-        } else if (res[isProduct] == false) {
+        if (res['$id'] == null) {
           return {
-            'errorType': 2,
-            'data': null,
-            'message': 'Барааны тоо хүрэхгүй байна.'
+            'v': 0,
           };
+        } else if (res['$id'] == true) {
+          return {'v': 1};
         } else {
-          return {'errorType': 1, 'data': res, 'message': ''};
+          return {
+            'v': 2,
+          };
         }
       } else {
         return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Барааны тоо хүрэхгүй байна.'
+          'v': 3,
         };
       }
     } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
+      errorAt('CHECK QTY', e.toString());
+      return {
+        'v': 4,
+      };
     }
   }
 
   Future<dynamic> addBasket(
       {int? product_id, int? itemname_id, required int qty}) async {
+    print('id $product_id itemid: $itemname_id');
+    int checkId = (itemname_id == null) ? product_id! : itemname_id;
+    String bearerToken = await getAccessToken();
     try {
-      Map check = await checkQTY(
-          product_id: product_id, itemname_id: itemname_id, qty: qty);
-      if (check['errorType'] == 1) {
-        String bearerToken = await getAccessToken();
+      dynamic check = await checkItemQty(checkId, qty);
+      if (check['v'] == 0) {
+        return {'errorType': 0, 'data': null, 'message': 'Бараа дууссан.'};
+      } else if (check['v'] == 1) {
         final response = await http.post(
             Uri.parse('${dotenv.env['SERVER_URL']}basket_item/'),
             headers: getHeader(bearerToken),
             body: jsonEncode({'product': product_id, 'qty': qty}));
+        getApiInformation('ADD BASKET', response);
         if (response.statusCode == 201) {
           return {
             'errorType': 1,
@@ -157,32 +180,17 @@ class BasketProvider extends ChangeNotifier {
             'message': 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.'
           };
         }
-      } else {
-        return {'errorType': 2, 'data': null, 'message': check['message']};
+      } else if (check['v'] == 2) {
+        return {
+          'errorType': 3,
+          'data': null,
+          'message': 'Барааны үлдэгдэл хүрэлцэхгүй байна.'
+        };
+      } else if (check['v'] == 4) {
+        return {'errorType': 4, 'data': null, 'message': 'Алдаа гарлаа.'};
       }
     } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': ''};
-    }
-  }
-
-  void getBasket() async {
-    try {
-      String bearerToken = await getAccessToken();
-      final resBasket = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}get_basket'),
-        headers: getHeader(bearerToken),
-      );
-      if (resBasket.statusCode == 200) {
-        Map<String, dynamic> res = jsonDecode(utf8.decode(resBasket.bodyBytes));
-        _basket = Basket.fromJson(res);
-        _count = _basket.items != null && _basket.items!.isNotEmpty
-            ? _basket.items!.length
-            : 0;
-        _shoppingCarts = _basket.items!;
-        notifyListeners();
-      }
-    } catch (e) {
-      notifyListeners();
+      return {'errorType': 4, 'data': e, 'message': 'Алдаа гарлаа.'};
     }
   }
 
@@ -204,6 +212,7 @@ class BasketProvider extends ChangeNotifier {
           Uri.parse('${dotenv.env['SERVER_URL']}clear_basket/'),
           headers: getHeader(bearerToken),
           body: jsonEncode({'basketId': basket_id}));
+      await getBasket();
       notifyListeners();
       if (response.statusCode == 200) {
         return {
@@ -220,6 +229,76 @@ class BasketProvider extends ChangeNotifier {
       }
     } catch (e) {
       return {'fail': e};
+    }
+  }
+
+  getApiInformation(String type, Response res) {
+    debugPrint(' $type . STATUS: ${res.statusCode} BODY: ${res.body}');
+  }
+
+  Future<dynamic> removeBasketItem(
+      {required int basket_id, required int item_id}) async {
+    try {
+      String bearerToken = await getAccessToken();
+      final resQR = await http.delete(
+          Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
+          headers: getHeader(bearerToken));
+      if (resQR.statusCode == 204) {
+        await getBasket();
+        notifyListeners();
+        return {
+          'errorType': 1,
+          'data': null,
+          'message': 'Сагснаас бараа амжилттай устгалаа.!'
+        };
+      } else {
+        notifyListeners();
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Сагснаас бараа устгах үед алдаа гарлаа.'
+        };
+      }
+    } catch (e) {
+      return {'errorType': 3, 'data': e, 'message': e};
+    }
+  }
+
+  Future<dynamic> changeBasketItem(
+      {required String type, required int item_id, required int qty}) async {
+    try {
+      String bearerToken = await getAccessToken();
+      // checkQTY(qty: qty);
+      if (type == 'add') {
+        qty = qty + 1;
+      } else if (type == 'set' && qty > 0) {
+        qty = qty;
+      } else {
+        qty = qty - 1;
+      }
+      final resQR = await http.patch(
+          Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
+          headers: getHeader(bearerToken),
+          body: jsonEncode({"qty": int.parse(qty.toString())}));
+      getApiInformation('Тоо ширхэг өөрчлөх', resQR);
+      if (resQR.statusCode == 200) {
+        getBasket();
+        notifyListeners();
+        return {
+          'errorType': 1,
+          'data': null,
+          'message': 'Барааны тоог амжилттай өөрчиллөө.'
+        };
+      } else {
+        notifyListeners();
+        return {
+          'errorType': 2,
+          'data': null,
+          'message': 'Барааны тоог өөрчлөх үед алдаа гарлаа.'
+        };
+      }
+    } catch (e) {
+      return {'errorType': 3, 'data': e, 'message': e};
     }
   }
 
@@ -244,7 +323,8 @@ class BasketProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         Future(() async {
           await clearBasket(basket_id: basket_id);
-        }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString()), context));
+        }).then((value) =>
+            goto(OrderDone(orderNo: res['orderNo'].toString()), context));
         // goto(OrderDone(orderNo: res['orderNo']), context);
         // await clearBasket(basket_id: basket_id);
         return res['orderNo'];
@@ -280,8 +360,7 @@ class BasketProvider extends ChangeNotifier {
         goto(const QRCode(), context);
       } else if (status == 404) {
         if (data == 'qpay') {
-          message(
-              message: 'Нийлүүлэгч Qpay холбоогүй.', context: context);
+          message(message: 'Нийлүүлэгч Qpay холбоогүй.', context: context);
         }
       } else if (status == 400) {
         if (data == 'bad qpay') {
@@ -289,13 +368,11 @@ class BasketProvider extends ChangeNotifier {
               message: 'Нийлүүлэгчийн Qpay тохиргоо алдаатай!',
               context: context);
         } else if (data == 'min') {
-          message(
-              message: 'Төлбөрийн дүн 10₮-с дээш байх', context: context);
+          message(message: 'Төлбөрийн дүн 10₮-с дээш байх', context: context);
         } else if (data == 'empty') {
           message(message: 'Сагс хоосон байна!', context: context);
         } else if (data == 'branch not match') {
-          message(
-              message: 'Салбарын мэдээлэл буруу!', context: context);
+          message(message: 'Салбарын мэдээлэл буруу!', context: context);
         }
       } else if (status == 500) {
         message(message: 'Админтай холбогдоно уу!', context: context);
@@ -332,68 +409,16 @@ class BasketProvider extends ChangeNotifier {
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
+}
 
-  Future<dynamic> removeBasketItem(
-      {required int basket_id, required int item_id}) async {
-    try {
-      String bearerToken = await getAccessToken();
-      final resQR = await http.delete(
-          Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
-          headers: getHeader(bearerToken));
-      if (resQR.statusCode == 204) {
-        getBasket();
-        notifyListeners();
-        return {
-          'errorType': 1,
-          'data': null,
-          'message': 'Сагснаас бараа амжилттай устгалаа.!'
-        };
-      } else {
-        notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Сагснаас бараа устгах үед алдаа гарлаа.'
-        };
-      }
-    } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
-    }
-  }
-
-  Future<dynamic> changeBasketItem(
-      {required String type, required int item_id, required int qty}) async {
-    try {
-      String bearerToken = await getAccessToken();
-      if (type == 'add') {
-        qty = qty + 1;
-      } else if (type == 'set' && qty > 0) {
-        qty = qty;
-      } else {
-        qty = qty - 1;
-      }
-      final resQR = await http.patch(
-          Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({"qty": qty}));
-      if (resQR.statusCode == 200) {
-        getBasket();
-        notifyListeners();
-        return {
-          'errorType': 1,
-          'data': null,
-          'message': 'Барааны тоог амжилттай өөрчиллөө.'
-        };
-      } else {
-        notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Барааны тоог өөрчлөх үед алдаа гарлаа.'
-        };
-      }
-    } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
-    }
+class QTY {
+  String id;
+  bool val;
+  QTY(this.id, this.val);
+  factory QTY.fromJson(Map<String, dynamic> json) {
+    return QTY(
+      json['id'],
+      json['val'],
+    );
   }
 }

@@ -78,18 +78,16 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                                     _pagingController.refresh();
                                   });
                                 } else {
-                                  print('v: $v');
                                   WidgetsBinding.instance
                                       .addPostFrameCallback((t) {
                                     homeProvider.changeSearching(false);
                                     _pagingController.refresh();
                                   });
                                 }
-                                print(search.text);
                               },
                             );
                           } catch (e) {
-                            print('=============> $e');
+                            debugPrint('=============> $e');
                           }
                         },
                         onSubmitted: (v) {

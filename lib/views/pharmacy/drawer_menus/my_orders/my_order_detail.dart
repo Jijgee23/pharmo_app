@@ -7,7 +7,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../widgets/box.dart';
+import '../../../../widgets/ui_help/box.dart';
 
 class MyOrderDetail extends StatefulWidget {
   final int id;

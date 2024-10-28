@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utilities/constants.dart';
+import '../../utilities/constants.dart';
 
 class Box extends StatelessWidget {
   final Widget child;
@@ -8,14 +8,15 @@ class Box extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
       width: double.infinity,
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.symmetric(vertical: size.height * 0.02, horizontal: size.width * 0.03),
       decoration: BoxDecoration(
         boxShadow: [Constants.defaultShadow],
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(size.height * 0.02),
       ),
       child: child,
     );

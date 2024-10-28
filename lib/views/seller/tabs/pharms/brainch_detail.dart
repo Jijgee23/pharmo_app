@@ -5,7 +5,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/tabs/pharms/customer_details_paga.dart';
+import 'package:pharmo_app/widgets/ui_help/box.dart';
+import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/others/twoItemsRow.dart';
@@ -57,30 +60,32 @@ class _BranchDetailsState extends State<BranchDetails> {
         });
         return res;
       } else {
-        message(
-            context: context, message: 'Салбарын мэдээлэл татаж чадсангүй');
+        message(context: context, message: 'Салбарын мэдээлэл татаж чадсангүй');
       }
     } catch (e) {
       message(context: context, message: 'Алдаа гарлаа');
     }
   }
 
+  title(String v) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: Text(
+        v,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: const ChevronBack(),
-        title: Text(
-          widget.branchName,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      body: DefaultBox(
+        title: widget.branchName,
         child: storeList.isEmpty
-            ? const Center(
+            ? const Box(
                 child: Text(
                   'Салбарын мэдээлэл олдсонгүй',
                   style: TextStyle(
@@ -89,73 +94,68 @@ class _BranchDetailsState extends State<BranchDetails> {
                   ),
                 ),
               )
-            : Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Салбарын мэдээлэл',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  title('Салбарын мэдээлэл'),
+                  Box(
+                    child: Column(
+                      children: [
+                        TwoitemsRow(
+                          title: 'Утас:',
+                          text: '${storeList['phone'] ?? '-'}',
+                          onTapText: () => launchUrlString(
+                              'tel://+976${storeList['phone']}'),
+                        ),
+                        TwoitemsRow(
+                          title: 'Хаяг:',
+                          text: '${storeList['address'] ?? '-'}',
+                          isLong: false,
+                        ),
+                      ],
                     ),
-                    TwoitemsRow(
-                      title: 'Утас:',
-                      text: '${storeList['phone'] ?? '-'}',
-                      onTapText: () =>
-                          launchUrlString('tel://+976${storeList['phone']}'),
-                      fontSize: 16,
+                  ),
+                  title('Салбарын менежерийн мэдээлэл'),
+                  Box(
+                    child: Column(
+                      children: [
+                        TwoitemsRow(
+                            title: 'Нэр:',
+                            text: '${storeList['manager']['name'] ?? '-'}'),
+                        TwoitemsRow(
+                          title: 'Имейл:',
+                          text: '${storeList['manager']['email'] ?? '-'}',
+                          onTapText: () async {
+                            final Uri emailLaunchUri = Uri(
+                              scheme: 'mailto',
+                              path: '${storeList['manager']['email'] ?? '-'}',
+                              query: EmailHelper
+                                  .encodeQueryParameters(<String, String>{
+                                'subject': 'Бичих зүйлээ оруулна уу!',
+                              }),
+                            );
+                            if (await canLaunchUrlString(
+                                emailLaunchUri.toString())) {
+                              await launchUrlString(emailLaunchUri.toString());
+                            } else {
+                              message(
+                                context: context,
+                                message:
+                                    'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
+                              );
+                            }
+                          },
+                        ),
+                        TwoitemsRow(
+                          title: 'Утас:',
+                          text: '${storeList['manager']['phone'] ?? '-'}',
+                          onTapText: () => launchUrlString(
+                              'tel://+976${storeList['manager']['phone']}'),
+                        ),
+                      ],
                     ),
-                    TwoitemsRow(
-                      title: 'Хаяг:',
-                      text:
-                          '${storeList['address'] ?? '-'}',
-                      isLong: false,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    const Text(
-                      'Салбарын менежерийн мэдээлэл',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TwoitemsRow(
-                        title: 'Нэр:',
-                        text: '${storeList['manager']['name'] ?? '-'}'),
-                    TwoitemsRow(
-                      title: 'Имейл:',
-                      text: '${storeList['manager']['email'] ?? '-'}',
-                      onTapText: () async {
-                        final Uri emailLaunchUri = Uri(
-                          scheme: 'mailto',
-                          path: '${storeList['manager']['email'] ?? '-'}',
-                          query: EmailHelper
-                              .encodeQueryParameters(<String, String>{
-                            'subject': 'Бичих зүйлээ оруулна уу!',
-                          }),
-                        );
-                        if (await canLaunchUrlString(
-                            emailLaunchUri.toString())) {
-                          await launchUrlString(emailLaunchUri.toString());
-                        } else {
-                          message(
-                            context: context,
-                            message:
-                                'Имейл илгээх боломжгүй байна. Таны төхөөрөмжид тохирох имейл апп байхгүй байна.',
-                          );
-                        }
-                      },
-                    ),
-                    TwoitemsRow(
-                      title: 'Утас:',
-                      text: '${storeList['manager']['phone'] ?? '-'}',
-                      onTapText: () => launchUrlString(
-                          'tel://+976${storeList['manager']['phone']}'),
-                    ),
-                  ],
-                ),
+                  )
+                ],
               ),
       ),
     );

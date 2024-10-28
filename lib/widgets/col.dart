@@ -3,27 +3,36 @@ import 'package:flutter/material.dart';
 class Col extends StatelessWidget {
   final String t1;
   final String t2;
-  const Col({super.key, required this.t1, required this.t2});
+  final double? fontSize1;
+  final double? fontSize2;
+  final CrossAxisAlignment? cxs;
+  const Col(
+      {super.key,
+      required this.t1,
+      required this.t2,
+      this.fontSize1,
+      this.fontSize2,
+      this.cxs});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: cxs ?? CrossAxisAlignment.start,
       children: [
         Text(
           t1,
-          softWrap: true ,
+          softWrap: true,
           maxLines: 2,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey,
-            overflow: TextOverflow.ellipsis
-          ),
+          style: TextStyle(
+              fontSize: fontSize1 ?? 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+              overflow: TextOverflow.ellipsis),
         ),
         Text(
           t2,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          style:
+              TextStyle(fontSize: fontSize2 ?? 12, fontWeight: FontWeight.bold),
         ),
       ],
     );

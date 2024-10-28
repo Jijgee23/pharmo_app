@@ -13,7 +13,7 @@ import 'package:pharmo_app/views/pharmacy/tabs/home/home.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
+import 'package:pharmo_app/widgets/ui_help/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
 
@@ -102,39 +102,41 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
               },
               child: _pages[homeProvider.currentIndex],
             ),
-            bottomNavigationBar: Container(
-              margin: EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: (orientation == Orientation.portrait)
-                      ? size.width * 0.25
-                      : size.width / 3),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(30),
-                child: BottomNavigationBar(
-                  backgroundColor: AppColors.primary,
-                  currentIndex: homeProvider.currentIndex,
-                  useLegacyColorScheme: false,
-                  showUnselectedLabels: false,
-                  showSelectedLabels: false,
-                  type: BottomNavigationBarType.fixed,
-                  onTap: homeProvider.changeIndex,
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: NavBarIcon(url: 'category'),
-                      label: 'Нүүр',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: NavBarIcon(url: 'bars-sort'),
-                      label: 'Ангилал',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: NavBarIcon(url: 'cart'),
-                      label: 'Сагс',
-                    ),
-                  ],
+            bottomNavigationBar: SafeArea(
+              child: Container(
+                margin: EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: (orientation == Orientation.portrait)
+                        ? size.width * 0.25
+                        : size.width / 3),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: BottomNavigationBar(
+                    backgroundColor: AppColors.primary,
+                    currentIndex: homeProvider.currentIndex,
+                    useLegacyColorScheme: false,
+                    showUnselectedLabels: false,
+                    showSelectedLabels: false,
+                    type: BottomNavigationBarType.fixed,
+                    onTap: homeProvider.changeIndex,
+                    items: const [
+                      BottomNavigationBarItem(
+                        icon: NavBarIcon(url: 'category'),
+                        label: 'Нүүр',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: NavBarIcon(url: 'bars-sort'),
+                        label: 'Ангилал',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: NavBarIcon(url: 'cart'),
+                        label: 'Сагс',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

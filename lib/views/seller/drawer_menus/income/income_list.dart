@@ -7,7 +7,7 @@ import 'package:pharmo_app/models/income.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
-import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
@@ -358,7 +358,7 @@ class _IncomeWidgetState extends State<IncomeWidget> {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [Constants.defaultShadow],
         ),
-        margin: const EdgeInsets.symmetric(vertical: 5),
+        margin: const EdgeInsets.only(bottom: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

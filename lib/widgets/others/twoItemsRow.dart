@@ -29,7 +29,7 @@ class TwoitemsRow extends StatelessWidget {
             title,
             style: TextStyle(
               color: Colors.blueGrey.shade800,
-              fontSize: fontSize ?? 14.0,
+              fontSize: fontSize ?? 12.0,
               fontWeight: FontWeight.bold,
               overflow: TextOverflow.ellipsis,
             ),
@@ -37,7 +37,8 @@ class TwoitemsRow extends StatelessWidget {
             softWrap: true,
           ),
           SizedBox(
-            width: isLong ?? true ? null : MediaQuery.of(context).size.width * 0.7,
+            width:
+                isLong ?? true ? null : MediaQuery.of(context).size.width * 0.7,
             child: InkWell(
               onTap: onTapText,
               child: Text(
@@ -45,7 +46,7 @@ class TwoitemsRow extends StatelessWidget {
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   color: color ?? Colors.red.shade800,
-                  fontSize: fontSize ?? 14.0,
+                  fontSize: fontSize ?? 12.0,
                   fontWeight: FontWeight.bold,
                   overflow: TextOverflow.ellipsis,
                 ),

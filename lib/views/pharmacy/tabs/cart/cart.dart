@@ -24,6 +24,11 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
     super.initState();
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
     basketProvider.getBasket();
+    basketProvider.checkQTYs();
+  }
+
+  getBasket() async {
+    await basketProvider.getBasket();
   }
 
   @override
@@ -102,7 +107,17 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                                     color: AppColors.primary),
                                 Button(
                                     text: 'Захиалга үүсгэх',
-                                    onTap: () => gotoBranch(context),
+                                    onTap: () async {
+                                      await basketProvider.checkQTYs();
+                                      if (basketProvider.qtys.isNotEmpty) {
+                                        message(
+                                            message:
+                                                'Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!',
+                                            context: context);
+                                      } else {
+                                        gotoBranch(context);
+                                      }
+                                    },
                                     color: AppColors.primary),
                               ],
                             ),
@@ -118,9 +133,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
   }
 
   gotoBranch(BuildContext c) {
-    if (basketProvider.basket.totalCount == 0) {
-      message(message: 'Сагс хоосон байна!', context: c);
-    } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
+    if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
       message(message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: c);
     } else {
       goto(const SelectBranchPage(), c);

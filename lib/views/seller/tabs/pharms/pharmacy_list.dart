@@ -56,6 +56,7 @@ class _PharmacyListState extends State<PharmacyList> {
   @override
   Widget build(BuildContext context) {
     _displayItems.sort((a, b) => a.name.compareTo(b.name));
+    final size = MediaQuery.of(context).size;
     List<dynamic> lists = [
       pharmProvider.fullList,
       pharmProvider.customeList,
@@ -67,218 +68,169 @@ class _PharmacyListState extends State<PharmacyList> {
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (_, homeProvider, pp, child) {
         return Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              onSearch
-                  ? const SliverAppBar(
-                      toolbarHeight: 0,
-                    )
-                  : SliverAppBar(
-                      pinned: true,
-                      automaticallyImplyLeading: false,
-                      title: CustomSearchBar(
-                        searchController: _searchController,
-                        title: 'Хайх',
-                        onChanged: (value) {
-                          filteredItems.clear();
-                          searchPharmacy(value);
-                        },
-                      ),
-                      actions: [
-                        Container(
-                          padding: const EdgeInsets.only(right: 5),
-                          width: 40,
-                          child: FloatingActionButton(
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            highlightElevation: 0,
-                            onPressed: () {
-                              homeProvider.searchByLocation(context);
-                            },
-                            child: Image.asset(
-                              'assets/icons/locaiton.png',
+          body: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.shade500,
+                        blurRadius: 3,
+                        offset: const Offset(0, 4))
+                  ],
+                ),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomSearchBar(
+                              searchController: _searchController,
+                              title: 'Хайх',
+                              onChanged: (value) {
+                                filteredItems.clear();
+                                searchPharmacy(value);
+                              },
                             ),
                           ),
+                          const SizedBox(width: 10),
+                          InkWell(
+                            onTap: () => homeProvider.searchByLocation(context),
+                            child: Image.asset(
+                              'assets/icons/locaiton.png',
+                              width: 35,
+                            ),
+                          ),
+                        ],
+                      ),
+                      NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          return true;
+                        },
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: filters
+                                .map((e) => custRadio(
+                                    radioValues.elementAt(filters.indexOf(e)),
+                                    e,
+                                    lists[filters.indexOf(e)]))
+                                .toList(),
+                          ),
                         ),
-                      ],
-                    ),
-              SliverAppBar(
-                pinned: false,
-                toolbarHeight: 20,
-                automaticallyImplyLeading: false,
-                title: NotificationListener<ScrollNotification>(
-                  onNotification: (notification) {
-                    return true;
-                  },
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: filters
-                          .map((e) => custRadio(
-                              radioValues.elementAt(filters.indexOf(e)),
-                              e,
-                              lists[filters.indexOf(e)]))
-                          .toList(),
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              _displayItems.isEmpty
-                  ? SliverFillRemaining(
-                      child: Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Эмийн сан олдсонгүй.',
-                              style: TextStyle(
-                                fontSize: 24,
-                                color: AppColors.secondary,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            OutlinedButton.icon(
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.all(AppColors.primary),
-                              ),
-                              onPressed: () {
-                                goto(const RegisterPharmPage(), context);
-                              },
-                              icon: const Icon(
-                                Icons.add,
-                                color: Colors.white,
-                              ),
-                              label: const Text(
-                                'Бүртгэх',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  : SliverList.builder(
-                      itemCount: _displayItems.length,
-                      itemBuilder: ((context, index) {
-                        final item = _displayItems[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: InkWell(
-                            onTap: () async {
-                              if (item.isBad == true) {
-                                message(
-                                    context: context,
-                                    message: 'Найдваргүй харилцагч байна!');
-                              } else {
-                                if (item.debt != 0 &&
-                                    item.debtLimit != 0 &&
-                                    item.debt >= item.debtLimit) {
-                                  message(
-                                      context: context,
-                                      message:
-                                          'Зээлийн хэмжээ хэтэрсэн байна!');
-                                } else {
-                                  setState(() {
-                                    homeProvider.selectedCustomerId = item.id;
-                                    homeProvider.selectedCustomerName =
-                                        item.name;
-                                    homeProvider.getSelectedUser(
-                                        item.id, item.name);
-                                  });
-                                  homeProvider.changeIndex(1);
-                                }
-                              }
-                            },
-                            child: Column(
-                              children: [
-                                Container(
-                                  // decoration: BoxDecoration(
-                                  //   borderRadius: BorderRadius.circular(10),
-                                  //   border: Border.all(
-                                  //     color: AppColors.primary,
-                                  //   ),
-                                  // ),
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 2),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 7.5, horizontal: 10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          homeProvider.selectedCustomerId ==
-                                                  item.id
-                                              ? const Icon(
-                                                  Icons.check,
-                                                  color: AppColors.succesColor,
-                                                )
-                                              : const Text(''),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          RichText(
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            text: TextSpan(
-                                              text: item.name,
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: item.isBad
-                                                      ? Colors.red
-                                                      : item.debt != 0 &&
-                                                              item.debtLimit !=
-                                                                  0 &&
-                                                              item.debt >=
-                                                                  item.debtLimit
-                                                          ? AppColors
-                                                              .failedColor
-                                                          : AppColors
-                                                              .cleanBlack),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      InkWell(
-                                        borderRadius: BorderRadius.circular(10),
-                                        onTap: () {
-                                          if (item.isCustomer) {
-                                            goto(
-                                                CustomerDetailsPage(
-                                                  customerId: item.id,
-                                                  custName: item.name,
-                                                ),
-                                                context);
-                                          } else {
-                                            message(
-                                                context: context,
-                                                message:
-                                                    'Эмийн сангийн мэдээллийг харах боломжгүй!');
-                                          }
-                                        },
-                                        child: Icon((item.isCustomer == false)
-                                            ? Icons.lock_outline_rounded
-                                            : Icons.chevron_right),
-                                      )
-                                    ],
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.03),
+                  child: Column(
+                    children: [
+                      ..._displayItems
+                          .map((item) => InkWell(
+                        onTap: () async {
+                          if (item.isBad == true) {
+                            message(
+                                context: context,
+                                message: 'Найдваргүй харилцагч байна!');
+                          } else {
+                            if (item.debt != 0 &&
+                                item.debtLimit != 0 &&
+                                item.debt >= item.debtLimit) {
+                              message(
+                                  context: context,
+                                  message:
+                                  'Зээлийн хэмжээ хэтэрсэн байна!');
+                            } else {
+                              setState(() {
+                                homeProvider.selectedCustomerId = item.id;
+                                homeProvider.selectedCustomerName =
+                                    item.name;
+                                homeProvider.getSelectedUser(
+                                    item.id, item.name);
+                              });
+                              homeProvider.changeIndex(1);
+                            }
+                          }
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(
+                                      color: AppColors.primary,
+                                      width: 1))),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 15),
+                          child: Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  homeProvider.selectedCustomerId ==
+                                      item.id
+                                      ? const Icon(
+                                    Icons.check,
+                                    color: AppColors.succesColor,
+                                  )
+                                      : const Text(''),
+                                  const SizedBox(
+                                    width: 10,
                                   ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20),
-                                  child: Divider(
-                                    color: Colors.grey.shade700,
+                                  RichText(
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    text: TextSpan(
+                                      text: item.name,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: item.isBad
+                                              ? Colors.red
+                                              : item.debt != 0 &&
+                                              item.debtLimit !=
+                                                  0 &&
+                                              item.debt >=
+                                                  item.debtLimit
+                                              ? AppColors.failedColor
+                                              : AppColors.cleanBlack),
+                                    ),
                                   ),
-                                )
-                              ],
-                            ),
+                                ],
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  if (item.isCustomer) {
+                                    goto(
+                                        CustomerDetailsPage(
+                                          customerId: item.id,
+                                          custName: item.name,
+                                        ),
+                                        context);
+                                  } else {
+                                    message(
+                                        context: context,
+                                        message:
+                                        'Эмийн сангийн мэдээллийг харах боломжгүй!');
+                                  }
+                                },
+                                child: Icon((item.isCustomer == false)
+                                    ? Icons.lock_outline_rounded
+                                    : Icons.chevron_right),
+                              )
+                            ],
                           ),
-                        );
-                      }),
-                    ),
+                        ),
+                      )),
+                      const SizedBox(height: kToolbarHeight + 10)
+                    ]
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -304,7 +256,7 @@ class _PharmacyListState extends State<PharmacyList> {
     return Row(
       children: [
         Transform.scale(
-          scale: 0.8,
+          scale: 0.7,
           child: Radio(
             fillColor: WidgetStateProperty.all(AppColors.primary),
             value: value,

@@ -6,7 +6,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
-import 'package:pharmo_app/widgets/box.dart';
+import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/defaultBox.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
@@ -197,7 +197,11 @@ class _MyOrderState extends State<MyOrder> {
                     children: [
                       dropContainer(
                         child: DropdownButton<String>(
+                          style: const TextStyle(
+                              fontSize: 14,
+                              color: AppColors.primary),
                           dropdownColor: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
                           underline: const SizedBox(),
                           value: _selectedFilter,
                           onChanged: (String? value) async {
@@ -243,27 +247,16 @@ class _MyOrderState extends State<MyOrder> {
                                   children: <Widget>[
                                     dropContainer(
                                       child: DropdownButton<String>(
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.primary),
                                         dropdownColor: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
                                         value: _selectedItem,
                                         underline: const SizedBox(),
                                         onChanged: (String? value) {
                                           setState(
                                               () => _selectedItem = value!);
-                                        },
-                                        selectedItemBuilder:
-                                            (BuildContext context) {
-                                          return _processess.keys
-                                              .map<Widget>((String item) {
-                                            return Container(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                _processess[item].toString(),
-                                                style: const TextStyle(
-                                                    color: AppColors.primary,
-                                                    fontSize: 14),
-                                              ),
-                                            );
-                                          }).toList();
                                         },
                                         items: _processess.keys
                                             .map<DropdownMenuItem<String>>(
@@ -288,13 +281,13 @@ class _MyOrderState extends State<MyOrder> {
                                     decoration: BoxDecoration(
                                         color: AppColors.primary,
                                         borderRadius:
-                                            BorderRadius.circular(30)),
+                                            BorderRadius.circular(10)),
                                     child: const Center(
                                       child: Text(
                                         'Шүүх',
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.w700,
                                           letterSpacing: 1,
                                         ),
                                       ),
@@ -384,45 +377,44 @@ class _MyOrderState extends State<MyOrder> {
                     ),
                   ],
                 ),
-
               ],
             ),
             const SizedBox(height: 10),
             (order.process == 'Бэлэн болсон' ||
-                order.process == 'Түгээлтэнд гарсан')
+                    order.process == 'Түгээлтэнд гарсан')
                 ? InkWell(
-              onTap: () {
-                provider
-                    .confirmOrder(order.id, context)
-                    .then((e) => getData());
-              },
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: IntrinsicWidth(
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(20)),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 10),
-                    child: const Center(
-                      child: Row(
-                        children: [
-                          Text(
-                            'Батлагаажуулах',
-                            style: TextStyle(
-                                color: Colors.white,
-                                letterSpacing: 1,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold),
+                    onTap: () {
+                      provider
+                          .confirmOrder(order.id, context)
+                          .then((e) => getData());
+                    },
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: IntrinsicWidth(
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 10),
+                          child: const Center(
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Батлагаажуулах',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      letterSpacing: 1,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            )
+                  )
                 : const SizedBox(),
           ],
         ),

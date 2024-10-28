@@ -20,6 +20,9 @@ void gotoRemoveUntil(Widget widget, BuildContext context) {
 const ts1 = TextStyle(color: Colors.blueGrey, fontSize: 12.0);
 const ts2 = TextStyle(color: Colors.blueGrey, fontSize: 16.0);
 const ts3 = TextStyle(color: Colors.blueGrey, fontSize: 20.0);
+getScreenSize(BuildContext context) {
+  return MediaQuery.of(context).size;
+}
 
 extension AppContext on BuildContext {
   Size get size => MediaQuery.sizeOf(this);
@@ -86,6 +89,24 @@ int parseInt(dynamic value) {
   }
 }
 
+toPrice(String v) {
+  return '$v ₮';
+}
+
+getProcessNumber(String process) {
+  if (process == 'Шинэ') {
+    return 0;
+  } else if (process == 'Бэлтгэж эхэлсэн') {
+    return 1;
+  } else if (process == 'Бэлэн болсон') {
+    return 2;
+  } else if (process == 'Түгээлтэнд гарсан') {
+    return 3;
+  } else {
+    return 4;
+  }
+}
+
 getOrderProcess(String v) {
   if (v == 'O') {
     return "Хүргэлтэнд гарсан";
@@ -103,22 +124,5 @@ getOrderProcess(String v) {
     return 'Бэлэн болсон';
   } else {
     return '';
-  }
-}
-
-toPrice(String v) {
-  return '$v ₮';
-}
-getProcessNumber(String process) {
-  if (process == 'Шинэ') {
-    return 0;
-  } else if (process == 'Бэлтгэж эхэлсэн') {
-    return 1;
-  } else if (process == 'Бэлэн болсон') {
-    return 2;
-  } else if (process == 'Түгээлтэнд гарсан') {
-    return 3;
-  } else {
-    return 4;
   }
 }

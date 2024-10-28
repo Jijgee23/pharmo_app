@@ -24,20 +24,25 @@ final TextEditingController passwordController = TextEditingController();
 final TextEditingController phoneController = TextEditingController();
 final TextEditingController passwordConfirmController = TextEditingController();
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   bool hover = false;
   bool rememberMe = false;
-  bool isLoading = false;
   bool showPasss = false;
-  String selectedMenu = 'Нэвтрэх';
-  bool isLogin = true;
   late Box box1;
   late AuthController authController;
+  late TabController tabController;
   @override
   void initState() {
     super.initState();
     _openBox();
     authController = Provider.of<AuthController>(context, listen: false);
+    tabController = TabController(length: 2, vsync: this);
+    tabController.addListener(() {
+      if (tabController.indexIsChanging == false) {
+        setState(() {}); // Call setState when the tab index changes
+      }
+    });
   }
 
   Future<void> _openBox() async {
@@ -60,61 +65,81 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
-      child: SafeArea(
-        child: Scaffold(
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  color: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ClipOval(
-                            child: Image.asset('assets/1024.png', height: 40),
-                          ),
-                          const SizedBox(width: 10),
-                          const Text('Pharmo',
-                              style: TextStyle(
-                                  fontSize: 40,
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.white)),
-                        ],
-                      ),
-                      const Text('Эмийн бөөний худалдаа,\n захиалгын систем',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontStyle: FontStyle.italic,
-                              color: Colors.white)),
-                    ],
+      child: DefaultTabController(
+        length: 2, // Number of tabs
+        child: SafeArea(
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    color: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ClipOval(
+                              child: Image.asset('assets/1024.png', height: 40),
+                            ),
+                            const SizedBox(width: 10),
+                            const Text('Pharmo',
+                                style: TextStyle(
+                                    fontSize: 40,
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.white)),
+                          ],
+                        ),
+                        const Text('Эмийн бөөний худалдаа,\n захиалгын систем',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.white)),
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  height: 150,
-                  decoration: const BoxDecoration(
-                      image: DecorationImage(
-                          fit: BoxFit.contain,
-                          image: AssetImage('assets/picon.png'))),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    tapItem('Нэвтрэх'),
-                    const SizedBox(width: 20),
-                    tapItem('Бүртгүүлэх'),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child:
-                      (selectedMenu == 'Нэвтрэх') ? loginForm() : signUpForm(),
-                )
-              ],
+                  Container(
+                    height: 150,
+                    decoration: const BoxDecoration(
+                        image: DecorationImage(
+                            fit: BoxFit.contain,
+                            image: AssetImage('assets/picon.png'))),
+                  ),
+                  // Container(
+                  //   padding: EdgeInsets.symmetric(horizontal: 20),
+                  //   child:
+                  // ),
+                  Container(
+                    padding: EdgeInsets.all(size.width * 0.05),
+                    height: size.height * 0.6,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween, // Or spaceBetween
+                          children: [
+                            myTab(title: 'Нэвтрэх', index: 0),
+                            myTab(title: 'Бүртгүүлэх', index: 1),
+                          ],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            controller: tabController,
+                            children: [
+                              loginForm(),
+                              signUpForm(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -122,39 +147,27 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  tapItem(String txt) {
-    return Expanded(
-      child: InkWell(
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        onTap: () => setState(() {
-          selectedMenu = txt;
-        }),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              width: double.infinity,
-              child: Center(
-                child: Text(
-                  txt,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                border: (selectedMenu == txt)
-                    ? const Border(
-                        bottom:
-                            BorderSide(color: AppColors.primary, width: 1.5))
-                    : null,
-              ),
-            )
-          ],
+  myTab({String? title, required int index}) {
+    bool selected = (index == tabController.index);
+    final sw = MediaQuery.of(context).size.width;
+    return InkWell(
+      onTap: () => setState(() {
+        tabController.animateTo(index);
+      }),
+      child: Container(
+        width: sw * 0.4,
+        decoration: BoxDecoration(
+            color: selected ? AppColors.primary : Colors.transparent,
+            border: Border.all(color: AppColors.primary),
+            borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        child: Center(
+          child: Text(
+            title!,
+            style: TextStyle(
+                color: selected ? Colors.white : Colors.black, fontSize: 12),
+          ),
         ),
       ),
     );
@@ -222,29 +235,25 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
         CustomButton(
-            text: 'Нэвтрэх',
-            ontap: () async {
-              setState(() {
-                isLoading = true;
+          text: 'Нэвтрэх',
+          ontap: () async {
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (passwordController.text.isNotEmpty &&
+                emailController.text.isNotEmpty) {
+              await authController
+                  .login(emailController.text, passwordController.text, context)
+                  .whenComplete(() async {
+                if (rememberMe) {
+                  await box1.put('email', emailController.text);
+                  await box1.put('password', passwordController.text);
+                }
               });
-              await Future.delayed(const Duration(milliseconds: 500));
-              if (passwordController.text.isNotEmpty &&
-                  emailController.text.isNotEmpty) {
-                await authController
-                    .login(
-                        emailController.text, passwordController.text, context)
-                    .whenComplete(() async {
-                  if (rememberMe) {
-                    await box1.put('email', emailController.text);
-                    await box1.put('password', passwordController.text);
-                  }
-                });
-              } else {
-                message(
-                    context: context,
-                    message: 'Нэврэх нэр, нууц үг оруулна уу');
-              }
-            }),
+            } else {
+              message(
+                  context: context, message: 'Нэврэх нэр, нууц үг оруулна уу');
+            }
+          },
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -252,20 +261,6 @@ class _LoginPageState extends State<LoginPage> {
               text: 'Нууц үг сэргээх',
               onTap: () {
                 goto(const ResetPassword(), context);
-                // setState(() {
-                //   authController.invisible2 = false;
-                // });
-                // passwordController.clear();
-                // passwordConfirmController.clear();
-                // newPasswordController.clear();
-                // showDialog(
-                //   context: context,
-                //   builder: (context) {
-                //     return CreatePassDialog(
-                //       email: emailController.text,
-                //     );
-                //   },
-                // );
               },
             ),
           ],
@@ -277,7 +272,7 @@ class _LoginPageState extends State<LoginPage> {
   signUpForm() {
     return Form(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const SizedBox(height: 15),
           CustomTextField(

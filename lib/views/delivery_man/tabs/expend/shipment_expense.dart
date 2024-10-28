@@ -3,6 +3,8 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/jagger_expense_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/widgets/col.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/dialog_button.dart';
@@ -81,33 +83,42 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(
-                                              el.note.toString(),
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 18.0),
-                                            ),
+                                            Col(
+                                                cxs: CrossAxisAlignment.center,
+                                                fontSize1: 12,
+                                                fontSize2: 14,
+                                                t1: 'Тайлбар',
+                                                t2: el.note.toString()),
+                                            Col(
+                                                cxs: CrossAxisAlignment.center,
+                                                t1: 'Дүн',
+                                                t2: toPrice(
+                                                    el.amount!.toString())),
                                             InkWell(
-                                                onTap: () {
-                                                  note.text = el.note!;
-                                                  amount.text =
-                                                      el.amount.toString();
-                                                  editExpense(context, el);
-                                                },
-                                                child: const Text(
-                                                  'Засах',
-                                                  style: TextStyle(
-                                                      color: AppColors.main),
-                                                )),
+                                              onTap: () {
+                                                note.text = el.note!;
+                                                amount.text =
+                                                    el.amount.toString();
+                                                editExpense(context, el);
+                                              },
+                                              child: const Text(
+                                                'Засах',
+                                                style: TextStyle(
+                                                    color: AppColors.primary),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                         const SizedBox(height: 5),
-                                        myRow('Дүн:', '${el.amount} ₮'),
-                                        myRow(
-                                            'Огноо:', el.createdOn.toString()),
+                                        Col(
+                                            cxs: CrossAxisAlignment.center,
+                                            t1: 'Огноо',
+                                            t2: el.createdOn.toString())
                                       ],
                                     ),
                                   ),

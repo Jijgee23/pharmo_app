@@ -14,7 +14,7 @@ import 'package:pharmo_app/views/seller/drawer_menus/register_pharm/register_pha
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_shopping_cart.dart';
 import 'package:pharmo_app/views/public_uses/notification/notification.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
-import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
+import 'package:pharmo_app/widgets/ui_help/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
 

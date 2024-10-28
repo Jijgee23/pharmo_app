@@ -388,8 +388,15 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
+  bool isFetching = false;
+  changeFetching() {
+    isFetching = !isFetching;
+    notifyListeners();
+  }
+
   getShipmentHistory() async {
     try {
+      changeFetching();
       final res = await http.get(
         setUrl('shipment/history/'),
         headers: getHeader(await getAccessToken()),
@@ -399,6 +406,7 @@ class JaggerProvider extends ChangeNotifier {
         List<dynamic> ships = data['results'];
         // debugPrint('ships: ${ships[0]}');
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
+        changeFetching();
         notifyListeners();
       }
     } catch (e) {

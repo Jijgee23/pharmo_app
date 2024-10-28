@@ -32,18 +32,17 @@ class CustomListView extends StatelessWidget {
           itemBuilder: (context, item, index) => ProductWidgetListView(
                 onTap: () => goto(ProductDetail(prod: item), context),
                 item: item,
-                onButtonTab: () =>
-                    addBasket(item, context),
+                onButtonTab: () => addBasket(item, context),
               ),
           newPageProgressIndicatorBuilder: (context) => const MyIndicator(),
           newPageErrorIndicatorBuilder: (context) => const MyIndicator()),
     );
   }
 
- void addBasket(dynamic item, BuildContext context) async {
+  void addBasket(dynamic item, BuildContext context) async {
     try {
       final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
+      Provider.of<BasketProvider>(context, listen: false);
       Map<String, dynamic> res = await basketProvider.addBasket(
           product_id: item.id, itemname_id: item.itemname_id, qty: 1);
       if (res['errorType'] == 1) {

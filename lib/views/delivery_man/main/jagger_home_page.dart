@@ -7,7 +7,7 @@ import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
 import 'package:pharmo_app/views/delivery_man/drawer_menus/shipment_history/shipment_history.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
-import 'package:pharmo_app/widgets/bottomNavBarITem.dart';
+import 'package:pharmo_app/widgets/ui_help/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
 

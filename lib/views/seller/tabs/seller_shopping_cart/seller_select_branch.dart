@@ -34,6 +34,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   late BasketProvider basketProvider;
   final noteController = TextEditingController();
   final radioColor = const WidgetStatePropertyAll(AppColors.primary);
+
   @override
   void initState() {
     super.initState();
@@ -316,12 +317,14 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                     },
                   ),
           );
-          print('CREATE SELLER ORDER. STATUS: ${response.statusCode} BODY: ${response.body}');
+          print(
+              'CREATE SELLER ORDER. STATUS: ${response.statusCode} BODY: ${response.body}');
           if (response.statusCode == 200) {
             final res = jsonDecode(utf8.decode(response.bodyBytes));
             final orderNumber = res['orderNo'];
-            message(message: 'Захиалга амжилттай  үүслээ.', context: context);
             goto(OrderDone(orderNo: orderNumber.toString()), context);
+            await basketProvider.clearBasket(
+                basket_id: basketProvider.basket.id);
             setState(() {
               homeProvider.note = null;
             });
@@ -352,7 +355,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
         if (response.statusCode == 200) {
           final res = jsonDecode(utf8.decode(response.bodyBytes));
           final orderNumber = res['orderNo'];
-          message(message: 'Захиалга амжилттай  үүслээ.', context: context);
+          await basketProvider.clearBasket(basket_id: basketProvider.basket.id);
           goto(OrderDone(orderNo: orderNumber.toString()), context);
         } else {
           message(message: 'Сагс хоосон байна', context: context);
