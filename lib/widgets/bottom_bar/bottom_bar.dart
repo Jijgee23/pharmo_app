@@ -1,0 +1,63 @@
+import 'package:flutter/material.dart';
+import '../../controllers/home_provider.dart';
+import '../../utilities/colors.dart';
+import 'bottomNavBarITem.dart';
+
+class BottomBar extends StatefulWidget {
+  final HomeProvider homeProvider;
+  final List<String> listOfIcons;
+  final List<String> labels;
+  const BottomBar(
+      {super.key,
+      required this.homeProvider,
+      required this.listOfIcons,
+      required this.labels});
+
+  @override
+  State<BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar> {
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final orientation = MediaQuery.of(context).orientation;
+    return Container(
+      margin: EdgeInsets.symmetric(
+          vertical: 10,
+          horizontal: (orientation == Orientation.portrait)
+              ? size.width * 0.25
+              : size.width / 3),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: BottomNavigationBar(
+            backgroundColor: AppColors.primary,
+            currentIndex: widget.homeProvider.currentIndex,
+            useLegacyColorScheme: false,
+            showUnselectedLabels: false,
+            showSelectedLabels: false,
+            type: BottomNavigationBarType.fixed,
+            onTap: widget.homeProvider.changeIndex,
+            items: widget.listOfIcons
+                .map(
+                  (i) => BottomNavigationBarItem(
+                    icon: Image.asset(
+                      'assets/icons_2/$i.png',
+                      height: 20,
+                      color: widget.homeProvider.currentIndex ==
+                              widget.listOfIcons.indexOf(i)
+                          ? AppColors.cleanWhite
+                          : AppColors.cleanBlack,
+                    ),
+                    label: widget.labels[widget.listOfIcons.indexOf(i)],
+                  ),
+                )
+                .toList()),
+      ),
+    );
+  }
+}

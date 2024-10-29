@@ -6,7 +6,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
-import 'package:pharmo_app/widgets/defaultBox.dart';
+import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
 import 'package:provider/provider.dart';
 
 class ShipmentHistory extends StatefulWidget {

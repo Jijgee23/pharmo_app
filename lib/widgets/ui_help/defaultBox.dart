@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../utilities/colors.dart';
-import 'others/chevren_back.dart';
+import '../../utilities/colors.dart';
+import '../others/chevren_back.dart';
 
 class DefaultBox extends StatelessWidget {
   final String title;

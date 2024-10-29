@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -32,7 +33,7 @@ class CustomTextField extends StatelessWidget {
     final sw = MediaQuery.of(context).size.width;
     final sh = MediaQuery.of(context).size.height;
     return SizedBox(
-      height: sh * 0.05,
+      // height: sh * 0.055,
       child: TextFormField(
         onChanged: onChanged,
         onFieldSubmitted: onSubmitted,
@@ -40,16 +41,29 @@ class CustomTextField extends StatelessWidget {
         key: key,
         controller: controller,
         keyboardType: keyboardType,
+        cursorWidth: .8,
         cursorColor: Colors.black,
         decoration: InputDecoration(
-          contentPadding:  EdgeInsets.symmetric(
+          contentPadding: EdgeInsets.symmetric(
             horizontal: sw * 0.04,
           ),
           labelText: hintText,
           labelStyle: TextStyle(color: Colors.grey.shade700, fontSize: 14.0),
           border: const OutlineInputBorder(
             borderRadius: BorderRadius.all(
-              Radius.circular(10),
+              Radius.circular(15),
+            ),
+          ),
+          errorBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.secondary)),
+          errorStyle: const TextStyle(
+            color: Colors.redAccent,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: AppColors.primary,
             ),
           ),
           suffixIcon: suffixIcon,

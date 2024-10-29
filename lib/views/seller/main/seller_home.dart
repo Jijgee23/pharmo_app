@@ -14,10 +14,10 @@ import 'package:pharmo_app/views/seller/drawer_menus/register_pharm/register_pha
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_shopping_cart.dart';
 import 'package:pharmo_app/views/public_uses/notification/notification.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
-import 'package:pharmo_app/widgets/ui_help/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
 
+import '../../../widgets/bottom_bar/bottom_bar.dart';
 import '../../../widgets/drawer/my_drawer.dart';
 
 class SellerHomePage extends StatefulWidget {
@@ -49,10 +49,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
   ];
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    final orientation = MediaQuery.of(context).orientation;
     final basketProvider = Provider.of<BasketProvider>(context);
-    final homePrvdr = Provider.of<HomeProvider>(context);
     return Consumer<HomeProvider>(
       builder: (_, homeProvider, child) {
         var textStyle =
@@ -65,7 +62,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
               : AppBar(
                   backgroundColor: Colors.white,
                   centerTitle: true,
-                  title: homePrvdr.selectedCustomerId == 0
+                  title: homeProvider.selectedCustomerId == 0
                       ? Text('Захиалагч сонгоно уу', style: textStyle)
                       : TextButton(
                           onPressed: () {
@@ -90,20 +87,13 @@ class _SellerHomePageState extends State<SellerHomePage> {
                         ),
                   actions: [
                     IconButton(
-                      icon: Image.asset(
-                        'assets/icons_2/bell.png',
-                        height: 24,
-                      ),
+                      icon: Image.asset('assets/icons_2/bell.png', height: 24),
                       onPressed: () => goto(const NotificationPage(), context),
                     ),
                     Container(
                       margin: const EdgeInsets.only(right: 15),
                       child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            homeProvider.currentIndex = 3;
-                          });
-                        },
+                        onTap: () => homeProvider.changeIndex(3),
                         child: badges.Badge(
                           badgeContent: Text(
                             "${basketProvider.count}",
@@ -141,6 +131,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   ? DrawerItem(
                       title: 'Түгээгчрүү шилжих',
                       onTap: () {
+                        homeProvider.changeIndex(0);
                         gotoRemoveUntil(const JaggerHomePage(), context);
                       },
                       asset: 'assets/icons_2/swap.png',
@@ -162,50 +153,16 @@ class _SellerHomePageState extends State<SellerHomePage> {
           ),
           bottomNavigationBar: homeProvider.invisible
               ? null
-              : Container(
-                  margin: EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: (orientation == Orientation.portrait)
-                          ? size.width * 0.2
-                          : size.width / 3),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: BottomNavigationBar(
-                      backgroundColor: AppColors.primary,
-                      selectedItemColor: AppColors.primary,
-                      currentIndex: homeProvider.currentIndex,
-                      onTap: homeProvider.changeIndex,
-                      showSelectedLabels: false,
-                      showUnselectedLabels: false,
-                      type: BottomNavigationBarType.fixed,
-                      items: navBarItems,
-                    ),
-                  ),
+              : BottomBar(
+                  homeProvider: homeProvider,
+                  listOfIcons: icons,
+                  labels: labels,
                 ),
         );
       },
     );
   }
 
-  List<BottomNavigationBarItem> navBarItems = [
-    const BottomNavigationBarItem(
-      icon: NavBarIcon(url: 'user'),
-      label: 'Захиалагч',
-    ),
-    const BottomNavigationBarItem(
-      icon: NavBarIcon(url: 'category'),
-      label: 'Бараа',
-    ),
-    const BottomNavigationBarItem(
-      icon: NavBarIcon(url: 'bars-sort'),
-      label: 'Ангилал',
-    ),
-    const BottomNavigationBarItem(
-      icon: NavBarIcon(url: 'cart'),
-      label: 'Сагс',
-    ),
-  ];
+  List<String> icons = ['user', 'category', 'bars-sort', 'cart'];
+  List<String> labels = ['Захиалагч', 'Бараа', 'Ангилал', 'Сагс'];
 }

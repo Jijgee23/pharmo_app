@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
 import 'package:pharmo_app/views/delivery_man/drawer_menus/shipment_history/shipment_history.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
-import 'package:pharmo_app/widgets/ui_help/bottomNavBarITem.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
 
+import '../../../widgets/bottom_bar/bottom_bar.dart';
 import '../../../widgets/drawer/my_drawer.dart';
 import '../tabs/expend/shipment_expense.dart';
 
@@ -27,12 +26,6 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
     const ShipmentExpensePage(),
   ];
   late HomeProvider homeProvider;
-  int _selectedIndex = 0;
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   void initState() {
@@ -49,14 +42,13 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final orientation = MediaQuery.of(context).orientation;
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthController>(
             create: (context) => AuthController())
       ],
-      child: Consumer<AuthController>(builder: (context, authController, _) {
+      child: Consumer2<AuthController, HomeProvider>(
+          builder: (context, authController, home, _) {
         return Scaffold(
           extendBody: true,
           drawer: MyDrawer(
@@ -69,47 +61,29 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
               DrawerItem(
                 title: 'Борлуулагчруу шилжих',
                 asset: 'assets/icons_2/swap.png',
-                onTap: () => gotoRemoveUntil(const SellerHomePage(), context),
+                onTap: () {
+                  homeProvider.changeIndex(0);
+                  gotoRemoveUntil(const SellerHomePage(), context);
+                },
               ),
             ],
           ),
           appBar: DMAppBar(
-            title: (_selectedIndex == 0) ? 'Өнөөдрийн түгээлтүүд' : 'Зарлагууд',
+            title: (homeProvider.currentIndex == 0)
+                ? 'Өнөөдрийн түгээлтүүд'
+                : 'Зарлагууд',
           ),
-          body: _pages[_selectedIndex],
-          bottomNavigationBar: Container(
-            margin: EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: (orientation == Orientation.portrait)
-                    ? size.width * 0.33
-                    : size.width * 0.4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: BottomNavigationBar(
-                showSelectedLabels: false,
-                backgroundColor: AppColors.primary,
-                showUnselectedLabels: false,
-                type: BottomNavigationBarType.fixed,
-                currentIndex: _selectedIndex,
-                onTap: _onItemTapped,
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: NavBarIcon(url: 'truck-side'),
-                    label: 'Түгээлт',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: NavBarIcon(url: 'expense'),
-                    label: 'Зарлагууд',
-                  ),
-                ],
-              ),
-            ),
+          body: _pages[home.currentIndex],
+          bottomNavigationBar: BottomBar(
+            homeProvider: homeProvider,
+            listOfIcons: icons,
+            labels: labels,
           ),
         );
       }),
     );
   }
+
+  List<String> icons = ['truck-side', 'expense'];
+  List<String> labels = ['Түгээлт', 'Зарлагууд'];
 }

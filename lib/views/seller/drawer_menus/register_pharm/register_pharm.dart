@@ -12,7 +12,7 @@ import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
-import 'package:pharmo_app/widgets/defaultBox.dart';
+import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -58,10 +58,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     final style = TextStyle(fontSize: 14.0, color: Colors.grey.shade700);
     return Consumer2<HomeProvider, AddressProvider>(
       builder: (_, homeProvider, addressProvider, child) {
-        return Scaffold(
-          backgroundColor: AppColors.primary,
-          resizeToAvoidBottomInset: false,
-          body: DefaultBox(
+        return  DefaultBox(
             title: 'Эмийн сангийн бүртгэл',
             child: SingleChildScrollView(
               child: Column(
@@ -175,8 +172,8 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                 ],
               ),
             ),
-          ),
-        );
+          );
+        
       },
     );
   }

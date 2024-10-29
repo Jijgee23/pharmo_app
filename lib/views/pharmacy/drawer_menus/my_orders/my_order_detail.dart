@@ -4,7 +4,7 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../widgets/ui_help/box.dart';
@@ -46,33 +46,11 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
   Widget build(BuildContext context) {
     return Consumer<MyOrderProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: AppColors.primary,
-          extendBody: true,
-          body: Column(
+        return DefaultBox(
+          title: 'Захиалгын дугаар: ${widget.orderNo}',
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      InkWell(
-                        onTap: () => Navigator.pop(context),
-                        child: const Icon(Icons.chevron_left),
-                      ),
-                      Constants.boxH10,
-                      Text('Захиалгын дугаар: ${widget.orderNo}',
-                          style: const TextStyle(fontWeight: FontWeight.bold))
-                    ],
-                  ),
-                ),
-              ),
               Expanded(
                 flex: 7,
                 child: Container(
@@ -83,7 +61,6 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
                       topLeft: Radius.circular(30),
                     ),
                   ),
-                  padding: const EdgeInsets.all(20),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [

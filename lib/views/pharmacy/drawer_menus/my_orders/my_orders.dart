@@ -7,12 +7,12 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
-import 'package:pharmo_app/widgets/defaultBox.dart';
+import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../widgets/col.dart';
+import '../../../../widgets/ui_help/col.dart';
 
 class MyOrder extends StatefulWidget {
   const MyOrder({super.key});

@@ -8,7 +8,7 @@ import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/buying_promo.da
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
-import 'package:pharmo_app/widgets/defaultBox.dart';
+import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
