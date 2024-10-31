@@ -52,10 +52,6 @@
 <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 <string>This app needs access to location when open and in the background.</string>
 	<key>LSApplicationQueriesSchemes</key>
-	<key>UIBackgroundModes</key>
-    <array>
-      <string>location</string>
-    </array>
 <array>
   <string>sms</string>
   <string>tel</string>

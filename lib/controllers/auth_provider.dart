@@ -128,6 +128,7 @@ class AuthController extends ChangeNotifier {
           'password': password,
         }),
       );
+      getApiInformation('AT LOGIN', responseLogin);
       if (responseLogin.statusCode == 200) {
         final Map<String, dynamic> res = jsonDecode(responseLogin.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -175,7 +176,14 @@ class AuthController extends ChangeNotifier {
         notifyListeners();
       } else if (responseLogin.statusCode == 400) {
         Map res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
-        if (checker(res, 'noCmp', context) == true) {
+        if (checker(res, 'no_password', context) == true) {
+          // message(
+          //     message: 'Веб хуудсаар хандан нууц үг үүсгэнэ үү!',
+          //     context: context);
+          showDialog(context: context, builder: (context){
+            return CreatePassDialog(email: email);
+          });
+        } else if (checker(res, 'noCmp', context) == true) {
           message(
               message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
               context: context);
@@ -370,7 +378,7 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-   getDeviceToken() async {
+  getDeviceToken() async {
     //request user permission for push notification
     FirebaseMessaging.instance.requestPermission();
     FirebaseMessaging firebaseMessage = FirebaseMessaging.instance;
@@ -443,17 +451,17 @@ class AuthController extends ChangeNotifier {
         };
       }
       final response =
-      await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({
-            'deviceId': deviceData['deviceId'],
-            'platform': deviceData['platform'],
-            'brand': deviceData['brand'],
-            'model': deviceData['model'],
-            'modelVersion': deviceData['modelVersion'],
-            'os': deviceData['os'],
-            'osVersion': deviceData['osVersion'],
-          }));
+          await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
+              headers: getHeader(bearerToken),
+              body: jsonEncode({
+                'deviceId': deviceData['deviceId'],
+                'platform': deviceData['platform'],
+                'brand': deviceData['brand'],
+                'model': deviceData['model'],
+                'modelVersion': deviceData['modelVersion'],
+                'os': deviceData['os'],
+                'osVersion': deviceData['osVersion'],
+              }));
       if (response.statusCode == 200) {
         debugPrint('Device info sent');
       } else {

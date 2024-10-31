@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/jagger_provider.dart';
+import 'package:pharmo_app/models/jagger.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
@@ -26,13 +28,16 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
     const ShipmentExpensePage(),
   ];
   late HomeProvider homeProvider;
+  late JaggerProvider jaggerProvider;
 
   @override
   void initState() {
-    super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
     homeProvider.getUserInfo();
+    jaggerProvider.fetchJaggers();
     homeProvider.getPosition();
+    super.initState();
   }
 
   @override

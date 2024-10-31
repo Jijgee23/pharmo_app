@@ -232,9 +232,7 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  getApiInformation(String type, Response res) {
-    debugPrint(' $type . STATUS: ${res.statusCode} BODY: ${res.body}');
-  }
+
 
   Future<dynamic> removeBasketItem(
       {required int basket_id, required int item_id}) async {

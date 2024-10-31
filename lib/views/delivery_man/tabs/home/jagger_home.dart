@@ -12,7 +12,6 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home_detail.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/dialog_button.dart';
-import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
@@ -29,25 +28,18 @@ bool mounted = true;
 class _HomeJaggerState extends State<HomeJagger> {
   late JaggerProvider jaggerProvider;
   late HomeProvider homeProvider;
-  late Future<void> future;
   @override
   initState() {
-    super.initState();
     homeProvider = Provider.of(context, listen: false);
     jaggerProvider = Provider.of(context, listen: false);
-    future = getData();
+    jaggerProvider.fetchJaggers();
+    super.initState();
   }
 
   @override
   void dispose() {
-    timer?.cancel();
+    // timer?.cancel();
     super.dispose();
-  }
-
-  Future<void> getData() async {
-    await Provider.of<JaggerProvider>(context, listen: false)
-        .getJaggers(context);
-    await Provider.of<HomeProvider>(context, listen: false).getPosition();
   }
 
   startShipment(int shipmentId) async {
@@ -90,7 +82,7 @@ class _HomeJaggerState extends State<HomeJagger> {
   }
 
   refreshScreen() async {
-    await jaggerProvider.getJaggers(context);
+    await jaggerProvider.getJaggers();
   }
 
   var pad = const EdgeInsets.only(left: 5, top: 5);
@@ -100,38 +92,22 @@ class _HomeJaggerState extends State<HomeJagger> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => Future.sync(() {
-        future;
+      onRefresh: () => Future.sync(() async {
+        await jaggerProvider.fetchJaggers();
       }),
-      child: FutureBuilder<void>(
-        future: future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: MyIndicator());
-          } else if (snapshot.hasError) {
-            return const Center(child: NoResult());
-          } else {
-            return Consumer<JaggerProvider>(
-              builder: (context, provider, child) {
-                final ships = provider.ships;
-                if (ships.isEmpty) {
-                  return const NoResult();
-                } else {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    child: SingleChildScrollView(
+      child: Consumer<JaggerProvider>(
+        builder: (context, jagger, child) {
+          final ships = jagger.ships;
+          return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              child: (ships.isNotEmpty)
+                  ? SingleChildScrollView(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children: (ships.isEmpty)
-                            ? [const NoResult()]
-                            : ships.map((e) => shipment(e: e)).toList(),
+                        children: ships.map((e) => shipment(e: e)).toList(),
                       ),
-                    ),
-                  );
-                }
-              },
-            );
-          }
+                    )
+                  : const NoResult());
         },
       ),
     );
@@ -169,13 +145,12 @@ class _HomeJaggerState extends State<HomeJagger> {
         title: 'Түгээлт эхлүүлэх',
         color: AppColors.primary,
         iconName: 'truck',
-        onTap: () => Future(() {
+        onTap: () => Future(() async {
           debugPrint(e.startTime);
           startShipment(e.id);
           startTimer(context);
-        }).whenComplete(() {
-          refreshScreen();
-        }),
+          await jaggerProvider.fetchJaggers();
+        })
       );
     } else {
       return Padding(
@@ -195,24 +170,17 @@ class _HomeJaggerState extends State<HomeJagger> {
           title: 'Түгээлт дуусгах',
           color: AppColors.primary,
           iconName: 'box',
-          onTap: () => Future(() {
+          onTap: () => Future(() async {
             endShipment(e.id, false);
             endTimer(context);
             // print(e.endTime);
-          }).whenComplete(
-            () {
-              refreshScreen();
-            },
-          ),
-          onSecondaryTap: () => Future(() {
+          }),
+          onSecondaryTap: () => Future(()async {
             endShipment(e.id, true);
             endTimer(context);
+            await jaggerProvider.fetchJaggers();
             // print(e.endTime);
-          }).whenComplete(
-            () {
-              refreshScreen();
-            },
-          ),
+          })
         ),
       );
     } else {
@@ -257,8 +225,6 @@ class _HomeJaggerState extends State<HomeJagger> {
       ),
     );
   }
-
-
 
   myRow(String title, String value) {
     return Container(

@@ -119,6 +119,7 @@ class HomeProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         branches = (res).map((data) => Sector.fromJson(data)).toList();
+        notifyListeners();
       } else {
         message(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
       }
@@ -141,6 +142,7 @@ class HomeProvider extends ChangeNotifier {
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
+        notifyListeners();
         return prods;
       }
     } catch (e) {
@@ -225,8 +227,8 @@ class HomeProvider extends ChangeNotifier {
         vndrs = (res['vndrs'] as List)
             .map((e) => Manufacturer.fromJson(e))
             .toList();
+        notifyListeners();
       }
-      notifyListeners();
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -373,13 +375,12 @@ class HomeProvider extends ChangeNotifier {
           branchList.add(Branch.fromJson(res[i]));
         }
         selectedBranchId = res[0]['id'];
+        notifyListeners();
       }
     } catch (e) {
       debugPrint(e.toString());
     }
   }
-
-
 
   Future getPosition() async {
     _currentLocation = await _getCurrentLocation();

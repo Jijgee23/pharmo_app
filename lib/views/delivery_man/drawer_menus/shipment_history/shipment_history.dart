@@ -123,16 +123,20 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
             ),
             child: DropdownButton(
               underline: const SizedBox(),
+              dropdownColor: AppColors.cleanWhite,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              borderRadius: BorderRadius.circular(10),
               alignment: Alignment.center,
               items: provider.filters.map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: Text(value,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 12)),
                 );
               }).toList(),
               onChanged: (a) {
                 provider.changeFilter(a!);
-
                 if (a == 'Захиалгын тоогоор') {
                   if (provider.operator == '=') {
                     provider.changeType('ordersCnt');

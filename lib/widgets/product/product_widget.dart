@@ -61,12 +61,13 @@ class ProductWidget extends StatelessWidget {
                         image: DecorationImage(
                           fit: BoxFit.contain,
                           filterQuality: FilterQuality.high,
+                          opacity: item.image != null ? 1 : 0.2,
                           image: item.image != null &&
                                   splitURL(item.image!).length == 2
                               ? NetworkImage(
                                   '${dotenv.env['IMAGE_URL']}${splitURL(item.image!)[0]}_150x150.${splitURL(item.image!)[1]}')
                               : const AssetImage(
-                                  'assets/no-pictures.png',
+                                  'assets/restrict-photography.png',
                                 ) // Fallback image
                                   as ImageProvider<Object>,
                         ),

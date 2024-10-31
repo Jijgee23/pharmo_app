@@ -109,7 +109,12 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<dynamic> getJaggers(BuildContext context) async {
+  fetchJaggers() async {
+    await getJaggers();
+    await getExpenses();
+  }
+
+  Future<dynamic> getJaggers() async {
     try {
       String bearerToken = await getAccessToken();
       final res =
@@ -119,8 +124,14 @@ class JaggerProvider extends ChangeNotifier {
         ships.clear();
         _ships =
             (response['results'] as List).map((e) => Ship.fromJson(e)).toList();
+        notifyListeners();
+        return {
+          'errorType': 1,
+          'data': null,
+          'message': 'Захиалгууд амжилттай татлаа!'
+        };
       } else {
-        message(message: 'Алдаа гарлаа.', context: context);
+        return {'errorType': 2, 'data': null, 'message': 'Дахин оролдоно уу!'};
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -138,6 +149,7 @@ class JaggerProvider extends ChangeNotifier {
         jaggerOrders = (response['results'] as List)
             .map((e) => JaggerExpenseOrder.fromJson(e))
             .toList();
+        notifyListeners();
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -293,7 +305,7 @@ class JaggerProvider extends ChangeNotifier {
           headers: getHeader(bearerToken),
           body: jsonEncode({"itemId": itemId, "qty": qty}));
       if (res.statusCode == 200) {
-        await getJaggers(context);
+        await getJaggers();
         message(message: 'Амжилттай засагдлаа.', context: context);
       } else {
         message(message: 'Алдаа гарлаа.', context: context);

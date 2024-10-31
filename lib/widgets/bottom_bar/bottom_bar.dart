@@ -29,14 +29,15 @@ class _BottomBarState extends State<BottomBar> {
               ? size.width * 0.25
               : size.width / 3),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-      ),
+          borderRadius: BorderRadius.circular(30),
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 10)]),
       padding: const EdgeInsets.symmetric(vertical: 0),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: BottomNavigationBar(
-            backgroundColor: AppColors.primary,
             currentIndex: widget.homeProvider.currentIndex,
+            backgroundColor: Colors.white,
             useLegacyColorScheme: false,
             showUnselectedLabels: false,
             showSelectedLabels: false,
@@ -50,8 +51,8 @@ class _BottomBarState extends State<BottomBar> {
                       height: 20,
                       color: widget.homeProvider.currentIndex ==
                               widget.listOfIcons.indexOf(i)
-                          ? AppColors.cleanWhite
-                          : AppColors.cleanBlack,
+                          ? AppColors.primary.withOpacity(0.9)
+                          : AppColors.primary.withOpacity(.3),
                     ),
                     label: widget.labels[widget.listOfIcons.indexOf(i)],
                   ),

@@ -24,6 +24,7 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
   @override
   void initState() {
     jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
+    jaggerProvider.fetchJaggers();
     super.initState();
   }
 
