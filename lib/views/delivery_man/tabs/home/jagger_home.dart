@@ -2,7 +2,9 @@
 
 import 'dart:async';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/ship.dart';
@@ -10,6 +12,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home_detail.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/dialog_button.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
@@ -24,15 +27,18 @@ class HomeJagger extends StatefulWidget {
 int count = 0;
 Timer? timer;
 bool mounted = true;
+bool backLocationPermission = false;
 
 class _HomeJaggerState extends State<HomeJagger> {
   late JaggerProvider jaggerProvider;
   late HomeProvider homeProvider;
+  bool notificationPermissionGranted = false;
   @override
   initState() {
     homeProvider = Provider.of(context, listen: false);
     jaggerProvider = Provider.of(context, listen: false);
     jaggerProvider.fetchJaggers();
+    homeProvider.getPosition();
     super.initState();
   }
 
@@ -40,11 +46,36 @@ class _HomeJaggerState extends State<HomeJagger> {
   void dispose() {
     // timer?.cancel();
     super.dispose();
+    super.dispose();
   }
 
+  // Future<void> requestBackgroundLocationPermission() async {
+  //   var status = await Permission.locationAlways.request();
+  //
+  //   if (status.isGranted) {
+  //     print("Background location permission granted.");
+  //     setState(() {
+  //       backLocationPermission = true;
+  //     });
+  //   } else if (status.isDenied) {
+  //     message(message: 'Байршил авах зөвшөөрөл өгнө үү', context: context);
+  //     print("Background location permission denied.");
+  //   } else if (status.isPermanentlyDenied) {
+  //     print("Background location permission is permanently denied.");
+  //     // You can prompt the user to open app settings
+  //     openAppSettings();
+  //   }
+  // }
+
   startShipment(int shipmentId) async {
-    await jaggerProvider.startShipment(shipmentId,
-        homeProvider.currentLatitude!, homeProvider.currentLongitude!, context);
+    if (backLocationPermission) {
+      await jaggerProvider.startShipment(
+          shipmentId,
+          homeProvider.currentLatitude!,
+          homeProvider.currentLongitude!,
+          context);
+    }
+    message(message: 'Байршил авах зөвшөөрөл өгнө үү', context: context);
   }
 
   endShipment(int shipmentId, bool? force) async {
@@ -142,16 +173,15 @@ class _HomeJaggerState extends State<HomeJagger> {
   Widget getStartButton({required Ship e}) {
     if (e.startTime == null) {
       return button(
-        title: 'Түгээлт эхлүүлэх',
-        color: AppColors.primary,
-        iconName: 'truck',
-        onTap: () => Future(() async {
-          debugPrint(e.startTime);
-          startShipment(e.id);
-          startTimer(context);
-          await jaggerProvider.fetchJaggers();
-        })
-      );
+          title: 'Түгээлт эхлүүлэх',
+          color: AppColors.primary,
+          iconName: 'truck',
+          onTap: () => Future(() async {
+                debugPrint(e.startTime);
+                startShipment(e.id);
+                startTimer(context);
+                await jaggerProvider.fetchJaggers();
+              }));
     } else {
       return Padding(
         padding: pad,
@@ -167,21 +197,20 @@ class _HomeJaggerState extends State<HomeJagger> {
       return Align(
         alignment: Alignment.centerRight,
         child: button(
-          title: 'Түгээлт дуусгах',
-          color: AppColors.primary,
-          iconName: 'box',
-          onTap: () => Future(() async {
-            endShipment(e.id, false);
-            endTimer(context);
-            // print(e.endTime);
-          }),
-          onSecondaryTap: () => Future(()async {
-            endShipment(e.id, true);
-            endTimer(context);
-            await jaggerProvider.fetchJaggers();
-            // print(e.endTime);
-          })
-        ),
+            title: 'Түгээлт дуусгах',
+            color: AppColors.primary,
+            iconName: 'box',
+            onTap: () => Future(() async {
+                  endShipment(e.id, false);
+                  endTimer(context);
+                  // print(e.endTime);
+                }),
+            onSecondaryTap: () => Future(() async {
+                  endShipment(e.id, true);
+                  endTimer(context);
+                  await jaggerProvider.fetchJaggers();
+                  // print(e.endTime);
+                })),
       );
     } else {
       return Padding(

@@ -8,7 +8,6 @@ import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/dialog_button.dart';
-import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
@@ -20,17 +19,16 @@ class ShipmentExpensePage extends StatefulWidget {
 
 class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
   late JaggerProvider jaggerProvider;
-
   @override
   void initState() {
     jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
-    jaggerProvider.fetchJaggers();
+    jaggerProvider.getExpenses();
     super.initState();
   }
 
-  // A method to return the Future for FutureBuilder
-  Future<void> getExpenses() async {
-    return await jaggerProvider.getExpenses();
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   final TextEditingController amount = TextEditingController();
@@ -46,93 +44,74 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
         child: Image.asset('assets/icons/wallet.png'),
         onPressed: () => addExpense(),
       ),
-      body: FutureBuilder(
-        future: getExpenses(),
-        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: MyIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            return Consumer<JaggerProvider>(builder: (context, provider, _) {
-              final jaggerOrders = provider.jaggerOrders.isNotEmpty
-                  ? provider.jaggerOrders
-                  : null;
-              return RefreshIndicator(
-                onRefresh: () => Future.sync(() => provider.getExpenses()),
-                child: jaggerOrders != null && jaggerOrders.isNotEmpty
-                    ? Scrollbar(
-                        thickness: 1.5,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: jaggerOrders
-                                .map(
-                                  (el) => Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: Colors.grey.shade400,
-                                              blurRadius: 3)
-                                        ]),
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 5, horizontal: 10),
-                                    padding: const EdgeInsets.all(10),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Col(
-                                                cxs: CrossAxisAlignment.center,
-                                                fontSize1: 12,
-                                                fontSize2: 14,
-                                                t1: 'Тайлбар',
-                                                t2: el.note.toString()),
-                                            Col(
-                                                cxs: CrossAxisAlignment.center,
-                                                t1: 'Дүн',
-                                                t2: toPrice(
-                                                    el.amount!.toString())),
-                                            InkWell(
-                                              onTap: () {
-                                                note.text = el.note!;
-                                                amount.text =
-                                                    el.amount.toString();
-                                                editExpense(context, el);
-                                              },
-                                              child: const Text(
-                                                'Засах',
-                                                style: TextStyle(
-                                                    color: AppColors.primary),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Col(
-                                            cxs: CrossAxisAlignment.center,
-                                            t1: 'Огноо',
-                                            t2: el.createdOn.toString())
-                                      ],
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ),
-                      )
-                    : const Center(child: NoResult()),
-              );
-            });
-          }
+      body: Consumer<JaggerProvider>(
+        builder: (context, provider, _) {
+          final jaggerOrders =
+              provider.jaggerOrders.isNotEmpty ? provider.jaggerOrders : null;
+          return jaggerOrders != null && jaggerOrders.isNotEmpty
+              ? Scrollbar(
+                  thickness: 1.5,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ...jaggerOrders.map((el) => expenseBuilder(el)),
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height * .08)
+                      ],
+                    ),
+                  ),
+                )
+              : const Center(child: NoResult());
         },
+      ),
+    );
+  }
+
+  Widget expenseBuilder(JaggerExpenseOrder el) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0XFFEDF2F7),
+        borderRadius: BorderRadius.circular(10),
+        // boxShadow: [BoxShadow(color: Colors.grey.shade400, blurRadius: 3)],
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Col(
+                  cxs: CrossAxisAlignment.center,
+                  fontSize1: 12,
+                  fontSize2: 14,
+                  t1: 'Тайлбар',
+                  t2: el.note.toString()),
+              Col(
+                  cxs: CrossAxisAlignment.center,
+                  t1: 'Дүн',
+                  t2: toPrice(el.amount!.toString())),
+              InkWell(
+                onTap: () {
+                  note.text = el.note!;
+                  amount.text = el.amount.toString();
+                  editExpense(context, el);
+                },
+                child: const Text(
+                  'Засах',
+                  style: TextStyle(color: AppColors.primary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Col(
+              cxs: CrossAxisAlignment.center,
+              t1: 'Огноо',
+              t2: el.createdOn.toString())
+        ],
       ),
     );
   }

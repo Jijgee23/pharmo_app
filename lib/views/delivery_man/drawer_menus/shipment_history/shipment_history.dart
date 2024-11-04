@@ -444,11 +444,11 @@ class _ShipmentBuilderState extends State<ShipmentBuilder> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.mainGrey,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          Constants.defaultShadow,
-        ],
+        // boxShadow: [
+        //   Constants.defaultShadow,
+        // ],
       ),
       padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),

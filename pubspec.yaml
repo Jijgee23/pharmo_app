@@ -49,6 +49,7 @@ dependencies:
   flutter_sliding_toast: ^1.4.2
   otp_text_field_v2: ^1.0.3
   easy_stepper: ^0.8.5+1
+  permission_handler: 11.3.1
 
 dev_dependencies:
   flutter_test:

@@ -61,6 +61,8 @@ class _ResetPasswordState extends State<ResetPassword> {
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const Text('Батлагаажуулах нууц үгээ оруулна уу!'),
+                          Constants.boxV10,
                           OTPTextFieldV2(
                               controller: otpController,
                               length: 6,

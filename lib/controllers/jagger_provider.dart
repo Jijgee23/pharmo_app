@@ -159,6 +159,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> startShipment(
       int shipmentId, double? lat, double? lng, BuildContext context) async {
     try {
+      await getLocation(context);
       await HomeProvider().getPosition();
       final res = await http.patch(setUrl('start_shipment/'),
           headers: getHeader(await getAccessToken()),
@@ -184,6 +185,7 @@ class JaggerProvider extends ChangeNotifier {
       bool force, BuildContext context) async {
     try {
       await HomeProvider().getPosition();
+      await getLocation(context);
       final res = await http.patch(setUrl('end_shipment/'),
           headers: getHeader(await getAccessToken()),
           body: jsonEncode({
@@ -360,6 +362,7 @@ class JaggerProvider extends ChangeNotifier {
     _currentLocation = await _getCurrentLocation(context);
     _latitude = _currentLocation!.latitude.toString().substring(0, 7);
     _longitude = _currentLocation!.longitude.toString().substring(0, 7);
+    print('lat: $_latitude lng: $_longitude');
   }
 
   Future<dynamic> sendJaggerLocation(BuildContext context) async {

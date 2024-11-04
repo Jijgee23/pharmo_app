@@ -18,7 +18,7 @@ import 'package:pharmo_app/firebase_options.dart';
 import 'package:pharmo_app/theme/dark_theme.dart';
 import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
-import 'package:pharmo_app/views/auth/login_page.dart';
+import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -55,11 +55,32 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late AuthController auth;
+  late Box box;
+  bool isSplashed = false;
   @override
   void initState() {
     auth = Provider.of<AuthController>(context, listen: false);
     auth.init(context);
+    _openBox();
     super.initState();
+  }
+
+  Future<void> _openBox() async {
+    try {
+      box = await Hive.openBox('auth');
+      getSplashState();
+    } catch (e) {
+      debugPrint('Error opening Hive box: $e');
+    }
+  }
+
+  getSplashState() async {
+    var k = await box.get('splash');
+    if (box.get('splash') == true) {
+      setState(() {
+        isSplashed == true;
+      });
+    }
   }
 
   @override
@@ -70,7 +91,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
-      home: const LoginPage(),
+      home: const SplashScreen(),
     );
   }
 }

@@ -18,7 +18,7 @@ class AppColors {
   static const main = Color(0XFF1679AB);
   static const mainDark = Color(0XFF102C57);
   static const green = Color(0XFF88D66C);
+  static const mainGrey = Color(0XFFEDF2F7);
 }
-
 
 //            1B2E3C

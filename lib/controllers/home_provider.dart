@@ -410,8 +410,9 @@ class HomeProvider extends ChangeNotifier {
           headers: getHeader(bearerToken),
           body: jsonEncode({
             'lat': currentLatitude,
-            'lon': currentLongitude,
+            'lng': currentLongitude,
           }));
+      getApiInformation('SEARCH BY LOCAION', response);
       if (response.statusCode == 200) {
         if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
             'not found') {

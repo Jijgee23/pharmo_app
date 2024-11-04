@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/resetPass.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -12,6 +11,8 @@ import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:provider/provider.dart';
+
+import '../../utilities/utils.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,7 +41,7 @@ class _LoginPageState extends State<LoginPage>
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       if (tabController.indexIsChanging == false) {
-        setState(() {}); // Call setState when the tab index changes
+        setState(() {});
       }
     });
   }
@@ -84,10 +85,11 @@ class _LoginPageState extends State<LoginPage>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ClipOval(
-                              child: Image.asset('assets/1024.png', height: size.height * 0.055),
+                              child: Image.asset('assets/1024.png',
+                                  height: size.height * 0.055),
                             ),
                             const SizedBox(width: 10),
-                             Text('Pharmo',
+                            Text('Pharmo',
                                 style: TextStyle(
                                     fontSize: size.height * 0.055,
                                     fontStyle: FontStyle.italic,
@@ -260,9 +262,7 @@ class _LoginPageState extends State<LoginPage>
           children: [
             CustomTextButton(
               text: 'Нууц үг сэргээх',
-              onTap: () {
-                goto(const ResetPassword(), context);
-              },
+              onTap: () => goto(const ResetPassword(), context),
             ),
           ],
         )
@@ -332,11 +332,15 @@ class _LoginPageState extends State<LoginPage>
             CustomButton(
                 text: 'Батлагаажуулах код авах',
                 ontap: () {
-                  if (passwordController.text == passwordConfirmController.text &&
+                  if (passwordController.text ==
+                          passwordConfirmController.text &&
                       passwordController.text.isNotEmpty) {
                     authController
-                        .signUpGetOtp(emailController.text, phoneController.text,
-                            passwordConfirmController.text, context)
+                        .signUpGetOtp(
+                            emailController.text,
+                            phoneController.text,
+                            passwordConfirmController.text,
+                            context)
                         .whenComplete(
                       () {
                         showDialog(
