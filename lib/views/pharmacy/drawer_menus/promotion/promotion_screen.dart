@@ -6,11 +6,9 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/buying_promo.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class PromotionWidget extends StatefulWidget {
@@ -43,7 +41,7 @@ class _PromotionWidgetState extends State<PromotionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    // final size = MediaQuery.of(context).size;
     return Consumer<PromotionProvider>(
       builder: (_, provider, child) {
         final promos = provider.promotions;
@@ -163,10 +161,10 @@ class _PromotionWidgetState extends State<PromotionWidget> {
     return InkWell(
       onTap: () => promotionProvider.getDetail(promo.id!).then((e) {
         if (promo.promoType == '2') {
-          goto(BuyinPromo(promo: promotionProvider.promoDetail), context);
+          goto(BuyinPromo(promo: promotionProvider.promoDetail));
         } else {
           goto(
-              MarkedPromoWidget(promo: promotionProvider.promoDetail), context);
+              MarkedPromoWidget(promo: promotionProvider.promoDetail));
         }
       }),
       splashColor: Colors.transparent,

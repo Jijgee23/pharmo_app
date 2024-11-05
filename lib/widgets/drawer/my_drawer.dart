@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/constants.dart';
 import 'package:provider/provider.dart';
 import '../../utilities/utils.dart';
 import '../../views/delivery_man/main/logout_dialog.dart';
 import '../../views/public_uses/privacy_policy/privacy_policy.dart';
 import '../../views/public_uses/user_information/user_information.dart';
-import 'drawer_header.dart';
 import 'drawer_item.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -82,12 +80,12 @@ class MyDrawer extends StatelessWidget {
                     DrawerItem(
                       title: 'Миний бүртгэл',
                       asset: 'assets/icons_2/user.png',
-                      onTap: () => goto(const UserInformation(), context),
+                      onTap: () => goto(const UserInformation()),
                     ),
                     DrawerItem(
                       title: 'Нууцлалын бодлого',
                       asset: 'assets/icons_2/privacy.png',
-                      onTap: () => goto(const PrivacyPolicy(), context),
+                      onTap: () => goto(const PrivacyPolicy()),
                     ),
                   ],
                 ),

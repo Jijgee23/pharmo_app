@@ -21,14 +21,11 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
   late JaggerProvider jaggerProvider;
   @override
   void initState() {
-    jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
-    jaggerProvider.getExpenses();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
+      jaggerProvider.getExpenses();
+    });
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   final TextEditingController amount = TextEditingController();

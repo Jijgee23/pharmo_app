@@ -202,7 +202,6 @@ class PromotionProvider extends ChangeNotifier {
         ),
       );
       var data = jsonDecode(utf8.decode(response.bodyBytes));
-      print(response.statusCode);
       if (response.statusCode == 200) {
         qrData = QrData.fromJson(data);
         setQr(true);
@@ -228,7 +227,7 @@ class PromotionProvider extends ChangeNotifier {
     );
     final data = jsonDecode(utf8.decode(response.bodyBytes));
     if (response.statusCode == 200) {
-      goto(OrderDone(orderNo: data['orderNo'].toString()), context);
+      goto(OrderDone(orderNo: data['orderNo'].toString()));
       message(message: 'Төлбөр төлөгдсөн байна', context: context);
       return true;
     } else {

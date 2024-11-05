@@ -136,7 +136,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
     if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
       message(message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: c);
     } else {
-      goto(const SelectBranchPage(), c);
+      goto(const SelectBranchPage());
     }
   }
 

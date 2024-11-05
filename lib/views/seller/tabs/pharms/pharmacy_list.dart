@@ -4,7 +4,6 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/tabs/pharms/customer_details_paga.dart';
-import 'package:pharmo_app/views/seller/drawer_menus/register_pharm/register_pharm.dart';
 import 'package:pharmo_app/widgets/appbar/search.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -210,7 +209,7 @@ class _PharmacyListState extends State<PharmacyList> {
                                           customerId: item.id,
                                           custName: item.name,
                                         ),
-                                        context);
+                                      );
                                   } else {
                                     message(
                                         context: context,

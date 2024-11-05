@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
 import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -66,7 +65,6 @@ class BasketProvider extends ChangeNotifier {
     try {
       String bearerToken = await getAccessToken();
       Map<String, int?> bodyStr = {};
-      List<String> errorMessages = [];
       if (_shoppingCarts.isNotEmpty) {
         for (int i = 0; i < _shoppingCarts.length; i++) {
           if (shoppingCarts[i]["product_itemname_id"] != null &&
@@ -322,7 +320,7 @@ class BasketProvider extends ChangeNotifier {
         Future(() async {
           await clearBasket(basket_id: basket_id);
         }).then((value) =>
-            goto(OrderDone(orderNo: res['orderNo'].toString()), context));
+            goto(OrderDone(orderNo: res['orderNo'].toString())));
         // goto(OrderDone(orderNo: res['orderNo']), context);
         // await clearBasket(basket_id: basket_id);
         return res['orderNo'];
@@ -355,7 +353,7 @@ class BasketProvider extends ChangeNotifier {
       debugPrint('status code: $status, body: $data');
       if (status == 200) {
         _qrCode = OrderQRCode.fromJson(data);
-        goto(const QRCode(), context);
+        goto(const QRCode());
       } else if (status == 404) {
         if (data == 'qpay') {
           message(message: 'Нийлүүлэгч Qpay холбоогүй.', context: context);

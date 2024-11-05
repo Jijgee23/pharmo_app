@@ -94,7 +94,7 @@ class _SellerCustomerOrderHisrtoryState
                         goto(
                             OrderhistoryListPage(
                                 customerId: provider.customeList[index].id),
-                            context);
+                          );
                       },
                       child: Container(
                         margin: const EdgeInsets.symmetric(
@@ -130,7 +130,7 @@ class _SellerCustomerOrderHisrtoryState
                                   FavoriteList(
                                       customerId:
                                           provider.customeList[index].id),
-                                  context),
+                                ),
                               child: const Icon(
                                 Icons.favorite,
                                 color: AppColors.secondary,

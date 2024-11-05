@@ -1,11 +1,8 @@
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:pharmo_app/firebase_options.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login_page.dart';
 
@@ -30,10 +27,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _openBox() async {
     try {
-      // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-      // await FirebaseApi.initNotification();
-      // await Hive.initFlutter();
-      // await dotenv.load(fileName: ".env");
       box1 = await Hive.openBox('auth');
       getLocalData();
     } catch (e) {
@@ -44,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void getLocalData() {
     if (box1.get('splash') != null) {
       Future.delayed(const Duration(milliseconds: 100),
-          () => goto(const LoginPage(), context));
+          () => goto(const LoginPage()));
       setState(() {
         isSplashed = box1.get('splash');
       });
@@ -95,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen> {
               onTap: () async {
                 if (page == urls.length - 1) {
                   await box1.put('splash', true).whenComplete(() {
-                    goto(const LoginPage(), context);
+                    goto(const LoginPage());
                   });
                 } else {
                   setPage(page + 1);

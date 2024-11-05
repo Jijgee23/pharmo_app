@@ -130,7 +130,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
         message(message: 'Захиалагч сонгоно уу!', context: context);
         homeprovider.changeIndex(0);
       } else {
-        goto(const SelectSellerBranchPage(), context);
+        goto(const SelectSellerBranchPage());
       }
     }
   }

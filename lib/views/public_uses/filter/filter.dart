@@ -136,7 +136,7 @@ class _FilterPageState extends State<FilterPage> {
                           type: 'mnfr',
                           title: homeProvider.mnfrs[idx].name,
                           filterKey: homeProvider.mnfrs[idx].id),
-                      context);
+                    );
                 },
               )),
         );
@@ -168,7 +168,7 @@ class _FilterPageState extends State<FilterPage> {
                         type: 'vndr',
                         title: homeProvider.vndrs[idx].name,
                         filterKey: homeProvider.vndrs[idx].id),
-                    context);
+                  );
               },
             ),
           ),
@@ -202,7 +202,7 @@ class _CategoryItemState extends State<CategoryItem> {
                   type: 'cat',
                   title: widget.cat.name,
                   filterKey: widget.cat.id),
-              context);
+            );
         }
       },
       child: Container(

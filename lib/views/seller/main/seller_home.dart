@@ -88,7 +88,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   actions: [
                     IconButton(
                       icon: Image.asset('assets/icons_2/bell.png', height: 24),
-                      onPressed: () => goto(const NotificationPage(), context),
+                      onPressed: () => goto(const NotificationPage()),
                     ),
                     Container(
                       margin: const EdgeInsets.only(right: 15),
@@ -117,15 +117,15 @@ class _SellerHomePageState extends State<SellerHomePage> {
             drawers: [
               DrawerItem(
                   title: 'Эмийг сан бүртгэх',
-                  onTap: () => goto(const RegisterPharmPage(), context),
+                  onTap: () => goto(const RegisterPharmPage()),
                   asset: 'assets/icons_2/doctor.png'),
               DrawerItem(
                   title: 'Орлогын жагсаалт',
-                  onTap: () => goto(const IncomeList(), context),
+                  onTap: () => goto(const IncomeList()),
                   asset: 'assets/icons_2/wallet-income.png'),
               DrawerItem(
                   title: 'Захиалгууд',
-                  onTap: () => goto(const SellerOrders(), context),
+                  onTap: () => goto(const SellerOrders(),),
                   asset: 'assets/icons_2/time-past.png'),
               homeProvider.userRole == 'D'
                   ? DrawerItem(

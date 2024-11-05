@@ -28,7 +28,10 @@ class SelectSellerBranchPage extends StatefulWidget {
 class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   int _selectedIndex = -1;
   String payType = 'LATER';
+  bool isDelivery = false;
   bool invisible = false;
+  // String radioValue = '';
+  String orderType = 'NODELIVERY';
   String? note;
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
@@ -68,36 +71,39 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Radio(
-                        value: 'DELIVERY',
-                        groupValue: homeProvider.orderType,
+                        value: 'NODELIVERY',
+                        groupValue: orderType,
                         fillColor: radioColor,
                         onChanged: (value) {
                           setState(() {
-                            invisible = !invisible;
-                            homeProvider.orderType = value!;
+                            isDelivery == false;
+                            invisible = false;
+                            orderType = value!;
                           });
                         },
                       ),
                       const Text(
-                        'Хүргэлтээр',
+                        'Очиж авах',
                         style: TextStyle(fontSize: 16.0),
                       ),
                       const SizedBox(
                         width: 20,
                       ),
                       Radio(
-                        value: 'NODELIVERY',
+                        value: 'DELIVERY',
                         fillColor: radioColor,
-                        groupValue: homeProvider.orderType,
+                        groupValue: orderType,
                         onChanged: (value) {
                           setState(() {
-                            homeProvider.orderType = value!;
-                            invisible = false;
+                            isDelivery = true;
+                            orderType = value!;
+                            invisible = true;
+                            homeProvider.getCustomerBranch();
                           });
                         },
                       ),
                       const Text(
-                        'Очиж авах',
+                        'Хүргэлтээр',
                         style: TextStyle(fontSize: 16.0),
                       ),
                     ],
@@ -121,7 +127,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                               TextButton(
                                 onPressed: () {
                                   homeProvider.changeIndex(0);
-                                  goto(const SellerHomePage(), context);
+                                  goto(const SellerHomePage());
                                 },
                                 child: const Text(
                                   'Сонгох',
@@ -186,6 +192,10 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('Заавал биш'),
+                      ),
                       CustomTextField(
                         controller: noteController,
                         hintText: 'Тайлбар',
@@ -203,7 +213,7 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                       Container(
                         decoration: bd,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 5),
+                            horizontal: 15, vertical: 0),
                         child: Column(
                           children: [
                             Row(
@@ -254,23 +264,30 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
                               text: 'Захиалга үүсгэх',
                               color: AppColors.primary,
                               onTap: () {
-                                if (payType == 'NOW' &&
-                                    homeProvider.orderType == 'NODELIVERY') {
-                                  goto(const SellerQRCode(), context);
-                                }
-                                if (payType == 'NOW' &&
-                                    homeProvider.orderType == 'DELIVERY') {
+                                if (payType == 'NOW' && orderType == 'DELIVERY') {
                                   if (_selectedIndex == -1) {
                                     message(
                                         message: 'Салбар сонгоно уу!',
                                         context: context);
                                   } else {
-                                    goto(const SellerQRCode(), context);
+                                    goto(const SellerQRCode());
                                   }
-                                }
-                                if (payType == 'LATER') {
+                                } else if (payType == 'LATER') {
                                   createSellerOrder();
                                 }
+                                // if (payType == 'NOW' &&
+                                //     homeProvider.orderType == 'DELIVERY') {
+                                //   if (_selectedIndex == -1) {
+                                //     message(
+                                //         message: 'Салбар сонгоно уу!',
+                                //         context: context);
+                                //   } else {
+                                //     goto(const SellerQRCode());
+                                //   }
+                                // }
+                                // if (payType == 'LATER') {
+                                //   createSellerOrder();
+                                // }
                               })
                         ],
                       ),
@@ -286,81 +303,77 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
   }
 
   createSellerOrder() async {
+    print([
+      'ЗАХИАЛАГЧИЙН ID:',
+      homeProvider.selectedCustomerId,
+      'САЛБАРЫН ID:',
+      homeProvider.selectedBranchId,
+      'САГСНЫ ID',
+      homeProvider.basketId,
+      'ТАЙЛБАР:',
+      homeProvider.note
+    ]);
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      if (homeProvider.orderType == 'DELIVERY') {
-        if (_selectedIndex == -1) {
-          message(message: 'Салбар сонгоно уу!', context: context);
-          return;
-        } else {
-          final response = await http.post(
-            Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': 'Bearer $token',
-            },
-            body: homeProvider.note == null
-                ? jsonEncode(
-                    {
-                      'userId': homeProvider.selectedCustomerId,
-                      'branchId': homeProvider.selectedBranchId,
-                      'basket': homeProvider.basketId,
-                    },
-                  )
-                : jsonEncode(
-                    {
-                      'userId': homeProvider.selectedCustomerId,
-                      'branchId': homeProvider.selectedBranchId,
-                      'basket': homeProvider.basketId,
-                      "note": homeProvider.note
-                    },
-                  ),
-          );
-          print(
-              'CREATE SELLER ORDER. STATUS: ${response.statusCode} BODY: ${response.body}');
-          if (response.statusCode == 200) {
-            final res = jsonDecode(utf8.decode(response.bodyBytes));
-            final orderNumber = res['orderNo'];
-            goto(OrderDone(orderNo: orderNumber.toString()), context);
-            await basketProvider.clearBasket(
-                basket_id: basketProvider.basket.id);
-            setState(() {
-              homeProvider.note = null;
-            });
-          } else {
-            message(message: 'Сагс хоосон байна', context: context);
-          }
-        }
+      final token = await getAccessToken();
+      if (_selectedIndex == -1) {
+        message(message: 'Салбар сонгоно уу!', context: context);
+        return;
       } else {
         final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: homeProvider.note == null
-              ? jsonEncode(
-                  {
-                    'userId': homeProvider.selectedCustomerId,
-                  },
-                )
-              : jsonEncode(
-                  {
-                    'userId': homeProvider.selectedCustomerId,
-                    'note': homeProvider.note,
-                  },
-                ),
+          headers: getHeader(token),
+          body: jsonEncode(
+            {
+              'userId': homeProvider.selectedCustomerId,
+              'branchId':
+                  (orderType == 'DELIVERY' && _selectedIndex != -1)
+                      ? homeProvider.selectedBranchId
+                      : null,
+              'basket': homeProvider.basketId,
+              "note": (homeProvider.note != null) ? homeProvider.note : null
+            },
+          ),
         );
+        getApiInformation('CREATE ORDER', response);
         if (response.statusCode == 200) {
           final res = jsonDecode(utf8.decode(response.bodyBytes));
           final orderNumber = res['orderNo'];
+          goto(OrderDone(orderNo: orderNumber.toString()));
           await basketProvider.clearBasket(basket_id: basketProvider.basket.id);
-          goto(OrderDone(orderNo: orderNumber.toString()), context);
+          setState(() {
+            homeProvider.note = null;
+          });
         } else {
-          message(message: 'Сагс хоосон байна', context: context);
+          message(message: 'Алдаа гарлаа', context: context);
         }
       }
+
+      // else {
+      //   final response = await http.post(
+      //     Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
+      //     headers: getHeader(token!),
+      //     body: homeProvider.note == null
+      //         ? jsonEncode(
+      //             {
+      //               'userId': homeProvider.selectedCustomerId,
+      //             },
+      //           )
+      //         : jsonEncode(
+      //             {
+      //               'userId': homeProvider.selectedCustomerId,
+      //               'note': homeProvider.note,
+      //             },
+      //           ),
+      //   );
+      //   if (response.statusCode == 200) {
+      //     final res = jsonDecode(utf8.decode(response.bodyBytes));
+      //     final orderNumber = res['orderNo'];
+      //     await basketProvider.clearBasket(basket_id: basketProvider.basket.id);
+      //     goto(OrderDone(orderNo: orderNumber.toString()));
+      //   } else {
+      //     message(message: 'Сагс хоосон байна', context: context);
+      //   }
+      // }
     } catch (e) {
       message(message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
     }

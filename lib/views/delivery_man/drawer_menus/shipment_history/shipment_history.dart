@@ -4,7 +4,6 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/shipment.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +49,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   build(BuildContext context) {
     return Consumer<JaggerProvider>(
       builder: (_, provider, child) {
-        final shipmets = provider.shipments;
+        // final shipmets = provider.shipments;
         return Scaffold(
           backgroundColor: AppColors.primary,
           body: DefaultBox(

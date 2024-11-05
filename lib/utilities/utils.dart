@@ -2,13 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-void goto(Widget widget, BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => widget),
+void goto(Widget widget) {
+  Get.to(
+    widget,
+    curve: Curves.fastLinearToSlowEaseIn,
+    transition: Transition.rightToLeft,
   );
 }
 
@@ -129,6 +131,8 @@ getOrderProcess(String v) {
     return '';
   }
 }
+
 getApiInformation(String type, http.Response res) {
-  debugPrint(' $type . STATUS: ${res.statusCode} BODY: ${jsonDecode(utf8.decode(res.bodyBytes))}');
+  debugPrint(
+      ' $type . STATUS: ${res.statusCode} BODY: ${jsonDecode(utf8.decode(res.bodyBytes))}');
 }

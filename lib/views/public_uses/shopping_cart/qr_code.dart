@@ -1,12 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
-
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -23,7 +18,7 @@ class QRCode extends StatefulWidget {
 }
 
 class _QRCodeState extends State<QRCode> {
-  Timer? _timer;
+  // Timer? _timer;
   late BasketProvider basketProvider;
   @override
   void initState() {

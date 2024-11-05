@@ -1,10 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:async';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/ship.dart';
@@ -222,7 +219,7 @@ class _HomeJaggerState extends State<HomeJagger> {
 
   Widget orderItem(Ship e, ShipOrders order) {
     return InkWell(
-      onTap: () => goto(JaggerHomeDetail(order: order, shipId: e.id), context),
+      onTap: () => goto(JaggerHomeDetail(order: order, shipId: e.id)),
       child: Container(
         decoration: BoxDecoration(
           border: Border(

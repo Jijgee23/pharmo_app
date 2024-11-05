@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
@@ -75,7 +76,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   getSplashState() async {
-    var k = await box.get('splash');
     if (box.get('splash') == true) {
       setState(() {
         isSplashed == true;
@@ -85,13 +85,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Pharmo app',
-      restorationScopeId: 'root',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
       home: const SplashScreen(),
     );
   }
-}
+}  
+

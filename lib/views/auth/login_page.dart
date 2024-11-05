@@ -70,78 +70,76 @@ class _LoginPageState extends State<LoginPage>
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: DefaultTabController(
-        length: 2, // Number of tabs
-        child: SafeArea(
-          child: Scaffold(
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    color: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ClipOval(
-                              child: Image.asset('assets/1024.png',
-                                  height: size.height * 0.055),
-                            ),
-                            const SizedBox(width: 10),
-                            Text('Pharmo',
-                                style: TextStyle(
-                                    fontSize: size.height * 0.055,
-                                    fontStyle: FontStyle.italic,
-                                    color: Colors.white)),
-                          ],
-                        ),
-                        const Text('Эмийн бөөний худалдаа,\n захиалгын систем',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontStyle: FontStyle.italic,
-                                color: Colors.white)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: size.height * 0.2,
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            fit: BoxFit.contain,
-                            image: AssetImage('assets/picon.png'))),
-                  ),
-                  // Container(
-                  //   padding: EdgeInsets.symmetric(horizontal: 20),
-                  //   child:
-                  // ),
-                  Container(
-                    padding: EdgeInsets.all(size.width * 0.05),
-                    height: size.height * 0.6,
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween, // Or spaceBetween
-                          children: [
-                            myTab(title: 'Нэвтрэх', index: 0),
-                            myTab(title: 'Бүртгүүлэх', index: 1),
-                          ],
-                        ),
-                        Expanded(
-                          child: TabBarView(
-                            controller: tabController,
-                            children: [
-                              loginForm(),
-                              signUpForm(),
-                            ],
+        length: 2, 
+        child: Scaffold(
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  color: AppColors.primary,
+                  padding:  EdgeInsets.only(bottom: 5, top: size.height * 0.035),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ClipOval(
+                            child: Image.asset('assets/1024.png',
+                                height: size.height * 0.055),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 10),
+                          Text('Pharmo',
+                              style: TextStyle(
+                                  fontSize: size.height * 0.055,
+                                  fontStyle: FontStyle.italic,
+                                  color: Colors.white)),
+                        ],
+                      ),
+                      const Text('Эмийн бөөний худалдаа,\n захиалгын систем',
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.white)),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Container(
+                  height: size.height * 0.2,
+                  decoration: const BoxDecoration(
+                      image: DecorationImage(
+                          fit: BoxFit.contain,
+                          image: AssetImage('assets/picon.png'))),
+                ),
+                // Container(
+                //   padding: EdgeInsets.symmetric(horizontal: 20),
+                //   child:
+                // ),
+                Container(
+                  padding: EdgeInsets.all(size.width * 0.05),
+                  height: size.height * 0.6,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween, // Or spaceBetween
+                        children: [
+                          myTab(title: 'Нэвтрэх', index: 0),
+                          myTab(title: 'Бүртгүүлэх', index: 1),
+                        ],
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          controller: tabController,
+                          children: [
+                            loginForm(),
+                            signUpForm(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -262,7 +260,7 @@ class _LoginPageState extends State<LoginPage>
           children: [
             CustomTextButton(
               text: 'Нууц үг сэргээх',
-              onTap: () => goto(const ResetPassword(), context),
+              onTap: () => goto(const ResetPassword()),
             ),
           ],
         )

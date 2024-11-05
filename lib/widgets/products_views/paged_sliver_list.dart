@@ -30,7 +30,7 @@ class CustomListView extends StatelessWidget {
           },
           noItemsFoundIndicatorBuilder: (context) => const NoItems(),
           itemBuilder: (context, item, index) => ProductWidgetListView(
-                onTap: () => goto(ProductDetail(prod: item), context),
+                onTap: () => goto(ProductDetail(prod: item)),
                 item: item,
                 onButtonTab: () => addBasket(item, context),
               ),

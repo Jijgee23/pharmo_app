@@ -22,6 +22,7 @@ class PharmProvider extends ChangeNotifier {
         Uri.parse('${baseUrl}seller/pharmacy_list/'),
         headers: getHeader(beareToken),
       );
+      getApiInformation('GET PHARMACY LIST', response);
       if (response.statusCode == 200) {
         Map data = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> pharms = data['pharmacies'];
@@ -46,7 +47,7 @@ class PharmProvider extends ChangeNotifier {
           if (isBad == true) {
             badlist.add(PharmFullInfo.fromJson(pharms[i]));
           }
-          if(isBad == false && isCustomer == true && isLimited == false){
+          if (isBad == false && isCustomer == true && isLimited == false) {
             goodlist.add(PharmFullInfo.fromJson(pharms[i]));
           }
           if (isLimited == true) {
@@ -61,9 +62,24 @@ class PharmProvider extends ChangeNotifier {
     }
   }
 
+  getCustomers() async {
+    try {
+      final beareToken = await getAccessToken();
+      final response = await http.get(
+        Uri.parse('${baseUrl}seller/customer/'),
+        headers: getHeader(beareToken),
+      );
+      getApiInformation('GET CUSTOMER LIST', response);
+      if (response.statusCode == 200) {}
+      notifyListeners();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   getOrderList(int customerId) async {
     try {
-     final token = await getAccessToken();
+      final token = await getAccessToken();
       final response = await http.get(
         Uri.parse(
             '${dotenv.env['SERVER_URL']}seller/order_history/?pharmacyId=$customerId'),

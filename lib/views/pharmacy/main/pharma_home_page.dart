@@ -68,12 +68,12 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
                 DrawerItem(
                   title: 'Миний захиалгууд',
                   asset: 'assets/icons_2/time-past.png',
-                  onTap: () => goto(const MyOrder(), context),
+                  onTap: () => goto(const MyOrder()),
                 ),
                 DrawerItem(
                   title: 'Урамшуулал',
                   asset: 'assets/icons_2/gift-box-benefits.png',
-                  onTap: () => goto(const PromotionWidget(), context),
+                  onTap: () => goto(const PromotionWidget()),
                 ),
               ],
             ),

@@ -43,7 +43,7 @@ class CustomGridView extends StatelessWidget {
         itemBuilder: (_, item, index) => ProductWidget(
           item: item,
           hasSale: hasSale,
-          onTap: () => goto(ProductDetail(prod: item), context),
+          onTap: () => goto(ProductDetail(prod: item)),
           onButtonTab: () => addBasket(item, context),
         ),
       ),

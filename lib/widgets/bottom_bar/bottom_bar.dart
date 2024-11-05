@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../controllers/home_provider.dart';
 import '../../utilities/colors.dart';
-import 'bottomNavBarITem.dart';
 
 class BottomBar extends StatefulWidget {
   final HomeProvider homeProvider;

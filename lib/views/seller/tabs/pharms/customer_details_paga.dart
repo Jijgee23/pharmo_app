@@ -12,7 +12,6 @@ import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/others/twoItemsRow.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -114,7 +113,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                                           customerId: widget.customerId,
                                           branchId: branch.id,
                                           branchName: branch.name),
-                                      context);
+                                    );
                                 },
                                 child: Row(
                                   children: [

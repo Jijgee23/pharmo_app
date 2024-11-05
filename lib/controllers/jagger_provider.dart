@@ -8,10 +8,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/jagger.dart';
 import 'package:pharmo_app/models/jagger_expense_order.dart';
-import 'package:pharmo_app/models/order_qrcode.dart';
 import 'package:pharmo_app/models/ship.dart';
 import 'package:pharmo_app/models/shipment.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -19,19 +17,11 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class JaggerProvider extends ChangeNotifier {
-  final int _count = 0;
-  int get count => _count;
-
-  late Basket _basket;
-  Basket get basket => _basket;
 
   final List<Jagger> _jaggers = <Jagger>[];
   List<Jagger> get jaggers => _jaggers;
 
   List<JaggerExpenseOrder> jaggerOrders = <JaggerExpenseOrder>[];
-
-  late OrderQRCode _qrCode;
-  OrderQRCode get qrCode => _qrCode;
 
   final _formKey = GlobalKey<FormState>();
   get formKey => _formKey;

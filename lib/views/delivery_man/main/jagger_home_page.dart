@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/models/jagger.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
@@ -61,14 +60,14 @@ class _JaggerHomePageState extends State<JaggerHomePage> {
               DrawerItem(
                 title: 'Түгээлтийн түүх',
                 asset: 'assets/icons_2/time-past.png',
-                onTap: () => goto(const ShipmentHistory(), context),
+                onTap: () => goto(const ShipmentHistory()),
               ),
               DrawerItem(
                 title: 'Борлуулагчруу шилжих',
                 asset: 'assets/icons_2/swap.png',
                 onTap: () {
                   homeProvider.changeIndex(0);
-                  gotoRemoveUntil(const SellerHomePage(), context);
+                  gotoRemoveUntil(const SellerHomePage(),context);
                 },
               ),
             ],

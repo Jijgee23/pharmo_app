@@ -69,7 +69,7 @@ class _OrderhistoryListPageState extends State<OrderhistoryListPage> {
                                         customerId: widget.customerId,
                                         orderId: orderList[index].id,
                                       ),
-                                      context);
+                                    );
                                 },
                                 title: Text(
                                     'ЗД: ${orderList[index].orderNo.toString()}'),

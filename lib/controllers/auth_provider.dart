@@ -363,7 +363,7 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       if (response.statusCode == 200) {
         message(message: 'Нууц үг амжилттай үүслээ', context: context);
-        goto(const LoginPage(), context);
+        goto(const LoginPage());
         notifyListeners();
       }
     } catch (e) {
