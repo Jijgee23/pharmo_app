@@ -65,10 +65,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCgCib-5cGmpY95y3DM2HCtsk2JLBeSytY',
-    appId: '1:620995763880:ios:4aefb781ed4431bd05ec9d',
+    appId: '1:620995763880:ios:2d1a640b1bf634e205ec9d',
     messagingSenderId: '620995763880',
     projectId: 'fcm-pharmo',
-    storageBucket: 'fcm-pharmo.appspot.com',
-    iosBundleId: 'com.example.pharmoApp',
+    storageBucket: 'fcm-pharmo.firebasestorage.app',
+    iosBundleId: 'mn.infosystems.pharmo',
   );
 }

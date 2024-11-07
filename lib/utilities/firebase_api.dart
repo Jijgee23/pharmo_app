@@ -1,27 +1,14 @@
 // ignore_for_file: unused_local_variable
 
-import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:pharmo_app/firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  if (Platform.isIOS) {
-    await Firebase.initializeApp();
-  } else {
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyAGC_D61SrEpsw9ztwPD2PQiWfm6rtsb3A",
-        appId: "1:620995763880:android:198720fd6fe5406a05ec9d",
-        messagingSenderId: "620995763880",
-        projectId: "fcm-pharmo",
-        storageBucket: 'fcm-pharmo.appspot.com',
-      ),
-    );
-  }
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupFlutterNotifications();
   showFlutterNotification(message);
   // If you're going to use other Firebase services in the background, such as Firestore,
