@@ -310,7 +310,7 @@ class BasketProvider extends ChangeNotifier {
           headers: getHeader(bearerToken),
           body: jsonEncode({
             'basketId': basket_id,
-            'branchId': (branch_id == 0) ? null : branch_id,
+            'branchId': (branch_id == -1) ? null : branch_id,
             'note': note != '' ? note : null
           }));
       final res = jsonDecode(utf8.decode(response.bodyBytes));

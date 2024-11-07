@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/seller/tabs/pharms/customer_details_paga.dart';
-import 'package:pharmo_app/widgets/appbar/search.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/utilities/varlidator.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:provider/provider.dart';
 
 class PharmacyList extends StatefulWidget {
@@ -16,290 +15,343 @@ class PharmacyList extends StatefulWidget {
 }
 
 class _PharmacyListState extends State<PharmacyList> {
-  final _searchController = TextEditingController();
-  List<PharmFullInfo> filteredItems = [];
-  List<PharmFullInfo> _displayItems = [];
-  bool onSearch = false;
-  Color activeColor = AppColors.primary;
-  String selectedRadioValue = 'A';
+  final TextEditingController controller = TextEditingController();
+  final TextEditingController name = TextEditingController();
+  final TextEditingController phone = TextEditingController();
+  final TextEditingController note = TextEditingController();
   late HomeProvider homeProvider;
   late PharmProvider pharmProvider;
+  String selectedFilter = 'Нэрээр';
+  String filter = 'name';
+  TextInputType selectedType = TextInputType.name;
+  setFilter(v) {
+    setState(() {
+      selectedFilter = v;
+      if (v == 'Нэрээр') {
+        filter = 'name';
+        selectedType = TextInputType.text;
+      } else if (v == 'Утасны дугаараар') {
+        filter = 'phone';
+        selectedType = TextInputType.number;
+      } else {
+        filter = 'rn';
+        selectedType = TextInputType.text;
+      }
+    });
+  }
+
+  List<String> filters = ['Нэрээр', 'Утасны дугаараар', 'Регистрийн дугаараар'];
   @override
   void initState() {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     pharmProvider = Provider.of<PharmProvider>(context, listen: false);
-    pharmProvider.getPharmacyList();
+    // pharmProvider.getPharmacyList();
+    pharmProvider.getCustomers(1, 100, context);
     homeProvider.getPosition();
-    _displayItems = pharmProvider.fullList;
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
     super.dispose();
   }
 
-  final filter = {};
-
-  List<String> filters = [
-    'Бүгд',
-    'Харилцагч',
-    'Эмийн сан',
-    'Найдвартай',
-    'Найдваргүй',
-    'Зээл хэтэрсэн'
-  ];
-  List<String> radioValues = ['A', 'C', 'P', 'G', 'B', 'D'];
-
   @override
   Widget build(BuildContext context) {
-    _displayItems.sort((a, b) => a.name.compareTo(b.name));
-    final size = MediaQuery.of(context).size;
-    List<dynamic> lists = [
-      pharmProvider.fullList,
-      pharmProvider.customeList,
-      pharmProvider.pharmList,
-      pharmProvider.goodlist,
-      pharmProvider.badlist,
-      pharmProvider.limitedlist,
-    ];
+    // final size = MediaQuery.of(context).size;
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (_, homeProvider, pp, child) {
         return Scaffold(
-          body: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey.shade500,
-                        blurRadius: 3,
-                        offset: const Offset(0, 4))
-                  ],
-                ),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => registerCustomer(pp),
+            backgroundColor: Colors.white,
+            elevation: 10,
+            shape: const CircleBorder(),
+            child: Icon(
+              Icons.person_add_sharp,
+              color: Colors.blue.shade400,
+            ),
+          ),
+          body: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: Row(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomSearchBar(
-                              searchController: _searchController,
-                              title: 'Хайх',
-                              onChanged: (value) {
-                                filteredItems.clear();
-                                searchPharmacy(value);
-                              },
+                      Expanded(
+                        child: TextFormField(
+                          controller: controller,
+                          cursorColor: Colors.black,
+                          cursorHeight: 20,
+                          cursorWidth: .8,
+                          keyboardType: selectedType,
+                          onChanged: (value) {
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((cb) async {
+                              if (value.isEmpty) {
+                                await pharmProvider.getCustomers(
+                                    1, 100, context);
+                              } else {
+                                await pp.filtCustomers(
+                                    filter, controller.text, context);
+                              }
+                            });
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 20),
+                            hintText: '$selectedFilter хайх',
+                            hintStyle: const TextStyle(
+                              color: Colors.black38,
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          InkWell(
-                            onTap: () => homeProvider.searchByLocation(context),
-                            child: Image.asset(
-                              'assets/icons/locaiton.png',
-                              width: 35,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                      NotificationListener<ScrollNotification>(
-                        onNotification: (notification) {
-                          return true;
+                      InkWell(
+                        onTap: () {
+                          showMenu(
+                            color: Colors.white,
+                            context: context,
+                            shadowColor: Colors.grey.shade500,
+                            position:
+                                const RelativeRect.fromLTRB(100, 100, 0, 0),
+                            items: [
+                              ...filters.map(
+                                (f) => PopupMenuItem(
+                                  child: Text(f),
+                                  onTap: () => setFilter(f),
+                                ),
+                              )
+                            ],
+                          );
                         },
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: filters
-                                .map((e) => custRadio(
-                                    radioValues.elementAt(filters.indexOf(e)),
-                                    e,
-                                    lists[filters.indexOf(e)]))
-                                .toList(),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20)),
+                          margin: const EdgeInsets.only(right: 10),
+                          padding: const EdgeInsets.all(5),
+                          child: const Icon(
+                            Icons.arrow_drop_down,
+                            color: Colors.blue,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: size.width * 0.03),
-                  child: Column(
-                    children: [
-                      ..._displayItems
-                          .map((item) => InkWell(
-                        onTap: () async {
-                          if (item.isBad == true) {
-                            message(
-                                context: context,
-                                message: 'Найдваргүй харилцагч байна!');
-                          } else {
-                            if (item.debt != 0 &&
-                                item.debtLimit != 0 &&
-                                item.debt >= item.debtLimit) {
-                              message(
-                                  context: context,
-                                  message:
-                                  'Зээлийн хэмжээ хэтэрсэн байна!');
-                            } else {
-                              setState(() {
-                                homeProvider.selectedCustomerId = item.id;
-                                homeProvider.selectedCustomerName =
-                                    item.name;
-                                homeProvider.getSelectedUser(
-                                    item.id, item.name);
-                              });
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ...pp.filteredCustomers.map(
+                          (c) => InkWell(
+                            onTap: () {
+                              homeProvider.changeSelectedCustomerId(c.id!);
+                              homeProvider.changeSelectedCustomerName(c.name!);
                               homeProvider.changeIndex(1);
-                            }
-                          }
-                        },
-                        child: Container(
-                          decoration: const BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(
-                                      color: AppColors.primary,
-                                      width: 1))),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 15),
-                          child: Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                  color:
+                                      const Color.fromARGB(255, 220, 228, 231),
+                                  borderRadius: BorderRadius.circular(10)),
+                              padding: const EdgeInsets.only(
+                                  left: 20, top: 10, bottom: 10, right: 10),
+                              margin: const EdgeInsets.symmetric(vertical: 5),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  homeProvider.selectedCustomerId ==
-                                      item.id
-                                      ? const Icon(
-                                    Icons.check,
-                                    color: AppColors.succesColor,
-                                  )
-                                      : const Text(''),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  RichText(
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    text: TextSpan(
-                                      text: item.name,
-                                      style: TextStyle(
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        c.name!,
+                                        style: TextStyle(
+                                          color: (homeProvider
+                                                      .selectedCustomerId ==
+                                                  c.id)
+                                              ? AppColors.succesColor
+                                              : Colors.grey.shade800,
                                           fontSize: 14,
-                                          color: item.isBad
-                                              ? Colors.red
-                                              : item.debt != 0 &&
-                                              item.debtLimit !=
-                                                  0 &&
-                                              item.debt >=
-                                                  item.debtLimit
-                                              ? AppColors.failedColor
-                                              : AppColors.cleanBlack),
-                                    ),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                  InkWell(
+                                    onTap: () => getCustomerDetail(c),
+                                    child: Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: Colors.blue.shade700,
+                                    ),
+                                  )
                                 ],
                               ),
-                              InkWell(
-                                onTap: () {
-                                  if (item.isCustomer) {
-                                    goto(
-                                        CustomerDetailsPage(
-                                          customerId: item.id,
-                                          custName: item.name,
-                                        ),
-                                      );
-                                  } else {
-                                    message(
-                                        context: context,
-                                        message:
-                                        'Эмийн сангийн мэдээллийг харах боломжгүй!');
-                                  }
-                                },
-                                child: Icon((item.isCustomer == false)
-                                    ? Icons.lock_outline_rounded
-                                    : Icons.chevron_right),
-                              )
-                            ],
+                            ),
                           ),
                         ),
-                      )),
-                      const SizedBox(height: kToolbarHeight + 10)
-                    ]
+                        const SizedBox(height: kTextTabBarHeight + 20)
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  Widget mText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(color: Colors.white),
-    );
-  }
-
-  Widget radioText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(fontSize: 12),
-    );
-  }
-
-  Widget custRadio(String value, String title, List<PharmFullInfo> viewList) {
-    return Row(
-      children: [
-        Transform.scale(
-          scale: 0.7,
-          child: Radio(
-            fillColor: WidgetStateProperty.all(AppColors.primary),
-            value: value,
-            groupValue: selectedRadioValue,
-            onChanged: (value) {
-              setState(() {
-                if (value == 'A') {
-                  onSearch = false;
-                } else {
-                  onSearch = true;
-                }
-                selectedRadioValue = value!;
-                _displayItems = viewList;
-              });
-            },
+  getCustomerDetail(Customer customer) {
+    Get.bottomSheet(
+      Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
           ),
         ),
-        radioText(
-          title,
+        padding: const EdgeInsets.all(20),
+        width: double.infinity,
+        child: Wrap(
+          runSpacing: 15,
+          children: [
+            info('Нэр:', customer.name!),
+            (customer.rn != 'null')
+                ? info('РД:', customer.rn!)
+                : const SizedBox(),
+            (customer.phone != 'null')
+                ? info('Утас:', customer.phone!)
+                : const SizedBox(),
+            (customer.phone2 != 'null')
+                ? info('Утас:', customer.phone2!)
+                : const SizedBox(),
+            (customer.phone3 != 'null')
+                ? info('Утас:', customer.phone3!)
+                : const SizedBox(),
+            CustomButton(
+              text: 'Идэвхитэй захиалдаг бараанууд харах',
+              ontap: () async =>
+                  pharmProvider.getCustomerFavs(customer.id!, context),
+            ),
+            CustomButton(text: 'Захиалга үүсгэх', ontap: () {})
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  searchPharmacy(String searchQuery) {
-    filteredItems.clear();
-    setState(() {
-      searchQuery = _searchController.text;
-    });
-    final mylist = pharmProvider.fullList;
-    for (int i = 0; i < mylist.length; i++) {
-      final item = mylist[i];
-      if (searchQuery.isNotEmpty &&
-          item.name.toLowerCase().contains(searchQuery.toLowerCase())) {
-        filteredItems.add(item);
-        setState(() {
-          _displayItems = filteredItems;
-        });
-      }
-      if (searchQuery.isEmpty) {
-        setState(() {
-          _displayItems = mylist;
-        });
-      }
-    }
+  info(String v, String v2) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+      decoration: BoxDecoration(
+          color: Colors.grey.shade300, borderRadius: BorderRadius.circular(30)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            v,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          Text(v2)
+        ],
+      ),
+    );
+  }
+
+  registerCustomer(PharmProvider pp) {
+    Get.bottomSheet(
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: 10,
+            children: [
+              const Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Харилцагч бүртгэх',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              input('Нэр', name, null, null),
+              input('Утас', phone, validatePhone, TextInputType.number),
+              input('Нэмэлт тайлбар', note, null, null),
+              CustomButton(
+                text: 'Бүртгэх',
+                ontap: () => pp
+                    .registerCustomer(name.text, phone.text, note.text, context)
+                    .whenComplete(() => popSheet()),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget input(String hint, TextEditingController contr,
+      Function(String?)? validator, TextInputType? keyType) {
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.grey.shade200, borderRadius: BorderRadius.circular(30)),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: contr,
+              cursorColor: Colors.black,
+              cursorHeight: 20,
+              cursorWidth: .8,
+              keyboardType: keyType,
+              validator: validator as String? Function(String?)?,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                hintText: hint,
+                hintStyle: const TextStyle(
+                  color: Colors.black38,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  popSheet() {
+    name.clear();
+    phone.clear();
+    note.clear();
+    Navigator.pop(context);
   }
 }

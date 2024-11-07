@@ -10,6 +10,7 @@ import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/models/product_detail.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
@@ -176,7 +177,7 @@ class _ProductDetailState extends State<ProductDetail>
                                 style: TextStyle(color: Colors.white,fontSize: 14),
                               ),
                               Text(
-                                  '${detail.salePrice != null ? detail.salePrice.toString() : '-'}₮',
+                                  toPrice(detail.salePrice),
                                   style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -189,7 +190,7 @@ class _ProductDetailState extends State<ProductDetail>
                         children: [
                           const Text('Үндсэн үнэ',style: TextStyle(fontSize: 14),),
                           Text(
-                            '${widget.prod.price.toString()}₮',
+                            toPrice(widget.prod.price),
                             style: const TextStyle(
                                 fontSize: 12, fontWeight: FontWeight.bold),
                           )

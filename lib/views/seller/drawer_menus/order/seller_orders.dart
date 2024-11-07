@@ -21,7 +21,7 @@ class _SellerOrdersState extends State<SellerOrders> {
   void initState() {
     super.initState();
     orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
-    orderProvider.getSellerOrders();
+    // orderProvider.getSellerOrders();
   }
 
   @override

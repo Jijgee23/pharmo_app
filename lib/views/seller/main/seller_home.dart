@@ -7,7 +7,6 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/income/income_list.dart';
-import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
 import 'package:pharmo_app/views/seller/tabs/home/seller_home_tab.dart';
 import 'package:pharmo_app/views/seller/tabs/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/register_pharm/register_pharm.dart';
@@ -47,6 +46,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
     const FilterPage(),
     const SellerShoppingCart(),
   ];
+
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context);
@@ -115,18 +115,20 @@ class _SellerHomePageState extends State<SellerHomePage> {
                 ),
           drawer: MyDrawer(
             drawers: [
-              DrawerItem(
-                  title: 'Эмийг сан бүртгэх',
-                  onTap: () => goto(const RegisterPharmPage()),
-                  asset: 'assets/icons_2/doctor.png'),
+              // DrawerItem(
+              //     title: 'Эмийг сан бүртгэх',
+              //     onTap: () => goto(const RegisterPharmPage()),
+              //     asset: 'assets/icons_2/doctor.png'),
               DrawerItem(
                   title: 'Орлогын жагсаалт',
                   onTap: () => goto(const IncomeList()),
                   asset: 'assets/icons_2/wallet-income.png'),
-              DrawerItem(
-                  title: 'Захиалгууд',
-                  onTap: () => goto(const SellerOrders(),),
-                  asset: 'assets/icons_2/time-past.png'),
+              // DrawerItem(
+              //     title: 'Захиалгууд',
+              //     onTap: () => goto(
+              //           const SellerOrders(),
+              //         ),
+              //     asset: 'assets/icons_2/time-past.png'),
               homeProvider.userRole == 'D'
                   ? DrawerItem(
                       title: 'Түгээгчрүү шилжих',

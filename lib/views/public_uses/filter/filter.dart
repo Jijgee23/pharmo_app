@@ -128,6 +128,7 @@ class _FilterPageState extends State<FilterPage> {
                   homeProvider.mnfrs[idx].name,
                   style: const TextStyle(
                     color: Colors.black,
+                    fontSize: 12
                   ),
                 ),
                 onTap: () {
@@ -160,6 +161,7 @@ class _FilterPageState extends State<FilterPage> {
                 homeProvider.vndrs[idx].name,
                 style: const TextStyle(
                   color: Colors.black,
+                  fontSize: 12
                 ),
               ),
               onTap: () {
@@ -215,7 +217,7 @@ class _CategoryItemState extends State<CategoryItem> {
                 Text(
                   widget.cat.name,
                   style: TextStyle(
-                    color: isExpanded ? AppColors.secondary : Colors.black,
+                    color: isExpanded ? AppColors.secondary : Colors.black,fontSize: 12
                   ),
                 ),
                 widget.cat.children!.isNotEmpty

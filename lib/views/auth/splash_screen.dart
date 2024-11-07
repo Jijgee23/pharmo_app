@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -36,8 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void getLocalData() {
     if (box1.get('splash') != null) {
-      Future.delayed(const Duration(milliseconds: 100),
-          () => goto(const LoginPage()));
+      Future.delayed(Duration.zero, () => goto(const LoginPage()));
       setState(() {
         isSplashed = box1.get('splash');
       });
@@ -57,8 +55,8 @@ class _SplashScreenState extends State<SplashScreen> {
     'assets/stickers/bag.gif',
   ];
   List<String> texts = [
-    'Эмийн бөөний захиалга болон худалдааг хялбархан хийгээрэй',
-    'Захиалгын хүргэлтийг үүгээр шийдээрэй',
+    'Эмийн бөөний захиалга, худалдаа',
+    'Захиалгын хүргэлт',
     'Яг одоо захиалахад бэлэн үү'
   ];
 

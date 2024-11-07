@@ -3,7 +3,8 @@ import 'package:pharmo_app/widgets/others/chevren_back.dart';
 
 class SideMenuAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  const SideMenuAppbar({super.key, required this.title})
+  final List<Widget>? actions;
+  const SideMenuAppbar({super.key, required this.title, this.actions})
       : preferredSize = const Size.fromHeight(kToolbarHeight);
 
   @override
@@ -17,6 +18,7 @@ class SideMenuAppbar extends StatelessWidget implements PreferredSizeWidget {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
       centerTitle: true,
       leading: const ChevronBack(),
+      actions: actions,
     );
   }
 }

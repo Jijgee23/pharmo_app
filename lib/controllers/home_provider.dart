@@ -17,7 +17,9 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/buying_promo.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo.dart';
+import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -42,8 +44,8 @@ class HomeProvider extends ChangeNotifier {
   int userId = 0;
   int? basketId;
   int selectedBranchId = -1;
-  String payType = '';
-  String orderType = 'NODELIVERY';
+  String payType = 'NOW';
+
   String? note;
   List<Branch> branchList = <Branch>[];
   late LocationPermission permission;
@@ -466,8 +468,51 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
+  createSellerOrder(BuildContext context, String type) async {
+    try {
+      final token = await getAccessToken();
+      final response = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
+        headers: getHeader(token),
+        body: jsonEncode(
+          {
+            'customer_id': selectedCustomerId,
+            'basket_id': basketId,
+            'payType': type,
+            "note": (note != null) ? note : null
+          },
+        ),
+      );
+      getApiInformation('CREATE ORDER', response);
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
+      if (response.statusCode == 200) {
+        final res = jsonDecode(utf8.decode(response.bodyBytes));
+        final orderNumber = res['orderNo'];
+        goto(OrderDone(orderNo: orderNumber.toString()));
+        await basketProvider.clearBasket(basket_id: basketId!);
+        note = null;
+        notifyListeners();
+      } else {
+        message(message: 'Алдаа гарлаа', context: context);
+      }
+    } catch (e) {
+      message(message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
+    }
+  }
+
+  setNote(String nv) {
+    note = nv;
+    notifyListeners();
+  }
+
   setQueryType(String type) {
     queryType = type;
+    notifyListeners();
+  }
+
+  setPayType(String v) {
+    payType = v;
     notifyListeners();
   }
 

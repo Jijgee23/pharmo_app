@@ -94,8 +94,12 @@ int parseInt(dynamic value) {
   }
 }
 
-toPrice(String v) {
-  return '$v ₮';
+toPrice(dynamic v) {
+  if (v != null) {
+    return '${v.toString().split('.')[0]}₮';
+  } else {
+    return '0₮';
+  }
 }
 
 getProcessNumber(String process) {
@@ -135,4 +139,12 @@ getOrderProcess(String v) {
 getApiInformation(String type, http.Response res) {
   debugPrint(
       ' $type . STATUS: ${res.statusCode} BODY: ${jsonDecode(utf8.decode(res.bodyBytes))}');
+}
+
+checker(Map response, String key, BuildContext context) {
+  if (response.containsKey(key)) {
+    return true;
+  } else {
+    return false;
+  }
 }

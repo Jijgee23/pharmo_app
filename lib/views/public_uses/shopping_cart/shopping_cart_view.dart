@@ -253,7 +253,7 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${widget.detail['main_price']} ₮',
+                      toPrice(widget.detail['main_price']),
                       style: const TextStyle(
                           color: AppColors.secondary,
                           fontWeight: FontWeight.w500),
@@ -286,7 +286,7 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
 
   iconButton({required Function() onTap, required IconData icon}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 7.5,vertical: 2),
       child: InkWell(
         onTap: onTap,
         child: Icon(

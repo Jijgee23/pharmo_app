@@ -71,5 +71,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'fcm-pharmo.appspot.com',
     iosBundleId: 'com.example.pharmoApp',
   );
-
 }

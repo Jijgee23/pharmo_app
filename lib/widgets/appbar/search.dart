@@ -25,7 +25,7 @@ class CustomSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 35,
+      height: 40,
       width: double.infinity,
       child: TextField(
         keyboardType: keyboardType,
@@ -34,18 +34,17 @@ class CustomSearchBar extends StatelessWidget {
         onSubmitted: onSubmitted,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
-            borderSide: const BorderSide(
-              color: Colors.black,
-            ),
+            borderRadius: BorderRadius.circular(10),
+            // borderSide: const BorderSide(
+            // ),
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(10),
           ),
           hintText: title,
-          hintStyle: const TextStyle(height: 1),
+          hintStyle: const TextStyle(fontSize: 14),
           prefixIcon: prefix ?? Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Image.asset(
               'assets/icons/search.png',
               width: 20,

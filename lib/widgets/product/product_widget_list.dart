@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 
 class ProductWidgetListView extends StatelessWidget {
   final Product item;
@@ -40,7 +41,7 @@ class ProductWidgetListView extends StatelessWidget {
                     maxLines: 1,
                   ),
                   Text(
-                    '${item.price} ₮',
+                    toPrice(item.price!),
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

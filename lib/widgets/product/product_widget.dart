@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 
 class ProductWidget extends StatelessWidget {
   final Product item;
@@ -93,8 +94,8 @@ class ProductWidget extends StatelessWidget {
                           children: [
                             Text(
                               (hasSale == true && sale != null)
-                                  ? '${item.price == 0 ? '0' : (item.price! - (item.price! / 100 * item.discount!)).toString().substring(0, 7)}₮'
-                                  : '${item.price.toString()}₮',
+                                  ? toPrice({item.price == 0 ? '0' : (item.price! - (item.price! / 100 * item.discount!)).toString().substring(0, 7)})
+                                  : toPrice(item.price),
                               style: const TextStyle(
                                   color: AppColors.secondary,
                                   fontWeight: FontWeight.w500),
@@ -118,7 +119,7 @@ class ProductWidget extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Text('${item.price.toString()}₮',
+                            child: Text(toPrice(item.price),
                                 style: const TextStyle(
                                     color: Colors.grey,
                                     fontSize: 12,

@@ -39,23 +39,19 @@ class _SellerQRCodeState extends State<SellerQRCode> {
 
   createQR() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
+      final btoken = await getAccessToken();
       final response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}ci/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
+        headers: getHeader(btoken),
         body: jsonEncode(
           {
-            'userId': homeProvider.selectedCustomerId,
-            'branchId': (homeProvider.selectedBranchId != -1) ?  homeProvider.selectedBranchId : null,
-            'note': homeProvider.note == null ? homeProvider.note : null
+            'customer_id': homeProvider.selectedCustomerId,
+            'note': homeProvider.note
           },
         ),
       );
       int stcode = response.statusCode;
+      getApiInformation('SELLER QR', response);
       if (stcode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {

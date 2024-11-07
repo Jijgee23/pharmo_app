@@ -10,10 +10,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
+import 'package:pharmo_app/controllers/myorder_provider.dart';
+import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -246,7 +249,13 @@ class AuthController extends ChangeNotifier {
       BasketProvider().dispose();
       IncomeProvider().dispose();
       ProductProvider().dispose();
+      PharmProvider().dispose();
+      AuthController().dispose();
+      MyOrderProvider().dispose();
+      AddressProvider().dispose();
       gotoRemoveUntil(const LoginPage(), context);
+    } else {
+      message(message: 'Холболт салсан.', context: context);
     }
     notifyListeners();
   }
