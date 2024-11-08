@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '620995763880',
     projectId: 'fcm-pharmo',
     authDomain: 'fcm-pharmo.firebaseapp.com',
-    storageBucket: 'fcm-pharmo.appspot.com',
+    storageBucket: 'fcm-pharmo.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -60,7 +60,7 @@ class DefaultFirebaseOptions {
     appId: '1:620995763880:android:198720fd6fe5406a05ec9d',
     messagingSenderId: '620995763880',
     projectId: 'fcm-pharmo',
-    storageBucket: 'fcm-pharmo.appspot.com',
+    storageBucket: 'fcm-pharmo.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

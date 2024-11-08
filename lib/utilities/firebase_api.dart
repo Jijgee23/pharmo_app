@@ -1,14 +1,13 @@
 // ignore_for_file: unused_local_variable
 
-import 'package:firebase_core/firebase_core.dart';
+import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:pharmo_app/firebase_options.dart';
 
 @pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await setupFlutterNotifications();
   showFlutterNotification(message);
   // If you're going to use other Firebase services in the background, such as Firestore,
@@ -76,11 +75,21 @@ void showFlutterNotification(RemoteMessage message) {
 class FirebaseApi {
   static final _firebaseMessaging = FirebaseMessaging.instance;
   static Future<void> initNotification() async {
-    await _firebaseMessaging.requestPermission();
-    String deviceToken = await _firebaseMessaging.getToken() ?? '';
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    if (!kIsWeb) {
-      await setupFlutterNotifications();
+    try {
+      await _firebaseMessaging.requestPermission();
+      if (Platform.isAndroid) {
+        String deviceToken = await _firebaseMessaging.getToken() ?? '';
+      } else {
+        String deviceToken = await _firebaseMessaging.getAPNSToken() ?? '';
+      }
+
+      // print(deviceToken);
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      if (!kIsWeb) {
+        await setupFlutterNotifications();
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 }

@@ -389,9 +389,9 @@ class AuthController extends ChangeNotifier {
 
   getDeviceToken() async {
     //request user permission for push notification
-    FirebaseMessaging.instance.requestPermission();
+    //FirebaseMessaging.instance.requestPermission();
     FirebaseMessaging firebaseMessage = FirebaseMessaging.instance;
-    String? deviceToken = await firebaseMessage.getToken();
+    String? deviceToken = await firebaseMessage.getAPNSToken();
     // print('FIREBASE TOKEN: $deviceToken');
     getFireBaseToken(deviceToken!);
     return deviceToken;

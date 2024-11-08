@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "620995763880",
     "project_id": "fcm-pharmo",
-    "storage_bucket": "fcm-pharmo.appspot.com"
+    "storage_bucket": "fcm-pharmo.firebasestorage.app"
   },
   "client": [
     {
