@@ -233,27 +233,31 @@ class Customer {
   String? phone;
   String? phone2;
   String? phone3;
+  String? note;
+  bool? loanBlock;
 
   // Constructor
-  Customer({
-    this.id,
-    this.name,
-    this.rn,
-    this.phone,
-    this.phone2,
-    this.phone3,
-  });
+  Customer(
+      {this.id,
+      this.name,
+      this.rn,
+      this.phone,
+      this.phone2,
+      this.phone3,
+      this.note,
+      this.loanBlock});
 
   // Factory method to create a `Customer` instance from JSON
   factory Customer.fromJson(Map<String, dynamic> json) {
     return Customer(
-      id: json['id'],
-      name: json['name'],
-      rn: json['rn'].toString(),
-      phone: json['phone'].toString(),
-      phone2: json['phone2'].toString(),
-      phone3: json['phone3'].toString(),
-    );
+        id: json['id'],
+        name: json['name'],
+        rn: json['rn'].toString(),
+        phone: json['phone'].toString(),
+        phone2: json['phone2'].toString(),
+        phone3: json['phone3'].toString(),
+        note: json['note'].toString(),
+        loanBlock: json['loanBlock']);
   }
 
   // Method to convert a `Customer` instance to JSON (optional)
@@ -265,6 +269,8 @@ class Customer {
       'phone': phone,
       'phone2': phone2,
       'phone3': phone3,
+      'note': note,
+      'loanBlock': loanBlock
     };
   }
 }

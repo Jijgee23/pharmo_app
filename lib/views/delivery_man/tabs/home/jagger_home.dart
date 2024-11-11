@@ -127,15 +127,16 @@ class _HomeJaggerState extends State<HomeJagger> {
         builder: (context, jagger, child) {
           final ships = jagger.ships;
           return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              child: (ships.isNotEmpty)
-                  ? SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: ships.map((e) => shipment(e: e)).toList(),
-                      ),
-                    )
-                  : const NoResult());
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            child: (ships.isNotEmpty)
+                ? SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: ships.map((e) => shipment(e: e)).toList(),
+                    ),
+                  )
+                : const NoResult(),
+          );
         },
       ),
     );

@@ -48,6 +48,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
       builder: (context, provider, _) {
         final cartDatas = provider.shoppingCarts;
         final basket = provider.basket;
+        final basketIsEmpty = basketProvider.basket.totalCount == 0;
         return Container(
           margin: const EdgeInsets.only(bottom: kToolbarHeight),
           child: Column(
@@ -56,6 +57,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    basketIsEmpty ? const SizedBox() : const BasketInfo(),
                     cartDatas.isNotEmpty
                         ? Expanded(
                             child: ListView.builder(
@@ -185,7 +187,6 @@ class _OrderSheetState extends State<OrderSheet> {
       child: Wrap(
         runSpacing: 15,
         children: [
-          const BasketInfo(),
           Container(
             decoration: bd,
             child: Row(

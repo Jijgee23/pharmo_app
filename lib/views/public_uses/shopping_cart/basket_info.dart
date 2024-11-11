@@ -11,12 +11,15 @@ class BasketInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
     final basket = basketProvider.basket;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        info(title: 'Төлөх дүн', text: toPrice(basket.totalPrice)),
-        info(title: 'Тоо ширхэг', text: '${basket.totalCount ?? 0}')
-      ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          info(title: 'Төлөх дүн', text: toPrice(basket.totalPrice)),
+          info(title: 'Тоо ширхэг', text: '${basket.totalCount ?? 0}')
+        ],
+      ),
     );
   }
 
@@ -44,3 +47,6 @@ class BasketInfo extends StatelessWidget {
     );
   }
 }
+
+
+

@@ -3,10 +3,10 @@ import 'package:pharmo_app/utilities/colors.dart';
 
 final lightTheme = ThemeData(
   primaryColor: AppColors.primary,
-  scaffoldBackgroundColor: AppColors.cleanWhite,
+  scaffoldBackgroundColor: AppColors.background,
   appBarTheme: const AppBarTheme(
-    backgroundColor: AppColors.cleanWhite,
-    surfaceTintColor: Colors.white,
+    backgroundColor: AppColors.background,
+    surfaceTintColor: AppColors.background,
   ),
   inputDecorationTheme: InputDecorationTheme(
     hintStyle: const TextStyle(

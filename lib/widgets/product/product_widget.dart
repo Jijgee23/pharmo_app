@@ -33,12 +33,7 @@ class ProductWidget extends StatelessWidget {
                 // border: Border.all(color: AppColors.primary, width: 0.5),
                 borderRadius: BorderRadius.circular(15),
                 color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade500,
-                    blurRadius: 5,
-                  )
-                ]),
+                boxShadow: shadow()),
             margin: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 5),
             padding: const EdgeInsets.only(bottom: 10),
             child: InkWell(
@@ -94,7 +89,16 @@ class ProductWidget extends StatelessWidget {
                           children: [
                             Text(
                               (hasSale == true && sale != null)
-                                  ? toPrice({item.price == 0 ? '0' : (item.price! - (item.price! / 100 * item.discount!)).toString().substring(0, 7)})
+                                  ? toPrice({
+                                      item.price == 0
+                                          ? '0'
+                                          : (item.price! -
+                                                  (item.price! /
+                                                      100 *
+                                                      item.discount!))
+                                              .toString()
+                                              .substring(0, 7)
+                                    })
                                   : toPrice(item.price),
                               style: const TextStyle(
                                   color: AppColors.secondary,

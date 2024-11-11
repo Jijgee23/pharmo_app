@@ -148,3 +148,7 @@ checker(Map response, String key, BuildContext context) {
     return false;
   }
 }
+
+shadow() {
+  return [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)];
+}

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:provider/provider.dart';
@@ -78,7 +79,7 @@ class _PharmacyListState extends State<PharmacyList> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   margin: const EdgeInsets.only(bottom: 10),
@@ -153,54 +154,7 @@ class _PharmacyListState extends State<PharmacyList> {
                     child: Column(
                       children: [
                         ...pp.filteredCustomers.map(
-                          (c) => InkWell(
-                            onTap: () {
-                              homeProvider.changeSelectedCustomerId(c.id!);
-                              homeProvider.changeSelectedCustomerName(c.name!);
-                              homeProvider.changeIndex(1);
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                  color:
-                                      const Color.fromARGB(255, 220, 228, 231),
-                                  borderRadius: BorderRadius.circular(10)),
-                              padding: const EdgeInsets.only(
-                                  left: 20, top: 10, bottom: 10, right: 10),
-                              margin: const EdgeInsets.symmetric(vertical: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        c.name!,
-                                        style: TextStyle(
-                                          color: (homeProvider
-                                                      .selectedCustomerId ==
-                                                  c.id)
-                                              ? AppColors.succesColor
-                                              : Colors.grey.shade800,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  InkWell(
-                                    onTap: () => getCustomerDetail(c),
-                                    child: Icon(
-                                      Icons.chevron_right_rounded,
-                                      color: Colors.blue.shade700,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
+                          (c) => customerBuilder(homeProvider, c),
                         ),
                         const SizedBox(height: kTextTabBarHeight + 20)
                       ],
@@ -212,6 +166,64 @@ class _PharmacyListState extends State<PharmacyList> {
           ),
         );
       },
+    );
+  }
+
+  InkWell customerBuilder(HomeProvider homeProvider, Customer c) {
+    return InkWell(
+      onTap: () {
+        homeProvider.changeSelectedCustomerId(c.id!);
+        homeProvider.changeSelectedCustomerName(c.name!);
+        homeProvider.changeIndex(1);
+      },
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: shadow(),
+        ),
+        padding:
+            const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 10),
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  c.name!,
+                  style: TextStyle(
+                    color: (homeProvider.selectedCustomerId == c.id)
+                        ? AppColors.succesColor
+                        : Colors.grey.shade800,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                (c.loanBlock == true)
+                    ? Text(
+                        'Харилцагч дээр захиалга зээлээр өгөхгүй!',
+                        style: TextStyle(
+                          color: Colors.red.shade800,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    : const SizedBox(),
+              ],
+            ),
+            InkWell(
+              onTap: () => getCustomerDetail(c),
+              child: Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.blue.shade700,
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 

@@ -42,7 +42,7 @@ class DefaultBox extends StatelessWidget {
             height: size.height * 0.9,
             padding: EdgeInsets.symmetric(vertical: size.height *0.006, horizontal: size.width *0.006),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.background,
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(size.height * 0.02),
                 topLeft: Radius.circular(size.height * 0.02),

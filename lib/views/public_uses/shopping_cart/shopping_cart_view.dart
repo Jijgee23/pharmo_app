@@ -168,13 +168,12 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
           ),
           child: Container(
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5),
-                boxShadow: [
-                  BoxShadow(color: Colors.grey.shade500, blurRadius: 5)
-                ]),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: shadow(),
+            ),
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
+            margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -259,7 +258,9 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                           fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      toPrice((widget.detail['qty'] * widget.detail['main_price']).toString()),
+                      toPrice(
+                          (widget.detail['qty'] * widget.detail['main_price'])
+                              .toString()),
                       style: const TextStyle(
                           color: AppColors.secondary,
                           fontWeight: FontWeight.w500),
@@ -286,7 +287,7 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
 
   iconButton({required Function() onTap, required IconData icon}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7.5,vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 2),
       child: InkWell(
         onTap: onTap,
         child: Icon(

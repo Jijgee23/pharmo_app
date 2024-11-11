@@ -25,6 +25,7 @@ class MyOrderProvider extends ChangeNotifier {
         Uri.parse('${dotenv.env['SERVER_URL']}order/'),
         headers: getHeader(bearerToken),
       );
+      getApiInformation('GET ORDER LIST', res);
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ords = response['results'];
@@ -286,6 +287,7 @@ class SellerOrderModel {
   String? createdOn;
   String? endedOn;
   bool? note;
+  String? customer;
   String? user;
   OrderBranch? branch;
   int? seller;
@@ -293,22 +295,24 @@ class SellerOrderModel {
   int? packer;
 
   SellerOrderModel(
-      this.id,
-      this.orderNo,
-      this.totalPrice,
-      this.totalCount,
-      this.status,
-      this.process,
-      this.payType,
-      this.qp,
-      this.createdOn,
-      this.endedOn,
-      this.note,
-      this.user,
-      this.branch,
-      this.seller,
-      this.delman,
-      this.packer);
+    this.id,
+    this.orderNo,
+    this.totalPrice,
+    this.totalCount,
+    this.status,
+    this.process,
+    this.payType,
+    this.qp,
+    this.createdOn,
+    this.endedOn,
+    this.note,
+    this.customer,
+    this.user,
+    this.branch,
+    this.seller,
+    this.delman,
+    this.packer,
+  );
 
   SellerOrderModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -319,6 +323,7 @@ class SellerOrderModel {
         process = json['process'],
         payType = json['payType'],
         qp = json['qp'],
+        customer = json['customer'],
         createdOn = json['createdOn'],
         endedOn = json['endedOn'],
         user = json['user'],
@@ -337,6 +342,7 @@ class SellerOrderModel {
       'status': status,
       'process': process,
       'payType': payType,
+      'customer': customer,
       'qp': qp,
       'createdOn': createdOn,
       'endedOn': endedOn,

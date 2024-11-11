@@ -102,6 +102,7 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
                           showMenu(
                                   surfaceTintColor: Colors.white,
                                   context: context,
+                                  color: Colors.white,
                                   position: const RelativeRect.fromLTRB(
                                       150, 140, 0, 0),
                                   items: homeProvider.stype

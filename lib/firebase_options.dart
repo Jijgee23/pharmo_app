@@ -72,3 +72,4 @@ class DefaultFirebaseOptions {
     iosBundleId: 'mn.infosystems.pharmo',
   );
 }
+

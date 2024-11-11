@@ -27,7 +27,7 @@ class _BottomBarState extends State<BottomBar> {
       top: true,
       child: Container(
         margin: EdgeInsets.symmetric(
-            vertical: Platform.isIOS ? 0 : 20,
+            vertical: Platform.isIOS ? 0 : 10,
             horizontal: (orientation == Orientation.portrait)
                 ? size.width * 0.25
                 : size.width / 3),

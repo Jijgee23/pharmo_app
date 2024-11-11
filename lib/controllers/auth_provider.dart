@@ -7,6 +7,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -56,14 +57,12 @@ class AuthController extends ChangeNotifier {
   Future<void> refresh() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? rtoken = prefs.getString("refresh_token");
+    final bearer = await getAccessToken();
     var response = await http.post(
       Uri.parse('${dotenv.env['SERVER_URL']}auth/refresh/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': rtoken!,
-      },
+      headers: getHeader(bearer),
       body: jsonEncode(<String, String>{
-        'refresh': rtoken,
+        'refresh': rtoken!,
       }),
     );
     if (response.statusCode == 200) {
@@ -76,9 +75,7 @@ class AuthController extends ChangeNotifier {
     try {
       var response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/reged/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
+        headers: header,
         body: jsonEncode(
           {'email': email},
         ),
@@ -92,23 +89,6 @@ class AuthController extends ChangeNotifier {
             context: context,
           );
         }
-        // else {
-        //   if (email == emailController.text && isPasswordCreated) {
-        //     notifyListeners();
-        //     return Future.value(true);
-        //   } else {
-        //     if (!isPasswordCreated && email == emailController.text) {
-        //       await showDialog(
-        //         context: context,
-        //         builder: (context) {
-        //           return CreatePassDialog(
-        //             email: email,
-        //           );
-        //         },
-        //       );
-        //     }
-        //   }
-        // }
       }
     } catch (e) {
       message(
@@ -123,9 +103,7 @@ class AuthController extends ChangeNotifier {
     try {
       var responseLogin = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/login/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
+        headers: header,
         body: jsonEncode({
           'email': email,
           'password': password,
@@ -183,9 +161,11 @@ class AuthController extends ChangeNotifier {
           // message(
           //     message: 'Веб хуудсаар хандан нууц үг үүсгэнэ үү!',
           //     context: context);
-          showDialog(context: context, builder: (context){
-            return CreatePassDialog(email: email);
-          });
+          showDialog(
+              context: context,
+              builder: (context) {
+                return CreatePassDialog(email: email);
+              });
         } else if (checker(res, 'noCmp', context) == true) {
           message(
               message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
@@ -231,33 +211,37 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> logout(BuildContext context) async {
-    final response = await http.post(
-      Uri.parse('${dotenv.env['SERVER_URL']}auth/logout/'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
-    notifyListeners();
-    if (response.statusCode == 200) {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.remove('access_token');
-      prefs.remove('refresh_token');
-      HomeProvider().dispose();
-      BasketProvider().dispose();
-      PromotionProvider().dispose();
-      JaggerProvider().dispose();
-      BasketProvider().dispose();
-      IncomeProvider().dispose();
-      ProductProvider().dispose();
-      PharmProvider().dispose();
-      AuthController().dispose();
-      MyOrderProvider().dispose();
-      AddressProvider().dispose();
-      gotoRemoveUntil(const LoginPage(), context);
-    } else {
-      message(message: 'Холболт салсан.', context: context);
+    try {
+      final token = await getAccessToken();
+      final response = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}auth/logout/'),
+        headers: getHeader(token),
+      );
+      getApiInformation('AT LOGOUT', response);
+      if (response.statusCode == 200) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.remove('access_token');
+        prefs.remove('refresh_token');
+        HomeProvider().dispose();
+        BasketProvider().dispose();
+        PromotionProvider().dispose();
+        JaggerProvider().dispose();
+        BasketProvider().dispose();
+        IncomeProvider().dispose();
+        ProductProvider().dispose();
+        PharmProvider().dispose();
+        AuthController().dispose();
+        MyOrderProvider().dispose();
+        AddressProvider().dispose();
+        Get.clearRouteTree();
+        gotoRemoveUntil(const LoginPage(), context);
+      } else {
+        message(message: 'Холболт салсан.', context: context);
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('ERROR LOGOUT ${e.toString()}');
     }
-    notifyListeners();
   }
 
   Future<void> signUpGetOtp(
@@ -265,9 +249,7 @@ class AuthController extends ChangeNotifier {
     try {
       final response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/reg_otp/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
+        headers: header,
         body: jsonEncode(
           {
             'email': email,
@@ -286,6 +268,12 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Map<String, String> get header {
+    return <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+  }
+
   checker(Map response, String key, BuildContext context) {
     if (response.containsKey(key)) {
       return true;
@@ -299,9 +287,7 @@ class AuthController extends ChangeNotifier {
     try {
       final response = await http.post(
           Uri.parse('${dotenv.env['SERVER_URL']}auth/register/'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
+          headers: header,
           body: jsonEncode({
             'email': email,
             'phone': phone,
@@ -329,9 +315,7 @@ class AuthController extends ChangeNotifier {
     try {
       final response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/get_otp/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
+        headers: header,
         body: jsonEncode({
           'email': email,
         }),
@@ -360,9 +344,7 @@ class AuthController extends ChangeNotifier {
     try {
       final response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/reset/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
+        headers: header,
         body: jsonEncode({
           'email': email,
           'otp': otp,
@@ -388,11 +370,13 @@ class AuthController extends ChangeNotifier {
   }
 
   getDeviceToken() async {
-    //request user permission for push notification
-    //FirebaseMessaging.instance.requestPermission();
+    String? deviceToken = '';
     FirebaseMessaging firebaseMessage = FirebaseMessaging.instance;
-    String? deviceToken = await firebaseMessage.getAPNSToken();
-    // print('FIREBASE TOKEN: $deviceToken');
+    if (Platform.isAndroid) {
+      deviceToken = await firebaseMessage.getToken();
+    } else {
+      deviceToken = await firebaseMessage.getAPNSToken();
+    }
     getFireBaseToken(deviceToken!);
     return deviceToken;
   }
@@ -433,7 +417,6 @@ class AuthController extends ChangeNotifier {
     final bearerToken = await getAccessToken();
     await getDeviceToken();
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    // print('FIREBASE TOKEN: =======> $firebaseToken');
     Map<String, String> deviceData = {};
     try {
       if (Platform.isAndroid) {

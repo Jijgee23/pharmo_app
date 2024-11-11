@@ -18,12 +18,7 @@ class ProductWidgetListView extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade500,
-                blurRadius: 5,
-              )
-            ]),
+            boxShadow: shadow()),
         margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         padding: const EdgeInsets.symmetric(horizontal: 15),
         width: double.infinity,

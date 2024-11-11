@@ -66,7 +66,7 @@ class _UserInformationState extends State<UserInformation> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         boxShadow: [Constants.defaultShadow],
-        color: Colors.white,
+        color: AppColors.background,
       ),
       padding: const EdgeInsets.all(10),
       child: Column(
@@ -77,9 +77,13 @@ class _UserInformationState extends State<UserInformation> {
             title,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
           ),
-          Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, color: AppColors.primary)),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.black54,
+            ),
+          ),
         ],
       ),
     );

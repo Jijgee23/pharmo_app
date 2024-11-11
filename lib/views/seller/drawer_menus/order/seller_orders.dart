@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
@@ -21,7 +22,7 @@ class _SellerOrdersState extends State<SellerOrders> {
   void initState() {
     super.initState();
     orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
-    // orderProvider.getSellerOrders();
+    orderProvider.getSellerOrders();
   }
 
   @override
@@ -160,17 +161,17 @@ class _OrderWidgetState extends State<OrderWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            row('Захиалагч:', widget.order.user!),
+            row('Захиалагч:', widget.order.customer ?? ''),
             row('Дугаар:', widget.order.orderNo!.toString()),
             isExpanded
                 ? Column(
                     children: [
-                      row('Нийт үнэ:', '${widget.order.totalPrice!}₮'),
+                      row('Нийт үнэ:', toPrice(widget.order.totalPrice)),
                       row('Тоо ширхэг:', widget.order.totalCount!.toString()),
-                      row('Төлөв:', getStatus(widget.order.status!)),
+                      row('Төлөв:', getStatus(widget.order.status!) ),
                       row('Явц:', getProcess(widget.order.process!)),
                       row('Төлбөрийн хэлбэр:',
-                          getPayType(widget.order.payType!)),
+                          getPayType(widget.order.payType ?? '')),
                       row('Үүссэн огноо:',
                           widget.order.createdOn!.substring(0, 10)),
                       row(
@@ -249,7 +250,7 @@ class _OrderWidgetState extends State<OrderWidget> {
       return 'Биелсэн';
     } else {
       return 'Тодорхой биш';
-    }
+    } 
   }
 
   getPayType(String payType) {

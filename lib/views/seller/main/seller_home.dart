@@ -7,11 +7,10 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/income/income_list.dart';
+import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
 import 'package:pharmo_app/views/seller/tabs/home/seller_home_tab.dart';
 import 'package:pharmo_app/views/seller/tabs/pharms/pharmacy_list.dart';
-import 'package:pharmo_app/views/seller/drawer_menus/register_pharm/register_pharm.dart';
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_shopping_cart.dart';
-import 'package:pharmo_app/views/public_uses/notification/notification.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
@@ -52,18 +51,21 @@ class _SellerHomePageState extends State<SellerHomePage> {
     final basketProvider = Provider.of<BasketProvider>(context);
     return Consumer<HomeProvider>(
       builder: (_, homeProvider, child) {
-        var textStyle =
-            TextStyle(color: Colors.blueGrey.shade800, fontSize: 13.0);
+        final textStyle = TextStyle(
+          color: Colors.blueGrey.shade800,
+          fontSize: 12.0,
+          letterSpacing: 0.3,
+          fontWeight: FontWeight.bold,
+        );
         return Scaffold(
           extendBody: true,
           resizeToAvoidBottomInset: false,
           appBar: homeProvider.invisible
               ? null
               : AppBar(
-                  backgroundColor: Colors.white,
                   centerTitle: true,
                   title: homeProvider.selectedCustomerId == 0
-                      ? Text('Захиалагч сонгоно уу', style: textStyle)
+                      ? Text('Харилцагч сонгоно уу !', style: textStyle)
                       : TextButton(
                           onPressed: () {
                             setState(() {
@@ -72,31 +74,37 @@ class _SellerHomePageState extends State<SellerHomePage> {
                           },
                           child: RichText(
                             text: TextSpan(
-                              text: 'Сонгосон захиалагч: ',
+                              text: 'Сонгосон харилцагч: ',
                               style: textStyle,
                               children: [
                                 TextSpan(
-                                    text: homeProvider.selectedCustomerName,
-                                    style: const TextStyle(
-                                        color: AppColors.secondary,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13.0)),
+                                  text: homeProvider.selectedCustomerName,
+                                  style: const TextStyle(
+                                    color: AppColors.succesColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13.0,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                         ),
                   actions: [
-                    IconButton(
-                      icon: Image.asset('assets/icons_2/bell.png', height: 24),
-                      onPressed: () => goto(const NotificationPage()),
+                    InkWell(
+                      child: Image.asset(
+                        'assets/icons_2/bell.png',
+                        height: 24,
+                        color: AppColors.primary,
+                      ),
+                      // onTap: () => goto(const NotificationPage()),
                     ),
                     Container(
-                      margin: const EdgeInsets.only(right: 15),
+                      margin: const EdgeInsets.only(right: 15, left: 10),
                       child: InkWell(
                         onTap: () => homeProvider.changeIndex(3),
                         child: badges.Badge(
                           badgeContent: Text(
-                            "${basketProvider.count}",
+                            '${basketProvider.count}',
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 11),
                           ),
@@ -107,6 +115,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                             'assets/icons_2/cart.png',
                             height: 24,
                             width: 24,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -123,12 +132,12 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   title: 'Орлогын жагсаалт',
                   onTap: () => goto(const IncomeList()),
                   asset: 'assets/icons_2/wallet-income.png'),
-              // DrawerItem(
-              //     title: 'Захиалгууд',
-              //     onTap: () => goto(
-              //           const SellerOrders(),
-              //         ),
-              //     asset: 'assets/icons_2/time-past.png'),
+              DrawerItem(
+                  title: 'Захиалгууд',
+                  onTap: () => goto(
+                        const SellerOrders(),
+                      ),
+                  asset: 'assets/icons_2/time-past.png'),
               homeProvider.userRole == 'D'
                   ? DrawerItem(
                       title: 'Түгээгчрүү шилжих',

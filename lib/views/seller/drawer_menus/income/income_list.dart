@@ -119,9 +119,6 @@ class _IncomeListState extends State<IncomeList> {
       builder: (_, income, child) {
         final incomes = income.incomeList;
         return Scaffold(
-          // resizeToAvoidBottomInset: false,
-          // appBar: const SideMenuAppbar(title: 'Орлогын жагсаалт'),
-          backgroundColor: AppColors.primary,
           floatingActionButton: invisible
               ? const SizedBox()
               : FloatingActionButton(
@@ -144,7 +141,7 @@ class _IncomeListState extends State<IncomeList> {
                 children: [
                   Box(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextButton(
                           onPressed: () {

@@ -19,6 +19,7 @@ class AppColors {
   static const mainDark = Color(0XFF102C57);
   static const green = Color(0XFF88D66C);
   static const mainGrey = Color(0XFFEDF2F7);
+  static const background = Color.fromARGB(255, 232, 246, 255);
 }
 
 //            1B2E3C

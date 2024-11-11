@@ -26,7 +26,7 @@ class Constants {
     ),
   );
   static final defaultShadow = BoxShadow(
-    color: Colors.grey.shade500,
+    color: Colors.grey.shade200,
     blurRadius: 3,
   );
 }

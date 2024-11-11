@@ -47,12 +47,14 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
     return Consumer<BasketProvider>(builder: (context, provider, _) {
       final cartDatas = provider.shoppingCarts;
       final basket = provider.basket;
+      final basketIsEmpty = basketProvider.basket.totalCount == 0;
       return Scaffold(
         extendBody: true,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              basketIsEmpty ? const SizedBox() : const BasketInfo(),
               Expanded(
                 child: cartDatas.isNotEmpty
                     ? Container(
@@ -186,7 +188,6 @@ class _OrderPlacerState extends State<OrderPlacer> {
 
   @override
   Widget build(BuildContext context) {
-    final basket = basketProvider.basket;
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -200,11 +201,6 @@ class _OrderPlacerState extends State<OrderPlacer> {
       child: Wrap(
         runSpacing: 15,
         children: [
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text('Сагсны мэдээлэл:'),
-          ),
-          const BasketInfo(),
           const Align(
             alignment: Alignment.centerLeft,
             child: Text('Заавал биш:'),
