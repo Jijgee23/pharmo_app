@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
@@ -75,8 +77,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
               (cartDatas.isEmpty)
                   ? const SizedBox()
                   : Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       margin: const EdgeInsets.only(bottom: 10),
                       decoration: BoxDecoration(
                         color: Colors.transparent,
@@ -106,6 +107,9 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                         ),
                       ),
                     ),
+              SizedBox(
+                height: (Platform.isIOS) ? 30 : 0,
+              ),
             ],
           ),
         );
