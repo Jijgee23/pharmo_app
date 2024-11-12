@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 import '../../utilities/utils.dart';
 import '../../views/delivery_man/main/logout_dialog.dart';
@@ -19,7 +20,7 @@ class MyDrawer extends StatelessWidget {
         context: context,
         removeTop: true,
         child: Drawer(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.background,
           elevation: 10,
           shadowColor: Colors.transparent,
           width: size.width > 480 ? size.width * 0.5 : size.width * 0.8,
@@ -30,7 +31,7 @@ class MyDrawer extends StatelessWidget {
                 SizedBox(height: size.height * 0.075),
                 Container(
                   decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(10)),
                   margin: const EdgeInsets.all(10),
                   padding:
@@ -118,7 +119,7 @@ class DrawerContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: Colors.grey.shade200, borderRadius: BorderRadius.circular(10)),
+          color: Colors.white, borderRadius: BorderRadius.circular(10)),
       margin: const EdgeInsets.all(10),
       child: Column(children: drawers),
     );

@@ -132,7 +132,12 @@ class _HomeJaggerState extends State<HomeJagger> {
                 ? SingleChildScrollView(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: ships.map((e) => shipment(e: e)).toList(),
+                      children: [
+                        ...ships.map((e) => shipment(e: e)),
+                        const SizedBox(
+                          height: kToolbarHeight + 10,
+                        )
+                      ],
                     ),
                   )
                 : const NoResult(),

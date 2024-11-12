@@ -15,11 +15,16 @@ void goto(Widget widget) {
 }
 
 void gotoRemoveUntil(Widget widget, BuildContext context) {
-  Navigator.pushAndRemoveUntil(
-    context,
-    MaterialPageRoute(builder: (context) => widget),
-    (route) => false,
+  Get.offAll(
+    widget,
+    curve: Curves.fastLinearToSlowEaseIn,
+    transition: Transition.rightToLeft,
   );
+  // Navigator.pushAndRemoveUntil(
+  //   context,
+  //   MaterialPageRoute(builder: (context) => widget),
+  //   (route) => false,
+  // );
 }
 
 const ts1 = TextStyle(color: Colors.blueGrey, fontSize: 12.0);
