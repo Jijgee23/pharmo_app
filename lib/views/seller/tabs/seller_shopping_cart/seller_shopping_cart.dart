@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
@@ -98,7 +100,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: kToolbarHeight)
+                         SizedBox(height: Platform.isIOS ? kToolbarHeight + 20 : kToolbarHeight)
                         ],
                       ),
                     ),

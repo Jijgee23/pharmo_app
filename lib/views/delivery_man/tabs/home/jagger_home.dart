@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
@@ -134,8 +135,8 @@ class _HomeJaggerState extends State<HomeJagger> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         ...ships.map((e) => shipment(e: e)),
-                        const SizedBox(
-                          height: kToolbarHeight + 10,
+                         SizedBox(
+                          height: Platform.isIOS ? kTextTabBarHeight + 50 : kToolbarHeight + 10,
                         )
                       ],
                     ),
