@@ -29,7 +29,6 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../widgets/dialog_and_messages/create_pass_dialog.dart';
 
 class AuthController extends ChangeNotifier {
@@ -217,7 +216,6 @@ class AuthController extends ChangeNotifier {
         Uri.parse('${dotenv.env['SERVER_URL']}auth/logout/'),
         headers: getHeader(token),
       );
-      getApiInformation('AT LOGOUT', response);
       if (response.statusCode == 200) {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.remove('access_token');
@@ -233,8 +231,7 @@ class AuthController extends ChangeNotifier {
         AuthController().dispose();
         MyOrderProvider().dispose();
         AddressProvider().dispose();
-        Get.clearRouteTree();
-        gotoRemoveUntil(const LoginPage(), context);
+        Get.offAll(() => const LoginPage());
       } else {
         message(message: 'Холболт салсан.', context: context);
       }
