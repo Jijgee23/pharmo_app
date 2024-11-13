@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/order_list.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -145,12 +146,32 @@ class PharmProvider extends ChangeNotifier {
   }
 
   Future registerCustomer(
-      String name, String phone, String note, BuildContext context) async {
+      String name,
+      String rn,
+      String email,
+      String phone,
+      String? phone2,
+      String? phone3,
+      String note,
+      String? lat,
+      String? lng,
+      BuildContext context) async {
     try {
       final beareToken = await getAccessToken();
+      await HomeProvider().getPosition();
       final response = await http.post(Uri.parse('${baseUrl}seller/customer/'),
           headers: getHeader(beareToken),
-          body: jsonEncode({"name": name, "phone": phone, "note": note}));
+          body: jsonEncode({
+            "name": name,
+            "rn": rn,
+            "email": email,
+            "phone": phone,
+            "phone2": phone2,
+            "phone3": phone3,
+            "note": note,
+            "lat": lat,
+            "lng": lng
+          }));
       getApiInformation('REGISTER CUSTOMER', response);
       if (response.statusCode == 201) {
         message(message: 'Амжилттай бүртгэгдлээ.', context: context);

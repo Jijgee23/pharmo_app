@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
@@ -18,7 +20,11 @@ class PharmacyList extends StatefulWidget {
 class _PharmacyListState extends State<PharmacyList> {
   final TextEditingController controller = TextEditingController();
   final TextEditingController name = TextEditingController();
+  final TextEditingController rn = TextEditingController();
+  final TextEditingController email = TextEditingController();
   final TextEditingController phone = TextEditingController();
+  final TextEditingController phone2 = TextEditingController();
+  final TextEditingController phone3 = TextEditingController();
   final TextEditingController note = TextEditingController();
   late HomeProvider homeProvider;
   late PharmProvider pharmProvider;
@@ -314,12 +320,26 @@ class _PharmacyListState extends State<PharmacyList> {
                 ),
               ),
               input('Нэр', name, null, null),
+              input('Регистрийн дугаар', rn, null, null),
+              input('И-Мейл', email, validateEmail, null),
               input('Утас', phone, validatePhone, TextInputType.number),
+              input('Утас 2', phone2, validatePhone, TextInputType.number),
+              input('Утас 3', phone3, validatePhone, TextInputType.number),
               input('Нэмэлт тайлбар', note, null, null),
               CustomButton(
                 text: 'Бүртгэх',
                 ontap: () => pp
-                    .registerCustomer(name.text, phone.text, note.text, context)
+                    .registerCustomer(
+                        name.text,
+                        rn.text,
+                        email.text,
+                        phone.text,
+                        phone2.text,
+                        phone3.text,
+                        note.text,
+                        homeProvider.currentLatitude.toString(),
+                        homeProvider.currentLongitude.toString(),
+                        context)
                     .whenComplete(() => popSheet()),
               ),
             ],

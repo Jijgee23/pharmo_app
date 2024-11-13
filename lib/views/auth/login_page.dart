@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -11,8 +12,12 @@ import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart';
 
 import '../../utilities/utils.dart';
+
+final shorebirdCodePush = ShorebirdCodePush();
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,6 +32,9 @@ final TextEditingController passwordConfirmController = TextEditingController();
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
+  int? _currentPatchVersion;
+  bool isCheckingForUpdate = false;
+
   bool hover = false;
   bool rememberMe = false;
   bool showPasss = false;
@@ -44,6 +52,140 @@ class _LoginPageState extends State<LoginPage>
         setState(() {});
       }
     });
+    _checkForUpdate();
+    shorebirdCodePush.currentPatchNumber().then((currentPatchVersion) {
+      if (!mounted) return;
+      setState(() {
+        _currentPatchVersion = currentPatchVersion;
+      });
+    });
+  }
+
+  Future<void> _checkForUpdate() async {
+    setState(() {
+      isCheckingForUpdate = true;
+    });
+
+    // Ask the Shorebird servers if there is a new patch available.
+    final isUpdateAvailable =
+        await shorebirdCodePush.isNewPatchAvailableForDownload();
+
+    if (!mounted) return;
+
+    setState(() {
+      isCheckingForUpdate = false;
+    });
+
+    if (isUpdateAvailable) {
+      _showUpdateAvailableBanner();
+    } else {
+      Get.showSnackbar(
+        const GetSnackBar(
+          snackPosition: SnackPosition.TOP,
+          snackStyle: SnackStyle.GROUNDED,
+          forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
+          reverseAnimationCurve: Curves.fastLinearToSlowEaseIn,
+          message: 'Шинэчлэлт байхгүй',
+          isDismissible: true,
+          dismissDirection: DismissDirection.horizontal,
+          duration: Duration(milliseconds: 1500),
+          backgroundColor: AppColors.main,
+          messageText: Text(
+            'Шинэчлэлт байхгүй',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _showDownloadingBanner() {
+    ScaffoldMessenger.of(context).showMaterialBanner(
+      const MaterialBanner(
+        content: Text('Шинэчлэлт татаж байна...'),
+        actions: [
+          SizedBox(
+            height: 14,
+            width: 14,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showUpdateAvailableBanner() {
+    ScaffoldMessenger.of(context).showMaterialBanner(
+      MaterialBanner(
+        content: const Text('Шинэчлэлт татаж авна уу!'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+              await _downloadUpdate();
+
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+            },
+            child: const Text('Татах'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRestartBanner() {
+    ScaffoldMessenger.of(context).showMaterialBanner(
+      const MaterialBanner(
+        content: Text('Шинэчлэлт татагдлаа, дахин ачаалуулна уу!'),
+        actions: [
+          TextButton(
+            // Restart the app for the new patch to take effect.
+            onPressed: Restart.restartApp,
+            child: Text('Дахин ачаалуулах'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorBanner() {
+    ScaffoldMessenger.of(context).showMaterialBanner(
+      MaterialBanner(
+        content: const Text('Шинэчлэлт татах үед ямар нэгэн алдаа гарлаа.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+            },
+            child: const Text('Хаах'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _downloadUpdate() async {
+    _showDownloadingBanner();
+
+    await Future.wait([
+      shorebirdCodePush.downloadUpdateIfAvailable(),
+      Future<void>.delayed(const Duration(milliseconds: 250)),
+    ]);
+
+    final isUpdateReadyToInstall =
+        await shorebirdCodePush.isNewPatchReadyToInstall();
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+    if (isUpdateReadyToInstall) {
+      _showRestartBanner();
+    } else {
+      _showErrorBanner();
+    }
   }
 
   Future<void> _openBox() async {
@@ -70,14 +212,14 @@ class _LoginPageState extends State<LoginPage>
     return ChangeNotifierProvider(
       create: (context) => AuthController(),
       child: DefaultTabController(
-        length: 2, 
+        length: 2,
         child: Scaffold(
           body: SingleChildScrollView(
             child: Column(
               children: [
                 Container(
                   color: AppColors.primary,
-                  padding:  EdgeInsets.only(bottom: 5, top: size.height * 0.035),
+                  padding: EdgeInsets.only(bottom: 5, top: size.height * 0.035),
                   child: Column(
                     children: [
                       Row(
