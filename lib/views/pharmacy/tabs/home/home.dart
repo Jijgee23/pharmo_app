@@ -48,7 +48,7 @@ class _HomeState extends State<Home> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (promotionProvider.markedPromotions.isNotEmpty) {
-        homeProvider.showMarkedPromos(context, promotionProvider);
+       // homeProvider.showMarkedPromos(context, promotionProvider);
       }
     });
   }
