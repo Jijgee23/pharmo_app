@@ -26,7 +26,6 @@ class _SellerOrdersState extends State<SellerOrders> {
   final TextEditingController search = TextEditingController();
 
   DateTime selectedDate = DateTime.now();
-  DateTime selectedDate2 = DateTime.now();
   @override
   void initState() {
     super.initState();
@@ -119,78 +118,76 @@ class _SellerOrdersState extends State<SellerOrders> {
                   ],
                 ),
               ),
-              Box(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: const EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: search,
-                          cursorColor: Colors.black,
-                          cursorHeight: 20,
-                          cursorWidth: .8,
-                          keyboardType: selectedType,
-                          onChanged: (value) {
-                            print([search.text, filter]);
-                            WidgetsBinding.instance
-                                .addPostFrameCallback((cb) async {
-                              if (value.isEmpty) {
-                                await orderProvider.getSellerOrders();
-                              } else {
-                                await orderProvider.filterOrder(
-                                    filter, search.text);
-                              }
-                            });
-                          },
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 20),
-                            hintText: '$selectedFilter хайх',
-                            hintStyle: const TextStyle(
-                              color: Colors.black38,
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          showMenu(
-                            color: Colors.white,
-                            context: context,
-                            shadowColor: Colors.grey.shade500,
-                            position:
-                                const RelativeRect.fromLTRB(100, 100, 0, 0),
-                            items: [
-                              ...filters.map(
-                                (f) => PopupMenuItem(
-                                  child: Text(f),
-                                  onTap: () => setFilter(f),
-                                ),
-                              )
-                            ],
-                          );
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: search,
+                        cursorColor: Colors.black,
+                        cursorHeight: 20,
+                        cursorWidth: .8,
+                        keyboardType: selectedType,
+                        onChanged: (value) {
+                          print([search.text, filter]);
+                          WidgetsBinding.instance
+                              .addPostFrameCallback((cb) async {
+                            if (value.isEmpty) {
+                              await orderProvider.getSellerOrders();
+                            } else {
+                              await orderProvider.filterOrder(
+                                  filter, search.text);
+                            }
+                          });
                         },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20)),
-                          margin: const EdgeInsets.only(right: 10),
-                          padding: const EdgeInsets.all(5),
-                          child: const Icon(
-                            Icons.arrow_drop_down,
-                            color: Colors.blue,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 20),
+                          hintText: '$selectedFilter хайх',
+                          hintStyle: const TextStyle(
+                            color: Colors.black38,
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        showMenu(
+                          color: Colors.white,
+                          context: context,
+                          shadowColor: Colors.grey.shade500,
+                          position:
+                              const RelativeRect.fromLTRB(100, 100, 0, 0),
+                          items: [
+                            ...filters.map(
+                              (f) => PopupMenuItem(
+                                child: Text(f),
+                                onTap: () => setFilter(f),
+                              ),
+                            )
+                          ],
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20)),
+                        margin: const EdgeInsets.only(right: 10),
+                        padding: const EdgeInsets.all(5),
+                        child: const Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -233,23 +230,6 @@ class _SellerOrdersState extends State<SellerOrders> {
       });
     }
   }
-
-  // _selectDate2(BuildContext context) async {
-  //   final DateTime? picked = await showDatePicker(
-  //     context: context,
-  //     helpText: 'Огноо сонгох',
-  //     cancelText: 'Буцах',
-  //     confirmText: "Сонгох",
-  //     initialDate: selectedDate2,
-  //     firstDate: DateTime(2000),
-  //     lastDate: DateTime(2025),
-  //   );
-  //   if (picked != null && picked != selectedDate2) {
-  //     setState(() {
-  //       selectedDate2 = picked;
-  //     });
-  //   }
-  // }
 }
 
 class OrderWidget extends StatelessWidget {
