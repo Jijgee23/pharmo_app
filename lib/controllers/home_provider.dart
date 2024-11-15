@@ -414,7 +414,6 @@ class HomeProvider extends ChangeNotifier {
             'lat': currentLatitude,
             'lng': currentLongitude,
           }));
-      getApiInformation('SEARCH BY LOCAION', response);
       if (response.statusCode == 200) {
         if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
             'not found') {
@@ -483,10 +482,9 @@ class HomeProvider extends ChangeNotifier {
           },
         ),
       );
-      getApiInformation('CREATE ORDER', response);
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         final orderNumber = res['orderNo'];
         goto(OrderDone(orderNo: orderNumber.toString()));

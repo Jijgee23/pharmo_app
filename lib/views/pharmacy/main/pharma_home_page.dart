@@ -66,7 +66,7 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
             drawer: MyDrawer(
               drawers: [
                 DrawerItem(
-                  title: 'Миний захиалгууд',
+                  title: 'Захиалгууд',
                   asset: 'assets/icons_2/time-past.png',
                   onTap: () => goto(const MyOrder()),
                 ),

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
@@ -7,6 +5,8 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
+import 'package:pharmo_app/views/seller/tabs/pharms/customer_details_paga.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:provider/provider.dart';
 
@@ -56,12 +56,18 @@ class _PharmacyListState extends State<PharmacyList> {
     // pharmProvider.getPharmacyList();
     pharmProvider.getCustomers(1, 100, context);
     homeProvider.getPosition();
+    print('MY ID: ${homeProvider.userId}');
+    setState(() {
+      uid = homeProvider.userId;
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
   }
+
+  int uid = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +184,7 @@ class _PharmacyListState extends State<PharmacyList> {
   InkWell customerBuilder(HomeProvider homeProvider, Customer c) {
     return InkWell(
       onTap: () {
+        print(c.location);
         homeProvider.changeSelectedCustomerId(c.id!);
         homeProvider.changeSelectedCustomerName(c.name!);
         homeProvider.changeIndex(1);
@@ -195,33 +202,48 @@ class _PharmacyListState extends State<PharmacyList> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
-                Text(
-                  c.name!,
-                  style: TextStyle(
-                    color: (homeProvider.selectedCustomerId == c.id)
-                        ? AppColors.succesColor
-                        : Colors.grey.shade800,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      c.name!,
+                      style: TextStyle(
+                        color: (homeProvider.selectedCustomerId == c.id)
+                            ? AppColors.succesColor
+                            : Colors.grey.shade800,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    (c.loanBlock == true)
+                        ? Text(
+                            'Харилцагч дээр захиалга зээлээр өгөхгүй!',
+                            style: TextStyle(
+                              color: Colors.red.shade800,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        : const SizedBox(),
+                  ],
                 ),
-                (c.loanBlock == true)
+                const SizedBox(width: 10),
+                (c.location == false)
                     ? Text(
-                        'Харилцагч дээр захиалга зээлээр өгөхгүй!',
+                        'Байршил тодорхойгүй',
                         style: TextStyle(
-                          color: Colors.red.shade800,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
+                            color: Colors.red.shade500,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
                       )
                     : const SizedBox(),
               ],
             ),
             InkWell(
-              onTap: () => getCustomerDetail(c),
+              onTap: () => goto(CustomerDetailsPage(customer: c)),
+              // getCustomerDetail(c),
               child: Icon(
                 Icons.chevron_right_rounded,
                 color: Colors.blue.shade700,
@@ -232,66 +254,6 @@ class _PharmacyListState extends State<PharmacyList> {
       ),
     );
   }
-
-  getCustomerDetail(Customer customer) {
-    Get.bottomSheet(
-      Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        width: double.infinity,
-        child: Wrap(
-          runSpacing: 15,
-          children: [
-            info('Нэр:', customer.name!),
-            (customer.rn != 'null')
-                ? info('РД:', customer.rn!)
-                : const SizedBox(),
-            (customer.phone != 'null')
-                ? info('Утас:', customer.phone!)
-                : const SizedBox(),
-            (customer.phone2 != 'null')
-                ? info('Утас:', customer.phone2!)
-                : const SizedBox(),
-            (customer.phone3 != 'null')
-                ? info('Утас:', customer.phone3!)
-                : const SizedBox(),
-            CustomButton(
-              text: 'Идэвхитэй захиалдаг бараанууд харах',
-              ontap: () async =>
-                  pharmProvider.getCustomerFavs(customer.id!, context),
-            ),
-            CustomButton(text: 'Захиалга үүсгэх', ontap: () {})
-          ],
-        ),
-      ),
-    );
-  }
-
-  info(String v, String v2) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-      decoration: BoxDecoration(
-          color: Colors.grey.shade300, borderRadius: BorderRadius.circular(30)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            v,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          Text(v2)
-        ],
-      ),
-    );
-  }
-
   registerCustomer(PharmProvider pp) {
     Get.bottomSheet(
       Container(
@@ -323,59 +285,39 @@ class _PharmacyListState extends State<PharmacyList> {
               input('Регистрийн дугаар', rn, null, null),
               input('И-Мейл', email, validateEmail, null),
               input('Утас', phone, validatePhone, TextInputType.number),
-              input('Утас 2', phone2, validatePhone, TextInputType.number),
-              input('Утас 3', phone3, validatePhone, TextInputType.number),
-              input('Нэмэлт тайлбар', note, null, null),
+              input('Утас 2 - Заавал биш', phone2, validatePhone,
+                  TextInputType.number),
+              input('Утас 3 - Заавал биш', phone3, validatePhone,
+                  TextInputType.number),
+              input('Нэмэлт тайлбар - Заавал биш', note, null, null),
               CustomButton(
                 text: 'Бүртгэх',
-                ontap: () => pp
-                    .registerCustomer(
-                        name.text,
-                        rn.text,
-                        email.text,
-                        phone.text,
-                        phone2.text,
-                        phone3.text,
-                        note.text,
-                        homeProvider.currentLatitude.toString(),
-                        homeProvider.currentLongitude.toString(),
-                        context)
-                    .whenComplete(() => popSheet()),
+                ontap: () {
+                  if (name.text.isEmpty ||
+                      rn.text.isEmpty ||
+                      email.text.isEmpty ||
+                      phone.text.isEmpty) {
+                    message(message: 'Бүртгэл гүйцээнээ үү!', context: context);
+                  } else {
+                    pp
+                        .registerCustomer(
+                            name.text,
+                            rn.text,
+                            email.text,
+                            phone.text,
+                            phone2.text,
+                            phone3.text,
+                            note.text,
+                            homeProvider.currentLatitude.toString(),
+                            homeProvider.currentLongitude.toString(),
+                            context)
+                        .whenComplete(() => popSheet());
+                  }
+                },
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget input(String hint, TextEditingController contr,
-      Function(String?)? validator, TextInputType? keyType) {
-    return Container(
-      decoration: BoxDecoration(
-          color: Colors.grey.shade200, borderRadius: BorderRadius.circular(30)),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              controller: contr,
-              cursorColor: Colors.black,
-              cursorHeight: 20,
-              cursorWidth: .8,
-              keyboardType: keyType,
-              validator: validator as String? Function(String?)?,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                hintText: hint,
-                hintStyle: const TextStyle(
-                  color: Colors.black38,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -387,3 +329,36 @@ class _PharmacyListState extends State<PharmacyList> {
     Navigator.pop(context);
   }
 }
+
+Widget input(String hint, TextEditingController contr,
+    Function(String?)? validator, TextInputType? keyType) {
+  return Container(
+    decoration: BoxDecoration(
+        color: Colors.grey.shade200, borderRadius: BorderRadius.circular(30)),
+    child: Row(
+      children: [
+        Expanded(
+          child: TextFormField(
+            controller: contr,
+            cursorColor: Colors.black,
+            cursorHeight: 20,
+            cursorWidth: .8,
+            keyboardType: keyType,
+            validator: validator as String? Function(String?)?,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+              hintText: hint,
+              hintStyle: const TextStyle(
+                color: Colors.black38,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+

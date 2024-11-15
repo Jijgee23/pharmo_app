@@ -80,7 +80,6 @@ class BasketProvider extends ChangeNotifier {
             Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
             headers: getHeader(bearerToken),
             body: jsonEncode({"data": bodyStr}));
-        getApiInformation('Check qtys', response);
         if (response.statusCode == 200) {
           Map res = jsonDecode(utf8.decode(response.bodyBytes));
           // print(res);
@@ -164,7 +163,6 @@ class BasketProvider extends ChangeNotifier {
             Uri.parse('${dotenv.env['SERVER_URL']}basket_item/'),
             headers: getHeader(bearerToken),
             body: jsonEncode({'product': product_id, 'qty': qty}));
-        getApiInformation('ADD BASKET', response);
         if (response.statusCode == 201) {
           return {
             'errorType': 1,
@@ -276,7 +274,6 @@ class BasketProvider extends ChangeNotifier {
           Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
           headers: getHeader(bearerToken),
           body: jsonEncode({"qty": int.parse(qty.toString())}));
-      getApiInformation('Тоо ширхэг өөрчлөх', resQR);
       if (resQR.statusCode == 200) {
         getBasket();
         notifyListeners();

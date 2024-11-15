@@ -108,7 +108,6 @@ class AuthController extends ChangeNotifier {
           'password': password,
         }),
       );
-      getApiInformation('AT LOGIN', responseLogin);
       if (responseLogin.statusCode == 200) {
         final Map<String, dynamic> res = jsonDecode(responseLogin.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();

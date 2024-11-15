@@ -60,6 +60,7 @@ class _OrderDoneState extends State<OrderDone> {
       appBar: const CustomAppBar(
         title: Text('Миний захиалга'),
       ),
+      backgroundColor: Colors.white,
       body: SizedBox(
         width: double.infinity,
         child: SizedBox(

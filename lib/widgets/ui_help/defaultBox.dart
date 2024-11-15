@@ -12,6 +12,7 @@ class DefaultBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.primary,
       body: Column(
         children: [

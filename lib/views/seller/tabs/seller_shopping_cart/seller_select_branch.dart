@@ -333,7 +333,6 @@ class _SelectSellerBranchPageState extends State<SelectSellerBranchPage> {
             },
           ),
         );
-        getApiInformation('CREATE ORDER', response);
         if (response.statusCode == 200) {
           final res = jsonDecode(utf8.decode(response.bodyBytes));
           final orderNumber = res['orderNo'];

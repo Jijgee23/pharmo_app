@@ -1,12 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/resetPass.dart';
+import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
@@ -32,7 +32,7 @@ final TextEditingController passwordConfirmController = TextEditingController();
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-  int? _currentPatchVersion;
+  int? currentPatchVersion;
   bool isCheckingForUpdate = false;
 
   bool hover = false;
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage>
     shorebirdCodePush.currentPatchNumber().then((currentPatchVersion) {
       if (!mounted) return;
       setState(() {
-        _currentPatchVersion = currentPatchVersion;
+        currentPatchVersion = currentPatchVersion;
       });
     });
   }
@@ -65,8 +65,7 @@ class _LoginPageState extends State<LoginPage>
     setState(() {
       isCheckingForUpdate = true;
     });
-
-    // Ask the Shorebird servers if there is a new patch available.
+    
     final isUpdateAvailable =
         await shorebirdCodePush.isNewPatchAvailableForDownload();
 
@@ -78,25 +77,7 @@ class _LoginPageState extends State<LoginPage>
 
     if (isUpdateAvailable) {
       _showUpdateAvailableBanner();
-    } else {
-      Get.showSnackbar(
-        const GetSnackBar(
-          snackPosition: SnackPosition.TOP,
-          snackStyle: SnackStyle.GROUNDED,
-          forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
-          reverseAnimationCurve: Curves.fastLinearToSlowEaseIn,
-          message: 'Шинэчлэлт байхгүй',
-          isDismissible: true,
-          dismissDirection: DismissDirection.horizontal,
-          duration: Duration(milliseconds: 1500),
-          backgroundColor: AppColors.main,
-          messageText: Text(
-            'Шинэчлэлт байхгүй',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      );
-    }
+    } 
   }
 
   void _showDownloadingBanner() {
@@ -403,6 +384,15 @@ class _LoginPageState extends State<LoginPage>
             CustomTextButton(
               text: 'Нууц үг сэргээх',
               onTap: () => goto(const ResetPassword()),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            CustomTextButton(
+              text: 'Нууцлалын бодлого',
+              onTap: () => goto(const PrivacyPolicy()),
             ),
           ],
         )

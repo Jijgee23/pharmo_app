@@ -22,10 +22,31 @@ class MyOrderProvider extends ChangeNotifier {
     try {
       String bearerToken = await getAccessToken();
       final res = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}order/'),
+        Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
         headers: getHeader(bearerToken),
       );
-      getApiInformation('GET ORDER LIST', res);
+      if (res.statusCode == 200) {
+        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        List<dynamic> ords = response['results'];
+        sellerOrders.clear();
+        sellerOrders =
+            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  filterOrder(String type, String query) async {
+    print('type: $type, query: $query');
+    try {
+      String bearerToken = await getAccessToken();
+      final res = await http.get(
+        Uri.parse('${dotenv.env['SERVER_URL']}seller/order/?$type=$query'),
+        headers: getHeader(bearerToken),
+      );
+      print(jsonDecode(utf8.decode(res.bodyBytes)));
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ords = response['results'];
@@ -278,7 +299,7 @@ class MyOrderProvider extends ChangeNotifier {
 class SellerOrderModel {
   int id;
   int? orderNo;
-  String? totalPrice;
+  double? totalPrice;
   int? totalCount;
   String? status;
   String? process;
@@ -288,11 +309,6 @@ class SellerOrderModel {
   String? endedOn;
   bool? note;
   String? customer;
-  String? user;
-  OrderBranch? branch;
-  int? seller;
-  int? delman;
-  int? packer;
 
   SellerOrderModel(
     this.id,
@@ -307,11 +323,6 @@ class SellerOrderModel {
     this.endedOn,
     this.note,
     this.customer,
-    this.user,
-    this.branch,
-    this.seller,
-    this.delman,
-    this.packer,
   );
 
   SellerOrderModel.fromJson(Map<String, dynamic> json)
@@ -325,14 +336,7 @@ class SellerOrderModel {
         qp = json['qp'],
         customer = json['customer'],
         createdOn = json['createdOn'],
-        endedOn = json['endedOn'],
-        user = json['user'],
-        branch = json['branch'] != null
-            ? OrderBranch.fromJson(json['branch'])
-            : null,
-        seller = json['seller'],
-        delman = json['delman'],
-        packer = json['packer'];
+        endedOn = json['endedOn'];
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -346,7 +350,6 @@ class SellerOrderModel {
       'qp': qp,
       'createdOn': createdOn,
       'endedOn': endedOn,
-      'supplier': user,
     };
   }
 }

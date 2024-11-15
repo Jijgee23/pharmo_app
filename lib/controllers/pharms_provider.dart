@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/order_list.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:provider/provider.dart';
 
 class PharmProvider extends ChangeNotifier {
   String baseUrl = '${dotenv.env['SERVER_URL']}';
@@ -24,7 +26,6 @@ class PharmProvider extends ChangeNotifier {
         Uri.parse('${baseUrl}seller/pharmacy_list/'),
         headers: getHeader(beareToken),
       );
-      getApiInformation('GET PHARMACY LIST', response);
       if (response.statusCode == 200) {
         Map data = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> pharms = data['pharmacies'];
@@ -96,7 +97,6 @@ class PharmProvider extends ChangeNotifier {
         Uri.parse('${baseUrl}seller/customer/?page=$page&page_size=$size'),
         headers: getHeader(beareToken),
       );
-      getApiInformation('GET CUSTOMER LIST', response);
       if (response.statusCode == 200) {
         Map data = jsonDecode(utf8.decode(response.bodyBytes));
         filteredCustomers.clear();
@@ -111,6 +111,54 @@ class PharmProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
   }
+
+  getCustomerDetail(int custId, BuildContext c) async {
+    print('CSUTOMER ID: $custId');
+    try {
+      final beareToken = await getAccessToken();
+      final response = await http.get(
+        Uri.parse('${baseUrl}seller/customer/$custId'),
+        headers: getHeader(beareToken),
+      );
+      if (response.statusCode == 200) {
+        // customerDetail = CustomerDetail();
+        dynamic data = jsonDecode(utf8.decode(response.bodyBytes));
+        customerDetail = CustomerDetail.fromJson(data);
+        notifyListeners();
+      } else {
+        message(message: 'Алдаа гарлаа', context: c);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  sendCustomerLocation(int custId, BuildContext c) async {
+    print('CSUTOMER ID: $custId');
+    try {
+      final beareToken = await getAccessToken();
+      final home = Provider.of<HomeProvider>(c, listen: false);
+      final response = await http.patch(
+        Uri.parse('${baseUrl}seller/customer/$custId/update_location/'),
+        headers: getHeader(beareToken),
+        body: jsonEncode(
+          {
+            "lat": home.currentLatitude,
+            "lng": home.currentLongitude,
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        message(message: 'Амжилттай', context: c);
+      } else {
+        message(message: 'Алдаа гарлаа', context: c);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  CustomerDetail customerDetail = CustomerDetail();
 
   getEndPoint(String type, String v) {
     if (type == 'name') {
@@ -129,7 +177,6 @@ class PharmProvider extends ChangeNotifier {
         Uri.parse('${baseUrl}seller/customer/${getEndPoint(type, v)}'),
         headers: getHeader(beareToken),
       );
-      getApiInformation('FILTER CUSTOMER LIST', response);
       if (response.statusCode == 200) {
         Map data = jsonDecode(utf8.decode(response.bodyBytes));
         filteredCustomers.clear();
@@ -140,6 +187,97 @@ class PharmProvider extends ChangeNotifier {
         message(message: 'Алдаа гарлаа', context: c);
       }
       notifyListeners();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  editSellerOrder(String note, String pt, int orderId, BuildContext c) async {
+    try {
+      final beareToken = await getAccessToken();
+      final response = await http.patch(
+        Uri.parse('${baseUrl}seller/order/$orderId/'),
+        headers: getHeader(beareToken),
+        body: jsonEncode(
+          {
+            "note": note,
+            "payType": pt,
+          },
+        ),
+      );
+      print(
+          'STATUS: ${response.statusCode}, BODY: ${jsonDecode(utf8.decode(response.bodyBytes))}');
+      print(response.body);
+      if (response.statusCode == 200) {
+        message(message: 'Амжилттай засагдлаа', context: c);
+        notifyListeners();
+      } else {
+        message(message: 'Алдаа гарлаа', context: c);
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  List<SellerOrder> orderDets = <SellerOrder>[];
+  clearOrderDets() {
+    orderDets.clear();
+  }
+
+  getSellerOrderDetail(int oId, BuildContext c) async {
+    try {
+      final beareToken = await getAccessToken();
+      final response = await http.get(
+        Uri.parse('${baseUrl}seller/order/$oId/'),
+        headers: getHeader(beareToken),
+      );
+
+      if (response.statusCode == 200) {
+        clearOrderDets();
+        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        print(data);
+        orderDets.add(SellerOrder.fromJson(data));
+        notifyListeners();
+      } else {
+        message(message: 'Алдаа гарлаа', context: c);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  changeItemQty(
+      {required int oId,
+      required int itemId,
+      required int qty,
+      required BuildContext context}) async {
+    try {
+      final beareToken = await getAccessToken();
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
+      dynamic check = await basketProvider.checkItemQty(itemId, qty);
+      print(check['v']);
+      if (check['v'] == 0) {
+        message(message: 'Бараа дууссан', context: context);
+      } else if (check['v'] == 1) {
+        final response = await http.patch(
+            Uri.parse('${baseUrl}seller/order/$oId/update_item/'),
+            headers: getHeader(beareToken),
+            body: jsonEncode({"itemId": itemId, "qty": qty}));
+        print(
+            "ST: ${response.statusCode} BDY: ${jsonDecode(utf8.decode(response.bodyBytes))}");
+        if (response.statusCode == 200) {
+          notifyListeners();
+        } else {
+          message(message: 'Алдаа гарлаа', context: context);
+        }
+      } else if (check['v'] == 2) {
+        message(
+            message: 'Барааны үлдэгдэл хүрэлцэхгүй байна.', context: context);
+      } else {
+        message(message: 'Алдаа гарлаа', context: context);
+      }
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -172,9 +310,55 @@ class PharmProvider extends ChangeNotifier {
             "lat": lat,
             "lng": lng
           }));
-      getApiInformation('REGISTER CUSTOMER', response);
       if (response.statusCode == 201) {
         message(message: 'Амжилттай бүртгэгдлээ.', context: context);
+      } else {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        if (data['error'] == 'name_exists!') {
+          message(message: 'Нэр бүртгэлтэй байна!', context: context);
+        } else {
+          message(message: 'Алдаа гарлаа!', context: context);
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future editCustomer(
+      int id,
+      String name,
+      String rn,
+      String email,
+      String phone,
+      String? phone2,
+      String? phone3,
+      String note,
+      double? lat,
+      double? lng,
+      BuildContext context) async {
+    try {
+      final beareToken = await getAccessToken();
+      await HomeProvider().getPosition();
+      final response =
+          await http.patch(Uri.parse('${baseUrl}seller/customer/$id/'),
+              headers: getHeader(beareToken),
+              body: jsonEncode({
+                "name": name,
+                "rn": rn,
+                "email": email,
+                "phone": phone,
+                "phone2": phone2,
+                "phone3": phone3,
+                "note": note,
+                "lat": lat,
+                "lng": lng
+              }));
+      print(
+          'ST: ${response.statusCode} BODY: ${jsonDecode(utf8.decode(response.bodyBytes))}');
+      if (response.statusCode == 200) {
+        message(message: 'Амжилттай засагдлаа.', context: context);
       } else {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (data['error'] == 'name_exists!') {
@@ -195,7 +379,6 @@ class PharmProvider extends ChangeNotifier {
           Uri.parse('${baseUrl}seller/customer_favs/'),
           headers: getHeader(beareToken),
           body: jsonEncode({"customer_id": customerId}));
-      getApiInformation('GET CUSTOMER FAVS', response);
       if (response.statusCode == 201) {
         // final data = jsonDecode(utf8.decode(response.bodyBytes));
       } else {}
@@ -255,7 +438,9 @@ class Customer {
   String? phone2;
   String? phone3;
   String? note;
+  bool? location;
   bool? loanBlock;
+  int? addedUserId;
 
   // Constructor
   Customer(
@@ -266,7 +451,9 @@ class Customer {
       this.phone2,
       this.phone3,
       this.note,
-      this.loanBlock});
+      this.location,
+      this.loanBlock,
+      this.addedUserId});
 
   // Factory method to create a `Customer` instance from JSON
   factory Customer.fromJson(Map<String, dynamic> json) {
@@ -278,6 +465,8 @@ class Customer {
         phone2: json['phone2'].toString(),
         phone3: json['phone3'].toString(),
         note: json['note'].toString(),
+        addedUserId: json['added_by_id'],
+        location: json['location'],
         loanBlock: json['loanBlock']);
   }
 
@@ -291,7 +480,186 @@ class Customer {
       'phone2': phone2,
       'phone3': phone3,
       'note': note,
+      'location': location,
       'loanBlock': loanBlock
     };
+  }
+}
+
+class SellerOrder {
+  final int id;
+  final String orderNo;
+  final String customer;
+  final double totalPrice;
+  final int totalCount;
+  final String status;
+  final String process;
+  final String createdOn;
+  final String payType;
+  final String note;
+  final List<OrderItem> items;
+
+  SellerOrder({
+    required this.id,
+    required this.orderNo,
+    required this.customer,
+    required this.totalPrice,
+    required this.totalCount,
+    required this.status,
+    required this.process,
+    required this.createdOn,
+    required this.payType,
+    required this.note,
+    required this.items,
+  });
+
+  // Factory constructor for parsing JSON data
+  factory SellerOrder.fromJson(Map<String, dynamic> json) {
+    return SellerOrder(
+      id: json['id'],
+      orderNo: json['orderNo'].toString(),
+      customer: json['customer'].toString(),
+      totalPrice: (json['totalPrice'] as num).toDouble(),
+      totalCount: json['totalCount'],
+      status: json['status'].toString(),
+      process: json['process'].toString(),
+      createdOn: json['createdOn'].toString(),
+      payType: json['payType'].toString(),
+      note: json['note'].toString(),
+      items: (json['items'] as List<dynamic>)
+          .map((item) => OrderItem.fromJson(item as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  // Method to convert an instance back to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'orderNo': orderNo,
+      'customer': customer,
+      'totalPrice': totalPrice,
+      'totalCount': totalCount,
+      'status': status,
+      'process': process,
+      'createdOn': createdOn,
+      'payType': payType,
+      'note': note,
+      'items': items.map((item) => item.toJson()).toList(),
+    };
+  }
+}
+
+class OrderItem {
+  final String itemName;
+  final double itemPrice;
+  final int iQty;
+  final int itemQty;
+  final double itemTotalPrice;
+  final String itemnameId;
+  final int productId;
+
+  OrderItem({
+    required this.itemName,
+    required this.itemPrice,
+    required this.iQty,
+    required this.itemQty,
+    required this.itemTotalPrice,
+    required this.itemnameId,
+    required this.productId,
+  });
+
+  // Factory constructor for parsing JSON data
+  factory OrderItem.fromJson(Map<String, dynamic> json) {
+    // print('TYPE: ${json['itemname_id'].runtimeType}');
+    return OrderItem(
+      itemName: json['itemName'],
+      itemPrice: (json['itemPrice'] as num).toDouble(),
+      iQty: json['iQty'],
+      itemQty: json['itemQty'],
+      itemTotalPrice: (json['itemTotalPrice'] as num).toDouble(),
+      itemnameId: json['itemname_id'].toString(),
+      productId: json['product_id'],
+    );
+  }
+
+  // Method to convert an instance back to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'itemName': itemName,
+      'itemPrice': itemPrice,
+      'iQty': iQty,
+      'itemQty': itemQty,
+      'itemTotalPrice': itemTotalPrice,
+      'itemname_id': itemnameId,
+      'product_id': productId,
+    };
+  }
+}
+
+class CustomerDetail {
+  int? id;
+  String? name;
+  String? rn;
+  String? email;
+  String? phone;
+  String? phone2;
+  String? phone3;
+  String? note;
+  bool? isCmp;
+  double? lat;
+  double? lng;
+  String? created;
+  int? addedById;
+  bool? loanBlock;
+  double? loanLimit;
+  bool? loanLimitUse;
+  bool? loanBalBlock;
+  List<Map<String, dynamic>>? custType;
+
+  CustomerDetail({
+    this.id,
+    this.name,
+    this.rn,
+    this.email,
+    this.phone,
+    this.phone2,
+    this.phone3,
+    this.note,
+    this.isCmp,
+    this.lat,
+    this.lng,
+    this.created,
+    this.addedById,
+    this.loanBlock,
+    this.loanLimit,
+    this.loanLimitUse,
+    this.loanBalBlock,
+    this.custType,
+  });
+
+  // Factory method to create a CustomerDetail instance from JSON
+  factory CustomerDetail.fromJson(Map<String, dynamic> json) {
+    print('DATA TYPE: ${json['added_by_id'].runtimeType}');
+    return CustomerDetail(
+      id: json['id'],
+      name: json['name'],
+      rn: json['rn'],
+      email: json['email'],
+      phone: json['phone'],
+      phone2: json['phone2'],
+      phone3: json['phone3'],
+      note: json['note'],
+      isCmp: json['is_cmp'],
+      lat: json['lat'],
+      lng: json['lng'],
+      created: json['created'].toString(),
+      addedById: json['added_by_id'],
+      loanBlock: json['loan_block'],
+      loanLimit: json['loan_limit'].toDouble(),
+      loanLimitUse: json['loan_limit_use'],
+      loanBalBlock: json['loan_bal_block'],
+      custType: List<Map<String, dynamic>>.from(json['cust_type']),
+    );
   }
 }

@@ -51,7 +51,6 @@ class _SellerQRCodeState extends State<SellerQRCode> {
         ),
       );
       int stcode = response.statusCode;
-      getApiInformation('SELLER QR', response);
       if (stcode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
