@@ -57,8 +57,10 @@ class ProductDetails {
   final Vendor? vndr;
   final List<int>? category;
   final List<Image>? images;
+  final int? masterBoxQty;
 
-  ProductDetails({
+  ProductDetails(
+     {
     required this.id,
     this.expDate,
     this.discountExpireDate,
@@ -74,6 +76,7 @@ class ProductDetails {
     this.mnfr,
     this.vndr,
     this.category,
+    this.masterBoxQty,
     this.images,
   });
 
@@ -97,6 +100,7 @@ class ProductDetails {
       saleQty: json['sale_qty'],
       discount: json['discount'],
       inStock: json['in_stock'],
+      masterBoxQty: json['master_box_qty'],
       intName: json['intName'],
       mnfr: Manufacturer.fromJson(json['mnfr']),
       vndr: Vendor.fromJson(json['vndr']),
