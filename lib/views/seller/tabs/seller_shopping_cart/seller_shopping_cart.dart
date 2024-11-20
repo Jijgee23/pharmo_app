@@ -8,8 +8,6 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/basket_info.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
-import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_qr_code.dart';
-import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_select_branch.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/shopping_cart_view.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
@@ -166,27 +164,27 @@ class _OrderPlacerState extends State<OrderPlacer> {
     });
   }
 
-  gotoBranch(BuildContext context) async {
-    await basketProvider.checkQTYs();
-    if (basketProvider.qtys.isNotEmpty) {
-      message(
-          message: 'Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!',
-          context: context);
-    } else {
-      if (basketProvider.basket.totalCount == 0) {
-        message(message: 'Сагс хоосон байна!', context: context);
-      } else if (double.parse(basketProvider.basket.totalPrice.toString()) <
-          10) {
-        message(
-            message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
-      } else if (homeProvider.selectedCustomerId == 0) {
-        message(message: 'Захиалагч сонгоно уу!', context: context);
-        homeProvider.changeIndex(0);
-      } else {
-        goto(const SelectSellerBranchPage());
-      }
-    }
-  }
+  // gotoBranch(BuildContext context) async {
+  //   await basketProvider.checkQTYs();
+  //   if (basketProvider.qtys.isNotEmpty) {
+  //     message(
+  //         message: 'Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!',
+  //         context: context);
+  //   } else {
+  //     if (basketProvider.basket.totalCount == 0) {
+  //       message(message: 'Сагс хоосон байна!', context: context);
+  //     } else if (double.parse(basketProvider.basket.totalPrice.toString()) <
+  //         10) {
+  //       message(
+  //           message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
+  //     } else if (homeProvider.selectedCustomerId == 0) {
+  //       message(message: 'Захиалагч сонгоно уу!', context: context);
+  //       homeProvider.changeIndex(0);
+  //     } else {
+  //       goto(const SelectSellerBranchPage());
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -255,9 +253,11 @@ class _OrderPlacerState extends State<OrderPlacer> {
                   message(
                       message: 'Төлбөрийн хэлбэр сонгоно уу!',
                       context: context);
-                } else if (payType == 'A') {
-                  goto(const SellerQRCode());
-                } else {
+                }
+                //  else if (payType == 'T') {
+                //   goto(const SellerQRCode());
+                // }
+                else {
                   homeProvider.createSellerOrder(context, payType);
                 }
               }

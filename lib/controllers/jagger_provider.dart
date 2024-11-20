@@ -4,9 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/jagger.dart';
 import 'package:pharmo_app/models/jagger_expense_order.dart';
@@ -17,7 +15,6 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class JaggerProvider extends ChangeNotifier {
-
   final List<Jagger> _jaggers = <Jagger>[];
   List<Jagger> get jaggers => _jaggers;
 
@@ -106,9 +103,7 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> getJaggers() async {
     try {
-      String bearerToken = await getAccessToken();
-      final res =
-          await http.get(setUrl('shipment/'), headers: getHeader(bearerToken));
+      final res = await apiGet('shipment/');
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         ships.clear();
@@ -131,8 +126,7 @@ class JaggerProvider extends ChangeNotifier {
 
   Future getExpenses() async {
     try {
-      final res = await http.get(setUrl('shipment_expense/'),
-          headers: getHeader(await getAccessToken()));
+      final res = await apiGet('shipment_expense/');
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         jaggerOrders.clear();
@@ -149,15 +143,14 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> startShipment(
       int shipmentId, double? lat, double? lng, BuildContext context) async {
     try {
+      var body = jsonEncode({
+        "shipmentId": shipmentId,
+        "lat": (lat != null) ? lat : null,
+        "lng": (lng != null) ? lng : null
+      });
       await getLocation(context);
       await HomeProvider().getPosition();
-      final res = await http.patch(setUrl('start_shipment/'),
-          headers: getHeader(await getAccessToken()),
-          body: jsonEncode({
-            "shipmentId": shipmentId,
-            "lat": (lat != null) ? lat : null,
-            "lng": (lng != null) ? lng : null
-          }));
+      final res = await apiPatch('start_shipment/', body);
       notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -174,16 +167,15 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> endShipment(int shipmentId, double? lat, double? lng,
       bool force, BuildContext context) async {
     try {
+      var body = jsonEncode({
+        "shipmentId": shipmentId,
+        "lat": (lat != null) ? lat : null,
+        "lng": (lng != null) ? lng : null,
+        "force": force
+      });
       await HomeProvider().getPosition();
       await getLocation(context);
-      final res = await http.patch(setUrl('end_shipment/'),
-          headers: getHeader(await getAccessToken()),
-          body: jsonEncode({
-            "shipmentId": shipmentId,
-            "lat": (lat != null) ? lat : null,
-            "lng": (lng != null) ? lng : null,
-            "force": force
-          }));
+      final res = await apiPatch('end_shipment/', body);
       notifyListeners();
       if (res.statusCode == 200) {
         message(message: 'Түгээлт дууслаа.', context: context);
@@ -198,9 +190,8 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> addExpense(
       String note, String amount, BuildContext context) async {
     try {
-      final res = await http.post(setUrl('shipment_expense/'),
-          headers: getHeader(await getAccessToken()),
-          body: jsonEncode({"note": note, "amount": amount}));
+      final res = await apiPost(
+          'shipment_expense/', jsonEncode({"note": note, "amount": amount}));
       if (res.statusCode == 201) {
         await getExpenses();
         message(message: 'Түгээлтийн зарлага нэмэгдлээ.', context: context);
@@ -215,11 +206,9 @@ class JaggerProvider extends ChangeNotifier {
 
   addnote(int shipId, int itemId, BuildContext context) async {
     try {
-      final res = await http.patch(setUrl('shipment_add_note/'),
-          headers: getHeader(await getAccessToken()),
-          body: jsonEncode(
-              {"shipId": shipId, "itemId": itemId, "note": feedback.text}));
-
+      var body = jsonEncode(
+          {"shipId": shipId, "itemId": itemId, "note": feedback.text});
+      final res = await apiPatch('shipment_add_note/', body);
       if (res.statusCode == 200) {
         message(
             message: 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.',
@@ -234,39 +223,24 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> setFeedback(
       int shipId, int itemId, BuildContext context) async {
     try {
-      String bearerToken = await getAccessToken();
-      final res = await http.patch(
-          Uri.parse('${dotenv.env['SERVER_URL']}shipment_add_note/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode(
-              {"shipId": shipId, "itemId": itemId, "note": feedback.text}));
-      notifyListeners();
+      var body = jsonEncode(
+          {"shipId": shipId, "itemId": itemId, "note": feedback.text});
+      final res = await apiPatch('shipment_add_note/', body);
       if (res.statusCode == 200) {
         message(
             message: 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.',
             context: context);
         feedback.text = '';
-        // return {
-        //   'errorType': 1,
-        //   'data': response,
-        //   'message': 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.'
-        // };
-      } else {
-        // return {'errorType': 2, 'data': null, 'message': res.body};
-      }
+      } else {}
     } catch (e) {
       debugPrint(e.toString());
-      //  return {'errorType': 3, 'data': e, 'message': e};
     }
   }
 
   Future<dynamic> editExpenseAmount(int id) async {
     try {
-      String bearerToken = await getAccessToken();
-      final res = await http.patch(
-          Uri.parse('${dotenv.env['SERVER_URL']}shipment_expense/$id/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({"note": note.text, "amount": amount.text}));
+      final res = await apiPatch('shipment_expense/$id/',
+          jsonEncode({"note": note.text, "amount": amount.text}));
       notifyListeners();
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -292,10 +266,8 @@ class JaggerProvider extends ChangeNotifier {
 
   updateQTY(int itemId, int qty, BuildContext context) async {
     try {
-      String bearerToken = await getAccessToken();
-      var res = await http.patch(setUrl('update_item_qty/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({"itemId": itemId, "qty": qty}));
+      var res = await apiPatch(
+          'update_item_qty/', jsonEncode({"itemId": itemId, "qty": qty}));
       if (res.statusCode == 200) {
         await getJaggers();
         message(message: 'Амжилттай засагдлаа.', context: context);
@@ -363,10 +335,8 @@ class JaggerProvider extends ChangeNotifier {
           prefs.getString('longitude') != longitude) {
         await prefs.setString('latitude', latitude);
         await prefs.setString('longitude', longitude);
-        final res = await http.patch(setUrl('update_shipment_location/'),
-            headers: getHeader(await getAccessToken()),
-            body: jsonEncode({"lat": latitude, "lon": longitude}));
-        notifyListeners();
+        final res = await apiPatch('update_shipment_location/',
+            jsonEncode({"lat": latitude, "lon": longitude}));
         if (res.statusCode == 200) {
           final response = jsonDecode(utf8.decode(res.bodyBytes));
           return {
@@ -402,14 +372,10 @@ class JaggerProvider extends ChangeNotifier {
   getShipmentHistory() async {
     try {
       changeFetching();
-      final res = await http.get(
-        setUrl('shipment/history/'),
-        headers: getHeader(await getAccessToken()),
-      );
+      final res = await apiGet('shipment/history/');
       if (res.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ships = data['results'];
-        // debugPrint('ships: ${ships[0]}');
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
         changeFetching();
         notifyListeners();
@@ -421,11 +387,7 @@ class JaggerProvider extends ChangeNotifier {
 
   filterShipment(String type, String value) async {
     try {
-      final res = await http.get(
-        setUrl('shipment/history/?$type=$value'),
-        headers: getHeader(await getAccessToken()),
-      );
-      debugPrint(res.statusCode.toString());
+      final res = await apiGet('shipment/history/?$type=$value');
       if (res.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
         shipments.clear();

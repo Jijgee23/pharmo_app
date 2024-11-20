@@ -7,16 +7,12 @@ import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
-import 'package:pharmo_app/models/product_detail.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'package:badges/badges.dart' as badges;
 
 class ProductDetail extends StatefulWidget {
@@ -33,7 +29,6 @@ class _ProductDetailState extends State<ProductDetail>
   TextEditingController qtyController =
       TextEditingController(text: 1.toString());
   late ProductProvider productProvider;
-  late ProductDetails detail;
   late TabController tabController;
   bool fetching = false;
   setFetching(bool n) {
@@ -42,10 +37,11 @@ class _ProductDetailState extends State<ProductDetail>
     });
   }
 
+  Map<String, dynamic> det = {};
+
   @override
   void initState() {
     super.initState();
-    detail = ProductDetails(id: widget.prod.id);
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       if (tabController.indexIsChanging == false) {
@@ -64,21 +60,11 @@ class _ProductDetailState extends State<ProductDetail>
   getProductDetail() async {
     setFetching(true);
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      String bearerToken = "Bearer $token";
-      final response = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}products/${widget.prod.id}/'),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': bearerToken,
-        },
-      );
+      final response = await apiGet('products/${widget.prod.id}/');
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-        print(data['master_box_qty']);
         setState(() {
-          detail = ProductDetails.fromJson(data);
+          det = data;
         });
       } else {
         debugPrint(response.statusCode.toString());
@@ -145,7 +131,7 @@ class _ProductDetailState extends State<ProductDetail>
                       SizedBox(
                         child: Row(
                           children: [
-                            const ChevronBack(),
+                            back(),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(widget.prod.name.toString(),
@@ -221,7 +207,7 @@ class _ProductDetailState extends State<ProductDetail>
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 14),
                                     ),
-                                    Text(toPrice(detail.salePrice),
+                                    Text(toPrice(['salePrice']),
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 12,
@@ -287,22 +273,22 @@ class _ProductDetailState extends State<ProductDetail>
                             Column(
                               children: [
                                 infoRow('Барааны дуусах хугацаа',
-                                    detail.expDate ?? ''),
-                                infoRow('Ерөнхий нэршил', detail.intName ?? ''),
+                                    det['expDate'] ?? ''),
+                                infoRow('Ерөнхий нэршил', det['intName'] ?? ''),
                                 infoRow('Тун хэмжээ', ''),
                                 infoRow('Хөнгөлөлт', ''),
                                 infoRow('Хэлбэр', ''),
                                 infoRow(
                                     'Мастер савалгааны тоо',
-                                    (detail.masterBoxQty == null)
-                                        ? '0'
-                                        : detail.masterBoxQty.toString()),
+                                    (det['masterBoxQty'] == null)
+                                        ? ''
+                                        : det['masterBoxQty'].toString()),
                                 infoRow('Олгох нөхцөл', ''),
                                 infoRow('Улс', ''),
                                 infoRow(
                                     'Үйлдвэрлэгч',
-                                    (detail.mnfr != null)
-                                        ? detail.mnfr!.name
+                                    (det['mnfr'] != null)
+                                        ? det['mnfr']['name']
                                         : ""),
                               ],
                             ),
@@ -310,14 +296,14 @@ class _ProductDetailState extends State<ProductDetail>
                               children: [
                                 infoRow(
                                     'Бөөний үнэ',
-                                    detail.salePrice != null
-                                        ? detail.salePrice.toString()
+                                    det['salePrice'] != null
+                                        ? det['salePrice'].toString()
                                         : ''),
                                 infoRow(
-                                    'Бөөний тоо', '${detail.saleQty ?? ''}'),
-                                infoRow('Хямдрал', '${detail.discount ?? ''}'),
+                                    'Бөөний тоо', '${det['saleQty'] ?? ''}'),
+                                infoRow('Хямдрал', '${det['discount'] ?? ''}'),
                                 infoRow('Хямдрал дуусах хугацаа',
-                                    detail.discountExpireDate ?? '')
+                                    det['discountExpireDate'] ?? '')
                               ],
                             ),
                           ],

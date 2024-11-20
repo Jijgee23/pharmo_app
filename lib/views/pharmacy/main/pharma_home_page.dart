@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
@@ -34,12 +33,15 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
   bool hidden = false;
   late HomeProvider homeProvider;
   late PromotionProvider promotionProvider;
+  late BasketProvider basketProvider;
 
   @override
   void initState() {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
+    basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    basketProvider.getBasket();
     homeProvider.getUserInfo();
     homeProvider.getFilters();
     homeProvider.getSuppliers();
@@ -53,60 +55,54 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AuthController>(
-            create: (context) => AuthController()),
-      ],
-      child: Consumer3<AuthController, HomeProvider, BasketProvider>(
-        builder: (context, authController, homeProvider, basketProvider, _) {
-          return Scaffold(
-            extendBody: true,
-            drawer: MyDrawer(
-              drawers: [
-                DrawerItem(
-                  title: 'Захиалгууд',
-                  asset: 'assets/icons_2/time-past.png',
-                  onTap: () => goto(const MyOrder()),
-                ),
-                DrawerItem(
-                  title: 'Урамшуулал',
-                  asset: 'assets/icons_2/gift-box-benefits.png',
-                  onTap: () => goto(const PromotionWidget()),
-                ),
-              ],
-            ),
-            appBar: hidden
-                ? null
-                : CustomAppBar(
-                    title: Text(
-                      getAppBarText(homeProvider.currentIndex),
-                      style: const TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600),
-                    ),
+    return Consumer2<HomeProvider, BasketProvider>(
+      builder: (context, homeProvider, basketProvider, _) {
+        return Scaffold(
+          extendBody: true,
+          drawer: MyDrawer(
+            drawers: [
+              DrawerItem(
+                title: 'Захиалгууд',
+                asset: 'assets/icons_2/time-past.png',
+                onTap: () => goto(const MyOrder()),
+              ),
+              DrawerItem(
+                title: 'Урамшуулал',
+                asset: 'assets/icons_2/gift-box-benefits.png',
+                onTap: () => goto(const PromotionWidget()),
+              ),
+            ],
+          ),
+          appBar: hidden
+              ? null
+              : CustomAppBar(
+                  title: Text(
+                    getAppBarText(homeProvider.currentIndex),
+                    style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600),
                   ),
-            body: NotificationListener<UserScrollNotification>(
-              onNotification: (notification) {
-                if (notification.direction == ScrollDirection.reverse &&
-                    homeProvider.currentIndex == 0) {
-                  setState(() => hidden = true);
-                } else if (notification.direction == ScrollDirection.forward) {
-                  setState(() => hidden = false);
-                }
-                return true;
-              },
-              child: _pages[homeProvider.currentIndex],
-            ),
-            bottomNavigationBar: BottomBar(
-              homeProvider: homeProvider,
-              listOfIcons: listOfIcons,
-              labels: listOfStrings,
-            ),
-          );
-        },
-      ),
+                ),
+          body: NotificationListener<UserScrollNotification>(
+            onNotification: (notification) {
+              if (notification.direction == ScrollDirection.reverse &&
+                  homeProvider.currentIndex == 0) {
+                setState(() => hidden = true);
+              } else if (notification.direction == ScrollDirection.forward) {
+                setState(() => hidden = false);
+              }
+              return true;
+            },
+            child: _pages[homeProvider.currentIndex],
+          ),
+          bottomNavigationBar: BottomBar(
+            homeProvider: homeProvider,
+            listOfIcons: listOfIcons,
+            labels: listOfStrings,
+          ),
+        );
+      },
     );
   }
 

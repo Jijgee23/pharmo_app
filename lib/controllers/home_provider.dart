@@ -2,10 +2,8 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
@@ -93,12 +91,9 @@ class HomeProvider extends ChangeNotifier {
   // Барааний жагсаалт & бараа хайх
   getProducts(int pageKey) async {
     try {
-      final bearerToken = await getAccessToken();
-      final response = await http.get(
-          Uri.parse(!searching
-              ? '${dotenv.env['SERVER_URL']}products/?page=$pageKey&page_size=$pageSize'
-              : '${dotenv.env['SERVER_URL']}products/search/?k=$queryType&v=$query'),
-          headers: getHeader(bearerToken));
+      final response = await apiGet(!searching
+          ? 'products/?page=$pageKey&page_size=$pageSize'
+          : 'products/search/?k=$queryType&v=$query');
       if (response.statusCode == 200) {
         if (!searching) {
           Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -120,10 +115,7 @@ class HomeProvider extends ChangeNotifier {
 
   getBranches(BuildContext context) async {
     try {
-      final bearerToken = await getAccessToken();
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}branch'),
-          headers: getHeader(bearerToken));
+      final response = await apiGet('branch');
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         branches = (res).map((data) => Sector.fromJson(data)).toList();
@@ -141,10 +133,7 @@ class HomeProvider extends ChangeNotifier {
   // хямдралтай, эрэлттэй, шинэ бараа
   filterProducts(String filter) async {
     try {
-      final bearerToken = await getAccessToken();
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}products/?$filter'),
-          headers: getHeader(bearerToken));
+      final response = await apiGet('products/?$filter');
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         List<Product> prods = (res['results'] as List)
@@ -239,11 +228,7 @@ class HomeProvider extends ChangeNotifier {
   // Ангилалийн жагсаалт авах
   getFilters() async {
     try {
-      final accestoken = await getAccessToken();
-      final response = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}product/filters/'),
-        headers: getHeader(accestoken),
-      );
+      final response = await apiGet('product/filters/');
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         categories =
@@ -265,11 +250,8 @@ class HomeProvider extends ChangeNotifier {
 // Бараа ангиллаар шүүх
   filter(String type, int filters, int page, int pageSize) async {
     try {
-      final bearerToken = await getAccessToken();
-      final response = await http.get(
-          Uri.parse(
-              '${dotenv.env['SERVER_URL']}products/?$type=[$filters]&page=$page&page_size=$pageSize'),
-          headers: getHeader(bearerToken));
+      final response = await apiGet(
+          'products/?$type=[$filters]&page=$page&page_size=$pageSize');
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         List<Product> prods = (res['results'] as List)
@@ -284,11 +266,8 @@ class HomeProvider extends ChangeNotifier {
 
   filterCate(int id, int page, int pageSize) async {
     try {
-      final bearerToken = await getAccessToken();
-      final response = await http.get(
-          Uri.parse(
-              '${dotenv.env['SERVER_URL']}products/?category=[$id]&page=$page&page_size=$pageSize'),
-          headers: getHeader(bearerToken));
+      final response = await apiGet(
+          'products/?category=[$id]&page=$page&page_size=$pageSize');
       if (response.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         List<Product> prods = (res['results'] as List)
@@ -305,11 +284,8 @@ class HomeProvider extends ChangeNotifier {
   getSuppliers() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      final bearerToken = await getAccessToken();
       int? id = prefs.getInt('suppID');
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
-          headers: getHeader(bearerToken));
+      final response = await apiGet('suppliers');
       if (response.statusCode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
         _supList.clear();
@@ -332,11 +308,7 @@ class HomeProvider extends ChangeNotifier {
   // Нийлүүлэгч сонгох
   pickSupplier(int supId, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bearertoken = await getAccessToken();
-    final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}pick/'),
-        headers: getHeader(bearertoken),
-        body: jsonEncode({'supplierId': supId}));
+    final response = await apiPost('pick/', jsonEncode({'supplierId': supId}));
     if (response.statusCode == 200) {
       Map<String, dynamic> res = jsonDecode(response.body);
       await prefs.setString('access_token', res['access_token']);
@@ -377,11 +349,7 @@ class HomeProvider extends ChangeNotifier {
 
   // Сагсны id авах
   getBasketId() async {
-    final bearerToken = await getAccessToken();
-    final response = await http.get(
-      Uri.parse('${dotenv.env['SERVER_URL']}get_basket/'),
-      headers: getHeader(bearerToken),
-    );
+    final response = await apiGet('get_basket/');
     final res = jsonDecode(utf8.decode(response.bodyBytes));
     if (response.statusCode == 200) {
       basketId = res['id'];
@@ -391,11 +359,8 @@ class HomeProvider extends ChangeNotifier {
 
   getCustomerBranch() async {
     try {
-      final bearerToken = await getAccessToken();
-      final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}seller/customer_branch/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({'customerId': selectedCustomerId}));
+      final response = await apiPost('seller/customer_branch/',
+          jsonEncode({'customerId': selectedCustomerId}));
       branchList.clear();
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -432,14 +397,11 @@ class HomeProvider extends ChangeNotifier {
 
   searchByLocation(BuildContext context) async {
     try {
-      final bearerToken = await getAccessToken();
-      final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}seller/search_by_location/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({
-            'lat': currentLatitude,
-            'lng': currentLongitude,
-          }));
+      Object body = jsonEncode({
+        'lat': currentLatitude,
+        'lng': currentLongitude,
+      });
+      final response = await apiPost('seller/search_by_location/', body);
       if (response.statusCode == 200) {
         if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
             'not found') {
@@ -473,13 +435,7 @@ class HomeProvider extends ChangeNotifier {
 
   deactiveUser(String password, BuildContext context) async {
     try {
-      final bearerToken = await getAccessToken();
-      final response = await http.patch(
-        Uri.parse('${dotenv.env['SERVER_URL']}auth/delete_user_account/'),
-        headers: getHeader(bearerToken),
-        body: jsonEncode({'pwd': password}),
-      );
-      debugPrint(response.statusCode.toString());
+      final response = await apiPatch('auth/delete_user_account/', jsonEncode({'pwd': password}));
       if (response.statusCode == 200) {
         AuthController().logout(context);
         message(
@@ -495,19 +451,15 @@ class HomeProvider extends ChangeNotifier {
 
   createSellerOrder(BuildContext context, String type) async {
     try {
-      final token = await getAccessToken();
-      final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
-        headers: getHeader(token),
-        body: jsonEncode(
-          {
-            'customer_id': selectedCustomerId,
-            'basket_id': basketId,
-            'payType': type,
-            "note": (note != null) ? note : null
-          },
-        ),
+      Object body = jsonEncode(
+        {
+          'customer_id': selectedCustomerId,
+          'basket_id': basketId,
+          'payType': type,
+          "note": (note != null) ? note : null
+        },
       );
+      final response = await apiPost('seller/order/', body);
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
       if (response.statusCode == 201) {
@@ -583,24 +535,6 @@ class HomeProvider extends ChangeNotifier {
   switchView() {
     isList = !isList;
     notifyListeners();
-  }
-
-  getMasterQty() async {
-    try {
-      final bearerToken = await getAccessToken();
-      final response = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}master_box_qty/'),
-        headers: getHeader(bearerToken),
-      );
-      print(
-          '${response.statusCode}, body: ${jsonDecode(utf8.decode(response.bodyBytes))}');
-      if (response.statusCode == 200) {
-        // List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
   }
 }
 

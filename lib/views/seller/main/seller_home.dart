@@ -28,11 +28,14 @@ class SellerHomePage extends StatefulWidget {
 
 class _SellerHomePageState extends State<SellerHomePage> {
   late HomeProvider homeProvider;
+  late BasketProvider basketProvider;
 
   @override
   void initState() {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    basketProvider.getBasket();
     homeProvider.getUserInfo();
     homeProvider.getBasketId();
     homeProvider.getFilters();

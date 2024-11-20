@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -20,11 +18,7 @@ class MyOrderProvider extends ChangeNotifier {
   late MyOrderDetailModel fetchedDetail;
   getSellerOrders() async {
     try {
-      String bearerToken = await getAccessToken();
-      final res = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}seller/order/'),
-        headers: getHeader(bearerToken),
-      );
+      final res = await apiGet('seller/order/');
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ords = response['results'];
@@ -39,13 +33,8 @@ class MyOrderProvider extends ChangeNotifier {
   }
 
   filterOrder(String type, String query) async {
-    print('type: $type, query: $query');
     try {
-      String bearerToken = await getAccessToken();
-      final res = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}seller/order/?$type=$query'),
-        headers: getHeader(bearerToken),
-      );
+      final res = await apiGet('seller/order/?$type=$query');
       print(jsonDecode(utf8.decode(res.bodyBytes)));
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -62,12 +51,7 @@ class MyOrderProvider extends ChangeNotifier {
 
   getSellerOrdersByDateRanged(String startDate, String endDate) async {
     try {
-      String bearerToken = await getAccessToken();
-      final res = await http.get(
-        Uri.parse(
-            '${dotenv.env['SERVER_URL']}order/?start=$startDate&end=$endDate'),
-        headers: getHeader(bearerToken),
-      );
+      final res = await apiGet('order/?start=$startDate&end=$endDate');
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ords = response['results'];
@@ -83,11 +67,7 @@ class MyOrderProvider extends ChangeNotifier {
 
   getSellerOrdersByDateSingle(String date) async {
     try {
-      String bearerToken = await getAccessToken();
-      final res = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}order/?start=$date'),
-        headers: getHeader(bearerToken),
-      );
+      final res = await apiGet('order/?start=$date');
       if (res.statusCode == 200) {
         final response = jsonDecode(utf8.decode(res.bodyBytes));
         List<dynamic> ords = response['results'];
@@ -103,10 +83,7 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> getMyorders() async {
     try {
-      String bearerToken = await getAccessToken();
-      final res = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/'),
-          headers: getHeader(bearerToken));
+      final res = await apiGet('pharmacy/orders/');
       if (res.statusCode == 200) {
         _orders.clear();
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -133,11 +110,7 @@ class MyOrderProvider extends ChangeNotifier {
 
   getMyorderDetail(int orderId) async {
     try {
-      String bearerToken = await getAccessToken();
-      final res = await http.get(
-          Uri.parse(
-              '${dotenv.env['SERVER_URL']}pharmacy/orders/$orderId/items/'),
-          headers: getHeader(bearerToken));
+      final res = await apiGet('pharmacy/orders/$orderId/items/');
       if (res.statusCode == 200) {
         _orderDetails.clear();
         final response = jsonDecode(utf8.decode(res.bodyBytes));
@@ -160,10 +133,7 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> getSuppliers() async {
     try {
-      String bearerToken = await getAccessToken();
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}suppliers'),
-          headers: getHeader(bearerToken));
+      final response = await apiGet('suppliers');
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         return {
@@ -185,10 +155,7 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> getBranches() async {
     try {
-      String bearerToken = await getAccessToken();
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}branch'),
-          headers: getHeader(bearerToken));
+      final response = await apiGet('branch');
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         return {
@@ -211,37 +178,19 @@ class MyOrderProvider extends ChangeNotifier {
   Future<dynamic> filterOrders(
       String selectedFilter, String selectedItem) async {
     try {
-      String bearerToken = await getAccessToken();
       dynamic res;
       if (selectedFilter == '0') {
-        res = await http.get(
-            Uri.parse(
-                '${dotenv.env['SERVER_URL']}pharmacy/orders/?process=$selectedItem'),
-            headers: getHeader(bearerToken));
+        res = await apiGet('pharmacy/orders/?process=$selectedItem');
       } else if (selectedFilter == '1') {
-        res = await http.get(
-            Uri.parse(
-                '${dotenv.env['SERVER_URL']}pharmacy/orders/?status=$selectedItem'),
-            headers: getHeader(bearerToken));
+        res = await apiGet('pharmacy/orders/?status=$selectedItem');
       } else if (selectedFilter == '2') {
-        res = await http.get(
-            Uri.parse(
-                '${dotenv.env['SERVER_URL']}pharmacy/orders/?payType=$selectedItem'),
-            headers: getHeader(bearerToken));
+        res = await apiGet('pharmacy/orders/?payType=$selectedItem');
       } else if (selectedFilter == '3') {
-        res = await http.get(
-            Uri.parse(
-                '${dotenv.env['SERVER_URL']}pharmacy/orders/?address=$selectedItem'),
-            headers: getHeader(bearerToken));
+        res = await apiGet('pharmacy/orders/?address=$selectedItem');
       } else if (selectedFilter == '4') {
-        res = await http.get(
-            Uri.parse(
-                '${dotenv.env['SERVER_URL']}pharmacy/orders/?supplier=$selectedItem'),
-            headers: getHeader(bearerToken));
+        res = await apiGet('pharmacy/orders/?supplier=$selectedItem');
       } else {
-        res = await http.get(
-            Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/orders/'),
-            headers: getHeader(bearerToken));
+        res = await apiGet('pharmacy/orders/');
       }
       if (res.statusCode == 200) {
         _orders.clear();
@@ -269,11 +218,7 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> confirmOrder(int orderId, BuildContext context) async {
     try {
-      String bearerToken = await getAccessToken();
-      final res = await http.patch(
-          Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/accept_order/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({"id": orderId}));
+      final res = await apiPatch('pharmacy/accept_order/', jsonEncode({"id": orderId}));
       final response = jsonDecode(utf8.decode(res.bodyBytes));
       print('response: $response ConfirmOrderStatus: ${res.statusCode}');
       if (res.statusCode == 200) {

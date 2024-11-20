@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/order_list.dart';
@@ -10,7 +8,6 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class PharmProvider extends ChangeNotifier {
-  String baseUrl = '${dotenv.env['SERVER_URL']}';
   List<PharmFullInfo> pharmList = <PharmFullInfo>[];
   List<PharmFullInfo> customeList = <PharmFullInfo>[];
   List<PharmFullInfo> fullList = <PharmFullInfo>[];
@@ -21,11 +18,7 @@ class PharmProvider extends ChangeNotifier {
   List<OrderList> orderList = <OrderList>[];
   getPharmacyList() async {
     try {
-      final beareToken = await getAccessToken();
-      final response = await http.get(
-        Uri.parse('${baseUrl}seller/pharmacy_list/'),
-        headers: getHeader(beareToken),
-      );
+      final response = await apiGet('seller/pharmacy_list/');
       if (response.statusCode == 200) {
         Map data = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> pharms = data['pharmacies'];
@@ -69,13 +62,8 @@ class PharmProvider extends ChangeNotifier {
 
   getOrderList(int customerId) async {
     try {
-      final token = await getAccessToken();
-      final response = await http.get(
-        Uri.parse(
-            '${dotenv.env['SERVER_URL']}seller/order_history/?pharmacyId=$customerId'),
-        headers: getHeader(token),
-      );
-      notifyListeners();
+      final response =
+          await apiGet('seller/order_history/?pharmacyId=$customerId');
       if (response.statusCode == 200) {
         List<dynamic> ordList = jsonDecode(utf8.decode(response.bodyBytes));
         for (int i = 0; i < ordList.length; i++) {
@@ -92,11 +80,8 @@ class PharmProvider extends ChangeNotifier {
   /// харилцагч
   getCustomers(int page, int size, BuildContext c) async {
     try {
-      final beareToken = await getAccessToken();
-      final response = await http.get(
-        Uri.parse('${baseUrl}seller/customer/?page=$page&page_size=$size'),
-        headers: getHeader(beareToken),
-      );
+      final response =
+          await apiGet('seller/customer/?page=$page&page_size=$size');
       if (response.statusCode == 200) {
         Map data = jsonDecode(utf8.decode(response.bodyBytes));
         filteredCustomers.clear();
@@ -113,15 +98,9 @@ class PharmProvider extends ChangeNotifier {
   }
 
   getCustomerDetail(int custId, BuildContext c) async {
-    print('CSUTOMER ID: $custId');
     try {
-      final beareToken = await getAccessToken();
-      final response = await http.get(
-        Uri.parse('${baseUrl}seller/customer/$custId'),
-        headers: getHeader(beareToken),
-      );
+      final response = await apiGet('seller/customer/$custId');
       if (response.statusCode == 200) {
-        // customerDetail = CustomerDetail();
         dynamic data = jsonDecode(utf8.decode(response.bodyBytes));
         customerDetail = CustomerDetail.fromJson(data);
         notifyListeners();
@@ -136,18 +115,13 @@ class PharmProvider extends ChangeNotifier {
   sendCustomerLocation(int custId, BuildContext c) async {
     print('CSUTOMER ID: $custId');
     try {
-      final beareToken = await getAccessToken();
       final home = Provider.of<HomeProvider>(c, listen: false);
-      final response = await http.patch(
-        Uri.parse('${baseUrl}seller/customer/$custId/update_location/'),
-        headers: getHeader(beareToken),
-        body: jsonEncode(
-          {
+      final response = await apiPatch(
+          'seller/customer/$custId/update_location/',
+          jsonEncode({
             "lat": home.currentLatitude,
             "lng": home.currentLongitude,
-          },
-        ),
-      );
+          }));
       if (response.statusCode == 200) {
         message(message: 'Амжилттай', context: c);
       } else {
@@ -172,11 +146,7 @@ class PharmProvider extends ChangeNotifier {
 
   filtCustomers(String type, String v, BuildContext c) async {
     try {
-      final beareToken = await getAccessToken();
-      final response = await http.get(
-        Uri.parse('${baseUrl}seller/customer/${getEndPoint(type, v)}'),
-        headers: getHeader(beareToken),
-      );
+      final response = await apiGet('seller/customer/${getEndPoint(type, v)}');
       if (response.statusCode == 200) {
         Map data = jsonDecode(utf8.decode(response.bodyBytes));
         filteredCustomers.clear();
@@ -194,20 +164,8 @@ class PharmProvider extends ChangeNotifier {
 
   editSellerOrder(String note, String pt, int orderId, BuildContext c) async {
     try {
-      final beareToken = await getAccessToken();
-      final response = await http.patch(
-        Uri.parse('${baseUrl}seller/order/$orderId/'),
-        headers: getHeader(beareToken),
-        body: jsonEncode(
-          {
-            "note": note,
-            "payType": pt,
-          },
-        ),
-      );
-      print(
-          'STATUS: ${response.statusCode}, BODY: ${jsonDecode(utf8.decode(response.bodyBytes))}');
-      print(response.body);
+      final response = await apiPatch(
+          'seller/order/$orderId/', jsonEncode({"note": note, "payType": pt}));
       if (response.statusCode == 200) {
         message(message: 'Амжилттай засагдлаа', context: c);
         notifyListeners();
@@ -227,12 +185,7 @@ class PharmProvider extends ChangeNotifier {
 
   getSellerOrderDetail(int oId, BuildContext c) async {
     try {
-      final beareToken = await getAccessToken();
-      final response = await http.get(
-        Uri.parse('${baseUrl}seller/order/$oId/'),
-        headers: getHeader(beareToken),
-      );
-
+      final response = await apiGet('seller/order/$oId/');
       if (response.statusCode == 200) {
         clearOrderDets();
         var data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -253,7 +206,6 @@ class PharmProvider extends ChangeNotifier {
       required int qty,
       required BuildContext context}) async {
     try {
-      final beareToken = await getAccessToken();
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
       dynamic check = await basketProvider.checkItemQty(itemId, qty);
@@ -261,12 +213,8 @@ class PharmProvider extends ChangeNotifier {
       if (check['v'] == 0) {
         message(message: 'Бараа дууссан', context: context);
       } else if (check['v'] == 1) {
-        final response = await http.patch(
-            Uri.parse('${baseUrl}seller/order/$oId/update_item/'),
-            headers: getHeader(beareToken),
-            body: jsonEncode({"itemId": itemId, "qty": qty}));
-        print(
-            "ST: ${response.statusCode} BDY: ${jsonDecode(utf8.decode(response.bodyBytes))}");
+        final response = await apiPatch('seller/order/$oId/update_item/',
+            jsonEncode({"itemId": itemId, "qty": qty}));
         if (response.statusCode == 200) {
           notifyListeners();
         } else {
@@ -295,21 +243,19 @@ class PharmProvider extends ChangeNotifier {
       String? lng,
       BuildContext context) async {
     try {
-      final beareToken = await getAccessToken();
-      await HomeProvider().getPosition();
-      final response = await http.post(Uri.parse('${baseUrl}seller/customer/'),
-          headers: getHeader(beareToken),
-          body: jsonEncode({
-            "name": name,
-            "rn": rn,
-            "email": email,
-            "phone": phone,
-            "phone2": phone2,
-            "phone3": phone3,
-            "note": note,
-            "lat": lat,
-            "lng": lng
-          }));
+      var body = jsonEncode({
+        "name": name,
+        "rn": rn,
+        "email": email,
+        "phone": phone,
+        "phone2": phone2,
+        "phone3": phone3,
+        "note": note,
+        "lat": lat,
+        "lng": lng
+      });
+      await Provider.of<HomeProvider>(context, listen: false).getPosition();
+      final response = await apiPost('seller/customer/', body);
       if (response.statusCode == 201) {
         message(message: 'Амжилттай бүртгэгдлээ.', context: context);
       } else {
@@ -339,24 +285,19 @@ class PharmProvider extends ChangeNotifier {
       double? lng,
       BuildContext context) async {
     try {
-      final beareToken = await getAccessToken();
-      await HomeProvider().getPosition();
-      final response =
-          await http.patch(Uri.parse('${baseUrl}seller/customer/$id/'),
-              headers: getHeader(beareToken),
-              body: jsonEncode({
-                "name": name,
-                "rn": rn,
-                "email": email,
-                "phone": phone,
-                "phone2": phone2,
-                "phone3": phone3,
-                "note": note,
-                "lat": lat,
-                "lng": lng
-              }));
-      print(
-          'ST: ${response.statusCode} BODY: ${jsonDecode(utf8.decode(response.bodyBytes))}');
+      var body = jsonEncode({
+        "name": name,
+        "rn": rn,
+        "email": email,
+        "phone": phone,
+        "phone2": phone2,
+        "phone3": phone3,
+        "note": note,
+        "lat": lat,
+        "lng": lng
+      });
+      await Provider.of<HomeProvider>(context, listen: false).getPosition();
+      final response = await apiPatch('seller/customer/$id/', body);
       if (response.statusCode == 200) {
         message(message: 'Амжилттай засагдлаа.', context: context);
       } else {
@@ -374,11 +315,7 @@ class PharmProvider extends ChangeNotifier {
 
   Future getCustomerFavs(dynamic customerId, BuildContext context) async {
     try {
-      final beareToken = await getAccessToken();
-      final response = await http.post(
-          Uri.parse('${baseUrl}seller/customer_favs/'),
-          headers: getHeader(beareToken),
-          body: jsonEncode({"customer_id": customerId}));
+      final response = await apiPost('seller/customer_favs/', jsonEncode({"customer_id": customerId}));
       if (response.statusCode == 201) {
         // final data = jsonDecode(utf8.decode(response.bodyBytes));
       } else {}

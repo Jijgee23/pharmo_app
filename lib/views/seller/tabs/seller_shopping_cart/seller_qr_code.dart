@@ -3,8 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -15,7 +14,6 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SellerQRCode extends StatefulWidget {
@@ -39,17 +37,12 @@ class _SellerQRCodeState extends State<SellerQRCode> {
 
   createQR() async {
     try {
-      final btoken = await getAccessToken();
-      final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}ci/'),
-        headers: getHeader(btoken),
-        body: jsonEncode(
-          {
+      Response response = await apiPost(
+          'ci/',
+          jsonEncode({
             'customer_id': homeProvider.selectedCustomerId,
             'note': homeProvider.note
-          },
-        ),
-      );
+          }));
       int stcode = response.statusCode;
       if (stcode == 200) {
         Map res = jsonDecode(utf8.decode(response.bodyBytes));
@@ -104,16 +97,8 @@ class _SellerQRCodeState extends State<SellerQRCode> {
 
   Future<bool> checkPayment() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('access_token');
-      final resQR = await http.get(
-        Uri.parse(
-            '${dotenv.env['SERVER_URL']}cp/?userId=${homeProvider.selectedCustomerId}'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final resQR =
+          await apiGet('cp/?userId=${homeProvider.selectedCustomerId}');
       if (resQR.statusCode == 200) {
         final response = jsonDecode(utf8.decode(resQR.bodyBytes));
         if (response is bool) {

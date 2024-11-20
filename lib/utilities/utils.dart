@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 void goto(Widget widget) {
   Get.to(
@@ -21,27 +22,16 @@ void gotoRemoveUntil(Widget widget, BuildContext context) {
   );
 }
 
-const ts1 = TextStyle(color: Colors.blueGrey, fontSize: 12.0);
-const ts2 = TextStyle(color: Colors.blueGrey, fontSize: 16.0);
-const ts3 = TextStyle(color: Colors.blueGrey, fontSize: 20.0);
-getScreenSize(BuildContext context) {
-  return MediaQuery.of(context).size;
-}
-
-extension AppContext on BuildContext {
-  Size get size => MediaQuery.sizeOf(this);
-  double get height => MediaQuery.of(this).size.height;
-  double get width => MediaQuery.of(this).size.width;
-  Future push(Widget widget) async {
-    await Navigator.push(
-      this,
-      MaterialPageRoute(builder: (context) => widget),
-    );
-  }
-
-  void pop() async {
-    return Navigator.pop(this);
-  }
+back() {
+  return InkWell(
+    borderRadius: BorderRadius.circular(24),
+    splashColor: Colors.black.withOpacity(0.3),
+    onTap: () => Get.back(),
+    child: const Icon(
+      Icons.chevron_left,
+      color: Colors.black,
+    ),
+  );
 }
 
 Future<String> getAccessToken() async {
@@ -62,6 +52,40 @@ getHeader(String token) {
 setUrl(String endPoint) {
   Uri url = Uri.parse('${dotenv.env['SERVER_URL']}$endPoint');
   return url;
+}
+
+apiGet(String endPoint) async {
+  var response = await http.get(
+    setUrl(endPoint),
+    headers: getHeader(await getAccessToken()),
+  );
+  return response;
+}
+
+apiPost(String endPoint, Object body) async {
+  var response = await http.post(
+    setUrl(endPoint),
+    headers: getHeader(await getAccessToken()),
+    body: body,
+  );
+  return response;
+}
+
+apiPatch(String endPoint, Object body) async {
+  var response = await http.patch(
+    setUrl(endPoint),
+    headers: getHeader(await getAccessToken()),
+    body: body,
+  );
+  return response;
+}
+
+apiDelete(String endPoint) async {
+  var response = await http.delete(
+    setUrl(endPoint),
+    headers: getHeader(await getAccessToken()),
+  );
+  return response;
 }
 
 String noImage =
@@ -102,14 +126,14 @@ String toPrice(dynamic v) {
     if (v is num) {
       numberValue = v;
     } else if (v is String) {
-      numberValue = num.tryParse(v) ?? 0; 
+      numberValue = num.tryParse(v) ?? 0;
     } else {
       throw Exception('Unsupported value type');
     }
     String formattedNumber = NumberFormat('#,##0.##').format(numberValue);
     return '$formattedNumber₮';
   } catch (e) {
-    return '0₮'; 
+    return '0₮';
   }
 }
 

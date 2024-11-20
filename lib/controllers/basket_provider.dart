@@ -2,9 +2,6 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -38,11 +35,7 @@ class BasketProvider extends ChangeNotifier {
 
   getBasket() async {
     try {
-      String bearerToken = await getAccessToken();
-      final resBasket = await http.get(
-        Uri.parse('${dotenv.env['SERVER_URL']}get_basket'),
-        headers: getHeader(bearerToken),
-      );
+      final resBasket = await apiGet('get_basket');
       if (resBasket.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(utf8.decode(resBasket.bodyBytes));
         _basket = Basket.fromJson(res);
@@ -59,7 +52,6 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> checkQTYs() async {
     try {
-      String bearerToken = await getAccessToken();
       Map<String, int?> bodyStr = {};
       if (_shoppingCarts.isNotEmpty) {
         for (int i = 0; i < _shoppingCarts.length; i++) {
@@ -72,13 +64,10 @@ class BasketProvider extends ChangeNotifier {
                 shoppingCarts[i]["qty"];
           }
         }
-        final response = await http.patch(
-            Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
-            headers: getHeader(bearerToken),
-            body: jsonEncode({"data": bodyStr}));
+        final response =
+            await apiPatch('check_qty/', jsonEncode({"data": bodyStr}));
         if (response.statusCode == 200) {
           Map res = jsonDecode(utf8.decode(response.bodyBytes));
-          // print(res);
           qtys.clear();
           res.forEach((k, v) {
             if (v == false) {
@@ -107,18 +96,11 @@ class BasketProvider extends ChangeNotifier {
 
   checkItemQty(int id, int qty) async {
     try {
-      String bearerToken = await getAccessToken();
-      final response = await http.patch(
-        Uri.parse('${dotenv.env['SERVER_URL']}check_qty/'),
-        headers: getHeader(bearerToken),
-        body: jsonEncode(
-          {
+      final response = await apiPatch(
+          'check_qty/',
+          jsonEncode({
             "data": {"$id": qty}
-          },
-        ),
-      );
-      debugPrint(
-          'CHECK QTY ID:${id} STATUS: ${response.statusCode} BODY: ${response.body}');
+          }));
       if (response.statusCode == 200) {
         Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         if (res['$id'] == null) {
@@ -149,16 +131,13 @@ class BasketProvider extends ChangeNotifier {
       {int? product_id, int? itemname_id, required int qty}) async {
     print('id $product_id itemid: $itemname_id');
     int checkId = (itemname_id == null) ? product_id! : itemname_id;
-    String bearerToken = await getAccessToken();
     try {
       dynamic check = await checkItemQty(checkId, qty);
       if (check['v'] == 0) {
         return {'errorType': 0, 'data': null, 'message': 'Бараа дууссан.'};
       } else if (check['v'] == 1) {
-        final response = await http.post(
-            Uri.parse('${dotenv.env['SERVER_URL']}basket_item/'),
-            headers: getHeader(bearerToken),
-            body: jsonEncode({'product': product_id, 'qty': qty}));
+        final response = await apiPost(
+            'basket_item/', jsonEncode({'product': product_id, 'qty': qty}));
         if (response.statusCode == 201) {
           return {
             'errorType': 1,
@@ -199,11 +178,7 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket({required int basket_id}) async {
     try {
-      String bearerToken = await getAccessToken();
-      final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}clear_basket/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({'basketId': basket_id}));
+      final response = await apiPost('clear_basket/', jsonEncode({'basketId': basket_id}));
       await getBasket();
       notifyListeners();
       if (response.statusCode == 200) {
@@ -227,10 +202,7 @@ class BasketProvider extends ChangeNotifier {
   Future<dynamic> removeBasketItem(
       {required int basket_id, required int item_id}) async {
     try {
-      String bearerToken = await getAccessToken();
-      final resQR = await http.delete(
-          Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
-          headers: getHeader(bearerToken));
+      final resQR = await apiDelete('basket_item/$item_id/');
       if (resQR.statusCode == 204) {
         await getBasket();
         notifyListeners();
@@ -255,8 +227,6 @@ class BasketProvider extends ChangeNotifier {
   Future<dynamic> changeBasketItem(
       {required String type, required int item_id, required int qty}) async {
     try {
-      String bearerToken = await getAccessToken();
-      // checkQTY(qty: qty);
       if (type == 'add') {
         qty = qty + 1;
       } else if (type == 'set' && qty > 0) {
@@ -264,10 +234,7 @@ class BasketProvider extends ChangeNotifier {
       } else {
         qty = qty - 1;
       }
-      final resQR = await http.patch(
-          Uri.parse('${dotenv.env['SERVER_URL']}basket_item/$item_id/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({"qty": int.parse(qty.toString())}));
+      final resQR = await apiPatch('basket_item/$item_id/', jsonEncode({"qty": int.parse(qty.toString())}));
       if (resQR.statusCode == 200) {
         await getBasket();
         notifyListeners();
@@ -295,15 +262,12 @@ class BasketProvider extends ChangeNotifier {
       required String note,
       required BuildContext context}) async {
     try {
-      String bearerToken = await getAccessToken();
-      final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/order/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({
+      var body = jsonEncode({
             'basketId': basket_id,
             'branchId': (branch_id == -1) ? null : branch_id,
             'note': note != '' ? note : null
-          }));
+          });
+      final response = await apiPost('pharmacy/order/', body);
       final res = jsonDecode(utf8.decode(response.bodyBytes));
       final status = response.statusCode;
       debugPrint('basket_id: $basket_id, status code: $status, body: $res');
@@ -311,17 +275,14 @@ class BasketProvider extends ChangeNotifier {
         Future(() async {
           await clearBasket(basket_id: basket_id);
         }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
-        // goto(OrderDone(orderNo: res['orderNo']), context);
-        // await clearBasket(basket_id: basket_id);
         return res['orderNo'];
       } else if (response.statusCode == 400) {
         message(message: 'Сагс хоосон байна!', context: context);
       } else {
-        // return {'errorType': 2, 'data': null, 'message': response.body};
         message(message: res, context: context);
       }
     } catch (e) {
-      // return {'errorType': 3, 'data': e, 'message': e};
+      //
     }
   }
 
@@ -331,13 +292,11 @@ class BasketProvider extends ChangeNotifier {
       String? note,
       required BuildContext context}) async {
     try {
-      String bearerToken = await getAccessToken();
-      final resQR = await http.post(Uri.parse('${dotenv.env['SERVER_URL']}ci/'),
-          headers: getHeader(bearerToken),
-          body: jsonEncode({
+      var body =  jsonEncode({
             'branchId': (branch_id == 0) ? null : branch_id,
             'note': note != '' ? note : null
-          }));
+          });
+      final resQR = await apiPost('ci/', body);
       final data = jsonDecode(utf8.decode(resQR.bodyBytes));
       final status = resQR.statusCode;
       debugPrint('status code: $status, body: $data');
@@ -370,10 +329,7 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> checkPayment() async {
     try {
-      String bearerToken = await getAccessToken();
-      final resQR = await http.get(Uri.parse('${dotenv.env['SERVER_URL']}cp/'),
-          headers: getHeader(bearerToken));
-      print(resQR.body);
+      final resQR = await apiGet('cp/');
       if (resQR.statusCode == 200) {
         dynamic response = jsonDecode(utf8.decode(resQR.bodyBytes));
         await clearBasket(basket_id: basket.id);

@@ -1,14 +1,10 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/models/promotion.dart';
 import 'package:pharmo_app/models/qr_data.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class PromotionProvider extends ChangeNotifier {
@@ -95,10 +91,7 @@ class PromotionProvider extends ChangeNotifier {
 
   getPromotion() async {
     try {
-      final token = await getAccessToken();
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}get_promos/'),
-          headers: getHeader(token));
+      final response = await apiGet('get_promos/');
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         promotions.clear();
@@ -112,15 +105,11 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   getDetail(int promoId) async {
-    final token = await getAccessToken();
     try {
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}get_promos/$promoId/'),
-          headers: getHeader(token));
+      final response = await apiGet('get_promos/$promoId/');
       if (response.statusCode == 200) {
         Map<String, dynamic> p = jsonDecode(utf8.decode(response.bodyBytes));
         MarkedPromo mp = MarkedPromo.fromJson(p);
-        // clearPromoDetail();
         setMarkedPromo(mp);
         notifyListeners();
         return mp;
@@ -132,10 +121,7 @@ class PromotionProvider extends ChangeNotifier {
 
   getMarkedPromotion() async {
     try {
-      final token = await getAccessToken();
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}marked_promos/'),
-          headers: getHeader(token));
+      final response = await apiGet('marked_promos/');
       if (response.statusCode == 200) {
         List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         markedPromotions.clear();
@@ -152,11 +138,8 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   filterPromotion(String type, String value) async {
-    final token = await getAccessToken();
     try {
-      final response = await http.get(
-          Uri.parse('${dotenv.env['SERVER_URL']}get_promos/?$type=$value'),
-          headers: getHeader(token));
+      final response = await apiGet('get_promos/?$type=$value');
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
         List<dynamic> pro = res['results'];
@@ -170,11 +153,8 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   hidePromo(int id, BuildContext context) async {
-    final token = await getAccessToken();
     try {
-      final response = await http.patch(
-          Uri.parse('${dotenv.env['SERVER_URL']}marked_promos/$id/'),
-          headers: getHeader(token));
+      final response = await apiPatch('marked_promos/$id/', {});
       if (response.statusCode == 200) {
         message(message: 'Амжилттай', context: context);
       } else {
@@ -187,27 +167,22 @@ class PromotionProvider extends ChangeNotifier {
 
   orderPromo(
       int promoId, int branchId, String? note, BuildContext context) async {
-    final token = await getAccessToken();
     try {
-      final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/promo_order/'),
-        headers: getHeader(token),
-        body: jsonEncode(
-          {
-            "payType": payType,
-            "promoId": promoId,
-            (delivery == false) ? "branchId" : branchId: null,
-            note != null ? "note" : note: null,
-          },
-        ),
+      var body = jsonEncode(
+        {
+          "payType": payType,
+          "promoId": promoId,
+          (delivery == false) ? "branchId" : branchId: null,
+          note != null ? "note" : note: null,
+        },
       );
+      final response = await apiPost('pharmacy/promo_order/', body);
       var data = jsonDecode(utf8.decode(response.bodyBytes));
       if (response.statusCode == 200) {
         qrData = QrData.fromJson(data);
         setQr(true);
       } else if (response.statusCode == 400) {
-        message(
-            message: 'Урамшууллын хугацаа дууссан', context: context);
+        message(message: 'Урамшууллын хугацаа дууссан', context: context);
       } else {}
     } catch (e) {
       debugPrint('ERROR AT ORDER PROMO: ${e.toString()}');
@@ -215,16 +190,8 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   checkPayment(BuildContext context) async {
-    final token = await getAccessToken();
-    final response = await http.patch(
-      Uri.parse('${dotenv.env['SERVER_URL']}pharmacy/promo_order/cp/'),
-      headers: getHeader(token),
-      body: jsonEncode(
-        {
-          "invoiceId": qrData.invoiceId,
-        },
-      ),
-    );
+    final response = await apiPatch('pharmacy/promo_order/cp/',
+        jsonEncode({"invoiceId": qrData.invoiceId}));
     final data = jsonDecode(utf8.decode(response.bodyBytes));
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));

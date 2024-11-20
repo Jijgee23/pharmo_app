@@ -56,18 +56,18 @@ class AuthController extends ChangeNotifier {
   Future<void> refresh() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? rtoken = prefs.getString("refresh_token");
-    final bearer = await getAccessToken();
-    var response = await http.post(
-      Uri.parse('${dotenv.env['SERVER_URL']}auth/refresh/'),
-      headers: getHeader(bearer),
-      body: jsonEncode(<String, String>{
-        'refresh': rtoken!,
-      }),
-    );
+    var response = await apiPost(
+        'auth/refresh/',
+        jsonEncode(<String, String>{
+          'refresh': rtoken!,
+        }));
     if (response.statusCode == 200) {
       String accessToken = json.decode(response.body)['access'];
       await prefs.setString('access_token', accessToken);
     }
+  }
+  apiPostWithoutToken(){
+    
   }
 
   checkEmail(String email, BuildContext context) async {
@@ -115,9 +115,9 @@ class AuthController extends ChangeNotifier {
         await prefs.setString('refresh_token', res['refresh_token']);
         String? accessToken = prefs.getString('access_token').toString();
         final decodedToken = JwtDecoder.decode(accessToken);
-        HomeProvider().getSuppliers();
+        final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+        homeProvider.getSuppliers();
         _userInfo = decodedToken;
-        await prefs.setString('refresh_token', res['refresh_token']);
         await prefs.setString('useremail', decodedToken['email']);
         await prefs.setInt('user_id', decodedToken['user_id']);
         await prefs.setString('userrole', decodedToken['role']);
@@ -127,7 +127,6 @@ class AuthController extends ChangeNotifier {
         final shoppingCart =
             Provider.of<BasketProvider>(context, listen: false);
         shoppingCart.getBasket();
-        tokerRefresher();
         Hive.box('auth').put('role', decodedToken['role']);
         Future.delayed(const Duration(milliseconds: 100), () {
           switch (decodedToken['role']) {
@@ -152,13 +151,11 @@ class AuthController extends ChangeNotifier {
           }
         }).then((e) => getDeviceInfo());
         debugPrint(accessToken);
+        tokerRefresher();
         notifyListeners();
       } else if (responseLogin.statusCode == 400) {
         Map res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
         if (checker(res, 'no_password', context) == true) {
-          // message(
-          //     message: 'Веб хуудсаар хандан нууц үг үүсгэнэ үү!',
-          //     context: context);
           showDialog(
               context: context,
               builder: (context) {
@@ -186,7 +183,6 @@ class AuthController extends ChangeNotifier {
           message(context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
         }
       } else if (responseLogin.statusCode == 401) {
-        // goto(CreatePassword(email: email), context);
         await showDialog(
           context: context,
           builder: (context) {
@@ -210,11 +206,7 @@ class AuthController extends ChangeNotifier {
 
   Future<void> logout(BuildContext context) async {
     try {
-      final token = await getAccessToken();
-      final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}auth/logout/'),
-        headers: getHeader(token),
-      );
+      final response = await apiPost('auth/logout/', {});
       if (response.statusCode == 200) {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.remove('access_token');

@@ -87,7 +87,6 @@ class ProductDetails {
     var imagesFromJson = json['images'] as List;
     List<Image> imagesList =
         imagesFromJson.map((i) => Image.fromJson(i)).toList();
-
     return ProductDetails(
       id: json['id'],
       expDate: json['expDate'],
