@@ -62,7 +62,7 @@ apiGet(String endPoint) async {
   return response;
 }
 
-apiPost(String endPoint, Object body) async {
+apiPost(String endPoint, Object? body) async {
   var response = await http.post(
     setUrl(endPoint),
     headers: getHeader(await getAccessToken()),

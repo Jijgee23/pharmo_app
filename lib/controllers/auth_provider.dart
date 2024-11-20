@@ -183,6 +183,7 @@ class AuthController extends ChangeNotifier {
           message(context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
         }
       } else if (responseLogin.statusCode == 401) {
+        // goto(CreatePassword(email: email), context);
         await showDialog(
           context: context,
           builder: (context) {
@@ -206,7 +207,11 @@ class AuthController extends ChangeNotifier {
 
   Future<void> logout(BuildContext context) async {
     try {
-      final response = await apiPost('auth/logout/', {});
+      final token = await getAccessToken();
+      final response = await http.post(
+        Uri.parse('${dotenv.env['SERVER_URL']}auth/logout/'),
+        headers: getHeader(token),
+      );
       if (response.statusCode == 200) {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.remove('access_token');
