@@ -53,7 +53,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 },
                 child: badges.Badge(
                   badgeContent: Text(
-                    "${basketProvider.count}",
+                    basketProvider.basket.totalCount.toString(),
                     style: const TextStyle(color: AppColors.cleanWhite, fontSize: 11),
                   ),
                   badgeStyle: const badges.BadgeStyle(

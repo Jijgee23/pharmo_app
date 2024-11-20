@@ -49,10 +49,14 @@ class ProductWidgetListView extends StatelessWidget {
             InkWell(
               borderRadius: BorderRadius.circular(24),
               onTap: onButtonTab,
-              child: Image.asset(
-                'assets/icons_2/add.png',
-                color: AppColors.primary,
-                height: 24,
+              child: const Text(
+                'Сагсанд нэмэх',
+                softWrap: true,
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
           ],

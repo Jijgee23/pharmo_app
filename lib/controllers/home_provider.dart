@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
@@ -19,8 +18,6 @@ import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/buying_promo.dart';
-import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo.dart';
 import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -595,7 +592,8 @@ class HomeProvider extends ChangeNotifier {
         Uri.parse('${dotenv.env['SERVER_URL']}master_box_qty/'),
         headers: getHeader(bearerToken),
       );
-      print('${response.statusCode}, body: ${jsonDecode(utf8.decode(response.bodyBytes))}');
+      print(
+          '${response.statusCode}, body: ${jsonDecode(utf8.decode(response.bodyBytes))}');
       if (response.statusCode == 200) {
         // List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
         notifyListeners();
@@ -772,7 +770,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                         ),
                       )
                     : const SizedBox(),
-                (promo.bundlePrice != null) 
+                (promo.bundlePrice != null)
                     ? Box(
                         child: Column(
                           children: [
@@ -1127,64 +1125,63 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
             total = total + (element['price'] * element['qty']));
     return tbundle;
   }
-  
 }
+
 product(e, String noImage) {
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white,
-              boxShadow: [Constants.defaultShadow]),
-          padding: const EdgeInsets.all(5),
-          child: Column(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      scale: 1,
-                      image: NetworkImage(noImage),
-                    ),
+  return Stack(
+    children: [
+      Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.white,
+            boxShadow: [Constants.defaultShadow]),
+        padding: const EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    scale: 1,
+                    image: NetworkImage(noImage),
                   ),
                 ),
               ),
-              Text(
-                e['name'] != null ? e['name'].toString() : '-',
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(
-                    '${e['price'] != null ? e['price'].toString() : '-'} ₮',
-                    style: TextStyle(color: Colors.red.shade600),
-                  ),
-                ],
-              ),
-            ],
+            ),
+            Text(
+              e['name'] != null ? e['name'].toString() : '-',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  '${e['price'] != null ? e['price'].toString() : '-'} ₮',
+                  style: TextStyle(color: Colors.red.shade600),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      Positioned(
+        right: 3,
+        top: 3,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            'x ${e['qty']}',
+            style: const TextStyle(color: Colors.white),
           ),
         ),
-        Positioned(
-          right: 3,
-          top: 3,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              'x ${e['qty']}',
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        )
-      ],
-    );
-  }
+      )
+    ],
+  );
+}

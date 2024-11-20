@@ -4,20 +4,28 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:provider/provider.dart';
 
-class BasketInfo extends StatelessWidget {
+class BasketInfo extends StatefulWidget {
   const BasketInfo({super.key});
 
   @override
+  State<BasketInfo> createState() => _BasketInfoState();
+}
+
+class _BasketInfoState extends State<BasketInfo> {
+  @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    final basket = basketProvider.basket;
+    final basketProvider = Provider.of<BasketProvider>(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          info(title: 'Төлөх дүн', text: toPrice(basket.totalPrice)),
-          info(title: 'Тоо ширхэг', text: '${basket.totalCount ?? 0}')
+          info(
+              title: 'Нийт дүн',
+              text: toPrice(basketProvider.basket.totalPrice)),
+          info(
+              title: 'Нийт тоо ширхэг',
+              text: '${basketProvider.basket.totalCount ?? 0}')
         ],
       ),
     );
@@ -47,6 +55,3 @@ class BasketInfo extends StatelessWidget {
     );
   }
 }
-
-
-

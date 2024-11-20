@@ -1,15 +1,14 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/product/product_detail_page.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/product/product_widget_list.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/widgets/products_views/paged_sliver_grid.dart';
 
 class CustomListView extends StatelessWidget {
   final PagingController<int, dynamic> pagingController;
@@ -32,27 +31,11 @@ class CustomListView extends StatelessWidget {
           itemBuilder: (context, item, index) => ProductWidgetListView(
                 onTap: () => goto(ProductDetail(prod: item)),
                 item: item,
-                onButtonTab: () => addBasket(item, context),
+                onButtonTab: () =>
+                    Get.bottomSheet(AddBasketSheet(product: item)),
               ),
           newPageProgressIndicatorBuilder: (context) => const MyIndicator(),
           newPageErrorIndicatorBuilder: (context) => const MyIndicator()),
     );
-  }
-
-  void addBasket(dynamic item, BuildContext context) async {
-    try {
-      final basketProvider =
-      Provider.of<BasketProvider>(context, listen: false);
-      Map<String, dynamic> res = await basketProvider.addBasket(
-          product_id: item.id, itemname_id: item.itemname_id, qty: 1);
-      if (res['errorType'] == 1) {
-        basketProvider.getBasket();
-        message(message: '${item.name} сагсанд нэмэгдлээ', context: context);
-      } else {
-        message(message: res['message'], context: context);
-      }
-    } catch (e) {
-      message(message: 'Алдаа гарлаа', context: context);
-    }
   }
 }

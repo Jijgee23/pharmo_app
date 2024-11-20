@@ -11,7 +11,6 @@ import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart'
 import 'package:pharmo_app/views/pharmacy/tabs/cart/cart.dart';
 import 'package:pharmo_app/views/pharmacy/tabs/home/home.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
-import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +28,7 @@ class PharmaHomePage extends StatefulWidget {
 class _PharmaHomePageState extends State<PharmaHomePage> {
   final List _pages = [
     const Home(),
-    const FilterPage(),
+    // const FilterPage(),
     const ShoppingCartHome(),
   ];
   bool hidden = false;
@@ -111,19 +110,18 @@ class _PharmaHomePageState extends State<PharmaHomePage> {
     );
   }
 
-  List<String> listOfIcons = ['category', 'bars-sort', 'cart'];
-
-  List<String> listOfStrings = ['Нүүр', 'Ангилал', 'Сагс'];
-
+  List<String> listOfIcons = ['category', 'cart'];
+  //'bars-sort',
+  List<String> listOfStrings = ['Бараа', 'Сагс'];
+  // 'Ангилал',
   getAppBarText(int index) {
     switch (index) {
       case 0:
         return 'Бараа';
+      // case 1:
+      //   // return 'Ангилал';
       case 1:
-        return 'Ангилал';
-      case 2:
         return 'Сагс';
     }
   }
 }
-

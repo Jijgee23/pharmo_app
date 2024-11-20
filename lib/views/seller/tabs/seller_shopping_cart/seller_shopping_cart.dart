@@ -40,9 +40,9 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
 
   @override
   Widget build(BuildContext context) {
-    void clearBasket(int basketId) {
-      basketProvider.clearBasket(basket_id: basketId);
-      basketProvider.getBasket();
+    clearBasket(int basketId) async {
+      await basketProvider.clearBasket(basket_id: basketId);
+      await basketProvider.getBasket();
       gotoRemoveUntil(const SellerHomePage(), context);
     }
 
@@ -76,7 +76,7 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                   ? const SizedBox()
                   : Container(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15.0),
+                          vertical: 0, horizontal: 15.0),
                       margin: const EdgeInsets.only(bottom: 10, top: 5),
                       decoration: const BoxDecoration(
                         color: Colors.transparent,
@@ -84,23 +84,23 @@ class _SellerShoppingCartState extends State<SellerShoppingCart> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            margin: const EdgeInsets.only(top: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Button(
-                                    text: 'Сагс хоослох',
-                                    onTap: () => clearBasket(basket.id),
-                                    color: AppColors.primary),
-                                Button(
-                                    text: 'Захиалга үүсгэх',
-                                    onTap: () => placeOrder(homeprovider),
-                                    color: AppColors.primary),
-                              ],
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Button(
+                                  text: 'Сагс хоослох',
+                                  onTap: () => clearBasket(basket.id),
+                                  color: AppColors.primary),
+                              Button(
+                                  text: 'Захиалга үүсгэх',
+                                  onTap: () => placeOrder(homeprovider),
+                                  color: AppColors.primary),
+                            ],
                           ),
-                         SizedBox(height: Platform.isIOS ? kToolbarHeight + 20 : kToolbarHeight)
+                          SizedBox(
+                              height: Platform.isIOS
+                                  ? kToolbarHeight + 20
+                                  : kToolbarHeight + 20)
                         ],
                       ),
                     ),

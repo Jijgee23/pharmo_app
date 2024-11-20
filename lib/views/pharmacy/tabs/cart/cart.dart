@@ -108,7 +108,7 @@ class _ShoppingCartHomeState extends State<ShoppingCartHome> {
                       ),
                     ),
               SizedBox(
-                height: (Platform.isIOS) ? 30 : 0,
+                height: (Platform.isIOS) ? 30 : 20,
               ),
             ],
           ),

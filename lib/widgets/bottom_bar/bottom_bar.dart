@@ -31,7 +31,7 @@ class _BottomBarState extends State<BottomBar> {
             horizontal: (orientation == Orientation.portrait)
                 ? size.width * 0.25
                 : size.width / 3),
-        padding:const EdgeInsets.symmetric(vertical: 0),
+        padding:const EdgeInsets.all(5),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
             color: Colors.white,
@@ -45,7 +45,8 @@ class _BottomBarState extends State<BottomBar> {
               backgroundColor: Colors.white,
               useLegacyColorScheme: false,
               showUnselectedLabels: false,
-              showSelectedLabels: false,
+              showSelectedLabels: true,
+              selectedFontSize: 12,
               type: BottomNavigationBarType.fixed,
               onTap: widget.homeProvider.changeIndex,
               items: widget.listOfIcons

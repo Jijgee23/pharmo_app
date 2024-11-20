@@ -78,13 +78,8 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
     }
 
     Future<void> changeBasketItem(int itemId, String type, int qty) async {
-      // print(widget.detail['itemId']);
-      // await basketProvider.checkItemQty(itemId, qty, context);
-
       dynamic check =
           await basketProvider.checkItemQty((widget.detail['qtyId']), qty);
-      // await basketProvider.removeBasketItem(
-      //     basket_id: basketProvider.basket.id, item_id: itemId);
       if (check['v'] == 0) {
         message(message: 'Бараа дууссан, сагснаас хасна уу!', context: context);
       } else if (check['v'] == 1) {
@@ -98,14 +93,8 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
       } else {
         message(message: 'Үлдэгдэл хүрэлцэхгүй байна!', context: context);
       }
+      await basketProvider.getBasket();
       print(check['v'].toString());
-      // dynamic res = await basketProvider.changeBasketItem(
-      //     item_id: itemId, type: type, qty: qty);
-      // if (res['errorType'] == 1) {
-      //   message(message: res['message'], context: context);
-      // } else {
-      //   message(message: res['message'], context: context);
-      // }
     }
 
     void showAlertDialog() {

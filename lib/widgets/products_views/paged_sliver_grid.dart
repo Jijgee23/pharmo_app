@@ -1,9 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/product/product_detail_page.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/indicator.dart';
@@ -44,18 +48,99 @@ class CustomGridView extends StatelessWidget {
           item: item,
           hasSale: hasSale,
           onTap: () => goto(ProductDetail(prod: item)),
-          onButtonTab: () => addBasket(item, context),
+          onButtonTab: () => Get.bottomSheet(
+            AddBasketSheet(product: item),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AddBasketSheet extends StatelessWidget {
+  final Product product;
+  const AddBasketSheet({super.key, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final TextEditingController qty = TextEditingController();
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+      child: SingleChildScrollView(
+        child: Wrap(
+          runSpacing: 20,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${product.name!} /${toPrice(product.price)}/',
+                  softWrap: true,
+                  style: const TextStyle(
+                      color: AppColors.secondary,
+                      fontWeight: FontWeight.w600,
+                      overflow: TextOverflow.ellipsis),
+                ),
+                InkWell(
+                  onTap: Get.back,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey.shade700,
+                        ),
+                        borderRadius: BorderRadius.circular(50)),
+                    child: Image.asset(
+                      'assets/cross-small.png',
+                      height: 24,
+                      color: Colors.black.withOpacity(.5),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            TextFormField(
+              textAlign: TextAlign.end,
+              controller: qty,
+              keyboardType: TextInputType.number,
+              style: TextStyle(
+                  color: Colors.grey.shade500, fontWeight: FontWeight.w600),
+              decoration: InputDecoration(
+                hintText: 'Тоо ширхэг оруулна уу!',
+                hintStyle: TextStyle(
+                    color: Colors.grey.shade500, fontWeight: FontWeight.w600),
+              ),
+            ),
+            CustomButton(
+              text: 'Сагсанд нэмэх',
+              ontap: () {
+                if (qty.text.isNotEmpty && int.parse(qty.text) > 0) {
+                  addBasket(product, context, int.parse(qty.text))
+                      .then((e) => Get.back());
+                } else if (qty.text.isEmpty) {
+                  message(message: 'Тоо ширхэг оруулна уу!', context: context);
+                } else {
+                  message(
+                      message: 'Тоо ширхэг 0 байж болохгүй!', context: context);
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 
-  void addBasket(dynamic item, BuildContext context) async {
+  Future addBasket(dynamic item, BuildContext context, int qty) async {
     try {
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
       Map<String, dynamic> res = await basketProvider.addBasket(
-          product_id: item.id, itemname_id: item.itemname_id, qty: 1);
+          product_id: item.id, itemname_id: item.itemname_id, qty: qty);
       if (res['errorType'] == 1) {
         basketProvider.getBasket();
         message(message: '${item.name} сагсанд нэмэгдлээ', context: context);

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
@@ -16,6 +17,7 @@ import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:badges/badges.dart' as badges;
 
 class ProductDetail extends StatefulWidget {
   final Product prod;
@@ -30,7 +32,6 @@ class _ProductDetailState extends State<ProductDetail>
     with SingleTickerProviderStateMixin {
   TextEditingController qtyController =
       TextEditingController(text: 1.toString());
-  late HomeProvider homeProvider;
   late ProductProvider productProvider;
   late ProductDetails detail;
   late TabController tabController;
@@ -48,7 +49,7 @@ class _ProductDetailState extends State<ProductDetail>
     tabController = TabController(length: 2, vsync: this);
     tabController.addListener(() {
       if (tabController.indexIsChanging == false) {
-        setState(() {}); // Call setState when the tab index changes
+        setState(() {});
       }
     });
     getProductDetail();
@@ -123,7 +124,8 @@ class _ProductDetailState extends State<ProductDetail>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    // final basketProvider = Provider.of<BasketProvider>(context);
+    final basketProvider = Provider.of<BasketProvider>(context);
+    final hp = Provider.of<HomeProvider>(context);
     return (fetching)
         ? const Center(child: MyIndicator())
         : Scaffold(
@@ -153,6 +155,37 @@ class _ProductDetailState extends State<ProductDetail>
                                       fontWeight: FontWeight.bold),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(right: 15),
+                              child: InkWell(
+                                onTap: () {
+                                  Get.back();
+                                  hp.changeIndex(hp.userRole == 'S' ? 3 : 2);
+                                },
+                                child: badges.Badge(
+                                    badgeContent: Text(
+                                      basketProvider.basket.totalCount
+                                          .toString(),
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                    badgeStyle: const badges.BadgeStyle(
+                                      badgeColor: AppColors.secondary,
+                                    ),
+                                    child: const Icon(
+                                      Icons.shopping_cart,
+                                      color: AppColors.primary,
+                                      size: 24,
+                                    )
+                                    //  Image.asset(
+                                    //   'assets/icons_2/cart.png',
+                                    //   height: 24,
+                                    //   width: 24,
+                                    //   color: AppColors.primary,
+                                    // ),
+                                    ),
+                              ),
                             ),
                           ],
                         ),
@@ -247,7 +280,7 @@ class _ProductDetailState extends State<ProductDetail>
                         ],
                       ),
                       SizedBox(
-                        height: 300,
+                        height: 200,
                         child: TabBarView(
                           controller: tabController,
                           children: [
@@ -290,65 +323,71 @@ class _ProductDetailState extends State<ProductDetail>
                           ],
                         ),
                       ),
+                      Container(
+                        height: 70,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IntrinsicWidth(
+                              child: TextField(
+                                textAlign: TextAlign.center,
+                                textInputAction: TextInputAction.done,
+                                controller: qtyController,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                  signed: true,
+                                ),
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[0-9]')),
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                                decoration: InputDecoration(
+                                  contentPadding:
+                                      const EdgeInsets.only(left: 10),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: const BorderSide(
+                                        color: AppColors.secondary, width: 2),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  hintText: 'Тоо хэмжээ',
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () => addBasket(),
+                                child: Container(
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: AppColors.primary,
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      'Сагсанд нэмэх',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
-            ),
-            bottomNavigationBar: Container(
-              height: 70,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              width: double.infinity,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IntrinsicWidth(
-                    child: TextField(
-                      textAlign: TextAlign.center,
-                      textInputAction: TextInputAction.done,
-                      controller: qtyController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                        signed: true,
-                      ),
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.only(left: 10),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                              color: AppColors.secondary, width: 2),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        hintText: 'Тоо хэмжээ',
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => addBasket(),
-                      child: Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: AppColors.primary,
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'Сагсанд нэмэх',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
           );
@@ -386,14 +425,18 @@ class _ProductDetailState extends State<ProductDetail>
         Text(
           title,
           style: TextStyle(
-              color: Colors.grey.shade800,
-              fontWeight: FontWeight.w500,
-              fontSize: 14),
+            color: Colors.grey.shade800,
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
+          ),
         ),
         Text(
           text,
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.w500, fontSize: 14),
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
       ],
     );

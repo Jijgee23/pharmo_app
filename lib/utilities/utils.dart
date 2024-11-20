@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// ignore: depend_on_referenced_packages
+import 'package:intl/intl.dart';
 
 void goto(Widget widget) {
   Get.to(
@@ -91,11 +93,23 @@ int parseInt(dynamic value) {
   }
 }
 
-toPrice(dynamic v) {
-  if (v != null) {
-    return '${v.toString().split('.')[0]}₮';
-  } else {
+String toPrice(dynamic v) {
+  if (v == null) {
     return '0₮';
+  }
+  try {
+    num numberValue;
+    if (v is num) {
+      numberValue = v;
+    } else if (v is String) {
+      numberValue = num.tryParse(v) ?? 0; 
+    } else {
+      throw Exception('Unsupported value type');
+    }
+    String formattedNumber = NumberFormat('#,##0.##').format(numberValue);
+    return '$formattedNumber₮';
+  } catch (e) {
+    return '0₮'; 
   }
 }
 

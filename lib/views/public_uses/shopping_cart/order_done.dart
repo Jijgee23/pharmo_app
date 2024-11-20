@@ -5,7 +5,6 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,14 +51,10 @@ class _OrderDoneState extends State<OrderDone> {
 
   @override
   Widget build(BuildContext context) {
-    //  final basketProvider = Provider.of<BasketProvider>(context, listen: false);
     final screenWidth = MediaQuery.of(context).size.width;
     const maxWidth = 850.0;
 
     return Scaffold(
-      appBar: const CustomAppBar(
-        title: Text('Миний захиалга'),
-      ),
       backgroundColor: Colors.white,
       body: SizedBox(
         width: double.infinity,

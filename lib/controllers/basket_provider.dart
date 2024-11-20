@@ -25,10 +25,6 @@ class BasketProvider extends ChangeNotifier {
 
   late OrderQRCode _qrCode;
   OrderQRCode get qrCode => _qrCode;
-  BasketProvider() {
-    getUser();
-    getBasket();
-  }
   getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userRole = prefs.getString('userrole');
@@ -228,8 +224,6 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-
-
   Future<dynamic> removeBasketItem(
       {required int basket_id, required int item_id}) async {
     try {
@@ -275,7 +269,7 @@ class BasketProvider extends ChangeNotifier {
           headers: getHeader(bearerToken),
           body: jsonEncode({"qty": int.parse(qty.toString())}));
       if (resQR.statusCode == 200) {
-        getBasket();
+        await getBasket();
         notifyListeners();
         return {
           'errorType': 1,
@@ -316,8 +310,7 @@ class BasketProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         Future(() async {
           await clearBasket(basket_id: basket_id);
-        }).then((value) =>
-            goto(OrderDone(orderNo: res['orderNo'].toString())));
+        }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
         // goto(OrderDone(orderNo: res['orderNo']), context);
         // await clearBasket(basket_id: basket_id);
         return res['orderNo'];

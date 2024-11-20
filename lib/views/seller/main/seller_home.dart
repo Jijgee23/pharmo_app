@@ -11,7 +11,6 @@ import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
 import 'package:pharmo_app/views/seller/tabs/home/seller_home_tab.dart';
 import 'package:pharmo_app/views/seller/tabs/pharms/pharmacy_list.dart';
 import 'package:pharmo_app/views/seller/tabs/seller_shopping_cart/seller_shopping_cart.dart';
-import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
 
@@ -42,15 +41,14 @@ class _SellerHomePageState extends State<SellerHomePage> {
   final List _pages = [
     const PharmacyList(),
     const SellerHomeTab(),
-    const FilterPage(),
+    // const FilterPage(),
     const SellerShoppingCart(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context);
-    return Consumer<HomeProvider>(
-      builder: (_, homeProvider, child) {
+    return Consumer2<HomeProvider, BasketProvider>(
+      builder: (_, homeProvider, basketProvider, child) {
         final textStyle = TextStyle(
           color: Colors.blueGrey.shade800,
           fontSize: 12.0,
@@ -101,10 +99,10 @@ class _SellerHomePageState extends State<SellerHomePage> {
                     Container(
                       margin: const EdgeInsets.only(right: 15, left: 10),
                       child: InkWell(
-                        onTap: () => homeProvider.changeIndex(3),
+                        onTap: () => homeProvider.changeIndex(2),
                         child: badges.Badge(
                           badgeContent: Text(
-                            '${basketProvider.count}',
+                            basketProvider.basket.totalCount.toString(),
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 11),
                           ),
@@ -174,6 +172,6 @@ class _SellerHomePageState extends State<SellerHomePage> {
     );
   }
 
-  List<String> icons = ['user', 'category', 'bars-sort', 'cart'];
-  List<String> labels = ['Захиалагч', 'Бараа', 'Ангилал', 'Сагс'];
+  List<String> icons = ['user', 'category', 'cart'];
+  List<String> labels = ['Харилцагч', 'Бараа', 'Сагс'];
 }
