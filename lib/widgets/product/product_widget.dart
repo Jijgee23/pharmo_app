@@ -25,50 +25,73 @@ class ProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     return InkWell(
       child: Stack(
         children: [
           Container(
+            height: height * 0.37,
             decoration: BoxDecoration(
-                // border: Border.all(color: AppColors.primary, width: 0.5),
                 borderRadius: BorderRadius.circular(15),
                 color: Colors.white,
                 boxShadow: shadow()),
-            margin: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 5),
-            padding: const EdgeInsets.only(bottom: 10),
+            margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             child: InkWell(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onTap: onTap,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Container(
-                      height: 120,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        border: Border(
-                            bottom: BorderSide(color: Colors.grey.shade300)),
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(13),
-                            topRight: Radius.circular(13)),
-                        image: DecorationImage(
-                          fit: BoxFit.contain,
-                          filterQuality: FilterQuality.high,
-                          opacity: item.image != null ? 1 : 0.2,
-                          image: item.image != null &&
-                                  splitURL(item.image!).length == 2
-                              ? NetworkImage(
-                                  '${dotenv.env['IMAGE_URL']}${splitURL(item.image!)[0]}_150x150.${splitURL(item.image!)[1]}')
-                              : const AssetImage(
-                                  'assets/restrict-photography.png',
-                                ) // Fallback image
-                                  as ImageProvider<Object>,
+                  Stack(
+                    children: [
+                      Container(
+                        height: height * .15,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(13),
+                              topRight: Radius.circular(13)),
+                          image: DecorationImage(
+                            fit: BoxFit.contain,
+                            filterQuality: FilterQuality.high,
+                            opacity: item.image != null ? 1 : 0.25,
+                            image: item.image != null &&
+                                    splitURL(item.image!).length == 2
+                                ? NetworkImage(
+                                    '${dotenv.env['IMAGE_URL']}${splitURL(item.image!)[0]}_150x150.${splitURL(item.image!)[1]}')
+                                : const AssetImage(
+                                    'assets/no-pictures.png',
+                                  ) as ImageProvider<Object>,
+                          ),
                         ),
                       ),
-                    ),
+                      Positioned(
+                        bottom: 0,
+                        right: 5,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 7.5, vertical: 2.5),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(.15),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                toPrice(item.price),
+                                style: TextStyle(
+                                  color: AppColors.secondary,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: height * 0.012,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -76,8 +99,11 @@ class ProductWidget extends StatelessWidget {
                       item.name!,
                       softWrap: true,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.w400),
+                      maxLines: 2,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w400,
+                          fontSize: height * 0.012),
                     ),
                   ),
                   Padding(
@@ -85,32 +111,11 @@ class ProductWidget extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              (hasSale == true && sale != null)
-                                  ? toPrice({
-                                      item.price == 0
-                                          ? '0'
-                                          : (item.price! -
-                                                  (item.price! /
-                                                      100 *
-                                                      item.discount!))
-                                              .toString()
-                                              .substring(0, 7)
-                                    })
-                                  : toPrice(item.price),
-                              style: const TextStyle(
-                                  color: AppColors.secondary,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ],
-                        ),
                         InkWell(
                           borderRadius: BorderRadius.circular(24),
                           onTap: onButtonTab,
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 5),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
                             child: Text(
                               'Сагсанд нэмэх',
                               softWrap: true,
@@ -118,6 +123,7 @@ class ProductWidget extends StatelessWidget {
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w700,
                                 overflow: TextOverflow.ellipsis,
+                                fontSize: height * 0.012,
                               ),
                             ),
                           ),
@@ -125,20 +131,23 @@ class ProductWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  hasSale == true
-                      ? Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Text(toPrice(item.price),
-                                style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    decoration: TextDecoration.lineThrough,
-                                    fontWeight: FontWeight.w500)),
-                          ),
-                        )
-                      : const SizedBox(),
+                  // hasSale == true
+                  //     ? Align(
+                  //         alignment: Alignment.centerLeft,
+                  //         child: Padding(
+                  //           padding: const EdgeInsets.symmetric(horizontal: 10),
+                  //           child: Text(
+                  //             toPrice(item.price),
+                  //             style:  TextStyle(
+                  //               color: Colors.grey,
+                  //               fontSize: height * 0.012,
+                  //               decoration: TextDecoration.lineThrough,
+                  //               fontWeight: FontWeight.w500,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       )
+                  //     : const SizedBox(),
                 ],
               ),
             ),

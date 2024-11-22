@@ -184,7 +184,6 @@ class _PharmacyListState extends State<PharmacyList> {
   InkWell customerBuilder(HomeProvider homeProvider, Customer c) {
     return InkWell(
       onTap: () {
-        print(c.location);
         homeProvider.changeSelectedCustomerId(c.id!);
         homeProvider.changeSelectedCustomerName(c.name!);
         homeProvider.changeIndex(1);
@@ -254,6 +253,7 @@ class _PharmacyListState extends State<PharmacyList> {
       ),
     );
   }
+
   registerCustomer(PharmProvider pp) {
     Get.bottomSheet(
       Container(
@@ -284,9 +284,10 @@ class _PharmacyListState extends State<PharmacyList> {
               input('Нэр', name, null, null),
               input('Регистрийн дугаар', rn, null, null),
               input('И-Мейл', email, validateEmail, null),
-              input('Утас', phone, validatePhone, TextInputType.number),
+              input('Утас', phone, validatePhone, TextInputType.number
+                ),
               input('Утас 2 - Заавал биш', phone2, validatePhone,
-                  TextInputType.number),
+                  TextInputType.number ),
               input('Утас 3 - Заавал биш', phone3, validatePhone,
                   TextInputType.number),
               input('Нэмэлт тайлбар - Заавал биш', note, null, null),
@@ -360,5 +361,3 @@ Widget input(String hint, TextEditingController contr,
     ),
   );
 }
-
-

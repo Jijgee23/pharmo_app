@@ -123,7 +123,8 @@ class _SellerOrdersState extends State<SellerOrders> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
                 child: Row(
                   children: [
                     Expanded(
@@ -163,8 +164,7 @@ class _SellerOrdersState extends State<SellerOrders> {
                           color: Colors.white,
                           context: context,
                           shadowColor: Colors.grey.shade500,
-                          position:
-                              const RelativeRect.fromLTRB(100, 100, 0, 0),
+                          position: const RelativeRect.fromLTRB(100, 100, 0, 0),
                           items: [
                             ...filters.map(
                               (f) => PopupMenuItem(
@@ -565,7 +565,8 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                                                 'Тоо ширхэг өөрчлөх',
                                                 style: TextStyle(
                                                     fontSize: 12,
-                                                    color: AppColors.succesColor,
+                                                    color:
+                                                        AppColors.succesColor,
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
@@ -649,12 +650,8 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                     color: AppColors.primary),
               ),
             ),
-            input(
-              'Тоо ширхэг оруулна уу',
-              qtyController,
-              null,
-              TextInputType.number,
-            ),
+            input('Тоо ширхэг оруулна уу', qtyController, null,
+                TextInputType.number),
             CustomButton(
               text: 'Хадгалах',
               ontap: () {

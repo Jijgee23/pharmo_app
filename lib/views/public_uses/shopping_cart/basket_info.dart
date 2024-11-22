@@ -16,7 +16,7 @@ class _BasketInfoState extends State<BasketInfo> {
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context);
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.only(bottom: 10, left: 20, right: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -32,22 +32,24 @@ class _BasketInfoState extends State<BasketInfo> {
   }
 
   Widget info({required String title, required String text}) {
+    final height = MediaQuery.of(context).size.height;
+    final fs = height * .013;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.primary,
-            fontSize: 14.0,
+            fontSize: fs,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.secondary,
-            fontSize: 14.0,
+            fontSize: fs,
             fontWeight: FontWeight.bold,
           ),
         )

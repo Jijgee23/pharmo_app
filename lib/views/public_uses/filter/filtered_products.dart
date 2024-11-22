@@ -51,8 +51,7 @@ class _FilteredProductsState extends State<FilteredProducts> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: 
-      AppBar(
+      appBar: AppBar(
         leading: const ChevronBack(),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -63,13 +62,10 @@ class _FilteredProductsState extends State<FilteredProducts> {
         ),
         actions: const [CartIcon()],
       ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: CustomScrollView(
-          slivers: [
-            CustomGridView(pagingController: _pagingController),
-          ],
-        ),
+      body: CustomScrollView(
+        slivers: [
+          CustomGridView(pagingController: _pagingController),
+        ],
       ),
     );
   }

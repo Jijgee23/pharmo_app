@@ -25,11 +25,6 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-final TextEditingController emailController = TextEditingController();
-final TextEditingController passwordController = TextEditingController();
-final TextEditingController phoneController = TextEditingController();
-final TextEditingController passwordConfirmController = TextEditingController();
-
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   int? currentPatchVersion;
@@ -41,6 +36,15 @@ class _LoginPageState extends State<LoginPage>
   late Box box1;
   late AuthController authController;
   late TabController tabController;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController passwordConfirmController =
+      TextEditingController();
+  final FocusNode email = FocusNode();
+  final FocusNode password = FocusNode();
+  final FocusNode phone = FocusNode();
+  final FocusNode password2 = FocusNode();
   @override
   void initState() {
     super.initState();
@@ -65,7 +69,7 @@ class _LoginPageState extends State<LoginPage>
     setState(() {
       isCheckingForUpdate = true;
     });
-    
+
     final isUpdateAvailable =
         await shorebirdCodePush.isNewPatchAvailableForDownload();
 
@@ -77,7 +81,7 @@ class _LoginPageState extends State<LoginPage>
 
     if (isUpdateAvailable) {
       _showUpdateAvailableBanner();
-    } 
+    }
   }
 
   void _showDownloadingBanner() {
@@ -233,30 +237,22 @@ class _LoginPageState extends State<LoginPage>
                           fit: BoxFit.contain,
                           image: AssetImage('assets/picon.png'))),
                 ),
-                // Container(
-                //   padding: EdgeInsets.symmetric(horizontal: 20),
-                //   child:
-                // ),
                 Container(
                   padding: EdgeInsets.all(size.width * 0.05),
                   height: size.height * 0.6,
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween, // Or spaceBetween
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           myTab(title: 'Нэвтрэх', index: 0),
-                          myTab(title: 'Бүртгүүлэх', index: 1),
+                          myTab(title: 'Бүртгүүлэх', index: 1)
                         ],
                       ),
                       Expanded(
                         child: TabBarView(
                           controller: tabController,
-                          children: [
-                            loginForm(),
-                            signUpForm(),
-                          ],
+                          children: [loginForm(), signUpForm()],
                         ),
                       ),
                     ],
@@ -306,6 +302,7 @@ class _LoginPageState extends State<LoginPage>
         CustomTextField(
           controller: emailController,
           autofillHints: const [AutofillHints.email],
+          focusNode: email,
           hintText: 'Имейл хаяг',
           validator: (v) {
             if (v!.isNotEmpty) {
@@ -315,6 +312,7 @@ class _LoginPageState extends State<LoginPage>
             }
           },
           keyboardType: TextInputType.emailAddress,
+          onSubmitted: (p0) => FocusScope.of(context).requestFocus(password),
         ),
         const SizedBox(height: 15),
         CustomTextField(
@@ -322,6 +320,7 @@ class _LoginPageState extends State<LoginPage>
           controller: passwordController,
           hintText: 'Нууц үг',
           obscureText: !hover,
+          focusNode: password,
           validator: (v) {
             if (v!.isNotEmpty) {
               return validatePassword(v);
@@ -364,6 +363,7 @@ class _LoginPageState extends State<LoginPage>
             await Future.delayed(const Duration(milliseconds: 500));
             if (passwordController.text.isNotEmpty &&
                 emailController.text.isNotEmpty) {
+                  print('tapped');
               await authController
                   .login(emailController.text, passwordController.text, context)
                   .whenComplete(() async {
@@ -511,6 +511,11 @@ class OtpDialog extends StatefulWidget {
 final TextEditingController otpController = TextEditingController();
 
 class _OtpDialogState extends State<OtpDialog> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController passwordConfirmController =
+      TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Dialog(

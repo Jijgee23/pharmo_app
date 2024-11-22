@@ -185,14 +185,6 @@ getStatus(String status) {
   }
 }
 
-// getApiInformation(String type, http.Response res) {
-//   print(' $type . STATUS: ${res.statusCode} BODY: ${jsonDecode(
-//     utf8.decode(
-//       res.bodyBytes,
-//     ),
-//   )}');
-// }
-
 checker(Map response, String key, BuildContext context) {
   if (response.containsKey(key)) {
     return true;

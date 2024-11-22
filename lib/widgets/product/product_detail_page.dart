@@ -109,6 +109,7 @@ class _ProductDetailState extends State<ProductDetail>
 
   @override
   Widget build(BuildContext context) {
+    final sh = MediaQuery.of(context).size.height;
     final size = MediaQuery.of(context).size;
     final basketProvider = Provider.of<BasketProvider>(context);
     final hp = Provider.of<HomeProvider>(context);
@@ -134,13 +135,15 @@ class _ProductDetailState extends State<ProductDetail>
                             back(),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: Text(widget.prod.name.toString(),
-                                  style: const TextStyle(
-                                      color: AppColors.secondary,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis),
+                              child: Text(
+                                widget.prod.name.toString(),
+                                style: TextStyle(
+                                    color: AppColors.secondary,
+                                    fontSize: sh * 0.012,
+                                    fontWeight: FontWeight.bold),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             Container(
                               margin: const EdgeInsets.only(right: 15),
@@ -150,27 +153,20 @@ class _ProductDetailState extends State<ProductDetail>
                                   hp.changeIndex(hp.userRole == 'S' ? 3 : 2);
                                 },
                                 child: badges.Badge(
-                                    badgeContent: Text(
-                                      basketProvider.basket.totalCount
-                                          .toString(),
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 12),
-                                    ),
-                                    badgeStyle: const badges.BadgeStyle(
-                                      badgeColor: AppColors.secondary,
-                                    ),
-                                    child: const Icon(
-                                      Icons.shopping_cart,
-                                      color: AppColors.primary,
-                                      size: 24,
-                                    )
-                                    //  Image.asset(
-                                    //   'assets/icons_2/cart.png',
-                                    //   height: 24,
-                                    //   width: 24,
-                                    //   color: AppColors.primary,
-                                    // ),
-                                    ),
+                                  badgeContent: Text(
+                                    basketProvider.basket.totalCount.toString(),
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 12),
+                                  ),
+                                  badgeStyle: const badges.BadgeStyle(
+                                    badgeColor: AppColors.secondary,
+                                  ),
+                                  child: const Icon(
+                                    Icons.shopping_cart,
+                                    color: AppColors.primary,
+                                    size: 24,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -321,11 +317,7 @@ class _ProductDetailState extends State<ProductDetail>
                                 textAlign: TextAlign.center,
                                 textInputAction: TextInputAction.done,
                                 controller: qtyController,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                  signed: true,
-                                ),
+                                keyboardType: TextInputType.number,
                                 inputFormatters: <TextInputFormatter>[
                                   FilteringTextInputFormatter.allow(
                                       RegExp(r'[0-9]')),
@@ -357,11 +349,12 @@ class _ProductDetailState extends State<ProductDetail>
                                     borderRadius: BorderRadius.circular(10),
                                     color: AppColors.primary,
                                   ),
-                                  child: const Center(
+                                  child: Center(
                                     child: Text(
                                       'Сагсанд нэмэх',
                                       style: TextStyle(
                                         color: Colors.white,
+                                        fontSize: sh * 0.014,
                                       ),
                                     ),
                                   ),
@@ -381,6 +374,7 @@ class _ProductDetailState extends State<ProductDetail>
 
   myTab({String? title, required int index}) {
     bool selected = (index == tabController.index);
+    final sh = MediaQuery.of(context).size.height;
     final sw = MediaQuery.of(context).size.width;
     return InkWell(
       onTap: () => setState(() {
@@ -397,7 +391,8 @@ class _ProductDetailState extends State<ProductDetail>
           child: Text(
             title!,
             style: TextStyle(
-                color: selected ? Colors.white : Colors.black, fontSize: 12),
+                color: selected ? Colors.white : Colors.black,
+                fontSize: sh * 0.012),
           ),
         ),
       ),
@@ -405,6 +400,7 @@ class _ProductDetailState extends State<ProductDetail>
   }
 
   infoRow(String title, String text) {
+    final sh = MediaQuery.of(context).size.height;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -413,15 +409,15 @@ class _ProductDetailState extends State<ProductDetail>
           style: TextStyle(
             color: Colors.grey.shade800,
             fontWeight: FontWeight.w700,
-            fontSize: 14,
+            fontSize: sh * 0.012,
           ),
         ),
         Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: sh * 0.012,
           ),
         ),
       ],

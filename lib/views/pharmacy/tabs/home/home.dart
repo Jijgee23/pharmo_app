@@ -48,7 +48,7 @@ class _HomeState extends State<Home> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (promotionProvider.markedPromotions.isNotEmpty) {
-       // homeProvider.showMarkedPromos(context, promotionProvider);
+        // homeProvider.showMarkedPromos(context, promotionProvider);
       }
     });
   }
@@ -112,6 +112,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    final smallFontSize = height * .0125;
     return RefreshIndicator(
       onRefresh: () => Future.sync(() {
         refresh();
@@ -136,6 +138,7 @@ class _HomeState extends State<Home> {
                     Expanded(
                       flex: 10,
                       child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         decoration: BoxDecoration(
                             color: Colors.white,
                             boxShadow: [Constants.defaultShadow],
@@ -144,15 +147,14 @@ class _HomeState extends State<Home> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const SizedBox(width: 15),
                             IntrinsicWidth(
                               child: InkWell(
                                 onTap: () => _picksupp(
                                     context, homeProvider, basketProvider),
                                 child: Text(
                                   '${homeProvider.supName} :',
-                                  style: const TextStyle(
-                                      fontSize: 14,
+                                  style: TextStyle(
+                                      fontSize: smallFontSize,
                                       color: AppColors.primary,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -161,14 +163,16 @@ class _HomeState extends State<Home> {
                             const SizedBox(width: 15),
                             Expanded(
                                 child: TextFormField(
+                              cursorHeight: smallFontSize,
+                              style: TextStyle(fontSize: smallFontSize),
                               decoration: InputDecoration(
                                 hintText: '${homeProvider.searchType} хайх',
-                                hintStyle: const TextStyle(fontSize: 14),
+                                hintStyle: TextStyle(fontSize: smallFontSize),
                                 border: InputBorder.none,
                                 focusedBorder: InputBorder.none,
                                 enabledBorder: InputBorder.none,
                                 contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 5),
+                                    const EdgeInsets.symmetric(vertical: 0),
                               ),
                               onChanged: (v) {
                                 try {
@@ -236,9 +240,6 @@ class _HomeState extends State<Home> {
                                 },
                                 child: const Icon(
                                     Icons.keyboard_arrow_down_rounded)),
-                            const SizedBox(
-                              width: 5,
-                            ),
                           ],
                         ),
                       ),
@@ -256,7 +257,7 @@ class _HomeState extends State<Home> {
                 ),
               ),
               SliverAppBar(
-                toolbarHeight: 40,
+                toolbarHeight: height * 0.041,
                 automaticallyImplyLeading: false,
                 surfaceTintColor: Colors.white,
                 title: Row(
@@ -286,7 +287,7 @@ class _HomeState extends State<Home> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 10),
+                                  vertical: 2, horizontal: 10),
                               child: Row(
                                 children: [
                                   Icon(icons[filters.indexOf(e)],
@@ -294,7 +295,7 @@ class _HomeState extends State<Home> {
                                   const SizedBox(width: 5),
                                   Text(
                                     e,
-                                    style: const TextStyle(fontSize: 12),
+                                    style: TextStyle(fontSize: smallFontSize),
                                   ),
                                 ],
                               ),
@@ -309,7 +310,11 @@ class _HomeState extends State<Home> {
                       : CustomListView(pagingController: _pagingController)
                   : !homeProvider.isList
                       ? CustomGridView(pagingController: _pagingController)
-                      : CustomListView(pagingController: _pagingController)
+                      : CustomListView(pagingController: _pagingController),
+             const SliverAppBar(
+                automaticallyImplyLeading: false,
+                toolbarHeight: kToolbarHeight,
+              )
             ],
           );
         },

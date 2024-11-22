@@ -64,6 +64,8 @@ class AddBasketSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController qty = TextEditingController();
+    final height = MediaQuery.of(context).size.height;
+    final fs = height * .013;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -81,10 +83,12 @@ class AddBasketSheet extends StatelessWidget {
                 Text(
                   '${product.name!} /${toPrice(product.price)}/',
                   softWrap: true,
-                  style: const TextStyle(
-                      color: AppColors.secondary,
-                      fontWeight: FontWeight.w600,
-                      overflow: TextOverflow.ellipsis),
+                  style: TextStyle(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.w600,
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: fs,
+                  ),
                 ),
                 InkWell(
                   onTap: Get.back,
@@ -96,7 +100,7 @@ class AddBasketSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(50)),
                     child: Image.asset(
                       'assets/cross-small.png',
-                      height: 24,
+                      height: 16,
                       color: Colors.black.withOpacity(.5),
                     ),
                   ),
@@ -104,15 +108,23 @@ class AddBasketSheet extends StatelessWidget {
               ],
             ),
             TextFormField(
+              autofocus: true,
               textAlign: TextAlign.end,
               controller: qty,
               keyboardType: TextInputType.number,
               style: TextStyle(
-                  color: Colors.grey.shade500, fontWeight: FontWeight.w600),
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.w600,
+                fontSize: fs,
+              ),
               decoration: InputDecoration(
                 hintText: 'Тоо ширхэг оруулна уу!',
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 hintStyle: TextStyle(
-                    color: Colors.grey.shade500, fontWeight: FontWeight.w600),
+                  color: Colors.grey.shade500,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             CustomButton(

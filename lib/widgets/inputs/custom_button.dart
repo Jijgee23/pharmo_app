@@ -9,20 +9,29 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return InkWell(
-      onTap: ontap,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: size.height * 0.015),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(25.0),
-          border: Border.all(color: Colors.white),
+    return ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: const WidgetStatePropertyAll(
+          AppColors.primary,
         ),
-        child: Center(
-          child: Text(
-            text,
-            style: const TextStyle(color: Colors.white, fontSize: 12.0),
+        padding: WidgetStatePropertyAll(
+          EdgeInsets.symmetric(
+            vertical: size.height * 0.015,
           ),
+        ),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              25,
+            ),
+          ),
+        ),
+      ),
+      onPressed: ontap,
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyle(color: Colors.white, fontSize: size.height * 0.013),
         ),
       ),
     );

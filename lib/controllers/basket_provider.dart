@@ -178,7 +178,8 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket({required int basket_id}) async {
     try {
-      final response = await apiPost('clear_basket/', jsonEncode({'basketId': basket_id}));
+      final response =
+          await apiPost('clear_basket/', jsonEncode({'basketId': basket_id}));
       await getBasket();
       notifyListeners();
       if (response.statusCode == 200) {
@@ -234,7 +235,8 @@ class BasketProvider extends ChangeNotifier {
       } else {
         qty = qty - 1;
       }
-      final resQR = await apiPatch('basket_item/$item_id/', jsonEncode({"qty": int.parse(qty.toString())}));
+      final resQR = await apiPatch('basket_item/$item_id/',
+          jsonEncode({"qty": int.parse(qty.toString())}));
       if (resQR.statusCode == 200) {
         await getBasket();
         notifyListeners();
@@ -263,10 +265,10 @@ class BasketProvider extends ChangeNotifier {
       required BuildContext context}) async {
     try {
       var body = jsonEncode({
-            'basketId': basket_id,
-            'branchId': (branch_id == -1) ? null : branch_id,
-            'note': note != '' ? note : null
-          });
+        'basketId': basket_id,
+        'branchId': (branch_id == -1) ? null : branch_id,
+        'note': note != '' ? note : null
+      });
       final response = await apiPost('pharmacy/order/', body);
       final res = jsonDecode(utf8.decode(response.bodyBytes));
       final status = response.statusCode;
@@ -292,10 +294,10 @@ class BasketProvider extends ChangeNotifier {
       String? note,
       required BuildContext context}) async {
     try {
-      var body =  jsonEncode({
-            'branchId': (branch_id == 0) ? null : branch_id,
-            'note': note != '' ? note : null
-          });
+      var body = jsonEncode({
+        'branchId': (branch_id == 0) ? null : branch_id,
+        'note': note != '' ? note : null
+      });
       final resQR = await apiPost('ci/', body);
       final data = jsonDecode(utf8.decode(resQR.bodyBytes));
       final status = resQR.statusCode;

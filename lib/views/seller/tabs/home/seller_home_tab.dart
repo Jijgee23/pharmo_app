@@ -144,7 +144,11 @@ class _SellerHomeTabState extends State<SellerHomeTab> {
               ),
               !homeProvider.isList
                   ? CustomGridView(pagingController: _pagingController)
-                  : CustomListView(pagingController: _pagingController)
+                  : CustomListView(pagingController: _pagingController),
+              const SliverAppBar(
+                automaticallyImplyLeading: false,
+                toolbarHeight: kToolbarHeight,
+              )
             ],
           ),
         );

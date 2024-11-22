@@ -12,6 +12,8 @@ class ProductWidgetListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final fs = height * .013;
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -19,8 +21,8 @@ class ProductWidgetListView extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             color: Colors.white,
             boxShadow: shadow()),
-        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
         width: double.infinity,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -31,7 +33,10 @@ class ProductWidgetListView extends StatelessWidget {
                 children: [
                   Text(
                     item.name!,
-                    style: const TextStyle(color: Colors.black),
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: fs,
+                    ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -39,9 +44,11 @@ class ProductWidgetListView extends StatelessWidget {
                     toPrice(item.price!),
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: AppColors.secondary,
-                        fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      color: AppColors.secondary,
+                      fontWeight: FontWeight.w500,
+                      fontSize: fs,
+                    ),
                   ),
                 ],
               ),
@@ -49,13 +56,14 @@ class ProductWidgetListView extends StatelessWidget {
             InkWell(
               borderRadius: BorderRadius.circular(24),
               onTap: onButtonTab,
-              child: const Text(
+              child: Text(
                 'Сагсанд нэмэх',
                 softWrap: true,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,
                   overflow: TextOverflow.ellipsis,
+                  fontSize: fs
                 ),
               ),
             ),

@@ -21,6 +21,7 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/auth/resetPass.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
@@ -66,9 +67,8 @@ class AuthController extends ChangeNotifier {
       await prefs.setString('access_token', accessToken);
     }
   }
-  apiPostWithoutToken(){
-    
-  }
+
+  apiPostWithoutToken() {}
 
   checkEmail(String email, BuildContext context) async {
     try {
@@ -108,14 +108,18 @@ class AuthController extends ChangeNotifier {
           'password': password,
         }),
       );
+      print('${jsonDecode(utf8.decode(responseLogin.bodyBytes))}');
+      print(responseLogin.statusCode);
       if (responseLogin.statusCode == 200) {
+        final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+        final basketProvider =
+            Provider.of<BasketProvider>(context, listen: false);
         final Map<String, dynamic> res = jsonDecode(responseLogin.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('access_token', res['access_token']);
         await prefs.setString('refresh_token', res['refresh_token']);
         String? accessToken = prefs.getString('access_token').toString();
         final decodedToken = JwtDecoder.decode(accessToken);
-        final homeProvider = Provider.of<HomeProvider>(context, listen: false);
         homeProvider.getSuppliers();
         _userInfo = decodedToken;
         await prefs.setString('useremail', decodedToken['email']);
@@ -124,10 +128,9 @@ class AuthController extends ChangeNotifier {
         decodedToken['supplier'] != null
             ? await prefs.setInt('suppID', decodedToken['supplier'])
             : message(message: 'Нийлүүлэгч сонгоно уу!', context: context);
-        final shoppingCart =
-            Provider.of<BasketProvider>(context, listen: false);
-        shoppingCart.getBasket();
         Hive.box('auth').put('role', decodedToken['role']);
+        await basketProvider.getBasket();
+        await basketProvider.getBasketCount;
         Future.delayed(const Duration(milliseconds: 100), () {
           switch (decodedToken['role']) {
             case 'S':
@@ -181,6 +184,8 @@ class AuthController extends ChangeNotifier {
               context: context);
         } else if (checker(res, 'email', context)) {
           message(context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
+        } else if (checker(res, 'password_blocked', context)) {
+          goto(const ResetPassword());
         }
       } else if (responseLogin.statusCode == 401) {
         // goto(CreatePassword(email: email), context);

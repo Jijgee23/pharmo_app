@@ -15,6 +15,7 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final height = size.height;
     return Consumer<HomeProvider>(
       builder: (context, homeProvider, child) => MediaQuery.removePadding(
         context: context,
@@ -65,8 +66,8 @@ class MyDrawer extends StatelessWidget {
                           homeProvider.userEmail != null
                               ? Text(
                                   homeProvider.userEmail!,
-                                  style: const TextStyle(
-                                      fontSize: 16,
+                                  style: TextStyle(
+                                      fontSize: height * .013,
                                       fontWeight: FontWeight.w500),
                                 )
                               : const SizedBox()

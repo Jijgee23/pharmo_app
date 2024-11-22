@@ -17,6 +17,7 @@ class DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
     return InkWell(
       onTap: onTap,
       child: Column(
@@ -39,6 +40,7 @@ class DrawerItem extends StatelessWidget {
                       style: TextStyle(
                         color: mainColor ?? AppColors.cleanBlack,
                         overflow: TextOverflow.ellipsis,
+                        fontSize: height * .0124
                       ),
                     ),
                   ],

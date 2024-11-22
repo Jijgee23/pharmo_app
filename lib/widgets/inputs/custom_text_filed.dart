@@ -9,10 +9,12 @@ class CustomTextField extends StatelessWidget {
   final bool? isPassword;
   final IconButton? suffixIcon;
   final Iterable<String>? autofillHints;
+  final FocusNode? focusNode;
 
   final Function(String?)? validator;
   final Function(String?)? onChanged;
   final Function(String?)? onSubmitted;
+  final Function()? onComplete;
 
   const CustomTextField({
     super.key,
@@ -26,6 +28,8 @@ class CustomTextField extends StatelessWidget {
     this.onSubmitted,
     this.isPassword,
     this.autofillHints,
+    this.focusNode,
+    this.onComplete,
   });
 
   @override
@@ -37,6 +41,7 @@ class CustomTextField extends StatelessWidget {
       child: TextFormField(
         onChanged: onChanged,
         onFieldSubmitted: onSubmitted,
+        onEditingComplete: onComplete,
         autofillHints: autofillHints,
         key: key,
         controller: controller,

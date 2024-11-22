@@ -23,6 +23,8 @@ final TextEditingController newPasswordController = TextEditingController();
 final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
 class _CreatePassDialogState extends State<CreatePassDialog> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Dialog(

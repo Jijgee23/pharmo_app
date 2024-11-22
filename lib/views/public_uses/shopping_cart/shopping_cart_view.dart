@@ -143,6 +143,10 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        final TextEditingController controller =
+            TextEditingController(text: widget.detail['qty'].toString());
+        final height = MediaQuery.of(context).size.height;
+        final fs = height * .013;
         return Slidable(
           endActionPane: ActionPane(
             motion: const ScrollMotion(),
@@ -175,66 +179,65 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                       child: Text(
                         widget.detail['product_name'].toString(),
                         softWrap: true,
-                        style: const TextStyle(
-                            color: AppColors.cleanBlack,
-                            fontSize: 14.0,
+                        style: TextStyle(
+                            color: AppColors.cleanBlack.withOpacity(.8),
+                            fontSize: fs,
                             overflow: TextOverflow.ellipsis,
                             fontWeight: FontWeight.bold),
                         maxLines: 3,
                       ),
                     ),
                     Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.primary),
-                            borderRadius: BorderRadius.circular(7)),
-                        child: Row(
-                          children: [
-                            iconButton(
-                              onTap: () {
-                                selectedItem = widget.detail['id'];
-                                changeBasketItem(widget.detail['id'], 'minus',
-                                    widget.detail['qty']);
+                      decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.primary),
+                          borderRadius: BorderRadius.circular(7)),
+                      child: Row(
+                        children: [
+                          iconButton(
+                            onTap: () {
+                              selectedItem = widget.detail['id'];
+                              changeBasketItem(widget.detail['id'], 'minus',
+                                  widget.detail['qty']);
+                            },
+                            icon: Icons.remove,
+                          ),
+                          IntrinsicWidth(
+                            child: EditableText(
+                              textAlign: TextAlign.center,
+                              textInputAction: TextInputAction.none,
+                              onSubmitted: (v) {
+                                if (widget.detail['qty'] != int.parse(v)) {
+                                  dynamic res = changeBasketItem(
+                                      widget.detail['id'], 'set', int.parse(v));
+                                  if (res['errorType'] == 0) {}
+                                }
                               },
-                              icon: Icons.remove,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              keyboardType: TextInputType.number,
+                              controller: controller,
+                              focusNode: focusNode,
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                              cursorColor: AppColors.primary,
+                              backgroundCursorColor: Colors.black,
                             ),
-                            IntrinsicWidth(
-                              child: EditableText(
-                                  textAlign: TextAlign.center,
-                                  onSubmitted: (v) {
-                                    if (widget.detail['qty'] != int.parse(v)) {
-                                      // selectedItem = widget.detail['id'];
-                                      dynamic res = changeBasketItem(
-                                          widget.detail['id'],
-                                          'set',
-                                          int.parse(v));
-                                      if (res['errorType'] == 0) {}
-                                    }
-                                  },
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  keyboardType: TextInputType.number,
-                                  controller: TextEditingController(
-                                      text: widget.detail['qty'].toString()),
-                                  focusNode: focusNode,
-                                  style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                  cursorColor: AppColors.primary,
-                                  backgroundCursorColor: Colors.black),
-                            ),
-                            iconButton(
-                              onTap: () {
-                                selectedItem = widget.detail['id'];
-                                changeBasketItem(widget.detail['id'], 'add',
-                                    widget.detail['qty']);
-                                focusNode.unfocus();
-                              },
-                              icon: Icons.add,
-                            )
-                          ],
-                        ))
+                          ),
+                          iconButton(
+                            onTap: () {
+                              selectedItem = widget.detail['id'];
+                              changeBasketItem(widget.detail['id'], 'add',
+                                  widget.detail['qty']);
+                              focusNode.unfocus();
+                            },
+                            icon: Icons.add,
+                          )
+                        ],
+                      ),
+                    ),
                   ],
                 ),
                 Row(
@@ -242,17 +245,21 @@ class _ShoppingCartViewState extends State<ShoppingCartView> {
                   children: [
                     Text(
                       toPrice(widget.detail['main_price']),
-                      style: const TextStyle(
-                          color: AppColors.secondary,
-                          fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.w500,
+                        fontSize: fs,
+                      ),
                     ),
                     Text(
                       toPrice(
                           (widget.detail['qty'] * widget.detail['main_price'])
                               .toString()),
-                      style: const TextStyle(
-                          color: AppColors.secondary,
-                          fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.w500,
+                        fontSize: fs,
+                      ),
                     )
                   ],
                 ),

@@ -28,17 +28,21 @@ class SellerHomePage extends StatefulWidget {
 
 class _SellerHomePageState extends State<SellerHomePage> {
   late HomeProvider homeProvider;
-  late BasketProvider basketProvider;
+  late BasketProvider basket;
 
   @override
   void initState() {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    basketProvider.getBasket();
-    homeProvider.getUserInfo();
-    homeProvider.getBasketId();
-    homeProvider.getFilters();
+    basket = Provider.of<BasketProvider>(context, listen: false);
+    init();
+  }
+
+  void init() async {
+    await basket.getBasket();
+    await homeProvider.getUserInfo();
+    await homeProvider.getBasketId();
+    await homeProvider.getFilters();
   }
 
   final List _pages = [
@@ -50,8 +54,9 @@ class _SellerHomePageState extends State<SellerHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<HomeProvider, BasketProvider>(
-      builder: (_, homeProvider, basketProvider, child) {
+    final basketProvider = Provider.of<BasketProvider>(context);
+    return Consumer<HomeProvider>(
+      builder: (_, homeProvider, child) {
         final textStyle = TextStyle(
           color: Colors.blueGrey.shade800,
           fontSize: 12.0,
@@ -129,16 +134,17 @@ class _SellerHomePageState extends State<SellerHomePage> {
               //     title: 'Эмийг сан бүртгэх',
               //     onTap: () => goto(const RegisterPharmPage()),
               //     asset: 'assets/icons_2/doctor.png'),
-              DrawerItem(
-                  title: 'Орлогын жагсаалт',
-                  onTap: () => goto(const IncomeList()),
-                  asset: 'assets/icons_2/wallet-income.png'),
+
               DrawerItem(
                   title: 'Захиалгууд',
                   onTap: () => goto(
                         const SellerOrders(),
                       ),
                   asset: 'assets/icons_2/time-past.png'),
+              DrawerItem(
+                  title: 'Орлогын жагсаалт',
+                  onTap: () => goto(const IncomeList()),
+                  asset: 'assets/icons_2/wallet-income.png'),
               homeProvider.userRole == 'D'
                   ? DrawerItem(
                       title: 'Түгээгчрүү шилжих',
