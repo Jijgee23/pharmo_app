@@ -814,7 +814,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                     onTap: () =>
                                         promotionProvider.setDelivery(false),
                                     child: const Center(
-                                        child: const Text('Хүргэлтээр')),
+                                        child: Text('Хүргэлтээр')),
                                   ),
                                 ),
                               ),
@@ -872,7 +872,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                       promotionProvider.setIsCash(true);
                                     },
                                     child: const Center(
-                                        child: const Text('Бэлнээр')),
+                                        child: Text('Бэлнээр')),
                                   ),
                                 ),
                               ),

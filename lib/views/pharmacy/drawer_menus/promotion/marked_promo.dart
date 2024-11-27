@@ -225,7 +225,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                     onTap: () =>
                                         promotionProvider.setDelivery(false),
                                     child:
-                                        Center(child: const Text('Хүргэлтээр')),
+                                        const Center(child: Text('Хүргэлтээр')),
                                   ),
                                 ),
                               ),
@@ -282,7 +282,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                       promotionProvider.setPayType();
                                       promotionProvider.setIsCash(true);
                                     },
-                                    child: Center(child: const Text('Бэлнээр')),
+                                    child: const Center(child: Text('Бэлнээр')),
                                   ),
                                 ),
                               ),
