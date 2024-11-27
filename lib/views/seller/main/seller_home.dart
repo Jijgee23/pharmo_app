@@ -73,11 +73,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   title: homeProvider.selectedCustomerId == 0
                       ? Text('Харилцагч сонгоно уу !', style: textStyle)
                       : TextButton(
-                          onPressed: () {
-                            setState(() {
-                              homeProvider.currentIndex = 0;
-                            });
-                          },
+                          onPressed: () => homeProvider.changeIndex(0),
                           child: RichText(
                             text: TextSpan(
                               text: 'Сонгосон харилцагч: ',

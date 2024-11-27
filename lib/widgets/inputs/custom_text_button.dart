@@ -13,7 +13,7 @@ class CustomTextButton extends StatelessWidget {
       splashColor: Colors.transparent,
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.symmetric(vertical: 0),
         child: Text(
           text,
           style:const TextStyle(

@@ -311,7 +311,7 @@ class _HomeState extends State<Home> {
                   : !homeProvider.isList
                       ? CustomGridView(pagingController: _pagingController)
                       : CustomListView(pagingController: _pagingController),
-             const SliverAppBar(
+              const SliverAppBar(
                 automaticallyImplyLeading: false,
                 toolbarHeight: kToolbarHeight,
               )

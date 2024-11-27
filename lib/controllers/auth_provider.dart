@@ -21,11 +21,11 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/resetPass.dart';
 import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
 import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
 import 'package:pharmo_app/views/seller/main/seller_home.dart';
-import 'package:pharmo_app/views/auth/login_page.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -158,33 +158,33 @@ class AuthController extends ChangeNotifier {
         notifyListeners();
       } else if (responseLogin.statusCode == 400) {
         Map res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
-        if (checker(res, 'no_password', context) == true) {
+        if (checker(res, 'no_password') == true) {
           showDialog(
               context: context,
               builder: (context) {
                 return CreatePassDialog(email: email);
               });
-        } else if (checker(res, 'noCmp', context) == true) {
+        } else if (checker(res, 'noCmp') == true) {
           message(
               message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
               context: context);
-        } else if (checker(res, 'noLic', context) == true) {
+        } else if (checker(res, 'noLic') == true) {
           message(
               message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
               context: context);
-        } else if (checker(res, 'noRev', context) == true) {
+        } else if (checker(res, 'noRev') == true) {
           message(
               message: 'Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!',
               context: context);
-        } else if (checker(res, 'password', context) == true) {
+        } else if (checker(res, 'password') == true) {
           message(context: context, message: '${res['password']}');
-        } else if (checker(res, 'noLoc', context) == true) {
+        } else if (checker(res, 'noLoc') == true) {
           message(
               message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
               context: context);
-        } else if (checker(res, 'email', context)) {
+        } else if (checker(res, 'email')) {
           message(context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
-        } else if (checker(res, 'password_blocked', context)) {
+        } else if (checker(res, 'password_blocked')) {
           goto(const ResetPassword());
         }
       } else if (responseLogin.statusCode == 401) {
@@ -242,27 +242,50 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> signUpGetOtp(
-      String email, String phone, String password, BuildContext context) async {
+  signUpGetOtp(String email, String phone) async {
     try {
       final response = await http.post(
         Uri.parse('${dotenv.env['SERVER_URL']}auth/reg_otp/'),
         headers: header,
-        body: jsonEncode(
-          {
-            'email': email,
-            'phone': phone,
-          },
-        ),
+        body: jsonEncode({'email': email, 'phone': phone}),
       );
-      notifyListeners();
+      print('status: ${response.statusCode}, data: ${response.body}');
       if (response.statusCode == 200) {
-        message(message: 'Батлагаажуулах код илгээлээ!', context: context);
-        notifyListeners();
+        return {
+          'v': 1,
+        };
+      } else if (response.statusCode == 400) {
+        return {'v': 3};
+      } else {
+        return {'v': 2};
       }
     } catch (e) {
-      message(message: 'Амжилтгүй!', context: context);
-      notifyListeners();
+      return {'v': 2};
+    }
+  }
+
+  register(String email, String phone, String otp, String password) async {
+    try {
+      var body = jsonEncode(
+          {'email': email, 'phone': phone, 'otp': otp, 'password': password});
+      final response = await http.post(setUrl('auth/register/'),
+          headers: header, body: body);
+      print(
+          'status: ${response.statusCode}, data: ${jsonDecode(utf8.decode(response.bodyBytes))}');
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (response.statusCode == 200) {
+        return {'v': 1};
+      } else if (response.statusCode == 500) {
+        return {'v': 2};
+      } else if (response.statusCode == 400) {
+        if (checker(data, 'otp') == true) {
+          return {'v': 3};
+        } else {
+          return {'v': 0};
+        }
+      }
+    } catch (e) {
+      return {'v': 0};
     }
   }
 
@@ -272,40 +295,12 @@ class AuthController extends ChangeNotifier {
     };
   }
 
-  checker(Map response, String key, BuildContext context) {
+  checker(Map response, String key) {
     if (response.containsKey(key)) {
       return true;
     } else {
       return false;
     }
-  }
-
-  Future<void> register(String email, String phone, String password, String otp,
-      BuildContext context) async {
-    try {
-      final response = await http.post(
-          Uri.parse('${dotenv.env['SERVER_URL']}auth/register/'),
-          headers: header,
-          body: jsonEncode({
-            'email': email,
-            'phone': phone,
-            'password': password,
-            'otp': otp
-          }));
-      notifyListeners();
-      if (response.statusCode == 200) {
-        gotoRemoveUntil(const LoginPage(), context);
-        message(message: 'Бүртгэл амжилттай үүслээ', context: context);
-        notifyListeners();
-      }
-      if (response.statusCode == 500) {
-        message(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
-        notifyListeners();
-      }
-    } catch (e) {
-      message(message: 'Амжилтгүй!', context: context);
-    }
-    notifyListeners();
   }
 
   Future resetPassOtp(

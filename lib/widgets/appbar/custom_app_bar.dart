@@ -48,8 +48,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               margin: const EdgeInsets.only(right: 15),
               child: InkWell(
                 onTap: () {
-                  homeprovider
-                      .changeIndex(homeprovider.userRole == 'PA' ? 2 : 3);
+                  homeprovider.changeIndex(2);
                 },
                 child: badges.Badge(
                   badgeContent: Text(

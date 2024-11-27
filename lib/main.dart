@@ -23,7 +23,6 @@ import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -71,8 +70,6 @@ class _MyAppState extends State<MyApp> {
     _openBox();
     super.initState();
   }
-
- 
 
   Future<void> _openBox() async {
     try {

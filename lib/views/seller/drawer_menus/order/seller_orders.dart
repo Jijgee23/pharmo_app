@@ -335,7 +335,10 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
         child: Wrap(
           runSpacing: 15,
           children: [
-            const Text('Захиалгын мэдээлэл засах'),
+            const Text(
+              'Захиалгын мэдээлэл засах',
+              style: TextStyle(fontSize: 12),
+            ),
             input('Нэмэлт тайлбар', nc, null, null),
             Container(
               decoration: BoxDecoration(
@@ -385,13 +388,14 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
         Radio(
           value: val,
           groupValue: payType,
+          visualDensity: VisualDensity.compact,
           onChanged: (String? value) {
             setPayType(value!);
           },
         ),
         Text(
           title,
-          style: const TextStyle(fontSize: 14.0),
+          style: const TextStyle(fontSize: 12.0),
         )
       ],
     );

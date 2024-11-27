@@ -24,15 +24,21 @@ class Col extends StatelessWidget {
           softWrap: true,
           maxLines: 2,
           style: TextStyle(
-              fontSize: fontSize1 ?? 10,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-              overflow: TextOverflow.ellipsis),
+            fontSize: fontSize1 ?? 10,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         Text(
           t2,
-          style:
-              TextStyle(fontSize: fontSize2 ?? 12, fontWeight: FontWeight.bold),
+          maxLines: 1,
+          softWrap: true,
+          style: TextStyle(
+            fontSize: fontSize2 ?? 12,
+            fontWeight: FontWeight.bold,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );

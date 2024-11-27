@@ -35,9 +35,13 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sw = MediaQuery.of(context).size.width;
-    // final sh = MediaQuery.of(context).size.height;
+    final border = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: AppColors.primary.withOpacity(0.7),
+        width: .7,
+      ),
+    );
     return SizedBox(
-      // height: sh * 0.055,
       child: TextFormField(
         onChanged: onChanged,
         onFieldSubmitted: onSubmitted,
@@ -54,23 +58,10 @@ class CustomTextField extends StatelessWidget {
           ),
           labelText: hintText,
           labelStyle: TextStyle(color: Colors.grey.shade700, fontSize: 14.0),
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(15),
-            ),
-          ),
-          errorBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: AppColors.secondary)),
-          errorStyle: const TextStyle(
-            color: Colors.redAccent,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(
-              color: AppColors.primary,
-            ),
-          ),
+          border: border,
+          errorBorder: border,
+          enabledBorder: border,
+          focusedBorder: border,
           suffixIcon: suffixIcon,
         ),
         obscureText: obscureText ?? false,

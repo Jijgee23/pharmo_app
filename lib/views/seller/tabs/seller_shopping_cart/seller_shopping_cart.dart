@@ -280,7 +280,7 @@ class _OrderPlacerState extends State<OrderPlacer> {
         ),
         Text(
           title,
-          style: const TextStyle(fontSize: 14.0),
+          style: const TextStyle(fontSize: 12.0),
         )
       ],
     );

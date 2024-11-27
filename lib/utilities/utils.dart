@@ -22,14 +22,14 @@ void gotoRemoveUntil(Widget widget, BuildContext context) {
   );
 }
 
-back() {
+back({Color? color}) {
   return InkWell(
     borderRadius: BorderRadius.circular(24),
     splashColor: Colors.black.withOpacity(0.3),
     onTap: () => Get.back(),
-    child: const Icon(
+    child: Icon(
       Icons.chevron_left,
-      color: Colors.black,
+      color: color ?? Colors.black,
     ),
   );
 }

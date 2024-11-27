@@ -18,7 +18,7 @@ String? validatePassword(String? value) {
     return 'Нууц үгээ оруулна уу';
   }
   if (!passwordRegex.hasMatch(value)) {
-    return 'Нууц үг буруу буруу байна!';
+    return 'Том, жижиг үсэг тоо заавал агуулна!';
   }
   return null;
 }

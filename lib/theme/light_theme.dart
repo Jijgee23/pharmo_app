@@ -5,9 +5,12 @@ final lightTheme = ThemeData(
   primaryColor: AppColors.primary,
   scaffoldBackgroundColor: AppColors.background,
   appBarTheme: const AppBarTheme(
-    backgroundColor: AppColors.background,
-    surfaceTintColor: AppColors.background,
-  ),
+      backgroundColor: AppColors.background,
+      surfaceTintColor: AppColors.background,
+      iconTheme: IconThemeData(
+        color: AppColors.primary,
+        applyTextScaling: true,
+      )),
   inputDecorationTheme: InputDecorationTheme(
     hintStyle: const TextStyle(
       color: AppColors.primary,
@@ -34,4 +37,9 @@ final lightTheme = ThemeData(
   fontFamily: 'Inter',
   splashColor: Colors.transparent,
   highlightColor: Colors.transparent,
+  textTheme: const TextTheme(
+    displaySmall: TextStyle(
+      overflow: TextOverflow.ellipsis,
+    ),
+  ),
 );

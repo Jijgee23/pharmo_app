@@ -284,10 +284,9 @@ class _PharmacyListState extends State<PharmacyList> {
               input('Нэр', name, null, null),
               input('Регистрийн дугаар', rn, null, null),
               input('И-Мейл', email, validateEmail, null),
-              input('Утас', phone, validatePhone, TextInputType.number
-                ),
+              input('Утас', phone, validatePhone, TextInputType.number),
               input('Утас 2 - Заавал биш', phone2, validatePhone,
-                  TextInputType.number ),
+                  TextInputType.number),
               input('Утас 3 - Заавал биш', phone3, validatePhone,
                   TextInputType.number),
               input('Нэмэлт тайлбар - Заавал биш', note, null, null),
@@ -335,7 +334,7 @@ Widget input(String hint, TextEditingController contr,
     Function(String?)? validator, TextInputType? keyType) {
   return Container(
     decoration: BoxDecoration(
-        color: Colors.grey.shade200, borderRadius: BorderRadius.circular(30)),
+        color: Colors.grey.shade200, borderRadius: BorderRadius.circular(10)),
     child: Row(
       children: [
         Expanded(
@@ -343,6 +342,7 @@ Widget input(String hint, TextEditingController contr,
             controller: contr,
             cursorColor: Colors.black,
             cursorHeight: 20,
+            style: const TextStyle(fontSize: 12.0),
             cursorWidth: .8,
             keyboardType: keyType,
             validator: validator as String? Function(String?)?,
