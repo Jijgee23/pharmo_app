@@ -780,10 +780,10 @@ packages:
     dependency: "direct main"
     description:
       name: shorebird_code_push
-      sha256: "77511427c51906dd39d3bb1e6b0a8c49777975f9b0a5d073e35c9087a8a36bb6"
+      sha256: "36cda512b6fc9cba781e03e649e1adef9139a86d2d3f273609c3c9c0323c0265"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.6"
+    version: "2.0.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1006,5 +1006,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.5.1 <4.0.0"
-  flutter: ">=3.24.0"
+  dart: ">=3.5.4 <4.0.0"
+  flutter: ">=3.24.5"

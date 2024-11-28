@@ -22,11 +22,12 @@ import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
   if (!kIsWeb) {
     await setupFlutterNotifications();
   }
@@ -63,6 +64,12 @@ class _MyAppState extends State<MyApp> {
   late AuthController auth;
   late Box box;
   bool isSplashed = false;
+  // final _updater = ShorebirdUpdater();
+  // late final bool _isUpdaterAvailable;
+  // var _currentTrack = UpdateTrack.stable;
+  // var _isCheckingForUpdates = false;
+  // Patch? _currentPatch;
+
   @override
   void initState() {
     auth = Provider.of<AuthController>(context, listen: false);

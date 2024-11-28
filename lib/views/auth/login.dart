@@ -15,8 +15,6 @@ import 'package:hive/hive.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
 
-final shorebirdCodePush = ShorebirdCodePush();
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -32,8 +30,12 @@ class _LoginPageState extends State<LoginPage> {
   final FocusNode password = FocusNode();
   bool hover = false;
   late Box box1;
-  int? currentPatchVersion;
-  bool isCheckingForUpdate = false;
+  //codepush
+  final _updater = ShorebirdUpdater();
+  late final bool isUpdaterAvailable;
+  var currentTrack = UpdateTrack.stable;
+  var _isCheckingForUpdates = false;
+  Patch? currentPatch;
   Future<void> _openBox() async {
     try {
       box1 = await Hive.openBox('auth');
@@ -56,122 +58,127 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _openBox();
-    _checkForUpdate();
-    shorebirdCodePush.currentPatchNumber().then((currentPatchVersion) {
-      if (!mounted) return;
-      setState(() {
-        currentPatchVersion = currentPatchVersion;
-      });
+    setState(() => isUpdaterAvailable = _updater.isAvailable);
+    _updater.readCurrentPatch().then((currentPatch) {
+      setState(() => currentPatch = currentPatch);
+    }).catchError((Object error) {
+      debugPrint('Алдаа: $error');
     });
+    _checkForUpdate();
   }
 
   Future<void> _checkForUpdate() async {
-    setState(() {
-      isCheckingForUpdate = true;
-    });
-
-    final isUpdateAvailable =
-        await shorebirdCodePush.isNewPatchAvailableForDownload();
-
-    if (!mounted) return;
-
-    setState(() {
-      isCheckingForUpdate = false;
-    });
-
-    if (isUpdateAvailable) {
-      _showUpdateAvailableBanner();
-    } else {
-      message(message: 'Update not available', context: context);
+    if (_isCheckingForUpdates) return;
+    try {
+      setState(() => _isCheckingForUpdates = true);
+      final status = await _updater.checkForUpdate(track: currentTrack);
+      if (!mounted) return;
+      debugPrint('SHOREBIRD UPDATE STATUS: ${status.toString()}');
+      switch (status) {
+        case UpdateStatus.upToDate:
+        case UpdateStatus.outdated:
+          await _downloadUpdate();
+        // _showUpdateAvailableBanner();
+        case UpdateStatus.restartRequired:
+        // _showRestartBanner();
+        case UpdateStatus.unavailable:
+      }
+    } catch (error) {
+      debugPrint('Error checking for update: $error');
+    } finally {
+      setState(() => _isCheckingForUpdates = false);
     }
   }
 
   void _showDownloadingBanner() {
-    ScaffoldMessenger.of(context).showMaterialBanner(
-      const MaterialBanner(
-        content: Text('Шинэчлэлт татаж байна...'),
-        actions: [
-          SizedBox(
-            height: 14,
-            width: 14,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
+    ScaffoldMessenger.of(context)
+      ..hideCurrentMaterialBanner()
+      ..showMaterialBanner(
+        const MaterialBanner(
+          content: Text('Шинэчлэлт татаж байна...'),
+          actions: [
+            SizedBox(
+              height: 14,
+              width: 14,
+              child: CircularProgressIndicator(),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
   }
 
-  void _showUpdateAvailableBanner() {
-    ScaffoldMessenger.of(context).showMaterialBanner(
-      MaterialBanner(
-        content: const Text('Шинэчлэлт татаж авна уу!'),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-              await _downloadUpdate();
+  // void _showUpdateAvailableBanner() {
+  //   ScaffoldMessenger.of(context)
+  //     ..hideCurrentMaterialBanner()
+  //     ..showMaterialBanner(
+  //       MaterialBanner(
+  //         content: const Text(
+  //           'Шинэчлэлт татна уу!',
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () async {
+  //               ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+  //               await _downloadUpdate();
+  //               if (!mounted) return;
+  //               ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+  //             },
+  //             child: const Text('Татах'),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  // }
 
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-            },
-            child: const Text('Татах'),
-          ),
-        ],
-      ),
-    );
-  }
+  // void _showRestartBanner() {
+  //   ScaffoldMessenger.of(context)
+  //     ..hideCurrentMaterialBanner()
+  //     ..showMaterialBanner(
+  //       MaterialBanner(
+  //         content: const Text('Шинэчлэлт татагдлаа. Апп-аа дахин эхлүүлнэ үү'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+  //               Restart.restartApp();
+  //             },
+  //             child: const Text('Дахин эхлүүлэх'),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  // }
 
-  void _showRestartBanner() {
-    ScaffoldMessenger.of(context).showMaterialBanner(
-      const MaterialBanner(
-        content: Text('Шинэчлэлт татагдлаа, дахин ачаалуулна уу!'),
-        actions: [
-          TextButton(
-            // Restart the app for the new patch to take effect.
-            onPressed: Restart.restartApp,
-            child: Text('Дахин ачаалуулах'),
+  void _showErrorBanner(Object error) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentMaterialBanner()
+      ..showMaterialBanner(
+        MaterialBanner(
+          content: const Text(
+            'Ямар нэгэн алдаа гарлаа, дахин оролдно уу!',
           ),
-        ],
-      ),
-    );
-  }
-
-  void _showErrorBanner() {
-    ScaffoldMessenger.of(context).showMaterialBanner(
-      MaterialBanner(
-        content: const Text('Шинэчлэлт татах үед ямар нэгэн алдаа гарлаа.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-            },
-            child: const Text('Хаах'),
-          ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+              },
+              child: const Text('Хаах'),
+            ),
+          ],
+        ),
+      );
   }
 
   Future<void> _downloadUpdate() async {
     _showDownloadingBanner();
-
-    await Future.wait([
-      shorebirdCodePush.downloadUpdateIfAvailable(),
-      Future<void>.delayed(const Duration(milliseconds: 250)),
-    ]);
-
-    final isUpdateReadyToInstall =
-        await shorebirdCodePush.isNewPatchReadyToInstall();
-
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    if (isUpdateReadyToInstall) {
-      _showRestartBanner();
-    } else {
-      _showErrorBanner();
+    try {
+      await _updater.update(track: currentTrack);
+      if (!mounted) return;
+      message(message: 'Шинэчлэлт татагдлаа', context: context);
+      Restart.restartApp;
+      // _showRestartBanner();
+    } on UpdateException catch (error) {
+      _showErrorBanner(error.message);
     }
   }
 
