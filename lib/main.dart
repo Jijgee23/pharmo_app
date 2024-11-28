@@ -22,7 +22,6 @@ import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart';
 
 
 Future<void> main() async {

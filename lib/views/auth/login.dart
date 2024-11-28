@@ -264,8 +264,9 @@ class _LoginPageState extends State<LoginPage> {
                           });
                         },
                         icon: Icon(
-                            hover ? Icons.visibility_off : Icons.visibility,
-                            color: AppColors.primary),
+                          hover ? Icons.visibility_off : Icons.visibility,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                     Row(
@@ -274,9 +275,10 @@ class _LoginPageState extends State<LoginPage> {
                         const Text(
                           'Намайг сана',
                           style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.primary),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primary,
+                          ),
                         ),
                         Checkbox(
                           visualDensity: VisualDensity.compact,
@@ -402,13 +404,13 @@ class _SignUpFormState extends State<SignUpForm> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: topBorderRadius(),
-                // image: const DecorationImage(
-                //   alignment: Alignment.bottomCenter,
-                //   fit: BoxFit.scaleDown,
-                //   image: AssetImage(
-                //     'assets/nnn.png',
-                //   ),
-                // ),
+                image: const DecorationImage(
+                  alignment: Alignment.bottomCenter,
+                  fit: BoxFit.scaleDown,
+                  image: AssetImage(
+                    'assets/nnn.png',
+                  ),
+                ),
               ),
               child: SingleChildScrollView(
                 child: Wrap(
