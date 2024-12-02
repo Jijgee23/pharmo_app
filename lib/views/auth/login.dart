@@ -14,7 +14,6 @@ import 'package:provider/provider.dart';
 import 'package:hive/hive.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -175,11 +174,13 @@ class _LoginPageState extends State<LoginPage> {
       await _updater.update(track: currentTrack);
       if (!mounted) return;
       message(message: 'Шинэчлэлт татагдлаа', context: context);
-      Restart.restartApp;
+      
       // _showRestartBanner();
     } on UpdateException catch (error) {
-      _showErrorBanner(error.message);
+      debugPrint(error.toString());
+      //_showErrorBanner(error.message);
     }
+    Restart.restartApp;
   }
 
   @override
