@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
+    homeProvider.getUserInfo();
     if (homeProvider.userRole == 'PA') {
       initPharmo();
     }
@@ -63,6 +64,7 @@ class _HomeState extends State<Home> {
     await promotionProvider.getMarkedPromotion();
     await homeProvider.getFilters();
     await basketProvider.getBasket();
+    await homeProvider.getBranches(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (promotionProvider.markedPromotions.isNotEmpty) {
         // homeProvider.showMarkedPromos(context, promotionProvider);
