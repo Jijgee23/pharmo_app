@@ -7,7 +7,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/buying_promo.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
-import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
+import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
 import 'package:provider/provider.dart';
 
@@ -195,31 +195,31 @@ class _PromotionWidgetState extends State<PromotionWidget> {
     );
   }
 
-  _selectDate(BuildContext context, PromotionProvider provider) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      helpText: 'Огноо сонгох',
-      cancelText: 'Буцах',
-      confirmText: "Сонгох",
-      initialDate: start,
-      firstDate: DateTime(2023),
-      lastDate: DateTime(2030),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(primary: AppColors.main),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != start) {
-      setState(() {
-        start = picked;
-      });
-      provider.filterPromotion('end_date', start.toString().substring(0, 10));
-    }
-  }
+  // _selectDate(BuildContext context, PromotionProvider provider) async {
+  //   final DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     helpText: 'Огноо сонгох',
+  //     cancelText: 'Буцах',
+  //     confirmText: "Сонгох",
+  //     initialDate: start,
+  //     firstDate: DateTime(2023),
+  //     lastDate: DateTime(2030),
+  //     builder: (context, child) {
+  //       return Theme(
+  //         data: ThemeData.light().copyWith(
+  //           colorScheme: const ColorScheme.light(primary: AppColors.main),
+  //         ),
+  //         child: child!,
+  //       );
+  //     },
+  //   );
+  //   if (picked != null && picked != start) {
+  //     setState(() {
+  //       start = picked;
+  //     });
+  //     provider.filterPromotion('end_date', start.toString().substring(0, 10));
+  //   }
+  // }
 
   _datePicker(BuildContext context) async {
     final DateTimeRange? result = await showDateRangePicker(

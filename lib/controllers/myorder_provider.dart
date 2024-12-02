@@ -20,7 +20,7 @@ class MyOrderProvider extends ChangeNotifier {
     try {
       final res = await apiGet('seller/order/');
       if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
         sellerOrders =
@@ -35,9 +35,8 @@ class MyOrderProvider extends ChangeNotifier {
   filterOrder(String type, String query) async {
     try {
       final res = await apiGet('seller/order/?$type=$query');
-      print(jsonDecode(utf8.decode(res.bodyBytes)));
       if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
         sellerOrders =
@@ -53,7 +52,7 @@ class MyOrderProvider extends ChangeNotifier {
     try {
       final res = await apiGet('order/?start=$startDate&end=$endDate');
       if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
         sellerOrders =
@@ -69,7 +68,7 @@ class MyOrderProvider extends ChangeNotifier {
     try {
       final res = await apiGet('order/?start=$date');
       if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
         sellerOrders =
@@ -86,7 +85,7 @@ class MyOrderProvider extends ChangeNotifier {
       final res = await apiGet('pharmacy/orders/');
       if (res.statusCode == 200) {
         _orders.clear();
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         List<dynamic> ords = response['orders'];
         _orders = (ords).map((data) => MyOrderModel.fromJson(data)).toList();
         notifyListeners();
@@ -113,7 +112,7 @@ class MyOrderProvider extends ChangeNotifier {
       final res = await apiGet('pharmacy/orders/$orderId/items/');
       if (res.statusCode == 200) {
         _orderDetails.clear();
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         List<dynamic> dtls = response;
         _orderDetails =
             (dtls).map((data) => MyOrderDetailModel.fromJson(data)).toList();
@@ -135,7 +134,7 @@ class MyOrderProvider extends ChangeNotifier {
     try {
       final response = await apiGet('suppliers');
       if (response.statusCode == 200) {
-        final res = jsonDecode(utf8.decode(response.bodyBytes));
+        final res = convertData(response);
         return {
           'errorType': 1,
           'data': res,
@@ -157,7 +156,7 @@ class MyOrderProvider extends ChangeNotifier {
     try {
       final response = await apiGet('branch');
       if (response.statusCode == 200) {
-        final res = jsonDecode(utf8.decode(response.bodyBytes));
+        final res = convertData(response);
         return {
           'errorType': 1,
           'data': res,
@@ -194,7 +193,7 @@ class MyOrderProvider extends ChangeNotifier {
       }
       if (res.statusCode == 200) {
         _orders.clear();
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         List<dynamic> ords = response['orders'];
         _orders = (ords).map((data) => MyOrderModel.fromJson(data)).toList();
         notifyListeners();
@@ -218,8 +217,9 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> confirmOrder(int orderId, BuildContext context) async {
     try {
-      final res = await apiPatch('pharmacy/accept_order/', jsonEncode({"id": orderId}));
-      final response = jsonDecode(utf8.decode(res.bodyBytes));
+      final res =
+          await apiPatch('pharmacy/accept_order/', jsonEncode({"id": orderId}));
+      final response = convertData(res);
       print('response: $response ConfirmOrderStatus: ${res.statusCode}');
       if (res.statusCode == 200) {
         message(

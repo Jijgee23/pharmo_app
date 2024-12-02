@@ -8,9 +8,9 @@ import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
-import 'package:pharmo_app/views/seller/main/seller_home.dart';
+import 'package:pharmo_app/views/pharmacy/index_pharmacy.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
-import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
+import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -407,7 +407,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         homeProvider.getSelectedUser(
             homeProvider.selectedCustomerId, homeProvider.selectedCustomerName);
         message(message: 'Амжилттай бүртгэгдлээ.', context: context);
-        goto(const SellerHomePage());
+        goto(const IndexPharma());
       } else {
         // showFailedMessage(message: 'Бүртгэл амжилтгүй.', context: context);
       }

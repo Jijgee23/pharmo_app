@@ -128,7 +128,7 @@ class JaggerProvider extends ChangeNotifier {
     try {
       final res = await apiGet('shipment_expense/');
       if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         jaggerOrders.clear();
         jaggerOrders = (response['results'] as List)
             .map((e) => JaggerExpenseOrder.fromJson(e))
@@ -153,7 +153,7 @@ class JaggerProvider extends ChangeNotifier {
       final res = await apiPatch('start_shipment/', body);
       notifyListeners();
       if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response =convertData(res);
         debugPrint(response);
         message(message: '$response цагт түгээлт эхлэлээ', context: context);
       } else {
@@ -196,7 +196,7 @@ class JaggerProvider extends ChangeNotifier {
         await getExpenses();
         message(message: 'Түгээлтийн зарлага нэмэгдлээ.', context: context);
       } else {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         message(message: response['message'], context: context);
       }
     } catch (e) {
@@ -243,7 +243,7 @@ class JaggerProvider extends ChangeNotifier {
           jsonEncode({"note": note.text, "amount": amount.text}));
       notifyListeners();
       if (res.statusCode == 200) {
-        final response = jsonDecode(utf8.decode(res.bodyBytes));
+        final response = convertData(res);
         await getExpenses();
         amount.text = '';
         note.text = '';
@@ -338,7 +338,7 @@ class JaggerProvider extends ChangeNotifier {
         final res = await apiPatch('update_shipment_location/',
             jsonEncode({"lat": latitude, "lon": longitude}));
         if (res.statusCode == 200) {
-          final response = jsonDecode(utf8.decode(res.bodyBytes));
+          final response = convertData(res);
           return {
             'errorType': 1,
             'data': response,
@@ -374,7 +374,7 @@ class JaggerProvider extends ChangeNotifier {
       changeFetching();
       final res = await apiGet('shipment/history/');
       if (res.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
+        Map<String, dynamic> data = convertData(res);
         List<dynamic> ships = data['results'];
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
         changeFetching();
@@ -389,7 +389,7 @@ class JaggerProvider extends ChangeNotifier {
     try {
       final res = await apiGet('shipment/history/?$type=$value');
       if (res.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(utf8.decode(res.bodyBytes));
+        Map<String, dynamic> data = convertData(res);
         shipments.clear();
         List<dynamic> ships = data['results'];
         debugPrint('ships: $data');

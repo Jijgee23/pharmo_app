@@ -3,9 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/icon/cart_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:pharmo_app/widgets/products_views/paged_sliver_grid.dart';
+import 'package:pharmo_app/widgets/product_scrolls/paged_sliver_grid.dart';
 import 'package:provider/provider.dart';
 
 class FilteredProducts extends StatefulWidget {
@@ -50,12 +51,9 @@ class _FilteredProductsState extends State<FilteredProducts> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: const ChevronBack(),
+        leading: const ChevronBack(color: AppColors.primary),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
         title: Text(
           widget.title,
           style: const TextStyle(color: Colors.black, fontSize: 14),

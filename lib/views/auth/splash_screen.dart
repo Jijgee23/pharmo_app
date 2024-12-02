@@ -140,14 +140,7 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-
-  Widget _buildPageIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(3, (index) => _indicator(index)),
-    );
-  }
-
+  
   // Single indicator widget
   Widget _indicator(int index) {
     return AnimatedContainer(

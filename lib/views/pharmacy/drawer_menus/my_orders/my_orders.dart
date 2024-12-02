@@ -7,7 +7,7 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
-import 'package:pharmo_app/widgets/ui_help/defaultBox.dart';
+import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
@@ -198,8 +198,7 @@ class _MyOrderState extends State<MyOrder> {
                       dropContainer(
                         child: DropdownButton<String>(
                           style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.primary),
+                              fontSize: 14, color: AppColors.primary),
                           dropdownColor: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           underline: const SizedBox(),
@@ -302,8 +301,6 @@ class _MyOrderState extends State<MyOrder> {
                 ),
                 Expanded(
                   child: Box(
-                      // margin: const EdgeInsets.symmetric(
-                      //     horizontal: 10, vertical: 10),
                       child: orders != null && orders.isNotEmpty
                           ? RefreshIndicator(
                               onRefresh: () async {
@@ -334,13 +331,13 @@ class _MyOrderState extends State<MyOrder> {
       {required MyOrderModel order, required MyOrderProvider provider}) {
     return InkWell(
       onTap: () => goto(
-          MyOrderDetail(
-            id: order.id,
-            order: order,
-            orderNo: order.orderNo.toString(),
-            process: getProcessNumber(order.process!),
-          ),
+        MyOrderDetail(
+          id: order.id,
+          order: order,
+          orderNo: order.orderNo.toString(),
+          process: getProcessNumber(order.process!),
         ),
+      ),
       child: Box(
         child: Column(
           children: [

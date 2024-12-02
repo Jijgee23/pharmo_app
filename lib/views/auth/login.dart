@@ -4,7 +4,7 @@ import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
-import 'package:pharmo_app/views/auth/resetPass.dart';
+import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -90,95 +90,32 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _showDownloadingBanner() {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentMaterialBanner()
-      ..showMaterialBanner(
-        const MaterialBanner(
-          content: Text('Шинэчлэлт татаж байна...'),
-          actions: [
-            SizedBox(
-              height: 14,
-              width: 14,
-              child: CircularProgressIndicator(),
-            ),
-          ],
-        ),
-      );
-  }
-
-  // void _showUpdateAvailableBanner() {
+  // void _showDownloadingBanner() {
   //   ScaffoldMessenger.of(context)
   //     ..hideCurrentMaterialBanner()
   //     ..showMaterialBanner(
-  //       MaterialBanner(
-  //         content: const Text(
-  //           'Шинэчлэлт татна уу!',
-  //         ),
+  //       const MaterialBanner(
+  //         content: Text('Шинэчлэлт татаж байна...'),
   //         actions: [
-  //           TextButton(
-  //             onPressed: () async {
-  //               ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-  //               await _downloadUpdate();
-  //               if (!mounted) return;
-  //               ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-  //             },
-  //             child: const Text('Татах'),
+  //           SizedBox(
+  //             height: 14,
+  //             width: 14,
+  //             child: CircularProgressIndicator(),
   //           ),
   //         ],
   //       ),
   //     );
   // }
-
-  // void _showRestartBanner() {
-  //   ScaffoldMessenger.of(context)
-  //     ..hideCurrentMaterialBanner()
-  //     ..showMaterialBanner(
-  //       MaterialBanner(
-  //         content: const Text('Шинэчлэлт татагдлаа. Апп-аа дахин эхлүүлнэ үү'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-  //               Restart.restartApp();
-  //             },
-  //             child: const Text('Дахин эхлүүлэх'),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  // }
-
-  void _showErrorBanner(Object error) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentMaterialBanner()
-      ..showMaterialBanner(
-        MaterialBanner(
-          content: const Text(
-            'Ямар нэгэн алдаа гарлаа, дахин оролдно уу!',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-              },
-              child: const Text('Хаах'),
-            ),
-          ],
-        ),
-      );
-  }
 
   Future<void> _downloadUpdate() async {
-    _showDownloadingBanner();
+    // _showDownloadingBanner();
     try {
       await _updater.update(track: currentTrack);
       if (!mounted) return;
       message(message: 'Шинэчлэлт татагдлаа', context: context);
       Restart.restartApp;
-      // _showRestartBanner();
     } on UpdateException catch (error) {
-      _showErrorBanner(error.message);
+      debugPrint(error.toString());
     }
   }
 
@@ -186,163 +123,165 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final h = MediaQuery.of(context).size.height;
     final authController = Provider.of<AuthController>(context);
+    bool logging = authController.loading;
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.primary,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.contain,
-                    image: AssetImage(
-                      'assets/picon.png',
+      backgroundColor: logging ? Colors.white : null,
+      body: (logging)
+          ? const Center(child: PharmoIndicator())
+          : Container(
+              decoration: const BoxDecoration(color: AppColors.primary),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          fit: BoxFit.contain,
+                          image: AssetImage('assets/picon.png'),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                decoration: BoxDecoration(
-                    color: Colors.white, borderRadius: topBorderRadius()),
-                child: Wrap(
-                  runSpacing: 15,
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Pharmo.mn',
-                        style: TextStyle(
-                          fontSize: h * 0.02,
-                          fontStyle: FontStyle.italic,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                    CustomTextField(
-                      controller: ema,
-                      autofillHints: const [AutofillHints.email],
-                      focusNode: email,
-                      hintText: 'Имейл хаяг',
-                      validator: (v) {
-                        if (v!.isNotEmpty) {
-                          return validateEmail(v);
-                        } else {
-                          return null;
-                        }
-                      },
-                      keyboardType: TextInputType.emailAddress,
-                      // onSubmitted: (p0) =>
-                      //     FocusScope.of(context).requestFocus(password),
-                    ),
-                    CustomTextField(
-                      autofillHints: const [AutofillHints.password],
-                      controller: pass,
-                      hintText: 'Нууц үг',
-                      obscureText: !hover,
-                      focusNode: password,
-                      validator: (v) {
-                        if (v!.isNotEmpty) {
-                          return validatePassword(v);
-                        } else {
-                          return null;
-                        }
-                      },
-                      keyboardType: TextInputType.visiblePassword,
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            hover = !hover;
-                          });
-                        },
-                        icon: Icon(
-                          hover ? Icons.visibility_off : Icons.visibility,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Намайг сана',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.primary,
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 20),
+                      decoration: BoxDecoration(
+                          color: Colors.white, borderRadius: topBorderRadius()),
+                      child: Wrap(
+                        runSpacing: 15,
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Pharmo.mn',
+                              style: TextStyle(
+                                  fontSize: h * 0.02,
+                                  fontStyle: FontStyle.italic,
+                                  color: AppColors.primary),
+                            ),
                           ),
-                        ),
-                        Checkbox(
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          value: rememberMe,
-                          onChanged: (val) {
-                            setState(() {
-                              rememberMe = !rememberMe;
-                            });
-                          },
-                        ),
-                      ],
+                          CustomTextField(
+                            controller: ema,
+                            autofillHints: const [AutofillHints.email],
+                            focusNode: email,
+                            hintText: 'Имейл хаяг',
+                            validator: (v) {
+                              if (v!.isNotEmpty) {
+                                return validateEmail(v);
+                              } else {
+                                return null;
+                              }
+                            },
+                            keyboardType: TextInputType.emailAddress,
+                            // onSubmitted: (p0) =>
+                            //     FocusScope.of(context).requestFocus(password),
+                          ),
+                          CustomTextField(
+                            autofillHints: const [AutofillHints.password],
+                            controller: pass,
+                            hintText: 'Нууц үг',
+                            obscureText: !hover,
+                            focusNode: password,
+                            validator: (v) {
+                              if (v!.isNotEmpty) {
+                                return validatePassword(v);
+                              } else {
+                                return null;
+                              }
+                            },
+                            keyboardType: TextInputType.visiblePassword,
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  hover = !hover;
+                                });
+                              },
+                              icon: Icon(
+                                hover ? Icons.visibility_off : Icons.visibility,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Намайг сана',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              Checkbox(
+                                visualDensity: VisualDensity.compact,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                value: rememberMe,
+                                onChanged: (val) {
+                                  setState(() {
+                                    rememberMe = !rememberMe;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          CustomButton(
+                            text: 'Нэвтрэх',
+                            ontap: () async {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 500));
+                              if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
+                                await authController
+                                    .login(ema.text, pass.text, context)
+                                    .whenComplete(() async {
+                                  if (rememberMe) {
+                                    await box1.put('email', ema.text);
+                                    await box1.put('password', pass.text);
+                                  }
+                                });
+                              } else {
+                                message(
+                                    context: context,
+                                    message: 'Нэврэх нэр, нууц үг оруулна уу');
+                              }
+                            },
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomTextButton(
+                                text: 'Нууц үг сэргээх',
+                                onTap: () => goto(const ResetPassword()),
+                              ),
+                              CustomTextButton(
+                                text: 'Бүртгүүлэх',
+                                onTap: () {
+                                  goto(const SignUpForm());
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    CustomButton(
-                      text: 'Нэвтрэх',
-                      ontap: () async {
-                        await Future.delayed(const Duration(milliseconds: 500));
-                        if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
-                          await authController
-                              .login(ema.text, pass.text, context)
-                              .whenComplete(() async {
-                            if (rememberMe) {
-                              await box1.put('email', ema.text);
-                              await box1.put('password', pass.text);
-                            }
-                          });
-                        } else {
-                          message(
-                              context: context,
-                              message: 'Нэврэх нэр, нууц үг оруулна уу');
-                        }
-                      },
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomTextButton(
-                          text: 'Нууц үг сэргээх',
-                          onTap: () => goto(const ResetPassword()),
-                        ),
-                        CustomTextButton(
-                          text: 'Бүртгүүлэх',
-                          onTap: () {
-                            goto(const SignUpForm());
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(20),
-        child: CustomTextButton(
-          text: 'Нууцлалын бодлого',
-          onTap: () => goto(const PrivacyPolicy()),
-        ),
-      ),
+      bottomNavigationBar: !logging
+          ? Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(20),
+              child: CustomTextButton(
+                text: 'Нууцлалын бодлого',
+                onTap: () => goto(const PrivacyPolicy()),
+              ),
+            )
+          : const SizedBox(),
     );
   }
 }
@@ -422,7 +361,7 @@ class _SignUpFormState extends State<SignUpForm> {
                         'Бүртгэлийн талбаруудыг бөглөнө үү!',
                         style: TextStyle(
                           fontSize: h * 0.016,
-                          color: AppColors.primary,
+                          color: AppColors.secondary,
                         ),
                       ),
                     ),
@@ -552,4 +491,48 @@ topBorderRadius() {
     topLeft: Radius.circular(30),
     topRight: Radius.circular(30),
   );
+}
+
+class PharmoIndicator extends StatefulWidget {
+  const PharmoIndicator({super.key});
+
+  @override
+  State<PharmoIndicator> createState() => _PharmoIndicatorState();
+}
+
+class _PharmoIndicatorState extends State<PharmoIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.rotate(
+          angle: _controller.value * 2 * 3.141592653589793, // Full circle
+          child: child,
+        );
+      },
+      child: Image.asset(
+        'assets/logo_circle.png',
+        height: 50,
+      ),
+    );
+  }
 }

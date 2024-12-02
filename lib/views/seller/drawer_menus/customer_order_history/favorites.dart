@@ -11,7 +11,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/favorite.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/seller/main/seller_home.dart';
+import 'package:pharmo_app/views/pharmacy/index_pharmacy.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:provider/provider.dart';
@@ -102,7 +102,7 @@ class _FavoriteListState extends State<FavoriteList> {
                         );
                       }
                       homeProvider.changeIndex(2);
-                      gotoRemoveUntil(const SellerHomePage(), context);
+                      gotoRemoveUntil(const IndexPharma(), context);
                     },
                   ),
                 ),
@@ -140,7 +140,7 @@ class _FavoriteListState extends State<FavoriteList> {
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
       Map<String, dynamic> res = await basketProvider.addBasket(
-          product_id: productID, itemname_id: itemNameId, qty: avgQty);
+          productId: productID, itemnameId: itemNameId, qty: avgQty);
       if (res['errorType'] == 1) {
         basketProvider.getBasket();
       }

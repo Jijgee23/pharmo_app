@@ -44,6 +44,7 @@ class _CartIconState extends State<CartIcon> {
               'assets/icons_2/cart.png',
               height: 24,
               width: 24,
+              color: AppColors.primary,
             ),
           ),
         ),
