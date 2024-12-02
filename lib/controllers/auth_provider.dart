@@ -365,8 +365,9 @@ class AuthController extends ChangeNotifier {
 
   init(BuildContext context) async {
     String deviceToken = await getDeviceToken();
-    final response =
-        await apiPost(' device_id/', jsonEncode({"deviceId": deviceToken}));
+    final response = await http.post(setUrl('device_id/'),
+        headers: header, body: jsonEncode({"deviceId": deviceToken}));
+    // apiPost('device_id/', jsonEncode({"deviceId": deviceToken}));
     if (response.statusCode == 200) {}
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
       String? title = remoteMessage.notification!.title;

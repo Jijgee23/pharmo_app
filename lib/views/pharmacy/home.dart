@@ -40,16 +40,11 @@ class _HomeState extends State<Home> {
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
-    promotionProvider.getMarkedPromotion();
-    homeProvider.getFilters();
-    basketProvider.getBasket();
+    if (homeProvider.userRole == 'PA') {
+      initPharmo();
+    }
     _pagingController.addPageRequestListener((pageKey) {
       fetchPage(pageKey);
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (promotionProvider.markedPromotions.isNotEmpty) {
-        // homeProvider.showMarkedPromos(context, promotionProvider);
-      }
     });
   }
 
@@ -62,6 +57,17 @@ class _HomeState extends State<Home> {
   void dispose() {
     super.dispose();
     //_pagingController.dispose();
+  }
+
+  initPharmo() async {
+    await promotionProvider.getMarkedPromotion();
+    await homeProvider.getFilters();
+    await basketProvider.getBasket();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (promotionProvider.markedPromotions.isNotEmpty) {
+        // homeProvider.showMarkedPromos(context, promotionProvider);
+      }
+    });
   }
 
   Future<void> fetchPage(int pageKey) async {

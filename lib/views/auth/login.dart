@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:hive/hive.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -77,9 +78,7 @@ class _LoginPageState extends State<LoginPage> {
         case UpdateStatus.upToDate:
         case UpdateStatus.outdated:
           await _downloadUpdate();
-        // _showUpdateAvailableBanner();
         case UpdateStatus.restartRequired:
-        // _showRestartBanner();
         case UpdateStatus.unavailable:
       }
     } catch (error) {
@@ -89,35 +88,11 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // void _showDownloadingBanner() {
-  //   ScaffoldMessenger.of(context)
-  //     ..hideCurrentMaterialBanner()
-  //     ..showMaterialBanner(
-  //       const MaterialBanner(
-  //         content: Text('Шинэчлэлт татаж байна...'),
-  //         actions: [
-  //           SizedBox(
-  //             height: 14,
-  //             width: 14,
-  //             child: CircularProgressIndicator(),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  // }
-
   Future<void> _downloadUpdate() async {
-    // _showDownloadingBanner();
     try {
       await _updater.update(track: currentTrack);
       if (!mounted) return;
       message(message: 'Шинэчлэлт татагдлаа', context: context);
-      
-      // _showRestartBanner();
-    } on UpdateException catch (error) {
-      debugPrint(error.toString());
-      //_showErrorBanner(error.message);
-      Restart.restartApp;
     } on UpdateException catch (error) {
       debugPrint(error.toString());
     }

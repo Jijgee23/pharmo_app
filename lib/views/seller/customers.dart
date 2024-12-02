@@ -53,10 +53,8 @@ class _CustomerListState extends State<CustomerList> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     pharmProvider = Provider.of<PharmProvider>(context, listen: false);
-    // pharmProvider.getCustomerList();
     pharmProvider.getCustomers(1, 100, context);
     homeProvider.getPosition();
-    print('MY ID: ${homeProvider.userId}');
     setState(() {
       uid = homeProvider.userId;
     });
@@ -71,7 +69,6 @@ class _CustomerListState extends State<CustomerList> {
 
   @override
   Widget build(BuildContext context) {
-    // final size = MediaQuery.of(context).size;
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (_, homeProvider, pp, child) {
         return Scaffold(
