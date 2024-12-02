@@ -14,7 +14,7 @@ class IncomeProvider extends ChangeNotifier {
     try {
       final response = await apiGet('income_record/');
       if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        Map res = convertData(response);
         List<dynamic> resList = res['results'];
         incomeList.clear();
         incomeList = resList.map((item) => Income.fromJson(item)).toList();
@@ -30,7 +30,7 @@ class IncomeProvider extends ChangeNotifier {
     try {
       final response = await apiGet('income_record/?createdOn__date=$date');
       if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        Map res = convertData(response);
         List<dynamic> resList = res['results'];
         incomeList.clear();
         incomeList = resList.map((item) => Income.fromJson(item)).toList();
@@ -48,7 +48,7 @@ class IncomeProvider extends ChangeNotifier {
       final response = await apiGet(
           'income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2');
       if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        Map res = convertData(response);
         List<dynamic> resList = res['results'];
         incomeList.clear();
         incomeList = resList.map((item) => Income.fromJson(item)).toList();

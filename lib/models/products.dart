@@ -1,19 +1,19 @@
 class Product {
   int id;
   String? expDate;
-  String? discount_expireddate;
+  String? discountExpireddate;
   String? name;
   double? price;
-  int? itemname_id;
+  int? itemnameId;
   String? barcode;
-  String? sale_price;
-  int? sale_qty;
+  String? salePrice;
+  int? saleQty;
   double? discount;
-  int? in_stock;
+  int? inStock;
   String? intName;
   String? description;
-  String? created_at;
-  String? modified_at;
+  String? createdAt;
+  String? modifiedAt;
   String? mohs;
   int? supplier;
   Map<String, dynamic>? mnfr;
@@ -26,19 +26,19 @@ class Product {
   Product(
     this.id,
     this.expDate,
-    this.discount_expireddate,
+    this.discountExpireddate,
     this.name,
     this.price,
-    this.itemname_id,
+    this.itemnameId,
     this.barcode,
-    this.sale_price,
-    this.sale_qty,
+    this.salePrice,
+    this.saleQty,
     this.discount,
-    this.in_stock,
+    this.inStock,
     this.intName,
     this.description,
-    this.created_at,
-    this.modified_at,
+    this.createdAt,
+    this.modifiedAt,
     this.mohs,
     this.supplier,
     this.mnfr,
@@ -51,19 +51,19 @@ class Product {
   Product.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         expDate = json['expDate'].toString(),
-        discount_expireddate = json['discount_expireddate'].toString(),
+        discountExpireddate = json['discount_expireddate'].toString(),
         name = json['name'],
         price = json['price'],
-        itemname_id = json['itemname_id'],
+        itemnameId = json['itemname_id'],
         barcode = json['barcode'],
-        sale_price = json['sale_price'],
-        sale_qty = json['sale_qty'],
+        salePrice = json['sale_price'],
+        saleQty = json['sale_qty'],
         discount = json['discount'],
-        in_stock = json['in_stock'],
+        inStock = json['in_stock'],
         intName = json['intName'],
         description = json['description'],
-        created_at = json['created_at'],
-        modified_at = json['modified_at'],
+        createdAt = json['created_at'],
+        modifiedAt = json['modified_at'],
         mohs = json['mohs'],
         supplier = json['supplier'],
         mnfr = json['mnfr'],
@@ -76,19 +76,19 @@ class Product {
     return {
       'id': id,
       'expDate': expDate,
-      'discount_expireddate': discount_expireddate,
+      'discount_expireddate': discountExpireddate,
       'name': name,
       'price': price,
-      'itemname_id': itemname_id,
+      'itemname_id': itemnameId,
       'barcode': barcode,
-      'sale_price': sale_price,
-      'sale_qty': sale_qty,
+      'sale_price': salePrice,
+      'sale_qty': saleQty,
       'discount': discount,
-      'in_stock': in_stock,
+      'in_stock': inStock,
       'intName': intName,
       'description': description,
-      'created_at': created_at,
-      'modified_at': modified_at,
+      'created_at': createdAt,
+      'modified_at': modifiedAt,
       'mohs': mohs,
       'supplier': supplier,
       'mnfr': mnfr,

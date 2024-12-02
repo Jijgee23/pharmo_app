@@ -1,5 +1,3 @@
-
-
 import 'package:pharmo_app/utilities/utils.dart';
 
 class Ship {
@@ -115,26 +113,27 @@ class ShipOrderItem {
   int? rQty;
   String? itemPrice;
   String? itemTotalPrice;
-  String? itemname_id;
-  bool? is_promo_item;
-  bool? is_promo_gift;
-  int? gift_cnt;
+  String? itemnameId;
+  bool? isPromoItem;
+  bool? isPromoGift;
+  int? giftCnt;
   int? order;
   int? product;
   ShipOrderItem(
-      this.itemId,
-      this.itemName,
-      this.itemQTy,
-      this.iQty,
-      this.rQty,
-      this.itemPrice,
-      this.itemTotalPrice,
-      this.itemname_id,
-      this.is_promo_item,
-      this.is_promo_gift,
-      this.gift_cnt,
-      this.order,
-      this.product);
+    this.itemId,
+    this.itemName,
+    this.itemQTy,
+    this.iQty,
+    this.rQty,
+    this.itemPrice,
+    this.itemTotalPrice,
+    this.itemnameId,
+    this.isPromoItem,
+    this.isPromoGift,
+    this.giftCnt,
+    this.order,
+    this.product,
+  );
   factory ShipOrderItem.fromJson(Map<String, dynamic> json) {
     return ShipOrderItem(
       json['itemId'],

@@ -51,39 +51,36 @@ class _FilterPageState extends State<FilterPage> {
         child: Consumer<HomeProvider>(
           builder: (context, homeProvider, child) {
             return Scaffold(
-              body: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          TabBar(
-                              indicatorColor: Colors.blue,
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              dividerHeight: 0,
-                              tabs: filterList
-                                  .map(
-                                    (fil) => Tab(
-                                      child: Text(
-                                        fil,
-                                        style: const TextStyle(
-                                            color: Colors.blue,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold),
-                                      ),
+              body: Column(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        TabBar(
+                            indicatorColor: Colors.blue,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            dividerHeight: 0,
+                            tabs: filterList
+                                .map(
+                                  (fil) => Tab(
+                                    child: Text(
+                                      fil,
+                                      style: const TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                  )
-                                  .toList()),
-                          Expanded(
-                            child: TabBarView(
-                                children: [_categories(), _mnfrs(), _vndrs()]),
-                          )
-                        ],
-                      ),
+                                  ),
+                                )
+                                .toList()),
+                        Expanded(
+                          child: TabBarView(
+                              children: [_categories(), _mnfrs(), _vndrs()]),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           },

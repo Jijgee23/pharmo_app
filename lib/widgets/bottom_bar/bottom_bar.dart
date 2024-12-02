@@ -31,13 +31,12 @@ class _BottomBarState extends State<BottomBar> {
             horizontal: (orientation == Orientation.portrait)
                 ? size.width * 0.25
                 : size.width / 3),
-        padding:const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(color: Colors.grey.shade500, blurRadius: 10)
-            ]),
+          borderRadius: BorderRadius.circular(30),
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 10)],
+        ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: BottomNavigationBar(

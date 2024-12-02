@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
@@ -22,10 +21,9 @@ import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
-import 'package:pharmo_app/views/auth/resetPass.dart';
-import 'package:pharmo_app/views/delivery_man/main/jagger_home_page.dart';
-import 'package:pharmo_app/views/pharmacy/main/pharma_home_page.dart';
-import 'package:pharmo_app/views/seller/main/seller_home.dart';
+import 'package:pharmo_app/views/auth/reset_pass.dart';
+import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
+import 'package:pharmo_app/views/pharmacy/index_pharmacy.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -35,6 +33,7 @@ import '../widgets/dialog_and_messages/create_pass_dialog.dart';
 class AuthController extends ChangeNotifier {
   bool invisible = true;
   bool invisible2 = false;
+  bool loading = false;
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
   Map<String, String> deviceData = {};
@@ -48,155 +47,57 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  tokerRefresher() async {
-    Timer.periodic(const Duration(minutes: 20), (timer) async {
-      await refresh();
-    });
+  void setLogging(bool n) {
+    loading = n;
+    notifyListeners();
   }
 
-  Future<void> refresh() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? rtoken = prefs.getString("refresh_token");
-    var response = await apiPost(
-        'auth/refresh/',
-        jsonEncode(<String, String>{
-          'refresh': rtoken!,
-        }));
-    if (response.statusCode == 200) {
-      String accessToken = json.decode(response.body)['access'];
-      await prefs.setString('access_token', accessToken);
+  apiPostWithoutToken(String endPoint, Object? body) async {
+    http.Response response = await http.post(
+      setUrl(endPoint),
+      headers: header,
+      body: jsonEncode(body),
+    );
+    getApiInformation(endPoint, response);
+    return response;
+  }
+
+  Map<String, String> get header {
+    return {
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+  }
+
+  checker(Map response, String key) {
+    if (response.containsKey(key)) {
+      return true;
+    } else {
+      return false;
     }
   }
 
-  apiPostWithoutToken() {}
-
-  checkEmail(String email, BuildContext context) async {
-    try {
-      var response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}auth/reged/'),
-        headers: header,
-        body: jsonEncode(
-          {'email': email},
-        ),
-      );
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final email = responseData['ema'];
-        if (email == false) {
-          message(
-            message: 'Имейл хаяг бүртгэлгүй байна!',
-            context: context,
-          );
-        }
-      }
-    } catch (e) {
-      message(
-        message: 'Интернет холболтоо шалгана уу!.',
-        context: context,
-      );
-    }
-  }
-
+  // Нэвтрэх
   Future<void> login(
       String email, String password, BuildContext context) async {
+    setLogging(true);
     try {
-      var responseLogin = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}auth/login/'),
-        headers: header,
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
+      var responseLogin = await apiPostWithoutToken(
+        'auth/login/',
+        {'email': email, 'password': password},
       );
+      final decodedResponse = convertData(responseLogin);
       print('${jsonDecode(utf8.decode(responseLogin.bodyBytes))}');
       print(responseLogin.statusCode);
       if (responseLogin.statusCode == 200) {
-        final homeProvider = Provider.of<HomeProvider>(context, listen: false);
-        final basketProvider =
-            Provider.of<BasketProvider>(context, listen: false);
-        final Map<String, dynamic> res = jsonDecode(responseLogin.body);
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('access_token', res['access_token']);
-        await prefs.setString('refresh_token', res['refresh_token']);
-        String? accessToken = prefs.getString('access_token').toString();
-        final decodedToken = JwtDecoder.decode(accessToken);
-        homeProvider.getSuppliers();
-        _userInfo = decodedToken;
-        await prefs.setString('useremail', decodedToken['email']);
-        await prefs.setInt('user_id', decodedToken['user_id']);
-        await prefs.setString('userrole', decodedToken['role']);
-        decodedToken['supplier'] != null
-            ? await prefs.setInt('suppID', decodedToken['supplier'])
-            : message(message: 'Нийлүүлэгч сонгоно уу!', context: context);
-        Hive.box('auth').put('role', decodedToken['role']);
-        await basketProvider.getBasket();
-        await basketProvider.getBasketCount;
-        Future.delayed(const Duration(milliseconds: 100), () {
-          switch (decodedToken['role']) {
-            case 'S':
-              gotoRemoveUntil(const SellerHomePage(), context);
-              break;
-            case 'PA':
-              gotoRemoveUntil(const PharmaHomePage(), context);
-              break;
-            case 'D':
-              gotoRemoveUntil(const JaggerHomePage(), context);
-            case 'A':
-              message(message: 'Веб хуудсаар хандана уу', context: context);
-            case 'B':
-              message(message: 'Веб хуудсаар хандана уу', context: context);
-            case 'P':
-              message(message: 'Веб хуудсаар хандана уу', context: context);
-            case 'PS':
-              message(message: 'Веб хуудсаар хандана уу', context: context);
-            case 'PM':
-              message(message: 'Веб хуудсаар хандана уу', context: context);
-          }
-        }).then((e) => getDeviceInfo());
-        debugPrint(accessToken);
-        tokerRefresher();
-        notifyListeners();
+        _handleSuccessfulLogin(decodedResponse, context);
       } else if (responseLogin.statusCode == 400) {
-        Map res = jsonDecode(utf8.decode(responseLogin.bodyBytes));
-        if (checker(res, 'no_password') == true) {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return CreatePassDialog(email: email);
-              });
-        } else if (checker(res, 'noCmp') == true) {
-          message(
-              message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
-              context: context);
-        } else if (checker(res, 'noLic') == true) {
-          message(
-              message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
-              context: context);
-        } else if (checker(res, 'noRev') == true) {
-          message(
-              message: 'Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!',
-              context: context);
-        } else if (checker(res, 'password') == true) {
-          message(context: context, message: '${res['password']}');
-        } else if (checker(res, 'noLoc') == true) {
-          message(
-              message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
-              context: context);
-        } else if (checker(res, 'email')) {
-          message(context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
-        } else if (checker(res, 'password_blocked')) {
-          goto(const ResetPassword());
-        }
+        _handleBadRequest(decodedResponse, email, context);
       } else if (responseLogin.statusCode == 401) {
-        // goto(CreatePassword(email: email), context);
         await showDialog(
-          context: context,
-          builder: (context) {
-            return CreatePassDialog(
-              email: email,
-            );
-          },
-        );
+            context: context,
+            builder: (context) {
+              return CreatePassDialog(email: email);
+            });
       } else {
         {
           message(
@@ -208,33 +109,120 @@ class AuthController extends ChangeNotifier {
       message(message: 'Интернет холболтоо шалгана уу!', context: context);
       debugPrint('error================= on login> ${e.toString()} ');
     }
+    setLogging(false);
   }
 
+  // Нэвтрэх амжилттай
+  Future<void> _handleSuccessfulLogin(
+      Map<String, dynamic> res, BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('access_token', res['access_token']);
+    await prefs.setString('refresh_token', res['refresh_token']);
+
+    final accessToken = prefs.getString('access_token')!;
+    final decodedToken = JwtDecoder.decode(accessToken);
+
+    _userInfo = decodedToken;
+    final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+
+    await prefs.setString('useremail', decodedToken['email']);
+    await prefs.setInt('user_id', decodedToken['user_id']);
+    await prefs.setString('userrole', decodedToken['role']);
+    await homeProvider.getSuppliers();
+
+    if (decodedToken['supplier'] != null) {
+      await prefs.setInt('suppID', decodedToken['supplier']);
+    } else {
+      message(message: 'Нийлүүлэгч сонгоно уу!', context: context);
+    }
+
+    Hive.box('auth').put('role', decodedToken['role']);
+    await basketProvider.getBasket();
+    await basketProvider.getBasketCount;
+    _navigateBasedOnRole(decodedToken['role'], context);
+    debugPrint(accessToken);
+    tokerRefresher();
+    notifyListeners();
+  }
+
+  // Нэвтрэх амжилтгүй
+  void _handleBadRequest(
+      Map<String, dynamic> res, String email, BuildContext context) {
+    if (checker(res, 'no_password')) {
+      showDialog(
+          context: context,
+          builder: (context) => CreatePassDialog(email: email));
+    } else if (checker(res, 'noCmp') ||
+        checker(res, 'noLic') ||
+        checker(res, 'noLoc')) {
+      message(
+          message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
+          context: context);
+    } else if (checker(res, 'noRev')) {
+      message(
+          message: 'Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!',
+          context: context);
+    } else if (checker(res, 'password')) {
+      message(context: context, message: '${res['password']}');
+    } else if (checker(res, 'email')) {
+      message(context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
+    } else if (checker(res, 'password_blocked')) {
+      goto(const ResetPassword());
+    }
+  }
+
+  // Хэрэглэгчийн эрхээс хамаарч дэлгэц харуулах
+  void _navigateBasedOnRole(String role, BuildContext context) {
+    gotoRemoveUntil(const IndexPharma(), context);
+    switch (role) {
+      case 'S':
+        gotoRemoveUntil(const IndexPharma(), context);
+        break;
+      case 'PA':
+        gotoRemoveUntil(const IndexPharma(), context);
+        break;
+      case 'D':
+        gotoRemoveUntil(const IndexDeliveryMan(), context);
+        break;
+      default:
+        message(message: 'Веб хуудсаар хандана уу', context: context);
+    }
+    getDeviceInfo();
+  }
+
+  //Токен шинэчлэх
+  Future<void> refresh() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? rtoken = prefs.getString("refresh_token");
+    Object body = jsonEncode({'refresh': rtoken!});
+    var response = await apiPost('auth/refresh/', body);
+    if (response.statusCode == 200) {
+      String accessToken = json.decode(response.body)['access'];
+      await prefs.setString('access_token', accessToken);
+      notifyListeners();
+    }
+  }
+
+  tokerRefresher() async {
+    Timer.periodic(const Duration(minutes: 20), (timer) async {
+      await refresh();
+    });
+  }
+
+  // Системээс гарах
   Future<void> logout(BuildContext context) async {
     try {
-      final token = await getAccessToken();
       final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}auth/logout/'),
-        headers: getHeader(token),
+        setUrl('auth/logout/'),
+        headers: getHeader(await getAccessToken()),
       );
       if (response.statusCode == 200) {
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.remove('access_token');
-        prefs.remove('refresh_token');
-        HomeProvider().dispose();
-        BasketProvider().dispose();
-        PromotionProvider().dispose();
-        JaggerProvider().dispose();
-        BasketProvider().dispose();
-        IncomeProvider().dispose();
-        ProductProvider().dispose();
-        PharmProvider().dispose();
-        AuthController().dispose();
-        MyOrderProvider().dispose();
-        AddressProvider().dispose();
+        await _completeLogout();
         Get.offAll(() => const LoginPage());
       } else {
-        message(message: 'Холболт салсан.', context: context);
+        await _completeLogout();
+        message(message: 'Холболт саллаа.', context: context);
       }
       notifyListeners();
     } catch (e) {
@@ -242,14 +230,37 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  _completeLogout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('access_token');
+    prefs.remove('refresh_token');
+    await _disposeProviders();
+  }
+
+  Future<void> _disposeProviders() async {
+    try {
+      HomeProvider().dispose();
+      BasketProvider().dispose();
+      PromotionProvider().dispose();
+      JaggerProvider().dispose();
+      IncomeProvider().dispose();
+      ProductProvider().dispose();
+      PharmProvider().dispose();
+      AuthController().dispose();
+      MyOrderProvider().dispose();
+      AddressProvider().dispose();
+    } catch (e) {
+      debugPrint('Error disposing providers: ${e.toString()}');
+    }
+  }
+
+  // Бүртгэл батлагаажуулах код авах
   signUpGetOtp(String email, String phone) async {
     try {
-      final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}auth/reg_otp/'),
-        headers: header,
-        body: jsonEncode({'email': email, 'phone': phone}),
+      final response = await apiPostWithoutToken(
+        'auth/reg_otp/',
+        {'email': email, 'phone': phone},
       );
-      print('status: ${response.statusCode}, data: ${response.body}');
       if (response.statusCode == 200) {
         return {
           'v': 1,
@@ -264,14 +275,13 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  // Бүртгүүлэх
   register(String email, String phone, String otp, String password) async {
     try {
       var body = jsonEncode(
-          {'email': email, 'phone': phone, 'otp': otp, 'password': password});
-      final response = await http.post(setUrl('auth/register/'),
-          headers: header, body: body);
-      print(
-          'status: ${response.statusCode}, data: ${jsonDecode(utf8.decode(response.bodyBytes))}');
+        {'email': email, 'phone': phone, 'otp': otp, 'password': password},
+      );
+      final response = await apiPostWithoutToken('auth/register/', body);
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (response.statusCode == 200) {
         return {'v': 1};
@@ -289,38 +299,17 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Map<String, String> get header {
-    return <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-  }
-
-  checker(Map response, String key) {
-    if (response.containsKey(key)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   Future resetPassOtp(
       {required String email, required BuildContext context}) async {
     try {
-      final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}auth/get_otp/'),
-        headers: header,
-        body: jsonEncode({
-          'email': email,
-        }),
-      );
+      final response = await http.post(setUrl('auth/get_otp/'),
+          headers: header, body: jsonEncode({'email': email}));
       notifyListeners();
       if (response.statusCode == 200) {
         message(context: context, message: 'Батлагаажуулах код илгээлээ');
-        notifyListeners();
         return true;
       } else {
         message(message: 'Амжилтгүй!', context: context);
-        notifyListeners();
         return false;
       }
     } catch (e) {
@@ -336,7 +325,7 @@ class AuthController extends ChangeNotifier {
       required BuildContext context}) async {
     try {
       final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}auth/reset/'),
+        setUrl('auth/reset/'),
         headers: header,
         body: jsonEncode({
           'email': email,
@@ -376,13 +365,8 @@ class AuthController extends ChangeNotifier {
 
   init(BuildContext context) async {
     String deviceToken = await getDeviceToken();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("access_token");
-    String bearerToken = "Bearer $token";
-    final response = await http.post(
-        Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
-        headers: getHeader(bearerToken),
-        body: jsonEncode({"deviceId": deviceToken}));
+    final response =
+        await apiPost(' device_id/', jsonEncode({"deviceId": deviceToken}));
     if (response.statusCode == 200) {}
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
       String? title = remoteMessage.notification!.title;
@@ -407,7 +391,6 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<Map<String, String>> getDeviceInfo() async {
-    final bearerToken = await getAccessToken();
     await getDeviceToken();
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
@@ -435,18 +418,17 @@ class AuthController extends ChangeNotifier {
           "osVersion": iosInfo.systemVersion,
         };
       }
-      final response =
-          await http.post(Uri.parse('${dotenv.env['SERVER_URL']}device_id/'),
-              headers: getHeader(bearerToken),
-              body: jsonEncode({
-                'deviceId': deviceData['deviceId'],
-                'platform': deviceData['platform'],
-                'brand': deviceData['brand'],
-                'model': deviceData['model'],
-                'modelVersion': deviceData['modelVersion'],
-                'os': deviceData['os'],
-                'osVersion': deviceData['osVersion'],
-              }));
+      final response = await apiPost(
+          'device_id/',
+          jsonEncode({
+            'deviceId': deviceData['deviceId'],
+            'platform': deviceData['platform'],
+            'brand': deviceData['brand'],
+            'model': deviceData['model'],
+            'modelVersion': deviceData['modelVersion'],
+            'os': deviceData['os'],
+            'osVersion': deviceData['osVersion'],
+          }));
       if (response.statusCode == 200) {
         debugPrint('Device info sent');
       } else {

@@ -46,25 +46,6 @@ class _HomeJaggerState extends State<HomeJagger> {
     super.dispose();
     super.dispose();
   }
-
-  // Future<void> requestBackgroundLocationPermission() async {
-  //   var status = await Permission.locationAlways.request();
-  //
-  //   if (status.isGranted) {
-  //     print("Background location permission granted.");
-  //     setState(() {
-  //       backLocationPermission = true;
-  //     });
-  //   } else if (status.isDenied) {
-  //     message(message: 'Байршил авах зөвшөөрөл өгнө үү', context: context);
-  //     print("Background location permission denied.");
-  //   } else if (status.isPermanentlyDenied) {
-  //     print("Background location permission is permanently denied.");
-  //     // You can prompt the user to open app settings
-  //     openAppSettings();
-  //   }
-  // }
-
   startShipment(int shipmentId) async {
     if (backLocationPermission) {
       await jaggerProvider.startShipment(

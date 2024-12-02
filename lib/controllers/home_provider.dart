@@ -16,7 +16,7 @@ import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
+import 'package:pharmo_app/views/public_uses/cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -96,7 +96,7 @@ class HomeProvider extends ChangeNotifier {
           : 'products/search/?k=$queryType&v=$query');
       if (response.statusCode == 200) {
         if (!searching) {
-          Map res = jsonDecode(utf8.decode(response.bodyBytes));
+          Map res = convertData(response);
           List<Product> prods = (res['results'] as List)
               .map((data) => Product.fromJson(data))
               .toList();
@@ -117,7 +117,7 @@ class HomeProvider extends ChangeNotifier {
     try {
       final response = await apiGet('branch');
       if (response.statusCode == 200) {
-        List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<dynamic> res = convertData(response);
         branches = (res).map((data) => Sector.fromJson(data)).toList();
         notifyListeners();
       } else {
@@ -135,7 +135,7 @@ class HomeProvider extends ChangeNotifier {
     try {
       final response = await apiGet('products/?$filter');
       if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        Map res = convertData(response);
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
@@ -230,7 +230,7 @@ class HomeProvider extends ChangeNotifier {
     try {
       final response = await apiGet('product/filters/');
       if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        Map res = convertData(response);
         categories =
             (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
 
@@ -253,7 +253,7 @@ class HomeProvider extends ChangeNotifier {
       final response = await apiGet(
           'products/?$type=[$filters]&page=$page&page_size=$pageSize');
       if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        Map res = convertData(response);
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
@@ -269,7 +269,7 @@ class HomeProvider extends ChangeNotifier {
       final response = await apiGet(
           'products/?category=[$id]&page=$page&page_size=$pageSize');
       if (response.statusCode == 200) {
-        Map<String, dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+        Map<String, dynamic> res = convertData(response);
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
@@ -287,7 +287,7 @@ class HomeProvider extends ChangeNotifier {
       int? id = prefs.getInt('suppID');
       final response = await apiGet('suppliers');
       if (response.statusCode == 200) {
-        Map res = jsonDecode(utf8.decode(response.bodyBytes));
+        Map res = convertData(response);
         _supList.clear();
         res.forEach((key, value) {
           var model = Supplier(key, value);
@@ -350,7 +350,7 @@ class HomeProvider extends ChangeNotifier {
   // Сагсны id авах
   getBasketId() async {
     final response = await apiGet('get_basket/');
-    final res = jsonDecode(utf8.decode(response.bodyBytes));
+    final res = convertData(response);
     if (response.statusCode == 200) {
       basketId = res['id'];
     }
@@ -363,7 +363,7 @@ class HomeProvider extends ChangeNotifier {
           jsonEncode({'customerId': selectedCustomerId}));
       branchList.clear();
       if (response.statusCode == 200) {
-        List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<dynamic> res = convertData(response);
         for (int i = 0; i < res.length; i++) {
           branchList.add(Branch.fromJson(res[i]));
         }
@@ -407,8 +407,7 @@ class HomeProvider extends ChangeNotifier {
             'not found') {
           message(message: 'Харилцагч олдсонгүй', context: context);
         } else {
-          Map<String, dynamic> res =
-              jsonDecode(utf8.decode(response.bodyBytes));
+          Map<String, dynamic> res = convertData(response);
           message(
               context: context,
               message:
@@ -435,7 +434,8 @@ class HomeProvider extends ChangeNotifier {
 
   deactiveUser(String password, BuildContext context) async {
     try {
-      final response = await apiPatch('auth/delete_user_account/', jsonEncode({'pwd': password}));
+      final response = await apiPatch(
+          'auth/delete_user_account/', jsonEncode({'pwd': password}));
       if (response.statusCode == 200) {
         AuthController().logout(context);
         message(
@@ -463,10 +463,10 @@ class HomeProvider extends ChangeNotifier {
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
       if (response.statusCode == 201) {
-        final res = jsonDecode(utf8.decode(response.bodyBytes));
+        final res = convertData(response);
         final orderNumber = res['orderNo'];
         goto(OrderDone(orderNo: orderNumber.toString()));
-        await basketProvider.clearBasket(basket_id: basketId!);
+        await basketProvider.clearBasket(basketId: basketId!);
         note = null;
         notifyListeners();
       } else {
@@ -813,8 +813,8 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                   child: InkWell(
                                     onTap: () =>
                                         promotionProvider.setDelivery(false),
-                                    child: const Center(
-                                        child: Text('Хүргэлтээр')),
+                                    child:
+                                        const Center(child: Text('Хүргэлтээр')),
                                   ),
                                 ),
                               ),
@@ -871,8 +871,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                       promotionProvider.setPayType();
                                       promotionProvider.setIsCash(true);
                                     },
-                                    child: const Center(
-                                        child: Text('Бэлнээр')),
+                                    child: const Center(child: Text('Бэлнээр')),
                                   ),
                                 ),
                               ),

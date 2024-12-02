@@ -3,7 +3,7 @@ import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/models/promotion.dart';
 import 'package:pharmo_app/models/qr_data.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/public_uses/shopping_cart/order_done.dart';
+import 'package:pharmo_app/views/public_uses/cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'dart:convert';
 
@@ -93,7 +93,7 @@ class PromotionProvider extends ChangeNotifier {
     try {
       final response = await apiGet('get_promos/');
       if (response.statusCode == 200) {
-        final res = jsonDecode(utf8.decode(response.bodyBytes));
+        final res = convertData(response);
         promotions.clear();
         List<dynamic> promos = res['results'];
         promotions = (promos).map((data) => Promotion.fromJson(data)).toList();
@@ -108,7 +108,7 @@ class PromotionProvider extends ChangeNotifier {
     try {
       final response = await apiGet('get_promos/$promoId/');
       if (response.statusCode == 200) {
-        Map<String, dynamic> p = jsonDecode(utf8.decode(response.bodyBytes));
+        Map<String, dynamic> p = convertData(response);
         MarkedPromo mp = MarkedPromo.fromJson(p);
         setMarkedPromo(mp);
         notifyListeners();
@@ -123,7 +123,7 @@ class PromotionProvider extends ChangeNotifier {
     try {
       final response = await apiGet('marked_promos/');
       if (response.statusCode == 200) {
-        List<dynamic> res = jsonDecode(utf8.decode(response.bodyBytes));
+        List<dynamic> res = convertData(response);
         markedPromotions.clear();
         markedPromotions =
             (res).map((data) => MarkedPromo.fromJson(data)).toList();
@@ -141,7 +141,7 @@ class PromotionProvider extends ChangeNotifier {
     try {
       final response = await apiGet('get_promos/?$type=$value');
       if (response.statusCode == 200) {
-        final res = jsonDecode(utf8.decode(response.bodyBytes));
+        final res = convertData(response);
         List<dynamic> pro = res['results'];
         promotions.clear();
         promotions = (pro).map((data) => Promotion.fromJson(data)).toList();
@@ -177,7 +177,7 @@ class PromotionProvider extends ChangeNotifier {
         },
       );
       final response = await apiPost('pharmacy/promo_order/', body);
-      var data = jsonDecode(utf8.decode(response.bodyBytes));
+      var data = convertData(response);
       if (response.statusCode == 200) {
         qrData = QrData.fromJson(data);
         setQr(true);
@@ -192,7 +192,7 @@ class PromotionProvider extends ChangeNotifier {
   checkPayment(BuildContext context) async {
     final response = await apiPatch('pharmacy/promo_order/cp/',
         jsonEncode({"invoiceId": qrData.invoiceId}));
-    final data = jsonDecode(utf8.decode(response.bodyBytes));
+    final data = convertData(response);
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));
       message(message: 'Төлбөр төлөгдсөн байна', context: context);

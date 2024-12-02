@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -54,38 +56,59 @@ setUrl(String endPoint) {
   return url;
 }
 
+convertData(dynamic data) {
+  return jsonDecode(
+    utf8.decode(data.bodyBytes),
+  );
+}
+
+getApiInformation(String endPoint, http.Response response) {
+  debugPrint(
+    '$endPoint, status: ${response.statusCode}, body; ${convertData(response)}',
+  );
+}
+
 apiGet(String endPoint) async {
-  var response = await http.get(
+  http.Response response = await http.get(
     setUrl(endPoint),
     headers: getHeader(await getAccessToken()),
   );
+  getApiInformation(endPoint, response);
   return response;
 }
 
 apiPost(String endPoint, Object? body) async {
-  var response = await http.post(
+  http.Response response = await http.post(
     setUrl(endPoint),
     headers: getHeader(await getAccessToken()),
     body: body,
   );
+  getApiInformation(endPoint, response);
   return response;
 }
 
 apiPatch(String endPoint, Object body) async {
-  var response = await http.patch(
+  http.Response response = await http.patch(
     setUrl(endPoint),
     headers: getHeader(await getAccessToken()),
     body: body,
   );
+  getApiInformation(endPoint, response);
   return response;
 }
 
 apiDelete(String endPoint) async {
-  var response = await http.delete(
+  http.Response response = await http.delete(
     setUrl(endPoint),
     headers: getHeader(await getAccessToken()),
   );
+  getApiInformation(endPoint, response);
   return response;
+}
+
+Map<String, dynamic> buildResponse(
+    int errorType, dynamic data, String message) {
+  return {'errorType': errorType, 'data': data, 'message': message};
 }
 
 String noImage =

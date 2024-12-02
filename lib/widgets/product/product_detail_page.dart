@@ -10,8 +10,8 @@ import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badges;
 
@@ -63,6 +63,7 @@ class _ProductDetailState extends State<ProductDetail>
       final response = await apiGet('products/${widget.prod.id}/');
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+        print(data);
         setState(() {
           det = data;
         });
@@ -84,8 +85,8 @@ class _ProductDetailState extends State<ProductDetail>
         return;
       } else {
         Map<String, dynamic> res = await basketProvider.addBasket(
-            product_id: widget.prod.id,
-            itemname_id: widget.prod.itemname_id,
+            productId: widget.prod.id,
+            itemnameId: widget.prod.itemnameId,
             qty: int.parse(qtyController.text));
         if (res['errorType'] == 1) {
           basketProvider.getBasket();
@@ -114,7 +115,7 @@ class _ProductDetailState extends State<ProductDetail>
     final basketProvider = Provider.of<BasketProvider>(context);
     final hp = Provider.of<HomeProvider>(context);
     return (fetching)
-        ? const Center(child: MyIndicator())
+        ? const Center(child: PharmoIndicator())
         : Scaffold(
             body: ChangeNotifierProvider(
               create: (context) => BasketProvider(),
@@ -276,9 +277,9 @@ class _ProductDetailState extends State<ProductDetail>
                                 infoRow('Хэлбэр', ''),
                                 infoRow(
                                     'Мастер савалгааны тоо',
-                                    (det['masterBoxQty'] == null)
+                                    (det['master_box_qty'] == null)
                                         ? ''
-                                        : det['masterBoxQty'].toString()),
+                                        : det['master_box_qty'].toString()),
                                 infoRow('Олгох нөхцөл', ''),
                                 infoRow('Улс', ''),
                                 infoRow(
@@ -400,7 +401,7 @@ class _ProductDetailState extends State<ProductDetail>
   }
 
   infoRow(String title, String text) {
-    final sh = MediaQuery.of(context).size.height;
+    final fontsize = MediaQuery.of(context).size.height * 0.0133;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -409,7 +410,7 @@ class _ProductDetailState extends State<ProductDetail>
           style: TextStyle(
             color: Colors.grey.shade800,
             fontWeight: FontWeight.w700,
-            fontSize: sh * 0.012,
+            fontSize: fontsize,
           ),
         ),
         Text(
@@ -417,7 +418,7 @@ class _ProductDetailState extends State<ProductDetail>
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: sh * 0.012,
+            fontSize: fontsize,
           ),
         ),
       ],

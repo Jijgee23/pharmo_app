@@ -83,7 +83,7 @@ class PharmProvider extends ChangeNotifier {
       final response =
           await apiGet('seller/customer/?page=$page&page_size=$size');
       if (response.statusCode == 200) {
-        Map data = jsonDecode(utf8.decode(response.bodyBytes));
+        Map data = convertData(response);
         filteredCustomers.clear();
         List<dynamic> pharms = data['results'];
         filteredCustomers = pharms.map((p) => Customer.fromJson(p)).toList();
@@ -101,7 +101,7 @@ class PharmProvider extends ChangeNotifier {
     try {
       final response = await apiGet('seller/customer/$custId');
       if (response.statusCode == 200) {
-        dynamic data = jsonDecode(utf8.decode(response.bodyBytes));
+        dynamic data = convertData(response);
         customerDetail = CustomerDetail.fromJson(data);
         notifyListeners();
       } else {
@@ -148,7 +148,7 @@ class PharmProvider extends ChangeNotifier {
     try {
       final response = await apiGet('seller/customer/${getEndPoint(type, v)}');
       if (response.statusCode == 200) {
-        Map data = jsonDecode(utf8.decode(response.bodyBytes));
+        Map data = convertData(response);
         filteredCustomers.clear();
         List<dynamic> pharms = data['results'];
         filteredCustomers = pharms.map((p) => Customer.fromJson(p)).toList();
@@ -188,7 +188,7 @@ class PharmProvider extends ChangeNotifier {
       final response = await apiGet('seller/order/$oId/');
       if (response.statusCode == 200) {
         clearOrderDets();
-        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        var data = convertData(response);
         print(data);
         orderDets.add(SellerOrder.fromJson(data));
         notifyListeners();
@@ -259,7 +259,7 @@ class PharmProvider extends ChangeNotifier {
       if (response.statusCode == 201) {
         message(message: 'Амжилттай бүртгэгдлээ.', context: context);
       } else {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final data = convertData(response);
         if (data['error'] == 'name_exists!') {
           message(message: 'Нэр бүртгэлтэй байна!', context: context);
         } else {
@@ -301,7 +301,7 @@ class PharmProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         message(message: 'Амжилттай засагдлаа.', context: context);
       } else {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final data = convertData(response);
         if (data['error'] == 'name_exists!') {
           message(message: 'Нэр бүртгэлтэй байна!', context: context);
         } else {
@@ -315,7 +315,8 @@ class PharmProvider extends ChangeNotifier {
 
   Future getCustomerFavs(dynamic customerId, BuildContext context) async {
     try {
-      final response = await apiPost('seller/customer_favs/', jsonEncode({"customer_id": customerId}));
+      final response = await apiPost(
+          'seller/customer_favs/', jsonEncode({"customer_id": customerId}));
       if (response.statusCode == 201) {
         // final data = jsonDecode(utf8.decode(response.bodyBytes));
       } else {}
