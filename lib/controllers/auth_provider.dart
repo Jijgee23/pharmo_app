@@ -93,7 +93,6 @@ class AuthController extends ChangeNotifier {
         {'email': email, 'password': password},
       );
       final decodedResponse = convertData(responseLogin);
-      print(responseLogin.statusCode);
       if (responseLogin.statusCode == 200) {
         _handleSuccessfulLogin(decodedResponse, context);
       } else if (responseLogin.statusCode == 400) {
@@ -126,21 +125,10 @@ class AuthController extends ChangeNotifier {
     await prefs.setString('refresh_token', res['refresh_token']);
 
     final accessToken = prefs.getString('access_token')!;
-    final refreshToken = prefs.getString('refresh_token')!;
     final decodedToken = JwtDecoder.decode(accessToken);
 
     _userInfo = decodedToken;
 
-    setPerson(Person(
-      decodedToken['user_id'],
-      decodedToken['email'],
-      decodedToken['name'],
-      decodedToken['role'],
-      accessToken,
-      refreshToken,
-    ));
-
-    print('userName: ${person.email}');
 
     final homeProvider = Provider.of<HomeProvider>(context, listen: false);
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
@@ -148,7 +136,6 @@ class AuthController extends ChangeNotifier {
     await prefs.setString('useremail', decodedToken['email']);
     await prefs.setInt('user_id', decodedToken['user_id']);
     await prefs.setString('userrole', decodedToken['role']);
-    await prefs.setString('username', decodedToken['name']);
     
     await homeProvider.getSuppliers();
 
