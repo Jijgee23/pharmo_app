@@ -209,25 +209,33 @@ class PharmProvider extends ChangeNotifier {
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
       dynamic check = await basketProvider.checkItemQty(itemId, qty);
-      print(check['v']);
-      if (check['v'] == 0) {
+      if (check['errorType'] == 0) {
         message(message: 'Бараа дууссан', context: context);
-      } else if (check['v'] == 1) {
+      } else if (check['errorType'] == 1) {
         final response = await apiPatch('seller/order/$oId/update_item/',
             jsonEncode({"itemId": itemId, "qty": qty}));
         if (response.statusCode == 200) {
-          notifyListeners();
+          return buildResponse(1, response, 'Амжилттай өөрлөгдлөө');
+        } else if (response.statusCode == 400) {
+          if (checker(convertData(response), 'order', context) == true) {
+            return buildResponse(4, null, 'Тухайн захиалгыг засах боломжгүй!');
+          } else if (checker(convertData(response), 'itemId', context) ==
+              true) {
+            return buildResponse(4, null, 'Бараа олдсонгүй!');
+          } else {
+            return buildResponse(2, null, 'Алдаа гарлаа');
+          }
         } else {
-          message(message: 'Алдаа гарлаа', context: context);
+          return buildResponse(2, null, 'Алдаа гарлаа');
         }
-      } else if (check['v'] == 2) {
-        message(
-            message: 'Барааны үлдэгдэл хүрэлцэхгүй байна.', context: context);
+      } else if (check['errorType'] == 2) {
+        return buildResponse(3, null, 'Барааны үлдэгдэл хүрэлцэхгүй байна.');
       } else {
-        message(message: 'Алдаа гарлаа', context: context);
+        return buildResponse(2, null, 'Алдаа гарлаа');
       }
     } catch (e) {
       debugPrint(e.toString());
+      return buildResponse(2, null, 'Алдаа гарлаа');
     }
   }
 

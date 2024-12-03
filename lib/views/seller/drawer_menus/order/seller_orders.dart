@@ -5,6 +5,7 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -443,9 +444,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
         var cxs = CrossAxisAlignment.center;
         final order = pp.orderDets[0];
         return (felching == true)
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
+            ? const PharmoIndicator()
             : Scaffold(
                 body: DefaultBox(
                   title: 'Захиалгын дэлгэрэнгүй',
@@ -585,17 +584,20 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                             ),
                           ),
                         ),
-                        CustomButton(
-                          text: 'Захиалын мэдээлэл засах',
-                          ontap: () {
-                            Get.bottomSheet(
-                              EditSellerOrder(
-                                note: order.note,
-                                pt: order.payType,
-                                oId: order.id,
-                              ),
-                            );
-                          },
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                          child: CustomButton(
+                            text: 'Захиалын мэдээлэл засах',
+                            ontap: () {
+                              Get.bottomSheet(
+                                EditSellerOrder(
+                                  note: order.note,
+                                  pt: order.payType,
+                                  oId: order.id,
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -649,36 +651,36 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
               child: Text(
                 item.itemName,
                 style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: AppColors.primary),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: AppColors.primary,
+                ),
               ),
             ),
             input('Тоо ширхэг оруулна уу', qtyController, null,
                 TextInputType.number),
             CustomButton(
               text: 'Хадгалах',
-              ontap: () {
-                if (int.parse(qtyController.text) == 0) {
-                  message(
-                      message: 'Тоо ширхэг 0 байж болохгүй!', context: context);
-                } else {
-                  p
-                      .changeItemQty(
-                        oId: oid,
-                        itemId: item.productId,
-                        qty: int.parse(
-                          qtyController.text,
-                        ),
-                        context: context,
-                      )
-                      .then((e) => Navigator.pop(context));
-                }
-              },
+              ontap: () => _changeQty(oid, item),
             ),
           ],
         ),
       ),
     );
+  }
+
+  _changeQty(int oid, OrderItem item) async {
+    if (qtyController.text.isEmpty) {
+      message(message: 'Тоон утга оруулна уу!', context: context);
+    } else if (int.parse(qtyController.text) == 0) {
+      message(message: 'Тоо ширхэг 0 байж болохгүй!', context: context);
+    } else {
+      int qty = int.parse(qtyController.text);
+      dynamic res = await p.changeItemQty(
+          oId: oid, itemId: item.productId, qty: qty, context: context);
+      print('update qty: ${res['errorType']}');
+      message(message: res['message'], context: context);
+      Get.back();
+    }
   }
 }

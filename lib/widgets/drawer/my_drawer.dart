@@ -63,9 +63,9 @@ class MyDrawer extends StatelessWidget {
                               ),
                             ],
                           ),
-                          homeProvider.userEmail != null
+                          homeProvider.userName != null
                               ? Text(
-                                  homeProvider.userEmail!,
+                                  homeProvider.userName!,
                                   style: TextStyle(
                                       fontSize: height * .013,
                                       fontWeight: FontWeight.w500),

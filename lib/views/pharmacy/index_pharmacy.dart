@@ -41,10 +41,10 @@ class _IndexPharmaState extends State<IndexPharma> {
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
     basketProvider.getBasket();
     homeProvider.getUserInfo();
+    homeProvider.getBasketId();
+    homeProvider.getFilters();
     if (homeProvider.userRole == 'PA') {
       initPharma();
-    } else {
-      initSeller();
     }
   }
 
@@ -53,13 +53,7 @@ class _IndexPharmaState extends State<IndexPharma> {
     super.dispose();
   }
 
-  void initSeller() async {
-    await homeProvider.getBasketId();
-    await homeProvider.getFilters();
-  }
-
   void initPharma() async {
-    await homeProvider.getFilters();
     await homeProvider.getSuppliers();
     await homeProvider.getBranches(context);
   }
@@ -159,7 +153,7 @@ class _IndexPharmaState extends State<IndexPharma> {
       //     title: 'Эмийг сан бүртгэх',
       //     onTap: () => goto(const RegisterPharmPage()),
       //     asset: 'assets/icons_2/doctor.png'),
-      
+
       DrawerItem(
           title: 'Захиалгууд',
           onTap: () => goto(
