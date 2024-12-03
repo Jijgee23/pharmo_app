@@ -19,6 +19,7 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
+import 'package:pharmo_app/models/person.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
@@ -37,6 +38,12 @@ class AuthController extends ChangeNotifier {
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
   Map<String, String> deviceData = {};
+  late Person person;
+  setPerson(Person p) {
+    person = p;
+    notifyListeners();
+  }
+
   void toggleVisibile() {
     invisible = !invisible;
     notifyListeners();
@@ -86,7 +93,6 @@ class AuthController extends ChangeNotifier {
         {'email': email, 'password': password},
       );
       final decodedResponse = convertData(responseLogin);
-      print('${jsonDecode(utf8.decode(responseLogin.bodyBytes))}');
       print(responseLogin.statusCode);
       if (responseLogin.statusCode == 200) {
         _handleSuccessfulLogin(decodedResponse, context);
@@ -120,15 +126,30 @@ class AuthController extends ChangeNotifier {
     await prefs.setString('refresh_token', res['refresh_token']);
 
     final accessToken = prefs.getString('access_token')!;
+    final refreshToken = prefs.getString('refresh_token')!;
     final decodedToken = JwtDecoder.decode(accessToken);
 
     _userInfo = decodedToken;
+
+    setPerson(Person(
+      decodedToken['user_id'],
+      decodedToken['email'],
+      decodedToken['name'],
+      decodedToken['role'],
+      accessToken,
+      refreshToken,
+    ));
+
+    print('userName: ${person.email}');
+
     final homeProvider = Provider.of<HomeProvider>(context, listen: false);
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
 
     await prefs.setString('useremail', decodedToken['email']);
     await prefs.setInt('user_id', decodedToken['user_id']);
     await prefs.setString('userrole', decodedToken['role']);
+    await prefs.setString('username', decodedToken['name']);
+    
     await homeProvider.getSuppliers();
 
     if (decodedToken['supplier'] != null) {

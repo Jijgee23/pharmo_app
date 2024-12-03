@@ -37,16 +37,16 @@ class _UserInformationState extends State<UserInformation> {
               child: Column(
                 children: [
                   info(
+                    title: 'Хэрэглэгчийн нэр:',
+                    value: home.userName!,
+                  ),
+                  info(
                     title: 'Имейл хаяг:',
                     value: home.userEmail!,
                   ),
                   info(
                     title: 'Хэрэглэгчийн төрөл:',
-                    value: home.userRole == 'S'
-                        ? 'Борлуулагч'
-                        : home.userRole == 'D'
-                            ? 'Түгээгч'
-                            : 'Эмийн сан',
+                    value: getRole(home.userRole!),
                   ),
                 ],
               ),
@@ -57,6 +57,16 @@ class _UserInformationState extends State<UserInformation> {
         ),
       ),
     );
+  }
+
+  getRole(String r) {
+    if (r == 'S') {
+      return 'Борлуулагч';
+    } else if (r == 'PA') {
+      return 'Эмийн сангийн ажилтан';
+    } else {
+      return 'Түгээгч';
+    }
   }
 
   info({required String title, required String value}) {

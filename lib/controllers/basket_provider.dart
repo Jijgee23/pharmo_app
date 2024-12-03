@@ -98,6 +98,7 @@ class BasketProvider extends ChangeNotifier {
         if (res['$id'] == null) {
           return buildResponse(0, res, 'Бараа дууссан.');
         } else if (res['$id'] == true) {
+          print('Үлдэгдэл хүрэлцэнэ');
           return buildResponse(1, res, 'Үлдэгдэл хүрэлцэнэ.');
         } else {
           return buildResponse(2, res, 'Үлдэгдэл хүрэлцэхгүй.');

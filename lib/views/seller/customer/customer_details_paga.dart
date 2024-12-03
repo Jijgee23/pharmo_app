@@ -55,8 +55,10 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
   Widget build(BuildContext context) {
     final home = Provider.of<HomeProvider>(context, listen: false);
     return (fetching == true)
-        ? const Center(
-            child: PharmoIndicator(),
+        ? const Scaffold(
+            body: Center(
+              child: PharmoIndicator(),
+            ),
           )
         : Consumer<PharmProvider>(
             builder: (context, pp, child) {

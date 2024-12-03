@@ -114,10 +114,10 @@ class _ProductDetailState extends State<ProductDetail>
     final size = MediaQuery.of(context).size;
     final basketProvider = Provider.of<BasketProvider>(context);
     final hp = Provider.of<HomeProvider>(context);
-    return (fetching)
-        ? const Center(child: PharmoIndicator())
-        : Scaffold(
-            body: ChangeNotifierProvider(
+    return Scaffold(
+      body: (fetching)
+          ? const Center(child: PharmoIndicator())
+          : ChangeNotifierProvider(
               create: (context) => BasketProvider(),
               child: Container(
                 width: size.width,
@@ -370,7 +370,7 @@ class _ProductDetailState extends State<ProductDetail>
                 ),
               ),
             ),
-          );
+    );
   }
 
   myTab({String? title, required int index}) {

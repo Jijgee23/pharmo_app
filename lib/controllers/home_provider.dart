@@ -45,6 +45,7 @@ class HomeProvider extends ChangeNotifier {
   int selectedCustomerId = 0;
   String? userEmail;
   String? userRole;
+  String? userName;
   int userId = 0;
   int? basketId;
   int selectedBranchId = -1;
@@ -115,18 +116,13 @@ class HomeProvider extends ChangeNotifier {
 
   getBranches(BuildContext context) async {
     try {
-      final response = await apiGet('branch');
+      final response = await apiGet('branch/');
       if (response.statusCode == 200) {
         List<dynamic> res = convertData(response);
         branches = (res).map((data) => Sector.fromJson(data)).toList();
-        notifyListeners();
-      } else {
-        message(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
-      }
+      } else {}
     } catch (e) {
-      message(
-          message: 'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          context: context);
+      print(e);
     }
   }
 
@@ -314,9 +310,13 @@ class HomeProvider extends ChangeNotifier {
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
       await prefs.setInt('picked_suplier', res['id']);
-      await PromotionProvider().getMarkedPromotion();
+      final promotionProvider =
+          Provider.of<PromotionProvider>(context, listen: false);
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
+      await promotionProvider.getMarkedPromotion();
       await getFilters();
-      BasketProvider().getBasket();
+      await basketProvider.getBasket();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (PromotionProvider().markedPromotions.isNotEmpty) {
           showMarkedPromos(context, PromotionProvider());
@@ -334,10 +334,12 @@ class HomeProvider extends ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? useremail = prefs.getString('useremail');
     String? userrole = prefs.getString('userrole');
+    String? username = prefs.getString('username');
     int? uid = prefs.getInt('user_id');
     userEmail = useremail.toString();
     userRole = userrole.toString();
     userId = int.parse(uid.toString());
+    userName = username.toString();
     notifyListeners();
   }
 

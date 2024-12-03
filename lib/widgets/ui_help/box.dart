@@ -12,7 +12,7 @@ class Box extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      padding: EdgeInsets.symmetric(vertical: size.height * 0.01, horizontal: size.width * 0.02),
+      padding: EdgeInsets.symmetric(vertical: size.height * 0.015, horizontal: size.width * 0.025),
       decoration: BoxDecoration(
         boxShadow: shadow(),
         color: Colors.white,
