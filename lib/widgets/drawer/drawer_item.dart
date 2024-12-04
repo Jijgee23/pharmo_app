@@ -40,7 +40,7 @@ class DrawerItem extends StatelessWidget {
                       style: TextStyle(
                         color: mainColor ?? AppColors.cleanBlack,
                         overflow: TextOverflow.ellipsis,
-                        fontSize: height * .0124
+                        fontSize: height * .0128
                       ),
                     ),
                   ],

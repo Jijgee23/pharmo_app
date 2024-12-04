@@ -18,7 +18,7 @@ class Button extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: size.width * 0.03),
       decoration: BoxDecoration(
           color: color ?? AppColors.primary,
-          borderRadius: BorderRadius.circular(size.width * 0.2),
+          borderRadius: BorderRadius.circular(size.width * 0.03),
           border: Border.all(color: Colors.white)),
       child: InkWell(
         onTap: onTap ?? () => Navigator.pop(context),

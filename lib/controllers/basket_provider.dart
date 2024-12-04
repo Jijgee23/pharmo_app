@@ -98,13 +98,12 @@ class BasketProvider extends ChangeNotifier {
         if (res['$id'] == null) {
           return buildResponse(0, res, 'Бараа дууссан.');
         } else if (res['$id'] == true) {
-          print('Үлдэгдэл хүрэлцэнэ');
           return buildResponse(1, res, 'Үлдэгдэл хүрэлцэнэ.');
         } else {
           return buildResponse(2, res, 'Үлдэгдэл хүрэлцэхгүй.');
         }
       } else {
-        return buildResponse(3, null, 'Үлдэгдэл шалгахал алдаа гарлаа.');
+        return buildResponse(3, null, 'Үлдэгдэл шалгахад алдаа гарлаа.');
       }
     } catch (e) {
       return buildResponse(4, null, 'Серверийн алдаа');
@@ -222,22 +221,13 @@ class BasketProvider extends ChangeNotifier {
           jsonEncode({"qty": int.parse(qty.toString())}));
       if (resQR.statusCode == 200) {
         await getBasket();
-        notifyListeners();
-        return {
-          'errorType': 1,
-          'data': null,
-          'message': 'Барааны тоог амжилттай өөрчиллөө.'
-        };
+        return buildResponse(1, null, 'Барааны тоог амжилттай өөрчиллөө.');
       } else {
         notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Барааны тоог өөрчлөх үед алдаа гарлаа.'
-        };
+        return buildResponse(2, null, 'Барааны тоог өөрчлөх үед алдаа гарлаа.');
       }
     } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
+      return buildResponse(2, null, 'Барааны тоог өөрчлөх үед алдаа гарлаа.');
     }
   }
 

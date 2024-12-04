@@ -103,8 +103,7 @@ class _CustomerListState extends State<CustomerList> {
                           WidgetsBinding.instance
                               .addPostFrameCallback((cb) async {
                             if (value.isEmpty) {
-                              await pharmProvider.getCustomers(
-                                  1, 100, context);
+                              await pharmProvider.getCustomers(1, 100, context);
                             } else {
                               await pp.filtCustomers(
                                   filter, controller.text, context);
@@ -129,8 +128,7 @@ class _CustomerListState extends State<CustomerList> {
                           color: Colors.white,
                           context: context,
                           shadowColor: Colors.grey.shade500,
-                          position:
-                              const RelativeRect.fromLTRB(100, 100, 0, 0),
+                          position: const RelativeRect.fromLTRB(100, 100, 0, 0),
                           items: [
                             ...filters.map(
                               (f) => PopupMenuItem(
@@ -210,28 +208,27 @@ class _CustomerListState extends State<CustomerList> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    (c.loanBlock == true)
-                        ? Text(
-                            'Харилцагч дээр захиалга зээлээр өгөхгүй!',
-                            style: TextStyle(
-                              color: Colors.red.shade800,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          )
-                        : const SizedBox(),
+                    if (c.loanBlock == true)
+                      Text(
+                        'Харилцагч дээр захиалга зээлээр өгөхгүй!',
+                        style: TextStyle(
+                          color: Colors.red.shade800,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
                   ],
                 ),
                 const SizedBox(width: 10),
-                (c.location == false)
-                    ? Text(
-                        'Байршил тодорхойгүй',
-                        style: TextStyle(
-                            color: Colors.red.shade500,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      )
-                    : const SizedBox(),
+                if (c.location == false)
+                  Text(
+                    'Байршил тодорхойгүй',
+                    style: TextStyle(
+                      color: Colors.red.shade500,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
               ],
             ),
             InkWell(
@@ -320,6 +317,11 @@ class _CustomerListState extends State<CustomerList> {
     name.clear();
     phone.clear();
     note.clear();
+    email.clear();
+    rn.clear();
+    phone2.clear();
+    phone3.clear();
+    note.clear();
     Navigator.pop(context);
   }
 }
@@ -328,7 +330,9 @@ Widget input(String hint, TextEditingController contr,
     Function(String?)? validator, TextInputType? keyType) {
   return Container(
     decoration: BoxDecoration(
-        color: Colors.grey.shade200, borderRadius: BorderRadius.circular(10)),
+      color: Colors.grey.shade200,
+      borderRadius: BorderRadius.circular(10),
+    ),
     child: Row(
       children: [
         Expanded(

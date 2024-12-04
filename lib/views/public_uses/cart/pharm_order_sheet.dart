@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
@@ -6,7 +5,6 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/others/my_radio.dart';
 import 'package:provider/provider.dart';
 
 class PharmOrderSheet extends StatefulWidget {
@@ -20,6 +18,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
   final noteController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -30,6 +29,8 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
   String deliveryType = '';
   String payType = '';
   int selectedBranchId = -1;
+  String selectedBranch = 'Салбар сонгоно уу!';
+
   setDeliverType(String v) {
     setState(() {
       deliveryType = v;
@@ -49,90 +50,98 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     });
   }
 
-  String selectedBranch = 'Салбар сонгоно уу!';
+  List<String> payTypes = ['Дансаар', 'Бэлнээр', 'Зээлээр'];
+  List<String> payS = ['T', 'C', 'L'];
+
+  List<String> deliveryTypes = ['Очиж авах', 'Хүргэлтээр'];
+  List<String> delS = ['N', 'D'];
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final fs = height * 0.014;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Wrap(
-        runSpacing: 15,
+        runSpacing: 20,
         children: [
-          Container(
-            decoration: bd,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                MyRadio(
-                  value: 'N',
-                  groupValue: deliveryType,
-                  title: 'Очиж авах',
-                  onChanged: (v) => setDeliverType(v!),
-                ),
-                MyRadio(
-                  value: 'D',
-                  groupValue: deliveryType,
-                  title: 'Хүргэлтээр',
-                  onChanged: (v) => setDeliverType(v!),
-                )
+                ...deliveryTypes.map((dt) => MyChip(
+                    title: dt,
+                    v: delS[deliveryTypes.indexOf(dt)],
+                    selected: (delS[deliveryTypes.indexOf(dt)] == deliveryType),
+                    ontap: () =>
+                        setDeliverType(delS[deliveryTypes.indexOf(dt)])))
               ],
             ),
-          ),
-          (deliveryType == 'D')
-              ? InkWell(
-                  onTap: selectBranch,
-                  child: Container(
-                      decoration: bd,
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(selectedBranch),
-                          const Icon(Icons.arrow_drop_down)
-                        ],
-                      )),
-                )
-              : const SizedBox(),
+          if (deliveryType == 'D') ...[
+            InkWell(
+              onTap: selectBranch,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.primary, width: 0.8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      selectedBranch,
+                      style: TextStyle(fontSize: fs),
+                    ),
+                    const Icon(Icons.arrow_drop_down)
+                  ],
+                ),
+              ),
+            ),
+          ],
           const Align(
             alignment: Alignment.centerLeft,
-            child: Text('Заавал биш:'),
+            child: Text(
+              'Заавал биш:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
           CustomTextField(
             controller: noteController,
             hintText: 'Тайлбар',
             onChanged: (v) => homeProvider.setNote(v!),
           ),
-          Container(
-            decoration: bd,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                MyRadio(
-                  value: 'C',
-                  groupValue: payType,
-                  title: 'Бэлнээр',
-                  onChanged: (v) => setPayType(v!),
-                ),
-                MyRadio(
-                  value: 'L',
-                  groupValue: payType,
-                  title: 'Зээлээр',
-                  onChanged: (v) => setPayType(v!),
-                )
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ...payTypes.map((p) => MyChip(
+                  title: p,
+                  v: payS[payTypes.indexOf(p)],
+                  selected: (payS[payTypes.indexOf(p)] == payType),
+                  ontap: () => setPayType(payS[payTypes.indexOf(p)]))),
+            ],
           ),
-          CustomButton(text: 'Захиалах', ontap: () => order())
+          CustomButton(
+            text: 'Захиалах',
+            ontap: () => order(),
+            color: AppColors.primary,
+            padding: const EdgeInsets.symmetric(vertical: 15),
+          ),
         ],
       ),
     );
@@ -213,9 +222,40 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
       }
     }
   }
+}
 
-  var bd = BoxDecoration(
-    border: Border.all(color: AppColors.primary, width: .8),
-    borderRadius: BorderRadius.circular(5),
-  );
+class MyChip extends StatelessWidget {
+  final String title;
+  final String v;
+  final bool selected;
+  final Function() ontap;
+  const MyChip({
+    super.key,
+    required this.title,
+    required this.v,
+    required this.selected,
+    required this.ontap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: ontap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        margin: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: selected ? AppColors.primary : Colors.grey.shade300,
+            width: 1.5,
+          ),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(20),
+          ),
+        ),
+        child: Text(title),
+      ),
+    );
+  }
 }

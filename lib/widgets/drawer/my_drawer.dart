@@ -22,89 +22,88 @@ class MyDrawer extends StatelessWidget {
         removeTop: true,
         child: Drawer(
           backgroundColor: AppColors.background,
-          elevation: 10,
+          elevation: 0,
           shadowColor: Colors.transparent,
           width: size.width > 480 ? size.width * 0.5 : size.width * 0.8,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // const CustomDrawerHeader(),
-                SizedBox(height: size.height * 0.075),
-                Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10)),
-                  margin: const EdgeInsets.all(10),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
-                  child: Row(
-                    children: [
-                      ClipOval(
-                        child: Image.asset(
-                          'assets/icons/boy.png',
-                          height: size.height * 0.054,
-                        ),
+          child: Column(
+            children: [
+              SizedBox(height: size.height * 0.075),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: const EdgeInsets.all(10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
+                child: Row(
+                  children: [
+                    ClipOval(
+                      child: Image.asset(
+                        'assets/icons/boy.png',
+                        height: size.height * 0.054,
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              const Text(
-                                'Сайнуу',
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Text(
+                              'Сайнуу',
+                              style: TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(width: 5),
+                            Image.asset(
+                              'assets/icons/wave.png',
+                              height: 12,
+                            ),
+                          ],
+                        ),
+                        homeProvider.userEmail != null
+                            ? Text(
+                                homeProvider.userEmail!,
                                 style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.w700),
-                              ),
-                              const SizedBox(width: 5),
-                              Image.asset(
-                                'assets/icons/wave.png',
-                                height: 12,
-                              ),
-                            ],
-                          ),
-                          homeProvider.userName != null
-                              ? Text(
-                                  homeProvider.userName!,
-                                  style: TextStyle(
-                                      fontSize: height * .013,
-                                      fontWeight: FontWeight.w500),
-                                )
-                              : const SizedBox()
-                        ],
-                      )
-                    ],
+                                  fontSize: height * .013,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              )
+                            : const SizedBox()
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              DrawerContainer(drawers: drawers),
+              DrawerContainer(
+                drawers: [
+                  DrawerItem(
+                    title: 'Миний бүртгэл',
+                    asset: 'assets/icons_2/user.png',
+                    onTap: () => goto(const UserInformation()),
                   ),
-                ),
-                DrawerContainer(drawers: drawers),
-                DrawerContainer(
-                  drawers: [
-                    DrawerItem(
-                      title: 'Миний бүртгэл',
-                      asset: 'assets/icons_2/user.png',
-                      onTap: () => goto(const UserInformation()),
-                    ),
-                    DrawerItem(
-                      title: 'Нууцлалын бодлого',
-                      asset: 'assets/icons_2/privacy.png',
-                      onTap: () => goto(const PrivacyPolicy()),
-                    ),
-                  ],
-                ),
-                DrawerContainer(
-                  drawers: [
-                    DrawerItem(
-                      title: 'Гарах',
-                      asset: 'assets/icons_2/signout.png',
-                      onTap: () {
-                        showLogoutDialog(context);
-                      },
-                      mainColor: Colors.red,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  DrawerItem(
+                    title: 'Нууцлалын бодлого',
+                    asset: 'assets/icons_2/privacy.png',
+                    onTap: () => goto(const PrivacyPolicy()),
+                  ),
+                ],
+              ),
+              DrawerContainer(
+                drawers: [
+                  DrawerItem(
+                    title: 'Гарах',
+                    asset: 'assets/icons_2/signout.png',
+                    onTap: () {
+                      showLogoutDialog(context);
+                    },
+                    mainColor: Colors.red,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

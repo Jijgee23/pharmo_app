@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -35,27 +34,8 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     });
   }
 
-  // gotoBranch(BuildContext context) async {
-  //   await basketProvider.checkQTYs();
-  //   if (basketProvider.qtys.isNotEmpty) {
-  //     message(
-  //         message: 'Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!',
-  //         context: context);
-  //   } else {
-  //     if (basketProvider.basket.totalCount == 0) {
-  //       message(message: 'Сагс хоосон байна!', context: context);
-  //     } else if (double.parse(basketProvider.basket.totalPrice.toString()) <
-  //         10) {
-  //       message(
-  //           message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
-  //     } else if (homeProvider.selectedCustomerId == 0) {
-  //       message(message: 'Захиалагч сонгоно уу!', context: context);
-  //       homeProvider.changeIndex(0);
-  //     } else {
-  //       goto(const SelectSellerBranchPage());
-  //     }
-  //   }
-  // }
+  List<String> payTypes = ['Дансаар', 'Бэлнээр', 'Зээлээр'];
+  List<String> payS = ['T', 'C', 'L'];
 
   @override
   Widget build(BuildContext context) {
@@ -85,99 +65,40 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
             alignment: Alignment.centerLeft,
             child: Text('Төлбөрийн хэлбэр сонгоно уу : '),
           ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.primary, width: .8),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    myRadio('T', 'Дансаар'),
-                    myRadio('C', 'Бэлнээр'),
-                    myRadio('L', 'Зээлээр'),
-                  ],
-                ),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ...payTypes.map((p) => MyChip(
+                  title: p,
+                  v: payS[payTypes.indexOf(p)],
+                  selected: (payS[payTypes.indexOf(p)] == payType),
+                  ontap: () => setPayType(payS[payTypes.indexOf(p)]))),
+            ],
           ),
           CustomButton(
             text: 'Захиалах',
-            ontap: () async {
-              if (basketProvider.basket.totalCount == 0) {
-                message(message: 'Сагс хоосон байна!', context: context);
-              } else if (double.parse(
-                      basketProvider.basket.totalPrice.toString()) <
-                  10) {
-                message(
-                    message: 'Үнийн дүн 10₮-с бага байж болохгүй!',
-                    context: context);
-              } else if (homeProvider.selectedCustomerId == 0) {
-                message(message: 'Захиалагч сонгоно уу!', context: context);
-                homeProvider.changeIndex(0);
-              } else {
-                await basketProvider.checkQTYs();
-                if (payType == '') {
-                  message(
-                      message: 'Төлбөрийн хэлбэр сонгоно уу!',
-                      context: context);
-                }
-                //  else if (payType == 'T') {
-                //   goto(const SellerQRCode());
-                // }
-                else {
-                  homeProvider.createSellerOrder(context, payType);
-                }
-              }
-            },
+            ontap: () => _createOrder(),
           ),
         ],
       ),
     );
   }
 
-  Widget myRadio(String val, String title) {
-    return Row(
-      children: [
-        Radio(
-          value: val,
-          groupValue: payType,
-          onChanged: (String? value) {
-            setPayType(value!);
-          },
-        ),
-        Text(
-          title,
-          style: const TextStyle(fontSize: 12.0),
-        )
-      ],
-    );
-  }
-
-  Widget info({required String title, required String text}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: AppColors.primary,
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          text,
-          style: const TextStyle(
-            color: AppColors.secondary,
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-          ),
-        )
-      ],
-    );
+  _createOrder() async {
+    if (basketProvider.basket.totalCount == 0) {
+      message(message: 'Сагс хоосон байна!', context: context);
+    } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
+      message(message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
+    } else if (homeProvider.selectedCustomerId == 0) {
+      message(message: 'Захиалагч сонгоно уу!', context: context);
+      homeProvider.changeIndex(0);
+    } else {
+      await basketProvider.checkQTYs();
+      if (payType == '') {
+        message(message: 'Төлбөрийн хэлбэр сонгоно уу!', context: context);
+      } else {
+        homeProvider.createSellerOrder(context, payType);
+      }
+    }
   }
 }

@@ -26,8 +26,7 @@ class ProductDetail extends StatefulWidget {
 
 class _ProductDetailState extends State<ProductDetail>
     with SingleTickerProviderStateMixin {
-  TextEditingController qtyController =
-      TextEditingController(text: 1.toString());
+  TextEditingController qtyController = TextEditingController();
   late ProductProvider productProvider;
   late TabController tabController;
   bool fetching = false;
@@ -326,7 +325,7 @@ class _ProductDetailState extends State<ProductDetail>
                                 ],
                                 decoration: InputDecoration(
                                   contentPadding:
-                                      const EdgeInsets.only(left: 10),
+                                      const EdgeInsets.symmetric(horizontal: 30),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                     borderSide: const BorderSide(
@@ -335,7 +334,7 @@ class _ProductDetailState extends State<ProductDetail>
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  hintText: 'Тоо хэмжээ',
+                                  hintText: ' ',
                                 ),
                               ),
                             ),

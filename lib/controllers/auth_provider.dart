@@ -129,14 +129,13 @@ class AuthController extends ChangeNotifier {
 
     _userInfo = decodedToken;
 
-
     final homeProvider = Provider.of<HomeProvider>(context, listen: false);
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
 
     await prefs.setString('useremail', decodedToken['email']);
     await prefs.setInt('user_id', decodedToken['user_id']);
     await prefs.setString('userrole', decodedToken['role']);
-    
+
     await homeProvider.getSuppliers();
 
     if (decodedToken['supplier'] != null) {
@@ -227,7 +226,6 @@ class AuthController extends ChangeNotifier {
       );
       if (response.statusCode == 200) {
         await _completeLogout();
-        Get.offAll(() => const LoginPage());
       } else {
         await _completeLogout();
         message(message: 'Холболт саллаа.', context: context);
@@ -243,6 +241,7 @@ class AuthController extends ChangeNotifier {
     prefs.remove('access_token');
     prefs.remove('refresh_token');
     await _disposeProviders();
+    Get.offAll(() => const LoginPage());
   }
 
   Future<void> _disposeProviders() async {

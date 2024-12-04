@@ -25,7 +25,8 @@ class _BottomBarState extends State<BottomBar> {
     final orientation = MediaQuery.of(context).orientation;
     return SafeArea(
       top: true,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
         margin: EdgeInsets.symmetric(
             vertical: Platform.isIOS ? 0 : 10,
             horizontal: (orientation == Orientation.portrait)

@@ -121,17 +121,16 @@ class PromotionProvider extends ChangeNotifier {
 
   getMarkedPromotion() async {
     try {
-      final response = await apiGet('marked_promos/');
+      var response = await apiGet('marked_promos/');
       if (response.statusCode == 200) {
-        List<dynamic> res = convertData(response);
+        var res = convertData(response);
         markedPromotions.clear();
         markedPromotions =
             (res).map((data) => MarkedPromo.fromJson(data)).toList();
-        notifyListeners();
       } else if (response.statusCode == 204) {
         markedPromotions.clear();
-        notifyListeners();
       }
+      notifyListeners();
     } catch (e) {
       debugPrint('ERROR AT MPROMO: ${e.toString()}');
     }

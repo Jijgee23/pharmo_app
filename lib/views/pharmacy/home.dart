@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
@@ -57,19 +58,18 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     super.dispose();
-    //_pagingController.dispose();
   }
 
   initPharmo() async {
-    await promotionProvider.getMarkedPromotion();
+    // await promotionProvider.getMarkedPromotion();
     await homeProvider.getFilters();
     await basketProvider.getBasket();
     await homeProvider.getBranches(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (promotionProvider.markedPromotions.isNotEmpty) {
-        // homeProvider.showMarkedPromos(context, promotionProvider);
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (promotionProvider.markedPromotions.isNotEmpty) {
+    //     // homeProvider.showMarkedPromos(context, promotionProvider);
+    //   }
+    // });
   }
 
   Future<void> fetchPage(int pageKey) async {
@@ -163,7 +163,7 @@ class _HomeState extends State<Home> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            flex: 10,
+            flex: 7,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
@@ -177,14 +177,14 @@ class _HomeState extends State<Home> {
                   if (homeProvider.userRole == 'PA')
                     IntrinsicWidth(
                       child: InkWell(
-                        onTap: () =>
-                            _picksupp(context, homeProvider, basketProvider),
+                        onTap: () => _onPickSupplier(context),
                         child: Text(
                           '${homeProvider.supName} :',
                           style: TextStyle(
-                              fontSize: smallFontSize,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold),
+                            fontSize: smallFontSize,
+                            color: AppColors.succesColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -201,30 +201,7 @@ class _HomeState extends State<Home> {
                       enabledBorder: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(vertical: 0),
                     ),
-                    onChanged: (v) {
-                      try {
-                        Future.delayed(
-                          const Duration(milliseconds: 1500),
-                          () {
-                            if (v.isNotEmpty) {
-                              WidgetsBinding.instance.addPostFrameCallback((t) {
-                                homeProvider.changeSearching(true);
-                                homeProvider.changeQueryValue(v);
-                                _pagingController.refresh();
-                              });
-                            } else {
-                              WidgetsBinding.instance.addPostFrameCallback((t) {
-                                homeProvider.changeSearching(false);
-                                _pagingController.refresh();
-                              });
-                            }
-                            print(search.text);
-                          },
-                        );
-                      } catch (e) {
-                        print('=============> $e');
-                      }
-                    },
+                    onChanged: (v) => _onfieldChanged(v),
                     onFieldSubmitted: (v) {
                       if (v.isEmpty) {
                         homeProvider.changeSearching(false);
@@ -233,51 +210,85 @@ class _HomeState extends State<Home> {
                     },
                   )),
                   InkWell(
-                      onTap: () {
-                        showMenu(
-                                surfaceTintColor: Colors.white,
-                                color: Colors.white,
-                                context: context,
-                                position:
-                                    const RelativeRect.fromLTRB(150, 120, 0, 0),
-                                items: homeProvider.stype
-                                    .map((e) => PopupMenuItem(
-                                        onTap: () {
-                                          homeProvider.setQueryTypeName(e);
-                                          int index =
-                                              homeProvider.stype.indexOf(e);
-                                          if (index == 0) {
-                                            homeProvider.setQueryType('name');
-                                          } else if (index == 1) {
-                                            homeProvider
-                                                .setQueryType('barcode');
-                                          } else {
-                                            homeProvider
-                                                .setQueryType('intName');
-                                          }
-                                        },
-                                        child: Text(e)))
-                                    .toList())
-                            .then((value) {});
-                      },
+                      onTap: () => _changeSearchType(),
                       child: const Icon(Icons.keyboard_arrow_down_rounded)),
                 ],
               ),
             ),
           ),
+          const SizedBox(width: 10),
           Expanded(
-            child: InkWell(
-              borderRadius: BorderRadius.circular(10),
-              onTap: () => homeProvider.switchView(),
-              child: Icon(
-                homeProvider.isList ? Icons.grid_view : Icons.list,
-                color: AppColors.primary,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [Constants.defaultShadow],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () => homeProvider.switchView(),
+                child: Icon(
+                  homeProvider.isList ? Icons.grid_view : Icons.list_sharp,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  _changeSearchType() {
+    showMenu(
+      surfaceTintColor: Colors.white,
+      color: Colors.white,
+      context: context,
+      position: const RelativeRect.fromLTRB(150, 120, 0, 0),
+      items: homeProvider.stype
+          .map(
+            (e) => PopupMenuItem(
+              onTap: () {
+                homeProvider.setQueryTypeName(e);
+                int index = homeProvider.stype.indexOf(e);
+                if (index == 0) {
+                  homeProvider.setQueryType('name');
+                } else if (index == 1) {
+                  homeProvider.setQueryType('barcode');
+                } else {
+                  homeProvider.setQueryType('intName');
+                }
+              },
+              child: Text(e),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  _onfieldChanged(String v) {
+    try {
+      Future.delayed(
+        const Duration(milliseconds: 1000),
+        () {
+          if (v.isNotEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((t) {
+              homeProvider.changeSearching(true);
+              homeProvider.changeQueryValue(v);
+              _pagingController.refresh();
+            });
+          } else {
+            WidgetsBinding.instance.addPostFrameCallback((t) {
+              homeProvider.changeSearching(false);
+              _pagingController.refresh();
+            });
+          }
+        },
+      );
+    } catch (e) {
+      //
+    }
   }
 
   Expanded products(HomeProvider homeProvider) {
@@ -317,10 +328,10 @@ class _HomeState extends State<Home> {
                   child: Container(
                     width: MediaQuery.of(context).size.width * 0.3,
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.secondary, width: 2),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 2),
+                        // border: Border.all(color: AppColors.secondary, width: 2),
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.white),
+                    padding: const EdgeInsets.symmetric(vertical: 5),
                     child: Center(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -342,60 +353,38 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Future<dynamic> _picksupp(BuildContext context, HomeProvider homeProvider,
-      BasketProvider basketProvider) {
-    return showDialog(
+  _onPickSupplier(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    showMenu(
+      surfaceTintColor: Colors.white,
+      color: Colors.white,
       context: context,
-      builder: (context) {
-        return Dialog(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-            ),
-            child: Scrollbar(
-              thickness: 2,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(color: Colors.grey.shade100),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: const Center(
-                        child: Text(
-                          'Нийлүүлэгч сонгох',
-                          style: TextStyle(
-                              color: AppColors.secondary,
-                              fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      decoration: const BoxDecoration(color: Colors.white),
-                      child: Column(
-                        children: [
-                          ...homeProvider.supList.map(
-                            (e) => InkWell(
-                              onTap: () async => await onPickSupp(e),
-                              child: supplier(
-                                  e: e,
-                                  isLast: (homeProvider.supList.indexOf(e) ==
-                                          homeProvider.supList.length)
-                                      ? null
-                                      : true),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+      position: RelativeRect.fromLTRB(
+        size.width * 0.02,
+        size.height * 0.15,
+        size.width * 0.8,
+        0,
+      ),
+      elevation: 12,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12), 
+      ),
+      items: homeProvider.supList
+          .map(
+            (e) => PopupMenuItem(
+              onTap: () async => await onPickSupp(e),
+              child: Text(
+                e.name,
+                style: TextStyle(
+                  color: e.name == homeProvider.supName
+                      ? AppColors.succesColor
+                      : AppColors.primary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-          ),
-        );
-      },
+          )
+          .toList(),
     );
   }
 
@@ -403,33 +392,14 @@ class _HomeState extends State<Home> {
     await homeProvider.pickSupplier(int.parse(e.id), context);
     await homeProvider.changeSupName(e.name);
     basketProvider.getBasket();
-    await promotionProvider.getMarkedPromotion();
+    // await promotionProvider.getMarkedPromotion();
     homeProvider.refresh(context, homeProvider, promotionProvider);
     _pagingController.refresh();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (promotionProvider.markedPromotions.isNotEmpty) {
-        homeProvider.showMarkedPromos(context, promotionProvider);
-      }
-    });
-    Navigator.pop(context);
-  }
-
-  supplier({required Supplier e, bool? isLast}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      margin: const EdgeInsets.only(top: 2),
-      decoration: BoxDecoration(
-        border:
-            Border(bottom: BorderSide(color: Colors.grey.shade700, width: 2)),
-      ),
-      child: Text(
-        e.name,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          color: AppColors.primary,
-        ),
-      ),
-    );
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (promotionProvider.markedPromotions.isNotEmpty) {
+    //     homeProvider.showMarkedPromos(context, promotionProvider);
+    //   }
+    // });
+    // Navigator.pop(context);
   }
 }

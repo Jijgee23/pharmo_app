@@ -6,12 +6,14 @@ class CustomButton extends StatelessWidget {
   final VoidCallback ontap;
   final Color? color;
   final Color? borderColor;
+  final EdgeInsets? padding;
   const CustomButton(
       {super.key,
       required this.text,
       required this.ontap,
       this.color,
-      this.borderColor});
+      this.borderColor,
+      this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +24,10 @@ class CustomButton extends StatelessWidget {
           color ?? AppColors.primary,
         ),
         padding: WidgetStatePropertyAll(
-          EdgeInsets.symmetric(
-            vertical: size.height * 0.015,
-          ),
+          padding ??
+              EdgeInsets.symmetric(
+                vertical: size.height * 0.015,
+              ),
         ),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
@@ -42,7 +45,7 @@ class CustomButton extends StatelessWidget {
       child: Center(
         child: Text(
           text,
-          style: TextStyle(color: Colors.white, fontSize: size.height * 0.013),
+          style: TextStyle(color: Colors.white, fontSize: size.height * 0.014),
         ),
       ),
     );

@@ -28,7 +28,6 @@ class IndexPharma extends StatefulWidget {
 }
 
 class _IndexPharmaState extends State<IndexPharma> {
-  bool hidden = false;
   late HomeProvider homeProvider;
   late PromotionProvider promotionProvider;
   late BasketProvider basketProvider;
@@ -68,37 +67,23 @@ class _IndexPharmaState extends State<IndexPharma> {
           drawer: MyDrawer(
             drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems(),
           ),
-          appBar: hidden
-              ? null
-              : CustomAppBar(
-                  title: isPharma
-                      ? Text(
-                          getAppBarText(homeProvider.currentIndex),
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        )
-                      : getSellerAppBarTitle()),
+          appBar: CustomAppBar(
+              title: isPharma
+                  ? Text(
+                      getAppBarText(homeProvider.currentIndex),
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    )
+                  : getSellerAppBarTitle()),
           body: Container(
             padding: const EdgeInsets.only(right: 10, left: 10),
             child: isPharma
                 ? _pharmacyPages[homeProvider.currentIndex]
                 : _sellerPages[homeProvider.currentIndex],
           ),
-          // NotificationListener<UserScrollNotification>(
-          //   onNotification: (notification) {
-          //     if (notification.direction == ScrollDirection.reverse &&
-          //         homeProvider.currentIndex == 0) {
-          //       setState(() => hidden = true);
-          //     } else if (notification.direction == ScrollDirection.forward) {
-          //       setState(() => hidden = false);
-          //     }
-          //     return true;
-          //   },
-          //   child: _pages[homeProvider.currentIndex],
-          // ),
           bottomNavigationBar: BottomBar(
             homeProvider: homeProvider,
             listOfIcons: isPharma ? pharmaIcons : sellericons,
