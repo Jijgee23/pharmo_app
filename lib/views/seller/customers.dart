@@ -8,6 +8,7 @@ import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/seller/customer/customer_details_paga.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
+import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
 import 'package:provider/provider.dart';
 
 class CustomerList extends StatefulWidget {
@@ -18,33 +19,27 @@ class CustomerList extends StatefulWidget {
 }
 
 class _CustomerListState extends State<CustomerList> {
-  final TextEditingController controller = TextEditingController();
-  final TextEditingController name = TextEditingController();
-  final TextEditingController rn = TextEditingController();
-  final TextEditingController email = TextEditingController();
-  final TextEditingController phone = TextEditingController();
-  final TextEditingController phone2 = TextEditingController();
-  final TextEditingController phone3 = TextEditingController();
-  final TextEditingController note = TextEditingController();
   late HomeProvider homeProvider;
   late PharmProvider pharmProvider;
   String selectedFilter = 'Нэрээр';
   String filter = 'name';
   TextInputType selectedType = TextInputType.name;
   setFilter(v) {
-    setState(() {
-      selectedFilter = v;
-      if (v == 'Нэрээр') {
-        filter = 'name';
-        selectedType = TextInputType.text;
-      } else if (v == 'Утасны дугаараар') {
-        filter = 'phone';
-        selectedType = TextInputType.number;
-      } else {
-        filter = 'rn';
-        selectedType = TextInputType.text;
-      }
-    });
+    setState(
+      () {
+        selectedFilter = v;
+        if (v == 'Нэрээр') {
+          filter = 'name';
+          selectedType = TextInputType.text;
+        } else if (v == 'Утасны дугаараар') {
+          filter = 'phone';
+          selectedType = TextInputType.number;
+        } else {
+          filter = 'rn';
+          selectedType = TextInputType.text;
+        }
+      },
+    );
   }
 
   List<String> filters = ['Нэрээр', 'Утасны дугаараар', 'Регистрийн дугаараар'];
@@ -55,9 +50,7 @@ class _CustomerListState extends State<CustomerList> {
     pharmProvider = Provider.of<PharmProvider>(context, listen: false);
     pharmProvider.getCustomers(1, 100, context);
     homeProvider.getPosition();
-    setState(() {
-      uid = homeProvider.userId;
-    });
+    setState(() => uid = homeProvider.userId);
   }
 
   @override
@@ -72,99 +65,12 @@ class _CustomerListState extends State<CustomerList> {
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (_, homeProvider, pp, child) {
         return Scaffold(
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => registerCustomer(pp),
-            backgroundColor: Colors.white,
-            elevation: 10,
-            shape: const CircleBorder(),
-            child: Icon(
-              Icons.person_add_sharp,
-              color: Colors.blue.shade400,
-            ),
-          ),
+          floatingActionButton: _fab(pp),
           body: Column(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                margin: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: controller,
-                        cursorColor: Colors.black,
-                        cursorHeight: 20,
-                        cursorWidth: .8,
-                        keyboardType: selectedType,
-                        onChanged: (value) {
-                          WidgetsBinding.instance
-                              .addPostFrameCallback((cb) async {
-                            if (value.isEmpty) {
-                              await pharmProvider.getCustomers(1, 100, context);
-                            } else {
-                              await pp.filtCustomers(
-                                  filter, controller.text, context);
-                            }
-                          });
-                        },
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 20),
-                          hintText: '$selectedFilter хайх',
-                          hintStyle: const TextStyle(
-                            color: Colors.black38,
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        showMenu(
-                          color: Colors.white,
-                          context: context,
-                          shadowColor: Colors.grey.shade500,
-                          position: const RelativeRect.fromLTRB(100, 100, 0, 0),
-                          items: [
-                            ...filters.map(
-                              (f) => PopupMenuItem(
-                                child: Text(f),
-                                onTap: () => setFilter(f),
-                              ),
-                            )
-                          ],
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20)),
-                        margin: const EdgeInsets.only(right: 10),
-                        padding: const EdgeInsets.all(5),
-                        child: const Icon(
-                          Icons.arrow_drop_down,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      ...pp.filteredCustomers.map(
-                        (c) => customerBuilder(homeProvider, c),
-                      ),
-                      const SizedBox(height: kTextTabBarHeight + 20)
-                    ],
-                  ),
-                ),
+              _searchBar(pp),
+              _customersList(
+                pp,
               ),
             ],
           ),
@@ -173,7 +79,111 @@ class _CustomerListState extends State<CustomerList> {
     );
   }
 
-  InkWell customerBuilder(HomeProvider homeProvider, Customer c) {
+  // Харилцагч бүртгэх button
+  FloatingActionButton _fab(PharmProvider pp) {
+    return FloatingActionButton(
+      onPressed: () => registerCustomer(pp),
+      backgroundColor: Colors.white,
+      elevation: 10,
+      shape: const CircleBorder(),
+      child: Icon(
+        Icons.person_add_sharp,
+        color: Colors.blue.shade400,
+      ),
+    );
+  }
+
+  // Хайлтын widget
+  Widget _searchBar(PharmProvider pp) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: controller,
+              cursorColor: Colors.black,
+              cursorHeight: 20,
+              cursorWidth: .8,
+              keyboardType: selectedType,
+              onChanged: (value) => _onSearch(value, pp),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                hintText: '$selectedFilter хайх',
+                hintStyle: const TextStyle(
+                  color: Colors.black38,
+                ),
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              showMenu(
+                color: Colors.white,
+                context: context,
+                shadowColor: Colors.grey.shade500,
+                position: const RelativeRect.fromLTRB(100, 100, 0, 0),
+                items: [
+                  ...filters.map(
+                    (f) => PopupMenuItem(
+                      child: Text(f),
+                      onTap: () => setFilter(f),
+                    ),
+                  )
+                ],
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
+              margin: const EdgeInsets.only(right: 10),
+              padding: const EdgeInsets.all(5),
+              child: const Icon(
+                Icons.arrow_drop_down,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Хайлтын функц
+  void _onSearch(String value, PharmProvider pp) {
+    WidgetsBinding.instance.addPostFrameCallback((cb) async {
+      if (value.isEmpty) {
+        await pharmProvider.getCustomers(1, 100, context);
+      } else {
+        await pp.filtCustomers(filter, controller.text, context);
+      }
+    });
+  }
+
+  // Харилцагчдын жагсаалт
+  _customersList(PharmProvider pp) {
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            ...pp.filteredCustomers.map(
+              (c) => _customerBuilder(homeProvider, c),
+            ),
+            const SizedBox(height: kTextTabBarHeight + 20)
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Харилцагч
+  InkWell _customerBuilder(HomeProvider homeProvider, Customer c) {
     return InkWell(
       onTap: () {
         homeProvider.changeSelectedCustomerId(c.id!);
@@ -233,7 +243,6 @@ class _CustomerListState extends State<CustomerList> {
             ),
             InkWell(
               onTap: () => goto(CustomerDetailsPage(customer: c)),
-              // getCustomerDetail(c),
               child: Icon(
                 Icons.chevron_right_rounded,
                 color: Colors.blue.shade700,
@@ -245,6 +254,16 @@ class _CustomerListState extends State<CustomerList> {
     );
   }
 
+  final TextEditingController controller = TextEditingController();
+  final TextEditingController name = TextEditingController();
+  final TextEditingController rn = TextEditingController();
+  final TextEditingController email = TextEditingController();
+  final TextEditingController phone = TextEditingController();
+  final TextEditingController phone2 = TextEditingController();
+  final TextEditingController phone3 = TextEditingController();
+  final TextEditingController note = TextEditingController();
+
+  // Харилцгагч бүртгэх
   registerCustomer(PharmProvider pp) {
     Get.bottomSheet(
       Container(
@@ -262,14 +281,23 @@ class _CustomerListState extends State<CustomerList> {
             crossAxisAlignment: WrapCrossAlignment.center,
             runSpacing: 10,
             children: [
-              const Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'Харилцагч бүртгэх',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Харилцагч бүртгэх',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    PopSheet()
+                  ],
                 ),
               ),
               input('Нэр', name, null, null),
@@ -283,34 +311,39 @@ class _CustomerListState extends State<CustomerList> {
               input('Нэмэлт тайлбар - Заавал биш', note, null, null),
               CustomButton(
                 text: 'Бүртгэх',
-                ontap: () {
-                  if (name.text.isEmpty ||
-                      rn.text.isEmpty ||
-                      email.text.isEmpty ||
-                      phone.text.isEmpty) {
-                    message(message: 'Бүртгэл гүйцээнээ үү!', context: context);
-                  } else {
-                    pp
-                        .registerCustomer(
-                            name.text,
-                            rn.text,
-                            email.text,
-                            phone.text,
-                            phone2.text,
-                            phone3.text,
-                            note.text,
-                            homeProvider.currentLatitude.toString(),
-                            homeProvider.currentLongitude.toString(),
-                            context)
-                        .whenComplete(() => popSheet());
-                  }
-                },
+                ontap: () async => await _registerCustomer(pp),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  // Бүртгэх
+  _registerCustomer(PharmProvider pp) async {
+    if (name.text.isEmpty ||
+        rn.text.isEmpty ||
+        email.text.isEmpty ||
+        phone.text.isEmpty) {
+      message(message: 'Бүртгэл гүйцээнээ үү!', context: context);
+    } else {
+      await pp
+          .registerCustomer(
+              name.text,
+              rn.text,
+              email.text,
+              phone.text,
+              phone2.text,
+              phone3.text,
+              note.text,
+              homeProvider.currentLatitude.toString(),
+              homeProvider.currentLongitude.toString(),
+              context)
+          .whenComplete(
+            () => popSheet(),
+          );
+    }
   }
 
   popSheet() {
@@ -326,6 +359,7 @@ class _CustomerListState extends State<CustomerList> {
   }
 }
 
+// TextField
 Widget input(String hint, TextEditingController contr,
     Function(String?)? validator, TextInputType? keyType) {
   return Container(

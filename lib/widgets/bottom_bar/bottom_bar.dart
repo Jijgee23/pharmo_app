@@ -21,51 +21,55 @@ class BottomBar extends StatefulWidget {
 class _BottomBarState extends State<BottomBar> {
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final orientation = MediaQuery.of(context).orientation;
+    var size = MediaQuery.of(context).size;
+    var orientation = MediaQuery.of(context).orientation;
+    var margin = EdgeInsets.symmetric(
+        vertical: Platform.isIOS ? 0 : 10,
+        horizontal: (orientation == Orientation.portrait)
+            ? size.width * 0.25
+            : size.width / 3);
+    var boxDecoration = BoxDecoration(
+      borderRadius: BorderRadius.circular(30),
+      color: Colors.white,
+      boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 10)],
+    );
     return SafeArea(
       top: true,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
-        margin: EdgeInsets.symmetric(
-            vertical: Platform.isIOS ? 0 : 10,
-            horizontal: (orientation == Orientation.portrait)
-                ? size.width * 0.25
-                : size.width / 3),
+      child: Container(
+        margin: margin,
         padding: const EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 10)],
-        ),
+        decoration: boxDecoration,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: BottomNavigationBar(
-              currentIndex: widget.homeProvider.currentIndex,
-              backgroundColor: Colors.white,
-              useLegacyColorScheme: false,
-              showUnselectedLabels: false,
-              showSelectedLabels: true,
-              selectedFontSize: 12,
-              type: BottomNavigationBarType.fixed,
-              onTap: widget.homeProvider.changeIndex,
-              items: widget.listOfIcons
-                  .map(
-                    (i) => BottomNavigationBarItem(
-                      icon: Image.asset(
-                        'assets/icons_2/$i.png',
-                        height: 20,
-                        color: widget.homeProvider.currentIndex ==
-                                widget.listOfIcons.indexOf(i)
-                            ? AppColors.primary.withOpacity(0.9)
-                            : AppColors.primary.withOpacity(.3),
-                      ),
-                      label: widget.labels[widget.listOfIcons.indexOf(i)],
-                    ),
-                  )
-                  .toList()),
+            currentIndex: widget.homeProvider.currentIndex,
+            backgroundColor: Colors.white,
+            useLegacyColorScheme: false,
+            showUnselectedLabels: false,
+            showSelectedLabels: true,
+            selectedFontSize: 12,
+            type: BottomNavigationBarType.fixed,
+            onTap: widget.homeProvider.changeIndex,
+            items: _buildBarItems(),
+          ),
         ),
       ),
     );
+  }
+
+  List<BottomNavigationBarItem> _buildBarItems() {
+    return widget.listOfIcons.map((i) {
+      int index = widget.listOfIcons.indexOf(i);
+      return BottomNavigationBarItem(
+        icon: Image.asset(
+          'assets/icons_2/$i.png',
+          height: 20,
+          color: widget.homeProvider.currentIndex == index
+              ? AppColors.primary.withOpacity(0.9)
+              : AppColors.primary.withOpacity(0.3),
+        ),
+        label: widget.labels[index],
+      );
+    }).toList();
   }
 }

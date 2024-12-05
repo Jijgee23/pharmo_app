@@ -1,9 +1,5 @@
-// ignore_for_file: use_build_context_synchronously, non_constant_identifier_names
-
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
@@ -72,6 +68,7 @@ class _HomeState extends State<Home> {
     // });
   }
 
+  // Барааны жагсаалт авах
   Future<void> fetchPage(int pageKey) async {
     try {
       final items = await homeProvider.getProducts(pageKey);
@@ -106,7 +103,7 @@ class _HomeState extends State<Home> {
         ),
         body: CustomScrollView(
           slivers: [
-            CustomGridView(pagingController: _filtering, hasSale: hasSale)
+            CustomGrid(pagingController: _filtering, hasSale: hasSale)
           ],
         ),
       ),
@@ -151,6 +148,7 @@ class _HomeState extends State<Home> {
     );
   }
 
+  // Хайлт
   Container searchBar(
       BuildContext context,
       HomeProvider homeProvider,
@@ -202,12 +200,7 @@ class _HomeState extends State<Home> {
                       contentPadding: const EdgeInsets.symmetric(vertical: 0),
                     ),
                     onChanged: (v) => _onfieldChanged(v),
-                    onFieldSubmitted: (v) {
-                      if (v.isEmpty) {
-                        homeProvider.changeSearching(false);
-                        _pagingController.refresh();
-                      }
-                    },
+                    onFieldSubmitted: (v) => _onFieldSubmitted(v),
                   )),
                   InkWell(
                       onTap: () => _changeSearchType(),
@@ -217,6 +210,7 @@ class _HomeState extends State<Home> {
             ),
           ),
           const SizedBox(width: 10),
+          // List Grid switcher
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -267,6 +261,7 @@ class _HomeState extends State<Home> {
     );
   }
 
+  // Хайлт функц
   _onfieldChanged(String v) {
     try {
       Future.delayed(
@@ -291,6 +286,13 @@ class _HomeState extends State<Home> {
     }
   }
 
+  _onFieldSubmitted(String v) {
+    if (v.isEmpty) {
+      homeProvider.changeSearching(false);
+      _pagingController.refresh();
+    }
+  }
+
   Expanded products(HomeProvider homeProvider) {
     return Expanded(
       child: homeProvider.searching
@@ -303,6 +305,7 @@ class _HomeState extends State<Home> {
     );
   }
 
+  // Эрэлттэй, Шинэ, Хямдралтай
   filtering(double smallFontSize) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
@@ -353,6 +356,7 @@ class _HomeState extends State<Home> {
     );
   }
 
+  // Нийлүүлэгч сонгох
   _onPickSupplier(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     showMenu(
@@ -367,7 +371,7 @@ class _HomeState extends State<Home> {
       ),
       elevation: 12,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), 
+        borderRadius: BorderRadius.circular(12),
       ),
       items: homeProvider.supList
           .map(

@@ -27,7 +27,7 @@ class _OrderDoneState extends State<OrderDone> {
     final HomeProvider homeProvider =
         Provider.of<HomeProvider>(context, listen: false);
     homeProvider.changeIndex(0);
-    gotoRemoveUntil(const IndexPharma(), context);
+    gotoRemoveUntil(const IndexPharma());
     provider.getBasket();
   }
 

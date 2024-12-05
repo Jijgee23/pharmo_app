@@ -58,7 +58,9 @@ class _CartState extends State<Cart> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Сагсны мэдээлэл
                     basketIsEmpty ? const SizedBox() : const BasketInfo(),
+                    // Сагсанд байгаа бараанууд
                     cartDatas.isNotEmpty
                         ? Expanded(
                             child: ListView.builder(

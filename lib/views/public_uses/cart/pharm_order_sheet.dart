@@ -5,6 +5,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
 import 'package:provider/provider.dart';
 
 class PharmOrderSheet extends StatefulWidget {
@@ -80,17 +81,18 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
       child: Wrap(
         runSpacing: 20,
         children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ...deliveryTypes.map((dt) => MyChip(
-                    title: dt,
-                    v: delS[deliveryTypes.indexOf(dt)],
-                    selected: (delS[deliveryTypes.indexOf(dt)] == deliveryType),
-                    ontap: () =>
-                        setDeliverType(delS[deliveryTypes.indexOf(dt)])))
-              ],
-            ),
+          // Хүргэлтийн төрөл сонгох
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ...deliveryTypes.map((dt) => MyChip(
+                  title: dt,
+                  v: delS[deliveryTypes.indexOf(dt)],
+                  selected: (delS[deliveryTypes.indexOf(dt)] == deliveryType),
+                  ontap: () => setDeliverType(delS[deliveryTypes.indexOf(dt)])))
+            ],
+          ),
+          // Салбар сонгох
           if (deliveryType == 'D') ...[
             InkWell(
               onTap: selectBranch,
@@ -114,18 +116,17 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
               ),
             ),
           ],
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Заавал биш:',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [Text('Заавал биш:'), PopSheet()],
           ),
+          // Тайлбар
           CustomTextField(
             controller: noteController,
             hintText: 'Тайлбар',
             onChanged: (v) => homeProvider.setNote(v!),
           ),
+          // Төлбөрийн хэлбэр сонгох
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

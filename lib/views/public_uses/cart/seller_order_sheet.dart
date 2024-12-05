@@ -5,6 +5,7 @@ import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
 import 'package:provider/provider.dart';
 
 class SellerOrderSheet extends StatefulWidget {
@@ -52,9 +53,9 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
       child: Wrap(
         runSpacing: 15,
         children: [
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text('Заавал биш:'),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [Text('Заавал биш:'), PopSheet()],
           ),
           CustomTextField(
             controller: noteController,

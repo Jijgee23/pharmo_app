@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -11,12 +10,12 @@ import 'package:http/http.dart' as http;
 void goto(Widget widget) {
   Get.to(
     widget,
-    curve: Curves.fastLinearToSlowEaseIn,
+    curve: Curves.slowMiddle,
     transition: Transition.rightToLeft,
   );
 }
 
-void gotoRemoveUntil(Widget widget, BuildContext context) {
+void gotoRemoveUntil(Widget widget) {
   Get.offAll(
     widget,
     curve: Curves.fastLinearToSlowEaseIn,

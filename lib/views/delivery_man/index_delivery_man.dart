@@ -67,7 +67,7 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
                 asset: 'assets/icons_2/swap.png',
                 onTap: () {
                   homeProvider.changeIndex(0);
-                  gotoRemoveUntil(const IndexPharma(), context);
+                  gotoRemoveUntil(const IndexPharma());
                 },
               ),
             ],

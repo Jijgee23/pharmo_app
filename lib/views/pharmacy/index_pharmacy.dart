@@ -154,7 +154,7 @@ class _IndexPharmaState extends State<IndexPharma> {
               title: 'Түгээгчрүү шилжих',
               onTap: () {
                 homeProvider.changeIndex(0);
-                gotoRemoveUntil(const IndexDeliveryMan(), context);
+                gotoRemoveUntil(const IndexDeliveryMan());
               },
               asset: 'assets/icons_2/swap.png',
             )

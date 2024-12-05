@@ -166,6 +166,7 @@ class _CartItemState extends State<CartItem> {
               focusNode: focusNode,
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
               decoration: const InputDecoration(
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,

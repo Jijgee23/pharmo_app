@@ -62,7 +62,7 @@ class _FilteredProductsState extends State<FilteredProducts> {
       ),
       body: CustomScrollView(
         slivers: [
-          CustomGridView(pagingController: _pagingController),
+          CustomGrid(pagingController: _pagingController),
         ],
       ),
     );

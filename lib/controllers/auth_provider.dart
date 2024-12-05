@@ -181,16 +181,16 @@ class AuthController extends ChangeNotifier {
 
   // Хэрэглэгчийн эрхээс хамаарч дэлгэц харуулах
   void _navigateBasedOnRole(String role, BuildContext context) {
-    gotoRemoveUntil(const IndexPharma(), context);
+    gotoRemoveUntil(const IndexPharma());
     switch (role) {
       case 'S':
-        gotoRemoveUntil(const IndexPharma(), context);
+        gotoRemoveUntil(const IndexPharma());
         break;
       case 'PA':
-        gotoRemoveUntil(const IndexPharma(), context);
+        gotoRemoveUntil(const IndexPharma());
         break;
       case 'D':
-        gotoRemoveUntil(const IndexDeliveryMan(), context);
+        gotoRemoveUntil(const IndexDeliveryMan());
         break;
       default:
         message(message: 'Веб хуудсаар хандана уу', context: context);
