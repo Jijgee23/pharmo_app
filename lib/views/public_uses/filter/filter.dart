@@ -34,12 +34,6 @@ class _FilterPageState extends State<FilterPage> {
     super.dispose();
   }
 
-  List<String> filterList = [
-    (HomeProvider().categories.isEmpty) ? 'Ангилал' : '',
-    (HomeProvider().mnfrs.isEmpty) ? 'Нийлүүлэгч' : '',
-    (HomeProvider().vndrs.isEmpty) ? 'Үйлдвэрлэгч' : '',
-  ];
-
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -50,6 +44,11 @@ class _FilterPageState extends State<FilterPage> {
         length: 3,
         child: Consumer<HomeProvider>(
           builder: (context, homeProvider, child) {
+            List<String?> filterList = [
+              (homeProvider.categories.isNotEmpty) ? 'Ангилал' : '',
+              (homeProvider.mnfrs.isNotEmpty) ? 'Нийлүүлэгч' : '',
+              (homeProvider.vndrs.isNotEmpty) ? 'Үйлдвэрлэгч' : '',
+            ];
             return Scaffold(
               body: Column(
                 children: [
@@ -64,7 +63,7 @@ class _FilterPageState extends State<FilterPage> {
                                 .map(
                                   (fil) => Tab(
                                     child: Text(
-                                      fil,
+                                      fil!,
                                       style: const TextStyle(
                                           color: Colors.blue,
                                           fontSize: 12,
@@ -190,7 +189,7 @@ class _CategoryItemState extends State<CategoryItem> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -155,12 +155,13 @@ class ProductWidgetListView extends StatelessWidget {
     final fs = height * .013;
     return InkWell(
       onTap: () => goto(ProductDetail(prod: item)),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: Colors.white,
             boxShadow: shadow()),
-        margin: const EdgeInsets.symmetric(vertical: 2.5),
+        margin: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 5),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         width: double.infinity,
         child: Row(

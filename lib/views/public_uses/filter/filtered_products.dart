@@ -60,10 +60,9 @@ class _FilteredProductsState extends State<FilteredProducts> {
         ),
         actions: const [CartIcon()],
       ),
-      body: CustomScrollView(
-        slivers: [
-          CustomGrid(pagingController: _pagingController),
-        ],
+      body: Container(
+        padding: const EdgeInsets.only(right: 10, left: 10),
+        child: CustomGrid(pagingController: _pagingController),
       ),
     );
   }

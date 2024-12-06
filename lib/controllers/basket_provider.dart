@@ -43,10 +43,12 @@ class BasketProvider extends ChangeNotifier {
             ? _basket.items!.length
             : 0;
         _shoppingCarts = _basket.items!;
-        notifyListeners();
+      } else {
+        return buildResponse(1, '', 'Сагсны мэдээлэл татахад алдаа гарлаа!');
       }
-    } catch (e) {
       notifyListeners();
+    } catch (e) {
+      //
     }
   }
 
@@ -158,24 +160,15 @@ class BasketProvider extends ChangeNotifier {
     return '0';
   }
 
-  Future<dynamic> clearBasket({required int basketId}) async {
+  Future<dynamic> clearBasket() async {
     try {
       final response =
-          await apiPost('clear_basket/', jsonEncode({'basketId': basketId}));
+          await apiPost('clear_basket/', jsonEncode({'basketId': basket.id}));
       await getBasket();
-      notifyListeners();
       if (response.statusCode == 200) {
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Сагсан дахь бараа амжилттай устлаа.'
-        };
-      } else {
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.'
-        };
+        debugPrint('basket cleared');
+        await getBasket();
+        notifyListeners();
       }
     } catch (e) {
       return {'fail': e};
@@ -246,7 +239,7 @@ class BasketProvider extends ChangeNotifier {
       final res = convertData(response);
       if (response.statusCode == 200) {
         Future(() async {
-          await clearBasket(basketId: basketId);
+          await clearBasket();
         }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
         return res['orderNo'];
       } else if (response.statusCode == 400) {
@@ -304,7 +297,7 @@ class BasketProvider extends ChangeNotifier {
       final resQR = await apiGet('cp/');
       if (resQR.statusCode == 200) {
         dynamic response = convertData(resQR);
-        await clearBasket(basketId: basket.id);
+        await clearBasket();
         notifyListeners();
         return {
           'errorType': 1,

@@ -23,12 +23,13 @@ class _OrderDoneState extends State<OrderDone> {
     super.initState();
   }
 
-  goHome(BasketProvider provider) {
+  goHome(BasketProvider provider) async {
     final HomeProvider homeProvider =
         Provider.of<HomeProvider>(context, listen: false);
-    homeProvider.changeIndex(0);
+    await homeProvider.changeIndex(0);
+    await provider.clearBasket();
+    await provider.getBasket();
     gotoRemoveUntil(const IndexPharma());
-    provider.getBasket();
   }
 
   @override

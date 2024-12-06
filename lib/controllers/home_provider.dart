@@ -468,7 +468,7 @@ class HomeProvider extends ChangeNotifier {
         final res = convertData(response);
         final orderNumber = res['orderNo'];
         goto(OrderDone(orderNo: orderNumber.toString()));
-        await basketProvider.clearBasket(basketId: basketId!);
+        await basketProvider.clearBasket();
         note = null;
         notifyListeners();
       } else {

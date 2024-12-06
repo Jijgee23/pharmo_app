@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/views/public_uses/cart/basket_info.dart';
 import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/public_uses/cart/seller_order_sheet.dart';
@@ -28,7 +29,7 @@ class _CartState extends State<Cart> {
   void initState() {
     super.initState();
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    basketProvider.getBasket();
+    getBasket();
     basketProvider.checkQTYs();
   }
 
@@ -36,81 +37,65 @@ class _CartState extends State<Cart> {
     await basketProvider.getBasket();
   }
 
+  var decoration = BoxDecoration(
+    color: Colors.white,
+    boxShadow: [Constants.defaultShadow],
+    borderRadius: BorderRadius.circular(5),
+  );
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
-
-    void clearBasket(int basketId) {
-      basketProvider.clearBasket(basketId: basketId);
-      basketProvider.getBasket();
-    }
-
     return Consumer<BasketProvider>(
       builder: (context, provider, _) {
         final cartDatas = provider.shoppingCarts;
         final basket = provider.basket;
-        final basketIsEmpty = basketProvider.basket.totalCount == 0;
-        return Container(
-          margin: const EdgeInsets.only(bottom: kToolbarHeight),
-          child: Column(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Сагсны мэдээлэл
-                    basketIsEmpty ? const SizedBox() : const BasketInfo(),
-                    // Сагсанд байгаа бараанууд
-                    cartDatas.isNotEmpty
-                        ? Expanded(
-                            child: ListView.builder(
-                              itemCount: cartDatas.length,
-                              itemBuilder: (context, index) {
-                                return CartItem(detail: cartDatas[index] ?? {});
-                              },
-                            ),
-                          )
-                        : const Center(child: EmptyBasket())
-                  ],
+        final basketIsEmpty =
+            (basketProvider.basket.totalCount == 0 || basket.items!.isEmpty);
+        return Scaffold(
+          body: Container(
+            margin: const EdgeInsets.only(bottom: kToolbarHeight),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Сагсны мэдээлэл
+                      if (!basketIsEmpty) const BasketInfo(),
+                      // Сагсанд байгаа бараанууд
+                      (!basketIsEmpty)
+                          ? Expanded(
+                              child: ListView.builder(
+                                itemCount: cartDatas.length,
+                                itemBuilder: (context, index) {
+                                  return CartItem(
+                                      detail: cartDatas[index] ?? {});
+                                },
+                              ),
+                            )
+                          : const Center(child: EmptyBasket())
+                    ],
+                  ),
                 ),
-              ),
-              (cartDatas.isEmpty)
-                  ? const SizedBox()
-                  : Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                      margin: const EdgeInsets.only(bottom: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border(
-                          top: BorderSide(
-                            color: Colors.grey.shade400,
-                            width: 1.0,
-                            style: BorderStyle.solid,
-                          ),
-                        ),
-                      ),
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Button(
-                                text: 'Сагс хоослох',
-                                onTap: () => clearBasket(basket.id),
-                                color: AppColors.primary),
-                            Button(
-                              text: 'Захиалга үүсгэх',
-                              color: AppColors.primary,
-                              onTap: () async => await placeOrder(context),
-                            ),
-                          ],
-                        ),
+                if (!basketIsEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    margin: const EdgeInsets.only(bottom: 10),
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      alignment: Alignment.centerRight,
+                      child: Button(
+                        text: 'Захиалга үүсгэх',
+                        color: AppColors.primary,
+                        onTap: () async => await placeOrder(context),
                       ),
                     ),
-              SizedBox(
-                height: (Platform.isIOS) ? 30 : 20,
-              ),
-            ],
+                  ),
+                SizedBox(
+                  height: (Platform.isIOS) ? 30 : 20,
+                ),
+              ],
+            ),
           ),
         );
       },

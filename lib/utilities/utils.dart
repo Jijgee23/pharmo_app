@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 void goto(Widget widget) {
   Get.to(
     widget,
-    curve: Curves.slowMiddle,
+    curve: Curves.fastLinearToSlowEaseIn,
     transition: Transition.rightToLeft,
   );
 }

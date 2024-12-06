@@ -1,3 +1,4 @@
+import 'package:pharmo_app/utilities/utils.dart';
 
 class Basket {
   int id;
@@ -7,7 +8,7 @@ class Basket {
   int? totalCount;
   int? extra;
   int? branch;
-  Map<String,dynamic>? supplier;
+  Map<String, dynamic>? supplier;
   List<dynamic>? items;
 
   Basket(
@@ -23,13 +24,13 @@ class Basket {
   );
 
   Basket.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
+      : id = parseInt(json['id']),
         name = json['name'],
         payType = json['payType'],
         totalPrice = json['totalPrice'],
-        totalCount = json['totalCount'],
-        extra = json['extra'],
-        branch = json['branch'],
+        totalCount = parseInt(json['totalCount']),
+        extra = parseInt(json['extra']),
+        branch = parseInt(json['branch']),
         supplier = json['supplier'],
         items = json['items'];
 

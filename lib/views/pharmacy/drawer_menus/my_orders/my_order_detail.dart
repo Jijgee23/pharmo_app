@@ -1,9 +1,11 @@
-import 'package:easy_stepper/easy_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/widgets/icon/cart_icon.dart';
+import 'package:pharmo_app/widgets/order_widgets/order_status.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:provider/provider.dart';
 
@@ -34,91 +36,51 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     super.initState();
   }
 
-  List<String> processes = [
-    'Шинэ',
-    'Бэлтгэж эхэлсэн',
-    'Бэлэн болсон',
-    'Түгээлтэнд гарсан',
-    'Хүргэгдсэн'
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Consumer<MyOrderProvider>(
       builder: (context, provider, child) {
         return DefaultBox(
           title: 'Захиалгын дугаар: ${widget.orderNo}',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 7,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.cleanWhite,
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(30),
-                      topLeft: Radius.circular(30),
-                    ),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Box(
-                          child: EasyStepper(
-                            activeStep: widget.process!,
-                            showLoadingAnimation: false,
-                            activeStepBorderColor: Colors.green,
-                            activeStepBorderType: BorderType.normal,
-                            lineStyle: const LineStyle(
-                                lineType: LineType.normal,
-                                finishedLineColor: Colors.green),
-                            unreachedStepBackgroundColor: Colors.transparent,
-                            unreachedStepBorderColor: Colors.transparent,
-                            finishedStepBackgroundColor: Colors.transparent,
-                            borderThickness: 2,
-                            steps: [
-                              ...processes.map((p) =>
-                                  step(title: p, idx: processes.indexOf(p)))
-                            ],
-                          ),
-                        ),
-                        Box(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              col(
-                                  t1: 'Дүн',
-                                  t2: '${widget.order.totalPrice.toString()} ₮'),
-                              col(
-                                  t1: 'Тоо ширхэг',
-                                  t2: widget.order.totalCount.toString()),
-                              col(
-                                  t1: 'Нийлүүлэгч',
-                                  t2: widget.order.supplier.toString()),
-                            ],
-                          ),
-                        ),
-                        Box(
-                          child: Scrollbar(
-                            thickness: 1,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  ...provider.orderDetails.map(
-                                    (o) => productBuilder(o),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
+          action: const CartIcon(
+            color: Colors.white,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                OrderStatus(process: widget.order.process!),
+                Box(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      col(
+                          t1: 'Дүн',
+                          t2: '${widget.order.totalPrice.toString()} ₮'),
+                      col(
+                          t1: 'Тоо ширхэг',
+                          t2: widget.order.totalCount.toString()),
+                      col(
+                          t1: 'Нийлүүлэгч',
+                          t2: widget.order.supplier.toString()),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                Box(
+                  child: Scrollbar(
+                    thickness: 1,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          ...provider.orderDetails.map(
+                            (o) => productBuilder(o),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         );
       },
@@ -142,65 +104,94 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     );
   }
 
-  EasyStep step({required String title, required int idx}) {
-    bool reached = (widget.process == idx || widget.process! >= idx);
-    return EasyStep(
-      customStep: Image.asset(
-        reached ? 'assets/icons/check.png' : 'assets/icons/circle.png',
-        height: 30,
-      ),
-      customTitle: Center(
-        child: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-        ),
-      ),
-    );
-  }
-
   Container productBuilder(MyOrderDetailModel o) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: 10),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 5)],
-        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey.shade100],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            o.itemName.toString(),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppColors.secondary,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                o.itemName.toString(),
-                softWrap: true,
-                maxLines: 2,
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.secondary,
-                    overflow: TextOverflow.ellipsis),
+              detailColumn(
+                label: 'Тоо ширхэг',
+                value: o.iQty.toString(),
+              ),
+              detailColumn(
+                label: 'Нэгж үнэ',
+                value: toPrice(o.itemPrice),
+                valueColor: AppColors.primary,
+              ),
+              detailColumn(
+                label: 'Нийт үнэ',
+                value: '${o.itemTotalPrice}₮',
+                valueColor: AppColors.primary,
               ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              col(t1: 'Тоо ширхэг', t2: o.iQty.toString()),
-              col(
-                  t1: 'Нэгж үнэ',
-                  t2: '${o.itemPrice}₮',
-                  t2Color: AppColors.primary),
-              col(
-                  t1: 'Нийт үнэ',
-                  t2: '${o.itemTotalPrice.toString()}₮',
-                  t2Color: AppColors.primary),
-            ],
-          )
         ],
       ),
+    );
+  }
+
+  Widget detailColumn({
+    required String label,
+    required String value,
+    Color valueColor = Colors.black,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: valueColor,
+          ),
+        ),
+      ],
     );
   }
 }

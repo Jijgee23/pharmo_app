@@ -6,7 +6,8 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 
 class CartIcon extends StatefulWidget {
-  const CartIcon({super.key});
+  final Color? color;
+  const CartIcon({super.key, this.color});
 
   @override
   State<CartIcon> createState() => _CartIconState();
@@ -44,7 +45,7 @@ class _CartIconState extends State<CartIcon> {
               'assets/icons_2/cart.png',
               height: 24,
               width: 24,
-              color: AppColors.primary,
+              color: widget.color ?? AppColors.primary,
             ),
           ),
         ),

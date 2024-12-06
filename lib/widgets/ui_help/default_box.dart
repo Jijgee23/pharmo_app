@@ -6,7 +6,9 @@ import '../others/chevren_back.dart';
 class DefaultBox extends StatelessWidget {
   final String title;
   final Widget child;
-  const DefaultBox({super.key, required this.title, required this.child});
+  final Widget? action;
+  const DefaultBox(
+      {super.key, required this.title, required this.child, this.action});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class DefaultBox extends StatelessWidget {
                       style: const TextStyle(
                           color: Colors.white, fontSize: 15, letterSpacing: 2),
                     ),
-                    SizedBox(width: size.width * 0.08)
+                    action ?? SizedBox(width: size.width * 0.08),
                   ],
                 ),
               ),
@@ -41,7 +43,8 @@ class DefaultBox extends StatelessWidget {
           ),
           Container(
             height: size.height * 0.9,
-            padding: EdgeInsets.symmetric(vertical: size.height *0.006, horizontal: size.width *0.006),
+            padding: EdgeInsets.symmetric(
+                vertical: size.height * 0.006, horizontal: size.width * 0.006),
             decoration: BoxDecoration(
               color: AppColors.background,
               borderRadius: BorderRadius.only(

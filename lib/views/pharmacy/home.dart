@@ -101,17 +101,25 @@ class _HomeState extends State<Home> {
           leading: const ChevronBack(),
           title: Text(title, style: Constants.headerTextStyle),
         ),
-        body: CustomScrollView(
-          slivers: [
-            CustomGrid(pagingController: _filtering, hasSale: hasSale)
-          ],
+        body: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 5),
+          child: Expanded(
+            child: CustomGrid(
+              pagingController: _filtering,
+              hasSale: hasSale,
+            ),
+          ),
         ),
       ),
     );
   }
 
   List<String> filters = ['Хямдралтай', 'Эрэлттэй', 'Шинэ'];
-
+  var decoration = BoxDecoration(
+    color: Colors.white,
+    boxShadow: [Constants.defaultShadow],
+    borderRadius: BorderRadius.circular(10),
+  );
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -127,21 +135,18 @@ class _HomeState extends State<Home> {
       child: Consumer3<HomeProvider, BasketProvider, PromotionProvider>(
         builder: (_, homeProvider, basketProvider, promotionProvider, child) {
           final search = homeProvider.searchController;
-          return Scaffold(
-            extendBody: true,
-            body: Column(
-              children: [
-                searchBar(
-                  context,
-                  homeProvider,
-                  basketProvider,
-                  smallFontSize,
-                  search,
-                ),
-                if (homeProvider.userRole == 'PA') filtering(smallFontSize),
-                products(homeProvider),
-              ],
-            ),
+          return Column(
+            children: [
+              searchBar(
+                context,
+                homeProvider,
+                basketProvider,
+                smallFontSize,
+                search,
+              ),
+              if (homeProvider.userRole == 'PA') filtering(smallFontSize),
+              products(homeProvider),
+            ],
           );
         },
       ),
@@ -164,10 +169,7 @@ class _HomeState extends State<Home> {
             flex: 7,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [Constants.defaultShadow],
-                  borderRadius: BorderRadius.circular(10)),
+              decoration: decoration,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -213,11 +215,7 @@ class _HomeState extends State<Home> {
           // List Grid switcher
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [Constants.defaultShadow],
-                borderRadius: BorderRadius.circular(10),
-              ),
+              decoration: decoration,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
               child: InkWell(
                 borderRadius: BorderRadius.circular(10),
@@ -330,10 +328,7 @@ class _HomeState extends State<Home> {
                   },
                   child: Container(
                     width: MediaQuery.of(context).size.width * 0.3,
-                    decoration: BoxDecoration(
-                        // border: Border.all(color: AppColors.secondary, width: 2),
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white),
+                    decoration: decoration,
                     padding: const EdgeInsets.symmetric(vertical: 5),
                     child: Center(
                       child: Row(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:pharmo_app/widgets/product/product_widget.dart';
 
 class CustomGrid extends StatelessWidget {
@@ -28,7 +29,7 @@ class CustomGrid extends StatelessWidget {
       builderDelegate: PagedChildBuilderDelegate<dynamic>(
         newPageErrorIndicatorBuilder: (context) => const MyIndicator(),
         newPageProgressIndicatorBuilder: (context) => const MyIndicator(),
-        noItemsFoundIndicatorBuilder: (context) => const NoItems(),
+        noItemsFoundIndicatorBuilder: (context) => const NoResult(),
         noMoreItemsIndicatorBuilder: (context) => const SizedBox(),
         firstPageErrorIndicatorBuilder: (context) {
           pagingController.refresh();
