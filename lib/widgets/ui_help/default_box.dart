@@ -13,14 +13,15 @@ class DefaultBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: AppColors.primary,
+      backgroundColor: theme.primaryColor,
       body: Column(
         children: [
           Container(
             height: size.height * 0.1,
-            decoration: const BoxDecoration(color: AppColors.primary),
+            decoration: BoxDecoration(color: theme.primaryColor),
             child: Center(
               child: Container(
                 margin: EdgeInsets.only(top: size.height * 0.032),

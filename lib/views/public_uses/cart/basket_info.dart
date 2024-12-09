@@ -12,15 +12,16 @@ class BasketInfo extends StatefulWidget {
 }
 
 class _BasketInfoState extends State<BasketInfo> {
+  
   var decoration = BoxDecoration(
-    boxShadow: shadow(),
     color: Colors.white,
     borderRadius: BorderRadius.circular(5),
-  );
+  ); 
+
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
-
+    final theme = Theme.of(context);
     void clearBasket() async {
       await basketProvider.clearBasket();
       await basketProvider.getBasket();
@@ -44,14 +45,13 @@ class _BasketInfoState extends State<BasketInfo> {
               title: 'Нийт тоо ширхэг',
               text: '${basketProvider.basket.totalCount ?? 0}'),
           Container(
-            decoration: decoration,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
             child: InkWell(
               borderRadius: BorderRadius.circular(5),
               onTap: () => clearBasket(),
-              child: const Icon(
+              child: Icon(
                 Icons.delete,
-                color: AppColors.primary,
+                color: theme.primaryColor,
                 size: 30,
               ),
             ),
@@ -64,8 +64,8 @@ class _BasketInfoState extends State<BasketInfo> {
   Widget info({required String title, required String text}) {
     final height = MediaQuery.of(context).size.height;
     final fs = height * .013;
+    final theme = Theme.of(context);
     return Container(
-      decoration: decoration,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -73,7 +73,7 @@ class _BasketInfoState extends State<BasketInfo> {
           Text(
             title,
             style: TextStyle(
-              color: AppColors.primary,
+              color: theme.primaryColor,
               fontSize: fs,
               fontWeight: FontWeight.bold,
             ),

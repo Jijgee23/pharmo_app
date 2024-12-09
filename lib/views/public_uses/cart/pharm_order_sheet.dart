@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -61,6 +60,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final fs = height * 0.014;
+    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -99,7 +99,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary, width: 0.8),
+                  border: Border.all(color: theme.primaryColor, width: 0.8),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 padding:
@@ -141,7 +141,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
           CustomButton(
             text: 'Захиалах',
             ontap: () => order(),
-            color: AppColors.primary,
+            color: theme.primaryColor,
             padding: const EdgeInsets.symmetric(vertical: 15),
           ),
         ],
@@ -241,6 +241,7 @@ class MyChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: ontap,
       child: AnimatedContainer(
@@ -249,7 +250,7 @@ class MyChip extends StatelessWidget {
         margin: const EdgeInsets.only(right: 20),
         decoration: BoxDecoration(
           border: Border.all(
-            color: selected ? AppColors.primary : Colors.grey.shade300,
+            color: selected ? theme.primaryColor : Colors.grey.shade300,
             width: 1.5,
           ),
           borderRadius: const BorderRadius.all(

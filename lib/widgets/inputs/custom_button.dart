@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -18,10 +17,11 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
     return ElevatedButton(
       style: ButtonStyle(
         backgroundColor: WidgetStatePropertyAll(
-          color ?? AppColors.primary,
+          color ?? theme.primaryColor,
         ),
         padding: WidgetStatePropertyAll(
           padding ??
@@ -33,7 +33,7 @@ class CustomButton extends StatelessWidget {
           RoundedRectangleBorder(
             side: BorderSide(
               color:
-                  borderColor != null ? Colors.transparent : AppColors.primary,
+                  borderColor != null ? Colors.transparent : theme.primaryColor,
             ),
             borderRadius: BorderRadius.circular(
               10,

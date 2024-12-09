@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import '../../controllers/home_provider.dart';
-import '../../utilities/colors.dart';
 
 class BottomBar extends StatefulWidget {
   final HomeProvider homeProvider;
@@ -22,6 +21,7 @@ class _BottomBarState extends State<BottomBar> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
+    var theme = Theme.of(context);
     var orientation = MediaQuery.of(context).orientation;
     var margin = EdgeInsets.symmetric(
         vertical: Platform.isIOS ? 0 : 10,
@@ -29,44 +29,41 @@ class _BottomBarState extends State<BottomBar> {
             ? size.width * 0.25
             : size.width / 3);
     var boxDecoration = BoxDecoration(
-      borderRadius: BorderRadius.circular(30),
-      color: Colors.white,
-      boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 10)],
-    );
+        borderRadius: BorderRadius.circular(30),
+        color: theme.cardColor,
+        border: Border.all(color: Colors.white)
+        );
     return SafeArea(
       top: true,
       child: Container(
         margin: margin,
-        padding: const EdgeInsets.all(5),
         decoration: boxDecoration,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: BottomNavigationBar(
             currentIndex: widget.homeProvider.currentIndex,
-            backgroundColor: Colors.white,
             useLegacyColorScheme: false,
             showUnselectedLabels: false,
             showSelectedLabels: true,
-            selectedFontSize: 12,
+            selectedFontSize: 10,
             type: BottomNavigationBarType.fixed,
             onTap: widget.homeProvider.changeIndex,
-            items: _buildBarItems(),
+            items: _buildBarItems(context),
           ),
         ),
       ),
     );
   }
 
-  List<BottomNavigationBarItem> _buildBarItems() {
+  List<BottomNavigationBarItem> _buildBarItems(BuildContext context) {
+    var theme = Theme.of(context);
     return widget.listOfIcons.map((i) {
       int index = widget.listOfIcons.indexOf(i);
       return BottomNavigationBarItem(
         icon: Image.asset(
           'assets/icons_2/$i.png',
           height: 20,
-          color: widget.homeProvider.currentIndex == index
-              ? AppColors.primary.withOpacity(0.9)
-              : AppColors.primary.withOpacity(0.3),
+          color: theme.bottomNavigationBarTheme.selectedItemColor,
         ),
         label: widget.labels[index],
       );

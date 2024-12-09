@@ -103,6 +103,7 @@ class _UserInformationState extends State<UserInformation> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final theme = Theme.of(context);
         return Dialog(
           child: Container(
             padding: const EdgeInsets.all(10),
@@ -129,13 +130,13 @@ class _UserInformationState extends State<UserInformation> {
                     children: [
                       Button(
                         text: 'Буцах',
-                        color: AppColors.primary,
+                        color: theme.primaryColor,
                         onTap: () => Navigator.pop(context),
                         width: 100,
                       ),
                       Button(
                         text: 'Устгах',
-                        color: AppColors.primary,
+                        color: theme.primaryColor,
                         onTap: () {
                           home.deactiveUser(pwd.text, context);
                         },

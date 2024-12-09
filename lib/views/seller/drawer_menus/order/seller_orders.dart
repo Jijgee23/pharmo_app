@@ -3,9 +3,7 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/seller/customers.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_order_detail.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
@@ -297,105 +295,6 @@ class OrderWidget extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class EditSellerOrder extends StatefulWidget {
-  final String note;
-  final String pt;
-  final int oId;
-  const EditSellerOrder(
-      {super.key, required this.note, required this.pt, required this.oId});
-
-  @override
-  State<EditSellerOrder> createState() => _EditSellerOrderState();
-}
-
-class _EditSellerOrderState extends State<EditSellerOrder> {
-  final nc = TextEditingController();
-  @override
-  void initState() {
-    super.initState();
-    setPayType(widget.pt);
-    setState(() {
-      nc.text = widget.note;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      child: SingleChildScrollView(
-        child: Wrap(
-          runSpacing: 15,
-          children: [
-            const Text(
-              'Захиалгын мэдээлэл засах',
-              style: TextStyle(fontSize: 12),
-            ),
-            input('Нэмэлт тайлбар', nc, null, null),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.primary, width: .8),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      myRadio('T', 'Дансаар'),
-                      myRadio('C', 'Бэлнээр'),
-                      myRadio('L', 'Зээлээр'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            CustomButton(
-              text: 'Хадгалах',
-              ontap: () {
-                final pharmProvider =
-                    Provider.of<PharmProvider>(context, listen: false);
-                pharmProvider
-                    .editSellerOrder(nc.text, payType, widget.oId, context)
-                    .then((e) => Navigator.pop(context));
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String payType = '';
-  setPayType(String v) {
-    setState(() {
-      payType = v;
-    });
-  }
-
-  Widget myRadio(String val, String title) {
-    return Row(
-      children: [
-        Radio(
-          value: val,
-          groupValue: payType,
-          visualDensity: VisualDensity.compact,
-          onChanged: (String? value) {
-            setPayType(value!);
-          },
-        ),
-        Text(
-          title,
-          style: const TextStyle(fontSize: 12.0),
-        )
-      ],
     );
   }
 }

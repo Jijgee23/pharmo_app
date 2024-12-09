@@ -59,6 +59,7 @@ class _IndexPharmaState extends State<IndexPharma> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Consumer2<HomeProvider, BasketProvider>(
       builder: (context, homeProvider, basketProvider, _) {
         bool isPharma = homeProvider.userRole == 'PA';
@@ -71,8 +72,8 @@ class _IndexPharmaState extends State<IndexPharma> {
               title: isPharma
                   ? Text(
                       getAppBarText(homeProvider.currentIndex),
-                      style: const TextStyle(
-                        color: AppColors.primary,
+                      style: TextStyle(
+                        color: theme.primaryColor,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -164,7 +165,7 @@ class _IndexPharmaState extends State<IndexPharma> {
 
   getSellerAppBarTitle() {
     final textStyle = TextStyle(
-      color: Colors.blueGrey.shade800,
+      color: Theme.of(context).primaryColor,
       fontSize: 12.0,
       letterSpacing: 0.3,
       fontWeight: FontWeight.bold,

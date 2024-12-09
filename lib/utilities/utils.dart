@@ -216,5 +216,5 @@ checker(Map response, String key, BuildContext context) {
 }
 
 shadow() {
-  return [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)];
+  return [BoxShadow(color: Colors.grey.shade400, blurRadius: 5)];
 }

@@ -117,7 +117,7 @@ class _HomeState extends State<Home> {
   List<String> filters = ['Хямдралтай', 'Эрэлттэй', 'Шинэ'];
   var decoration = BoxDecoration(
     color: Colors.white,
-    boxShadow: [Constants.defaultShadow],
+    // boxShadow: [Constants.defaultShadow],
     borderRadius: BorderRadius.circular(10),
   );
   @override
@@ -222,7 +222,7 @@ class _HomeState extends State<Home> {
                 onTap: () => homeProvider.switchView(),
                 child: Icon(
                   homeProvider.isList ? Icons.grid_view : Icons.list_sharp,
-                  color: AppColors.primary,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
@@ -312,8 +312,6 @@ class _HomeState extends State<Home> {
           children: filters
               .map(
                 (e) => InkWell(
-                  borderRadius: BorderRadius.circular(5),
-                  splashColor: AppColors.secondary.withOpacity(0.5),
                   onTap: () {
                     _filtering.itemList?.clear();
                     if (filters.indexOf(e) == 0) {

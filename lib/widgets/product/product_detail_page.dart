@@ -2,18 +2,17 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/icon/cart_icon.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:provider/provider.dart';
-import 'package:badges/badges.dart' as badges;
 
 class ProductDetail extends StatefulWidget {
   final Product prod;
@@ -62,7 +61,6 @@ class _ProductDetailState extends State<ProductDetail>
       final response = await apiGet('products/${widget.prod.id}/');
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-        print(data);
         setState(() {
           det = data;
         });
@@ -111,8 +109,8 @@ class _ProductDetailState extends State<ProductDetail>
   Widget build(BuildContext context) {
     final sh = MediaQuery.of(context).size.height;
     final size = MediaQuery.of(context).size;
-    final basketProvider = Provider.of<BasketProvider>(context);
-    final hp = Provider.of<HomeProvider>(context);
+    final theme = Theme.of(context);
+    final div = Divider(color: theme.primaryColor, thickness: .7);
     return Scaffold(
       body: (fetching)
           ? const Center(child: PharmoIndicator())
@@ -121,7 +119,7 @@ class _ProductDetailState extends State<ProductDetail>
               child: Container(
                 width: size.width,
                 height: size.height,
-                color: AppColors.cleanWhite,
+                color: theme.scaffoldBackgroundColor,
                 padding: const EdgeInsets.all(20.0),
                 child: SingleChildScrollView(
                   child: Column(
@@ -138,37 +136,14 @@ class _ProductDetailState extends State<ProductDetail>
                               child: Text(
                                 widget.prod.name.toString(),
                                 style: TextStyle(
-                                    color: AppColors.secondary,
+                                    color: theme.primaryColor,
                                     fontSize: sh * 0.012,
                                     fontWeight: FontWeight.bold),
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Container(
-                              margin: const EdgeInsets.only(right: 15),
-                              child: InkWell(
-                                onTap: () {
-                                  Get.back();
-                                  hp.changeIndex(hp.userRole == 'S' ? 3 : 2);
-                                },
-                                child: badges.Badge(
-                                  badgeContent: Text(
-                                    basketProvider.basket.totalCount.toString(),
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 12),
-                                  ),
-                                  badgeStyle: const badges.BadgeStyle(
-                                    badgeColor: AppColors.secondary,
-                                  ),
-                                  child: const Icon(
-                                    Icons.shopping_cart,
-                                    color: AppColors.primary,
-                                    size: 24,
-                                  ),
-                                ),
-                              ),
-                            ),
+                            const CartIcon()
                           ],
                         ),
                       ),
@@ -180,7 +155,7 @@ class _ProductDetailState extends State<ProductDetail>
                               color: Colors.blueGrey, fontSize: 14),
                         ),
                       ),
-                      const Divider(color: Colors.black),
+                      div,
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: const BoxDecoration(
@@ -229,30 +204,35 @@ class _ProductDetailState extends State<ProductDetail>
                           ],
                         ),
                       ),
-                      const Divider(color: Colors.black),
-                      InstaImageViewer(
-                        imageUrl: widget.prod.image != null &&
-                                splitURL(widget.prod.image!).length == 2
-                            ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
-                            : 'https://precisionpharmacy.net/wp-content/themes/apexclinic/images/no-image/No-Image-Found-400x264.png',
-                        child: Container(
-                          height: size.height * 0.23,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            image: DecorationImage(
-                              fit: BoxFit.contain,
-                              filterQuality: FilterQuality.high,
-                              alignment: Alignment.center,
-                              image: NetworkImage(widget.prod.image != null &&
-                                      splitURL(widget.prod.image!).length == 2
-                                  ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_300x300.${splitURL(widget.prod.image!)[1]}'
-                                  : 'https://precisionpharmacy.net/wp-content/themes/apexclinic/images/no-image/No-Image-Found-400x264.png'),
+                      div,
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        child: InstaImageViewer(
+                          imageUrl: widget.prod.image != null &&
+                                  splitURL(widget.prod.image!).length == 2
+                              ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
+                              : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg',
+                          child: Container(
+                            height: size.height * 0.23,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              image: DecorationImage(
+                                fit: BoxFit.contain,
+                                filterQuality: FilterQuality.high,
+                                alignment: Alignment.center,
+                                image: NetworkImage(widget.prod.image != null &&
+                                        splitURL(widget.prod.image!).length == 2
+                                    ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_300x300.${splitURL(widget.prod.image!)[1]}'
+                                    : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg'),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      const Divider(color: Colors.black),
+                      div,
                       Row(
                         mainAxisAlignment:
                             MainAxisAlignment.spaceBetween, // Or spaceBetween
@@ -324,12 +304,12 @@ class _ProductDetailState extends State<ProductDetail>
                                   FilteringTextInputFormatter.digitsOnly
                                 ],
                                 decoration: InputDecoration(
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(horizontal: 30),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 30),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color: AppColors.secondary, width: 2),
+                                    borderSide: BorderSide(
+                                        color: theme.hintColor, width: 2),
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -338,27 +318,11 @@ class _ProductDetailState extends State<ProductDetail>
                                 ),
                               ),
                             ),
+                            const SizedBox(width: 10),
                             Expanded(
-                              child: InkWell(
-                                onTap: () => addBasket(),
-                                child: Container(
-                                  width: double.infinity,
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: AppColors.primary,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Сагсанд нэмэх',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: sh * 0.014,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              child: CustomButton(
+                                text: 'Сагсанд нэмэх',
+                                ontap: () => addBasket(),
                               ),
                             ),
                           ],
@@ -383,8 +347,13 @@ class _ProductDetailState extends State<ProductDetail>
       child: Container(
         width: sw * 0.4,
         decoration: BoxDecoration(
-            color: selected ? AppColors.secondary : Colors.transparent,
-            borderRadius: BorderRadius.circular(10)),
+          color: selected ? AppColors.secondary : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color:
+                selected ? Colors.transparent : Theme.of(context).primaryColor,
+          ),
+        ),
         margin: const EdgeInsets.symmetric(vertical: 5),
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Center(

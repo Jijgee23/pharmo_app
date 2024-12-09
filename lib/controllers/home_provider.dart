@@ -74,6 +74,12 @@ class HomeProvider extends ChangeNotifier {
   String get supName => _supName;
   List<Sector> branches = <Sector>[];
   String demo = 'demo';
+  // bool isListView = false;
+
+  // void setProductView() {
+  //   isListView = !isListView;
+  //   notifyListeners();
+  // }
 
   void changeDemo(String d) {
     demo = d;
@@ -536,6 +542,18 @@ class HomeProvider extends ChangeNotifier {
 
   switchView() {
     isList = !isList;
+    notifyListeners();
+  }
+
+  // theme
+  bool _isDarkMode = false;
+
+  bool get isDarkMode => _isDarkMode;
+
+  ThemeMode get themeMode => _isDarkMode ? ThemeMode.dark : ThemeMode.light;
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
 }

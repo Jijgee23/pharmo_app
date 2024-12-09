@@ -2,22 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 
 final lightTheme = ThemeData(
-  primaryColor: AppColors.primary,
+  primaryColor: primary,
+  hintColor: secondary,
+  brightness: Brightness.light,
   scaffoldBackgroundColor: AppColors.background,
+  splashColor: Colors.transparent,
+  highlightColor: Colors.transparent,
   appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.background,
-      surfaceTintColor: AppColors.background,
-      iconTheme: IconThemeData(
-        color: AppColors.primary,
-        applyTextScaling: true,
-      )),
+    backgroundColor: AppColors.background,
+    surfaceTintColor: AppColors.background,
+    iconTheme: IconThemeData(
+      color: primary,
+      applyTextScaling: true,
+    ),
+  ),
   inputDecorationTheme: InputDecorationTheme(
     hintStyle: const TextStyle(
-      color: AppColors.primary,
+      color: primary,
     ),
     focusedBorder: const OutlineInputBorder(
       borderSide: BorderSide(
-        color: AppColors.primary,
+        color: primary,
         width: 1,
       ),
     ),
@@ -25,21 +30,27 @@ final lightTheme = ThemeData(
       borderRadius: BorderRadius.circular(10),
     ),
     labelStyle: const TextStyle(
-      color: AppColors.primary,
+      color: primary,
     ),
   ),
   checkboxTheme: CheckboxThemeData(
-    checkColor: WidgetStateProperty.all(AppColors.primary),
-    overlayColor: WidgetStateProperty.all(AppColors.primary),
-    side: const BorderSide(color: AppColors.primary, width: 1),
+    checkColor: WidgetStateProperty.all(primary),
+    overlayColor: WidgetStateProperty.all(primary),
+    side: const BorderSide(color: primary, width: 1),
     fillColor: const WidgetStatePropertyAll(Colors.transparent),
   ),
   fontFamily: 'Inter',
-  splashColor: Colors.transparent,
-  highlightColor: Colors.transparent,
   textTheme: const TextTheme(
-    displaySmall: TextStyle(
-      overflow: TextOverflow.ellipsis,
+    bodyLarge: TextStyle(color: Colors.black),
+    bodyMedium: TextStyle(color: Colors.black),
+    bodySmall: TextStyle(color: Colors.black),
+  ),
+  cardColor: Colors.white,
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    backgroundColor: primary,
+    selectedItemColor: white,
+    unselectedIconTheme: IconThemeData(
+      color: white.withOpacity(.5),
     ),
   ),
 );

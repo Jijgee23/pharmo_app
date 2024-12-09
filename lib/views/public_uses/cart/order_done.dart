@@ -36,7 +36,7 @@ class _OrderDoneState extends State<OrderDone> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     const maxWidth = 850.0;
-
+    final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SizedBox(
@@ -86,7 +86,7 @@ class _OrderDoneState extends State<OrderDone> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color: AppColors.primary),
+                            color:theme.primaryColor),
                         child: InkWell(
                           onTap: () => goHome(provider),
                           child: const Center(

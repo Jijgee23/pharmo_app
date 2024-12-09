@@ -23,7 +23,6 @@ import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -96,12 +95,15 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'Pharmo app',
-      debugShowCheckedModeBanner: false,
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      home: const SplashScreen(),
+    return Consumer<HomeProvider>(
+      builder: (context, home, child) => GetMaterialApp(
+        title: 'Pharmo app',
+        debugShowCheckedModeBanner: false,
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: home.themeMode,
+        home: const SplashScreen(),
+      ),
     );
   }
 }

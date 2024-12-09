@@ -9,6 +9,7 @@ class PrivacyPolicy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
+    final theme = Theme.of(context);
     final fs = height * .013;
     title({required String text}) {
       return Text(
@@ -20,8 +21,9 @@ class PrivacyPolicy extends StatelessWidget {
     textArea({required String text}) {
       return Container(
         margin: const EdgeInsets.only(top: 4.0, left: 30, right: 15),
+        padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(text, style: TextStyle(fontSize: fs, color: Colors.black)),

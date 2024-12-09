@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/icon/cart_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/product_scrolls/paged_sliver_grid.dart';
@@ -50,13 +49,14 @@ class _FilteredProductsState extends State<FilteredProducts> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        leading: const ChevronBack(color: AppColors.primary),
+        leading: ChevronBack(color: theme.primaryColor),
         centerTitle: true,
         title: Text(
           widget.title,
-          style: const TextStyle(color: Colors.black, fontSize: 14),
+          style:  TextStyle(color: theme.primaryColor, fontSize: 14),
         ),
         actions: const [CartIcon()],
       ),

@@ -195,7 +195,6 @@ class _CustomerListState extends State<CustomerList> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: shadow(),
         ),
         padding:
             const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 10),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -35,9 +34,10 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sw = MediaQuery.of(context).size.width;
+    final theme = Theme.of(context);
     final border = OutlineInputBorder(
       borderSide: BorderSide(
-        color: AppColors.primary.withOpacity(0.7),
+        color: theme.primaryColor.withOpacity(0.7),
         width: .7,
       ),
     );

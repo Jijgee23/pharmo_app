@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 
 class CustomTextButton extends StatelessWidget {
   final String text;
@@ -8,6 +7,7 @@ class CustomTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
@@ -16,9 +16,9 @@ class CustomTextButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 0),
         child: Text(
           text,
-          style:const TextStyle(
+          style: TextStyle(
             decoration: TextDecoration.none,
-            color: AppColors.primary,
+            color: theme.primaryColor,
             fontWeight: FontWeight.w500,
           ),
         ),

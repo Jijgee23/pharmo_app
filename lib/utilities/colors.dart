@@ -3,7 +3,7 @@ import 'dart:ui';
 class AppColors {
   // old
   // static const primary = Color(0xFF1B2E3C);
-  static const priLight = Color(0xFF203646);
+  // static const priLight = Color(0xFF203646);
   // static const secondary = Color(0xFF660000);
   static const primary = Color(0XFF7966FF);
   static const secondary = Color(0xFFDE3163);
@@ -23,3 +23,10 @@ class AppColors {
 }
 
 //            1B2E3C
+const darkPrimary = Color(0XFF38b0f5);
+const primary = Color(0XFF7966FF);
+const secondary = Color(0xFFDE3163);
+const white = Color(0XFFFFFFFF);
+const background = Color.fromARGB(255, 232, 246, 255);
+const succesColor = Color.fromARGB(255, 6, 211, 74);
+const failedColor = Color.fromARGB(255, 241, 124, 14);

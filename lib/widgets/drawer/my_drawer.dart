@@ -15,64 +15,76 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final height = size.height;
+    final theme = Theme.of(context);
+    // final height = size.height;
     return Consumer<HomeProvider>(
       builder: (context, homeProvider, child) => MediaQuery.removePadding(
         context: context,
         removeTop: true,
         child: Drawer(
-          backgroundColor: AppColors.background,
+          backgroundColor: theme.scaffoldBackgroundColor,
           elevation: 0,
           shadowColor: Colors.transparent,
           width: size.width > 480 ? size.width * 0.5 : size.width * 0.8,
           child: Column(
             children: [
-              SizedBox(height: size.height * 0.075),
+              SizedBox(
+                height: size.height * 0.075,
+              ),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.cardColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 margin: const EdgeInsets.all(10),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ClipOval(
-                      child: Image.asset(
-                        'assets/icons/boy.png',
-                        height: size.height * 0.054,
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Row(
                       children: [
-                        Row(
+                        ClipOval(
+                          child: Image.asset(
+                            'assets/icons/boy.png',
+                            height: size.height * 0.054,
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Сайнуу',
-                              style: TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w700),
+                            Row(
+                              children: [
+                                Text(
+                                  'Сайнуу',
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                                const SizedBox(width: 5),
+                                Image.asset(
+                                  'assets/icons/wave.png',
+                                  height: 12,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 5),
-                            Image.asset(
-                              'assets/icons/wave.png',
-                              height: 12,
-                            ),
+                            homeProvider.userEmail != null
+                                ? Text(
+                                    homeProvider.userEmail!,
+                                    style: theme.textTheme.bodySmall,
+                                  )
+                                : const SizedBox(),
                           ],
                         ),
-                        homeProvider.userEmail != null
-                            ? Text(
-                                homeProvider.userEmail!,
-                                style: TextStyle(
-                                  fontSize: height * .013,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              )
-                            : const SizedBox()
                       ],
-                    )
+                    ),
+                    IconButton(
+                      onPressed: () => homeProvider.toggleTheme(),
+                      icon: Icon(
+                        homeProvider.isDarkMode
+                            ? Icons.dark_mode
+                            : Icons.light_mode,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -117,9 +129,10 @@ class DrawerContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(10)),
+          color: theme.cardColor, borderRadius: BorderRadius.circular(10)),
       margin: const EdgeInsets.all(10),
       child: Column(children: drawers),
     );

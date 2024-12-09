@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -78,6 +77,7 @@ class _CartItemState extends State<CartItem> {
       builder: (BuildContext context, BoxConstraints constraints) {
         final height = MediaQuery.of(context).size.height;
         final fs = height * .013;
+         final theme = Theme.of(context);
         return Slidable(
           endActionPane: ActionPane(
             motion: const StretchMotion(),
@@ -94,9 +94,9 @@ class _CartItemState extends State<CartItem> {
           ),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(5),
-              boxShadow: shadow(),
+              // boxShadow: shadow(),
             ),
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             margin: const EdgeInsets.only(bottom: 7.5),
@@ -141,12 +141,13 @@ class _CartItemState extends State<CartItem> {
   }
 
   Widget _buildQuantityEditor(double fontSize) {
+    final theme = Theme.of(context);
     final TextEditingController controller =
         TextEditingController(text: widget.detail['qty'].toString());
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primary),
+        border: Border.all(color: theme.primaryColor),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -209,27 +210,29 @@ class _CartItemState extends State<CartItem> {
   }
 
   Widget _productInformation(double fs) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           'Дүн: ${toPrice(widget.detail['main_price'])}',
-          style: TextStyle(fontSize: fs, color: AppColors.primary),
+          style: TextStyle(fontSize: fs, color: theme.primaryColor),
         ),
         Text(
           'Нийт: ${toPrice((widget.detail['qty'] * widget.detail['main_price']).toString())}',
-          style: TextStyle(fontSize: fs, color: AppColors.primary),
+          style: TextStyle(fontSize: fs, color: theme.primaryColor),
         ),
       ],
     );
   }
 
   Widget _iconButton({required IconData icon, required VoidCallback onTap}) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(4),
-        child: Icon(icon, color: AppColors.primary),
+        child: Icon(icon, color: theme.primaryColor),
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/views/public_uses/cart/basket_info.dart';
 import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
@@ -45,6 +44,7 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    final theme = Theme.of(context);
     return Consumer<BasketProvider>(
       builder: (context, provider, _) {
         final cartDatas = provider.shoppingCarts;
@@ -86,7 +86,7 @@ class _CartState extends State<Cart> {
                       alignment: Alignment.centerRight,
                       child: Button(
                         text: 'Захиалга үүсгэх',
-                        color: AppColors.primary,
+                        color: theme.primaryColor,
                         onTap: () async => await placeOrder(context),
                       ),
                     ),

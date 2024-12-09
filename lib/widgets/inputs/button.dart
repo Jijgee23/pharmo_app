@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 
 class Button extends StatelessWidget {
   final String text;
@@ -11,20 +10,25 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     return Container(
       width: width ?? size.width * 0.4,
-      // height: size.height * 0.06,
       padding: EdgeInsets.symmetric(vertical: size.width * 0.03),
       decoration: BoxDecoration(
-          color: color ?? AppColors.primary,
-          borderRadius: BorderRadius.circular(size.width * 0.03),
-          border: Border.all(color: Colors.white)),
+        color: color ?? theme.primaryColor,
+        borderRadius: BorderRadius.circular(size.width * 0.05),
+      ),
       child: InkWell(
         onTap: onTap ?? () => Navigator.pop(context),
         child: Center(
-          child: Text(text,
-              style: const TextStyle(color: Colors.white, fontSize: 14)),
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+            ),
+          ),
         ),
       ),
     );

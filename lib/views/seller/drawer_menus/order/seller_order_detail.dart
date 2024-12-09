@@ -4,11 +4,12 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
+import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
-import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/order_widgets/order_status.dart';
+import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
@@ -169,7 +170,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 5),
                           child: CustomButton(
-                            text: 'Захиалын мэдээлэл засах',
+                            text: 'Захиалгын мэдээлэл засах',
                             ontap: () {
                               Get.bottomSheet(
                                 EditSellerOrder(
@@ -246,5 +247,106 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
       message(message: res['message'], context: context);
       Get.back();
     }
+  }
+}
+
+class EditSellerOrder extends StatefulWidget {
+  final String note;
+  final String pt;
+  final int oId;
+  const EditSellerOrder(
+      {super.key, required this.note, required this.pt, required this.oId});
+
+  @override
+  State<EditSellerOrder> createState() => _EditSellerOrderState();
+}
+
+class _EditSellerOrderState extends State<EditSellerOrder> {
+  final nc = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      nc.text = widget.note;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: SingleChildScrollView(
+        child: Wrap(
+          runSpacing: 15,
+          children: [
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Захиалгын мэдээлэл засах',
+                  style: TextStyle(fontSize: 12),
+                ),
+                PopSheet()
+              ],
+            ),
+            input('Нэмэлт тайлбар', nc, null, null),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                MyChip(
+                  title: 'Дансаар',
+                  v: 'T',
+                  selected: payType == 'T',
+                  ontap: () {
+                    setPayType('T');
+                  },
+                ),
+                MyChip(
+                  title: 'Бэлнээр',
+                  v: 'C',
+                  selected: payType == 'C',
+                  ontap: () {
+                    setPayType('C');
+                  },
+                ),
+                MyChip(
+                  title: 'Зээлээр',
+                  v: 'L',
+                  selected: payType == 'L',
+                  ontap: () {
+                    setPayType('L');
+                  },
+                ),
+              ],
+            ),
+            CustomButton(
+              text: 'Хадгалах',
+              ontap: () {
+                final pharmProvider =
+                    Provider.of<PharmProvider>(context, listen: false);
+                pharmProvider
+                    .editSellerOrder(nc.text, payType, widget.oId, context)
+                    .then((e) => Navigator.pop(context));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String payType = '';
+  setPayType(String v) {
+    setState(() {
+      payType = v;
+    });
   }
 }

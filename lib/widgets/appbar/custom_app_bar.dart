@@ -25,11 +25,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context);
+    final theme = Theme.of(context);
     return Consumer<HomeProvider>(builder: (_, homeprovider, child) {
       return ChangeNotifierProvider(
         create: (context) => BasketProvider(),
         child: AppBar(
-          iconTheme: const IconThemeData(color: AppColors.primary),
+          iconTheme: IconThemeData(color: theme.primaryColor),
           centerTitle: true,
           title: title,
           leading: leading,
@@ -37,7 +38,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
                 icon: Image.asset(
                   'assets/icons_2/bell.png',
-                  color: AppColors.primary,
+                  color: theme.primaryColor,
                   height: 24,
                 ),
                 onPressed: () {}),
@@ -57,7 +58,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     badgeColor: AppColors.secondary,
                   ),
                   child: Image.asset(
-                    color: AppColors.primary,
+                    color: theme.primaryColor,
                     'assets/icons_2/cart.png',
                     height: 24,
                     width: 24,

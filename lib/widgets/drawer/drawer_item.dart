@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 
 class DrawerItem extends StatelessWidget {
@@ -17,7 +16,8 @@ class DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    // final height = MediaQuery.of(context).size.height;
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Column(
@@ -32,16 +32,12 @@ class DrawerItem extends StatelessWidget {
                     Image.asset(
                       asset,
                       height: 24,
-                      color: mainColor ?? AppColors.primary,
+                      color: mainColor ?? theme.primaryColor,
                     ),
                     Constants.boxH20,
                     Text(
                       title,
-                      style: TextStyle(
-                        color: mainColor ?? AppColors.cleanBlack,
-                        overflow: TextOverflow.ellipsis,
-                        fontSize: height * .0128
-                      ),
+                      style: theme.textTheme.bodySmall,
                     ),
                   ],
                 ),

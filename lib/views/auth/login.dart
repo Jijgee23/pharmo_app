@@ -104,12 +104,13 @@ class _LoginPageState extends State<LoginPage> {
     final h = MediaQuery.of(context).size.height;
     final authController = Provider.of<AuthController>(context);
     bool logging = authController.loading;
+    final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: logging ? Colors.white : null,
       body: (logging)
           ? const Center(child: PharmoIndicator())
           : Container(
-              decoration: const BoxDecoration(color: AppColors.primary),
+              decoration: BoxDecoration(color: theme.primaryColor),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -129,7 +130,8 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 20),
                       decoration: BoxDecoration(
-                          color: Colors.white, borderRadius: topBorderRadius()),
+                          color: theme.cardColor,
+                          borderRadius: topBorderRadius()),
                       child: Wrap(
                         runSpacing: 15,
                         children: [
@@ -138,9 +140,10 @@ class _LoginPageState extends State<LoginPage> {
                             child: Text(
                               'Pharmo.mn',
                               style: TextStyle(
-                                  fontSize: h * 0.02,
-                                  fontStyle: FontStyle.italic,
-                                  color: AppColors.primary),
+                                fontSize: h * 0.02,
+                                fontStyle: FontStyle.italic,
+                                color: theme.primaryColor,
+                              ),
                             ),
                           ),
                           CustomTextField(
@@ -181,19 +184,19 @@ class _LoginPageState extends State<LoginPage> {
                               },
                               icon: Icon(
                                 hover ? Icons.visibility_off : Icons.visibility,
-                                color: AppColors.primary,
+                                color: theme.primaryColor,
                               ),
                             ),
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 'Намайг сана',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.primary,
+                                  color: theme.primaryColor,
                                 ),
                               ),
                               Checkbox(
@@ -291,8 +294,9 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
     final h = MediaQuery.of(context).size.height;
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: theme.primaryColor,
       body: Column(
         children: [
           Expanded(
@@ -321,15 +325,8 @@ class _SignUpFormState extends State<SignUpForm> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: topBorderRadius(),
-                image: const DecorationImage(
-                  alignment: Alignment.bottomCenter,
-                  fit: BoxFit.scaleDown,
-                  image: AssetImage(
-                    'assets/nnn.png',
-                  ),
-                ),
               ),
               child: SingleChildScrollView(
                 child: Wrap(

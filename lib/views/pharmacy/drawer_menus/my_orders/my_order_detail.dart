@@ -105,21 +105,21 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
   }
 
   Container productBuilder(MyOrderDetailModel o) {
+    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white, Colors.grey.shade100],
+          colors: [Colors.grey.shade100, theme.cardColor],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade300,
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+            color: Colors.grey.shade400,
+            blurRadius: 5,
           ),
         ],
         borderRadius: BorderRadius.circular(12),
