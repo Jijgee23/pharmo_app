@@ -79,8 +79,7 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
           ),
           body: _pages[home.currentIndex],
           bottomNavigationBar: BottomBar(
-            homeProvider: homeProvider,
-            listOfIcons: icons,
+            icons: icons,
             labels: labels,
           ),
         );

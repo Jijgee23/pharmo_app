@@ -103,7 +103,6 @@ class _MyAppState extends State<MyApp> {
         home: UpgradeAlert(
           dialogStyle: UpgradeDialogStyle.cupertino,
           showIgnore: false,
-          showLater: false,
           showReleaseNotes: false,
           child: const SplashScreen(),
         ),

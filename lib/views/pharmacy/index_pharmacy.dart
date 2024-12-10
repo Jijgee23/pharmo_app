@@ -64,33 +64,37 @@ class _IndexPharmaState extends State<IndexPharma> {
       builder: (context, homeProvider, basketProvider, _) {
         bool isPharma = homeProvider.userRole == 'PA';
         return Scaffold(
-          extendBody: true,
-          drawer: MyDrawer(
-            drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems(),
-          ),
-          appBar: CustomAppBar(
-              title: isPharma
-                  ? Text(
-                      getAppBarText(homeProvider.currentIndex),
-                      style: TextStyle(
-                        color: theme.primaryColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                  : getSellerAppBarTitle()),
-          body: Container(
-            padding: const EdgeInsets.only(right: 10, left: 10),
-            child: isPharma
-                ? _pharmacyPages[homeProvider.currentIndex]
-                : _sellerPages[homeProvider.currentIndex],
-          ),
-          bottomNavigationBar: BottomBar(
-            homeProvider: homeProvider,
-            listOfIcons: isPharma ? pharmaIcons : sellericons,
-            labels: isPharma ? pharmaLabels : sellerLabels,
-          ),
-        );
+            extendBody: true,
+            drawer: MyDrawer(
+              drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems(),
+            ),
+            appBar: CustomAppBar(
+                title: isPharma
+                    ? Text(
+                        getAppBarText(homeProvider.currentIndex),
+                        style: TextStyle(
+                          color: theme.primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    : getSellerAppBarTitle()),
+            body: Container(
+              padding: const EdgeInsets.only(right: 10, left: 10),
+              child: isPharma
+                  ? _pharmacyPages[homeProvider.currentIndex]
+                  : _sellerPages[homeProvider.currentIndex],
+            ),
+            bottomNavigationBar: BottomBar(
+              labels: isPharma ? pharmaLabels : sellerLabels,
+              icons: isPharma ? pharmaIcons : sellericons,
+            )
+            //  BottomBar(
+            //   homeProvider: homeProvider,
+            //   listOfIcons: isPharma ? pharmaIcons : sellericons,
+            //   labels: isPharma ? pharmaLabels : sellerLabels,
+            // ),
+            );
       },
     );
   }

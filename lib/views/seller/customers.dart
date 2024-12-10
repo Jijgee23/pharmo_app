@@ -65,7 +65,7 @@ class _CustomerListState extends State<CustomerList> {
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (_, homeProvider, pp, child) {
         return Scaffold(
-          floatingActionButton: _fab(pp),
+          // floatingActionButton: _fab(pp),
           body: Column(
             children: [
               _searchBar(pp),
@@ -79,19 +79,19 @@ class _CustomerListState extends State<CustomerList> {
     );
   }
 
-  // Харилцагч бүртгэх button
-  FloatingActionButton _fab(PharmProvider pp) {
-    return FloatingActionButton(
-      onPressed: () => registerCustomer(pp),
-      backgroundColor: Colors.white,
-      elevation: 10,
-      shape: const CircleBorder(),
-      child: Icon(
-        Icons.person_add_sharp,
-        color: Colors.blue.shade400,
-      ),
-    );
-  }
+  // // Харилцагч бүртгэх button
+  // FloatingActionButton _fab(PharmProvider pp) {
+  //   return FloatingActionButton(
+  //     onPressed: () => registerCustomer(pp),
+  //     backgroundColor: Colors.white,
+  //     elevation: 10,
+  //     shape: const CircleBorder(),
+  //     child: Icon(
+  //       Icons.person_add_sharp,
+  //       color: Colors.blue.shade400,
+  //     ),
+  //   );
+  // }
 
   // Хайлтын widget
   Widget _searchBar(PharmProvider pp) {
@@ -175,6 +175,7 @@ class _CustomerListState extends State<CustomerList> {
             ...pp.filteredCustomers.map(
               (c) => _customerBuilder(homeProvider, c),
             ),
+            addCusotmer(pp),
             const SizedBox(height: kTextTabBarHeight + 20)
           ],
         ),
@@ -247,6 +248,39 @@ class _CustomerListState extends State<CustomerList> {
                 color: Colors.blue.shade700,
               ),
             )
+          ],
+        ),
+      ),
+    );
+  }
+
+  addCusotmer(PharmProvider pp) {
+    return InkWell(
+      onTap: () => registerCustomer(pp),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding:
+            const EdgeInsets.only(left: 10, top: 10, bottom: 10, right: 10),
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.add,
+              color: succesColor,
+            ),
+            const SizedBox(width: 5),
+            Text(
+              'Харилцагч бүртгэх',
+              style: TextStyle(
+                color: Colors.grey.shade800,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
