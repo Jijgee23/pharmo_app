@@ -97,7 +97,7 @@ class _IncomeListState extends State<IncomeList> {
   button({required String title, required GestureTapCallback ontap}) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        color: Theme.of(context).primaryColor,
         borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -148,7 +148,8 @@ class _IncomeListState extends State<IncomeList> {
                             _selectDate(context);
                           },
                           child: Text(date1,
-                              style: const TextStyle(color: AppColors.primary)),
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor)),
                         ),
                         const Icon(Icons.arrow_right_alt),
                         TextButton(
@@ -156,7 +157,8 @@ class _IncomeListState extends State<IncomeList> {
                             _selectDate2(context);
                           },
                           child: Text(date2,
-                              style: const TextStyle(color: AppColors.primary)),
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor)),
                         ),
                         OutlinedButton(
                           onPressed: () {
@@ -167,9 +169,9 @@ class _IncomeListState extends State<IncomeList> {
                                   context, date1, date2);
                             }
                           },
-                          style: const ButtonStyle(
-                              backgroundColor:
-                                  WidgetStatePropertyAll(AppColors.primary)),
+                          style: ButtonStyle(
+                              backgroundColor: WidgetStatePropertyAll(
+                                  Theme.of(context).primaryColor)),
                           child: const Text(
                             'Шүүх',
                             style: TextStyle(color: Colors.white),
@@ -398,8 +400,8 @@ class _IncomeWidgetState extends State<IncomeWidget> {
             ),
             InkWell(
               onTap: widget.ontap,
-              child: const Text('Засах',
-                  style: TextStyle(color: AppColors.primary)),
+              child: Text('Засах',
+                  style: TextStyle(color: Theme.of(context).primaryColor)),
             ),
           ],
         ),

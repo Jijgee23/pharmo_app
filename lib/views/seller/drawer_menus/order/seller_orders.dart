@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_order_detail.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
@@ -63,7 +62,7 @@ class _SellerOrdersState extends State<SellerOrders> {
 
   @override
   Widget build(BuildContext context) {
-    var ts = const TextStyle(color: AppColors.primary);
+    var ts =  TextStyle(color: Theme.of(context).primaryColor);
     return Consumer2<MyOrderProvider, PharmProvider>(
       builder: (_, provider, pp, child) {
         return DefaultBox(
@@ -94,7 +93,7 @@ class _SellerOrdersState extends State<SellerOrders> {
                         ),
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.primary,
+                            color: Theme.of(context).primaryColor,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           padding: const EdgeInsets.symmetric(

@@ -620,7 +620,7 @@ class MakredPromoOnDialog extends StatelessWidget {
                                 shrinkWrap: true,
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 itemBuilder: (context, index) {
-                                  return product(promo.gift?[index], noImage);
+                                  return product(promo.gift?[index], noImage, context);
                                 },
                                 itemCount: promo.gift?.length,
                               )
@@ -715,7 +715,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                         const NeverScrollableScrollPhysics(),
                                     itemBuilder: (context, index) {
                                       return product(
-                                          promo.bundles?[index], noImage);
+                                          promo.bundles?[index], noImage, context);
                                     },
                                     itemCount: promo.bundles?.length,
                                   )
@@ -760,7 +760,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                               shrinkWrap: true,
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
-                                return product(promo.gift?[index], noImage);
+                                return product(promo.gift?[index], noImage , context);
                               },
                               itemCount: promo.gift?.length,
                             )
@@ -827,7 +827,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                   decoration: BoxDecoration(
                                     color: promotionProvider.delivery
                                         ? Colors.grey.shade300
-                                        : AppColors.primary,
+                                        : Theme.of(context).primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -846,7 +846,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.delivery
                                         ? Colors.grey.shade300
-                                        : AppColors.primary,
+                                        : Theme.of(context).primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -883,7 +883,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.isCash
                                         ? Colors.grey.shade300
-                                        : AppColors.primary,
+                                        : Theme.of(context).primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -903,7 +903,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                   decoration: BoxDecoration(
                                     color: promotionProvider.isCash
                                         ? Colors.grey.shade300
-                                        : AppColors.primary,
+                                        : Theme.of(context).primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -923,8 +923,8 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                               splashColor: Colors.blue.shade100,
                               onTap: () => promotionProvider
                                   .setHasnote(!promotionProvider.hasNote),
-                              child: const Text('Нэмэлт тайлбар',
-                                  style: TextStyle(color: AppColors.primary))),
+                              child:  Text('Нэмэлт тайлбар',
+                                  style: TextStyle(color: Theme.of(context).primaryColor))),
                           box,
                           !promotionProvider.hasNote
                               ? const SizedBox()
@@ -1052,7 +1052,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
               Icons.home,
               color: selectedBranch == e.id
                   ? AppColors.secondary
-                  : AppColors.primary,
+                  : Theme.of(context).primaryColor,
             ),
             Constants.boxH10,
             Text(e.name!),
@@ -1080,7 +1080,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
   }
 }
 
-product(e, String noImage) {
+product(e, String noImage, BuildContext context){
   return Stack(
     children: [
       Container(
@@ -1126,7 +1126,7 @@ product(e, String noImage) {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color:Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(

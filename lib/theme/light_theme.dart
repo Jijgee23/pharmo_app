@@ -5,12 +5,12 @@ final lightTheme = ThemeData(
   primaryColor: primary,
   hintColor: secondary,
   brightness: Brightness.light,
-  scaffoldBackgroundColor: AppColors.background,
+  scaffoldBackgroundColor: lightBackground,
   splashColor: Colors.transparent,
   highlightColor: Colors.transparent,
   appBarTheme: const AppBarTheme(
-    backgroundColor: AppColors.background,
-    surfaceTintColor: AppColors.background,
+    backgroundColor: lightBackground,
+    surfaceTintColor: lightBackground,
     iconTheme: IconThemeData(
       color: primary,
       applyTextScaling: true,

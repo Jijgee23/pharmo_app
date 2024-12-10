@@ -62,6 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -95,15 +96,15 @@ class _SplashScreenState extends State<SplashScreen> {
                       curve: Curves.fastLinearToSlowEaseIn);
                 }
               },
-              splashColor: AppColors.primary.withOpacity(.5),
-              highlightColor: AppColors.primary.withOpacity(.5),
+              splashColor: theme.primaryColor.withOpacity(.5),
+              highlightColor: theme.primaryColor.withOpacity(.5),
               child: Container(
                 decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.7),
+                    color:theme.primaryColor.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(50),
                     gradient: LinearGradient(colors: [
-                      AppColors.primary.withOpacity(0.9),
-                      AppColors.primary.withOpacity(0.6)
+                      theme.primaryColor.withOpacity(0.9),
+                      theme.primaryColor.withOpacity(0.6)
                     ])),
                 padding: const EdgeInsets.all(15),
                 margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -143,6 +144,7 @@ class _SplashScreenState extends State<SplashScreen> {
   
   // Single indicator widget
   Widget _indicator(int index) {
+    final theme = Theme.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
       margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -150,7 +152,7 @@ class _SplashScreenState extends State<SplashScreen> {
       width: page == index ? 24 : 8,
       decoration: BoxDecoration(
         color: page == index
-            ? AppColors.primary.withOpacity(0.7)
+            ? theme.primaryColor.withOpacity(0.7)
             : Colors.grey.shade700,
         borderRadius: BorderRadius.circular(4),
       ),

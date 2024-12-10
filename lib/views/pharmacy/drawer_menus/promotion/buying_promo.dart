@@ -16,30 +16,11 @@ class BuyinPromo extends StatelessWidget {
   Widget build(BuildContext context) {
     var textStyle = TextStyle(
         fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
+        final theme = Theme.of(context);
     return Consumer<PromotionProvider>(
       builder: (_, promotion, child) {
         return Scaffold(
-          backgroundColor: AppColors.primary,
-          // appBar: AppBar(
-          //   automaticallyImplyLeading: false,
-          //   title: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     children: [
-          //       const ChevronBack(),
-          //       Text(promo.name!,
-          //           style: const TextStyle(fontSize: 16, color: AppColors.main)),
-          //       (promo.isMarked == true)
-          //           ? InkWell(
-          //               onTap: () => promotion
-          //                   .hidePromo(promo.id!, context)
-          //                   .then((e) => Navigator.pop(context)),
-          //               child: const Text('Дахиж харахгүй',
-          //                   style: TextStyle(fontSize: 14)),
-          //             )
-          //           : const SizedBox(),
-          //     ],
-          //   ),
-          // ),
+          backgroundColor: theme.primaryColor,
           body: DefaultBox(
             title: promo.name!,
             child: SingleChildScrollView(
@@ -99,7 +80,7 @@ class BuyinPromo extends StatelessWidget {
                                           const AlwaysScrollableScrollPhysics(),
                                       itemBuilder: (context, index) {
                                         return product(
-                                            promo.gift?[index], noImage);
+                                            promo.gift?[index], noImage, context);
                                       },
                                       itemCount: promo.gift?.length,
                                     )
@@ -134,7 +115,8 @@ class BuyinPromo extends StatelessWidget {
     );
   }
 
-  product(e, String noImage) {
+  product(e, String noImage, BuildContext context) {
+    final theme = Theme.of(context);
     return Stack(
       children: [
         Container(
@@ -181,7 +163,7 @@ class BuyinPromo extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: theme.primaryColor,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(

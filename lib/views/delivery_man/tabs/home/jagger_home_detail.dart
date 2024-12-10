@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/ship.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
@@ -28,10 +27,11 @@ class _JaggerHomeDetailState extends State<JaggerHomeDetail> {
   final TextEditingController qty = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Consumer<JaggerProvider>(
       builder: (context, provider, _) {
         return Scaffold(
-          backgroundColor: AppColors.primary,
+          backgroundColor: theme.primaryColor,
           body: DefaultBox(
             title: 'Захиалгын дэлгэрэнгүй',
             child: Column(

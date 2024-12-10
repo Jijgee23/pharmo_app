@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 
 class DialogBtn extends StatelessWidget {
   final String? title;
@@ -12,7 +11,7 @@ class DialogBtn extends StatelessWidget {
       width: 100 ,
       padding:const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        color: Theme.of(context).primaryColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: InkWell(

@@ -95,7 +95,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
           // Салбар сонгох
           if (deliveryType == 'D') ...[
             InkWell(
-              onTap: selectBranch,
+              onTap: selectBranch(),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
                 decoration: BoxDecoration(

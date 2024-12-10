@@ -72,9 +72,10 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
         fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
     var box = const SizedBox(height: 10);
     final promo = widget.promo;
+    final theme = Theme.of(context);
     return Consumer2<HomeProvider, PromotionProvider>(
       builder: (_, home, promotionProvider, child) => Scaffold(
-        backgroundColor: AppColors.primary,
+        backgroundColor: theme.primaryColor,
         extendBody: true,
         body: DefaultBox(
           title: promo.name!,
@@ -218,7 +219,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                   decoration: BoxDecoration(
                                     color: promotionProvider.delivery
                                         ? Colors.grey.shade300
-                                        : AppColors.primary,
+                                        : theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -237,7 +238,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.delivery
                                         ? Colors.grey.shade300
-                                        : AppColors.primary,
+                                        : theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -274,7 +275,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.isCash
                                         ? Colors.grey.shade300
-                                        : AppColors.primary,
+                                        :theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -294,7 +295,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                   decoration: BoxDecoration(
                                     color: promotionProvider.isCash
                                         ? Colors.grey.shade300
-                                        : AppColors.primary,
+                                        : theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -314,8 +315,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                               splashColor: Colors.blue.shade100,
                               onTap: () => promotionProvider
                                   .setHasnote(!promotionProvider.hasNote),
-                              child: const Text('Нэмэлт тайлбар',
-                                  style: TextStyle(color: AppColors.primary))),
+                              child:  Text('Нэмэлт тайлбар',
+                                  style: TextStyle(color: theme.primaryColor))),
                           box,
                           !promotionProvider.hasNote
                               ? const SizedBox()
@@ -448,7 +449,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
               Icons.home,
               color: selectedBranch == e.id
                   ? AppColors.secondary
-                  : AppColors.primary,
+                  : Theme.of(context).primaryColor,
             ),
             Constants.boxH10,
             Text(e.name!),

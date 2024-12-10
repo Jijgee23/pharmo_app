@@ -12,12 +12,6 @@ class BasketInfo extends StatefulWidget {
 }
 
 class _BasketInfoState extends State<BasketInfo> {
-  
-  var decoration = BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(5),
-  ); 
-
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
@@ -26,6 +20,11 @@ class _BasketInfoState extends State<BasketInfo> {
       await basketProvider.clearBasket();
       await basketProvider.getBasket();
     }
+
+    var decoration = BoxDecoration(
+      color: theme.cardColor,
+      borderRadius: BorderRadius.circular(5),
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),

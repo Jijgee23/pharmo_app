@@ -5,12 +5,12 @@ final darkTheme = ThemeData(
   primaryColor: darkPrimary,
   hintColor: secondary,
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: Colors.blueGrey,
+  scaffoldBackgroundColor: darkBackground,
   appBarTheme: const AppBarTheme(
-    backgroundColor: Colors.blueGrey,
-    surfaceTintColor: Colors.blueGrey,
+    backgroundColor: darkBackground,
+    surfaceTintColor: darkBackground,
     iconTheme: IconThemeData(
-      color: AppColors.primary,
+      color: darkPrimary,
       applyTextScaling: true,
     ),
   ),

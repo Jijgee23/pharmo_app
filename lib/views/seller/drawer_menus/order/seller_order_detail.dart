@@ -215,10 +215,10 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
               alignment: Alignment.center,
               child: Text(
                 item.itemName,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
-                  color: AppColors.primary,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),

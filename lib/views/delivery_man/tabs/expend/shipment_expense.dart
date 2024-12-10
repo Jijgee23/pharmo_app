@@ -96,9 +96,9 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
                   amount.text = el.amount.toString();
                   editExpense(context, el);
                 },
-                child: const Text(
+                child: Text(
                   'Засах',
-                  style: TextStyle(color: AppColors.primary),
+                  style: TextStyle(color: Theme.of(context).primaryColor),
                 ),
               ),
             ],

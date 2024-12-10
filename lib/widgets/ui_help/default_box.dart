@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../../utilities/colors.dart';
 import '../others/chevren_back.dart';
 
 class DefaultBox extends StatelessWidget {
@@ -47,7 +45,7 @@ class DefaultBox extends StatelessWidget {
             padding: EdgeInsets.symmetric(
                 vertical: size.height * 0.006, horizontal: size.width * 0.006),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: theme.scaffoldBackgroundColor,
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(size.height * 0.02),
                 topLeft: Radius.circular(size.height * 0.02),

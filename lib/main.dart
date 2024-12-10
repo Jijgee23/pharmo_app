@@ -22,6 +22,7 @@ import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:upgrader/upgrader.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,9 +30,11 @@ Future<void> main() async {
   if (!kIsWeb) {
     await setupFlutterNotifications();
   }
+  await Upgrader.clearSavedSettings();
   await FirebaseApi.initNotification();
   await Hive.initFlutter();
   await dotenv.load(fileName: ".env");
+
   runApp(
     MultiProvider(
       providers: [
@@ -62,11 +65,6 @@ class _MyAppState extends State<MyApp> {
   late AuthController auth;
   late Box box;
   bool isSplashed = false;
-  // final _updater = ShorebirdUpdater();
-  // late final bool _isUpdaterAvailable;
-  // var _currentTrack = UpdateTrack.stable;
-  // var _isCheckingForUpdates = false;
-  // Patch? _currentPatch;
 
   @override
   void initState() {
@@ -102,7 +100,13 @@ class _MyAppState extends State<MyApp> {
         theme: lightTheme,
         darkTheme: darkTheme,
         themeMode: home.themeMode,
-        home: const SplashScreen(),
+        home: UpgradeAlert(
+          dialogStyle: UpgradeDialogStyle.cupertino,
+          showIgnore: false,
+          showLater: false,
+          showReleaseNotes: false,
+          child: const SplashScreen(),
+        ),
       ),
     );
   }

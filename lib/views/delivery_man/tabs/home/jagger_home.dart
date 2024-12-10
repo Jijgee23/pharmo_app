@@ -46,6 +46,7 @@ class _HomeJaggerState extends State<HomeJagger> {
     super.dispose();
     super.dispose();
   }
+
   startShipment(int shipmentId) async {
     if (backLocationPermission) {
       await jaggerProvider.startShipment(
@@ -116,8 +117,10 @@ class _HomeJaggerState extends State<HomeJagger> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         ...ships.map((e) => shipment(e: e)),
-                         SizedBox(
-                          height: Platform.isIOS ? kTextTabBarHeight + 50 : kToolbarHeight + 10,
+                        SizedBox(
+                          height: Platform.isIOS
+                              ? kTextTabBarHeight + 50
+                              : kToolbarHeight + 10,
                         )
                       ],
                     ),
@@ -156,10 +159,11 @@ class _HomeJaggerState extends State<HomeJagger> {
   }
 
   Widget getStartButton({required Ship e}) {
+    final theme = Theme.of(context);
     if (e.startTime == null) {
       return button(
           title: 'Түгээлт эхлүүлэх',
-          color: AppColors.primary,
+          color: theme.primaryColor,
           iconName: 'truck',
           onTap: () => Future(() async {
                 debugPrint(e.startTime);
@@ -176,6 +180,7 @@ class _HomeJaggerState extends State<HomeJagger> {
   }
 
   Widget getEndButton({required Ship e}) {
+    final theme = Theme.of(context);
     if (e.endTime == null && e.startTime == null) {
       return const SizedBox();
     } else if (e.endTime == null) {
@@ -183,7 +188,7 @@ class _HomeJaggerState extends State<HomeJagger> {
         alignment: Alignment.centerRight,
         child: button(
             title: 'Түгээлт дуусгах',
-            color: AppColors.primary,
+            color: theme.primaryColor,
             iconName: 'box',
             onTap: () => Future(() async {
                   endShipment(e.id, false);
@@ -276,12 +281,13 @@ class _HomeJaggerState extends State<HomeJagger> {
     GestureTapCallback? onSecondaryTap,
     required String iconName,
   }) {
+    final theme = Theme.of(context);
     return Container(
       width: 200,
       padding: const EdgeInsets.symmetric(vertical: 7.5, horizontal: 20),
       decoration: BoxDecoration(
           color: color,
-          border: Border.all(color: AppColors.primary),
+          border: Border.all(color: theme.primaryColor),
           borderRadius: BorderRadius.circular(15)),
       child: InkWell(
         onSecondaryTap: onSecondaryTap,
@@ -343,10 +349,11 @@ class _HomeJaggerState extends State<HomeJagger> {
   }
 
   dialogButton({required Function() onTap, String? title}) {
+    final theme = Theme.of(context);
     return Container(
       width: 100,
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        color: theme.primaryColor,
         borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.symmetric(vertical: 7.5),

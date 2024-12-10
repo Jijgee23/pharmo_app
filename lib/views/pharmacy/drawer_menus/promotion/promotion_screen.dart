@@ -46,7 +46,7 @@ class _PromotionWidgetState extends State<PromotionWidget> {
       builder: (_, provider, child) {
         final promos = provider.promotions;
         return Scaffold(
-          backgroundColor: AppColors.primary,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: DefaultBox(
             title: 'Урамшуулалууд',
             child: Column(
@@ -133,8 +133,8 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                   ),
                 ),
                 (promos.isNotEmpty)
-                    ?  Expanded(
-                      child: Box(
+                    ? Expanded(
+                        child: Box(
                           child: SingleChildScrollView(
                             child: Column(
                               children: promos
@@ -147,7 +147,7 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                             ),
                           ),
                         ),
-                    )
+                      )
                     : Container()
               ],
             ),
@@ -163,8 +163,7 @@ class _PromotionWidgetState extends State<PromotionWidget> {
         if (promo.promoType == '2') {
           goto(BuyinPromo(promo: promotionProvider.promoDetail));
         } else {
-          goto(
-              MarkedPromoWidget(promo: promotionProvider.promoDetail));
+          goto(MarkedPromoWidget(promo: promotionProvider.promoDetail));
         }
       }),
       splashColor: Colors.transparent,

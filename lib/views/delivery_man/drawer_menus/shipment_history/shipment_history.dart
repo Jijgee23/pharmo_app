@@ -47,11 +47,12 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
 
   @override
   build(BuildContext context) {
+    final theme = Theme.of(context);
     return Consumer<JaggerProvider>(
       builder: (_, provider, child) {
         // final shipmets = provider.shipments;
         return Scaffold(
-          backgroundColor: AppColors.primary,
+          backgroundColor: theme.primaryColor,
           body: DefaultBox(
             title: 'Түгээлтийн түүх',
             child: Column(
@@ -86,12 +87,13 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   }
 
   filters(JaggerProvider provider) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         OutlinedButton(
           style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(AppColors.primary),
+            backgroundColor: WidgetStateProperty.all(theme.primaryColor),
           ),
           onPressed: provider.getShipmentHistory,
           child: const Text(
@@ -417,7 +419,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   filterButton(VoidCallback onPressed) {
     return OutlinedButton(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(AppColors.primary),
+        backgroundColor: WidgetStateProperty.all(Theme.of(context).primaryColor),
       ),
       onPressed: onPressed,
       child: const Text(

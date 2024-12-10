@@ -148,7 +148,7 @@ void showLogoutDialog(BuildContext context) {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.circular(15)),
           child: Center(
             child: Text(
@@ -175,12 +175,12 @@ void showLogoutDialog(BuildContext context) {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                const Text(
+                Text(
                   "Системээс гарахдаа итгэлтэй байна уу?",
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: Theme.of(context).primaryColor,
                     decoration: TextDecoration.none,
                   ),
                   textAlign: TextAlign.center,

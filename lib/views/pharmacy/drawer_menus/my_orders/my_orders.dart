@@ -337,6 +337,7 @@ class _MyOrderState extends State<MyOrder> {
         ),
       ),
       child: Box(
+        shadow: shadow(),
         child: Column(
           children: [
             Row(

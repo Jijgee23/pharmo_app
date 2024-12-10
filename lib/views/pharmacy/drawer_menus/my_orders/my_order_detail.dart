@@ -149,12 +149,12 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
               detailColumn(
                 label: 'Нэгж үнэ',
                 value: toPrice(o.itemPrice),
-                valueColor: AppColors.primary,
+                valueColor: theme.primaryColor,
               ),
               detailColumn(
                 label: 'Нийт үнэ',
                 value: '${o.itemTotalPrice}₮',
-                valueColor: AppColors.primary,
+                valueColor: theme.primaryColor,
               ),
             ],
           ),

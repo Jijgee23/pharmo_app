@@ -27,7 +27,7 @@ class _UserInformationState extends State<UserInformation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: Theme.of(context).primaryColor,
       body: DefaultBox(
         title: 'Миний бүртгэл',
         child: Column(

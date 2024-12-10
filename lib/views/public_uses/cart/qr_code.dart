@@ -62,13 +62,13 @@ class _QRCodeState extends State<QRCode> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(10),
-                          child: const Text(
+                          child:  Text(
                             'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 fontWeight: FontWeight.w400,
                                 fontSize: 15,
-                                color: AppColors.primary),
+                                color: Theme.of(context).primaryColor),
                           ),
                         ),
                         Center(
@@ -164,7 +164,7 @@ class _QRCodeState extends State<QRCode> {
                   children: [
                     Button(
                         text: 'Төлбөр шалгах',
-                        color: AppColors.primary,
+                        color: Theme.of(context).primaryColor,
                         onTap: () async {
                           dynamic res = await provider.checkPayment();
                           if (res['errorType'] == 1) {

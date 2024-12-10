@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 
@@ -31,7 +30,7 @@ class PrivacyPolicy extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       extendBody: true,
       body: DefaultBox(
         title: 'Нууцлалын бодлого',

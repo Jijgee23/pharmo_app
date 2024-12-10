@@ -19,10 +19,10 @@ class OrderStatus extends StatelessWidget {
     return Box(
       child: Column(
         children: [
-          const Text(
+           Text(
             'Захиалгын төлөв',
             style: TextStyle(
-              color: AppColors.primary,
+              color: Theme.of(context).primaryColor,
               fontWeight: FontWeight.bold,
             ),
           ),

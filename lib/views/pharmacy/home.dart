@@ -375,7 +375,7 @@ class _HomeState extends State<Home> {
                 style: TextStyle(
                   color: e.name == homeProvider.supName
                       ? AppColors.succesColor
-                      : AppColors.primary,
+                      : Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),

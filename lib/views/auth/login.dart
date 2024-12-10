@@ -380,7 +380,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                   showPasss
                                       ? Icons.visibility
                                       : Icons.visibility_off,
-                                  color: AppColors.primary),
+                                  color: theme.primaryColor),
                             ),
                           )
                         : const SizedBox(),
@@ -401,7 +401,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                   showPasss
                                       ? Icons.visibility
                                       : Icons.visibility_off,
-                                  color: AppColors.primary),
+                                  color:theme.primaryColor),
                             ),
                           )
                         : const SizedBox(),
