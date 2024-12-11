@@ -26,7 +26,7 @@ class _CartItemState extends State<CartItem> {
   @override
   void initState() {
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    // basketProvider.checkQTYs(context);
+    basketProvider.checkQTYs();
     checkErrorMessage();
     super.initState();
   }
@@ -51,7 +51,7 @@ class _CartItemState extends State<CartItem> {
         basketId: basketProvider.basket.id, itemId: selectedItem);
     if (res['errorType'] == 1) {
     } else {
-      message(message: res['message'], context: context);
+      message(res['message']);
     }
   }
 
@@ -59,13 +59,13 @@ class _CartItemState extends State<CartItem> {
     dynamic check =
         await basketProvider.checkItemQty((widget.detail['qtyId']), qty);
     if (check['errorType'] == 0) {
-      message(message: 'Бараа дууссан, сагснаас хасна уу!', context: context);
+      message('Бараа дууссан, сагснаас хасна уу!');
     } else if (check['errorType'] == 1) {
       dynamic res = await basketProvider.changeBasketItem(
           itemId: itemId, type: type, qty: qty);
-      message(message: res['message'], context: context);
+      message(res['message']);
     } else {
-      message(message: 'Үлдэгдэл хүрэлцэхгүй байна!', context: context);
+      message('Үлдэгдэл хүрэлцэхгүй байна!');
     }
     await basketProvider.getBasket();
     print(check['errorType'].toString());
@@ -162,7 +162,7 @@ class _CartItemState extends State<CartItem> {
           ),
           SizedBox(
             width: 40,
-            child: TextField(
+            child: TextFormField(
               controller: controller,
               focusNode: focusNode,
               textAlign: TextAlign.center,
@@ -173,7 +173,8 @@ class _CartItemState extends State<CartItem> {
                 focusedBorder: InputBorder.none,
               ),
               style: TextStyle(fontSize: fontSize),
-              onSubmitted: (v) => _changeQTy(v),
+              onFieldSubmitted: (v) => _changeQTy(v),
+              // onSubmitted: (v) => _changeQTy(v),
             ),
           ),
           _iconButton(
@@ -193,18 +194,18 @@ class _CartItemState extends State<CartItem> {
   _changeQTy(String v) async {
     if (v.isNotEmpty) {
       if (int.parse(v) == 0) {
-        message(message: '0 байж болохгүй!', context: context);
+        message('0 байж болохгүй!');
       } else {
         if (widget.detail['qty'] != int.parse(v)) {
           dynamic res =
               changeBasketItem(widget.detail['id'], 'set', int.parse(v));
           if (res['errorType'] == 0) {}
         } else {
-          message(message: 'Тоон утга өөрчлөгдөөгүй!', context: context);
+          message('Тоон утга өөрчлөгдөөгүй!');
         }
       }
     } else {
-      message(message: 'Тоон утга оруулна уу!', context: context);
+      message('Тоон утга оруулна уу!');
     }
     await basketProvider.getBasket();
   }

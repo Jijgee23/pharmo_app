@@ -31,7 +31,7 @@ class _IncomeListState extends State<IncomeList> {
   void initState() {
     super.initState();
     incomeProvider = Provider.of<IncomeProvider>(context, listen: false);
-    incomeProvider.getIncomeList(context);
+    incomeProvider.getIncomeList();
   }
 
   incomeRecoord({required BuildContext contenxt}) {
@@ -75,10 +75,10 @@ class _IncomeListState extends State<IncomeList> {
                         title: 'Бүртгэх',
                         ontap: () {
                           Future(() {
-                            incomeProvider.recordIncome(noteController.text,
-                                amuontController.text, context);
+                            incomeProvider.recordIncome(
+                                noteController.text, amuontController.text);
                           }).whenComplete(() {
-                            incomeProvider.getIncomeList(context);
+                            incomeProvider.getIncomeList();
                             Navigator.pop(context);
                           });
                         },
@@ -163,10 +163,9 @@ class _IncomeListState extends State<IncomeList> {
                         OutlinedButton(
                           onPressed: () {
                             if (date1 == date2) {
-                              income.getIncomeListByDateSinlge(context, date1);
+                              income.getIncomeListByDateSinlge(date1);
                             } else {
-                              income.getIncomeListByDateRanged(
-                                  context, date1, date2);
+                              income.getIncomeListByDateRanged(date1, date2);
                             }
                           },
                           style: ButtonStyle(
@@ -250,9 +249,9 @@ class _IncomeListState extends State<IncomeList> {
                             ontap: () {
                               Future(() {
                                 income.updateIncome(id, noteController.text,
-                                    amuontController.text, context);
+                                    amuontController.text);
                               }).whenComplete(() {
-                                income.getIncomeList(context);
+                                income.getIncomeList();
                                 noteController.clear();
                                 amuontController.clear();
                                 Navigator.of(context).pop();

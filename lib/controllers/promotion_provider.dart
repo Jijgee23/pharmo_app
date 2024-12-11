@@ -121,15 +121,16 @@ class PromotionProvider extends ChangeNotifier {
 
   getMarkedPromotion() async {
     try {
-      var response = await apiGet('marked_promos/');
-      if (response.statusCode == 200) {
-        var res = convertData(response);
-        markedPromotions.clear();
-        markedPromotions =
-            (res).map((data) => MarkedPromo.fromJson(data)).toList();
-      } else if (response.statusCode == 204) {
-        markedPromotions.clear();
-      }
+      // final response = await apiGet('marked_promos/');
+      // print(convertData(response));
+      // if (response.statusCode == 200) {
+      //   var res = convertData(response);
+      //   markedPromotions.clear();
+      //   markedPromotions =
+      //       (res).map((data) => MarkedPromo.fromJson(data)).toList();
+      // } else if (response.statusCode == 204) {
+      //   markedPromotions.clear();
+      // }
       notifyListeners();
     } catch (e) {
       debugPrint('ERROR AT MPROMO: ${e.toString()}');
@@ -155,9 +156,9 @@ class PromotionProvider extends ChangeNotifier {
     try {
       final response = await apiPatch('marked_promos/$id/', {});
       if (response.statusCode == 200) {
-        message(message: 'Амжилттай', context: context);
+        message('Амжилттай');
       } else {
-        message(message: 'Амжилтгүй', context: context);
+        message('Амжилтгүй');
       }
     } catch (e) {
       debugPrint('ERROR AT HIDE PROMO: ${e.toString()}');
@@ -181,7 +182,7 @@ class PromotionProvider extends ChangeNotifier {
         qrData = QrData.fromJson(data);
         setQr(true);
       } else if (response.statusCode == 400) {
-        message(message: 'Урамшууллын хугацаа дууссан', context: context);
+        message('Урамшууллын хугацаа дууссан');
       } else {}
     } catch (e) {
       debugPrint('ERROR AT ORDER PROMO: ${e.toString()}');
@@ -194,10 +195,10 @@ class PromotionProvider extends ChangeNotifier {
     final data = convertData(response);
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));
-      message(message: 'Төлбөр төлөгдсөн байна', context: context);
+      message('Төлбөр төлөгдсөн байна');
       return true;
     } else {
-      message(message: 'Төлбөр төлөгдөөгүй байна', context: context);
+      message('Төлбөр төлөгдөөгүй байна');
     }
   }
 }

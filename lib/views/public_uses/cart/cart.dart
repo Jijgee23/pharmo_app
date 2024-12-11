@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/views/public_uses/cart/basket_info.dart';
+import 'package:pharmo_app/views/public_uses/cart/cart_info.dart';
 import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/public_uses/cart/seller_order_sheet.dart';
 import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
@@ -29,11 +29,11 @@ class _CartState extends State<Cart> {
     super.initState();
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
     getBasket();
-    basketProvider.checkQTYs();
   }
 
   getBasket() async {
     await basketProvider.getBasket();
+    await basketProvider.checkQTYs();
   }
 
   var decoration = BoxDecoration(
@@ -61,7 +61,7 @@ class _CartState extends State<Cart> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Сагсны мэдээлэл
-                      if (!basketIsEmpty) const BasketInfo(),
+                      if (!basketIsEmpty) const CartInfo(),
                       // Сагсанд байгаа бараанууд
                       (!basketIsEmpty)
                           ? Expanded(
@@ -105,13 +105,10 @@ class _CartState extends State<Cart> {
   placeOrder(BuildContext c) async {
     await basketProvider.checkQTYs();
     if (basketProvider.qtys.isNotEmpty) {
-      message(
-          message: 'Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!',
-          context: context);
+      message('Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!');
     } else {
       if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
-        message(
-            message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
+        message('Үнийн дүн 10₮-с бага байж болохгүй!');
       } else {
         final home = Provider.of<HomeProvider>(context, listen: false);
         if (home.userRole == 'PA') {

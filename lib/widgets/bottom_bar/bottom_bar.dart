@@ -94,9 +94,9 @@ class BottomBar extends StatelessWidget {
       padding: EdgeInsets.symmetric(
           vertical: width * 0.01, horizontal: width * 0.01),
       decoration: BoxDecoration(
-          color: theme.primaryColor,
+          color: theme.bottomNavigationBarTheme.backgroundColor,
           borderRadius: BorderRadius.circular(width * .1),
-          border: Border.all(color: Colors.grey.shade300)),
+          border: Border.all(color: Colors.grey.shade500, width: 2)),
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -145,7 +145,7 @@ class BottomBarItem extends StatelessWidget {
             width: selected ? width * 0.3 : width * 0.2,
             duration: duration,
             decoration: BoxDecoration(
-                color: selected ? Colors.grey.shade100 : Colors.transparent,
+                color: selected ? Theme.of(context).primaryColor.withOpacity(.3) : Colors.transparent,
                 borderRadius: BorderRadius.circular(width * .1)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -154,7 +154,8 @@ class BottomBarItem extends StatelessWidget {
                   'assets/icons_2/$icon.png',
                   height: 20,
                   width: 20,
-                  color: Colors.black,
+                  color: Theme.of(context)
+                      .primaryColor,
                 ),
                 if (selected)
                   Text(

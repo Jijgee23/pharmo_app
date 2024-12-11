@@ -36,8 +36,8 @@ class _HomeState extends State<Home> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
-    homeProvider.getUserInfo();
+
+    basket();
     if (homeProvider.userRole == 'PA') {
       initPharmo();
     }
@@ -57,16 +57,18 @@ class _HomeState extends State<Home> {
   }
 
   initPharmo() async {
+    promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
     // await promotionProvider.getMarkedPromotion();
-    await homeProvider.getFilters();
-    await basketProvider.getBasket();
-    await homeProvider.getBranches(context);
+
+    // await homeProvider.getBranches();
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   if (promotionProvider.markedPromotions.isNotEmpty) {
-    //     // homeProvider.showMarkedPromos(context, promotionProvider);
+    //     homeProvider.showMarkedPromos(context, promotionProvider);
     //   }
     // });
   }
+
+  basket() async => await basketProvider.getBasket();
 
   // Барааны жагсаалт авах
   Future<void> fetchPage(int pageKey) async {

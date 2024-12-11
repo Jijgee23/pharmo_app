@@ -120,13 +120,14 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  getBranches(BuildContext context) async {
+  Future getBranches() async {
     try {
       final response = await apiGet('branch/');
       if (response.statusCode == 200) {
         List<dynamic> res = convertData(response);
         branches = (res).map((data) => Sector.fromJson(data)).toList();
-      } else {}
+      }
+      notifyListeners();
     } catch (e) {
       print(e);
     }
@@ -413,13 +414,13 @@ class HomeProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
             'not found') {
-          message(message: 'Харилцагч олдсонгүй', context: context);
+          message(
+            'Харилцагч олдсонгүй',
+          );
         } else {
           Map<String, dynamic> res = convertData(response);
           message(
-              context: context,
-              message:
-                  '${res['company']['name']} харилцагчийн ${res['name']} олдлоо');
+              '${res['company']['name']} харилцагчийн ${res['name']} олдлоо');
           if (res['manager']['id'] == null) {
             selectedCustomerId = res['director']['id'];
             selectedCustomerName = res['company']['name'];
@@ -433,10 +434,10 @@ class HomeProvider extends ChangeNotifier {
           }
         }
       } else {
-        message(message: 'Серверийн алдаа', context: context);
+        message('Серверийн алдаа');
       }
     } catch (e) {
-      message(message: 'Интернет холболтоо шалгана уу!.', context: context);
+      message('Интернет холболтоо шалгана уу!.');
     }
   }
 
@@ -447,10 +448,10 @@ class HomeProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         AuthController().logout(context);
         message(
-            message: '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа',
-            context: context);
+          '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа',
+        );
       } else {
-        message(message: 'Алдаа гарлаа', context: context);
+        message('Алдаа гарлаа');
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -478,10 +479,10 @@ class HomeProvider extends ChangeNotifier {
         note = null;
         notifyListeners();
       } else {
-        message(message: 'Алдаа гарлаа', context: context);
+        message('Алдаа гарлаа');
       }
     } catch (e) {
-      message(message: 'Захиалга үүсгэхэд алдаа гарлаа.', context: context);
+      message('Захиалга үүсгэхэд алдаа гарлаа.');
     }
   }
 
@@ -620,7 +621,8 @@ class MakredPromoOnDialog extends StatelessWidget {
                                 shrinkWrap: true,
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 itemBuilder: (context, index) {
-                                  return product(promo.gift?[index], noImage, context);
+                                  return product(
+                                      promo.gift?[index], noImage, context);
                                 },
                                 itemCount: promo.gift?.length,
                               )
@@ -714,8 +716,8 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                     physics:
                                         const NeverScrollableScrollPhysics(),
                                     itemBuilder: (context, index) {
-                                      return product(
-                                          promo.bundles?[index], noImage, context);
+                                      return product(promo.bundles?[index],
+                                          noImage, context);
                                     },
                                     itemCount: promo.bundles?.length,
                                   )
@@ -760,7 +762,8 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                               shrinkWrap: true,
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
-                                return product(promo.gift?[index], noImage , context);
+                                return product(
+                                    promo.gift?[index], noImage, context);
                               },
                               itemCount: promo.gift?.length,
                             )
@@ -923,8 +926,9 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                               splashColor: Colors.blue.shade100,
                               onTap: () => promotionProvider
                                   .setHasnote(!promotionProvider.hasNote),
-                              child:  Text('Нэмэлт тайлбар',
-                                  style: TextStyle(color: Theme.of(context).primaryColor))),
+                              child: Text('Нэмэлт тайлбар',
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColor))),
                           box,
                           !promotionProvider.hasNote
                               ? const SizedBox()
@@ -997,7 +1001,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                                                             if (found) {
                                                                               await launchUrl(Uri.parse(e.link!), mode: LaunchMode.externalApplication);
                                                                             } else {
-                                                                              message(message: '${e.description!} банкны апп олдсонгүй.', context: context);
+                                                                              message('${e.description!} банкны апп олдсонгүй.');
                                                                             }
                                                                           },
                                                                           child: Container(
@@ -1080,7 +1084,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
   }
 }
 
-product(e, String noImage, BuildContext context){
+product(e, String noImage, BuildContext context) {
   return Stack(
     children: [
       Container(
@@ -1126,7 +1130,7 @@ product(e, String noImage, BuildContext context){
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
           decoration: BoxDecoration(
-            color:Theme.of(context).primaryColor,
+            color: Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(

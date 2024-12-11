@@ -36,18 +36,21 @@ class BasketProvider extends ChangeNotifier {
   getBasket() async {
     try {
       final resBasket = await apiGet('get_basket');
+      print(convertData(resBasket));
       if (resBasket.statusCode == 200) {
-        Map<String, dynamic> res = convertData(resBasket);
+        final res = convertData(resBasket);
         _basket = Basket.fromJson(res);
         _count = _basket.items != null && _basket.items!.isNotEmpty
             ? _basket.items!.length
             : 0;
         _shoppingCarts = _basket.items!;
+        print('basket successs');
       } else {
         return buildResponse(1, '', 'Сагсны мэдээлэл татахад алдаа гарлаа!');
       }
       notifyListeners();
     } catch (e) {
+      print('error at get_basket $e');
       //
     }
   }
@@ -98,17 +101,17 @@ class BasketProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         Map<String, dynamic> res = convertData(response);
         if (res['$id'] == null) {
-          return buildResponse(0, res, 'Бараа дууссан.');
+          return buildResponse(0, res, null);
         } else if (res['$id'] == true) {
-          return buildResponse(1, res, 'Үлдэгдэл хүрэлцэнэ.');
+          return buildResponse(1, res, null);
         } else {
-          return buildResponse(2, res, 'Үлдэгдэл хүрэлцэхгүй.');
+          return buildResponse(2, res, null);
         }
       } else {
-        return buildResponse(3, null, 'Үлдэгдэл шалгахад алдаа гарлаа.');
+        return buildResponse(3, null, null);
       }
     } catch (e) {
-      return buildResponse(4, null, 'Серверийн алдаа');
+      return buildResponse(4, null, null);
     }
   }
 
@@ -118,11 +121,9 @@ class BasketProvider extends ChangeNotifier {
     required int qty,
   }) async {
     final int checkId = itemnameId ?? productId!;
-
     try {
       final dynamic check = await checkItemQty(checkId, qty);
       final int status = check['errorType'];
-
       switch (status) {
         case 0:
           return buildResponse(0, null, 'Бараа дууссан.');
@@ -132,7 +133,7 @@ class BasketProvider extends ChangeNotifier {
             jsonEncode({'product': productId, 'qty': qty}),
           );
           if (response.statusCode == 201) {
-            return buildResponse(1, response, 'Сагсанд амжилттай нэмэгдлээ.');
+            return buildResponse(1, response, 'сагсанд нэмэгдлээ.');
           } else {
             return buildResponse(
                 2, null, 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.');
@@ -243,9 +244,9 @@ class BasketProvider extends ChangeNotifier {
         }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
         return res['orderNo'];
       } else if (response.statusCode == 400) {
-        message(message: 'Сагс хоосон байна!', context: context);
+        message('Сагс хоосон байна!');
       } else {
-        message(message: res, context: context);
+        message(res);
       }
     } catch (e) {
       //
@@ -270,22 +271,20 @@ class BasketProvider extends ChangeNotifier {
         goto(const QRCode());
       } else if (status == 404) {
         if (data == 'qpay') {
-          message(message: 'Нийлүүлэгч Qpay холбоогүй.', context: context);
+          message('Нийлүүлэгч Qpay холбоогүй.');
         }
       } else if (status == 400) {
         if (data == 'bad qpay') {
-          message(
-              message: 'Нийлүүлэгчийн Qpay тохиргоо алдаатай!',
-              context: context);
+          message('Нийлүүлэгчийн Qpay тохиргоо алдаатай!');
         } else if (data == 'min') {
-          message(message: 'Төлбөрийн дүн 10₮-с дээш байх', context: context);
+          message('Төлбөрийн дүн 10₮-с дээш байх');
         } else if (data == 'empty') {
-          message(message: 'Сагс хоосон байна!', context: context);
+          message('Сагс хоосон байна!');
         } else if (data == 'branch not match') {
-          message(message: 'Салбарын мэдээлэл буруу!', context: context);
+          message('Салбарын мэдээлэл буруу!');
         }
       } else if (status == 500) {
-        message(message: 'Админтай холбогдоно уу!', context: context);
+        message('Админтай холбогдоно уу!');
       }
     } catch (e) {
       debugPrint('ERROR AT CREATE QR: $e');

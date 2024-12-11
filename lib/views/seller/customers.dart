@@ -359,7 +359,7 @@ class _CustomerListState extends State<CustomerList> {
         rn.text.isEmpty ||
         email.text.isEmpty ||
         phone.text.isEmpty) {
-      message(message: 'Бүртгэл гүйцээнээ үү!', context: context);
+      message('Бүртгэл гүйцээнээ үү!');
     } else {
       await pp
           .registerCustomer(

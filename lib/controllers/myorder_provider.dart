@@ -223,10 +223,10 @@ class MyOrderProvider extends ChangeNotifier {
       print('response: $response ConfirmOrderStatus: ${res.statusCode}');
       if (res.statusCode == 200) {
         message(
-            message: 'Таны захиалга амжилттай баталгаажлаа.', context: context);
+             'Таны захиалга амжилттай баталгаажлаа.');
         notifyListeners();
       } else if (res.statusCode == 400) {
-        message(message: 'Захиалгын түгээлт эхлээгүй', context: context);
+        message( 'Захиалгын түгээлт эхлээгүй');
       } else {
         notifyListeners();
         return {

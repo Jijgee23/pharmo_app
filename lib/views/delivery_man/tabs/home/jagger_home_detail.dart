@@ -147,7 +147,7 @@ class _JaggerHomeDetailState extends State<JaggerHomeDetail> {
                                 if (ord.itemQTy != int.parse(qty.text) &&
                                     qty.text.isNotEmpty) {
                                   provider.updateQTY(
-                                      ord.itemId, int.parse(qty.text), context);
+                                      ord.itemId, int.parse(qty.text));
                                   Navigator.pop(context);
                                 }
                               },

@@ -4,10 +4,21 @@ import 'package:pharmo_app/utilities/colors.dart';
 final lightTheme = ThemeData(
   primaryColor: primary,
   hintColor: secondary,
-  brightness: Brightness.light,
+  // brightness: Brightness.light,
   scaffoldBackgroundColor: lightBackground,
   splashColor: Colors.transparent,
   highlightColor: Colors.transparent,
+  colorScheme: const ColorScheme(
+    brightness: Brightness.light,
+    primary: primary,
+    onPrimary: darkPrimary,
+    secondary: secondary,
+    onSecondary: black,
+    error: failedColor,
+    onError: failedColor,
+    surface: primary,
+    onSurface: primary,
+  ),
   appBarTheme: const AppBarTheme(
     backgroundColor: lightBackground,
     surfaceTintColor: lightBackground,
@@ -47,7 +58,7 @@ final lightTheme = ThemeData(
   ),
   cardColor: Colors.white,
   bottomNavigationBarTheme: BottomNavigationBarThemeData(
-    backgroundColor: primary,
+    backgroundColor: white,
     selectedItemColor: white,
     unselectedIconTheme: IconThemeData(
       color: white.withOpacity(.5),

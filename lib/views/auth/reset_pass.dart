@@ -52,9 +52,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                               boolean = sent;
                             });
                           } else {
-                            message(
-                                message: 'И-Мейл хаяг бүртгэлтгүй байна',
-                                context: context);
+                            message('И-Мейл хаяг бүртгэлтгүй байна');
                           }
                         },
                       )
@@ -109,9 +107,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                   context: context,
                                 );
                               } else {
-                                message(
-                                    message: 'Нууц үг таарахгүй байна',
-                                    context: context);
+                                message('Нууц үг таарахгүй байна');
                               }
                             },
                           )

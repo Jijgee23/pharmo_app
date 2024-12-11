@@ -92,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       await _updater.update(track: currentTrack);
       if (!mounted) return;
-      message(message: 'Шинэчлэлт татагдлаа', context: context);
+      message('Шинэчлэлт татагдлаа');
     } on UpdateException catch (error) {
       debugPrint(error.toString());
     }
@@ -228,8 +228,8 @@ class _LoginPageState extends State<LoginPage> {
                                 });
                               } else {
                                 message(
-                                    context: context,
-                                    message: 'Нэврэх нэр, нууц үг оруулна уу');
+                                    
+                                    'Нэврэх нэр, нууц үг оруулна уу');
                               }
                             },
                           ),
@@ -430,15 +430,15 @@ class _SignUpFormState extends State<SignUpForm> {
       final keyK = res['v'];
       if (keyK == 1) {
         setOtpSent(true);
-        message(message: 'Батлагаажуулах код илгээлээ!', context: context);
+        message('Батлагаажуулах код илгээлээ!',);
       } else if (keyK == 3) {
         message(
-            message: 'И-Мейл эсвэл утас бүртгэлтэй байна!', context: context);
+            'И-Мейл эсвэл утас бүртгэлтэй байна!',);
       } else {
-        message(message: 'Алдаа гарлаа', context: context);
+        message('Алдаа гарлаа',);
       }
     } else {
-      message(message: 'Бүртгэлийг талбарууд гүйцээнэ үү!', context: context);
+      message('Бүртгэлийг талбарууд гүйцээнэ үү!',);
     }
   }
 
@@ -448,17 +448,17 @@ class _SignUpFormState extends State<SignUpForm> {
           ema.text, phone.text, pass.text, otp.text);
       final k = res['v'];
       if (res['v'] == 1) {
-        message(message: 'Бүртгэл үүслээ', context: context);
+        message('Бүртгэл үүслээ',);
         Get.back();
       } else if (k == 2) {
-        message(message: 'Түр хүлээгээд дахин оролдоно уу!', context: context);
+        message('Түр хүлээгээд дахин оролдоно уу!',);
       } else if (k == 3) {
-        message(message: 'Батлагаажуулах код буруу!', context: context);
+        message('Батлагаажуулах код буруу!',);
       } else {
-        message(message: 'Алдаа гарлаа!', context: context);
+        message('Алдаа гарлаа!',);
       }
     } else {
-      message(message: 'Нууц үг таарахгүй байна!', context: context);
+      message('Нууц үг таарахгүй байна!',);
     }
   }
 }

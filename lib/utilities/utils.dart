@@ -55,10 +55,9 @@ setUrl(String endPoint) {
   return url;
 }
 
-convertData(dynamic data) {
-  return jsonDecode(
-    utf8.decode(data.bodyBytes),
-  );
+convertData(final body) {
+  var d = jsonDecode(utf8.decode(body.bodyBytes));
+  return d;
 }
 
 getApiInformation(String endPoint, http.Response response) {
@@ -106,7 +105,7 @@ apiDelete(String endPoint) async {
 }
 
 Map<String, dynamic> buildResponse(
-    int errorType, dynamic data, String message) {
+    int errorType, dynamic data, String? message) {
   return {'errorType': errorType, 'data': data, 'message': message};
 }
 

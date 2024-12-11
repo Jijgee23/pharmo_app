@@ -198,7 +198,9 @@ class _CategoryItemState extends State<CategoryItem> {
                 Text(
                   widget.cat.name,
                   style: TextStyle(
-                      color: isExpanded ? AppColors.secondary : Colors.black,
+                      color: isExpanded
+                          ? AppColors.secondary
+                          : Theme.of(context).colorScheme.onSecondary,
                       fontSize: 12),
                 ),
                 widget.cat.children!.isNotEmpty
@@ -206,7 +208,9 @@ class _CategoryItemState extends State<CategoryItem> {
                         isExpanded
                             ? Icons.keyboard_arrow_down_outlined
                             : Icons.chevron_right_rounded,
-                        color: isExpanded ? AppColors.secondary : Colors.black,
+                        color: isExpanded
+                            ? AppColors.secondary
+                            : Theme.of(context).colorScheme.onSecondary,
                         size: 20,
                       )
                     : const SizedBox()

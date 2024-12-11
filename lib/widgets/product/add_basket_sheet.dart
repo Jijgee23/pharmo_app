@@ -83,15 +83,14 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
           ),
           CustomButton(
             text: 'Сагсанд нэмэх',
-            ontap: () {
+            ontap: () async {
               if (qty.text.isNotEmpty && int.parse(qty.text) > 0) {
-                addBasket(widget.product, context, int.parse(qty.text))
-                    .then((e) => Get.back());
+                await addBasket(widget.product, int.parse(qty.text))
+                    .then((e) => Navigator.pop(context));
               } else if (qty.text.isEmpty) {
-                message(message: 'Тоо ширхэг оруулна уу!', context: context);
+                message('Тоо ширхэг оруулна уу!');
               } else {
-                message(
-                    message: 'Тоо ширхэг 0 байж болохгүй!', context: context);
+                message('Тоо ширхэг 0 байж болохгүй!');
               }
             },
           ),
@@ -100,7 +99,7 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
     );
   }
 
-  Future<void> addBasket(dynamic item, BuildContext context, int qty) async {
+  Future<void> addBasket(Product item, int qty) async {
     try {
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
@@ -111,17 +110,16 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
       );
       switch (res['errorType']) {
         case 1:
-          basketProvider.getBasket();
-          message(message: '${item.name} сагсанд нэмэгдлээ', context: context);
+          await basketProvider.getBasket();
+          message('${item.name} сагсанд нэмэгдлээ');
           break;
-
         default:
-          message(message: res['message'], context: context);
+          message(res['message']);
           break;
       }
     } catch (e, stackTrace) {
       debugPrint('Stack Trace: $stackTrace');
-      message(message: 'Алдаа гарлаа. Дахин оролдоно уу!', context: context);
+      message('Алдаа гарлаа. Дахин оролдоно уу!');
     }
   }
 }

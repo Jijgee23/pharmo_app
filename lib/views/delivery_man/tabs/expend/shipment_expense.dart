@@ -171,10 +171,10 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
                   if (provider.formKey.currentState!.validate()) {
                     dynamic res = await provider.editExpenseAmount(order.id);
                     if (res['errorType'] == 1) {
-                      message(message: res['message'], context: context);
+                      message(res['message']);
                       Navigator.of(context).pop();
                     } else {
-                      message(message: res['message'], context: context);
+                      message(res['message']);
                     }
                   }
                 }),

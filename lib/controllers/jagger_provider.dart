@@ -155,9 +155,9 @@ class JaggerProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         final response =convertData(res);
         debugPrint(response);
-        message(message: '$response цагт түгээлт эхлэлээ', context: context);
+        message('$response цагт түгээлт эхлэлээ');
       } else {
-        message(message: 'Түгээлт эхлэхэд алдаа гарлаа', context: context);
+        message('Түгээлт эхлэхэд алдаа гарлаа');
       }
     } catch (e) {
       return {'fail': e};
@@ -178,9 +178,9 @@ class JaggerProvider extends ChangeNotifier {
       final res = await apiPatch('end_shipment/', body);
       notifyListeners();
       if (res.statusCode == 200) {
-        message(message: 'Түгээлт дууслаа.', context: context);
+        message('Түгээлт дууслаа.');
       } else {
-        message(message: 'Түгээлт дуусгахад алдаа гарлаа.', context: context);
+        message('Түгээлт дуусгахад алдаа гарлаа.');
       }
     } catch (e) {
       return {'fail': e};
@@ -194,10 +194,10 @@ class JaggerProvider extends ChangeNotifier {
           'shipment_expense/', jsonEncode({"note": note, "amount": amount}));
       if (res.statusCode == 201) {
         await getExpenses();
-        message(message: 'Түгээлтийн зарлага нэмэгдлээ.', context: context);
+        message('Түгээлтийн зарлага нэмэгдлээ.');
       } else {
         final response = convertData(res);
-        message(message: response['message'], context: context);
+        message(response['message']);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -211,8 +211,7 @@ class JaggerProvider extends ChangeNotifier {
       final res = await apiPatch('shipment_add_note/', body);
       if (res.statusCode == 200) {
         message(
-            message: 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.',
-            context: context);
+            'Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
         feedback.clear();
       }
     } catch (e) {
@@ -221,15 +220,14 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   Future<dynamic> setFeedback(
-      int shipId, int itemId, BuildContext context) async {
+      int shipId, int itemId) async {
     try {
       var body = jsonEncode(
           {"shipId": shipId, "itemId": itemId, "note": feedback.text});
       final res = await apiPatch('shipment_add_note/', body);
       if (res.statusCode == 200) {
         message(
-            message: 'Түгээлтийн тайлбар амжилттай нэмэгдлээ.',
-            context: context);
+            'Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
         feedback.text = '';
       } else {}
     } catch (e) {
@@ -264,15 +262,15 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  updateQTY(int itemId, int qty, BuildContext context) async {
+  updateQTY(int itemId, int qty) async {
     try {
       var res = await apiPatch(
           'update_item_qty/', jsonEncode({"itemId": itemId, "qty": qty}));
       if (res.statusCode == 200) {
         await getJaggers();
-        message(message: 'Амжилттай засагдлаа.', context: context);
+        message('Амжилттай засагдлаа.');
       } else {
-        message(message: 'Алдаа гарлаа.', context: context);
+        message('Алдаа гарлаа.');
       }
     } catch (e) {
       return {'fail': e};
@@ -310,7 +308,7 @@ class JaggerProvider extends ChangeNotifier {
     servicePermission = await Geolocator.isLocationServiceEnabled();
 
     if (!servicePermission) {
-      message(message: 'Permission тохируулна уу', context: context);
+      message('Permission тохируулна уу');
     }
     permission = await Geolocator.checkPermission();
 

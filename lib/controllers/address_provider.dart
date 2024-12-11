@@ -75,7 +75,7 @@ class AddressProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      message(message: 'Алдаа гарлаа.', context: context);
+      message( 'Алдаа гарлаа.');
     }
   }
 
@@ -88,7 +88,7 @@ class AddressProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      message(message: 'Алдаа гарлаа.', context: context);
+      message( 'Алдаа гарлаа.');
     }
   }
 }

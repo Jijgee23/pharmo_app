@@ -105,13 +105,12 @@ class AuthController extends ChangeNotifier {
             });
       } else {
         {
-          message(
-              message: 'Имейл эсвэл нууц үг буруу байна!', context: context);
+          message('Имейл эсвэл нууц үг буруу байна!');
         }
       }
       notifyListeners();
     } catch (e) {
-      message(message: 'Интернет холболтоо шалгана уу!', context: context);
+      message('Интернет холболтоо шалгана уу!');
       debugPrint('error================= on login> ${e.toString()} ');
     }
     setLogging(false);
@@ -136,12 +135,19 @@ class AuthController extends ChangeNotifier {
     await prefs.setInt('user_id', decodedToken['user_id']);
     await prefs.setString('userrole', decodedToken['role']);
 
-    await homeProvider.getSuppliers();
+    final home = Provider.of<HomeProvider>(context, listen: false);
+    await home.getUserInfo();
+    print('HOME USER: ${home.userRole}');
+
+    if (home.userRole == 'PA') {
+      await homeProvider.getSuppliers();
+      await homeProvider.getBranches();
+    }
 
     if (decodedToken['supplier'] != null) {
       await prefs.setInt('suppID', decodedToken['supplier']);
     } else {
-      message(message: 'Нийлүүлэгч сонгоно уу!', context: context);
+      message('Нийлүүлэгч сонгоно уу!');
     }
 
     Hive.box('auth').put('role', decodedToken['role']);
@@ -163,17 +169,13 @@ class AuthController extends ChangeNotifier {
     } else if (checker(res, 'noCmp') ||
         checker(res, 'noLic') ||
         checker(res, 'noLoc')) {
-      message(
-          message: 'Веб хуудсаар хандан бүртгэл гүйцээнэ үү!',
-          context: context);
+      message('Веб хуудсаар хандан бүртгэл гүйцээнэ үү!');
     } else if (checker(res, 'noRev')) {
-      message(
-          message: 'Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!',
-          context: context);
+      message('Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!');
     } else if (checker(res, 'password')) {
-      message(context: context, message: '${res['password']}');
+      message('${res['password']}');
     } else if (checker(res, 'email')) {
-      message(context: context, message: 'Имейл хаяг бүртгэлгүй байна!');
+      message('Имейл хаяг бүртгэлгүй байна!');
     } else if (checker(res, 'password_blocked')) {
       goto(const ResetPassword());
     }
@@ -193,7 +195,7 @@ class AuthController extends ChangeNotifier {
         gotoRemoveUntil(const IndexDeliveryMan());
         break;
       default:
-        message(message: 'Веб хуудсаар хандана уу', context: context);
+        message('Веб хуудсаар хандана уу');
     }
     getDeviceInfo();
   }
@@ -228,7 +230,7 @@ class AuthController extends ChangeNotifier {
         await _completeLogout();
       } else {
         await _completeLogout();
-        message(message: 'Холболт саллаа.', context: context);
+        message('Холболт саллаа.');
       }
       notifyListeners();
     } catch (e) {
@@ -313,14 +315,14 @@ class AuthController extends ChangeNotifier {
           headers: header, body: jsonEncode({'email': email}));
       notifyListeners();
       if (response.statusCode == 200) {
-        message(context: context, message: 'Батлагаажуулах код илгээлээ');
+        message('Батлагаажуулах код илгээлээ');
         return true;
       } else {
-        message(message: 'Амжилтгүй!', context: context);
+        message('Амжилтгүй!');
         return false;
       }
     } catch (e) {
-      message(context: context, message: 'Амжилтгүй!');
+      message('Амжилтгүй!');
       return false;
     }
   }
@@ -342,12 +344,12 @@ class AuthController extends ChangeNotifier {
       );
       notifyListeners();
       if (response.statusCode == 200) {
-        message(message: 'Нууц үг амжилттай үүслээ', context: context);
+        message('Нууц үг амжилттай үүслээ');
         goto(const LoginPage());
         notifyListeners();
       }
     } catch (e) {
-      message(message: 'Амжилтгүй!', context: context);
+      message('Амжилтгүй!');
     }
     notifyListeners();
   }

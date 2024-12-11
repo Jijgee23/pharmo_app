@@ -4,14 +4,14 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:provider/provider.dart';
 
-class BasketInfo extends StatefulWidget {
-  const BasketInfo({super.key});
+class CartInfo extends StatefulWidget {
+  const CartInfo({super.key});
 
   @override
-  State<BasketInfo> createState() => _BasketInfoState();
+  State<CartInfo> createState() => _CartInfoState();
 }
 
-class _BasketInfoState extends State<BasketInfo> {
+class _CartInfoState extends State<CartInfo> {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);

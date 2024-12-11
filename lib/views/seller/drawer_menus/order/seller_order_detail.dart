@@ -236,15 +236,15 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
 
   _changeQty(int oid, OrderItem item) async {
     if (qtyController.text.isEmpty) {
-      message(message: 'Тоон утга оруулна уу!', context: context);
+      message( 'Тоон утга оруулна уу!');
     } else if (int.parse(qtyController.text) == 0) {
-      message(message: 'Тоо ширхэг 0 байж болохгүй!', context: context);
+      message( 'Тоо ширхэг 0 байж болохгүй!');
     } else {
       int qty = int.parse(qtyController.text);
-      dynamic res = await p.changeItemQty(
-          oId: oid, itemId: item.productId, qty: qty, context: context);
+      dynamic res = await p.changeItemQty(context: context,
+          oId: oid, itemId: item.productId, qty: qty);
       print('update qty: ${res['errorType']}');
-      message(message: res['message'], context: context);
+      message( res['message']);
       Get.back();
     }
   }

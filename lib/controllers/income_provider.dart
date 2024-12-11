@@ -10,7 +10,7 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 class IncomeProvider extends ChangeNotifier {
   List<Income> incomeList = <Income>[];
 
-  getIncomeList(BuildContext context) async {
+  getIncomeList() async {
     try {
       final response = await apiGet('income_record/');
       if (response.statusCode == 200) {
@@ -21,12 +21,12 @@ class IncomeProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      message(context: context, message: 'Алдаа гарлаа');
+      message('Алдаа гарлаа');
     }
     notifyListeners();
   }
 
-  getIncomeListByDateSinlge(BuildContext context, String date) async {
+  getIncomeListByDateSinlge(String date) async {
     try {
       final response = await apiGet('income_record/?createdOn__date=$date');
       if (response.statusCode == 200) {
@@ -37,13 +37,13 @@ class IncomeProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      message(context: context, message: 'Алдаа гарлаа');
+      message('Алдаа гарлаа');
     }
     notifyListeners();
   }
 
   getIncomeListByDateRanged(
-      BuildContext context, String date1, String date2) async {
+      String date1, String date2) async {
     try {
       final response = await apiGet(
           'income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2');
@@ -55,12 +55,12 @@ class IncomeProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      message(context: context, message: 'Алдаа гарлаа');
+      message('Алдаа гарлаа');
     }
     notifyListeners();
   }
 
-  recordIncome(String note, String amount, BuildContext context) async {
+  recordIncome(String note, String amount) async {
     try {
       final response = await apiPost(
           'income_record/',
@@ -69,25 +69,25 @@ class IncomeProvider extends ChangeNotifier {
             'amount': amount,
           }));
       if (response.statusCode == 201) {
-        message(context: context, message: 'Амжилттай бүртгэгдлээ');
+        message('Амжилттай бүртгэгдлээ');
       }
       notifyListeners();
     } catch (e) {
-      message(context: context, message: 'Алдаа гарлаа');
+      message('Алдаа гарлаа');
     }
     notifyListeners();
   }
 
-  updateIncome(int id, String note, String amount, BuildContext context) async {
+  updateIncome(int id, String note, String amount) async {
     try {
       final response = await apiPatch(
           'income_record/$id/', jsonEncode({'note': note, 'amount': amount}));
       if (response.statusCode == 200) {
-        message(context: context, message: 'Амжилттай');
+        message('Амжилттай');
       }
       notifyListeners();
     } catch (e) {
-      message(context: context, message: 'Алдаа гарлаа');
+      message('Алдаа гарлаа');
     }
     notifyListeners();
   }

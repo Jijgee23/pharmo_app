@@ -140,9 +140,9 @@ class _QRCodeState extends State<QRCode> {
                                                       .externalApplication);
                                             } else {
                                               message(
-                                                  message: el['description'] +
+                                                  el['description'] +
                                                       ' апп олдсонгүй.',
-                                                  context: context);
+                                                  );
                                             }
                                           },
                                           child: Container(
@@ -170,8 +170,8 @@ class _QRCodeState extends State<QRCode> {
                           if (res['errorType'] == 1) {
                             if (res['data'] == false) {
                               message(
-                                  message: 'Төлбөр төлөгдөөгүй байна.',
-                                  context: context);
+                                  'Төлбөр төлөгдөөгүй байна.',
+                                  );
                             } else {
                               Navigator.pushReplacement(
                                   context,
@@ -180,10 +180,10 @@ class _QRCodeState extends State<QRCode> {
                                           orderNo: res['data']['orderNo']
                                               .toString())));
                               message(
-                                  message: res['message'], context: context);
+                                  res['message'], );
                             }
                           } else {
-                            message(message: res['message'], context: context);
+                            message(res['message'], );
                           }
                         }),
                   ],

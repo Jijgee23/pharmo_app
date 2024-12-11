@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
@@ -29,32 +28,11 @@ class IndexPharma extends StatefulWidget {
 
 class _IndexPharmaState extends State<IndexPharma> {
   late HomeProvider homeProvider;
-  late PromotionProvider promotionProvider;
-  late BasketProvider basketProvider;
 
   @override
   void initState() {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
-    basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    basketProvider.getBasket();
-    homeProvider.getUserInfo();
-    homeProvider.getBasketId();
-    homeProvider.getFilters();
-    if (homeProvider.userRole == 'PA') {
-      initPharma();
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  void initPharma() async {
-    await homeProvider.getSuppliers();
-    await homeProvider.getBranches(context);
   }
 
   @override

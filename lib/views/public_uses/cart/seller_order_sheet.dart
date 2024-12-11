@@ -87,16 +87,16 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
 
   _createOrder() async {
     if (basketProvider.basket.totalCount == 0) {
-      message(message: 'Сагс хоосон байна!', context: context);
+      message('Сагс хоосон байна!', );
     } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
-      message(message: 'Үнийн дүн 10₮-с бага байж болохгүй!', context: context);
+      message('Үнийн дүн 10₮-с бага байж болохгүй!', );
     } else if (homeProvider.selectedCustomerId == 0) {
-      message(message: 'Захиалагч сонгоно уу!', context: context);
+      message('Захиалагч сонгоно уу!', );
       homeProvider.changeIndex(0);
     } else {
       await basketProvider.checkQTYs();
       if (payType == '') {
-        message(message: 'Төлбөрийн хэлбэр сонгоно уу!', context: context);
+        message('Төлбөрийн хэлбэр сонгоно уу!', );
       } else {
         homeProvider.createSellerOrder(context, payType);
       }

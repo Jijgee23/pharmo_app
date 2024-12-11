@@ -160,8 +160,8 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
                           districtId == 0 ||
                           khorooId == 0) {
                         message(
-                            message: 'Бүртгэлийн хэсгийг гүйцээнэ үү!',
-                            context: context);
+                            'Бүртгэлийн хэсгийг гүйцээнэ үү!',
+                           );
                       } else {
                         registerPharm(context);
                       }
@@ -240,7 +240,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     return GestureDetector(
       onTap: () {
         if (addressProvider.selectedProvince == 0) {
-          message(message: 'Аймаг/Хот сонгоно уу.', context: context);
+          message('Аймаг/Хот сонгоно уу.');
         } else {
           showDialog(
             context: context,
@@ -305,7 +305,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
     return GestureDetector(
       onTap: () {
         if (addressProvider.selectedDistrict == 0) {
-          message(message: 'Сум/Дүүрэг сонгоно уу.', context: context);
+          message('Сум/Дүүрэг сонгоно уу.');
         } else {
           showDialog(
             context: context,
@@ -406,13 +406,13 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         homeProvider.selectedCustomerName = res['cName'];
         homeProvider.getSelectedUser(
             homeProvider.selectedCustomerId, homeProvider.selectedCustomerName);
-        message(message: 'Амжилттай бүртгэгдлээ.', context: context);
+        message('Амжилттай бүртгэгдлээ.');
         goto(const IndexPharma());
       } else {
-        // showFailedMessage(message: 'Бүртгэл амжилтгүй.', context: context);
+        // showFailedMessage('Бүртгэл амжилтгүй.');
       }
     } catch (e) {
-      //showFailedMessage(message: 'Алдаа гарлаа.', context: context);
+      //showFailedMessage('Алдаа гарлаа.');
     }
   }
 
@@ -431,7 +431,7 @@ class _RegisterPharmPageState extends State<RegisterPharmPage> {
         });
       }
     } catch (e) {
-      message(context: context, message: 'Интернет холболтоо шалгана уу!');
+      message('Интернет холболтоо шалгана уу!');
     }
   }
 }

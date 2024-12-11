@@ -55,7 +55,7 @@ class _HomeJaggerState extends State<HomeJagger> {
           homeProvider.currentLongitude!,
           context);
     }
-    message(message: 'Байршил авах зөвшөөрөл өгнө үү', context: context);
+    message('Байршил авах зөвшөөрөл өгнө үү');
   }
 
   endShipment(int shipmentId, bool? force) async {

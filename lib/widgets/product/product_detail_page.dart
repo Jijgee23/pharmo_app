@@ -78,7 +78,7 @@ class _ProductDetailState extends State<ProductDetail>
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
       if (qtyController.text.isEmpty || int.parse(qtyController.text) <= 0) {
-        message(message: 'Барааны тоо хэмжээг оруулна уу.', context: context);
+        message('Барааны тоо хэмжээг оруулна уу.');
         return;
       } else {
         Map<String, dynamic> res = await basketProvider.addBasket(
@@ -87,16 +87,14 @@ class _ProductDetailState extends State<ProductDetail>
             qty: int.parse(qtyController.text));
         if (res['errorType'] == 1) {
           basketProvider.getBasket();
-          message(
-              message: '${widget.prod.name} сагсанд нэмэгдлээ.',
-              context: context);
+          message('${widget.prod.name} сагсанд нэмэгдлээ.');
           Navigator.pop(context);
         } else {
-          message(message: res['message'], context: context);
+          message(res['message']);
         }
       }
     } catch (e) {
-      message(message: 'Алдаа гарлаа!', context: context);
+      message('Алдаа гарлаа!');
     }
   }
 
