@@ -27,17 +27,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomeProvider extends ChangeNotifier {
+ 
+  bool isScrolling = false;
   final TextEditingController _searchController = TextEditingController();
   TextEditingController get searchController => _searchController;
-  final PageController _pageController = PageController();
-  PageController get pageController => _pageController;
   List<String> stype = ['Нэрээр', 'Баркодоор', 'Ерөнхий нэршлээр'];
   String queryType = 'name';
   String searchType = 'Нэрээр';
   bool isList = false;
   String query = '';
   bool searching = false;
-  // final int page = 1;
   final int pageSize = 20;
   int currentIndex = 0;
   bool invisible = false;
@@ -73,18 +72,21 @@ class HomeProvider extends ChangeNotifier {
   String _supName = 'Нийлүүлэгч сонгох';
   String get supName => _supName;
   List<Sector> branches = <Sector>[];
+
   String demo = 'demo';
-  // bool isListView = false;
-
-  // void setProductView() {
-  //   isListView = !isListView;
-  //   notifyListeners();
-  // }
-
   void changeDemo(String d) {
     demo = d;
     notifyListeners();
   }
+
+  void setScrolling(bool d) {
+    isScrolling = d;
+    notifyListeners();
+  }
+  ScrollController scrollController = ScrollController(
+    onAttach: (position){
+    }
+  );
 
   void refresh(BuildContext context, HomeProvider homeProvider,
       PromotionProvider promotionProvider) {
@@ -446,7 +448,7 @@ class HomeProvider extends ChangeNotifier {
       final response = await apiPatch(
           'auth/delete_user_account/', jsonEncode({'pwd': password}));
       if (response.statusCode == 200) {
-        AuthController().logout(context);
+        AuthController().logout();
         message(
           '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа',
         );

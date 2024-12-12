@@ -62,15 +62,18 @@ convertData(final body) {
 
 getApiInformation(String endPoint, http.Response response) {
   debugPrint(
-    '$endPoint, status: ${response.statusCode}, body; ${convertData(response)}',
+    '$endPoint\n, status: ${response.statusCode},\n body; ${convertData(response)}',
   );
 }
 
-apiGet(String endPoint) async {
+apiGet(String endPoint) async { 
   http.Response response = await http.get(
     setUrl(endPoint),
-    headers: getHeader(await getAccessToken()),
+    headers: getHeader(
+      await getAccessToken(),
+    ),
   );
+
   getApiInformation(endPoint, response);
   return response;
 }
@@ -206,7 +209,7 @@ getStatus(String status) {
   }
 }
 
-checker(Map response, String key, BuildContext context) {
+checker(Map response, String key) {
   if (response.containsKey(key)) {
     return true;
   } else {

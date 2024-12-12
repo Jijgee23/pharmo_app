@@ -8,6 +8,7 @@ import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/product_scrolls/paged_sliver_grid.dart';
@@ -146,7 +147,9 @@ class _HomeState extends State<Home> {
                 smallFontSize,
                 search,
               ),
-              if (homeProvider.userRole == 'PA') filtering(smallFontSize),
+              if (homeProvider.userRole == 'PA' &&
+                  homeProvider.isScrolling == false)
+                filtering(smallFontSize),
               products(homeProvider),
             ],
           );
@@ -308,46 +311,76 @@ class _HomeState extends State<Home> {
   // Эрэлттэй, Шинэ, Хямдралтай
   filtering(double smallFontSize) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: filters
-              .map(
-                (e) => InkWell(
-                  onTap: () {
-                    _filtering.itemList?.clear();
-                    if (filters.indexOf(e) == 0) {
-                      goFilt('discount__gt=0', 'Хямдралтай', pageKey, true);
-                    } else if (filters.indexOf(e) == 1) {
-                      goFilt(
-                          'ordering=-created_at', 'Эрэлттэй', pageKey, false);
-                    } else {
-                      goFilt('supplier_indemand_products/', 'Шинэ', pageKey,
-                          false);
-                    }
-                  },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    decoration: decoration,
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(icons[filters.indexOf(e)],
-                              color: AppColors.secondary),
-                          const SizedBox(width: 5),
-                          Text(
-                            e,
-                            style: TextStyle(fontSize: smallFontSize),
-                          ),
-                        ],
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            InkWell(
+              onTap: () => goto(const FilterPage()),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.25,
+                decoration: decoration,
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.list,
+                          color: AppColors.secondary, size: 20),
+                      const SizedBox(width: 5),
+                      Text(
+                        'Ангилал',
+                        style: TextStyle(fontSize: smallFontSize),
                       ),
-                    ),
+                    ],
                   ),
                 ),
-              )
-              .toList()),
+              ),
+            ),
+            const SizedBox(width: 10),
+            ...filters.map(
+              (e) => InkWell(
+                onTap: () {
+                  _filtering.itemList?.clear();
+                  if (filters.indexOf(e) == 0) {
+                    goFilt('discount__gt=0', 'Хямдралтай', pageKey, true);
+                  } else if (filters.indexOf(e) == 1) {
+                    goFilt('ordering=-created_at', 'Эрэлттэй', pageKey, false);
+                  } else {
+                    goFilt(
+                        'supplier_indemand_products/', 'Шинэ', pageKey, false);
+                  }
+                },
+                child: Row(
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      decoration: decoration,
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(icons[filters.indexOf(e)],
+                                color: AppColors.secondary, size: 20),
+                            const SizedBox(width: 5),
+                            Text(
+                              e,
+                              style: TextStyle(fontSize: smallFontSize),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

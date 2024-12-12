@@ -220,7 +220,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // Системээс гарах
-  Future<void> logout(BuildContext context) async {
+  Future<void> logout() async {
     try {
       final response = await http.post(
         setUrl('auth/logout/'),

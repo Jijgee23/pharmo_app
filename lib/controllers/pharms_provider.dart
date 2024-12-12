@@ -216,9 +216,9 @@ class PharmProvider extends ChangeNotifier {
         if (response.statusCode == 200) {
           return buildResponse(1, response, 'Амжилттай өөрлөгдлөө');
         } else if (response.statusCode == 400) {
-          if (checker(convertData(response), 'order', context) == true) {
+          if (checker(convertData(response), 'order') == true) {
             return buildResponse(4, null, 'Тухайн захиалгыг засах боломжгүй!');
-          } else if (checker(convertData(response), 'itemId', context) ==
+          } else if (checker(convertData(response), 'itemId') ==
               true) {
             return buildResponse(4, null, 'Бараа олдсонгүй!');
           } else {

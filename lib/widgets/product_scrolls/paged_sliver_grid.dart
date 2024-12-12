@@ -1,13 +1,16 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:pharmo_app/widgets/product/product_widget.dart';
+import 'package:provider/provider.dart';
 
-class CustomGrid extends StatelessWidget {
+class CustomGrid extends StatefulWidget {
   final PagingController<int, dynamic> pagingController;
   final bool? hasSale;
   const CustomGrid({
@@ -17,31 +20,71 @@ class CustomGrid extends StatelessWidget {
   });
 
   @override
+  State<CustomGrid> createState() => _CustomGridState();
+}
+
+class _CustomGridState extends State<CustomGrid> {
+  @override
+  initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return PagedGridView<int, dynamic>(
-      showNewPageProgressIndicatorAsGridChild: true,
-      showNewPageErrorIndicatorAsGridChild: true,
-      showNoMoreItemsIndicatorAsGridChild: true,
-      pagingController: pagingController,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: MediaQuery.of(context).size.width > 480 ? 3 : 2,
+    return MyScroller(
+      c: PagedGridView<int, dynamic>(
+        showNewPageProgressIndicatorAsGridChild: true,
+        showNewPageErrorIndicatorAsGridChild: true,
+        showNoMoreItemsIndicatorAsGridChild: true,
+        pagingController: widget.pagingController,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: MediaQuery.of(context).size.width > 480 ? 3 : 2,
+        ),
+        builderDelegate: PagedChildBuilderDelegate<dynamic>(
+          newPageErrorIndicatorBuilder: (context) => const MyIndicator(),
+          newPageProgressIndicatorBuilder: (context) => const MyIndicator(),
+          noItemsFoundIndicatorBuilder: (context) => const NoResult(),
+          noMoreItemsIndicatorBuilder: (context) => const SizedBox(),
+          firstPageErrorIndicatorBuilder: (context) {
+            widget.pagingController.refresh();
+            return const NoItems();
+          },
+          firstPageProgressIndicatorBuilder: (context) {
+            widget.pagingController.refresh();
+            return const MyIndicator();
+          },
+          animateTransitions: true,
+          itemBuilder: (_, item, index) =>
+              ProductWidget(item: item, hasSale: widget.hasSale),
+        ),
       ),
-      builderDelegate: PagedChildBuilderDelegate<dynamic>(
-        newPageErrorIndicatorBuilder: (context) => const MyIndicator(),
-        newPageProgressIndicatorBuilder: (context) => const MyIndicator(),
-        noItemsFoundIndicatorBuilder: (context) => const NoResult(),
-        noMoreItemsIndicatorBuilder: (context) => const SizedBox(),
-        firstPageErrorIndicatorBuilder: (context) {
-          pagingController.refresh();
-          return const NoItems();
+    );
+  }
+}
+
+class MyScroller extends StatelessWidget {
+  final Widget c;
+  const MyScroller({super.key, required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<HomeProvider>(
+      builder: (context, home, child) => NotificationListener(
+        onNotification: (notification) {
+          if (notification is ScrollUpdateNotification &&
+              notification.scrollDelta! < 0) {
+            home.setScrolling(false);
+          } else if (notification is ScrollUpdateNotification &&
+              notification.scrollDelta! > 0) {
+            if (notification.metrics.atEdge) {
+              home.setScrolling(false);
+            } else {
+              home.setScrolling(true);
+            }
+          }
+          return true;
         },
-        firstPageProgressIndicatorBuilder: (context) {
-          pagingController.refresh();
-          return const MyIndicator();
-        },
-        animateTransitions: true,
-        itemBuilder: (_, item, index) =>
-            ProductWidget(item: item, hasSale: hasSale),
+        child: c,
       ),
     );
   }

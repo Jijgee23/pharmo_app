@@ -176,28 +176,11 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> removeBasketItem(
-      {required int basketId, required int itemId}) async {
+  Future<dynamic> removeBasketItem({required int itemId}) async {
     try {
-      final resQR = await apiDelete('basket_item/$itemId/');
-      if (resQR.statusCode == 204) {
-        await getBasket();
-        notifyListeners();
-        return {
-          'errorType': 1,
-          'data': null,
-          'message': 'Сагснаас бараа амжилттай устгалаа.!'
-        };
-      } else {
-        notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Сагснаас бараа устгах үед алдаа гарлаа.'
-        };
-      }
+      await apiDelete('basket_item/$itemId/');
     } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
+      return buildResponse(2, null, 'Сагснаас бараа устгах үед алдаа гарлаа.');
     }
   }
 

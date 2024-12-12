@@ -196,7 +196,7 @@ void showLogoutDialog(BuildContext context) {
                       'Тийм',
                       () {
                         Provider.of<AuthController>(context, listen: false)
-                            .logout(context);
+                            .logout();
                         Provider.of<AuthController>(context, listen: false)
                             .toggleVisibile();
                         Provider.of<HomeProvider>(context, listen: false)

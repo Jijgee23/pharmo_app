@@ -78,8 +78,8 @@ class _IndexPharmaState extends State<IndexPharma> {
   }
 
   // FOR PARMACY
-  List<String> pharmaIcons = ['category', 'bars-sort', 'cart'];
-  List<String> pharmaLabels = ['Бараа', 'Ангилал', 'Сагс'];
+  List<String> pharmaIcons = ['category', 'cart'];
+  List<String> pharmaLabels = ['Бараа',  'Сагс'];
   pharmaDrawerItems() {
     return [
       DrawerItem(
@@ -100,15 +100,13 @@ class _IndexPharmaState extends State<IndexPharma> {
       case 0:
         return 'Бараа';
       case 1:
-        return 'Ангилал';
-      case 2:
         return 'Сагс';
     }
   }
 
   final List _pharmacyPages = [
     const Home(),
-    const FilterPage(),
+    // const FilterPage(),
     const Cart(),
   ];
 

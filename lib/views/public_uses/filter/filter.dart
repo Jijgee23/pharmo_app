@@ -7,6 +7,7 @@ import 'package:pharmo_app/models/category.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filter/filtered_products.dart';
+import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:provider/provider.dart';
 
 class FilterPage extends StatefulWidget {
@@ -50,6 +51,9 @@ class _FilterPageState extends State<FilterPage> {
               (homeProvider.vndrs.isNotEmpty) ? 'Үйлдвэрлэгч' : '',
             ];
             return Scaffold(
+              appBar: CustomAppBar(
+                  leading: back(color: Theme.of(context).primaryColor),
+                  title: const Text('Ангилал', style: TextStyle(fontSize: 14))),
               body: Column(
                 children: [
                   Expanded(

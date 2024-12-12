@@ -47,12 +47,8 @@ class _CartItemState extends State<CartItem> {
   }
 
   Future<void> removeBasketItem() async {
-    dynamic res = await basketProvider.removeBasketItem(
-        basketId: basketProvider.basket.id, itemId: selectedItem);
-    if (res['errorType'] == 1) {
-    } else {
-      message(res['message']);
-    }
+    await basketProvider.removeBasketItem(itemId: widget.detail['id']);
+    await basketProvider.getBasket();
   }
 
   Future<void> changeBasketItem(int itemId, String type, int qty) async {
@@ -77,7 +73,7 @@ class _CartItemState extends State<CartItem> {
       builder: (BuildContext context, BoxConstraints constraints) {
         final height = MediaQuery.of(context).size.height;
         final fs = height * .013;
-         final theme = Theme.of(context);
+        final theme = Theme.of(context);
         return Slidable(
           endActionPane: ActionPane(
             motion: const StretchMotion(),
