@@ -345,15 +345,15 @@ class _SignUpFormState extends State<SignUpForm> {
                       ),
                     ),
                     CustomTextField(
-                      controller: name,
+                     controller: name,
                       hintText: 'Нэр',
-                      obscureText: false,
-                      keyboardType: TextInputType.name,
+                     obscureText: false,
+                     keyboardType: TextInputType.name,
                     ),
                     CustomTextField(
-                      controller: rd,
-                      hintText: 'Регистерийн дугаар',
-                      obscureText: false,
+                     controller: rd,
+                   hintText: 'Регистерийн дугаар',
+                     obscureText: false,
                     ),
                     CustomTextField(
                       controller: ema,
