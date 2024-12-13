@@ -218,8 +218,7 @@ class PharmProvider extends ChangeNotifier {
         } else if (response.statusCode == 400) {
           if (checker(convertData(response), 'order') == true) {
             return buildResponse(4, null, 'Тухайн захиалгыг засах боломжгүй!');
-          } else if (checker(convertData(response), 'itemId') ==
-              true) {
+          } else if (checker(convertData(response), 'itemId') == true) {
             return buildResponse(4, null, 'Бараа олдсонгүй!');
           } else {
             return buildResponse(2, null, 'Алдаа гарлаа');
@@ -243,8 +242,6 @@ class PharmProvider extends ChangeNotifier {
       String rn,
       String email,
       String phone,
-      String? phone2,
-      String? phone3,
       String note,
       String? lat,
       String? lng,
@@ -255,8 +252,6 @@ class PharmProvider extends ChangeNotifier {
         "rn": rn,
         "email": email,
         "phone": phone,
-        "phone2": phone2,
-        "phone3": phone3,
         "note": note,
         "lat": lat,
         "lng": lng
@@ -280,17 +275,17 @@ class PharmProvider extends ChangeNotifier {
   }
 
   Future editCustomer(
-      int id,
-      String name,
-      String rn,
-      String email,
-      String phone,
+      {required int id,
+      required String name,
+      required String rn,
+      required String email,
+      required String phone,
       String? phone2,
       String? phone3,
-      String note,
+      required String note,
       double? lat,
       double? lng,
-      BuildContext context) async {
+      required BuildContext context}) async {
     try {
       var body = jsonEncode({
         "name": name,

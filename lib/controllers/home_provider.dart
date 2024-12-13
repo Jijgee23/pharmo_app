@@ -27,7 +27,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomeProvider extends ChangeNotifier {
- 
   bool isScrolling = false;
   final TextEditingController _searchController = TextEditingController();
   TextEditingController get searchController => _searchController;
@@ -83,10 +82,8 @@ class HomeProvider extends ChangeNotifier {
     isScrolling = d;
     notifyListeners();
   }
-  ScrollController scrollController = ScrollController(
-    onAttach: (position){
-    }
-  );
+
+  ScrollController scrollController = ScrollController(onAttach: (position) {});
 
   void refresh(BuildContext context, HomeProvider homeProvider,
       PromotionProvider promotionProvider) {
@@ -461,23 +458,22 @@ class HomeProvider extends ChangeNotifier {
   }
 
   createSellerOrder(BuildContext context, String type) async {
+    final basket = Provider.of<BasketProvider>(context, listen: false);
     try {
       Object body = jsonEncode(
         {
           'customer_id': selectedCustomerId,
-          'basket_id': basketId,
+          'basket_id': basket.basket.id,
           'payType': type,
           "note": (note != null) ? note : null
         },
       );
       final response = await apiPost('seller/order/', body);
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
       if (response.statusCode == 201) {
         final res = convertData(response);
         final orderNumber = res['orderNo'];
         goto(OrderDone(orderNo: orderNumber.toString()));
-        await basketProvider.clearBasket();
+        await basket.clearBasket();
         note = null;
         notifyListeners();
       } else {

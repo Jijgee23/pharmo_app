@@ -226,19 +226,19 @@ class _CustomerListState extends State<CustomerList> {
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
+                      ),
+                    const SizedBox(width: 10),
+                    if (c.location == false)
+                      Text(
+                        'Байршил тодорхойгүй',
+                        style: TextStyle(
+                          color: Colors.red.shade500,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       )
                   ],
                 ),
-                const SizedBox(width: 10),
-                if (c.location == false)
-                  Text(
-                    'Байршил тодорхойгүй',
-                    style: TextStyle(
-                      color: Colors.red.shade500,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
               ],
             ),
             InkWell(
@@ -337,11 +337,20 @@ class _CustomerListState extends State<CustomerList> {
               input('Регистрийн дугаар', rn, null, null),
               input('И-Мейл', email, validateEmail, null),
               input('Утас', phone, validatePhone, TextInputType.number),
-              input('Утас 2 - Заавал биш', phone2, validatePhone,
-                  TextInputType.number),
-              input('Утас 3 - Заавал биш', phone3, validatePhone,
-                  TextInputType.number),
-              input('Нэмэлт тайлбар - Заавал биш', note, null, null),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Заавал биш',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+              ),
+              input('Нэмэлт тайлбар ', note, null, null),
               CustomButton(
                 text: 'Бүртгэх',
                 ontap: () async => await _registerCustomer(pp),
@@ -367,8 +376,6 @@ class _CustomerListState extends State<CustomerList> {
               rn.text,
               email.text,
               phone.text,
-              phone2.text,
-              phone3.text,
               note.text,
               homeProvider.currentLatitude.toString(),
               homeProvider.currentLongitude.toString(),

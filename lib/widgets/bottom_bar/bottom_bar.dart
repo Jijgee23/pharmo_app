@@ -6,7 +6,7 @@ class BottomBar extends StatelessWidget {
   final List<String> icons;
   final List<String> labels;
   const BottomBar({super.key, required this.icons, required this.labels});
-  
+
   final Duration duration = const Duration(milliseconds: 500);
 
   @override

@@ -8,7 +8,6 @@ import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart'
 import 'package:pharmo_app/views/public_uses/cart/cart.dart';
 import 'package:pharmo_app/views/pharmacy/home.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
-import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/income/income_list.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';

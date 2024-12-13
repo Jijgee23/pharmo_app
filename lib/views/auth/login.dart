@@ -280,6 +280,8 @@ class _SignUpFormState extends State<SignUpForm> {
   final TextEditingController ema = TextEditingController();
   final TextEditingController pass = TextEditingController();
   final TextEditingController phone = TextEditingController();
+  final TextEditingController name = TextEditingController();
+  final TextEditingController rd = TextEditingController();
   final TextEditingController passConfirm = TextEditingController();
   final TextEditingController otp = TextEditingController();
   bool showPasss = false;
@@ -341,6 +343,17 @@ class _SignUpFormState extends State<SignUpForm> {
                           color: AppColors.secondary,
                         ),
                       ),
+                    ),
+                    CustomTextField(
+                      controller: name,
+                      hintText: 'Нэр',
+                      obscureText: false,
+                      keyboardType: TextInputType.name,
+                    ),
+                    CustomTextField(
+                      controller: rd,
+                      hintText: 'Регистерийн дугаар',
+                      obscureText: false,
                     ),
                     CustomTextField(
                       controller: ema,

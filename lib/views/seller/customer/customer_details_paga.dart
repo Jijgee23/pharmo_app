@@ -96,33 +96,35 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                                     text: 'Хадгалах',
                                     ontap: () {
                                       pp.editCustomer(
-                                          d.id!,
-                                          name.text.isNotEmpty
+                                          id: d.id!,
+                                          name: name.text.isNotEmpty
                                               ? name.text
                                               : d.name!,
-                                          rn.text.isNotEmpty ? rn.text : d.rn!,
-                                          email.text.isNotEmpty
+                                          rn: rn.text.isNotEmpty
+                                              ? rn.text
+                                              : d.rn!,
+                                          email: email.text.isNotEmpty
                                               ? email.text
                                               : d.email!,
-                                          phone.text.isNotEmpty
+                                          phone: phone.text.isNotEmpty
                                               ? phone.text
                                               : d.phone!,
-                                          phone2.text.isNotEmpty
+                                          note: note.text.isNotEmpty
+                                              ? note.text
+                                              : d.note!,
+                                          context: context,
+                                          phone2: phone2.text.isNotEmpty
                                               ? phone2.text
                                               : d.phone2,
-                                          phone3.text.isNotEmpty
+                                          phone3: phone3.text.isNotEmpty
                                               ? phone3.text
                                               : d.phone3,
-                                          note.text.isNotEmpty
-                                              ? phone.text
-                                              : d.note!,
-                                          (notLocated)
+                                          lat: (notLocated)
                                               ? home.currentLatitude
                                               : null,
-                                          (notLocated)
+                                          lng: (notLocated)
                                               ? home.currentLongitude
-                                              : null,
-                                          context);
+                                              : null);
                                     })
                                 : const SizedBox(),
                             (notLocated)

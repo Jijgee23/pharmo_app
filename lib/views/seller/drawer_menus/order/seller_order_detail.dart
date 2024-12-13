@@ -34,11 +34,11 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
 
   @override
   void initState() {
+    super.initState();
     setFetching(true);
     p = Provider.of<PharmProvider>(context, listen: false);
     p.getSellerOrderDetail(widget.oId, context);
     setFetching(false);
-    super.initState();
   }
 
   @override
@@ -215,7 +215,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
               alignment: Alignment.center,
               child: Text(
                 item.itemName,
-                style:  TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
                   color: Theme.of(context).primaryColor,
@@ -236,15 +236,15 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
 
   _changeQty(int oid, OrderItem item) async {
     if (qtyController.text.isEmpty) {
-      message( 'Тоон утга оруулна уу!');
+      message('Тоон утга оруулна уу!');
     } else if (int.parse(qtyController.text) == 0) {
-      message( 'Тоо ширхэг 0 байж болохгүй!');
+      message('Тоо ширхэг 0 байж болохгүй!');
     } else {
       int qty = int.parse(qtyController.text);
-      dynamic res = await p.changeItemQty(context: context,
-          oId: oid, itemId: item.productId, qty: qty);
+      dynamic res = await p.changeItemQty(
+          context: context, oId: oid, itemId: item.productId, qty: qty);
       print('update qty: ${res['errorType']}');
-      message( res['message']);
+      message(res['message']);
       Get.back();
     }
   }

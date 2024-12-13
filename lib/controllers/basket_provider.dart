@@ -11,6 +11,26 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BasketProvider extends ChangeNotifier {
+  final TextEditingController qty = TextEditingController();
+  void setQTYvalue(String n) {
+    qty.text = n;
+    notifyListeners();
+  }
+
+  void write(String n) {
+    qty.text = qty.text + n;
+    notifyListeners();
+  }
+
+  void clear() {
+    if (qty.text.isEmpty) {
+      qty.text = '1';
+    } else {
+      qty.text = qty.text.substring(0, qty.text.length - 1);
+    }
+    notifyListeners();
+  }
+
   int _count = 0;
   int get count => _count;
   String? userrole = '';
@@ -36,7 +56,6 @@ class BasketProvider extends ChangeNotifier {
   getBasket() async {
     try {
       final resBasket = await apiGet('get_basket');
-      print(convertData(resBasket));
       if (resBasket.statusCode == 200) {
         final res = convertData(resBasket);
         _basket = Basket.fromJson(res);
@@ -44,13 +63,11 @@ class BasketProvider extends ChangeNotifier {
             ? _basket.items!.length
             : 0;
         _shoppingCarts = _basket.items!;
-        print('basket successs');
       } else {
         return buildResponse(1, '', 'Сагсны мэдээлэл татахад алдаа гарлаа!');
       }
       notifyListeners();
     } catch (e) {
-      print('error at get_basket $e');
       //
     }
   }
