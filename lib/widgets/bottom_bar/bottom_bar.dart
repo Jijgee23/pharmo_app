@@ -17,10 +17,20 @@ class BottomBar extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     double height = size.height;
     double width = size.width;
+    getMargin() {
+      if (icons.length == 2) {
+        return .15;
+      } else if (icons.length == 3) {
+        return .1;
+      } else if (icons.length == 4) {
+        return .05;
+      } else {
+        return .005;
+      }
+    }
 
     return Consumer<HomeProvider>(builder: (context, home, child) {
-      bool isSeller = (home.userRole == 'S');
-      double symmetricMargin = width * (isSeller ? .1 : .15);
+      double symmetricMargin = width * (getMargin());
       return AnimatedContainer(
         duration: duration,
         height: isPortrait ? height * 0.07 : height * .18,

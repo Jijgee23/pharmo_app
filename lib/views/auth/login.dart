@@ -340,7 +340,7 @@ class _SignUpFormState extends State<SignUpForm> {
                         'Бүртгэлийн талбаруудыг бөглөнө үү!',
                         style: TextStyle(
                           fontSize: h * 0.016,
-                          color: AppColors.secondary,
+                          color: theme.primaryColor,
                         ),
                       ),
                     ),
