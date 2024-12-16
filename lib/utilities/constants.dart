@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-  static var headerTextStyle = const TextStyle(
-    overflow: TextOverflow.ellipsis,
-    fontSize: 16,
-    fontWeight: FontWeight.w400,
-  );
   static const boxV10 = SizedBox(height: 10);
   static const boxV20 = SizedBox(height: 20);
   static const boxV30 = SizedBox(height: 30);
@@ -26,5 +21,10 @@ class Constants {
   static final defaultShadow = BoxShadow(
     color: Colors.grey.shade200,
     blurRadius: 3,
+  );
+  static var headerTextStyle = const TextStyle(
+    overflow: TextOverflow.ellipsis,
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
   );
 }

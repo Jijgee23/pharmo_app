@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/utilities/screen_size.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -249,6 +250,7 @@ class MyChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    double fontSize = ScreenSize.height * .018;
     return InkWell(
       onTap: ontap,
       child: AnimatedContainer(
@@ -264,7 +266,13 @@ class MyChip extends StatelessWidget {
             Radius.circular(20),
           ),
         ),
-        child: Text(title),
+        child: Text(
+          title,
+          style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700,
+              color: selected ? theme.primaryColor : Colors.grey.shade500),
+        ),
       ),
     );
   }

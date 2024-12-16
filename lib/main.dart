@@ -17,6 +17,7 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/firebase_options.dart';
+import 'package:pharmo_app/global_key.dart';
 import 'package:pharmo_app/theme/dark_theme.dart';
 import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
@@ -99,6 +100,7 @@ class _MyAppState extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
         darkTheme: darkTheme,
+        navigatorKey: GlobalKeys.navigatorKey,
         themeMode: home.themeMode,
         home: UpgradeAlert(
           dialogStyle: UpgradeDialogStyle.cupertino,

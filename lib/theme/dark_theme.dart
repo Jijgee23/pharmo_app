@@ -52,9 +52,9 @@ final darkTheme = ThemeData(
   splashColor: Colors.transparent,
   highlightColor: Colors.transparent,
   textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: Colors.black),
-    bodyMedium: TextStyle(color: Colors.black),
-    bodySmall: TextStyle(color: Colors.black),
+    bodyLarge: TextStyle(color: Colors.black, fontSize: 18),
+    bodyMedium: TextStyle(color: Colors.black, fontSize: 14),
+    bodySmall: TextStyle(color: Colors.black, fontSize: 10),
     displayMedium: TextStyle(color: Colors.white, fontSize: 14),
   ),
   cardColor: Colors.grey.shade200,

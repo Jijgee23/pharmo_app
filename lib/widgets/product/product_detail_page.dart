@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/screen_size.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
+import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
+import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/icon/cart_icon.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:provider/provider.dart';
 
@@ -77,14 +79,15 @@ class _ProductDetailState extends State<ProductDetail>
     try {
       final basketProvider =
           Provider.of<BasketProvider>(context, listen: false);
-      if (qtyController.text.isEmpty || int.parse(qtyController.text) <= 0) {
-        message('Барааны тоо хэмжээг оруулна уу.');
-        return;
+      if (initQTY == 'Тоо ширхэг' || initQTY.isEmpty || initQTY == '') {
+        message('Тоон утга оруулна уу!');
+      } else if (int.parse(initQTY) <= 0) {
+        message('0 ба түүгээс бага байж болохгүй!');
       } else {
         Map<String, dynamic> res = await basketProvider.addBasket(
             productId: widget.prod.id,
             itemnameId: widget.prod.itemnameId,
-            qty: int.parse(qtyController.text));
+            qty: int.parse(initQTY));
         if (res['errorType'] == 1) {
           basketProvider.getBasket();
           message('${widget.prod.name} сагсанд нэмэгдлээ.');
@@ -94,6 +97,7 @@ class _ProductDetailState extends State<ProductDetail>
         }
       }
     } catch (e) {
+      print(e);
       message('Алдаа гарлаа!');
     }
   }
@@ -101,6 +105,14 @@ class _ProductDetailState extends State<ProductDetail>
   splitURL(String url) {
     List<String> strings = url.split('.');
     return strings;
+  }
+
+  final fontsize = ScreenSize.height * 0.015;
+  String initQTY = 'Тоо ширхэг';
+  setInitQyu(String n) {
+    setState(() {
+      initQTY = n;
+    });
   }
 
   @override
@@ -112,218 +124,214 @@ class _ProductDetailState extends State<ProductDetail>
     return Scaffold(
       body: (fetching)
           ? const Center(child: PharmoIndicator())
-          : ChangeNotifierProvider(
-              create: (context) => BasketProvider(),
-              child: Container(
-                width: size.width,
-                height: size.height,
-                color: theme.scaffoldBackgroundColor,
-                padding: const EdgeInsets.all(20.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 50),
-                      SizedBox(
-                        child: Row(
-                          children: [
-                            back(),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                widget.prod.name.toString(),
-                                style: TextStyle(
-                                    color: theme.primaryColor,
-                                    fontSize: sh * 0.012,
-                                    fontWeight: FontWeight.bold),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+          : Consumer<BasketProvider>(
+              builder: (context, basket, child) => Scaffold(
+                appBar: CustomAppBar(
+                  leading: back(color: theme.primaryColor),
+                  title: Expanded(
+                    child: Text(
+                      widget.prod.name.toString(),
+                      style: TextStyle(
+                          color: theme.primaryColor,
+                          fontSize: sh * 0.012,
+                          fontWeight: FontWeight.bold),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                body: Container(
+                  color: theme.scaffoldBackgroundColor,
+                  padding: EdgeInsets.all(ScreenSize.width * 0.03),
+                  child: SingleChildScrollView(
+                    controller: ScrollController(initialScrollOffset: -1),
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            '#${widget.prod.barcode.toString()}',
+                            style: const TextStyle(
+                                color: Colors.blueGrey, fontSize: 14),
+                          ),
+                        ),
+                        div,
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.secondary,
+                                AppColors.cleanWhite,
+                              ],
                             ),
-                            const CartIcon()
-                          ],
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          '#${widget.prod.barcode.toString()}',
-                          style: const TextStyle(
-                              color: Colors.blueGrey, fontSize: 14),
-                        ),
-                      ),
-                      div,
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.secondary,
-                              AppColors.cleanWhite,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Column(
+                                    children: [
+                                      const Text(
+                                        'Бөөний үнэ',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 14),
+                                      ),
+                                      Text(toPrice(['salePrice']),
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold))
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  const Text(
+                                    'Үндсэн үнэ',
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  Text(
+                                    toPrice(widget.prod.price),
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ],
+                              ),
                             ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        div,
+                        Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10)),
+                          child: InstaImageViewer(
+                            imageUrl: widget.prod.image != null &&
+                                    splitURL(widget.prod.image!).length == 2
+                                ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
+                                : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg',
+                            child: Container(
+                              height: size.height * 0.23,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                image: DecorationImage(
+                                  fit: BoxFit.contain,
+                                  filterQuality: FilterQuality.high,
+                                  alignment: Alignment.center,
+                                  image: NetworkImage(widget.prod.image !=
+                                              null &&
+                                          splitURL(widget.prod.image!).length ==
+                                              2
+                                      ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_300x300.${splitURL(widget.prod.image!)[1]}'
+                                      : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg'),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        div,
+                        Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween, // Or spaceBetween
                           children: [
-                            Row(
-                              children: [
-                                Column(
-                                  children: [
-                                    const Text(
-                                      'Бөөний үнэ',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 14),
-                                    ),
-                                    Text(toPrice(['salePrice']),
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold))
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                const Text(
-                                  'Үндсэн үнэ',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                Text(
-                                  toPrice(widget.prod.price),
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ],
-                            ),
+                            myTab(title: 'Барааны мэдээлэл', index: 0),
+                            myTab(title: 'Урамшуулал', index: 1),
                           ],
                         ),
-                      ),
-                      div,
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: InstaImageViewer(
-                          imageUrl: widget.prod.image != null &&
-                                  splitURL(widget.prod.image!).length == 2
-                              ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
-                              : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg',
+                        SizedBox(
+                          height: ScreenSize.height * 0.25,
+                          child: TabBarView(
+                            controller: tabController,
+                            children: [
+                              Column(
+                                children: [
+                                  infoRow('Барааны дуусах хугацаа',
+                                      det['expDate'] ?? ''),
+                                  infoRow(
+                                      'Ерөнхий нэршил', det['intName'] ?? ''),
+                                  infoRow('Тун хэмжээ', ''),
+                                  infoRow('Хөнгөлөлт', ''),
+                                  infoRow('Хэлбэр', ''),
+                                  infoRow(
+                                      'Мастер савалгааны тоо',
+                                      (det['master_box_qty'] == null)
+                                          ? ''
+                                          : det['master_box_qty'].toString()),
+                                  infoRow('Олгох нөхцөл', ''),
+                                  infoRow('Улс', ''),
+                                  infoRow(
+                                      'Үйлдвэрлэгч',
+                                      (det['mnfr'] != null)
+                                          ? det['mnfr']['name']
+                                          : ""),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  infoRow(
+                                      'Бөөний үнэ',
+                                      det['salePrice'] != null
+                                          ? det['salePrice'].toString()
+                                          : ''),
+                                  infoRow(
+                                      'Бөөний тоо', '${det['saleQty'] ?? ''}'),
+                                  infoRow(
+                                      'Хямдрал', '${det['discount'] ?? ''}'),
+                                  infoRow('Хямдрал дуусах хугацаа',
+                                      det['discountExpireDate'] ?? '')
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                bottomNavigationBar: Container(
+                  height: 70,
+                  padding: EdgeInsets.symmetric(
+                      vertical: 10, horizontal: ScreenSize.width * 0.03),
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        onTap: () => Get.bottomSheet(ChangeQtyPad(
+                            onSubmit: () {
+                              setInitQyu(basket.qty.text);
+                              Navigator.pop(context);
+                            },
+                            initValue: '')),
+                        child: IntrinsicWidth(
                           child: Container(
-                            height: size.height * 0.23,
-                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30,
+                                vertical: ScreenSize.height * 0.015),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              image: DecorationImage(
-                                fit: BoxFit.contain,
-                                filterQuality: FilterQuality.high,
-                                alignment: Alignment.center,
-                                image: NetworkImage(widget.prod.image != null &&
-                                        splitURL(widget.prod.image!).length == 2
-                                    ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_300x300.${splitURL(widget.prod.image!)[1]}'
-                                    : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg'),
+                                border: Border.all(
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Text(
+                              initQTY,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
                         ),
                       ),
-                      div,
-                      Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween, // Or spaceBetween
-                        children: [
-                          myTab(title: 'Барааны мэдээлэл', index: 0),
-                          myTab(title: 'Урамшуулал', index: 1),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 200,
-                        child: TabBarView(
-                          controller: tabController,
-                          children: [
-                            Column(
-                              children: [
-                                infoRow('Барааны дуусах хугацаа',
-                                    det['expDate'] ?? ''),
-                                infoRow('Ерөнхий нэршил', det['intName'] ?? ''),
-                                infoRow('Тун хэмжээ', ''),
-                                infoRow('Хөнгөлөлт', ''),
-                                infoRow('Хэлбэр', ''),
-                                infoRow(
-                                    'Мастер савалгааны тоо',
-                                    (det['master_box_qty'] == null)
-                                        ? ''
-                                        : det['master_box_qty'].toString()),
-                                infoRow('Олгох нөхцөл', ''),
-                                infoRow('Улс', ''),
-                                infoRow(
-                                    'Үйлдвэрлэгч',
-                                    (det['mnfr'] != null)
-                                        ? det['mnfr']['name']
-                                        : ""),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                infoRow(
-                                    'Бөөний үнэ',
-                                    det['salePrice'] != null
-                                        ? det['salePrice'].toString()
-                                        : ''),
-                                infoRow(
-                                    'Бөөний тоо', '${det['saleQty'] ?? ''}'),
-                                infoRow('Хямдрал', '${det['discount'] ?? ''}'),
-                                infoRow('Хямдрал дуусах хугацаа',
-                                    det['discountExpireDate'] ?? '')
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        height: 70,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        width: double.infinity,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IntrinsicWidth(
-                              child: TextField(
-                                textAlign: TextAlign.center,
-                                textInputAction: TextInputAction.done,
-                                controller: qtyController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: <TextInputFormatter>[
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r'[0-9]')),
-                                  FilteringTextInputFormatter.digitsOnly
-                                ],
-                                decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 30),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                        color: theme.hintColor, width: 2),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  hintText: ' ',
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: CustomButton(
-                                text: 'Сагсанд нэмэх',
-                                ontap: () => addBasket(),
-                              ),
-                            ),
-                          ],
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Сагсанд нэмэх',
+                          ontap: () => addBasket(),
                         ),
                       ),
                     ],
@@ -367,7 +375,6 @@ class _ProductDetailState extends State<ProductDetail>
   }
 
   infoRow(String title, String text) {
-    final fontsize = MediaQuery.of(context).size.height * 0.0133;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

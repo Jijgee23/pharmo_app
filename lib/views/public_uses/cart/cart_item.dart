@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/screen_size.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
@@ -269,75 +270,79 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
             topRight: Radius.circular(20),
           ),
         ),
-        height: MediaQuery.of(context).size.height * 0.5,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(left: 35, right: 35, bottom: 10),
-              alignment: Alignment.centerRight,
-              child: const PopSheet(),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 35),
-              child: TextFormField(
-                controller: basket.qty,
-                readOnly: true,
-                textAlign: TextAlign.center,
+        padding: EdgeInsets.symmetric(
+          vertical: ScreenSize.width * 0.03,
+          horizontal: ScreenSize.width * 0.03,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(bottom: ScreenSize.height * 0.015),
+                alignment: Alignment.centerRight,
+                child: const PopSheet(),
               ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 2,
+              Container(
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: Theme.of(context).primaryColor.withOpacity(.7),
+                        width: 1.5),
+                    borderRadius: BorderRadius.circular(10)),
+                child: TextFormField(
+                  controller: basket.qty,
+                  readOnly: true,
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(border: InputBorder.none),
                 ),
-                itemCount: 12,
-                itemBuilder: (context, index) {
-                  if (index < 9) {
-                    return _buildNumberButton((index + 1).toString());
-                  } else if (index == 9) {
-                    return _buildBackspaceButton();
-                  } else if (index == 10) {
-                    return _buildNumberButton('0');
-                  } else {
-                    return _buildSubmitButton();
-                  }
-                },
               ),
-            )
-          ],
+              const SizedBox(height: 20),
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 1.5),
+                  itemCount: 12,
+                  itemBuilder: (context, index) {
+                    if (index < 9) {
+                      return _buildNumberButton((index + 1).toString());
+                    } else if (index == 9) {
+                      return _buildNumberButton('0');
+                    } else if (index == 10) {
+                      return _buildBackspaceButton();
+                    } else {
+                      return _buildSubmitButton();
+                    }
+                  },
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildNumberButton(String number) {
-    return ElevatedButton(
-      onPressed: () => basketProvider.write(number),
-      style: ElevatedButton.styleFrom(
-        shape: const CircleBorder(),
-        padding: const EdgeInsets.all(20),
-      ),
+    return _btn(
+      onTap: () => basketProvider.write(number),
+      color: Theme.of(context).primaryColor,
       child: Text(
         number,
         style: const TextStyle(
-            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     );
   }
 
   Widget _buildBackspaceButton() {
-    return ElevatedButton(
-      onPressed: () => basketProvider.clear(),
-      style: ElevatedButton.styleFrom(
-        shape: const CircleBorder(),
-        padding: const EdgeInsets.all(20),
-        backgroundColor: failedColor,
-      ),
+    return _btn(
+      onTap: () => basketProvider.clear(),
+      color: failedColor,
       child: const Icon(
         Icons.backspace,
         color: white,
@@ -346,15 +351,30 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
   }
 
   Widget _buildSubmitButton() {
-    return ElevatedButton(
-      onPressed: widget.onSubmit,
-      style: ElevatedButton.styleFrom(
-          shape: const CircleBorder(),
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40),
-          backgroundColor: succesColor),
+    return _btn(
+      onTap: widget.onSubmit,
+      color: succesColor,
       child: const Icon(
         Icons.check,
-        color: white,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget _btn(
+      {required Function() onTap,
+      required Color color,
+      required Widget child}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: child,
+        ),
       ),
     );
   }

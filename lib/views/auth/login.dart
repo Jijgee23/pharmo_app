@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
@@ -93,10 +92,10 @@ class _LoginPageState extends State<LoginPage> {
       await _updater.update(track: currentTrack);
       if (!mounted) return;
       message('Шинэчлэлт татагдлаа');
+      Restart.restartApp;
     } on UpdateException catch (error) {
       debugPrint(error.toString());
     }
-    Restart.restartApp;
   }
 
   @override

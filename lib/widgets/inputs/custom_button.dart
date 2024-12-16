@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/screen_size.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -16,7 +17,6 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     final theme = Theme.of(context);
     return ElevatedButton(
       style: ButtonStyle(
@@ -24,10 +24,7 @@ class CustomButton extends StatelessWidget {
           color ?? theme.primaryColor,
         ),
         padding: WidgetStatePropertyAll(
-          padding ??
-              EdgeInsets.symmetric(
-                vertical: size.height * 0.015,
-              ),
+          padding ?? EdgeInsets.symmetric(vertical: ScreenSize.height * 0.015),
         ),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
@@ -45,7 +42,8 @@ class CustomButton extends StatelessWidget {
       child: Center(
         child: Text(
           text,
-          style: TextStyle(color: Colors.white, fontSize: size.height * 0.014),
+          style: TextStyle(
+              color: Colors.white, fontSize: ScreenSize.height * 0.014),
         ),
       ),
     );
