@@ -227,9 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 });
                               } else {
-                                message(
-                                    
-                                    'Нэврэх нэр, нууц үг оруулна уу');
+                                message('Нэврэх нэр, нууц үг оруулна уу');
                               }
                             },
                           ),
@@ -344,17 +342,17 @@ class _SignUpFormState extends State<SignUpForm> {
                         ),
                       ),
                     ),
-                    CustomTextField(
-                     controller: name,
-                      hintText: 'Нэр',
-                     obscureText: false,
-                     keyboardType: TextInputType.name,
-                    ),
-                    CustomTextField(
-                     controller: rd,
-                   hintText: 'Регистерийн дугаар',
-                     obscureText: false,
-                    ),
+                    //CustomTextField(
+                     // controller: name,
+                     // hintText: 'Нэр',
+                     // obscureText: false,
+                     // keyboardType: TextInputType.name,
+                    //),
+                   /// CustomTextField(
+                     // controller: rd,
+                     // hintText: 'Регистерийн дугаар',
+                    //  obscureText: false,
+                    //),
                     CustomTextField(
                       controller: ema,
                       hintText: 'Имейл',
@@ -414,7 +412,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                   showPasss
                                       ? Icons.visibility
                                       : Icons.visibility_off,
-                                  color:theme.primaryColor),
+                                  color: theme.primaryColor),
                             ),
                           )
                         : const SizedBox(),
@@ -443,15 +441,22 @@ class _SignUpFormState extends State<SignUpForm> {
       final keyK = res['v'];
       if (keyK == 1) {
         setOtpSent(true);
-        message('Батлагаажуулах код илгээлээ!',);
+        message(
+          'Батлагаажуулах код илгээлээ!',
+        );
       } else if (keyK == 3) {
         message(
-            'И-Мейл эсвэл утас бүртгэлтэй байна!',);
+          'И-Мейл эсвэл утас бүртгэлтэй байна!',
+        );
       } else {
-        message('Алдаа гарлаа',);
+        message(
+          'Алдаа гарлаа',
+        );
       }
     } else {
-      message('Бүртгэлийг талбарууд гүйцээнэ үү!',);
+      message(
+        'Бүртгэлийг талбарууд гүйцээнэ үү!',
+      );
     }
   }
 
@@ -461,17 +466,27 @@ class _SignUpFormState extends State<SignUpForm> {
           ema.text, phone.text, pass.text, otp.text);
       final k = res['v'];
       if (res['v'] == 1) {
-        message('Бүртгэл үүслээ',);
+        message(
+          'Бүртгэл үүслээ',
+        );
         Get.back();
       } else if (k == 2) {
-        message('Түр хүлээгээд дахин оролдоно уу!',);
+        message(
+          'Түр хүлээгээд дахин оролдоно уу!',
+        );
       } else if (k == 3) {
-        message('Батлагаажуулах код буруу!',);
+        message(
+          'Батлагаажуулах код буруу!',
+        );
       } else {
-        message('Алдаа гарлаа!',);
+        message(
+          'Алдаа гарлаа!',
+        );
       }
     } else {
-      message('Нууц үг таарахгүй байна!',);
+      message(
+        'Нууц үг таарахгүй байна!',
+      );
     }
   }
 }
