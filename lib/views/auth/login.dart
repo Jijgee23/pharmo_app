@@ -72,12 +72,12 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _isCheckingForUpdates = true);
       final status = await _updater.checkForUpdate(track: currentTrack);
       if (!mounted) return;
-      debugPrint('SHOREBIRD UPDATE STATUS: ${status.toString()}');
       switch (status) {
         case UpdateStatus.upToDate:
         case UpdateStatus.outdated:
           await _downloadUpdate();
         case UpdateStatus.restartRequired:
+          await _restartBanner();
         case UpdateStatus.unavailable:
       }
     } catch (error) {
@@ -88,14 +88,22 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _downloadUpdate() async {
+    final status = await _updater.checkForUpdate(track: currentTrack);
     try {
       await _updater.update(track: currentTrack);
+
       if (!mounted) return;
-      message('Шинэчлэлт татагдлаа');
-      Restart.restartApp;
     } on UpdateException catch (error) {
       debugPrint(error.toString());
     }
+    message('Шинэчлэлт татагдлаа');
+    if (status == UpdateStatus.restartRequired) {
+      await _restartBanner();
+    }
+  }
+
+  Future<void> _restartBanner() async {
+    await Restart.restartApp();
   }
 
   @override
@@ -342,14 +350,14 @@ class _SignUpFormState extends State<SignUpForm> {
                       ),
                     ),
                     //CustomTextField(
-                     // controller: name,
-                     // hintText: 'Нэр',
-                     // obscureText: false,
-                     // keyboardType: TextInputType.name,
+                    // controller: name,
+                    // hintText: 'Нэр',
+                    // obscureText: false,
+                    // keyboardType: TextInputType.name,
                     //),
-                   /// CustomTextField(
-                     // controller: rd,
-                     // hintText: 'Регистерийн дугаар',
+                    /// CustomTextField(
+                    // controller: rd,
+                    // hintText: 'Регистерийн дугаар',
                     //  obscureText: false,
                     //),
                     CustomTextField(

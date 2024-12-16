@@ -121,6 +121,8 @@ class _ProductDetailState extends State<ProductDetail>
     final size = MediaQuery.of(context).size;
     final theme = Theme.of(context);
     final div = Divider(color: theme.primaryColor, thickness: .7);
+    bool hasDetail = det.containsKey('detail');
+    print('PRODUCT HAS DETAIL: ${hasDetail}');
     return Scaffold(
       body: (fetching)
           ? const Center(child: PharmoIndicator())
@@ -128,23 +130,20 @@ class _ProductDetailState extends State<ProductDetail>
               builder: (context, basket, child) => Scaffold(
                 appBar: CustomAppBar(
                   leading: back(color: theme.primaryColor),
-                  title: Expanded(
-                    child: Text(
-                      widget.prod.name.toString(),
-                      style: TextStyle(
-                          color: theme.primaryColor,
-                          fontSize: sh * 0.012,
-                          fontWeight: FontWeight.bold),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  title: Text(
+                    widget.prod.name.toString(),
+                    style: TextStyle(
+                        color: theme.primaryColor,
+                        fontSize: sh * 0.012,
+                        fontWeight: FontWeight.bold),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 body: Container(
                   color: theme.scaffoldBackgroundColor,
                   padding: EdgeInsets.all(ScreenSize.width * 0.03),
                   child: SingleChildScrollView(
-                    controller: ScrollController(initialScrollOffset: -1),
                     child: Column(
                       children: [
                         Align(
