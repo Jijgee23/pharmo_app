@@ -292,7 +292,7 @@ class _MyOrderState extends State<MyOrder> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 30, vertical: 15),
-                                      margin: const EdgeInsets.only(right: 10),
+                                  margin: const EdgeInsets.only(right: 10),
                                   decoration: BoxDecoration(
                                       color: theme.primaryColor,
                                       borderRadius: BorderRadius.circular(10)),

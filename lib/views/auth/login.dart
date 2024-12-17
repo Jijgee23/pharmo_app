@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _downloadUpdate() async {
-    final status = await _updater.checkForUpdate(track: currentTrack);
+    // final status = await _updater.checkForUpdate(track: currentTrack);
     try {
       await _updater.update(track: currentTrack);
 
@@ -96,14 +96,53 @@ class _LoginPageState extends State<LoginPage> {
     } on UpdateException catch (error) {
       debugPrint(error.toString());
     }
-    message('Шинэчлэлт татагдлаа');
-    if (status == UpdateStatus.restartRequired) {
-      await _restartBanner();
-    }
+    _restartBanner();
+    // message('Шинэчлэлт татагдлаа');
+    // if (status == UpdateStatus.restartRequired) {
+    //   await _restartBanner();
+    // }
   }
 
   Future<void> _restartBanner() async {
-    await Restart.restartApp();
+    Get.dialog(
+      Material(
+        color: Colors.transparent,
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            margin: const EdgeInsets.symmetric(horizontal: 30),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Шинэчлэлт татагдлаа!',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Дахин ачаалах шаардлагатай!',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  CustomButton(
+                    text: 'Дахин ачаалуулах',
+                    ontap: () => Restart.restartApp(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override

@@ -78,7 +78,6 @@ class _CartItemState extends State<CartItem> {
       builder: (BuildContext context, BoxConstraints constraints) {
         final height = MediaQuery.of(context).size.height;
         final fs = height * .013;
-        final theme = Theme.of(context);
         return Slidable(
           endActionPane: ActionPane(
             motion: const StretchMotion(),
