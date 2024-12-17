@@ -1,10 +1,11 @@
-// ignore_for_file: use_build_conte
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/models/my_order.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
+import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
@@ -51,12 +52,14 @@ class _MyOrderState extends State<MyOrder> {
       if (res['errorType'] == 1) {
         // showSuccessMessage(res['message'], );
       } else {
-        message(res['message'], );
+        message(
+          res['message'],
+        );
       }
     } catch (e) {
       message(
-          'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          );
+        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+      );
     }
   }
 
@@ -72,12 +75,14 @@ class _MyOrderState extends State<MyOrder> {
               res['data'][i]['name'].toString();
         }
       } else {
-        message(res['message'], );
+        message(
+          res['message'],
+        );
       }
     } catch (e) {
       message(
-          'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          );
+        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+      );
     }
   }
 
@@ -92,12 +97,14 @@ class _MyOrderState extends State<MyOrder> {
           _suppliers[key.toString()] = value.toString();
         });
       } else {
-        message(res['message'], );
+        message(
+          res['message'],
+        );
       }
     } catch (e) {
       message(
-          'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          );
+        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+      );
     }
   }
 
@@ -148,14 +155,18 @@ class _MyOrderState extends State<MyOrder> {
       dynamic res =
           await orderProvider.filterOrders(_selectedFilter, _selectedItem);
       if (res['errorType'] == 1) {
-        message(res['message'], );
+        message(
+          res['message'],
+        );
       } else {
-        message(res['message'], );
+        message(
+          res['message'],
+        );
       }
     } catch (e) {
       message(
-          'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          );
+        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+      );
     }
   }
 
@@ -165,14 +176,18 @@ class _MyOrderState extends State<MyOrder> {
           Provider.of<MyOrderProvider>(context, listen: false);
       dynamic res = await orderProvider.confirmOrder(orderId, context);
       if (res['errorType'] == 1) {
-        message(res['message'], );
+        message(
+          res['message'],
+        );
       } else {
-        message(res['message'], );
+        message(
+          res['message'],
+        );
       }
     } catch (e) {
       message(
-          'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-          );
+        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+      );
     }
   }
 
@@ -277,6 +292,7 @@ class _MyOrderState extends State<MyOrder> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 30, vertical: 15),
+                                      margin: const EdgeInsets.only(right: 10),
                                   decoration: BoxDecoration(
                                       color: theme.primaryColor,
                                       borderRadius: BorderRadius.circular(10)),
@@ -298,25 +314,23 @@ class _MyOrderState extends State<MyOrder> {
                 ),
               ),
               Expanded(
-                child: Box(
-                    child: orders != null && orders.isNotEmpty
-                        ? RefreshIndicator(
-                            onRefresh: () async {
-                              getData();
-                            },
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: orders
-                                    .map(
-                                      (order) => orderWidget(
-                                          order: order, provider: provider),
-                                    )
-                                    .toList(),
-                              ),
+                  child: orders != null && orders.isNotEmpty
+                      ? RefreshIndicator(
+                          onRefresh: () async {
+                            getData();
+                          },
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: orders
+                                  .map(
+                                    (order) => orderWidget(
+                                        order: order, provider: provider),
+                                  )
+                                  .toList(),
                             ),
-                          )
-                        : const NoResult()),
-              ),
+                          ),
+                        )
+                      : const NoResult()),
             ],
           ),
         );
@@ -336,8 +350,8 @@ class _MyOrderState extends State<MyOrder> {
           process: getProcessNumber(order.process!),
         ),
       ),
-      child: Box(
-        shadow: shadow(),
+      child: Ctnr(
+        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
         child: Column(
           children: [
             Row(
@@ -420,12 +434,18 @@ class _MyOrderState extends State<MyOrder> {
 
   dropContainer({required Widget child}) {
     return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-            boxShadow: shadow(),
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(10)),
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: child);
+      decoration: BoxDecoration(
+        color: white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
+      ),
+      margin: const EdgeInsets.only(left: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 15,
+      ),
+      child: child,
+    );
   }
 }

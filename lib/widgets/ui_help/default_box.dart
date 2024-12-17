@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../others/chevren_back.dart';
+import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 
 class DefaultBox extends StatelessWidget {
   final String title;
@@ -26,9 +27,7 @@ class DefaultBox extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const ChevronBack(
-                      color: Colors.white,
-                    ),
+                    back(color: white),
                     Text(
                       title,
                       style: const TextStyle(
@@ -47,8 +46,8 @@ class DefaultBox extends StatelessWidget {
             decoration: BoxDecoration(
               color: theme.scaffoldBackgroundColor,
               borderRadius: BorderRadius.only(
-                topRight: Radius.circular(size.height * 0.02),
-                topLeft: Radius.circular(size.height * 0.02),
+                topRight: Radius.circular(size.height * 0.01),
+                topLeft: Radius.circular(size.height * 0.01),
               ),
             ),
             child: child,

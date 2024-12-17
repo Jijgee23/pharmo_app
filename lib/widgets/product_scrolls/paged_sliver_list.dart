@@ -26,7 +26,7 @@ class CustomList extends StatelessWidget {
           noItemsFoundIndicatorBuilder: (context) => const NoItems(),
           noMoreItemsIndicatorBuilder: (context) => const SizedBox(),
           newPageProgressIndicatorBuilder: (context) => const MyIndicator(),
-          newPageErrorIndicatorBuilder: (context) => const MyIndicator(),
+          newPageErrorIndicatorBuilder: (context) => const SizedBox(),
           itemBuilder: (context, item, index) =>
               ProductWidgetListView(item: item),
         ),

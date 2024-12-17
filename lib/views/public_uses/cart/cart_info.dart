@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
 class CartInfo extends StatefulWidget {
@@ -21,15 +22,7 @@ class _CartInfoState extends State<CartInfo> {
       await basketProvider.getBasket();
     }
 
-    var decoration = BoxDecoration(
-      color: theme.cardColor,
-      borderRadius: BorderRadius.circular(5),
-    );
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(10),
-      decoration: decoration,
+    return Ctnr(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -43,16 +36,13 @@ class _CartInfoState extends State<CartInfo> {
           info(
               title: 'Нийт тоо ширхэг',
               text: '${basketProvider.basket.totalCount ?? 0}'),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(5),
-              onTap: () => clearBasket(),
-              child: Icon(
-                Icons.delete,
-                color: theme.primaryColor,
-                size: 30,
-              ),
+          InkWell(
+            borderRadius: BorderRadius.circular(5),
+            onTap: () => clearBasket(),
+            child: Icon(
+              Icons.delete,
+              color: theme.primaryColor,
+              size: 30,
             ),
           ),
         ],
@@ -64,29 +54,26 @@ class _CartInfoState extends State<CartInfo> {
     final height = MediaQuery.of(context).size.height;
     final fs = height * .013;
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: theme.primaryColor,
-              fontSize: fs,
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: theme.primaryColor,
+            fontSize: fs,
+            fontWeight: FontWeight.bold,
           ),
-          Text(
-            text,
-            style: TextStyle(
-              color: AppColors.secondary,
-              fontSize: fs,
-              fontWeight: FontWeight.bold,
-            ),
-          )
-        ],
-      ),
+        ),
+        Text(
+          text,
+          style: TextStyle(
+            color: AppColors.secondary,
+            fontSize: fs,
+            fontWeight: FontWeight.bold,
+          ),
+        )
+      ],
     );
   }
 }

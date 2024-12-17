@@ -14,10 +14,10 @@ class Box extends StatelessWidget {
       width: double.infinity,
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       padding: EdgeInsets.symmetric(
-          vertical: size.height * 0.015, horizontal: size.width * 0.025),
+          vertical: size.height * 0.015, horizontal: size.width * 0.0025),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(size.height * 0.02),
+        borderRadius: BorderRadius.circular(size.height * 0.005),
         boxShadow: shadow,
       ),
       child: child,

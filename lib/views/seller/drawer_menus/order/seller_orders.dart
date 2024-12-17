@@ -62,14 +62,21 @@ class _SellerOrdersState extends State<SellerOrders> {
 
   @override
   Widget build(BuildContext context) {
-    var ts =  TextStyle(color: Theme.of(context).primaryColor);
+    var ts = TextStyle(color: Theme.of(context).primaryColor);
     return Consumer2<MyOrderProvider, PharmProvider>(
       builder: (_, provider, pp, child) {
         return DefaultBox(
           title: 'Захиалгууд',
           child: Column(
             children: [
-              Box(
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.only(right: 10),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
                 child: Column(
                   children: [
                     Row(
@@ -186,22 +193,20 @@ class _SellerOrdersState extends State<SellerOrders> {
                 ),
               ),
               Expanded(
-                child: Box(
-                    child: provider.sellerOrders.isNotEmpty
-                        ? SingleChildScrollView(
-                            child: Column(
-                              children: provider.sellerOrders
-                                  .map(
-                                    (e) => OrderWidget(
-                                      order: provider.sellerOrders[
-                                          provider.sellerOrders.indexOf(e)],
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                          )
-                        : const NoResult()),
-              )
+                  child: provider.sellerOrders.isNotEmpty
+                      ? SingleChildScrollView(
+                          child: Column(
+                            children: provider.sellerOrders
+                                .map(
+                                  (e) => OrderWidget(
+                                    order: provider.sellerOrders[
+                                        provider.sellerOrders.indexOf(e)],
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        )
+                      : const NoResult()),
             ],
           ),
         );
@@ -239,7 +244,7 @@ class OrderWidget extends StatelessWidget {
     var cxs = CrossAxisAlignment.center;
     return Container(
       padding: const EdgeInsets.all(10),
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),

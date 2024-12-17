@@ -9,6 +9,7 @@ import 'package:pharmo_app/views/seller/customer/customer_details_paga.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
+import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
 class CustomerList extends StatefulWidget {
@@ -98,9 +99,9 @@ class _CustomerListState extends State<CustomerList> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(5),
       ),
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 5),
       child: Row(
         children: [
           Expanded(
@@ -191,15 +192,7 @@ class _CustomerListState extends State<CustomerList> {
         homeProvider.changeSelectedCustomerName(c.name!);
         homeProvider.changeIndex(1);
       },
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        padding:
-            const EdgeInsets.only(left: 20, top: 10, bottom: 10, right: 10),
-        margin: const EdgeInsets.symmetric(vertical: 5),
+      child: Ctnr(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -257,15 +250,7 @@ class _CustomerListState extends State<CustomerList> {
   addCusotmer(PharmProvider pp) {
     return InkWell(
       onTap: () => registerCustomer(pp),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        padding:
-            const EdgeInsets.only(left: 10, top: 10, bottom: 10, right: 10),
-        margin: const EdgeInsets.symmetric(vertical: 5),
+      child: Ctnr(
         child: Row(
           children: [
             const Icon(

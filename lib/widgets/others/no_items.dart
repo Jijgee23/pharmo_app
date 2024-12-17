@@ -11,13 +11,13 @@ class NoItems extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text(
-            'Үр дүн олдсонгүй...',
+            'Барааны жагсаалт...',
             style: TextStyle(fontSize: 20),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 10),
           Image.network(
             'https://cdn-icons-png.flaticon.com/512/6134/6134093.png',
-            height: 200,
+            height: 100,
           )
         ],
       ),

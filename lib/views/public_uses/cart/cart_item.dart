@@ -9,6 +9,7 @@ import 'package:pharmo_app/utilities/screen_size.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
+import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
 class CartItem extends StatefulWidget {
@@ -30,7 +31,7 @@ class _CartItemState extends State<CartItem> {
   @override
   void initState() {
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    basketProvider.checkQTYs();
+    // basketProvider.checkQTYs();
     checkErrorMessage();
     super.initState();
   }
@@ -92,14 +93,7 @@ class _CartItemState extends State<CartItem> {
               ),
             ],
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.cardColor,
-              borderRadius: BorderRadius.circular(5),
-              // boxShadow: shadow(),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            margin: const EdgeInsets.only(bottom: 7.5),
+          child: Ctnr(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

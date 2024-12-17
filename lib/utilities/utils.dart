@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:pharmo_app/utilities/screen_size.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
@@ -24,13 +25,16 @@ void gotoRemoveUntil(Widget widget) {
 }
 
 back({Color? color}) {
-  return InkWell(
-    borderRadius: BorderRadius.circular(24),
-    splashColor: Colors.black.withOpacity(0.3),
-    onTap: () => Get.back(),
-    child: Icon(
-      Icons.chevron_left,
-      color: color ?? Colors.black,
+  return Container(
+    margin: EdgeInsets.only(left: ScreenSize.width * 0.03),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(24),
+      splashColor: Colors.black.withOpacity(0.3),
+      onTap: () => Get.back(),
+      child: Icon(
+        Icons.chevron_left,
+        color: color ?? Colors.black,
+      ),
     ),
   );
 }

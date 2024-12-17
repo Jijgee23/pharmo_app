@@ -1,7 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/widgets/others/indicator.dart';
@@ -41,7 +38,7 @@ class _CustomGridState extends State<CustomGrid> {
           crossAxisCount: MediaQuery.of(context).size.width > 480 ? 3 : 2,
         ),
         builderDelegate: PagedChildBuilderDelegate<dynamic>(
-          newPageErrorIndicatorBuilder: (context) => const MyIndicator(),
+          newPageErrorIndicatorBuilder: (context) => const SizedBox(),
           newPageProgressIndicatorBuilder: (context) => const MyIndicator(),
           noItemsFoundIndicatorBuilder: (context) => const NoResult(),
           noMoreItemsIndicatorBuilder: (context) => const SizedBox(),

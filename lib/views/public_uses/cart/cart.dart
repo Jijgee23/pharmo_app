@@ -12,6 +12,7 @@ import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
+import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
 class Cart extends StatefulWidget {
@@ -73,7 +74,8 @@ class _CartState extends State<Cart> {
                                 },
                               ),
                             )
-                          : const Center(child: EmptyBasket())
+                          : const Center(child: EmptyBasket()),
+                      Ctnr(child: Text('d'))
                     ],
                   ),
                 ),
