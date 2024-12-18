@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/utilities/screen_size.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
@@ -152,158 +153,166 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final h = MediaQuery.of(context).size.height;
     final authController = Provider.of<AuthController>(context);
     bool logging = authController.loading;
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: logging ? Colors.white : null,
-      body: (logging)
-          ? const Center(child: PharmoIndicator())
-          : Container(
-              decoration: BoxDecoration(color: theme.primaryColor),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          fit: BoxFit.contain,
-                          image: AssetImage('assets/picon.png'),
+      // backgroundColor: logging ? Colors.white : null,
+      body:
+          // (logging)
+          //     ? const Center(child: PharmoIndicator())
+          //     :
+          Container(
+        decoration: BoxDecoration(color: theme.primaryColor),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.contain,
+                    image: AssetImage('assets/picon.png'),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                decoration: BoxDecoration(
+                    color: theme.cardColor, borderRadius: topBorderRadius()),
+                child: Wrap(
+                  runSpacing: 15,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Pharmo.mn',
+                        style: TextStyle(
+                          fontSize: ScreenSize.bigFontSize,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryColor,
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 20),
-                      decoration: BoxDecoration(
-                          color: theme.cardColor,
-                          borderRadius: topBorderRadius()),
-                      child: Wrap(
-                        runSpacing: 15,
-                        children: [
-                          Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              'Pharmo.mn',
-                              style: TextStyle(
-                                fontSize: h * 0.02,
-                                fontStyle: FontStyle.italic,
-                                color: theme.primaryColor,
-                              ),
-                            ),
-                          ),
-                          CustomTextField(
-                            controller: ema,
-                            autofillHints: const [AutofillHints.email],
-                            focusNode: email,
-                            hintText: 'Имейл хаяг',
-                            validator: (v) {
-                              if (v!.isNotEmpty) {
-                                return validateEmail(v);
-                              } else {
-                                return null;
-                              }
-                            },
-                            keyboardType: TextInputType.emailAddress,
-                            // onSubmitted: (p0) =>
-                            //     FocusScope.of(context).requestFocus(password),
-                          ),
-                          CustomTextField(
-                            autofillHints: const [AutofillHints.password],
-                            controller: pass,
-                            hintText: 'Нууц үг',
-                            obscureText: !hover,
-                            focusNode: password,
-                            validator: (v) {
-                              if (v!.isNotEmpty) {
-                                return validatePassword(v);
-                              } else {
-                                return null;
-                              }
-                            },
-                            keyboardType: TextInputType.visiblePassword,
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  hover = !hover;
-                                });
-                              },
-                              icon: Icon(
-                                hover ? Icons.visibility_off : Icons.visibility,
-                                color: theme.primaryColor,
-                              ),
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Намайг сана',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: theme.primaryColor,
-                                ),
-                              ),
-                              Checkbox(
-                                visualDensity: VisualDensity.compact,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                                value: rememberMe,
-                                onChanged: (val) {
-                                  setState(() {
-                                    rememberMe = !rememberMe;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          CustomButton(
-                            text: 'Нэвтрэх',
-                            ontap: () async {
-                              await Future.delayed(
-                                  const Duration(milliseconds: 500));
-                              if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
-                                await authController
-                                    .login(ema.text, pass.text, context)
-                                    .whenComplete(() async {
-                                  if (rememberMe) {
-                                    await box1.put('email', ema.text);
-                                    await box1.put('password', pass.text);
-                                  }
-                                });
-                              } else {
-                                message('Нэврэх нэр, нууц үг оруулна уу');
-                              }
-                            },
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomTextButton(
-                                text: 'Нууц үг сэргээх',
-                                onTap: () => goto(const ResetPassword()),
-                              ),
-                              CustomTextButton(
-                                text: 'Бүртгүүлэх',
-                                onTap: () {
-                                  goto(const SignUpForm());
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
+                    CustomTextField(
+                      controller: ema,
+                      autofillHints: const [AutofillHints.email],
+                      focusNode: email,
+                      hintText: 'Имейл хаяг',
+                      validator: (v) {
+                        if (v!.isNotEmpty) {
+                          return validateEmail(v);
+                        } else {
+                          return null;
+                        }
+                      },
+                      keyboardType: TextInputType.emailAddress,
+                      // onSubmitted: (p0) =>
+                      //     FocusScope.of(context).requestFocus(password),
+                    ),
+                    CustomTextField(
+                      autofillHints: const [AutofillHints.password],
+                      controller: pass,
+                      hintText: 'Нууц үг',
+                      obscureText: !hover,
+                      focusNode: password,
+                      validator: (v) {
+                        if (v!.isNotEmpty) {
+                          return validatePassword(v);
+                        } else {
+                          return null;
+                        }
+                      },
+                      keyboardType: TextInputType.visiblePassword,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            hover = !hover;
+                          });
+                        },
+                        icon: Icon(
+                          hover ? Icons.visibility_off : Icons.visibility,
+                          color: theme.primaryColor,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Намайг сана',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: theme.primaryColor,
+                          ),
+                        ),
+                        Checkbox(
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          value: rememberMe,
+                          onChanged: (val) {
+                            setState(() {
+                              rememberMe = !rememberMe;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    CustomButton(
+                      text: 'Нэвтрэх',
+                      ontap: () async {
+                        await _checkForUpdate();
+                        await Future.delayed(const Duration(milliseconds: 500));
+                        if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
+                          await authController
+                              .login(ema.text, pass.text, context)
+                              .whenComplete(() async {
+                            if (rememberMe) {
+                              await box1.put('email', ema.text);
+                              await box1.put('password', pass.text);
+                            }
+                          });
+                        } else {
+                          message('Нэврэх нэр, нууц үг оруулна уу');
+                        }
+                      },
+                      child: logging
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: PharmoIndicator(),
+                            )
+                          : null,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomTextButton(
+                          text: 'Нууц үг сэргээх',
+                          onTap: () => goto(const ResetPassword()),
+                        ),
+                        CustomTextButton(
+                          text: 'Бүртгүүлэх',
+                          onTap: () {
+                            goto(const SignUpForm());
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
+          ],
+        ),
+      ),
       bottomNavigationBar: !logging
           ? Container(
               color: Colors.white,
@@ -386,9 +395,9 @@ class _SignUpFormState extends State<SignUpForm> {
                     Align(
                       alignment: Alignment.center,
                       child: Text(
-                        'Бүртгэлийн талбаруудыг бөглөнө үү!',
+                        'Бүртгүүлэх',
                         style: TextStyle(
-                          fontSize: h * 0.016,
+                          fontSize: ScreenSize.bigFontSize,
                           color: theme.primaryColor,
                         ),
                       ),

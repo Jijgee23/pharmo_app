@@ -7,13 +7,15 @@ class CustomButton extends StatelessWidget {
   final Color? color;
   final Color? borderColor;
   final EdgeInsets? padding;
+  final Widget? child;
   const CustomButton(
       {super.key,
       required this.text,
       required this.ontap,
       this.color,
       this.borderColor,
-      this.padding});
+      this.padding,
+      this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +42,7 @@ class CustomButton extends StatelessWidget {
       ),
       onPressed: ontap,
       child: Center(
-        child: Text(
+        child: child ?? Text(
           text,
           style: TextStyle(
               color: Colors.white, fontSize: ScreenSize.height * 0.014),
