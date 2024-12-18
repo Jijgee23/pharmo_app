@@ -65,12 +65,15 @@ convertData(final body) {
 }
 
 getApiInformation(String endPoint, http.Response response) {
-  debugPrint(
-    '$endPoint\n, status: ${response.statusCode},\n body; ${convertData(response)}',
-  );
+  try {
+    debugPrint(
+        '$endPoint, status: ${response.statusCode},\n body; ${convertData(response)}');
+  } catch (e) {
+    debugPrint('ERROR at $endPoint : $e');
+  }
 }
 
-apiGet(String endPoint) async { 
+apiGet(String endPoint) async {
   http.Response response = await http.get(
     setUrl(endPoint),
     headers: getHeader(

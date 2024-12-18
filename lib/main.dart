@@ -70,7 +70,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     auth = Provider.of<AuthController>(context, listen: false);
-    auth.init(context);
     _openBox();
     super.initState();
   }

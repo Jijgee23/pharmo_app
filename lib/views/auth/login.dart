@@ -398,6 +398,8 @@ class _SignUpFormState extends State<SignUpForm> {
                         'Бүртгүүлэх',
                         style: TextStyle(
                           fontSize: ScreenSize.bigFontSize,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.bold,
                           color: theme.primaryColor,
                         ),
                       ),

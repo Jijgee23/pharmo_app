@@ -42,11 +42,12 @@ class CustomButton extends StatelessWidget {
       ),
       onPressed: ontap,
       child: Center(
-        child: child ?? Text(
-          text,
-          style: TextStyle(
-              color: Colors.white, fontSize: ScreenSize.height * 0.014),
-        ),
+        child: child ??
+            Text(
+              text,
+              style: TextStyle(
+                  color: Colors.white, fontSize: ScreenSize.height * 0.014),
+            ),
       ),
     );
   }

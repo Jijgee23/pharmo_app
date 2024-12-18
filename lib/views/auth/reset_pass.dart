@@ -45,14 +45,17 @@ class _ResetPasswordState extends State<ResetPassword> {
                     ? CustomButton(
                         text: 'Батлагаажуулах код авах',
                         ontap: () async {
-                          bool sent = await auth.resetPassOtp(
-                              email: email.text, context: context);
-                          if (sent == true) {
-                            setState(() {
-                              boolean = sent;
-                            });
+                          dynamic sent = await auth.resetPassOtp(email.text);
+                          print(sent['errorType']);
+                          if (email.text.isNotEmpty) {
+                            if (sent['errorType'] == 1) {
+                              setState(() {
+                                boolean = true;
+                              });
+                            }
+                            message(sent['message']);
                           } else {
-                            message('И-Мейл хаяг бүртгэлтгүй байна');
+                            message('Бүртгэлтэй и-мейл хаягаа оруулна уу!');
                           }
                         },
                       )

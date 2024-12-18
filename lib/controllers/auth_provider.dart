@@ -27,7 +27,6 @@ import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/pharmacy/index_pharmacy.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/dialog_and_messages/create_pass_dialog.dart';
 
@@ -182,7 +181,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // Хэрэглэгчийн эрхээс хамаарч дэлгэц харуулах
-  void _navigateBasedOnRole(String role, BuildContext context) {
+  void _navigateBasedOnRole(String role, BuildContext context) async {
     gotoRemoveUntil(const IndexPharma());
     switch (role) {
       case 'S':
@@ -197,7 +196,8 @@ class AuthController extends ChangeNotifier {
       default:
         message('Веб хуудсаар хандана уу');
     }
-    getDeviceInfo();
+    await getDeviceToken();
+    await getDeviceInfo();
   }
 
   //Токен шинэчлэх
@@ -308,22 +308,18 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future resetPassOtp(
-      {required String email, required BuildContext context}) async {
+  resetPassOtp(String email) async {
     try {
       final response = await http.post(setUrl('auth/get_otp/'),
           headers: header, body: jsonEncode({'email': email}));
-      notifyListeners();
+      print(response.statusCode);
       if (response.statusCode == 200) {
-        message('Батлагаажуулах код илгээлээ');
-        return true;
+        return buildResponse(1, null, 'Батлагаажуулах код илгээлээ');
       } else {
-        message('Амжилтгүй!');
-        return false;
+        return buildResponse(2, null, 'И-Мейл хаяг бүртгэлтгүй байна');
       }
     } catch (e) {
-      message('Амжилтгүй!');
-      return false;
+      return buildResponse(3, null, 'Түр хүлээгээд дахин оролдоно уу!');
     }
   }
 
@@ -361,47 +357,22 @@ class AuthController extends ChangeNotifier {
   }
 
   getDeviceToken() async {
-    String? deviceToken = '';
-    FirebaseMessaging firebaseMessage = FirebaseMessaging.instance;
-    if (Platform.isAndroid) {
-      deviceToken = await firebaseMessage.getToken();
-    } else {
-      deviceToken = await firebaseMessage.getAPNSToken();
+    try {
+      String? deviceToken = '';
+      FirebaseMessaging firebaseMessage = FirebaseMessaging.instance;
+      if (Platform.isAndroid) {
+        deviceToken = await firebaseMessage.getToken();
+      } else {
+        deviceToken = await firebaseMessage.getAPNSToken();
+      }
+      getFireBaseToken(deviceToken!);
+      return deviceToken;
+    } catch (e) {
+      debugPrint('error getDeviceToken: $e');
     }
-    getFireBaseToken(deviceToken!);
-    return deviceToken;
   }
 
-  init(BuildContext context) async {
-    String deviceToken = await getDeviceToken();
-    final response = await http.post(setUrl('device_id/'),
-        headers: header, body: jsonEncode({"deviceId": deviceToken}));
-    // apiPost('device_id/', jsonEncode({"deviceId": deviceToken}));
-    if (response.statusCode == 200) {}
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
-      String? title = remoteMessage.notification!.title;
-      String? description = remoteMessage.notification!.body;
-      Alert(
-        context: context,
-        type: AlertType.info,
-        title: title,
-        desc: description,
-        buttons: [
-          DialogButton(
-            onPressed: () => Navigator.pop(context),
-            width: 120,
-            child: const Text(
-              "Хаах",
-              style: TextStyle(color: Colors.white, fontSize: 15),
-            ),
-          )
-        ],
-      ).show();
-    });
-  }
-
-  Future<Map<String, String>> getDeviceInfo() async {
-    await getDeviceToken();
+  Future getDeviceInfo() async {
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
     try {
@@ -428,26 +399,28 @@ class AuthController extends ChangeNotifier {
           "osVersion": iosInfo.systemVersion,
         };
       }
+      print('deviceData: $deviceData');
       final response = await apiPost(
-          'device_id/',
-          jsonEncode({
-            'deviceId': deviceData['deviceId'],
-            'platform': deviceData['platform'],
-            'brand': deviceData['brand'],
-            'model': deviceData['model'],
-            'modelVersion': deviceData['modelVersion'],
-            'os': deviceData['os'],
-            'osVersion': deviceData['osVersion'],
-          }));
+        'device_id',
+        jsonEncode(
+        {
+          'deviceId': deviceData['deviceId'],
+          'platform': deviceData['platform'],
+          'brand': deviceData['brand'],
+          'model': deviceData['model'],
+          'modelVersion': deviceData['modelVersion'],
+          'os': deviceData['os'],
+          'osVersion': deviceData['osVersion'],
+        },
+        ),
+      );
       if (response.statusCode == 200) {
         debugPrint('Device info sent');
       } else {
         debugPrint('Device info not sent');
       }
-      return deviceData;
     } catch (e) {
       debugPrint('$e');
     }
-    return deviceData;
   }
 }
