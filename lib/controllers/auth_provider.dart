@@ -19,7 +19,6 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/models/person.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
@@ -37,11 +36,6 @@ class AuthController extends ChangeNotifier {
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
   Map<String, String> deviceData = {};
-  late Person person;
-  setPerson(Person p) {
-    person = p;
-    notifyListeners();
-  }
 
   void toggleVisibile() {
     invisible = !invisible;
