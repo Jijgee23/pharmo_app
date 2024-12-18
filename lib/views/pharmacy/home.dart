@@ -253,9 +253,10 @@ class _HomeState extends State<Home> {
                   homeProvider.setQueryType('name');
                 } else if (index == 1) {
                   homeProvider.setQueryType('barcode');
-                } else {
-                  homeProvider.setQueryType('intName');
                 }
+                // else {
+                //   homeProvider.setQueryType('intName');
+                // }
               },
               child: Text(e),
             ),
@@ -270,7 +271,7 @@ class _HomeState extends State<Home> {
       Future.delayed(
         const Duration(milliseconds: 1000),
         () {
-          if (v.isNotEmpty) {
+          if (v.isNotEmpty && v != '') {
             WidgetsBinding.instance.addPostFrameCallback((t) {
               homeProvider.changeSearching(true);
               homeProvider.changeQueryValue(v);

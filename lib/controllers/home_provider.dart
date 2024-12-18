@@ -30,7 +30,7 @@ class HomeProvider extends ChangeNotifier {
   bool isScrolling = false;
   final TextEditingController _searchController = TextEditingController();
   TextEditingController get searchController => _searchController;
-  List<String> stype = ['Нэрээр', 'Баркодоор', 'Ерөнхий нэршлээр'];
+  List<String> stype = ['Нэрээр', 'Баркодоор'];
   String queryType = 'name';
   String searchType = 'Нэрээр';
   bool isList = false;
@@ -102,15 +102,16 @@ class HomeProvider extends ChangeNotifier {
           : 'products/search/?k=$queryType&v=$query');
       if (response.statusCode == 200) {
         if (!searching) {
-          Map res = convertData(response);
-          List<Product> prods = (res['results'] as List)
+          final res = convertData(response);
+          final prods = (res['results'] as List)
               .map((data) => Product.fromJson(data))
               .toList();
           return prods;
         } else {
-          final res = jsonDecode(utf8.decode(response.bodyBytes));
-          List<Product> prods =
-              (res as List).map((data) => Product.fromJson(data)).toList();
+          final res = convertData(response);
+          final prods = (res['results'] as List)
+              .map((data) => Product.fromJson(data))
+              .toList();
           return prods;
         }
       }

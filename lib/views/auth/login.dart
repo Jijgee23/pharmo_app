@@ -77,6 +77,7 @@ class _LoginPageState extends State<LoginPage> {
         case UpdateStatus.outdated:
           await _downloadUpdate();
         case UpdateStatus.restartRequired:
+          await _restartBanner();
         case UpdateStatus.unavailable:
       }
     } catch (error) {
@@ -90,10 +91,8 @@ class _LoginPageState extends State<LoginPage> {
     // final status = await _updater.checkForUpdate(track: currentTrack);
     try {
       await _updater.update(track: currentTrack);
-
-      if (!mounted) return;
-
       _restartBanner();
+      if (!mounted) return;
     } on UpdateException catch (error) {
       debugPrint(error.toString());
     }
