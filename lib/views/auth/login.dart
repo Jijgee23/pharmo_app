@@ -90,9 +90,15 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _downloadUpdate() async {
     // final status = await _updater.checkForUpdate(track: currentTrack);
     try {
-      await _updater.update(track: currentTrack);
-      _restartBanner();
+      //  await _updater.update(track: currentTrack);
+      // _restartBanner();
+      // if (!mounted) return;
+      await _updater.update(track: currentTrack).then((e) {
+        _restartBanner();
+      });
       if (!mounted) return;
+
+      // _restartBanner();
     } on UpdateException catch (error) {
       debugPrint(error.toString());
     }
