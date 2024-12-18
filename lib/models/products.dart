@@ -9,7 +9,7 @@ class Product {
   String? salePrice;
   int? saleQty;
   double? discount;
-  int? inStock;
+  bool? inStock;
   String? intName;
   String? description;
   String? createdAt;
