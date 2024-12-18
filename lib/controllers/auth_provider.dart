@@ -223,14 +223,14 @@ class AuthController extends ChangeNotifier {
   Future<void> logout() async {
     try {
       final response = await http.post(
-        setUrl('auth/logout/'),
+        setUrl('auth/logout'),
         headers: getHeader(await getAccessToken()),
       );
       if (response.statusCode == 200) {
         await _completeLogout();
       } else {
         await _completeLogout();
-        message('Холболт саллаа.');
+        // message('Холболт саллаа.');
       }
       notifyListeners();
     } catch (e) {

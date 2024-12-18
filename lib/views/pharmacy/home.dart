@@ -267,11 +267,12 @@ class _HomeState extends State<Home> {
 
   // Хайлт функц
   _onfieldChanged(String v) {
+    print('v: $v');
     try {
       Future.delayed(
-        const Duration(milliseconds: 1000),
+        const Duration(milliseconds: 0),
         () {
-          if (v.isNotEmpty && v != '') {
+          if (v.isNotEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((t) {
               homeProvider.changeSearching(true);
               homeProvider.changeQueryValue(v);
@@ -291,10 +292,15 @@ class _HomeState extends State<Home> {
   }
 
   _onFieldSubmitted(String v) {
-    if (v.isEmpty) {
-      homeProvider.changeSearching(false);
-      _pagingController.refresh();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((t) {
+      if (v.isEmpty) {
+        homeProvider.changeSearching(false);
+        _pagingController.refresh();
+      } else {
+        homeProvider.changeSearching(false);
+        _pagingController.refresh();
+      }
+    });
   }
 
   Expanded products(HomeProvider homeProvider) {
