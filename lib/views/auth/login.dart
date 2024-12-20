@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/screen_size.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
@@ -284,10 +285,21 @@ class _LoginPageState extends State<LoginPage> {
                         }
                       },
                       child: logging
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: PharmoIndicator(),
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child:
+                                      CircularProgressIndicator(color: white),
+                                ),
+                                SizedBox(width: ScreenSize.width * 0.03),
+                                const Text(
+                                  'Түр хүлээнэ үү!',
+                                  style: TextStyle(color: white),
+                                )
+                              ],
                             )
                           : null,
                     ),

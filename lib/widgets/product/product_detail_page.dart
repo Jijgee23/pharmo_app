@@ -121,8 +121,6 @@ class _ProductDetailState extends State<ProductDetail>
     final size = MediaQuery.of(context).size;
     final theme = Theme.of(context);
     final div = Divider(color: theme.primaryColor, thickness: .7);
-    bool hasDetail = det.containsKey('detail');
-    print('PRODUCT HAS DETAIL: ${hasDetail}');
     return Scaffold(
       body: (fetching)
           ? const Center(child: PharmoIndicator())
