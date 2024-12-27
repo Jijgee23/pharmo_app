@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
@@ -26,35 +28,27 @@ class _UserInformationState extends State<UserInformation> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      body: DefaultBox(
-        title: 'Миний бүртгэл',
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Box(
+    return DefaultBox(
+      title: 'Миний бүртгэл',
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Box(
+            child: Container(
+              padding:
+                  EdgeInsets.symmetric(horizontal: ScreenSize.smallFontSize),
               child: Column(
                 children: [
+                  info(title: 'Имейл хаяг:', value: home.userEmail!),
                   info(
-                    title: 'Хэрэглэгчийн нэр:',
-                    value: home.userName!,
-                  ),
-                  info(
-                    title: 'Имейл хаяг:',
-                    value: home.userEmail!,
-                  ),
-                  info(
-                    title: 'Хэрэглэгчийн төрөл:',
-                    value: getRole(home.userRole!),
-                  ),
+                      title: 'Хэрэглэгчийн төрөл:',
+                      value: getRole(home.userRole!))
                 ],
               ),
             ),
-            CustomButton(
-                text: 'Бүртгэл устгах', ontap: () => confirmDeletion()),
-          ],
-        ),
+          ),
+          CustomButton(text: 'Бүртгэл устгах', ontap: () => confirmDeletion())
+        ],
       ),
     );
   }
@@ -83,16 +77,13 @@ class _UserInformationState extends State<UserInformation> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-          ),
+          Text(title,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
           Text(
             value,
             style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.black54,
-            ),
+                fontWeight: FontWeight.w500, color: Colors.black54),
           ),
         ],
       ),
@@ -109,7 +100,7 @@ class _UserInformationState extends State<UserInformation> {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Colors.grey.shade300,
+              color: white,
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -137,9 +128,7 @@ class _UserInformationState extends State<UserInformation> {
                       Button(
                         text: 'Устгах',
                         color: theme.primaryColor,
-                        onTap: () {
-                          home.deactiveUser(pwd.text, context);
-                        },
+                        onTap: () => _onDelete(),
                         width: 100,
                       )
                     ],
@@ -151,6 +140,14 @@ class _UserInformationState extends State<UserInformation> {
         );
       },
     );
+  }
+
+  _onDelete() {
+    if (pwd.text.isEmpty) {
+      message('Нууц үг оруулна уу!');
+    } else {
+      home.deactiveUser(pwd.text, context);
+    }
   }
 
   final TextEditingController pwd = TextEditingController();

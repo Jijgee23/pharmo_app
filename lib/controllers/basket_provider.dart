@@ -129,6 +129,7 @@ class BasketProvider extends ChangeNotifier {
         return buildResponse(3, null, null);
       }
     } catch (e) {
+      print('checkITEMqty: $e');
       return buildResponse(4, null, null);
     }
   }

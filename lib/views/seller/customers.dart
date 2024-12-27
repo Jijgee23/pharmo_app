@@ -173,10 +173,10 @@ class _CustomerListState extends State<CustomerList> {
       child: SingleChildScrollView(
         child: Column(
           children: [
+            addCusotmer(pp),
             ...pp.filteredCustomers.map(
               (c) => _customerBuilder(homeProvider, c),
             ),
-            addCusotmer(pp),
             const SizedBox(height: kTextTabBarHeight + 20)
           ],
         ),
@@ -188,9 +188,15 @@ class _CustomerListState extends State<CustomerList> {
   InkWell _customerBuilder(HomeProvider homeProvider, Customer c) {
     return InkWell(
       onTap: () {
-        homeProvider.changeSelectedCustomerId(c.id!);
-        homeProvider.changeSelectedCustomerName(c.name!);
-        homeProvider.changeIndex(1);
+        print(c.rn);
+        // pharmProvider.getCustomerDetail(c.id!, context);
+        if (c.rn != null) {
+          homeProvider.changeSelectedCustomerId(c.id!);
+          homeProvider.changeSelectedCustomerName(c.name!);
+          homeProvider.changeIndex(1);
+        } else {
+          message('Регистерийн дугааргүй харилцагч сонгох боломжгүй!');
+        }
       },
       child: Ctnr(
         child: Row(
@@ -222,10 +228,10 @@ class _CustomerListState extends State<CustomerList> {
                       ),
                     const SizedBox(width: 10),
                     if (c.location == false)
-                      Text(
+                      const Text(
                         'Байршил тодорхойгүй',
                         style: TextStyle(
-                          color: Colors.red.shade500,
+                          color: Color.fromARGB(255, 255, 100, 89),
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),

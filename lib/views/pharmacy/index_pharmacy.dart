@@ -11,6 +11,7 @@ import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_scree
 import 'package:pharmo_app/views/seller/customers.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/income/income_list.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
+import 'package:pharmo_app/views/seller/seller_report/seller_report.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
 import 'package:provider/provider.dart';
@@ -78,7 +79,7 @@ class _IndexPharmaState extends State<IndexPharma> {
 
   // FOR PARMACY
   List<String> pharmaIcons = ['category', 'cart'];
-  List<String> pharmaLabels = ['Бараа',  'Сагс'];
+  List<String> pharmaLabels = ['Бараа', 'Сагс'];
   pharmaDrawerItems() {
     return [
       DrawerItem(
@@ -128,6 +129,10 @@ class _IndexPharmaState extends State<IndexPharma> {
       DrawerItem(
           title: 'Орлогын жагсаалт',
           onTap: () => goto(const IncomeList()),
+          asset: 'assets/icons_2/wallet-income.png'),
+      DrawerItem(
+          title: 'Тайлан',
+          onTap: () => goto(const SellerReport()),
           asset: 'assets/icons_2/wallet-income.png'),
       homeProvider.userRole == 'D'
           ? DrawerItem(

@@ -11,7 +11,7 @@ class NoItems extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text(
-            'Барааны жагсаалт...',
+            'Үр дүн олдсонгүй...',
             style: TextStyle(fontSize: 20),
           ),
           const SizedBox(height: 10),

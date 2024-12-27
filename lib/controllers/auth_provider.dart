@@ -63,12 +63,10 @@ class AuthController extends ChangeNotifier {
   }
 
   Map<String, String> get header {
-    return {
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
+    return {'Content-Type': 'application/json; charset=UTF-8'};
   }
 
-  checker(Map response, String key) {
+  bool checker(Map response, String key) {
     if (response.containsKey(key)) {
       return true;
     } else {
@@ -146,7 +144,7 @@ class AuthController extends ChangeNotifier {
     Hive.box('auth').put('role', decodedToken['role']);
     await basketProvider.getBasket();
     await basketProvider.getBasketCount;
-    _navigateBasedOnRole(decodedToken['role'], context);
+    _navigateBasedOnRole(decodedToken['role']);
     debugPrint(accessToken);
     tokerRefresher();
     notifyListeners();
@@ -175,7 +173,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // Хэрэглэгчийн эрхээс хамаарч дэлгэц харуулах
-  void _navigateBasedOnRole(String role, BuildContext context) async {
+  void _navigateBasedOnRole(String role) async {
     gotoRemoveUntil(const IndexPharma());
     switch (role) {
       case 'S':
@@ -265,40 +263,41 @@ class AuthController extends ChangeNotifier {
         {'email': email, 'phone': phone},
       );
       if (response.statusCode == 200) {
-        return {
-          'v': 1,
-        };
+        return buildResponse(1, null, 'Батлагаажуулах код илгээлээ.');
       } else if (response.statusCode == 400) {
-        return {'v': 3};
+        return buildResponse(2, null, 'И-Мейл эсвэл утас бүртгэлтэй байна!');
       } else {
-        return {'v': 2};
+        return buildResponse(3, null, 'Алдаа гарлаа!');
       }
     } catch (e) {
-      return {'v': 2};
+      buildResponse(3, null, 'Алдаа гарлаа!!');
     }
   }
 
   // Бүртгүүлэх
   register(String email, String phone, String otp, String password) async {
     try {
-      var body = jsonEncode(
-        {'email': email, 'phone': phone, 'otp': otp, 'password': password},
-      );
+      var body = {
+        'email': email,
+        'phone': phone,
+        'otp': otp,
+        'password': password
+      };
       final response = await apiPostWithoutToken('auth/register/', body);
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (response.statusCode == 200) {
-        return {'v': 1};
+        return buildResponse(1, data, 'Бүртгэл үүслээ');
       } else if (response.statusCode == 500) {
-        return {'v': 2};
+        return buildResponse(2, data, 'Түр хүлээгээд дахин оролдоно уу!');
       } else if (response.statusCode == 400) {
         if (checker(data, 'otp') == true) {
-          return {'v': 3};
+          return buildResponse(3, data, 'Батлагаажуулах код буруу!');
         } else {
-          return {'v': 0};
+          return buildResponse(0, data, 'Алдаа гарлаа');
         }
       }
     } catch (e) {
-      return {'v': 0};
+      return buildResponse(0, null, 'Алдаа гарлаа');
     }
   }
 
@@ -397,15 +396,15 @@ class AuthController extends ChangeNotifier {
       final response = await apiPost(
         'device_id',
         jsonEncode(
-        {
-          'deviceId': deviceData['deviceId'],
-          'platform': deviceData['platform'],
-          'brand': deviceData['brand'],
-          'model': deviceData['model'],
-          'modelVersion': deviceData['modelVersion'],
-          'os': deviceData['os'],
-          'osVersion': deviceData['osVersion'],
-        },
+          {
+            'deviceId': deviceData['deviceId'],
+            'platform': deviceData['platform'],
+            'brand': deviceData['brand'],
+            'model': deviceData['model'],
+            'modelVersion': deviceData['modelVersion'],
+            'os': deviceData['os'],
+            'osVersion': deviceData['osVersion'],
+          },
         ),
       );
       if (response.statusCode == 200) {

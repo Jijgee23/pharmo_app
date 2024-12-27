@@ -60,7 +60,9 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
             builder: (context, pp, child) {
               final d = pp.customerDetail;
               bool isEditable =
-                  (d.addedById != null && d.addedById! == home.userId);
+                  (d.addedById != null && d.addedById == home.userId);
+              print(
+                  'IS EDIABLE: $isEditable my id: ${home.userId} addesbyID: ${d.addedById}');
               bool notLocated = (d.lat == null && d.lng == null);
               return DefaultBox(
                 title: d.name!,
@@ -74,17 +76,22 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                         runSpacing: 15,
                         children: [
                           (isEditable)
-                              ? info('Нэр:', d.name ?? '', name, null)
+                              ? info(
+                                  'Нэр:', d.name ?? '', name, null, isEditable)
                               : const SizedBox(),
-                          info('РД', d.rn ?? '', rn, null),
-                          info('И-Мейл', d.email ?? '', email, validateEmail),
-                          info('Утас', d.phone ?? '', phone, validatePhone),
-                          info('Утас 2', d.phone2 ?? '', phone2, validatePhone),
-                          info('Утас 2', d.phone3 ?? '', phone3, validatePhone),
-                          info('Тайлбар', d.note ?? '', note, null),
+                          info('РД', d.rn ?? '', rn, null, isEditable),
+                          info('И-Мейл', d.email ?? '', email, validateEmail,
+                              isEditable),
+                          info('Утас', d.phone ?? '', phone, validatePhone,
+                              isEditable),
+                          info('Утас 2', d.phone2 ?? '', phone2, validatePhone,
+                              isEditable),
+                          info('Утас 2', d.phone3 ?? '', phone3, validatePhone,
+                              isEditable),
+                          info('Тайлбар', d.note ?? '', note, null, isEditable),
                           (d.loanLimitUse == true && d.loanLimit! >= 0.0)
                               ? info('Зээлийн лимит', d.loanLimit.toString(),
-                                  TextEditingController(), null)
+                                  TextEditingController(), null, isEditable)
                               : const SizedBox(),
                           (isEditable)
                               ? CustomButton(
@@ -150,7 +157,7 @@ class EmailHelper {
 }
 
 info(String v, String v2, TextEditingController controller,
-    String? Function(String?)? validator) {
+    String? Function(String?)? validator, bool? isEditable) {
   return Container(
     width: double.infinity,
     height: 50,
@@ -172,6 +179,7 @@ info(String v, String v2, TextEditingController controller,
             textAlign: TextAlign.end,
             controller: controller,
             validator: validator,
+            readOnly: !isEditable!,
             decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(vertical: 7),
                 focusedBorder: InputBorder.none,

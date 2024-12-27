@@ -15,6 +15,7 @@ void message(String message) {
       forwardAnimationCurve: Curves.easeOutQuad,
       messageText: Center(
         child: Text(
+          textAlign: TextAlign.center,
           message,
           style: const TextStyle(color: Colors.white),
         ),

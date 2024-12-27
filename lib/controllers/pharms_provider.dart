@@ -237,15 +237,8 @@ class PharmProvider extends ChangeNotifier {
     }
   }
 
-  Future registerCustomer(
-      String name,
-      String rn,
-      String email,
-      String phone,
-      String note,
-      String? lat,
-      String? lng,
-      BuildContext context) async {
+  Future registerCustomer(String name, String rn, String email, String phone,
+      String note, String? lat, String? lng, BuildContext context) async {
     try {
       var body = jsonEncode({
         "name": name,
@@ -398,16 +391,17 @@ class Customer {
   // Factory method to create a `Customer` instance from JSON
   factory Customer.fromJson(Map<String, dynamic> json) {
     return Customer(
-        id: json['id'],
-        name: json['name'],
-        rn: json['rn'].toString(),
-        phone: json['phone'].toString(),
-        phone2: json['phone2'].toString(),
-        phone3: json['phone3'].toString(),
-        note: json['note'].toString(),
-        addedUserId: json['added_by_id'],
-        location: json['location'],
-        loanBlock: json['loanBlock']);
+      id: json['id'],
+      name: json['name'],
+      rn: json['rn'],
+      phone: json['phone'].toString(),
+      phone2: json['phone2'].toString(),
+      phone3: json['phone3'].toString(),
+      note: json['note'].toString(),
+      addedUserId: json['added_by_id'],
+      location: json['location'],
+      loanBlock: json['loanBlock'],
+    );
   }
 
   // Method to convert a `Customer` instance to JSON (optional)
