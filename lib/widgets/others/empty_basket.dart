@@ -9,14 +9,15 @@ class EmptyBasket extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 50),
+          const SizedBox(height: 10),
           const Text(
             "Сагс хоосон байна ...",
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 50),
+          const SizedBox(height: 10),
           Image.asset(
             'assets/empty.png',
             fit: BoxFit.contain,

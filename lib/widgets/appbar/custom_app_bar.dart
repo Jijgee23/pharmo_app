@@ -1,8 +1,8 @@
-import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/widgets/inputs/ibtn.dart';
 import 'package:provider/provider.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -26,50 +26,72 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context);
     final theme = Theme.of(context);
-    return Consumer<HomeProvider>(builder: (_, homeprovider, child) {
-      return ChangeNotifierProvider(
-        create: (context) => BasketProvider(),
-        child: AppBar(
-          iconTheme: IconThemeData(color: theme.primaryColor),
-          centerTitle: true,
-          title: title,
-          leading: leading,
-          actions: [
-            IconButton(
-                icon: Image.asset(
-                  'assets/icons_2/bell.png',
-                  color: theme.primaryColor,
-                  height: 24,
-                ),
-                onPressed: () {}),
-            Container(
-              margin: const EdgeInsets.only(right: 15),
-              child: InkWell(
-                onTap: () {
-                  homeprovider
-                      .changeIndex(homeprovider.userRole == 'PA' ? 1 : 2);
-                },
-                child: badges.Badge(
-                  badgeContent: Text(
-                    basketProvider.basket.totalCount.toString(),
-                    style: const TextStyle(
-                        color: AppColors.cleanWhite, fontSize: 11),
-                  ),
-                  badgeStyle: const badges.BadgeStyle(
-                    badgeColor: AppColors.secondary,
-                  ),
-                  child: Image.asset(
-                    color: theme.primaryColor,
-                    'assets/icons_2/cart.png',
-                    height: 24,
-                    width: 24,
-                  ),
-                ),
+    return Consumer<HomeProvider>(
+      builder: (_, homeprovider, child) {
+        return ChangeNotifierProvider(
+          create: (context) => BasketProvider(),
+          child: AppBar(
+            iconTheme: IconThemeData(color: theme.primaryColor),
+            centerTitle: true,
+            title: title,
+            leading: leading,
+            actions: [
+              Ibtn(
+                onTap: () {},
+                icon: Icons.notifications,
+                color: theme.primaryColor,
               ),
-            ),
-          ],
-        ),
-      );
-    });
+              Stack(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                            blurRadius: 7,
+                            color: Theme.of(context).shadowColor),
+                      ],
+                    ),
+                    child: Center(
+                      child: InkWell(
+                          onTap: () {
+                            homeprovider.changeIndex(
+                                homeprovider.userRole == 'PA' ? 1 : 2);
+                          },
+                          child: const Icon(
+                            Icons.shopping_cart,
+                            size: 18,
+                          )),
+                    ),
+                    // ),
+                  ),
+                  Positioned(
+                    right: 2,
+                    top: 2,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 2.5),
+                      decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Text(
+                        basketProvider.basket.totalCount.toString(),
+                        style: const TextStyle(
+                            color: white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

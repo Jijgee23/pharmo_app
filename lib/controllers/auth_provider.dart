@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -19,15 +18,16 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
+import 'package:pharmo_app/utilities/notification_service.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
-import 'package:pharmo_app/views/pharmacy/index_pharmacy.dart';
+import 'package:pharmo_app/views/pharmacy/index.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/dialog_and_messages/create_pass_dialog.dart';
 
 class AuthController extends ChangeNotifier {
   bool invisible = true;
@@ -87,13 +87,8 @@ class AuthController extends ChangeNotifier {
       if (responseLogin.statusCode == 200) {
         _handleSuccessfulLogin(decodedResponse, context);
       } else if (responseLogin.statusCode == 400) {
-        _handleBadRequest(decodedResponse, email, context);
+        _handleBadRequest(decodedResponse, email);
       } else if (responseLogin.statusCode == 401) {
-        await showDialog(
-            context: context,
-            builder: (context) {
-              return CreatePassDialog(email: email);
-            });
       } else {
         {
           message('Имейл эсвэл нууц үг буруу байна!');
@@ -151,12 +146,9 @@ class AuthController extends ChangeNotifier {
   }
 
   // Нэвтрэх амжилтгүй
-  void _handleBadRequest(
-      Map<String, dynamic> res, String email, BuildContext context) {
+  void _handleBadRequest(Map<String, dynamic> res, String email) {
     if (checker(res, 'no_password')) {
-      showDialog(
-          context: context,
-          builder: (context) => CreatePassDialog(email: email));
+      Get.bottomSheet(CreatePassDialog(email: email));
     } else if (checker(res, 'noCmp') ||
         checker(res, 'noLic') ||
         checker(res, 'noLoc')) {
@@ -316,11 +308,10 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> createPassword(
+  createPassword(
       {required String email,
       required String otp,
-      required String newPassword,
-      required BuildContext context}) async {
+      required String newPassword}) async {
     try {
       final response = await http.post(
         setUrl('auth/reset/'),
@@ -333,14 +324,13 @@ class AuthController extends ChangeNotifier {
       );
       notifyListeners();
       if (response.statusCode == 200) {
-        message('Нууц үг амжилттай үүслээ');
-        goto(const LoginPage());
-        notifyListeners();
+        return buildResponse(1, '', 'Нууц үг амжилттай үүслээ');
+      } else {
+        return buildResponse(2, '', 'Түр хэлээгээд дахин оролдоно уу!');
       }
     } catch (e) {
-      message('Амжилтгүй!');
+      return buildResponse(2, '', 'Түр хэлээгээд дахин оролдоно уу!');
     }
-    notifyListeners();
   }
 
   String firebaseToken = '';
@@ -352,13 +342,10 @@ class AuthController extends ChangeNotifier {
   getDeviceToken() async {
     try {
       String? deviceToken = '';
-      FirebaseMessaging firebaseMessage = FirebaseMessaging.instance;
-      if (Platform.isAndroid) {
-        deviceToken = await firebaseMessage.getToken();
-      } else {
-        deviceToken = await firebaseMessage.getAPNSToken();
-      }
-      getFireBaseToken(deviceToken!);
+      NotificationServices notificationServices = NotificationServices();
+      deviceToken = await notificationServices.getDeviceToken();
+      print(
+          'DEVICE TOKEN-----------------------------$deviceToken------------------------');
       return deviceToken;
     } catch (e) {
       debugPrint('error getDeviceToken: $e');

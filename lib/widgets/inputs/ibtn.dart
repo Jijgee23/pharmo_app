@@ -1,0 +1,34 @@
+import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
+
+class Ibtn extends StatelessWidget {
+  final Color? color;
+  final IconData icon;
+  final Function() onTap;
+  const Ibtn({super.key, this.color, required this.onTap, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(Sizes.width * 0.02),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(blurRadius: 7, color: Theme.of(context).shadowColor),
+        ],
+      ),
+      child: Center(
+        child: InkWell(
+          onTap: onTap,
+          child: Icon(
+            icon,
+            color: color ?? Colors.black,
+            size: 18,
+          ),
+        ),
+      ),
+    );
+  }
+}

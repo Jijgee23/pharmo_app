@@ -52,36 +52,34 @@ class _FilterPageState extends State<FilterPage> {
             ];
             return Scaffold(
               appBar: CustomAppBar(
-                  leading: back(color: Theme.of(context).primaryColor),
-                  title: const Text('Ангилал', style: TextStyle(fontSize: 14))),
-              body: Column(
+                leading: back(color: Theme.of(context).primaryColor),
+                title: const Text(
+                  'Ангилал',
+                  style: TextStyle(fontSize: 14),
+                ),
+              ),
+              body: Column(   
                 children: [
+                  TabBar(
+                      indicatorColor: Colors.blue,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerHeight: 0,
+                      tabs: filterList
+                          .map(
+                            (fil) => Tab(
+                              child: Text(
+                                fil!,
+                                style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          )
+                          .toList()),
                   Expanded(
-                    child: Column(
-                      children: [
-                        TabBar(
-                            indicatorColor: Colors.blue,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            dividerHeight: 0,
-                            tabs: filterList
-                                .map(
-                                  (fil) => Tab(
-                                    child: Text(
-                                      fil!,
-                                      style: const TextStyle(
-                                          color: Colors.blue,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                )
-                                .toList()),
-                        Expanded(
-                          child: TabBarView(
-                              children: [_categories(), _mnfrs(), _vndrs()]),
-                        ),
-                      ],
-                    ),
+                    child: TabBarView(
+                        children: [_categories(), _mnfrs(), _vndrs()]),
                   ),
                 ],
               ),

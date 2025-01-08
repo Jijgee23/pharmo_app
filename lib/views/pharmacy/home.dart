@@ -7,6 +7,7 @@ import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
@@ -106,26 +107,28 @@ class _HomeState extends State<Home> {
         ),
         body: Container(
           margin: const EdgeInsets.symmetric(horizontal: 5),
-          child: Expanded(
-            child: CustomGrid(
-              pagingController: _filtering,
-              hasSale: hasSale,
-            ),
+          child: CustomGrid(
+            pagingController: _filtering,
+            hasSale: hasSale,
           ),
         ),
       ),
     );
   }
 
+  bool isCategoryView = false;
+  setIsCategoryView(bool n) {
+    setState(() {
+      isCategoryView = n;
+    });
+  }
+
   List<String> filters = ['Хямдралтай', 'Эрэлттэй', 'Шинэ'];
-  var decoration = BoxDecoration(
-    color: Colors.white,
-    // boxShadow: [Constants.defaultShadow],
-    borderRadius: BorderRadius.circular(10),
-  );
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+
     final smallFontSize = height * .0125;
     return RefreshIndicator(
       onRefresh: () => Future.sync(() {
@@ -138,20 +141,23 @@ class _HomeState extends State<Home> {
       child: Consumer3<HomeProvider, BasketProvider, PromotionProvider>(
         builder: (_, homeProvider, basketProvider, promotionProvider, child) {
           final search = homeProvider.searchController;
-          return Column(
-            children: [
-              searchBar(
-                context,
-                homeProvider,
-                basketProvider,
-                smallFontSize,
-                search,
-              ),
-              if (homeProvider.userRole == 'PA' &&
-                  homeProvider.isScrolling == false)
-                filtering(smallFontSize),
-              products(homeProvider),
-            ],
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Column(
+              children: [
+                searchBar(
+                  context,
+                  homeProvider,
+                  basketProvider,
+                  smallFontSize,
+                  search,
+                ),
+                if (homeProvider.userRole == 'PA' &&
+                    homeProvider.isScrolling == false)
+                  filtering(smallFontSize),
+                products(homeProvider),
+              ],
+            ),
           );
         },
       ),
@@ -159,81 +165,72 @@ class _HomeState extends State<Home> {
   }
 
   // Хайлт
-  Container searchBar(
+  searchBar(
       BuildContext context,
       HomeProvider homeProvider,
       BasketProvider basketProvider,
       double smallFontSize,
       TextEditingController search) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            flex: 7,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: decoration,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (homeProvider.userRole == 'PA')
-                    IntrinsicWidth(
-                      child: InkWell(
-                        onTap: () => _onPickSupplier(context),
-                        child: Text(
-                          '${homeProvider.supName} :',
-                          style: TextStyle(
-                            fontSize: smallFontSize,
-                            color: AppColors.succesColor,
-                            fontWeight: FontWeight.bold,
-                          ),
+    return Row(
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex: 7,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            margin: const EdgeInsets.only(bottom: 5),
+            decoration: getDecoration(context),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (homeProvider.userRole == 'PA')
+                  IntrinsicWidth(
+                    child: InkWell(
+                      onTap: () => _onPickSupplier(context),
+                      child: Text(
+                        '${homeProvider.supName} :',
+                        style: TextStyle(
+                          fontSize: smallFontSize,
+                          color: AppColors.succesColor,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                      child: TextFormField(
-                    cursorHeight: smallFontSize,
-                    style: TextStyle(fontSize: smallFontSize),
-                    decoration: InputDecoration(
-                      hintText: '${homeProvider.searchType} хайх',
-                      hintStyle: TextStyle(fontSize: smallFontSize),
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    ),
-                    onChanged: (v) => _onfieldChanged(v),
-                    onFieldSubmitted: (v) => _onFieldSubmitted(v),
-                  )),
-                  InkWell(
-                      onTap: () => _changeSearchType(),
-                      child: const Icon(Icons.keyboard_arrow_down_rounded)),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          // List Grid switcher
-          Expanded(
-            child: Container(
-              decoration: decoration,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: () => homeProvider.switchView(),
-                child: Icon(
-                  homeProvider.isList ? Icons.grid_view : Icons.list_sharp,
-                  color: Theme.of(context).primaryColor,
+                  ),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: TextFormField(
+                  cursorHeight: smallFontSize,
+                  style: TextStyle(fontSize: smallFontSize),
+                  decoration: InputDecoration(
+                    hintText: '${homeProvider.searchType} хайх',
+                    hintStyle:
+                        TextStyle(fontSize: smallFontSize, color: Colors.black),
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  ),
+                  onChanged: (v) => _onfieldChanged(v),
+                  onFieldSubmitted: (v) => _onFieldSubmitted(v),
+                )),
+                InkWell(
+                    onTap: () => _changeSearchType(),
+                    child: const Icon(Icons.keyboard_arrow_down_rounded)),
+                const SizedBox(width: 5),
+                InkWell(
+                  onTap: () => homeProvider.switchView(),
+                  child: Icon(
+                    homeProvider.isList ? Icons.grid_view : Icons.list_sharp,
+                    color: black,
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -258,7 +255,14 @@ class _HomeState extends State<Home> {
                 //   homeProvider.setQueryType('intName');
                 // }
               },
-              child: Text(e),
+              child: Text(
+                e,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: Sizes.smallFontSize,
+                ),
+              ),
             ),
           )
           .toList(),
@@ -317,76 +321,73 @@ class _HomeState extends State<Home> {
 
   // Эрэлттэй, Шинэ, Хямдралтай
   filtering(double smallFontSize) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            InkWell(
-              onTap: () => goto(const FilterPage()),
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.25,
-                decoration: decoration,
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.list,
-                          color: AppColors.secondary, size: 20),
-                      const SizedBox(width: 5),
-                      Text(
-                        'Ангилал',
-                        style: TextStyle(fontSize: smallFontSize),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            ...filters.map(
-              (e) => InkWell(
-                onTap: () {
-                  _filtering.itemList?.clear();
-                  if (filters.indexOf(e) == 0) {
-                    goFilt('discount__gt=0', 'Хямдралтай', pageKey, true);
-                  } else if (filters.indexOf(e) == 1) {
-                    goFilt('ordering=-created_at', 'Эрэлттэй', pageKey, false);
-                  } else {
-                    goFilt(
-                        'supplier_indemand_products/', 'Шинэ', pageKey, false);
-                  }
-                },
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(2.5),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () => goto(const FilterPage()),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.25,
+              decoration: getDecoration(context),
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Center(
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      decoration: decoration,
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(icons[filters.indexOf(e)],
-                                color: AppColors.secondary, size: 20),
-                            const SizedBox(width: 5),
-                            Text(
-                              e,
-                              style: TextStyle(fontSize: smallFontSize),
-                            ),
-                          ],
-                        ),
-                      ),
+                    const Icon(Icons.list,
+                        color: AppColors.secondary, size: 20),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Ангилал',
+                      style: TextStyle(fontSize: smallFontSize),
                     ),
-                    const SizedBox(width: 10),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 10),
+          ...filters.map(
+            (e) => InkWell(
+              onTap: () {
+                _filtering.itemList?.clear();
+                if (filters.indexOf(e) == 0) {
+                  goFilt('discount__gt=0', 'Хямдралтай', pageKey, true);
+                } else if (filters.indexOf(e) == 1) {
+                  goFilt('ordering=-created_at', 'Эрэлттэй', pageKey, false);
+                } else {
+                  goFilt('supplier_indemand_products/', 'Шинэ', pageKey, false);
+                }
+              },
+              child: Row(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    decoration: getDecoration(context),
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(icons[filters.indexOf(e)],
+                              color: AppColors.secondary, size: 20),
+                          const SizedBox(width: 5),
+                          Text(
+                            e,
+                            style: TextStyle(fontSize: smallFontSize),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -441,4 +442,19 @@ class _HomeState extends State<Home> {
     // });
     // Navigator.pop(context);
   }
+}
+
+getDecoration(BuildContext context) {
+  return BoxDecoration(
+    color: Colors.white,
+    boxShadow: [
+      BoxShadow(
+        color: Theme.of(context).shadowColor,
+        blurRadius: 10,
+        // offset: const Offset(5, 5),
+        blurStyle: BlurStyle.normal,
+      )
+    ],
+    borderRadius: BorderRadius.circular(30),
+  );
 }

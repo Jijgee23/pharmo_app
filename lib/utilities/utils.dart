@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
@@ -26,14 +26,22 @@ void gotoRemoveUntil(Widget widget) {
 
 back({Color? color}) {
   return Container(
-    margin: EdgeInsets.only(left: ScreenSize.width * 0.03),
+    margin: EdgeInsets.all(Sizes.width * 0.02),
+    padding: EdgeInsets.all(Sizes.width * 0.01),
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+      boxShadow: [
+        // BoxShadow(blurRadius: 7, color: Colors.grey.shade300),
+      ],
+    ),
     child: InkWell(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(100),
       splashColor: Colors.black.withOpacity(0.3),
       onTap: () => Get.back(),
-      child: Icon(
+      child: const Icon(
         Icons.chevron_left,
-        color: color ?? Colors.black,
+        color: Colors.black,
       ),
     ),
   );
@@ -59,7 +67,7 @@ setUrl(String endPoint) {
   return url;
 }
 
-convertData(final body) {
+convertData(http.Response body) {
   var d = jsonDecode(utf8.decode(body.bodyBytes));
   return d;
 }
@@ -226,4 +234,12 @@ checker(Map response, String key) {
 
 shadow() {
   return [BoxShadow(color: Colors.grey.shade400, blurRadius: 5)];
+}
+
+String maybeNull(String? text) {
+  if (text == null || text.isEmpty) {
+    return '-';
+  } else {
+    return text;
+  }
 }

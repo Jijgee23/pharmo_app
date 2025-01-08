@@ -139,7 +139,10 @@ class _HomeJaggerState extends State<HomeJagger> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: Colors.white,
-        boxShadow: [Constants.defaultShadow],
+        boxShadow: [BoxShadow(
+          color: Theme.of(context).shadowColor,
+          blurRadius: 5,
+        )],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,9 +228,9 @@ class _HomeJaggerState extends State<HomeJagger> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            myRow('Захиалагч:', order.user.toString()),
+            if (order.user != null) myRow('Захиалагч:', order.user.toString()),
             myRow('Захиалгын дугаар:', order.orderNo.toString()),
-            myRow('Салбар:', order.branch!),
+            if (order.branch != null) myRow('Салбар:', order.branch.toString()),
             myRow('Төлөв', getOrderProcess(order.process!)),
             Container(
               margin: const EdgeInsets.symmetric(vertical: 2.5),

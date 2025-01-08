@@ -6,10 +6,9 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/icon/cart_icon.dart';
 import 'package:pharmo_app/widgets/order_widgets/order_status.dart';
+import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:provider/provider.dart';
-
-import '../../../../widgets/ui_help/box.dart';
 
 class MyOrderDetail extends StatefulWidget {
   final int id;
@@ -45,42 +44,33 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
           action: const CartIcon(
             color: Colors.white,
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                OrderStatus(process: widget.order.process!),
-                Box(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      col(
-                          t1: 'Дүн',
-                          t2: '${widget.order.totalPrice.toString()} ₮'),
-                      col(
-                          t1: 'Тоо ширхэг',
-                          t2: widget.order.totalCount.toString()),
-                      col(
-                          t1: 'Нийлүүлэгч',
-                          t2: widget.order.supplier.toString()),
-                    ],
-                  ),
-                ),
-                Box(
-                  child: Scrollbar(
-                    thickness: 1,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          ...provider.orderDetails.map(
-                            (o) => productBuilder(o),
-                          )
-                        ],
-                      ),
+          child: Column(
+            children: [
+              OrderStatus(process: widget.order.process!),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  col(t1: 'Дүн', t2: '${widget.order.totalPrice.toString()} ₮'),
+                  col(t1: 'Тоо ширхэг', t2: widget.order.totalCount.toString()),
+                  col(t1: 'Нийлүүлэгч', t2: widget.order.supplier.toString()),
+                ],
+              ),
+              Expanded(
+                child: Scrollbar(
+                  thickness: 1,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      children: [
+                        ...provider.orderDetails.map(
+                          (o) => productBuilder(o),
+                        )
+                      ],
                     ),
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
         );
       },
@@ -104,38 +94,22 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     );
   }
 
-  Container productBuilder(MyOrderDetailModel o) {
+  productBuilder(MyOrderDetailModel o) {
     final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.grey.shade100, theme.cardColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade400,
-            blurRadius: 5,
-          ),
-        ],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
+    return Ctnr(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            o.itemName.toString(),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: AppColors.secondary,
-              fontSize: 16,
+          TitleContainer(
+            child: Text(
+              o.itemName.toString(),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppColors.secondary,
+                fontSize: 16,
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -188,10 +162,27 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 14,
-            color: valueColor,
+            color: Theme.of(context).colorScheme.onSecondary,
           ),
         ),
       ],
+    );
+  }
+}
+
+class TitleContainer extends StatelessWidget {
+  final Widget child;
+  const TitleContainer({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(.5),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: child,
     );
   }
 }

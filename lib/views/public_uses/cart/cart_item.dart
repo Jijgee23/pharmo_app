@@ -5,10 +5,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/widgets/bottomSheet/mySheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
 import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
@@ -83,6 +82,7 @@ class _CartItemState extends State<CartItem> {
             motion: const StretchMotion(),
             children: [
               SlidableAction(
+                flex: 1,
                 onPressed: (context) => removeBasketItem(),
                 backgroundColor: Colors.red.withOpacity(0.8),
                 foregroundColor: Colors.white,
@@ -134,12 +134,12 @@ class _CartItemState extends State<CartItem> {
   }
 
   Widget _buildQuantityEditor(double fontSize) {
-    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: theme.primaryColor),
-        borderRadius: BorderRadius.circular(8),
+        // border: Border.all(color: white),
+        color: const Color.fromARGB(255, 242, 243, 252),
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
         children: [
@@ -199,29 +199,29 @@ class _CartItemState extends State<CartItem> {
   }
 
   Widget _productInformation(double fs) {
-    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           'Дүн: ${toPrice(widget.detail['main_price'])}',
-          style: TextStyle(fontSize: fs, color: theme.primaryColor),
+          style: TextStyle(
+              fontSize: fs, color: black, fontWeight: FontWeight.bold),
         ),
         Text(
           'Нийт: ${toPrice((widget.detail['qty'] * widget.detail['main_price']).toString())}',
-          style: TextStyle(fontSize: fs, color: theme.primaryColor),
+          style: TextStyle(
+              fontSize: fs, color: black, fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 
   Widget _iconButton({required IconData icon, required VoidCallback onTap}) {
-    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(4),
-        child: Icon(icon, color: theme.primaryColor),
+        child: Icon(icon, color: black),
       ),
     );
   }
@@ -255,64 +255,44 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
   @override
   Widget build(BuildContext context) {
     return Consumer<BasketProvider>(
-      builder: (context, basket, child) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+      builder: (context, basket, child) => SheetContainer(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                border: Border.all(
+                    color: Theme.of(context).primaryColor.withOpacity(.7),
+                    width: 1.5),
+                borderRadius: BorderRadius.circular(10)),
+            child: TextFormField(
+              controller: basket.qty,
+              readOnly: true,
+              textAlign: TextAlign.center,
+              decoration: const InputDecoration(border: InputBorder.none),
+            ),
           ),
-        ),
-        padding: EdgeInsets.symmetric(
-          vertical: ScreenSize.width * 0.03,
-          horizontal: ScreenSize.width * 0.03,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.only(bottom: ScreenSize.height * 0.015),
-                alignment: Alignment.centerRight,
-                child: const PopSheet(),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                    border: Border.all(
-                        color: Theme.of(context).primaryColor.withOpacity(.7),
-                        width: 1.5),
-                    borderRadius: BorderRadius.circular(10)),
-                child: TextFormField(
-                  controller: basket.qty,
-                  readOnly: true,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(border: InputBorder.none),
-                ),
-              ),
-              const SizedBox(height: 20),
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1.5),
-                  itemCount: 12,
-                  itemBuilder: (context, index) {
-                    if (index < 9) {
-                      return _buildNumberButton((index + 1).toString());
-                    } else if (index == 9) {
-                      return _buildNumberButton('0');
-                    } else if (index == 10) {
-                      return _buildBackspaceButton();
-                    } else {
-                      return _buildSubmitButton();
-                    }
-                  },
-                ),
-              )
-            ],
-          ),
-        ),
+          const SizedBox(height: 20),
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 1.5),
+              itemCount: 12,
+              itemBuilder: (context, index) {
+                if (index < 9) {
+                  return _buildNumberButton((index + 1).toString());
+                } else if (index == 9) {
+                  return _buildNumberButton('0');
+                } else if (index == 10) {
+                  return _buildBackspaceButton();
+                } else {
+                  return _buildSubmitButton();
+                }
+              },
+            ),
+          )
+        ],
       ),
     );
   }

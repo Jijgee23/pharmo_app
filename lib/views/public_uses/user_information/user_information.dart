@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
@@ -36,7 +36,7 @@ class _UserInformationState extends State<UserInformation> {
           Box(
             child: Container(
               padding:
-                  EdgeInsets.symmetric(horizontal: ScreenSize.smallFontSize),
+                  EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
               child: Column(
                 children: [
                   info(title: 'Имейл хаяг:', value: home.userEmail!),

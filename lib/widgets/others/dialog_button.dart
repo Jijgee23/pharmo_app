@@ -12,7 +12,7 @@ class DialogBtn extends StatelessWidget {
       padding:const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: InkWell(
         onTap: onTap ?? () => Navigator.of(context).pop(),

@@ -104,11 +104,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                             ontap: () {
                               if (password.text == confirmPassword.text) {
                                 auth.createPassword(
-                                  email: email.text,
-                                  otp: opt,
-                                  newPassword: password.text,
-                                  context: context,
-                                );
+                                    email: email.text,
+                                    otp: opt,
+                                    newPassword: password.text);
                               } else {
                                 message('Нууц үг таарахгүй байна');
                               }
@@ -116,11 +114,6 @@ class _ResetPasswordState extends State<ResetPassword> {
                           )
                         ],
                       ),
-                Constants.boxV10,
-                // Visibility(
-                //   visible: boolean,
-                //   child:
-                // ),
               ],
             ),
           ),

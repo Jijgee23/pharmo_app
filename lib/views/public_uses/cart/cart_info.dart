@@ -16,7 +16,7 @@ class _CartInfoState extends State<CartInfo> {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
     void clearBasket() async {
       await basketProvider.clearBasket();
       await basketProvider.getBasket();
@@ -30,7 +30,7 @@ class _CartInfoState extends State<CartInfo> {
             children: [
               info(
                   title: 'Нийт дүн',
-                  text: toPrice(basketProvider.basket.totalPrice)),
+                  text: toPrice(basketProvider.basket.totalPrice))
             ],
           ),
           info(
@@ -39,11 +39,7 @@ class _CartInfoState extends State<CartInfo> {
           InkWell(
             borderRadius: BorderRadius.circular(5),
             onTap: () => clearBasket(),
-            child: Icon(
-              Icons.delete,
-              color: theme.primaryColor,
-              size: 30,
-            ),
+            child: const Icon(Icons.delete, color: Colors.red, size: 30),
           ),
         ],
       ),
@@ -53,14 +49,14 @@ class _CartInfoState extends State<CartInfo> {
   Widget info({required String title, required String text}) {
     final height = MediaQuery.of(context).size.height;
     final fs = height * .013;
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           title,
           style: TextStyle(
-            color: theme.primaryColor,
+            color: black,
             fontSize: fs,
             fontWeight: FontWeight.bold,
           ),
@@ -68,7 +64,7 @@ class _CartInfoState extends State<CartInfo> {
         Text(
           text,
           style: TextStyle(
-            color: AppColors.secondary,
+            color: black.withOpacity(.7),
             fontSize: fs,
             fontWeight: FontWeight.bold,
           ),

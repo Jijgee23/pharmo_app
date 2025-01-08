@@ -10,7 +10,7 @@ import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/public_uses/cart/seller_order_sheet.dart';
 import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
 import 'package:provider/provider.dart';
 
@@ -44,7 +44,7 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
     return Consumer<BasketProvider>(
       builder: (context, provider, _) {
         final cartDatas = provider.shoppingCarts;
@@ -79,16 +79,10 @@ class _CartState extends State<Cart> {
                 ),
                 if (!basketIsEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     margin: const EdgeInsets.only(bottom: 10),
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 10),
-                      alignment: Alignment.centerRight,
-                      child: Button(
-                        text: 'Захиалга үүсгэх',
-                        color: theme.primaryColor,
-                        onTap: () async => await placeOrder(context),
-                      ),
+                    child: CustomButton(
+                      text: 'Захиалга үүсгэх',
+                      ontap: () async => await placeOrder(context),
                     ),
                   ),
                 SizedBox(

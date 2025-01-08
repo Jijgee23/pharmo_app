@@ -357,7 +357,7 @@ class _MyOrderState extends State<MyOrder> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Col(t1: 'Дугаар', t2: order.orderNo.toString()),
+                TitleContainer(child: Col(t1: 'Дугаар', t2: order.orderNo.toString())),
                 Col(t1: 'Дүн', t2: toPrice(order.totalPrice.toString())),
                 Col(
                     t1: 'Огноо',

@@ -238,14 +238,14 @@ class PharmProvider extends ChangeNotifier {
   }
 
   Future registerCustomer(String name, String rn, String email, String phone,
-      String note, String? lat, String? lng, BuildContext context) async {
+      String? note, String? lat, String? lng, BuildContext context) async {
     try {
       var body = jsonEncode({
         "name": name,
         "rn": rn,
         "email": email,
         "phone": phone,
-        "note": note,
+        note ?? "note": note,
         "lat": lat,
         "lng": lng
       });

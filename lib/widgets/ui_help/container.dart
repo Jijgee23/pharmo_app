@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class Ctnr extends StatelessWidget {
   final Widget? child;
@@ -8,14 +8,14 @@ class Ctnr extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final h = ScreenSize.height;
+    // final theme = Theme.of(context);
+    final h = Sizes.height;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: h * .015, vertical: h * .015),
       margin: margin ?? EdgeInsets.only(bottom: h * .008),
       decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(5),
+        color: const Color(0XFFdee2ff),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: child,
     );

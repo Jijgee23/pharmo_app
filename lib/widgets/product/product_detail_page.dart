@@ -7,7 +7,7 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
@@ -107,7 +107,7 @@ class _ProductDetailState extends State<ProductDetail>
     return strings;
   }
 
-  final fontsize = ScreenSize.height * 0.015;
+  final fontsize = Sizes.height * 0.015;
   String initQTY = 'Тоо ширхэг';
   setInitQyu(String n) {
     setState(() {
@@ -140,7 +140,7 @@ class _ProductDetailState extends State<ProductDetail>
                 ),
                 body: Container(
                   color: theme.scaffoldBackgroundColor,
-                  padding: EdgeInsets.all(ScreenSize.width * 0.03),
+                  padding: EdgeInsets.all(Sizes.width * 0.03),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -241,7 +241,7 @@ class _ProductDetailState extends State<ProductDetail>
                           ],
                         ),
                         SizedBox(
-                          height: ScreenSize.height * 0.25,
+                          height: Sizes.height * 0.25,
                           child: TabBarView(
                             controller: tabController,
                             children: [
@@ -293,7 +293,7 @@ class _ProductDetailState extends State<ProductDetail>
                 bottomNavigationBar: Container(
                   height: 70,
                   padding: EdgeInsets.symmetric(
-                      vertical: 10, horizontal: ScreenSize.width * 0.03),
+                      vertical: 10, horizontal: Sizes.width * 0.03),
                   width: double.infinity,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -309,7 +309,7 @@ class _ProductDetailState extends State<ProductDetail>
                           child: Container(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 30,
-                                vertical: ScreenSize.height * 0.015),
+                                vertical: Sizes.height * 0.015),
                             decoration: BoxDecoration(
                                 border: Border.all(
                                   color: Theme.of(context).primaryColor,

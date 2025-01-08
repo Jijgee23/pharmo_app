@@ -4,8 +4,9 @@ import 'package:pharmo_app/utilities/colors.dart';
 final lightTheme = ThemeData(
   primaryColor: primary,
   hintColor: secondary,
+  shadowColor: Colors.grey.shade300,
   // brightness: Brightness.light,
-  scaffoldBackgroundColor: lightBackground,
+  scaffoldBackgroundColor: white,
   splashColor: Colors.transparent,
   highlightColor: Colors.transparent,
   colorScheme: const ColorScheme(
@@ -16,12 +17,12 @@ final lightTheme = ThemeData(
     onSecondary: black,
     error: failedColor,
     onError: failedColor,
-    surface: primary,
-    onSurface: primary,
+    surface: darkPrimary,
+    onSurface: white,
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: lightBackground,
-    surfaceTintColor: lightBackground,
+    backgroundColor: white,
+    surfaceTintColor: white,
     iconTheme: IconThemeData(
       color: primary,
       applyTextScaling: true,
@@ -32,17 +33,12 @@ final lightTheme = ThemeData(
       color: primary,
     ),
     focusedBorder: const OutlineInputBorder(
-      borderSide: BorderSide(
-        color: primary,
-        width: 1,
-      ),
+      borderSide: BorderSide(color: primary, width: 1),
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
     ),
-    labelStyle: const TextStyle(
-      color: primary,
-    ),
+    labelStyle: const TextStyle(color: primary),
   ),
   checkboxTheme: CheckboxThemeData(
     checkColor: WidgetStateProperty.all(primary),

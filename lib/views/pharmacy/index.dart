@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart';
@@ -9,11 +10,11 @@ import 'package:pharmo_app/views/public_uses/cart/cart.dart';
 import 'package:pharmo_app/views/pharmacy/home.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
-import 'package:pharmo_app/views/seller/drawer_menus/income/income_list.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
 import 'package:pharmo_app/views/seller/seller_report/seller_report.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
+import 'package:pharmo_app/widgets/inputs/ibtn.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/bottom_bar/bottom_bar.dart';
@@ -47,16 +48,26 @@ class _IndexPharmaState extends State<IndexPharma> {
               drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems(),
             ),
             appBar: CustomAppBar(
-                title: isPharma
-                    ? Text(
-                        getAppBarText(homeProvider.currentIndex),
-                        style: TextStyle(
-                          color: theme.primaryColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )
-                    : getSellerAppBarTitle()),
+              leading: Builder(
+                builder: (context) => Ibtn(
+                  onTap: () {
+                    Scaffold.of(context).openDrawer(); // Works perfectly!
+                  },
+                  icon: Icons.menu,
+                  color: theme.primaryColor,
+                ),
+              ),
+              title: isPharma
+                  ? Text(
+                      getAppBarText(homeProvider.currentIndex),
+                      style: TextStyle(
+                        color: black,
+                        fontSize: Sizes.smallFontSize + 2,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : getSellerAppBarTitle(),
+            ),
             body: Container(
               padding: const EdgeInsets.only(right: 10, left: 10),
               child: isPharma
@@ -66,13 +77,7 @@ class _IndexPharmaState extends State<IndexPharma> {
             bottomNavigationBar: BottomBar(
               labels: isPharma ? pharmaLabels : sellerLabels,
               icons: isPharma ? pharmaIcons : sellericons,
-            )
-            //  BottomBar(
-            //   homeProvider: homeProvider,
-            //   listOfIcons: isPharma ? pharmaIcons : sellericons,
-            //   labels: isPharma ? pharmaLabels : sellerLabels,
-            // ),
-            );
+            ));
       },
     );
   }
@@ -126,13 +131,13 @@ class _IndexPharmaState extends State<IndexPharma> {
                 const SellerOrders(),
               ),
           asset: 'assets/icons_2/time-past.png'),
-      DrawerItem(
-          title: 'Орлогын жагсаалт',
-          onTap: () => goto(const IncomeList()),
-          asset: 'assets/icons_2/wallet-income.png'),
+      // DrawerItem(
+      //     title: 'Орлогын жагсаалт',
+      //     onTap: () => goto(const IncomeList()),
+      //     asset: 'assets/icons_2/wallet-income.png'),
       DrawerItem(
           title: 'Тайлан',
-          onTap: () => goto(const SellerReport()),
+          onTap: () => goto(const SellerReportPage()),
           asset: 'assets/icons_2/wallet-income.png'),
       homeProvider.userRole == 'D'
           ? DrawerItem(

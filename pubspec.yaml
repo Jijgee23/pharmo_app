@@ -58,6 +58,7 @@ flutter:
     - assets/icons/
     - assets/icons_2/
     - assets/stickers/
+    - assets/fonts/
     - .env
     - shorebird.yaml
   fonts:

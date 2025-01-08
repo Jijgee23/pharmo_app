@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -26,7 +26,7 @@ class CustomButton extends StatelessWidget {
           color ?? theme.primaryColor,
         ),
         padding: WidgetStatePropertyAll(
-          padding ?? EdgeInsets.symmetric(vertical: ScreenSize.height * 0.015),
+          padding ?? EdgeInsets.symmetric(vertical: Sizes.height * 0.015),
         ),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
@@ -34,9 +34,7 @@ class CustomButton extends StatelessWidget {
               color:
                   borderColor != null ? Colors.transparent : theme.primaryColor,
             ),
-            borderRadius: BorderRadius.circular(
-              10,
-            ),
+            borderRadius: BorderRadius.circular(50),
           ),
         ),
       ),
@@ -46,7 +44,7 @@ class CustomButton extends StatelessWidget {
             Text(
               text,
               style: TextStyle(
-                  color: Colors.white, fontSize: ScreenSize.height * 0.014),
+                  color: Colors.white, fontSize: Sizes.height * 0.014),
             ),
       ),
     );

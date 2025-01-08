@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
+import 'package:pharmo_app/widgets/bottomSheet/mySheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
 import 'package:provider/provider.dart';
 
 class SellerOrderSheet extends StatefulWidget {
@@ -40,63 +40,51 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+    return SheetContainer(
+      children: [
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: Text('Төлбөрийн хэлбэр сонгоно уу : '),
         ),
-      ),
-      padding: const EdgeInsets.all(20),
-      width: double.infinity,
-      child: Wrap(
-        runSpacing: 15,
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text('Заавал биш:'), PopSheet()],
-          ),
-          CustomTextField(
-            controller: noteController,
-            hintText: 'Тайлбар',
-            onChanged: (v) => homeProvider.setNote(v!),
-          ),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text('Төлбөрийн хэлбэр сонгоно уу : '),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ...payTypes.map((p) => MyChip(
-                  title: p,
-                  v: payS[payTypes.indexOf(p)],
-                  selected: (payS[payTypes.indexOf(p)] == payType),
-                  ontap: () => setPayType(payS[payTypes.indexOf(p)]))),
-            ],
-          ),
-          CustomButton(
-            text: 'Захиалах',
-            ontap: () => _createOrder(),
-          ),
-        ],
-      ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ...payTypes.map((p) => MyChip(
+                title: p,
+                v: payS[payTypes.indexOf(p)],
+                selected: (payS[payTypes.indexOf(p)] == payType),
+                ontap: () => setPayType(payS[payTypes.indexOf(p)]))),
+          ],
+        ),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [Text('Заавал биш:')],
+        ),
+        CustomTextField(
+          controller: noteController,
+          hintText: 'Тайлбар',
+          onChanged: (v) => homeProvider.setNote(v!),
+        ),
+        CustomButton(
+          text: 'Захиалах',
+          ontap: () => _createOrder(),
+        ),
+      ],
     );
   }
 
   _createOrder() async {
     if (basketProvider.basket.totalCount == 0) {
-      message('Сагс хоосон байна!', );
+      message('Сагс хоосон байна!');
     } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
-      message('Үнийн дүн 10₮-с бага байж болохгүй!', );
+      message('Үнийн дүн 10₮-с бага байж болохгүй!');
     } else if (homeProvider.selectedCustomerId == 0) {
-      message('Захиалагч сонгоно уу!', );
+      message('Захиалагч сонгоно уу!');
       homeProvider.changeIndex(0);
     } else {
       await basketProvider.checkQTYs();
       if (payType == '') {
-        message('Төлбөрийн хэлбэр сонгоно уу!', );
+        message('Төлбөрийн хэлбэр сонгоно уу!');
       } else {
         homeProvider.createSellerOrder(context, payType);
       }

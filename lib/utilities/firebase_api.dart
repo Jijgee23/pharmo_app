@@ -22,10 +22,9 @@ Future<void> setupFlutterNotifications() async {
     return;
   }
   channel = const AndroidNotificationChannel(
-    'high_importance_channel', 
+    'high_importance_channel',
     'High Importance Notifications',
-    description:
-        'This channel is used for important notifications.', 
+    description: 'This channel is used for important notifications.',
     importance: Importance.high,
   );
 
@@ -63,14 +62,16 @@ void showFlutterNotification(RemoteMessage message) {
 }
 
 class FirebaseApi {
-  static final _firebaseMessaging = FirebaseMessaging.instance;
+  static FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+  // final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+  //     FlutterLocalNotificationsPlugin();
   static Future<void> initNotification() async {
     try {
-      await _firebaseMessaging.requestPermission();
+      await firebaseMessaging.requestPermission();
       if (Platform.isAndroid) {
-        String deviceToken = await _firebaseMessaging.getToken() ?? '';
+        String deviceToken = await firebaseMessaging.getToken() ?? '';
       } else {
-        String deviceToken = await _firebaseMessaging.getAPNSToken() ?? '';
+        String deviceToken = await firebaseMessaging.getAPNSToken() ?? '';
       }
 
       // print(deviceToken);
@@ -81,5 +82,16 @@ class FirebaseApi {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  Future<String> getDeviceToken() async {
+    String? token = await firebaseMessaging.getToken();
+    return token!;
+  }
+
+  void isRefreshToken() async {
+    firebaseMessaging.onTokenRefresh.listen((e) {
+      e.toString();
+    });
   }
 }

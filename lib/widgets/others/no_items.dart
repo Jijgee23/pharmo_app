@@ -12,12 +12,11 @@ class NoItems extends StatelessWidget {
         children: [
           const Text(
             'Үр дүн олдсонгүй...',
-            style: TextStyle(fontSize: 20),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 10),
           Image.network(
             'https://cdn-icons-png.flaticon.com/512/6134/6134093.png',
-            height: 100,
+            height: 75,
           )
         ],
       ),

@@ -26,20 +26,21 @@ class ProductWidget extends StatelessWidget {
     double height = MediaQuery.of(context).size.height;
     double fontSize = height * 0.0135;
     final theme = Theme.of(context);
-    return Consumer<HomeProvider>(
-      builder: (context, value, child) {
-        return InkWell(
+    return Consumer<HomeProvider>(builder: (context, value, child) {
+      return InkWell(
         onTap: () => goto(ProductDetail(prod: item)),
         child: Stack(
           children: [
             Container(
               height: height * 0.37,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.white,
-                // boxShadow: shadow(),
-              ),
-              margin: const EdgeInsets.all(5),
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.white,
+                  border: Border.all(
+                      color: const Color.fromARGB(255, 207, 206, 206), width: 1)
+                  // boxShadow: shadow(),
+                  ),
+              margin: const EdgeInsets.all(1.5),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,14 +54,21 @@ class ProductWidget extends StatelessWidget {
                     maxLines: 2,
                     style: TextStyle(
                       color: Colors.black,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.bold,
                       fontSize: fontSize,
                     ),
                   ),
                   InkWell(
                     onTap: () => Get.bottomSheet(AddBasketSheet(product: item)),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 10),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: const Color.fromARGB(255, 207, 206, 206),
+                          ),
+                          borderRadius: BorderRadius.circular(15)),
                       child: Text(
                         'Сагсанд нэмэх',
                         softWrap: true,
@@ -69,6 +77,7 @@ class ProductWidget extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           overflow: TextOverflow.ellipsis,
                           fontSize: fontSize,
+                          // color: Colors.grey.shade700,
                         ),
                       ),
                     ),
@@ -99,72 +108,7 @@ class ProductWidget extends StatelessWidget {
           ],
         ),
       );
-      } 
-    );
-  }
-
-  Widget listView(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-    final fs = height * .013;
-    final theme = Theme.of(context);
-    return InkWell(
-      onTap: () => goto(ProductDetail(prod: item)),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: theme.cardColor,
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        width: double.infinity,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name!,
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: fs,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                  Text(
-                    toPrice(item.price!),
-                    softWrap: true,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.secondary,
-                      fontWeight: FontWeight.w500,
-                      fontSize: fs,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            InkWell(
-              borderRadius: BorderRadius.circular(24),
-              onTap: () => Get.bottomSheet(AddBasketSheet(product: item)),
-              child: Text(
-                'Сагсанд нэмэх',
-                softWrap: true,
-                style: TextStyle(
-                  color: theme.primaryColor,
-                  fontWeight: FontWeight.w700,
-                  overflow: TextOverflow.ellipsis,
-                  fontSize: fs,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    });
   }
 
   Widget image(double height, double fontSize) {
@@ -192,22 +136,17 @@ class ProductWidget extends StatelessWidget {
           bottom: 5,
           right: 5,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 2.5),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: Colors.grey.withOpacity(.55),
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.circular(15),
             ),
-            child: Row(
-              children: [
-                Text(
-                  toPrice(item.price),
-                  style: TextStyle(
-                    color: AppColors.secondary,
-                    fontWeight: FontWeight.w500,
-                    fontSize: fontSize,
-                  ),
-                ),
-              ],
+            child: Text(
+              toPrice(item.price),
+              style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize),
             ),
           ),
         ),
@@ -247,9 +186,9 @@ class ProductWidgetListView extends StatelessWidget {
                   Text(
                     item.name!,
                     style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: fs,
-                    ),
+                        color: Colors.black87,
+                        fontSize: fs,
+                        fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -259,7 +198,7 @@ class ProductWidgetListView extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: AppColors.secondary,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.bold,
                       fontSize: fs,
                     ),
                   ),
@@ -267,16 +206,25 @@ class ProductWidgetListView extends StatelessWidget {
               ),
             ),
             InkWell(
-              borderRadius: BorderRadius.circular(24),
               onTap: () => Get.bottomSheet(AddBasketSheet(product: item)),
-              child: Text(
-                'Сагсанд нэмэх',
-                softWrap: true,
-                style: TextStyle(
-                  color: theme.primaryColor,
-                  fontWeight: FontWeight.w700,
-                  overflow: TextOverflow.ellipsis,
-                  fontSize: fs,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(
+                      color: const Color.fromARGB(255, 207, 206, 206),
+                    ),
+                    borderRadius: BorderRadius.circular(15)),
+                child: Text(
+                  'Сагсанд нэмэх',
+                  softWrap: true,
+                  style: TextStyle(
+                    color: theme.primaryColor,
+                    fontWeight: FontWeight.w700,
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: fs,
+                  ),
                 ),
               ),
             ),

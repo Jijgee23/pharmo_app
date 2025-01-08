@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/widgets/bottomSheet/mySheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
 import 'package:provider/provider.dart';
 
 class PharmOrderSheet extends StatefulWidget {
@@ -62,91 +61,83 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     final height = MediaQuery.of(context).size.height;
     final fs = height * 0.014;
     final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
+    return SheetContainer(
+      children: [
+        // Хүргэлтийн төрөл сонгох
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ...deliveryTypes.map((dt) => MyChip(
+                title: dt,
+                v: delS[deliveryTypes.indexOf(dt)],
+                selected: (delS[deliveryTypes.indexOf(dt)] == deliveryType),
+                ontap: () => setDeliverType(delS[deliveryTypes.indexOf(dt)])))
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Wrap(
-        runSpacing: 20,
-        children: [
-          // Хүргэлтийн төрөл сонгох
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ...deliveryTypes.map((dt) => MyChip(
-                  title: dt,
-                  v: delS[deliveryTypes.indexOf(dt)],
-                  selected: (delS[deliveryTypes.indexOf(dt)] == deliveryType),
-                  ontap: () => setDeliverType(delS[deliveryTypes.indexOf(dt)])))
-            ],
-          ),
-          // Салбар сонгох
-          if (deliveryType == 'D') ...[
-            InkWell(
-              onTap: () => selectBranch(),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  border: Border.all(color: theme.primaryColor, width: 0.8),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      selectedBranch,
-                      style: TextStyle(fontSize: fs),
-                    ),
-                    const Icon(Icons.arrow_drop_down)
-                  ],
-                ),
+        // Салбар сонгох
+        if (deliveryType == 'D') ...[
+          InkWell(
+            onTap: () => selectBranch(),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              decoration: BoxDecoration(
+                border: Border.all(color: theme.primaryColor, width: 1.2),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    selectedBranch,
+                    style: TextStyle(fontSize: fs),
+                  ),
+                  const Icon(Icons.arrow_drop_down)
+                ],
               ),
             ),
-          ],
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text('Заавал биш:'), PopSheet()],
-          ),
-          // Тайлбар
-          CustomTextField(
-            controller: noteController,
-            hintText: 'Тайлбар',
-            onChanged: (v) => homeProvider.setNote(v!),
-          ),
-          // Төлбөрийн хэлбэр сонгох
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ...payTypes.map((p) => MyChip(
-                  title: p,
-                  v: payS[payTypes.indexOf(p)],
-                  selected: (payS[payTypes.indexOf(p)] == payType),
-                  ontap: () => setPayType(payS[payTypes.indexOf(p)]))),
-            ],
-          ),
-          CustomButton(
-            text: 'Захиалах',
-            ontap: () => order(),
-            color: theme.primaryColor,
-            padding: const EdgeInsets.symmetric(vertical: 15),
           ),
         ],
-      ),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [Text('Заавал биш:')],
+        ),
+        // Тайлбар
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          decoration: BoxDecoration(
+            border: Border.all(color: theme.primaryColor, width: 1.2),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: TextFormField(
+            style: TextStyle(fontSize: fs),
+            onChanged: (v) => homeProvider.setNote(v),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              hintText: 'Тайлбар',
+            ),
+          ),
+        ),
+        // Төлбөрийн хэлбэр сонгох
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ...payTypes.map((p) => MyChip(
+                title: p,
+                v: payS[payTypes.indexOf(p)],
+                selected: (payS[payTypes.indexOf(p)] == payType),
+                ontap: () => setPayType(payS[payTypes.indexOf(p)]))),
+          ],
+        ),
+        CustomButton(
+          text: 'Захиалах',
+          ontap: () => order(),
+          color: theme.primaryColor,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+        ),
+      ],
     );
   }
 
@@ -250,7 +241,7 @@ class MyChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    double fontSize = ScreenSize.height * .018;
+    double fontSize = Sizes.height * .012;
     return InkWell(
       onTap: ontap,
       child: AnimatedContainer(
@@ -269,9 +260,10 @@ class MyChip extends StatelessWidget {
         child: Text(
           title,
           style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.w700,
-              color: selected ? theme.primaryColor : Colors.grey.shade500),
+            fontSize: fontSize,
+            fontWeight: FontWeight.w700,
+            color: selected ? theme.primaryColor : Colors.grey.shade500,
+          ),
         ),
       ),
     );

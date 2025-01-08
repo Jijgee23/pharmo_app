@@ -9,7 +9,7 @@ class CustomTextField extends StatelessWidget {
   final IconButton? suffixIcon;
   final Iterable<String>? autofillHints;
   final FocusNode? focusNode;
-
+  final TextAlign? align;
   final Function(String?)? validator;
   final Function(String?)? onChanged;
   final Function(String?)? onSubmitted;
@@ -29,6 +29,7 @@ class CustomTextField extends StatelessWidget {
     this.autofillHints,
     this.focusNode,
     this.onComplete,
+    this.align,
   });
 
   @override
@@ -36,11 +37,13 @@ class CustomTextField extends StatelessWidget {
     final sw = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
     final border = OutlineInputBorder(
-      borderSide:
-          BorderSide(color: theme.primaryColor.withOpacity(0.7), width: .7),
-    );
+        borderSide:
+            BorderSide(color: theme.primaryColor.withOpacity(0.7), width: 1.2),
+        borderRadius: BorderRadius.circular(30));
     return SizedBox(
       child: TextFormField(
+        textAlign: align ?? TextAlign.start,
+        style: TextStyle(color: Colors.black.withOpacity(.8), fontSize: 14.0),
         onChanged: onChanged,
         onFieldSubmitted: onSubmitted,
         onEditingComplete: onComplete,
@@ -49,13 +52,15 @@ class CustomTextField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         cursorWidth: .8,
+        cursorHeight: 14,
         cursorColor: Colors.black,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(
             horizontal: sw * 0.04,
           ),
-          labelText: hintText,
-          labelStyle: TextStyle(color: Colors.grey.shade700, fontSize: 14.0),
+          hintText: hintText,
+          hintStyle:
+              TextStyle(color: Colors.black.withOpacity(.8), fontSize: 14.0),
           border: border,
           errorBorder: border,
           enabledBorder: border,
@@ -63,7 +68,7 @@ class CustomTextField extends StatelessWidget {
           suffixIcon: suffixIcon,
         ),
         obscureText: obscureText ?? false,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
+        autovalidateMode: AutovalidateMode.onUnfocus,
         validator: validator as String? Function(String?)?,
       ),
     );

@@ -24,6 +24,13 @@ class DrawerItem extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.only(top: 15, bottom: 15, left: 20),
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+                color: theme.cardColor,
+                boxShadow: [
+                  BoxShadow(color: theme.shadowColor, blurRadius: 5),
+                ],
+                borderRadius: BorderRadius.circular(20)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

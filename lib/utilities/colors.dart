@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class AppColors {
   // old
@@ -40,9 +40,9 @@ final grey300 = Colors.grey.shade300;
 final grey400 = Colors.grey.shade400;
 final grey500 = Colors.grey.shade500;
 final grey600 = Colors.grey.shade600;
-
+const card = Color(0XFFdee2ff);
 // paddings
 
 final horizontalPadding = EdgeInsets.symmetric(
-  horizontal: ScreenSize.width * 0.02,
+  horizontal: Sizes.width * 0.02,
 );

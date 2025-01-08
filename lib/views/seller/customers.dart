@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/seller/customer/customer_details_paga.dart';
+import 'package:pharmo_app/widgets/bottomSheet/mySheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
+import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
@@ -64,44 +64,24 @@ class _CustomerListState extends State<CustomerList> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PharmProvider>(
-      builder: (_, homeProvider, pp, child) {
-        return Scaffold(
-          // floatingActionButton: _fab(pp),
-          body: Column(
-            children: [
-              _searchBar(pp),
-              _customersList(
-                pp,
-              ),
-            ],
-          ),
-        );
-      },
-    );
+        builder: (_, homeProvider, pp, child) {
+      return Scaffold(
+          body: Column(children: [_searchBar(pp), _customersList(pp)]));
+    });
   }
-
-  // // Харилцагч бүртгэх button
-  // FloatingActionButton _fab(PharmProvider pp) {
-  //   return FloatingActionButton(
-  //     onPressed: () => registerCustomer(pp),
-  //     backgroundColor: Colors.white,
-  //     elevation: 10,
-  //     shape: const CircleBorder(),
-  //     child: Icon(
-  //       Icons.person_add_sharp,
-  //       color: Colors.blue.shade400,
-  //     ),
-  //   );
-  // }
 
   // Хайлтын widget
   Widget _searchBar(PharmProvider pp) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(color: Theme.of(context).shadowColor, blurRadius: 5)
+        ],
       ),
-      margin: const EdgeInsets.only(bottom: 5),
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Row(
         children: [
           Expanded(
@@ -112,47 +92,47 @@ class _CustomerListState extends State<CustomerList> {
               cursorWidth: .8,
               keyboardType: selectedType,
               onChanged: (value) => _onSearch(value, pp),
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                hintText: '$selectedFilter хайх',
-                hintStyle: const TextStyle(
-                  color: Colors.black38,
-                ),
-              ),
+              decoration: _formStyle(),
             ),
           ),
           InkWell(
-            onTap: () {
-              showMenu(
-                color: Colors.white,
-                context: context,
-                shadowColor: Colors.grey.shade500,
-                position: const RelativeRect.fromLTRB(100, 100, 0, 0),
-                items: [
-                  ...filters.map(
-                    (f) => PopupMenuItem(
-                      child: Text(f),
-                      onTap: () => setFilter(f),
-                    ),
-                  )
-                ],
-              );
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
-              margin: const EdgeInsets.only(right: 10),
-              padding: const EdgeInsets.all(5),
-              child: const Icon(
-                Icons.arrow_drop_down,
-                color: Colors.blue,
-              ),
-            ),
+            onTap: () => _setFilter,
+            child: const Icon(Icons.arrow_drop_down, color: Colors.blue),
           ),
         ],
       ),
+    );
+  }
+
+  _formStyle() {
+    return InputDecoration(
+      border: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      hintText: '$selectedFilter хайх',
+      hintStyle: const TextStyle(
+        color: Colors.black38,
+        fontSize: 14,
+      ),
+    );
+  }
+
+  _setFilter() {
+    showMenu(
+      color: Colors.white,
+      context: context,
+      shadowColor: Colors.grey.shade500,
+      position: const RelativeRect.fromLTRB(100, 100, 0, 0),
+      items: [
+        ...filters.map(
+          (f) => PopupMenuItem(
+              child: Text(
+                f,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              onTap: () => setFilter(f)),
+        )
+      ],
     );
   }
 
@@ -174,9 +154,11 @@ class _CustomerListState extends State<CustomerList> {
         child: Column(
           children: [
             addCusotmer(pp),
-            ...pp.filteredCustomers.map(
-              (c) => _customerBuilder(homeProvider, c),
-            ),
+            if (pp.filteredCustomers.isNotEmpty)
+              ...pp.filteredCustomers.map(
+                (c) => _customerBuilder(homeProvider, c),
+              ),
+            if (pp.filteredCustomers.isEmpty) const NoItems(),
             const SizedBox(height: kTextTabBarHeight + 20)
           ],
         ),
@@ -187,17 +169,7 @@ class _CustomerListState extends State<CustomerList> {
   // Харилцагч
   InkWell _customerBuilder(HomeProvider homeProvider, Customer c) {
     return InkWell(
-      onTap: () {
-        print(c.rn);
-        // pharmProvider.getCustomerDetail(c.id!, context);
-        if (c.rn != null) {
-          homeProvider.changeSelectedCustomerId(c.id!);
-          homeProvider.changeSelectedCustomerName(c.name!);
-          homeProvider.changeIndex(1);
-        } else {
-          message('Регистерийн дугааргүй харилцагч сонгох боломжгүй!');
-        }
-      },
+      onTap: () => _onTabCustomer(c),
       child: Ctnr(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -207,35 +179,17 @@ class _CustomerListState extends State<CustomerList> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      c.name!,
-                      style: TextStyle(
-                        color: (homeProvider.selectedCustomerId == c.id)
+                    greyText(
+                        c.name!,
+                        (homeProvider.selectedCustomerId == c.id)
                             ? AppColors.succesColor
-                            : Colors.grey.shade800,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                            : black),
                     if (c.loanBlock == true)
-                      Text(
-                        'Харилцагч дээр захиалга зээлээр өгөхгүй!',
-                        style: TextStyle(
-                          color: Colors.red.shade800,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      Text('Харилцагч дээр захиалга зээлээр өгөхгүй!',
+                          style: redText),
                     const SizedBox(width: 10),
                     if (c.location == false)
-                      const Text(
-                        'Байршил тодорхойгүй',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 255, 100, 89),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
+                      Text('Байршил тодорхойгүй', style: redText)
                   ],
                 ),
               ],
@@ -253,27 +207,44 @@ class _CustomerListState extends State<CustomerList> {
     );
   }
 
+  TextStyle redText = TextStyle(
+    color: Colors.red.shade800,
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+  );
+
+  _onTabCustomer(Customer c) {
+    if (c.rn != null) {
+      homeProvider.changeSelectedCustomerId(c.id!);
+      homeProvider.changeSelectedCustomerName(c.name!);
+      homeProvider.changeIndex(1);
+    } else {
+      message('Регистерийн дугааргүй харилцагч сонгох боломжгүй!');
+    }
+  }
+
   addCusotmer(PharmProvider pp) {
     return InkWell(
       onTap: () => registerCustomer(pp),
       child: Ctnr(
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(
-              Icons.add,
-              color: succesColor,
-            ),
-            const SizedBox(width: 5),
-            Text(
-              'Харилцагч бүртгэх',
-              style: TextStyle(
-                color: Colors.grey.shade800,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            greyText('Харилцагч бүртгэх', null),
+            const Icon(Icons.add, color: succesColor),
           ],
         ),
+      ),
+    );
+  }
+
+  greyText(String t, Color? color) {
+    return Text(
+      t,
+      style: TextStyle(
+        color: color ?? black,
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
       ),
     );
   }
@@ -289,67 +260,20 @@ class _CustomerListState extends State<CustomerList> {
 
   // Харилцгагч бүртгэх
   registerCustomer(PharmProvider pp) {
-    Get.bottomSheet(
-      Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runSpacing: 10,
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Харилцагч бүртгэх',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    PopSheet()
-                  ],
-                ),
-              ),
-              input('Нэр', name, null, null),
-              input('Регистрийн дугаар', rn, null, null),
-              input('И-Мейл', email, validateEmail, null),
-              input('Утас', phone, validatePhone, TextInputType.number),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Заавал биш',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-              ),
-              input('Нэмэлт тайлбар ', note, null, null),
-              CustomButton(
-                text: 'Бүртгэх',
-                ontap: () async => await _registerCustomer(pp),
-              ),
-            ],
-          ),
-        ),
-      ),
+    mySheet(
+      title: 'Харилцагч бүртгэх',
+      children: [
+        input('Нэр', name, null, null),
+        input('Регистрийн дугаар', rn, null, null),
+        input('И-Мейл', email, validateEmail, null),
+        input('Утас', phone, validatePhone, TextInputType.number),
+        const Text('Заавал биш',
+            style:
+                TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
+        input('Нэмэлт тайлбар ', note, null, null),
+        CustomButton(
+            text: 'Бүртгэх', ontap: () async => await _registerCustomer(pp)),
+      ],
     );
   }
 
@@ -363,14 +287,15 @@ class _CustomerListState extends State<CustomerList> {
     } else {
       await pp
           .registerCustomer(
-              name.text,
-              rn.text,
-              email.text,
-              phone.text,
-              note.text,
-              homeProvider.currentLatitude.toString(),
-              homeProvider.currentLongitude.toString(),
-              context)
+            name.text,
+            rn.text,
+            email.text,
+            phone.text,
+            note.text,
+            homeProvider.currentLatitude.toString(),
+            homeProvider.currentLongitude.toString(),
+            context,
+          )
           .whenComplete(
             () => popSheet(),
           );
@@ -395,8 +320,8 @@ Widget input(String hint, TextEditingController contr,
     Function(String?)? validator, TextInputType? keyType) {
   return Container(
     decoration: BoxDecoration(
-      color: Colors.grey.shade200,
-      borderRadius: BorderRadius.circular(10),
+      color: card,
+      borderRadius: BorderRadius.circular(20),
     ),
     child: Row(
       children: [
@@ -425,3 +350,4 @@ Widget input(String hint, TextEditingController contr,
   );
 }
 // comment
+

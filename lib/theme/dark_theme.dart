@@ -4,6 +4,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 final darkTheme = ThemeData(
   primaryColor: darkPrimary,
   hintColor: secondary,
+  shadowColor: black,
   colorScheme: const ColorScheme(
     brightness: Brightness.dark,
     primary: darkPrimary,
@@ -16,10 +17,10 @@ final darkTheme = ThemeData(
     onSurface: darkPrimary,
   ),
   // brightness: Brightness.dark,
-  scaffoldBackgroundColor: darkBackground,
+  scaffoldBackgroundColor: black,
   appBarTheme: const AppBarTheme(
-    backgroundColor: darkBackground,
-    surfaceTintColor: darkBackground,
+    backgroundColor: black,
+    surfaceTintColor: black,
     iconTheme: IconThemeData(
       color: darkPrimary,
       applyTextScaling: true,

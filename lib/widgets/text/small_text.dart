@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class SmallText extends StatelessWidget {
   final String text;
@@ -15,7 +15,7 @@ class SmallText extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       softWrap: true,
       style: TextStyle(
-        fontSize: ScreenSize.smallFontSize + 2,
+        fontSize: Sizes.smallFontSize + 2,
         fontWeight: (isbold == true) ? FontWeight.bold : FontWeight.w400,
       ),
     );

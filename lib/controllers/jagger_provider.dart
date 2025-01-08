@@ -153,7 +153,7 @@ class JaggerProvider extends ChangeNotifier {
       final res = await apiPatch('start_shipment/', body);
       notifyListeners();
       if (res.statusCode == 200) {
-        final response =convertData(res);
+        final response = convertData(res);
         debugPrint(response);
         message('$response цагт түгээлт эхлэлээ');
       } else {
@@ -194,13 +194,14 @@ class JaggerProvider extends ChangeNotifier {
           'shipment_expense/', jsonEncode({"note": note, "amount": amount}));
       if (res.statusCode == 201) {
         await getExpenses();
-        message('Түгээлтийн зарлага нэмэгдлээ.');
+        return buildResponse(0, null, 'Түгээлтийн зарлага нэмэгдлээ.');
       } else {
-        final response = convertData(res);
-        message(response['message']);
+        // final response = convertData(res);
+        return buildResponse(1, null, 'Түгээлт эхлээгүй!');
       }
     } catch (e) {
       debugPrint(e.toString());
+      return buildResponse(1, null, 'Түр хүлээгээд дахин оролдоно уу!');
     }
   }
 
@@ -210,8 +211,7 @@ class JaggerProvider extends ChangeNotifier {
           {"shipId": shipId, "itemId": itemId, "note": feedback.text});
       final res = await apiPatch('shipment_add_note/', body);
       if (res.statusCode == 200) {
-        message(
-            'Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
+        message('Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
         feedback.clear();
       }
     } catch (e) {
@@ -219,15 +219,13 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> setFeedback(
-      int shipId, int itemId) async {
+  Future<dynamic> setFeedback(int shipId, int itemId) async {
     try {
       var body = jsonEncode(
           {"shipId": shipId, "itemId": itemId, "note": feedback.text});
       final res = await apiPatch('shipment_add_note/', body);
       if (res.statusCode == 200) {
-        message(
-            'Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
+        message('Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
         feedback.text = '';
       } else {}
     } catch (e) {

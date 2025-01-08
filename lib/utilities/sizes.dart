@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/global_key.dart';
 
-class ScreenSize {
+class Sizes {
   static double get width {
     return MediaQuery.of(GlobalKeys.navigatorKey.currentContext!).size.width;
   }
@@ -11,6 +11,6 @@ class ScreenSize {
   }
 
   static final smallFontSize = height * 0.012;
-  static final mediulFontSize = height * 0.04;
+  static final mediulFontSize = height * 0.016;
   static final bigFontSize = height * 0.02;
 }

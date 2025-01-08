@@ -12,13 +12,26 @@ String? validateEmail(String? value) {
       ? 'Имэйл хаяг буруу байна!'
       : null;
 }
+
 String? validatePassword(String? value) {
-  final passwordRegex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$');
   if (value == null || value.isEmpty) {
-    return 'Нууц үгээ оруулна уу';
+    return 'Нууц үг шаардлагатай';
   }
-  if (!passwordRegex.hasMatch(value)) {
-    return 'Том, жижиг үсэг тоо заавал агуулна!';
+
+  if (value.length < 8) {
+    return 'Нууц үг хамгийн багадаа 8 тэмдэгт байх ёстой';
+  }
+
+  if (!RegExp(r'[a-z]').hasMatch(value)) {
+    return 'Жижиг үсэг шаардлагатай';
+  }
+
+  if (!RegExp(r'[A-Z]').hasMatch(value)) {
+    return 'Том үсэг шаардлагатай';
+  }
+
+  if (!RegExp(r'[0-9]').hasMatch(value)) {
+    return 'Тоо шаардлагатай';
   }
   return null;
 }
@@ -29,7 +42,7 @@ String? validateOtp(String? value) {
     return 'Нууц үгээ оруулна уу';
   }
   if (!otpRegex.hasMatch(value)) {
-    return 'Нууц үг буруу байна!';
+    return 'Нууц үг 6 оронтой байх шаардлагатай!';
   }
   return null;
 }

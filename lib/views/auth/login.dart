@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/global_key.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/screen_size.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
@@ -158,12 +159,7 @@ class _LoginPageState extends State<LoginPage> {
     bool logging = authController.loading;
     final theme = Theme.of(context);
     return Scaffold(
-      // backgroundColor: logging ? Colors.white : null,
-      body:
-          // (logging)
-          //     ? const Center(child: PharmoIndicator())
-          //     :
-          Container(
+      body: Container(
         decoration: BoxDecoration(color: theme.primaryColor),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -188,18 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Wrap(
                   runSpacing: 15,
                   children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Pharmo.mn',
-                        style: TextStyle(
-                          fontSize: ScreenSize.bigFontSize,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.bold,
-                          color: theme.primaryColor,
-                        ),
-                      ),
-                    ),
+                    authText('Нэвтрэх'),
                     CustomTextField(
                       controller: ema,
                       autofillHints: const [AutofillHints.email],
@@ -222,13 +207,7 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: 'Нууц үг',
                       obscureText: !hover,
                       focusNode: password,
-                      validator: (v) {
-                        if (v!.isNotEmpty) {
-                          return validatePassword(v);
-                        } else {
-                          return null;
-                        }
-                      },
+                      validator: validatePassword,
                       keyboardType: TextInputType.visiblePassword,
                       suffixIcon: IconButton(
                         onPressed: () {
@@ -249,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                           'Намайг сана',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.bold,
                             color: theme.primaryColor,
                           ),
                         ),
@@ -270,7 +249,6 @@ class _LoginPageState extends State<LoginPage> {
                       text: 'Нэвтрэх',
                       ontap: () async {
                         await _checkForUpdate();
-                        await Future.delayed(const Duration(milliseconds: 500));
                         if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
                           await authController
                               .login(ema.text, pass.text, context)
@@ -294,7 +272,7 @@ class _LoginPageState extends State<LoginPage> {
                                   child:
                                       CircularProgressIndicator(color: white),
                                 ),
-                                SizedBox(width: ScreenSize.width * 0.03),
+                                SizedBox(width: Sizes.width * 0.03),
                                 const Text(
                                   'Түр хүлээнэ үү!',
                                   style: TextStyle(color: white),
@@ -402,18 +380,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 child: Wrap(
                   runSpacing: 15,
                   children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Бүртгүүлэх',
-                        style: TextStyle(
-                          fontSize: ScreenSize.bigFontSize,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.bold,
-                          color: theme.primaryColor,
-                        ),
-                      ),
-                    ),
+                    authText('Бүртгүүлэх'),
                     CustomTextField(
                       controller: ema,
                       hintText: 'Имейл',
@@ -572,4 +539,19 @@ class _PharmoIndicatorState extends State<PharmoIndicator>
       ),
     );
   }
+}
+
+Widget authText(String text) {
+  return Align(
+    alignment: Alignment.center,
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: Sizes.mediulFontSize,
+        fontWeight: FontWeight.bold,
+        color: Theme.of(GlobalKeys.navigatorKey.currentState!.context)
+            .primaryColor,
+      ),
+    ),
+  );
 }

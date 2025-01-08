@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/home_provider.dart';
 
@@ -41,7 +42,7 @@ class BottomBar extends StatelessWidget {
         decoration: BoxDecoration(
             color: theme.bottomNavigationBarTheme.backgroundColor,
             borderRadius: BorderRadius.circular(width * .1),
-            border: Border.all(color: Colors.grey.shade500, width: 2)),
+            boxShadow:const [ BoxShadow(color: Colors.grey, blurRadius: 10)]),
         child: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -102,14 +103,14 @@ class BottomBarItem extends StatelessWidget {
                   'assets/icons_2/$icon.png',
                   height: 20,
                   width: 20,
-                  color: Theme.of(context).primaryColor,
+                  color: black,
                 ),
                 if (selected)
                   Text(
                     label,
                     style: TextStyle(
                       fontSize: isPortrait ? height * .013 : 12,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.bold
                     ),
                   ),
               ],

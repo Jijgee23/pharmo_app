@@ -160,10 +160,10 @@ info(String v, String v2, TextEditingController controller,
     String? Function(String?)? validator, bool? isEditable) {
   return Container(
     width: double.infinity,
-    height: 50,
-    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+    padding: const EdgeInsets.symmetric(horizontal: 20),
     decoration: BoxDecoration(
-        color: AppColors.background, borderRadius: BorderRadius.circular(10)),
+        color: card,
+        borderRadius: BorderRadius.circular(20)),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -181,7 +181,6 @@ info(String v, String v2, TextEditingController controller,
             validator: validator,
             readOnly: !isEditable!,
             decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(vertical: 7),
                 focusedBorder: InputBorder.none,
                 border: InputBorder.none,
                 hintText: v2,

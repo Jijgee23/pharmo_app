@@ -4,6 +4,7 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_order_detail.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
+import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
@@ -70,9 +71,11 @@ class _SellerOrdersState extends State<SellerOrders> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.grey, blurRadius: 5)
+                    ]),
                 padding: const EdgeInsets.only(right: 10),
                 margin:
                     const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
@@ -121,9 +124,11 @@ class _SellerOrdersState extends State<SellerOrders> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.grey, blurRadius: 5)
+                    ]),
                 margin:
                     const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
                 child: Row(
@@ -241,13 +246,8 @@ class OrderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cxs = CrossAxisAlignment.center;
-    return Container(
-      padding: const EdgeInsets.all(10),
+    return Ctnr(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 3)]),
       child: InkWell(
         onTap: () => goto(SellerOrderDetail(
           oId: order.id,
@@ -258,16 +258,8 @@ class OrderWidget extends StatelessWidget {
           children: [
             Column(
               children: [
-                Col(
-                  t1: 'Харилцагч',
-                  t2: order.customer ?? '',
-                  cxs: cxs,
-                ),
-                Col(
-                  t1: 'Дугаар',
-                  t2: order.orderNo!.toString(),
-                  cxs: cxs,
-                ),
+                Col(t1: 'Харилцагч', t2: order.customer ?? '', cxs: cxs),
+                Col(t1: 'Дугаар', t2: order.orderNo!.toString(), cxs: cxs),
               ],
             ),
             Column(
@@ -275,10 +267,9 @@ class OrderWidget extends StatelessWidget {
               children: [
                 Col(t1: 'Нийт үнэ', t2: toPrice(order.totalPrice), cxs: cxs),
                 Col(
-                  t1: 'Тоо ширхэг',
-                  t2: order.totalCount!.toString(),
-                  cxs: cxs,
-                ),
+                    t1: 'Тоо ширхэг',
+                    t2: order.totalCount!.toString(),
+                    cxs: cxs),
               ],
             ),
             Column(
@@ -288,11 +279,7 @@ class OrderWidget extends StatelessWidget {
                     t1: 'Үүссэн огноо',
                     t2: order.createdOn!.substring(0, 10),
                     cxs: cxs),
-                Col(
-                  t1: 'Төлөв',
-                  t2: getStatus(order.status!),
-                  cxs: cxs,
-                ),
+                Col(t1: 'Төлөв', t2: getStatus(order.status!), cxs: cxs),
               ],
             ),
           ],

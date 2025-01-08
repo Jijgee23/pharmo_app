@@ -7,6 +7,7 @@ class DMAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? leadingOnTap;
   final bool showIcon;
   final String title;
+  final List<Widget>? actions;
   final IconData? icon;
 
   const DMAppBar({
@@ -15,6 +16,7 @@ class DMAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showIcon = false,
     this.title = "",
     this.icon,
+    this.actions,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
 
   @override
@@ -30,6 +32,7 @@ class DMAppBar extends StatelessWidget implements PreferredSizeWidget {
           title,
           style: Constants.headerTextStyle,
         ),
+        actions: actions,
       ),
     );
   }
