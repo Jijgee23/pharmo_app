@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
 import 'package:pharmo_app/widgets/product/product_detail_page.dart';
@@ -77,7 +78,6 @@ class ProductWidget extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           overflow: TextOverflow.ellipsis,
                           fontSize: fontSize,
-                          // color: Colors.grey.shade700,
                         ),
                       ),
                     ),
@@ -146,7 +146,7 @@ class ProductWidget extends StatelessWidget {
               style: TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
-                  fontSize: fontSize),
+                  fontSize: Sizes.mediulFontSize * .9),
             ),
           ),
         ),

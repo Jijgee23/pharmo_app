@@ -25,20 +25,15 @@ void gotoRemoveUntil(Widget widget) {
 }
 
 back({Color? color}) {
-  return Container(
-    margin: EdgeInsets.all(Sizes.width * 0.02),
-    padding: EdgeInsets.all(Sizes.width * 0.01),
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      shape: BoxShape.circle,
-      boxShadow: [
-        // BoxShadow(blurRadius: 7, color: Colors.grey.shade300),
-      ],
-    ),
-    child: InkWell(
-      borderRadius: BorderRadius.circular(100),
-      splashColor: Colors.black.withOpacity(0.3),
-      onTap: () => Get.back(),
+  return InkWell(
+    borderRadius: BorderRadius.circular(100),
+    splashColor: Colors.black.withOpacity(0.3),
+    onTap: () => Get.back(),
+    child: Container(
+      margin: EdgeInsets.all(Sizes.width * 0.02),
+      padding: EdgeInsets.all(Sizes.width * 0.02),
+      decoration:
+          BoxDecoration(color: color ?? Colors.white, shape: BoxShape.circle),
       child: const Icon(
         Icons.chevron_left,
         color: Colors.black,

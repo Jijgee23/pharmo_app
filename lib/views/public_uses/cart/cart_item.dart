@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/bottomSheet/mySheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -228,6 +229,7 @@ class _CartItemState extends State<CartItem> {
 }
 
 class ChangeQtyPad extends StatefulWidget {
+  final String? title;
   final String initValue;
   final VoidCallback onSubmit;
 
@@ -235,6 +237,7 @@ class ChangeQtyPad extends StatefulWidget {
     super.key,
     required this.onSubmit,
     required this.initValue,
+    this.title,
   });
 
   @override
@@ -257,6 +260,16 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
     return Consumer<BasketProvider>(
       builder: (context, basket, child) => SheetContainer(
         children: [
+          if (widget.title != null && widget.title!.isNotEmpty)
+            Container(
+              alignment: Alignment.center,
+              child: Text(
+                widget.title!,
+                style: TextStyle(
+                    fontSize: Sizes.mediulFontSize,
+                    fontWeight: FontWeight.w700),
+              ),
+            ),
           Container(
             decoration: BoxDecoration(
                 border: Border.all(

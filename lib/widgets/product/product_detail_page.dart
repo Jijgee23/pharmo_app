@@ -14,6 +14,7 @@ import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class ProductDetail extends StatefulWidget {
@@ -75,33 +76,6 @@ class _ProductDetailState extends State<ProductDetail>
     setFetching(false);
   }
 
-  void addBasket() async {
-    try {
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
-      if (initQTY == 'Тоо ширхэг' || initQTY.isEmpty || initQTY == '') {
-        message('Тоон утга оруулна уу!');
-      } else if (int.parse(initQTY) <= 0) {
-        message('0 ба түүгээс бага байж болохгүй!');
-      } else {
-        Map<String, dynamic> res = await basketProvider.addBasket(
-            productId: widget.prod.id,
-            itemnameId: widget.prod.itemnameId,
-            qty: int.parse(initQTY));
-        if (res['errorType'] == 1) {
-          basketProvider.getBasket();
-          message('${widget.prod.name} сагсанд нэмэгдлээ.');
-          Navigator.pop(context);
-        } else {
-          message(res['message']);
-        }
-      }
-    } catch (e) {
-      print(e);
-      message('Алдаа гарлаа!');
-    }
-  }
-
   splitURL(String url) {
     List<String> strings = url.split('.');
     return strings;
@@ -117,7 +91,6 @@ class _ProductDetailState extends State<ProductDetail>
 
   @override
   Widget build(BuildContext context) {
-    final sh = MediaQuery.of(context).size.height;
     final size = MediaQuery.of(context).size;
     final theme = Theme.of(context);
     final div = Divider(color: theme.primaryColor, thickness: .7);
@@ -127,12 +100,13 @@ class _ProductDetailState extends State<ProductDetail>
           : Consumer<BasketProvider>(
               builder: (context, basket, child) => Scaffold(
                 appBar: CustomAppBar(
-                  leading: back(color: theme.primaryColor),
+                  leading: const ChevronBack(),
                   title: Text(
                     widget.prod.name.toString(),
+                    softWrap: true,
                     style: TextStyle(
                         color: theme.primaryColor,
-                        fontSize: sh * 0.012,
+                        fontSize: Sizes.smallFontSize * 1.2,
                         fontWeight: FontWeight.bold),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
@@ -148,8 +122,9 @@ class _ProductDetailState extends State<ProductDetail>
                           alignment: Alignment.topLeft,
                           child: Text(
                             '#${widget.prod.barcode.toString()}',
-                            style: const TextStyle(
-                                color: Colors.blueGrey, fontSize: 14),
+                            style: TextStyle(
+                                color: Colors.blueGrey,
+                                fontSize: Sizes.mediulFontSize),
                           ),
                         ),
                         div,
@@ -170,15 +145,17 @@ class _ProductDetailState extends State<ProductDetail>
                                 children: [
                                   Column(
                                     children: [
-                                      const Text(
+                                      Text(
                                         'Бөөний үнэ',
                                         style: TextStyle(
-                                            color: Colors.white, fontSize: 14),
+                                            color: Colors.white,
+                                            fontSize:
+                                                Sizes.smallFontSize * 1.2),
                                       ),
                                       Text(toPrice(['salePrice']),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               color: Colors.white,
-                                              fontSize: 12,
+                                              fontSize: Sizes.mediulFontSize,
                                               fontWeight: FontWeight.bold))
                                     ],
                                   ),
@@ -186,14 +163,13 @@ class _ProductDetailState extends State<ProductDetail>
                               ),
                               Column(
                                 children: [
-                                  const Text(
-                                    'Үндсэн үнэ',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
+                                  Text('Үндсэн үнэ',
+                                      style: TextStyle(
+                                          fontSize: Sizes.smallFontSize * 1.2)),
                                   Text(
                                     toPrice(widget.prod.price),
-                                    style: const TextStyle(
-                                        fontSize: 12,
+                                    style: TextStyle(
+                                        fontSize: Sizes.mediulFontSize,
                                         fontWeight: FontWeight.bold),
                                   )
                                 ],
@@ -294,44 +270,9 @@ class _ProductDetailState extends State<ProductDetail>
                   height: 70,
                   padding: EdgeInsets.symmetric(
                       vertical: 10, horizontal: Sizes.width * 0.03),
-                  width: double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      InkWell(
-                        onTap: () => Get.bottomSheet(ChangeQtyPad(
-                            onSubmit: () {
-                              setInitQyu(basket.qty.text);
-                              Navigator.pop(context);
-                            },
-                            initValue: '')),
-                        child: IntrinsicWidth(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 30,
-                                vertical: Sizes.height * 0.015),
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Text(
-                              initQTY,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: CustomButton(
-                          text: 'Сагсанд нэмэх',
-                          ontap: () => addBasket(),
-                        ),
-                      ),
-                    ],
+                  child: CustomButton(
+                    text: 'Сагсанд нэмэх',
+                    ontap: () => showSheet(basket),
                   ),
                 ),
               ),
@@ -339,9 +280,48 @@ class _ProductDetailState extends State<ProductDetail>
     );
   }
 
+  showSheet(BasketProvider basket) {
+    Get.bottomSheet(
+      ChangeQtyPad(
+        title: 'Тоо ширхэг оруулна уу?',
+        onSubmit: () async {
+          setInitQyu(basket.qty.text);
+          addBasket();
+        },
+        initValue: '0',
+      ),
+    );
+  }
+
+  void addBasket() async {
+    try {
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
+      if (initQTY == 'Тоо ширхэг' || initQTY.isEmpty || initQTY == '') {
+        message('Тоон утга оруулна уу!');
+      } else if (int.parse(initQTY) <= 0) {
+        message('0 ба түүгээс бага байж болохгүй!');
+      } else {
+        Map<String, dynamic> res = await basketProvider.addBasket(
+            productId: widget.prod.id,
+            itemnameId: widget.prod.itemnameId,
+            qty: int.parse(initQTY));
+        if (res['errorType'] == 1) {
+          basketProvider.getBasket();
+          message('${widget.prod.name} сагсанд нэмэгдлээ.');
+        } else {
+          message(res['message']);
+        }
+      }
+    } catch (e) {
+      print(e);
+      message('Алдаа гарлаа!');
+    }
+    Navigator.pop(context);
+  }
+
   myTab({String? title, required int index}) {
     bool selected = (index == tabController.index);
-    final sh = MediaQuery.of(context).size.height;
     final sw = MediaQuery.of(context).size.width;
     return InkWell(
       onTap: () => setState(() {
@@ -364,7 +344,7 @@ class _ProductDetailState extends State<ProductDetail>
             title!,
             style: TextStyle(
                 color: selected ? Colors.white : Colors.black,
-                fontSize: sh * 0.012),
+                fontSize: Sizes.smallFontSize * 1.2),
           ),
         ),
       ),
@@ -375,22 +355,14 @@ class _ProductDetailState extends State<ProductDetail>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.grey.shade800,
-            fontWeight: FontWeight.w700,
-            fontSize: fontsize,
-          ),
-        ),
-        Text(
-          text,
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: fontsize,
-          ),
-        ),
+        Text(title,
+            style: TextStyle(
+                color: Colors.grey.shade700, fontSize: Sizes.mediulFontSize)),
+        Text(text,
+            style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+                fontSize: Sizes.mediulFontSize)),
       ],
     );
   }

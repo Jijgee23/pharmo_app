@@ -9,24 +9,20 @@ class Ibtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(Sizes.width * 0.02),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(blurRadius: 7, color: Theme.of(context).shadowColor),
-        ],
-      ),
-      child: Center(
-        child: InkWell(
-          onTap: onTap,
-          child: Icon(
-            icon,
-            color: color ?? Colors.black,
-            size: 18,
-          ),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.all(Sizes.width * 0.02),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(blurRadius: 7, color: Theme.of(context).shadowColor),
+          ],
+        ),
+        child: Center(
+          child: Icon(icon, color: color ?? Colors.black, size: 18),
         ),
       ),
     );

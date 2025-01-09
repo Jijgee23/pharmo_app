@@ -36,57 +36,53 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             title: title,
             leading: leading,
             actions: [
-              Ibtn(
-                onTap: () {},
-                icon: Icons.notifications,
-                color: theme.primaryColor,
-              ),
-              Stack(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(right: 10),
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                            blurRadius: 7,
-                            color: Theme.of(context).shadowColor),
-                      ],
-                    ),
-                    child: Center(
-                      child: InkWell(
-                          onTap: () {
-                            homeprovider.changeIndex(
-                                homeprovider.userRole == 'PA' ? 1 : 2);
-                          },
-                          child: const Icon(
-                            Icons.shopping_cart,
-                            size: 18,
-                          )),
-                    ),
-                    // ),
-                  ),
-                  Positioned(
-                    right: 2,
-                    top: 2,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 2.5),
+              // Ibtn(
+              //   onTap: () {},
+              //   icon: Icons.notifications,
+              //   color: theme.primaryColor,
+              // ),
+              InkWell(
+                onTap: () {
+                  homeprovider
+                      .changeIndex(homeprovider.userRole == 'PA' ? 1 : 2);
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Text(
-                        basketProvider.basket.totalCount.toString(),
-                        style: const TextStyle(
-                            color: white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 7,
+                              color: Theme.of(context).shadowColor),
+                        ],
+                      ),
+                      child: const Center(
+                          child: Icon(Icons.shopping_cart, size: 18)),
+                    ),
+                    Positioned(
+                      right: 2,
+                      top: 2,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 2.5),
+                        decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Text(
+                          basketProvider.basket.totalCount.toString(),
+                          style: const TextStyle(
+                              color: white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

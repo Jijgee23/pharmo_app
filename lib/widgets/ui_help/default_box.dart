@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 
 class DefaultBox extends StatelessWidget {
   final String title;
@@ -27,7 +26,7 @@ class DefaultBox extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    back(color: white),
+                    const ChevronBack(),
                     Text(
                       title,
                       style: const TextStyle(
