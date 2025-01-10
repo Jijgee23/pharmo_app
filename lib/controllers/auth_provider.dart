@@ -344,6 +344,7 @@ class AuthController extends ChangeNotifier {
       NotificationServices notificationServices = NotificationServices();
       getFireBaseToken(await notificationServices.getDeviceToken());
       // getFireBaseToken(firebaseToken);
+      debugPrint('firebase token: $firebaseToken');
       return firebaseToken;
     } catch (e) {
       debugPrint('error getDeviceToken: $e');

@@ -1,6 +1,6 @@
 import UIKit
 import Flutter
-import Firebase
+// import FirebaseCore
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -11,9 +11,6 @@ import Firebase
     // FirebaseApp.configure()
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-   func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Messaging.messaging().apnsToken = deviceToken
   }
 }
 
