@@ -61,5 +61,12 @@
 	</array>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Your location allows you to view pharmacy shop in delivery range of your address </string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+<false/>
+<key>UIBackgroundModes</key>
+<array>
+    <string>fetch</string>
+    <string>remote-notification</string>
+</array>
 </dict>
 </plist>
