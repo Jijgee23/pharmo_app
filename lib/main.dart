@@ -10,6 +10,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/firebase_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
@@ -28,19 +29,19 @@ import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 
-@pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-}
+// @pragma('vm:entry-point')
+// Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   await Firebase.initializeApp();
+// }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  if (!kIsWeb) {
-    await setupFlutterNotifications();
-  }
+  await AuthController().initFirebase();
+  // if (!kIsWeb) {
+  //   await setupFlutterNotifications();
+  // }
   await Upgrader.clearSavedSettings();
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // await FirebaseApi.initNotification();
   await Hive.initFlutter();
   await dotenv.load(fileName: ".env");
@@ -59,6 +60,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => PromotionProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => ReportProvider()),
+        ChangeNotifierProvider(create: (_) => FireProvider())
       ],
       child: const MyApp(),
     ),
@@ -80,17 +82,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    super.initState();
     auth = Provider.of<AuthController>(context, listen: false);
     _openBox();
-    super.initState();
-    notificationServices.requestNotificationPermisions();
-    notificationServices.forgroundMessage();
-    notificationServices.firebaseInit(context);
-    notificationServices.setupInteractMessage(context);
-    notificationServices.isRefreshToken();
-    notificationServices.getDeviceToken().then((value) {
-      print(value);
-    });
+    auth.initScreen(context);
   }
 
   Future<void> _openBox() async {

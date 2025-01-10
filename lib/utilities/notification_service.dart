@@ -10,61 +10,64 @@ class NotificationServices {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  Future<String> getDeviceToken() async {
-    String? token = '';
-    if (Platform.isAndroid) {
-      token = await messaging.getToken();
-    } else {
-      token = await messaging.getAPNSToken();
-    }
-    return token!;
-  }
+  // Future<String> getDeviceToken() async {
+  //   String? token = '';
+  //   if (Platform.isAndroid) {
+  //     token = await messaging.getToken();
+  //   } else {
+  //     token = await messaging.getAPNSToken();
+  //   }
+  //   return token!;
+  // }
 
-  void isRefreshToken() async {
-    messaging.onTokenRefresh.listen((event) {
-      event.toString();
-      print('TOken Refereshed');
-    });
-  }
+  // void isRefreshToken() async {
+  //   messaging.onTokenRefresh.listen((event) {
+  //     event.toString();
+  //     print('TOken Refereshed');
+  //   });
+  // }
 
-  void requestNotificationPermisions() async {
-    if (Platform.isIOS) {
-      await messaging.requestPermission(
-          alert: true,
-          announcement: true,
-          badge: true,
-          carPlay: true,
-          criticalAlert: true,
-          provisional: true,
-          sound: true);
-    }
+  // void requestNotificationPermisions() async {
+  //   if (Platform.isIOS) {
+  //     await messaging.requestPermission(
+  //         alert: true,
+  //         announcement: true,
+  //         badge: true,
+  //         carPlay: true,
+  //         criticalAlert: true,
+  //         provisional: true,
+  //         sound: true);
+  //   }
 
-    NotificationSettings notificationSettings =
-        await messaging.requestPermission(
-            alert: true,
-            announcement: true,
-            badge: true,
-            carPlay: true,
-            criticalAlert: true,
-            provisional: true,
-            sound: true);
+  //   NotificationSettings notificationSettings =
+  //       await messaging.requestPermission(
+  //           alert: true,
+  //           announcement: true,
+  //           badge: true,
+  //           carPlay: true,
+  //           criticalAlert: true,
+  //           provisional: true,
+  //           sound: true);
 
-    if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.authorized) {
-      print('user is already granted permisions');
-    } else if (notificationSettings.authorizationStatus ==
-        AuthorizationStatus.provisional) {
-      print('user is already granted provisional permisions');
-    } else {
-      print('User has denied permission');
-    }
-  }
+  //   if (notificationSettings.authorizationStatus ==
+  //       AuthorizationStatus.authorized) {
+  //     print('user is already granted permisions');
+  //   } else if (notificationSettings.authorizationStatus ==
+  //       AuthorizationStatus.provisional) {
+  //     print('user is already granted provisional permisions');
+  //   } else {
+  //     print('User has denied permission');
+  //   }
+  // }
 
   // For IoS
   Future forgroundMessage() async {
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
-            alert: true, badge: true, sound: true);
+      alert: true,
+      badge: true,
+      sound: true,
+    );
   }
 
   void firebaseInit(BuildContext context) {
@@ -105,6 +108,7 @@ class NotificationServices {
 
   void handleMesssage(BuildContext context, RemoteMessage message) {
     print('In handleMesssage function');
+    print(message.data);
     if (message.data['type'] == 'text') {
       // redirect to new screen or take different action based on payload that you receive.
     }

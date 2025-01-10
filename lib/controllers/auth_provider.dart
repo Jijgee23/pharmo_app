@@ -4,13 +4,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/firebase_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
@@ -18,6 +22,9 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
+import 'package:pharmo_app/firebase_options.dart';
+import 'package:pharmo_app/global_key.dart';
+import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/utilities/notification_service.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
@@ -166,7 +173,7 @@ class AuthController extends ChangeNotifier {
 
   // Хэрэглэгчийн эрхээс хамаарч дэлгэц харуулах
   void _navigateBasedOnRole(String role) async {
-    await getDeviceToken();
+    // await getDeviceToken();
     await getDeviceInfo();
     gotoRemoveUntil(const IndexPharma());
     switch (role) {
@@ -333,23 +340,31 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  String firebaseToken = '';
-  getFireBaseToken(String newValue) {
-    firebaseToken = newValue;
-    notifyListeners();
+  // String firebaseToken = '';
+  // getFireBaseToken(String newValue) {
+  //   firebaseToken = newValue;
+  //   notifyListeners();
+  // }
+  getToken(BuildContext context) {
+    final firebaseProvider = Provider.of<FireProvider>(
+      context,
+      listen: false,
+    );
+    return firebaseProvider.firebaseToken;
   }
-
-  getDeviceToken() async {
-    try {
-      NotificationServices notificationServices = NotificationServices();
-      getFireBaseToken(await notificationServices.getDeviceToken());
-      // getFireBaseToken(firebaseToken);
-      debugPrint('firebase token: $firebaseToken');
-      return firebaseToken;
-    } catch (e) {
-      debugPrint('error getDeviceToken: $e');
-    }
-  }
+  // getDeviceToken() async {
+  //   try {
+  //     NotificationServices notificationServices = NotificationServices();
+  //     getFireBaseToken(await notificationServices.getDeviceToken());
+  //     // getFireBaseToken(firebaseToken);
+  //     message(firebaseToken);
+  //     debugPrint('firebase token: $firebaseToken');
+  //     return firebaseToken;
+  //   } catch (e) {
+  //     message('error getDeviceToken: $e');
+  //     debugPrint('error getDeviceToken: $e');
+  //   }
+  // }
 
   Future getDeviceInfo() async {
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
@@ -358,7 +373,7 @@ class AuthController extends ChangeNotifier {
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
         deviceData = {
-          "deviceId": firebaseToken,
+          "deviceId": setToken(await firebaseMessaging.getToken()),
           "platform": 'android',
           "brand": androidInfo.brand,
           "model": androidInfo.model,
@@ -369,7 +384,7 @@ class AuthController extends ChangeNotifier {
       } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
         deviceData = {
-          "deviceId": firebaseToken,
+          "deviceId": setToken(await firebaseMessaging.getToken()),
           "platform": "ios",
           "brand": "Apple",
           "model": iosInfo.name,
@@ -398,5 +413,172 @@ class AuthController extends ChangeNotifier {
     } catch (e) {
       debugPrint('$e');
     }
+  }
+
+  static FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  bool isFlutterLocalNotificationsInitialized = false;
+  String firebaseToken = 'noToken';
+  setToken(String? n) {
+    firebaseToken = n!;
+    notifyListeners();
+    return firebaseToken;
+  }
+
+  Future initFirebase() async {
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
+    requestNotificationPermisions();
+    setToken(await firebaseMessaging.getToken());
+  }
+
+  void initScreen(BuildContext context) {
+    forgroundMessage();
+    firebaseInit(context);
+    setupInteractMessage(context);
+  }
+
+  void requestNotificationPermisions() async {
+    if (Platform.isIOS) {
+      await firebaseMessaging.requestPermission(
+        alert: true,
+        announcement: true,
+        badge: true,
+        carPlay: true,
+        criticalAlert: true,
+        provisional: true,
+        sound: true,
+      );
+    }
+
+    NotificationSettings notificationSettings =
+        await firebaseMessaging.requestPermission(
+      alert: true,
+      announcement: true,
+      badge: true,
+      carPlay: true,
+      criticalAlert: true,
+      provisional: true,
+      sound: true,
+    );
+
+    if (notificationSettings.authorizationStatus ==
+        AuthorizationStatus.authorized) {
+    } else if (notificationSettings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
+    } else {
+      print('User has denied permission');
+    }
+  }
+
+  Future<void> showNotification(RemoteMessage message) async {
+    AndroidNotificationChannel androidNotificationChannel =
+        AndroidNotificationChannel(
+      message.notification!.android!.channelId.toString(),
+      message.notification!.android!.channelId.toString(),
+      importance: Importance.max,
+      showBadge: true,
+      playSound: true,
+    );
+
+    AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+      androidNotificationChannel.id.toString(),
+      androidNotificationChannel.name.toString(),
+      channelDescription: 'Flutter Notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      ticker: 'ticker',
+      sound: androidNotificationChannel.sound,
+    );
+
+    const DarwinNotificationDetails darwinNotificationDetails =
+        DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    NotificationDetails notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+      iOS: darwinNotificationDetails,
+    );
+
+    Future.delayed(
+      Duration.zero,
+      () {
+        flutterLocalNotificationsPlugin.show(
+          0,
+          message.notification!.title.toString(),
+          message.notification!.body.toString(),
+          notificationDetails,
+        );
+      },
+    );
+  }
+
+  void firebaseInit(BuildContext context) {
+    FirebaseMessaging.onMessage.listen((message) {
+      RemoteNotification? notification = message.notification;
+      // AndroidNotification? android = message.notification!.android;
+
+      print("Notification title: ${notification!.title}");
+      print("Notification title: ${notification.body}");
+      print("Data: ${message.data.toString()}");
+
+      // For IoS
+      if (Platform.isIOS) {
+        forgroundMessage();
+      }
+
+      if (Platform.isAndroid) {
+        initLocalNotifications(context, message);
+        showNotification(message);
+      }
+    });
+  }
+
+  Future forgroundMessage() async {
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  }
+
+  void initLocalNotifications(
+      BuildContext context, RemoteMessage message) async {
+    var androidInitSettings =
+        const AndroidInitializationSettings('@mipmap/launcher_icon');
+    var iosInitSettings = const DarwinInitializationSettings();
+
+    var initSettings = InitializationSettings(
+        android: androidInitSettings, iOS: iosInitSettings);
+
+    await flutterLocalNotificationsPlugin.initialize(initSettings,
+        onDidReceiveNotificationResponse: (payload) {
+      handleMesssage(context, message);
+    });
+  }
+
+  void handleMesssage(BuildContext context, RemoteMessage message) {
+    print('In handleMesssage function');
+    print(message.data);
+    if (message.data['type'] == 'text') {}
+  }
+
+  Future<void> setupInteractMessage(BuildContext context) async {
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      handleMesssage(context, initialMessage);
+    }
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      handleMesssage(context, event);
+    });
   }
 }
