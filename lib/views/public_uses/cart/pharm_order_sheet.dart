@@ -50,8 +50,16 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     });
   }
 
-  List<String> payTypes = ['Дансаар', 'Бэлнээр', 'Зээлээр'];
-  List<String> payS = ['T', 'C', 'L'];
+  List<String> payTypes = [
+    // 'Дансаар',
+    'Бэлнээр',
+    'Зээлээр'
+  ];
+  List<String> payS = [
+    // 'T',
+    'C',
+    'L',
+  ];
 
   List<String> deliveryTypes = ['Очиж авах', 'Хүргэлтээр'];
   List<String> delS = ['N', 'D'];
@@ -146,14 +154,14 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     showMenu(
       color: Colors.white,
       context: context,
-      position: const RelativeRect.fromLTRB(0, 500, 0, 0),
+      position: RelativeRect.fromLTRB(Sizes.width * .7, 500, 20, 0),
       items: homeProvider.branches
           .map(
             (e) => PopupMenuItem(
               onTap: () => setBranch(e.name!, e.id),
               child: Row(
                 children: [
-                  Text(e.name!),
+                  Text(e.name!, style: const TextStyle(color: Colors.black)),
                 ],
               ),
             ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/widgets/inputs/ibtn.dart';
 import 'package:provider/provider.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

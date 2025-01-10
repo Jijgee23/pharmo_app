@@ -70,7 +70,7 @@ convertData(http.Response body) {
 getApiInformation(String endPoint, http.Response response) {
   try {
     debugPrint(
-        '$endPoint, status: ${response.statusCode},\n body; ${convertData(response)}');
+        '$endPoint, status: ${response.statusCode},\n body; ${response.body}');
   } catch (e) {
     debugPrint('ERROR at $endPoint : $e');
   }
@@ -79,21 +79,15 @@ getApiInformation(String endPoint, http.Response response) {
 apiGet(String endPoint) async {
   http.Response response = await http.get(
     setUrl(endPoint),
-    headers: getHeader(
-      await getAccessToken(),
-    ),
+    headers: getHeader(await getAccessToken()),
   );
-
   getApiInformation(endPoint, response);
   return response;
 }
 
 apiPost(String endPoint, Object? body) async {
-  http.Response response = await http.post(
-    setUrl(endPoint),
-    headers: getHeader(await getAccessToken()),
-    body: body,
-  );
+  http.Response response = await http.post(setUrl(endPoint),
+      headers: getHeader(await getAccessToken()), body: body);
   getApiInformation(endPoint, response);
   return response;
 }

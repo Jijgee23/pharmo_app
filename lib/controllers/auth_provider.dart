@@ -166,6 +166,8 @@ class AuthController extends ChangeNotifier {
 
   // Хэрэглэгчийн эрхээс хамаарч дэлгэц харуулах
   void _navigateBasedOnRole(String role) async {
+    await getDeviceToken();
+    await getDeviceInfo();
     gotoRemoveUntil(const IndexPharma());
     switch (role) {
       case 'S':
@@ -180,8 +182,6 @@ class AuthController extends ChangeNotifier {
       default:
         message('Веб хуудсаар хандана уу');
     }
-    await getDeviceToken();
-    await getDeviceInfo();
   }
 
   //Токен шинэчлэх
@@ -207,7 +207,7 @@ class AuthController extends ChangeNotifier {
   Future<void> logout() async {
     try {
       final response = await http.post(
-        setUrl('auth/logout'),
+        setUrl('auth/logout/'),
         headers: getHeader(await getAccessToken()),
       );
       if (response.statusCode == 200) {
@@ -341,12 +341,10 @@ class AuthController extends ChangeNotifier {
 
   getDeviceToken() async {
     try {
-      String? deviceToken = '';
       NotificationServices notificationServices = NotificationServices();
-      deviceToken = await notificationServices.getDeviceToken();
-      print(
-          'DEVICE TOKEN-----------------------------$deviceToken------------------------');
-      return deviceToken;
+      getFireBaseToken(await notificationServices.getDeviceToken());
+      // getFireBaseToken(firebaseToken);
+      return firebaseToken;
     } catch (e) {
       debugPrint('error getDeviceToken: $e');
     }
@@ -379,21 +377,18 @@ class AuthController extends ChangeNotifier {
           "osVersion": iosInfo.systemVersion,
         };
       }
-      print('deviceData: $deviceData');
-      final response = await apiPost(
-        'device_id',
-        jsonEncode(
-          {
-            'deviceId': deviceData['deviceId'],
-            'platform': deviceData['platform'],
-            'brand': deviceData['brand'],
-            'model': deviceData['model'],
-            'modelVersion': deviceData['modelVersion'],
-            'os': deviceData['os'],
-            'osVersion': deviceData['osVersion'],
-          },
-        ),
+      final data = jsonEncode(
+        {
+          'deviceId': deviceData['deviceId'],
+          'platform': deviceData['platform'],
+          'brand': deviceData['brand'],
+          'model': deviceData['model'],
+          'modelVersion': deviceData['modelVersion'],
+          'os': deviceData['os'],
+          'osVersion': deviceData['osVersion']
+        },
       );
+      http.Response response = await apiPost('device_id/', data);
       if (response.statusCode == 200) {
         debugPrint('Device info sent');
       } else {
