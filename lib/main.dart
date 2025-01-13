@@ -6,7 +6,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/firebase_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
@@ -19,7 +18,6 @@ import 'package:pharmo_app/global_key.dart';
 import 'package:pharmo_app/theme/dark_theme.dart';
 import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
-import 'package:pharmo_app/utilities/notification_service.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
@@ -45,7 +43,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => PromotionProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => ReportProvider()),
-        ChangeNotifierProvider(create: (_) => FireProvider())
+        // ChangeNotifierProvider(create: (_) => FireProvider())
       ],
       child: const MyApp(),
     ),
@@ -63,14 +61,12 @@ class _MyAppState extends State<MyApp> {
   late AuthController auth;
   late Box box;
   bool isSplashed = false;
-  NotificationServices notificationServices = NotificationServices();
 
   @override
   void initState() {
     super.initState();
     auth = Provider.of<AuthController>(context, listen: false);
     _openBox();
-    // auth.initScreen(context);
   }
 
   Future<void> _openBox() async {

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pharmo_app/firebase_options.dart';
 
@@ -87,7 +88,7 @@ class FirebaseApi {
       return token;
     } else {
       String? apnsToken = await firebaseMessaging.getAPNSToken();
-      await Future.delayed(const Duration(seconds: 2)); // Added await here
+      await Future.delayed(const Duration(seconds: 2));
       if (apnsToken!.isNotEmpty) {
         token = await firebaseMessaging.getToken();
         return token;
@@ -95,5 +96,105 @@ class FirebaseApi {
         return '';
       }
     }
+  }
+
+  void firebaseInit(BuildContext context) {
+    FirebaseMessaging.onMessage.listen((message) {
+      RemoteNotification? notification = message.notification;
+      // AndroidNotification? android = message.notification!.android;
+
+      print("Notification title: ${notification!.title}");
+      print("Notification title: ${notification.body}");
+      print("Data: ${message.data.toString()}");
+
+      // For IoS
+      if (Platform.isIOS) {
+        forgroundMessage();
+      }
+
+      if (Platform.isAndroid) {
+        initLocalNotifications(context, message);
+        showNotification(message);
+      }
+    });
+  }
+
+  Future forgroundMessage() async {
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  }
+
+  void initLocalNotifications(
+      BuildContext context, RemoteMessage message) async {
+    var androidInitSettings =
+        const AndroidInitializationSettings('@mipmap/launcher_icon');
+    var iosInitSettings = const DarwinInitializationSettings();
+
+    var initSettings = InitializationSettings(
+        android: androidInitSettings, iOS: iosInitSettings);
+
+    await flutterLocalNotificationsPlugin.initialize(initSettings,
+        onDidReceiveNotificationResponse: (payload) {
+      handleMesssage(context, message);
+    });
+  }
+
+  void handleMesssage(BuildContext context, RemoteMessage message) {
+    print('In handleMesssage function');
+    print(message.data);
+    if (message.data['type'] == 'text') {
+      // redirect to new screen or take different action based on payload that you receive.
+    }
+  }
+
+  Future<void> showNotification(RemoteMessage message) async {
+    AndroidNotificationChannel androidNotificationChannel =
+        AndroidNotificationChannel(
+      message.notification!.android!.channelId.toString(),
+      message.notification!.android!.channelId.toString(),
+      importance: Importance.max,
+      showBadge: true,
+      playSound: true,
+    );
+
+    AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+      androidNotificationChannel.id.toString(),
+      androidNotificationChannel.name.toString(),
+      channelDescription: 'Flutter Notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      ticker: 'ticker',
+      sound: androidNotificationChannel.sound,
+    );
+
+    const DarwinNotificationDetails darwinNotificationDetails =
+        DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    NotificationDetails notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+      iOS: darwinNotificationDetails,
+    );
+
+    Future.delayed(
+      Duration.zero,
+      () {
+        flutterLocalNotificationsPlugin.show(
+          0,
+          message.notification!.title.toString(),
+          message.notification!.body.toString(),
+          notificationDetails,
+        );
+      },
+    );
   }
 }

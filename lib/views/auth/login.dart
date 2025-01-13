@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/global_key.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
@@ -13,10 +12,10 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:provider/provider.dart';
 import 'package:hive/hive.dart';
 import 'package:restart_app/restart_app.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
 
 class LoginPage extends StatefulWidget {
@@ -34,8 +33,16 @@ class _LoginPageState extends State<LoginPage> {
   final FocusNode password = FocusNode();
   bool hover = false;
   late Box box1;
+
   //codepush
   final _updater = ShorebirdUpdater();
+  bool isDownloading = false;
+  setIsDownloading(bool n) {
+    setState(() {
+      isDownloading = n;
+    });
+  }
+
   late final bool isUpdaterAvailable;
   var currentTrack = UpdateTrack.stable;
   var _isCheckingForUpdates = false;
@@ -76,14 +83,10 @@ class _LoginPageState extends State<LoginPage> {
     try {
       setState(() => _isCheckingForUpdates = true);
       final status = await _updater.checkForUpdate(track: currentTrack);
-      if (!mounted) return;
-      switch (status) {
-        case UpdateStatus.upToDate:
-        case UpdateStatus.outdated:
-          await _downloadUpdate();
-        case UpdateStatus.restartRequired:
-          await _restartBanner();
-        case UpdateStatus.unavailable:
+      if (status == UpdateStatus.outdated) {
+        _downloadUpdate().then((e) => _restartBanner());
+      } else if (status == UpdateStatus.restartRequired) {
+        _restartBanner();
       }
     } catch (error) {
       debugPrint('Error checking for update: $error');
@@ -93,24 +96,12 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _downloadUpdate() async {
-    // final status = await _updater.checkForUpdate(track: currentTrack);
     try {
-      //  await _updater.update(track: currentTrack);
-      // _restartBanner();
-      // if (!mounted) return;
-      await _updater.update(track: currentTrack).then((e) {
-        _restartBanner();
-      });
+      await _updater.update(track: currentTrack);
       if (!mounted) return;
-
-      // _restartBanner();
     } on UpdateException catch (error) {
       debugPrint(error.toString());
     }
-    // message('Шинэчлэлт татагдлаа');
-    // if (status == UpdateStatus.restartRequired) {
-    //   await _restartBanner();
-    // }
   }
 
   Future<void> _restartBanner() async {
@@ -200,8 +191,6 @@ class _LoginPageState extends State<LoginPage> {
                         }
                       },
                       keyboardType: TextInputType.emailAddress,
-                      // onSubmitted: (p0) =>
-                      //     FocusScope.of(context).requestFocus(password),
                     ),
                     CustomTextField(
                       autofillHints: const [AutofillHints.password],
@@ -249,39 +238,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     CustomButton(
                       text: 'Нэвтрэх',
-                      ontap: () async {
-                        await _checkForUpdate();
-                        //print(FirebaseApi.getToken());
-                        // await FirebaseMessaging.instance.getAPNSToken();
-                        String? s =
-                            await FirebaseMessaging.instance.getAPNSToken();
-                            String? aa = await FirebaseMessaging.instance.getToken();
-                            print(aa?? 'nulllllll');
-
-                        if (s!=null) {
-                          print('not empty');
-                          String? ut =
-                              await FirebaseMessaging.instance.getToken();
-                          print(ut);
-                        }
-                        else {
-                          print('null bna');
-                        }
-                        // await Future.delayed(const Duration(seconds: 2));
-                        //FirebaseMessaging.instance.getToken().then((e) => print('e====> $e'));
-                        //if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
-                        //  await authController
-                        //     .login(ema.text, pass.text, context)
-                        //     .whenComplete(() async {
-                        //   if (rememberMe) {r
-                        //     await box1.put('email', ema.text);
-                        //     await box1.put('password', pass.text);
-                        //    }
-                        //  });
-                        //   } else {
-                        //     message('Нэврэх нэр, нууц үг оруулна уу');
-                        //  }
-                      },
+                      ontap: () => _handleLogin(authController),
                       child: logging
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -316,6 +273,14 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
+                    if (_isCheckingForUpdates)
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SmallText('Шинэчлэлт шалгаж байна'),
+                          CircularProgressIndicator.adaptive(),
+                        ],
+                      )
                   ],
                 ),
               ),
@@ -334,6 +299,20 @@ class _LoginPageState extends State<LoginPage> {
             )
           : const SizedBox(),
     );
+  }
+
+  _handleLogin(AuthController auth) async {
+    await _checkForUpdate();
+    if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
+      await auth.login(ema.text, pass.text, context).whenComplete(() async {
+        if (rememberMe) {
+          await box1.put('email', ema.text);
+          await box1.put('password', pass.text);
+        }
+      });
+    } else {
+      message('Нэврэх нэр, нууц үг оруулна уу');
+    }
   }
 }
 

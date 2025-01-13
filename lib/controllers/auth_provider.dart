@@ -4,17 +4,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/firebase_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
@@ -22,10 +19,6 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/firebase_options.dart';
-import 'package:pharmo_app/global_key.dart';
-import 'package:pharmo_app/utilities/firebase_api.dart';
-import 'package:pharmo_app/utilities/notification_service.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
@@ -154,11 +147,12 @@ class AuthController extends ChangeNotifier {
 
   // Нэвтрэх амжилтгүй
   void _handleBadRequest(Map<String, dynamic> res, String email) {
+    if (checker(res, 'noCmp')) {
+      goto(Container());
+    }
     if (checker(res, 'no_password')) {
       Get.bottomSheet(CreatePassDialog(email: email));
-    } else if (checker(res, 'noCmp') ||
-        checker(res, 'noLic') ||
-        checker(res, 'noLoc')) {
+    } else if (checker(res, 'noLic') || checker(res, 'noLoc')) {
       message('Веб хуудсаар хандан бүртгэл гүйцээнэ үү!');
     } else if (checker(res, 'noRev')) {
       message('Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!');
@@ -340,35 +334,35 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  
-
   Future getDeviceInfo() async {
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
+    String token = await getToken();
+    print('DEVICE TOKEN =====> $token');
     try {
-      // if (Platform.isAndroid) {
-      //   AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
-      //   deviceData = {
-      //     "deviceId": setToken(await firebaseMessaging.getToken()),
-      //     "platform": 'android',
-      //     "brand": androidInfo.brand,
-      //     "model": androidInfo.model,
-      //     "modelVersion": androidInfo.device,
-      //     "os": Platform.operatingSystem,
-      //     "osVersion": Platform.operatingSystemVersion,
-      //   };
-      // } else if (Platform.isIOS) {
-      //   IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
-      //   deviceData = {
-      //    "deviceId": setToken(await firebaseMessaging.getToken()),
-      //     "platform": "ios",
-      //     "brand": "Apple",
-      //     "model": iosInfo.name,
-      //     "modelVersion": iosInfo.utsname.machine,
-      //     "os": "iOS",
-      //     "osVersion": iosInfo.systemVersion,
-      //   };
-      // }
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
+        deviceData = {
+          "deviceId": token,
+          "platform": 'android',
+          "brand": androidInfo.brand,
+          "model": androidInfo.model,
+          "modelVersion": androidInfo.device,
+          "os": Platform.operatingSystem,
+          "osVersion": Platform.operatingSystemVersion,
+        };
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
+        deviceData = {
+          "deviceId": token,
+          "platform": "ios",
+          "brand": "Apple",
+          "model": iosInfo.name,
+          "modelVersion": iosInfo.utsname.machine,
+          "os": "iOS",
+          "osVersion": iosInfo.systemVersion,
+        };
+      }
       final data = jsonEncode(
         {
           'deviceId': deviceData['deviceId'],
@@ -388,6 +382,15 @@ class AuthController extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('$e');
+    }
+  }
+
+  Future<String> getToken() async {
+    if (Platform.isAndroid) {
+      return await FirebaseMessaging.instance.getToken() ?? '';
+    } else {
+      await FirebaseMessaging.instance.getAPNSToken();
+      return await FirebaseMessaging.instance.getToken() ?? '';
     }
   }
 }
