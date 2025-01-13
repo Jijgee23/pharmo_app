@@ -2,9 +2,11 @@
 
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:pharmo_app/firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -63,35 +65,35 @@ void showFlutterNotification(RemoteMessage message) {
 
 class FirebaseApi {
   static FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-  // final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-  //     FlutterLocalNotificationsPlugin();
-  static Future<void> initNotification() async {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  static Future initFirebase() async {
     try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       await firebaseMessaging.requestPermission();
-      if (Platform.isAndroid) {
-        String deviceToken = await firebaseMessaging.getToken() ?? '';
-      } else {
-        String deviceToken = await firebaseMessaging.getAPNSToken() ?? '';
-      }
-
-      // print(deviceToken);
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-      if (!kIsWeb) {
-        await setupFlutterNotifications();
-      }
+      await setupFlutterNotifications();
     } catch (e) {
       debugPrint(e.toString());
     }
   }
 
-  Future<String> getDeviceToken() async {
-    String? token = await firebaseMessaging.getToken();
-    return token!;
-  }
-
-  void isRefreshToken() async {
-    firebaseMessaging.onTokenRefresh.listen((e) {
-      e.toString();
-    });
+  static Future<String?> getToken() async {
+    String? token;
+    if (Platform.isAndroid) {
+      token = await firebaseMessaging.getToken();
+      return token;
+    } else {
+      String? apnsToken = await firebaseMessaging.getAPNSToken();
+      await Future.delayed(const Duration(seconds: 2)); // Added await here
+      if (apnsToken!.isNotEmpty) {
+        token = await firebaseMessaging.getToken();
+        return token;
+      } else {
+        return '';
+      }
+    }
   }
 }

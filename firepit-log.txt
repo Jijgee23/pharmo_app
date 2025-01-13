@@ -10,7 +10,7 @@ Checking for npm/bin/npm-cli install at /Users/admin/.cache/firebase/tools/lib/n
 Checking for npm/bin/npm-cli install at /Users/admin/.cache/firebase/tools/node_modules/npm/bin/npm-cli
 Checking for npm/bin/npm-cli install at /snapshot/firepit/node_modules/npm/bin/npm-cli
 Found npm/bin/npm-cli install.
-ShellJSInternalError: ENOENT: no such file or directory, unlink '/Users/admin/.cache/firebase/runtime/npm'
+ShellJSInternalError: ENOENT: no such file or directory, unlink '/Users/admin/.cache/firebase/runtime/npmrc'
 Runtime binaries created.
 /usr/local/bin/firebase
 /usr/local/bin/firebase,/snapshot/firepit/firepit.js,--version

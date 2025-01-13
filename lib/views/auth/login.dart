@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/global_key.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
@@ -15,6 +16,7 @@ import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:provider/provider.dart';
 import 'package:hive/hive.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
 
 class LoginPage extends StatefulWidget {
@@ -249,18 +251,36 @@ class _LoginPageState extends State<LoginPage> {
                       text: 'Нэвтрэх',
                       ontap: () async {
                         await _checkForUpdate();
-                        if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
-                          await authController
-                              .login(ema.text, pass.text, context)
-                              .whenComplete(() async {
-                            if (rememberMe) {
-                              await box1.put('email', ema.text);
-                              await box1.put('password', pass.text);
-                            }
-                          });
-                        } else {
-                          message('Нэврэх нэр, нууц үг оруулна уу');
+                        //print(FirebaseApi.getToken());
+                        // await FirebaseMessaging.instance.getAPNSToken();
+                        String? s =
+                            await FirebaseMessaging.instance.getAPNSToken();
+                            String? aa = await FirebaseMessaging.instance.getToken();
+                            print(aa?? 'nulllllll');
+
+                        if (s!=null) {
+                          print('not empty');
+                          String? ut =
+                              await FirebaseMessaging.instance.getToken();
+                          print(ut);
                         }
+                        else {
+                          print('null bna');
+                        }
+                        // await Future.delayed(const Duration(seconds: 2));
+                        //FirebaseMessaging.instance.getToken().then((e) => print('e====> $e'));
+                        //if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
+                        //  await authController
+                        //     .login(ema.text, pass.text, context)
+                        //     .whenComplete(() async {
+                        //   if (rememberMe) {r
+                        //     await box1.put('email', ema.text);
+                        //     await box1.put('password', pass.text);
+                        //    }
+                        //  });
+                        //   } else {
+                        //     message('Нэврэх нэр, нууц үг оруулна уу');
+                        //  }
                       },
                       child: logging
                           ? Row(

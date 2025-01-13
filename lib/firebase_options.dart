@@ -5,10 +5,22 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
+///
+/// Example:
+/// ```dart
+/// import 'firebase_options.dart';
+/// // ...
+/// await Firebase.initializeApp(
+///   options: DefaultFirebaseOptions.currentPlatform,
+/// );
+/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -37,15 +49,6 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAlZO5jGh_KiZCjbOEDF8xXSiUI6RHx5qQ',
-    appId: '1:620995763880:web:f124aec3d6f1875f05ec9d',
-    messagingSenderId: '620995763880',
-    projectId: 'fcm-pharmo',
-    authDomain: 'fcm-pharmo.firebaseapp.com',
-    storageBucket: 'fcm-pharmo.firebasestorage.app',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAGC_D61SrEpsw9ztwPD2PQiWfm6rtsb3A',
     appId: '1:620995763880:android:198720fd6fe5406a05ec9d',
@@ -63,4 +66,3 @@ class DefaultFirebaseOptions {
     iosBundleId: 'mn.infosystems.pharmo',
   );
 }
-
