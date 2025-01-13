@@ -370,29 +370,29 @@ class AuthController extends ChangeNotifier {
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
     try {
-      if (Platform.isAndroid) {
-        AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
-        deviceData = {
-          "deviceId": setToken(await firebaseMessaging.getToken()),
-          "platform": 'android',
-          "brand": androidInfo.brand,
-          "model": androidInfo.model,
-          "modelVersion": androidInfo.device,
-          "os": Platform.operatingSystem,
-          "osVersion": Platform.operatingSystemVersion,
-        };
-      } else if (Platform.isIOS) {
-        IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
-        deviceData = {
-          "deviceId": setToken(await firebaseMessaging.getToken()),
-          "platform": "ios",
-          "brand": "Apple",
-          "model": iosInfo.name,
-          "modelVersion": iosInfo.utsname.machine,
-          "os": "iOS",
-          "osVersion": iosInfo.systemVersion,
-        };
-      }
+      // if (Platform.isAndroid) {
+      //   AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
+      //   deviceData = {
+      //     "deviceId": setToken(await firebaseMessaging.getToken()),
+      //     "platform": 'android',
+      //     "brand": androidInfo.brand,
+      //     "model": androidInfo.model,
+      //     "modelVersion": androidInfo.device,
+      //     "os": Platform.operatingSystem,
+      //     "osVersion": Platform.operatingSystemVersion,
+      //   };
+      // } else if (Platform.isIOS) {
+      //   IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
+      //   deviceData = {
+      //    "deviceId": setToken(await firebaseMessaging.getToken()),
+      //     "platform": "ios",
+      //     "brand": "Apple",
+      //     "model": iosInfo.name,
+      //     "modelVersion": iosInfo.utsname.machine,
+      //     "os": "iOS",
+      //     "osVersion": iosInfo.systemVersion,
+      //   };
+      // }
       final data = jsonEncode(
         {
           'deviceId': deviceData['deviceId'],
@@ -431,6 +431,7 @@ class AuthController extends ChangeNotifier {
         options: DefaultFirebaseOptions.currentPlatform);
     requestNotificationPermisions();
     setToken(await firebaseMessaging.getToken());
+    print(await firebaseMessaging.getAPNSToken());
   }
 
   void initScreen(BuildContext context) {
