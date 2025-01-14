@@ -3,6 +3,7 @@ class Product {
   String? expDate;
   String? discountExpireddate;
   String? name;
+  int? qty;
   double? price;
   int? itemnameId;
   String? barcode;
@@ -22,31 +23,30 @@ class Product {
   List<dynamic>? images;
   String? image;
 
-
   Product(
-    this.id,
-    this.expDate,
-    this.discountExpireddate,
-    this.name,
-    this.price,
-    this.itemnameId,
-    this.barcode,
-    this.salePrice,
-    this.saleQty,
-    this.discount,
-    this.inStock,
-    this.intName,
-    this.description,
-    this.createdAt,
-    this.modifiedAt,
-    this.mohs,
-    this.supplier,
-    this.mnfr,
-    this.vndr,
-    this.category,
-    this.images,
-    this.image
-  );
+      this.id,
+      this.expDate,
+      this.discountExpireddate,
+      this.name,
+      this.price,
+      this.itemnameId,
+      this.barcode,
+      this.salePrice,
+      this.saleQty,
+      this.discount,
+      this.inStock,
+      this.intName,
+      this.description,
+      this.createdAt,
+      this.modifiedAt,
+      this.mohs,
+      this.supplier,
+      this.mnfr,
+      this.vndr,
+      this.category,
+      this.images,
+      this.image,
+      this.qty);
 
   Product.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -70,6 +70,7 @@ class Product {
         vndr = json['vndr'],
         images = json['images'],
         image = json['image'],
+        qty = json['qty'],
         category = json['category'];
 
   Map<String, dynamic> toJson() {

@@ -27,7 +27,8 @@ class ProductWidget extends StatelessWidget {
     double height = MediaQuery.of(context).size.height;
     double fontSize = height * 0.0135;
     final theme = Theme.of(context);
-    return Consumer<HomeProvider>(builder: (context, value, child) {
+    return Consumer<HomeProvider>(builder: (context, home, child) {
+      bool isNotPharm = (home.userRole != 'PA');
       return InkWell(
         onTap: () => goto(ProductDetail(prod: item)),
         child: Stack(
@@ -59,28 +60,41 @@ class ProductWidget extends StatelessWidget {
                       fontSize: fontSize,
                     ),
                   ),
-                  InkWell(
-                    onTap: () => Get.bottomSheet(AddBasketSheet(product: item)),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 10),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(
-                            color: const Color.fromARGB(255, 207, 206, 206),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        onTap: () =>
+                            Get.bottomSheet(AddBasketSheet(product: item)),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 10),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                color: const Color.fromARGB(255, 207, 206, 206),
+                              ),
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Text(
+                            'Сагсанд нэмэх',
+                            softWrap: true,
+                            style: TextStyle(
+                              color: theme.primaryColor,
+                              fontWeight: FontWeight.w700,
+                              overflow: TextOverflow.ellipsis,
+                              fontSize: fontSize,
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Text(
-                        'Сагсанд нэмэх',
-                        softWrap: true,
-                        style: TextStyle(
-                          color: theme.primaryColor,
-                          fontWeight: FontWeight.w700,
-                          overflow: TextOverflow.ellipsis,
-                          fontSize: fontSize,
                         ),
                       ),
-                    ),
+                      if (isNotPharm)
+                        Text(
+                          'Үлд: ${maybeNull(item.qty.toString())}',
+                          style: TextStyle(
+                              color: theme.colorScheme.onPrimary,
+                              fontWeight: FontWeight.bold),
+                        )
+                    ],
                   ),
                 ],
               ),
@@ -144,9 +158,10 @@ class ProductWidget extends StatelessWidget {
             child: Text(
               toPrice(item.price),
               style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                  fontSize: Sizes.mediulFontSize * .9),
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+                fontSize: Sizes.mediulFontSize * .9,
+              ),
             ),
           ),
         ),
@@ -165,6 +180,7 @@ class ProductWidgetListView extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     final fs = height * .013;
     final theme = Theme.of(context);
+    final home = Provider.of<HomeProvider>(context, listen: false);
     return InkWell(
       onTap: () => goto(ProductDetail(prod: item)),
       child: AnimatedContainer(
@@ -192,15 +208,29 @@ class ProductWidgetListView extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
-                  Text(
-                    toPrice(item.price!),
-                    softWrap: true,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.secondary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: fs,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          toPrice(item.price!),
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppColors.secondary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: fs,
+                          ),
+                        ),
+                      ),
+                      if (home.userRole != 'PA')
+                        Expanded(
+                            child: Text(
+                          'Үлд: ${maybeNull(item.qty.toString())}',
+                          style: TextStyle(
+                              color: theme.colorScheme.onPrimary,
+                              fontWeight: FontWeight.bold),
+                        ))
+                    ],
                   ),
                 ],
               ),

@@ -23,3 +23,5 @@ final defaultDecoration = BoxDecoration(
     Sizes.smallFontSize,
   ),
 );
+
+final ctx = GlobalKeys.navigatorKey.currentState!.context;

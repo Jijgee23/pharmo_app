@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/select_location.dart';
@@ -63,7 +64,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
 
   void _removeImage() {
     setState(() {
-      image = null; // Clear the image variable
+      image = null;
     });
   }
 
@@ -157,8 +158,9 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     );
   }
 
-  _registerComplete() {
+  _registerComplete() async {
     final auth = Provider.of<AuthController>(context, listen: false);
+    final home = Provider.of<HomeProvider>(context, listen: false);
 
     if (rd.text.isEmpty || name.text.isEmpty) {
       message('Талбарууд бөглөнө үү');
@@ -168,14 +170,21 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
       } else if (selectedType == "Чиглэл") {
         message('Байгууллагын чиглэлээ сонгоно уу!');
       } else {
-        auth.completeRegistration(
+        dynamic res = await auth.completeRegistration(
           ema: widget.ema,
           pass: widget.pass,
           name: name.text,
           rd: rd.text,
           type: selectedType,
-          special: image!,
+          license: image!,
+          lat: home.selectedLoc!.latitude,
+          lng: home.selectedLoc!.longitude,
+          logo: logo,
         );
+        message(res['message']);
+        if (res['errorType'] == 1) {
+          Navigator.pop(context);
+        }
       }
     }
   }

@@ -296,12 +296,13 @@ class _HomeState extends State<Home> {
   }
 
   _onFieldSubmitted(String v) {
+    print('v: $v');
     WidgetsBinding.instance.addPostFrameCallback((t) {
       if (v.isEmpty) {
         homeProvider.changeSearching(false);
         _pagingController.refresh();
       } else {
-        homeProvider.changeSearching(false);
+        // homeProvider.changeSearching(true);
         _pagingController.refresh();
       }
     });

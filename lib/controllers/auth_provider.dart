@@ -400,45 +400,47 @@ class AuthController extends ChangeNotifier {
       required String pass,
       required String name,
       required String rd,
-      required String? type,
+      required String type,
       String? additional,
       String? inviCode,
       String? address,
-      required File special,
-      File? logo}) async {
+      required File license,
+      File? logo,
+      required double lat,
+      required double? lng}) async {
+    print(lat);
     try {
-      var request = http.MultipartRequest('POST', setUrl('company/')
-          // Replace with your API endpoint
-          );
+      var request = http.MultipartRequest('POST', setUrl('company/'));
       request.files
-          .add(await http.MultipartFile.fromPath('image', special.path));
-      request.files.add(await http.MultipartFile.fromPath('image', logo!.path));
-      var res = await request.send();
+          .add(await http.MultipartFile.fromPath('license', license.path));
+      logo != null
+          ? request.files
+              .add(await http.MultipartFile.fromPath('logo', logo.path))
+          : null;
       request.fields['email'] = ema;
       request.fields['password'] = pass;
       request.fields['name'] = name;
       request.fields['rd'] = rd;
-      request.fields['cType'] = type == 'Эмийн сан' ? 'P' : 'S';
-      request.fields['inviteCode'] = inviCode!;
-      print(res.statusCode);
-      print(res.stream.single);
-      // var body = {
-      //   'email': ema,
-      //   'password': pass,
-      //   'name': name,
-      //   'rd': rd,
-      //   'type': type,
-      //   'additional': additional,
-      //   'inviteCode': inviCode,
-      //   'addressDet': address,
-      //   'special': special,
-      //   'logo': logo,
-      // };
-      // final res = apiPostWithoutToken('company', body);
-      // print('STATUS: ${res.statusCode}');
-      // print('STATUS: ${res.body}');
+      additional != null ? request.fields['note'] = additional : null;
+      inviCode != null ? request.fields['referral_code'] = inviCode : null;
+      request.fields['cType'] = (type == 'Эмийн сан') ? 'P' : 'S';
+      request.fields['address2'] =
+          jsonEncode({'lat': lat, 'lng': lng, 'address2': address}).toString();
+      var res = await request.send();
+      String responseBody = await res.stream.bytesToString();
+      if (res.statusCode == 200) {
+        return buildResponse(
+            1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
+      } else {
+        if (responseBody.contains('already exists')) {
+          return buildResponse(
+              2, null, 'И-Мейл, РД эсвэл нэр давхардаж байна!');
+        } else {
+          return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
+        }
+      }
     } catch (e) {
-      print(e);
+      return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
     }
   }
 }

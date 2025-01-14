@@ -73,6 +73,7 @@ class _LocationSelectorState extends State<LocationSelector> {
 
   // Method to handle map tap and set new marker
   _onMapTapped(LatLng location) {
+    print('lat ${location.latitude}\n lng${location.longitude}');
     homeProvider.setSelectedLoc(LatLng(location.latitude, location.longitude));
     setState(() {
       _selectedLocation = location;

@@ -86,6 +86,7 @@ class HomeProvider extends ChangeNotifier {
 
   setSelectedLoc(LatLng p) {
     selectedLoc = p;
+    print(p.latitude);
     notifyListeners();
   }
 
@@ -107,19 +108,11 @@ class HomeProvider extends ChangeNotifier {
           ? 'products/?page=$pageKey&page_size=$pageSize'
           : 'products/search/?k=$queryType&v=$query');
       if (response.statusCode == 200) {
-        if (!searching) {
-          final res = convertData(response);
-          final prods = (res['results'] as List)
-              .map((data) => Product.fromJson(data))
-              .toList();
-          return prods;
-        } else {
-          final res = convertData(response);
-          final prods = (res['results'] as List)
-              .map((data) => Product.fromJson(data))
-              .toList();
-          return prods;
-        }
+        final res = convertData(response);
+        final prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
+        return prods;
       }
     } catch (e) {
       debugPrint('error============= on getProduct> ${e.toString()}');
