@@ -14,3 +14,12 @@ class Sizes {
   static final mediulFontSize = height * 0.016;
   static final bigFontSize = height * 0.02;
 }
+
+final theme = Theme.of(GlobalKeys.navigatorKey.currentState!.context);
+
+final defaultDecoration = BoxDecoration(
+  border: Border.all(color: theme.primaryColor),
+  borderRadius: BorderRadius.circular(
+    Sizes.smallFontSize,
+  ),
+);

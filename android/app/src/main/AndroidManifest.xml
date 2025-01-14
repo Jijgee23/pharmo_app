@@ -33,6 +33,14 @@
             <meta-data
         android:name="com.google.firebase.messaging.default_notification_icon"
         android:resource="@mipmap/launcher_icon"/>
+        <meta-data
+            android:name="android.permission.READ_EXTERNAL_STORAGE"
+            android:value="Таний утасны зурагын цомгыг ашиглах зөвшөөрөл өгнө үү."/>
+            <meta-data
+            android:name="android.permission.ACCESS_FINE_LOCATION"
+            android:value="Таний утасны байршил тогтоогчыг ашиглах зөвшөөрөл өгнө үү." />
+            <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyA0hFR0VJcj140Z5aXu1pfrQpxbVfmL6DI"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility?hl=en and
@@ -62,4 +70,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
 </manifest>

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
@@ -48,12 +49,12 @@ class HomeProvider extends ChangeNotifier {
   int? basketId;
   int selectedBranchId = -1;
   String payType = 'NOW';
-
   String? note;
   List<Branch> branchList = <Branch>[];
   late LocationPermission permission;
   late bool servicePermission = false;
   Position? _currentLocation;
+  LatLng? selectedLoc;
   double? currentLatitude;
   double? currentLongitude;
   String? cName;
@@ -80,6 +81,11 @@ class HomeProvider extends ChangeNotifier {
 
   void setScrolling(bool d) {
     isScrolling = d;
+    notifyListeners();
+  }
+
+  setSelectedLoc(LatLng p) {
+    selectedLoc = p;
     notifyListeners();
   }
 

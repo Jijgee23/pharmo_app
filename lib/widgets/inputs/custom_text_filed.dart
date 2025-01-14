@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -14,6 +15,7 @@ class CustomTextField extends StatelessWidget {
   final Function(String?)? onChanged;
   final Function(String?)? onSubmitted;
   final Function()? onComplete;
+  final int? maxLine;
 
   const CustomTextField({
     super.key,
@@ -30,6 +32,7 @@ class CustomTextField extends StatelessWidget {
     this.focusNode,
     this.onComplete,
     this.align,
+    this.maxLine,
   });
 
   @override
@@ -39,7 +42,7 @@ class CustomTextField extends StatelessWidget {
     final border = OutlineInputBorder(
         borderSide:
             BorderSide(color: theme.primaryColor.withOpacity(0.7), width: 1.2),
-        borderRadius: BorderRadius.circular(30));
+        borderRadius: BorderRadius.circular(Sizes.mediulFontSize));
     return SizedBox(
       child: TextFormField(
         textAlign: align ?? TextAlign.start,
@@ -54,11 +57,13 @@ class CustomTextField extends StatelessWidget {
         cursorWidth: .8,
         cursorHeight: 14,
         cursorColor: Colors.black,
+        maxLines: maxLine ?? 1,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(
             horizontal: sw * 0.04,
           ),
-          hintText: hintText,
+          labelText: hintText,
+          // hintText: hintText,
           hintStyle:
               TextStyle(color: Colors.black.withOpacity(.8), fontSize: 14.0),
           border: border,

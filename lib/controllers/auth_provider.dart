@@ -20,6 +20,7 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
@@ -53,11 +54,8 @@ class AuthController extends ChangeNotifier {
   }
 
   apiPostWithoutToken(String endPoint, Object? body) async {
-    http.Response response = await http.post(
-      setUrl(endPoint),
-      headers: header,
-      body: jsonEncode(body),
-    );
+    http.Response response = await http.post(setUrl(endPoint),
+        headers: header, body: jsonEncode(body));
     getApiInformation(endPoint, response);
     return response;
   }
@@ -87,7 +85,7 @@ class AuthController extends ChangeNotifier {
       if (responseLogin.statusCode == 200) {
         _handleSuccessfulLogin(decodedResponse, context);
       } else if (responseLogin.statusCode == 400) {
-        _handleBadRequest(decodedResponse, email);
+        _handleBadRequest(decodedResponse, email, password);
       } else if (responseLogin.statusCode == 401) {
       } else {
         {
@@ -146,9 +144,12 @@ class AuthController extends ChangeNotifier {
   }
 
   // Нэвтрэх амжилтгүй
-  void _handleBadRequest(Map<String, dynamic> res, String email) {
+  void _handleBadRequest(Map<String, dynamic> res, String email, String pass) {
     if (checker(res, 'noCmp')) {
-      goto(Container());
+      goto(CompleteRegistration(
+        ema: email,
+        pass: pass,
+      ));
     }
     if (checker(res, 'no_password')) {
       Get.bottomSheet(CreatePassDialog(email: email));
@@ -391,6 +392,53 @@ class AuthController extends ChangeNotifier {
     } else {
       await FirebaseMessaging.instance.getAPNSToken();
       return await FirebaseMessaging.instance.getToken() ?? '';
+    }
+  }
+
+  Future completeRegistration(
+      {required String ema,
+      required String pass,
+      required String name,
+      required String rd,
+      required String? type,
+      String? additional,
+      String? inviCode,
+      String? address,
+      required File special,
+      File? logo}) async {
+    try {
+      var request = http.MultipartRequest('POST', setUrl('company/')
+          // Replace with your API endpoint
+          );
+      request.files
+          .add(await http.MultipartFile.fromPath('image', special.path));
+      request.files.add(await http.MultipartFile.fromPath('image', logo!.path));
+      var res = await request.send();
+      request.fields['email'] = ema;
+      request.fields['password'] = pass;
+      request.fields['name'] = name;
+      request.fields['rd'] = rd;
+      request.fields['cType'] = type == 'Эмийн сан' ? 'P' : 'S';
+      request.fields['inviteCode'] = inviCode!;
+      print(res.statusCode);
+      print(res.stream.single);
+      // var body = {
+      //   'email': ema,
+      //   'password': pass,
+      //   'name': name,
+      //   'rd': rd,
+      //   'type': type,
+      //   'additional': additional,
+      //   'inviteCode': inviCode,
+      //   'addressDet': address,
+      //   'special': special,
+      //   'logo': logo,
+      // };
+      // final res = apiPostWithoutToken('company', body);
+      // print('STATUS: ${res.statusCode}');
+      // print('STATUS: ${res.body}');
+    } catch (e) {
+      print(e);
     }
   }
 }
