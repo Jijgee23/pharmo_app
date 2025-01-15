@@ -21,10 +21,10 @@ final lightTheme = ThemeData(
     onSurface: white,
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: white,
-    surfaceTintColor: white,
+    backgroundColor: primary,
+    surfaceTintColor: primary,
     iconTheme: IconThemeData(
-      color: primary,
+      color: white,
       applyTextScaling: true,
     ),
   ),

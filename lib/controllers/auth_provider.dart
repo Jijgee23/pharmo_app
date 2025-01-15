@@ -130,6 +130,18 @@ class AuthController extends ChangeNotifier {
 
     if (decodedToken['supplier'] != null) {
       await prefs.setInt('suppID', decodedToken['supplier']);
+      int? k = prefs.getInt('suppID');
+      if (k == null) {
+        home.getSuppliers();
+        home.pickSupplier(int.parse(home.supList[0].id), context);
+        home.changeSupName(home.supList[0].name);
+      } else {
+        home.setSupId(k);
+      }
+
+      // HomeProvider().getSuppliers();
+      // HomeProvider()
+      //     .pickSupplier(int.parse(HomeProvider().supList[0].id), context);
     } else {
       message('Нийлүүлэгч сонгоно уу!');
     }
@@ -364,17 +376,16 @@ class AuthController extends ChangeNotifier {
           "osVersion": iosInfo.systemVersion,
         };
       }
-      final data = jsonEncode(
-        {
-          'deviceId': deviceData['deviceId'],
-          'platform': deviceData['platform'],
-          'brand': deviceData['brand'],
-          'model': deviceData['model'],
-          'modelVersion': deviceData['modelVersion'],
-          'os': deviceData['os'],
-          'osVersion': deviceData['osVersion']
-        },
-      );
+      final data = {
+        'deviceId': deviceData['deviceId'],
+        'platform': deviceData['platform'],
+        'brand': deviceData['brand'],
+        'model': deviceData['model'],
+        'modelVersion': deviceData['modelVersion'],
+        'os': deviceData['os'],
+        'osVersion': deviceData['osVersion']
+      };
+
       http.Response response = await apiPost('device_id/', data);
       if (response.statusCode == 200) {
         debugPrint('Device info sent');

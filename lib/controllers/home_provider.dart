@@ -16,6 +16,7 @@ import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -72,6 +73,17 @@ class HomeProvider extends ChangeNotifier {
   String _supName = 'Нийлүүлэгч сонгох';
   String get supName => _supName;
   List<Sector> branches = <Sector>[];
+  int supID = 0;
+  setSupId(int? k) async {
+    if (k == null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int? id = prefs.getInt('suppID');
+      supID = id!;
+    } else {
+      supID = k;
+    }
+    notifyListeners();
+  }
 
   String demo = 'demo';
   void changeDemo(String d) {
@@ -310,7 +322,7 @@ class HomeProvider extends ChangeNotifier {
   // Нийлүүлэгч сонгох
   pickSupplier(int supId, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final response = await apiPost('pick/', jsonEncode({'supplierId': supId}));
+    final response = await apiPost('pick/', {'supplierId': supId});
     if (response.statusCode == 200) {
       Map<String, dynamic> res = jsonDecode(response.body);
       await prefs.setString('access_token', res['access_token']);
@@ -368,7 +380,7 @@ class HomeProvider extends ChangeNotifier {
   getCustomerBranch() async {
     try {
       final response = await apiPost('seller/customer_branch/',
-          jsonEncode({'customerId': selectedCustomerId}));
+          {'customerId': selectedCustomerId});
       branchList.clear();
       if (response.statusCode == 200) {
         List<dynamic> res = convertData(response);
@@ -405,10 +417,10 @@ class HomeProvider extends ChangeNotifier {
 
   searchByLocation(BuildContext context) async {
     try {
-      Object body = jsonEncode({
+      Object body = {
         'lat': currentLatitude,
         'lng': currentLongitude,
-      });
+      };
       final response = await apiPost('seller/search_by_location/', body);
       if (response.statusCode == 200) {
         if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
@@ -443,7 +455,7 @@ class HomeProvider extends ChangeNotifier {
   deactiveUser(String password, BuildContext context) async {
     try {
       final response = await apiPatch(
-          'auth/delete_user_account/', jsonEncode({'pwd': password}));
+          'auth/delete_user_account/', {'pwd': password});
       if (response.statusCode == 200) {
         AuthController().logout();
         message(
@@ -460,14 +472,13 @@ class HomeProvider extends ChangeNotifier {
   createSellerOrder(BuildContext context, String type) async {
     final basket = Provider.of<BasketProvider>(context, listen: false);
     try {
-      Object body = jsonEncode(
+      Object body = 
         {
           'customer_id': selectedCustomerId,
           'basket_id': basket.basket.id,
           'payType': type,
           "note": (note != null) ? note : null
-        },
-      );
+        };
       final response = await apiPost('seller/order/', body);
       if (response.statusCode == 201) {
         final res = convertData(response);
@@ -828,7 +839,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                   decoration: BoxDecoration(
                                     color: promotionProvider.delivery
                                         ? Colors.grey.shade300
-                                        : Theme.of(context).primaryColor,
+                                        : theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -847,7 +858,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.delivery
                                         ? Colors.grey.shade300
-                                        : Theme.of(context).primaryColor,
+                                        : theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -884,7 +895,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.isCash
                                         ? Colors.grey.shade300
-                                        : Theme.of(context).primaryColor,
+                                        : theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -904,7 +915,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                   decoration: BoxDecoration(
                                     color: promotionProvider.isCash
                                         ? Colors.grey.shade300
-                                        : Theme.of(context).primaryColor,
+                                        : theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -1054,7 +1065,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
               Icons.home,
               color: selectedBranch == e.id
                   ? AppColors.secondary
-                  : Theme.of(context).primaryColor,
+                  : theme.primaryColor,
             ),
             Constants.boxH10,
             Text(e.name!),

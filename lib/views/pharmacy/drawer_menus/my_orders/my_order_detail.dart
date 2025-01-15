@@ -3,6 +3,7 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/icon/cart_icon.dart';
 import 'package:pharmo_app/widgets/order_widgets/order_status.dart';
@@ -95,7 +96,6 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
   }
 
   productBuilder(MyOrderDetailModel o) {
-    final theme = Theme.of(context);
     return Ctnr(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

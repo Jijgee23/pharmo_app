@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
@@ -308,16 +309,29 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Expanded products(HomeProvider homeProvider) {
-    return Expanded(
-      child: homeProvider.searching
-          ? !homeProvider.isList
-              ? CustomGrid(pagingController: _pagingController)
-              : CustomList(pagingController: _pagingController)
-          : !homeProvider.isList
-              ? CustomGrid(pagingController: _pagingController)
-              : CustomList(pagingController: _pagingController),
-    );
+  Widget products(HomeProvider homeProvider) {
+    if (homeProvider.supID == 0 || homeProvider.supID == null) {
+      return Container(
+        child: Text(
+          'Нийлүүлэгч сонгоно уу!',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: Colors.red,
+              fontSize: Sizes.mediulFontSize,
+              fontWeight: FontWeight.bold),
+        ),
+      );
+    } else {
+      return Expanded(
+        child: homeProvider.searching
+            ? !homeProvider.isList
+                ? CustomGrid(pagingController: _pagingController)
+                : CustomList(pagingController: _pagingController)
+            : !homeProvider.isList
+                ? CustomGrid(pagingController: _pagingController)
+                : CustomList(pagingController: _pagingController),
+      );
+    }
   }
 
   // Эрэлттэй, Шинэ, Хямдралтай
@@ -432,6 +446,7 @@ class _HomeState extends State<Home> {
   onPickSupp(Supplier e) async {
     await homeProvider.pickSupplier(int.parse(e.id), context);
     await homeProvider.changeSupName(e.name);
+    homeProvider.setSupId(int.parse(e.id));
     basketProvider.getBasket();
     // await promotionProvider.getMarkedPromotion();
     homeProvider.refresh(context, homeProvider, promotionProvider);

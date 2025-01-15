@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/index.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +37,6 @@ class _OrderDoneState extends State<OrderDone> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     const maxWidth = 850.0;
-    final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SizedBox(

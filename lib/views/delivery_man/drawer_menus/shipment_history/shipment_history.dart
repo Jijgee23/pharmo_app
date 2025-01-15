@@ -4,6 +4,7 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/shipment.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:provider/provider.dart';
@@ -47,7 +48,6 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
 
   @override
   build(BuildContext context) {
-    final theme = Theme.of(context);
     return Consumer<JaggerProvider>(
       builder: (_, provider, child) {
         // final shipmets = provider.shipments;
@@ -87,7 +87,6 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   }
 
   filters(JaggerProvider provider) {
-    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

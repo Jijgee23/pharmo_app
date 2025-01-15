@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class CustomTextButton extends StatelessWidget {
   final String text;
@@ -7,7 +8,6 @@ class CustomTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,

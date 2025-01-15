@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class ResponsiveDropdownButton extends StatefulWidget {
   final String initText;
@@ -86,7 +87,6 @@ class _ResponsiveDropdownButtonState extends State<ResponsiveDropdownButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return InkWell(
       key: _buttonKey,
       onTap: _toggleDropdown,

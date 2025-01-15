@@ -18,7 +18,6 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
     return Consumer<HomeProvider>(
       builder: (context, homeProvider, child) => MediaQuery.removePadding(
         context: context,

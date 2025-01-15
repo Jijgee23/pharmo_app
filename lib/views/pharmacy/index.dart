@@ -14,7 +14,6 @@ import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
 import 'package:pharmo_app/views/seller/seller_report/seller_report.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
-import 'package:pharmo_app/widgets/inputs/ibtn.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/bottom_bar/bottom_bar.dart';
@@ -38,7 +37,6 @@ class _IndexPharmaState extends State<IndexPharma> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Consumer2<HomeProvider, BasketProvider>(
       builder: (context, homeProvider, basketProvider, _) {
         bool isPharma = homeProvider.userRole == 'PA';
@@ -48,20 +46,11 @@ class _IndexPharmaState extends State<IndexPharma> {
               drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems(),
             ),
             appBar: CustomAppBar(
-              leading: Builder(
-                builder: (context) => Ibtn(
-                  onTap: () {
-                    Scaffold.of(context).openDrawer(); // Works perfectly!
-                  },
-                  icon: Icons.menu,
-                  color: theme.primaryColor,
-                ),
-              ),
               title: isPharma
                   ? Text(
                       getAppBarText(homeProvider.currentIndex),
                       style: TextStyle(
-                        color: black,
+                        color: white,
                         fontSize: Sizes.smallFontSize + 2,
                         fontWeight: FontWeight.bold,
                       ),
@@ -153,14 +142,14 @@ class _IndexPharmaState extends State<IndexPharma> {
   }
 
   getSellerAppBarTitle() {
-    final textStyle = TextStyle(
-      color: Theme.of(context).primaryColor,
+    const textStyle = TextStyle(
+      color: white,
       fontSize: 12.0,
       letterSpacing: 0.3,
       fontWeight: FontWeight.bold,
     );
     return homeProvider.selectedCustomerId == 0
-        ? Text('Харилцагч сонгоно уу!', style: textStyle)
+        ? const Text('Харилцагч сонгоно уу!', style: textStyle)
         : TextButton(
             onPressed: () => homeProvider.changeIndex(0),
             child: RichText(
@@ -171,7 +160,7 @@ class _IndexPharmaState extends State<IndexPharma> {
                   TextSpan(
                     text: homeProvider.selectedCustomerName,
                     style: const TextStyle(
-                      color: AppColors.succesColor,
+                      color: white,
                       fontWeight: FontWeight.bold,
                       fontSize: 13.0,
                     ),

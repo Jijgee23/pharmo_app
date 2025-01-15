@@ -9,10 +9,10 @@ import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
@@ -91,8 +91,6 @@ class _ProductDetailState extends State<ProductDetail>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
     final div = Divider(color: theme.primaryColor, thickness: .7);
     return Scaffold(
       body: (fetching)
@@ -188,7 +186,7 @@ class _ProductDetailState extends State<ProductDetail>
                                 ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
                                 : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg',
                             child: Container(
-                              height: size.height * 0.23,
+                              height: Sizes.height * 0.23,
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),

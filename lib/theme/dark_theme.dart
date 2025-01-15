@@ -19,10 +19,10 @@ final darkTheme = ThemeData(
   // brightness: Brightness.dark,
   scaffoldBackgroundColor: black,
   appBarTheme: const AppBarTheme(
-    backgroundColor: black,
-    surfaceTintColor: black,
+    backgroundColor: darkPrimary,
+    surfaceTintColor: darkPrimary,
     iconTheme: IconThemeData(
-      color: darkPrimary,
+      color: white,
       applyTextScaling: true,
     ),
   ),

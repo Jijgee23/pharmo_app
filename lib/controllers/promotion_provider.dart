@@ -5,7 +5,6 @@ import 'package:pharmo_app/models/qr_data.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'dart:convert';
 
 class PromotionProvider extends ChangeNotifier {
   List<Promotion> promotions = <Promotion>[];
@@ -168,14 +167,12 @@ class PromotionProvider extends ChangeNotifier {
   orderPromo(
       int promoId, int branchId, String? note, BuildContext context) async {
     try {
-      var body = jsonEncode(
-        {
-          "payType": payType,
-          "promoId": promoId,
-          (delivery == false) ? "branchId" : branchId: null,
-          note != null ? "note" : note: null,
-        },
-      );
+      var body = {
+        "payType": payType,
+        "promoId": promoId,
+        (delivery == false) ? "branchId" : branchId: null,
+        note != null ? "note" : note: null,
+      };
       final response = await apiPost('pharmacy/promo_order/', body);
       var data = convertData(response);
       if (response.statusCode == 200) {
@@ -190,8 +187,8 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   checkPayment(BuildContext context) async {
-    final response = await apiPatch('pharmacy/promo_order/cp/',
-        jsonEncode({"invoiceId": qrData.invoiceId}));
+    final response = await apiPatch(
+        'pharmacy/promo_order/cp/', {"invoiceId": qrData.invoiceId});
     final data = convertData(response);
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));

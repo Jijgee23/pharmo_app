@@ -115,12 +115,11 @@ class PharmProvider extends ChangeNotifier {
     print('CSUTOMER ID: $custId');
     try {
       final home = Provider.of<HomeProvider>(c, listen: false);
-      final response = await apiPatch(
-          'seller/customer/$custId/update_location/',
-          jsonEncode({
-            "lat": home.currentLatitude,
-            "lng": home.currentLongitude,
-          }));
+      final response =
+          await apiPatch('seller/customer/$custId/update_location/', {
+        "lat": home.currentLatitude,
+        "lng": home.currentLongitude,
+      });
       if (response.statusCode == 200) {
         message('Амжилттай');
       } else {
@@ -164,7 +163,7 @@ class PharmProvider extends ChangeNotifier {
   editSellerOrder(String note, String pt, int orderId, BuildContext c) async {
     try {
       final response = await apiPatch(
-          'seller/order/$orderId/', jsonEncode({"note": note, "payType": pt}));
+          'seller/order/$orderId/', {"note": note, "payType": pt});
       if (response.statusCode == 200) {
         message('Амжилттай засагдлаа');
         notifyListeners();
@@ -211,8 +210,8 @@ class PharmProvider extends ChangeNotifier {
       if (check['errorType'] == 0) {
         message('Бараа дууссан');
       } else if (check['errorType'] == 1) {
-        final response = await apiPatch('seller/order/$oId/update_item/',
-            jsonEncode({"itemId": itemId, "qty": qty}));
+        final response = await apiPatch(
+            'seller/order/$oId/update_item/', {"itemId": itemId, "qty": qty});
         if (response.statusCode == 200) {
           return buildResponse(1, response, 'Амжилттай өөрлөгдлөө');
         } else if (response.statusCode == 400) {
@@ -240,7 +239,7 @@ class PharmProvider extends ChangeNotifier {
   Future registerCustomer(String name, String rn, String email, String phone,
       String? note, String? lat, String? lng, BuildContext context) async {
     try {
-      var body = jsonEncode({
+      var body = {
         "name": name,
         "rn": rn,
         "email": email,
@@ -248,9 +247,9 @@ class PharmProvider extends ChangeNotifier {
         note ?? "note": note,
         "lat": lat,
         "lng": lng
-      });
+      };
       await Provider.of<HomeProvider>(context, listen: false).getPosition();
-      final response = await apiPost('seller/customer/', body);
+      var response = await apiPost('seller/customer/', body);
       if (response.statusCode == 201) {
         message('Амжилттай бүртгэгдлээ.');
       } else {
@@ -280,7 +279,7 @@ class PharmProvider extends ChangeNotifier {
       double? lng,
       required BuildContext context}) async {
     try {
-      var body = jsonEncode({
+      var body = {
         "name": name,
         "rn": rn,
         "email": email,
@@ -290,7 +289,7 @@ class PharmProvider extends ChangeNotifier {
         "note": note,
         "lat": lat,
         "lng": lng
-      });
+      };
       await Provider.of<HomeProvider>(context, listen: false).getPosition();
       final response = await apiPatch('seller/customer/$id/', body);
       if (response.statusCode == 200) {
@@ -311,7 +310,7 @@ class PharmProvider extends ChangeNotifier {
   Future getCustomerFavs(dynamic customerId) async {
     try {
       final response = await apiPost(
-          'seller/customer_favs/', jsonEncode({"customer_id": customerId}));
+          'seller/customer_favs/', {"customer_id": customerId});
       if (response.statusCode == 201) {
         // final data = jsonDecode(utf8.decode(response.bodyBytes));
       } else {}

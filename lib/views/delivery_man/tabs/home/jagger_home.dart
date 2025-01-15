@@ -8,9 +8,9 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/ship.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home_detail.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/dialog_button.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
@@ -48,14 +48,12 @@ class _HomeJaggerState extends State<HomeJagger> {
   }
 
   startShipment(int shipmentId) async {
-    if (backLocationPermission) {
-      await jaggerProvider.startShipment(
-          shipmentId,
-          homeProvider.currentLatitude!,
-          homeProvider.currentLongitude!,
-          context);
-    }
-    message('Байршил авах зөвшөөрөл өгнө үү');
+    // if (backLocationPermission) {
+
+    // }
+    // message('Байршил авах зөвшөөрөл өгнө үү');
+    await jaggerProvider.startShipment(shipmentId,
+        homeProvider.currentLatitude!, homeProvider.currentLongitude!, context);
   }
 
   endShipment(int shipmentId, bool? force) async {
@@ -139,10 +137,12 @@ class _HomeJaggerState extends State<HomeJagger> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: Colors.white,
-        boxShadow: [BoxShadow(
-          color: Theme.of(context).shadowColor,
-          blurRadius: 5,
-        )],
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor,
+            blurRadius: 5,
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,12 +162,11 @@ class _HomeJaggerState extends State<HomeJagger> {
   }
 
   Widget getStartButton({required Ship e}) {
-    final theme = Theme.of(context);
     if (e.startTime == null) {
       return button(
           title: 'Түгээлт эхлүүлэх',
           color: theme.primaryColor,
-          iconName: 'truck',
+          iconName: Icons.start,
           onTap: () => Future(() async {
                 debugPrint(e.startTime);
                 startShipment(e.id);
@@ -183,7 +182,6 @@ class _HomeJaggerState extends State<HomeJagger> {
   }
 
   Widget getEndButton({required Ship e}) {
-    final theme = Theme.of(context);
     if (e.endTime == null && e.startTime == null) {
       return const SizedBox();
     } else if (e.endTime == null) {
@@ -192,7 +190,7 @@ class _HomeJaggerState extends State<HomeJagger> {
         child: button(
             title: 'Түгээлт дуусгах',
             color: theme.primaryColor,
-            iconName: 'box',
+            iconName: Icons.edit_note,
             onTap: () => Future(() async {
                   endShipment(e.id, false);
                   endTimer(context);
@@ -282,9 +280,8 @@ class _HomeJaggerState extends State<HomeJagger> {
     required Color color,
     required GestureTapCallback onTap,
     GestureTapCallback? onSecondaryTap,
-    required String iconName,
+    required IconData iconName,
   }) {
-    final theme = Theme.of(context);
     return Container(
       width: 200,
       padding: const EdgeInsets.symmetric(vertical: 7.5, horizontal: 20),
@@ -299,12 +296,13 @@ class _HomeJaggerState extends State<HomeJagger> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Image.asset('assets/icons/$iconName.png',
-                  height: 24, color: Colors.white),
-              Text(
-                title,
-                style: const TextStyle(color: AppColors.cleanWhite),
-              ),
+              Icon(iconName, color: Colors.white),
+              // Image.asset(
+              //   'assets/icons/$iconName.png',
+              //   height: 24,
+              //   color: Colors.white,
+              // ),
+              Text(title, style: const TextStyle(color: AppColors.cleanWhite)),
             ],
           ),
         ),
@@ -352,7 +350,6 @@ class _HomeJaggerState extends State<HomeJagger> {
   }
 
   dialogButton({required Function() onTap, String? title}) {
-    final theme = Theme.of(context);
     return Container(
       width: 100,
       decoration: BoxDecoration(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class DrawerItem extends StatelessWidget {
   final String title;
@@ -16,8 +17,6 @@ class DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final height = MediaQuery.of(context).size.height;
-    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Column(

@@ -16,7 +16,7 @@ class _CartInfoState extends State<CartInfo> {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    // final theme = Theme.of(context);
+    // theme
     void clearBasket() async {
       await basketProvider.clearBasket();
       await basketProvider.getBasket();
@@ -49,7 +49,7 @@ class _CartInfoState extends State<CartInfo> {
   Widget info({required String title, required String text}) {
     final height = MediaQuery.of(context).size.height;
     final fs = height * .013;
-    // final theme = Theme.of(context);
+    // theme
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

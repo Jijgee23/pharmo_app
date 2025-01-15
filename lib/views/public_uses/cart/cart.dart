@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/views/public_uses/cart/cart_info.dart';
 import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/public_uses/cart/seller_order_sheet.dart';
@@ -44,7 +45,7 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    // final theme = Theme.of(context);
+    // theme
     return Consumer<BasketProvider>(
       builder: (context, provider, _) {
         final cartDatas = provider.shoppingCarts;
@@ -60,6 +61,7 @@ class _CartState extends State<Cart> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      SizedBox(height: Sizes.smallFontSize),
                       // Сагсны мэдээлэл
                       if (!basketIsEmpty) const CartInfo(),
                       // Сагсанд байгаа бараанууд

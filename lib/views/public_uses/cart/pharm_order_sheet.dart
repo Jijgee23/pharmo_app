@@ -68,7 +68,6 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final fs = height * 0.014;
-    final theme = Theme.of(context);
     return SheetContainer(
       children: [
         // Хүргэлтийн төрөл сонгох
@@ -248,7 +247,6 @@ class MyChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     double fontSize = Sizes.height * .012;
     return InkWell(
       onTap: ontap,

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
-import 'package:pharmo_app/widgets/ui_help/box.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/ui_help/container.dart';
-import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
@@ -152,186 +152,143 @@ class _MyOrderState extends State<MyOrder> {
     try {
       final orderProvider =
           Provider.of<MyOrderProvider>(context, listen: false);
-      dynamic res =
-          await orderProvider.filterOrders(_selectedFilter, _selectedItem);
-      if (res['errorType'] == 1) {
-        message(
-          res['message'],
-        );
-      } else {
-        message(
-          res['message'],
-        );
-      }
+      // dynamic res =
+      await orderProvider.filterOrders(_selectedFilter, _selectedItem);
+      // if (res['errorType'] == 1) {
+      //   // message(res['message']);
+      // } else {
+      //   // message(res['message']);
+      // }
     } catch (e) {
-      message(
-        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-      );
+      // message('Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!');
     }
   }
 
-  confirmOrder(int orderId) async {
-    try {
-      final orderProvider =
-          Provider.of<MyOrderProvider>(context, listen: false);
-      dynamic res = await orderProvider.confirmOrder(orderId, context);
-      if (res['errorType'] == 1) {
-        message(
-          res['message'],
-        );
-      } else {
-        message(
-          res['message'],
-        );
-      }
-    } catch (e) {
-      message(
-        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-      );
-    }
+  confirmOrder(int orderId, MyOrderProvider orderProvider) async {
+    dynamic res = await orderProvider.confirmOrder(orderId);
+    print(res.runtimeType);
+    message(res['message']);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Consumer<MyOrderProvider>(
       builder: (context, provider, _) {
         final orders = (provider.orders.isNotEmpty) ? provider.orders : null;
-        return DefaultBox(
-          title: 'Захиалгууд',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Box(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    dropContainer(
-                      child: DropdownButton<String>(
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.primaryColor,
-                        ),
-                        dropdownColor: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        underline: const SizedBox(),
-                        value: _selectedFilter,
-                        onChanged: (String? value) async {
-                          setState(() {
-                            _selectedFilter = value!;
-                            selected = _filters[value]!;
-                          });
-                          await fillDropdown();
-                        },
-                        selectedItemBuilder: (BuildContext context) {
-                          return _filters.keys.map<Widget>(
-                            (String item) {
-                              return Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  _filters[item].toString(),
-                                  style: TextStyle(
-                                    color: theme.primaryColor,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              );
-                            },
-                          ).toList();
-                        },
-                        items: _filters.keys
-                            .map<DropdownMenuItem<String>>((String item) {
-                          return DropdownMenuItem<String>(
-                            value: item,
-                            child: Text(_filters[item].toString()),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _selectedFilter != ''
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  dropContainer(
-                                    child: DropdownButton<String>(
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: theme.primaryColor),
-                                      dropdownColor: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                      value: _selectedItem,
-                                      underline: const SizedBox(),
-                                      onChanged: (String? value) {
-                                        setState(() => _selectedItem = value!);
-                                      },
-                                      items: _processess.keys
-                                          .map<DropdownMenuItem<String>>(
-                                        (String item) {
-                                          return DropdownMenuItem<String>(
-                                            value: item,
-                                            child: Text(
-                                              _processess[item].toString(),
-                                            ),
-                                          );
-                                        },
-                                      ).toList(),
-                                    ),
-                                  ),
-                                ],
+        return Scaffold(
+          appBar: AppBar(
+            leading: const ChevronBack(),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                dropContainer(
+                  child: DropdownButton<String>(
+                    style: TextStyle(fontSize: 14, color: theme.primaryColor),
+                    dropdownColor: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    underline: const SizedBox(),
+                    value: _selectedFilter,
+                    onChanged: (String? value) async {
+                      setState(() {
+                        _selectedFilter = value!;
+                        selected = _filters[value]!;
+                      });
+                      await fillDropdown();
+                    },
+                    selectedItemBuilder: (BuildContext context) {
+                      return _filters.keys.map<Widget>(
+                        (String item) {
+                          return Container(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              _filters[item].toString(),
+                              style: TextStyle(
+                                color: theme.primaryColor,
+                                fontSize: Sizes.smallFontSize,
                               ),
-                              InkWell(
-                                onTap: () => filterOrders(),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 15),
-                                  margin: const EdgeInsets.only(right: 10),
-                                  decoration: BoxDecoration(
-                                      color: theme.primaryColor,
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: const Center(
-                                    child: Text(
-                                      'Шүүх',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 12),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                        : const SizedBox(),
-                  ],
+                            ),
+                          );
+                        },
+                      ).toList();
+                    },
+                    items: _filters.keys
+                        .map<DropdownMenuItem<String>>((String item) {
+                      return DropdownMenuItem<String>(
+                        value: item,
+                        child: Text(_filters[item].toString()),
+                      );
+                    }).toList(),
+                  ),
                 ),
-              ),
-              Expanded(
-                  child: orders != null && orders.isNotEmpty
-                      ? RefreshIndicator(
-                          onRefresh: () async {
-                            getData();
-                          },
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: orders
-                                  .map(
-                                    (order) => orderWidget(
-                                        order: order, provider: provider),
-                                  )
-                                  .toList(),
+                if (_selectedFilter != '')
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          dropContainer(
+                            child: DropdownButton<String>(
+                              style: TextStyle(
+                                  fontSize: 14, color: theme.primaryColor),
+                              dropdownColor: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              value: _selectedItem,
+                              underline: const SizedBox(),
+                              onChanged: (String? value) {
+                                setState(() => _selectedItem = value!);
+                                filterOrders();
+                              },
+                              items: _processess.keys
+                                  .map<DropdownMenuItem<String>>(
+                                (String item) {
+                                  return DropdownMenuItem<String>(
+                                    value: item,
+                                    child: Text(
+                                      _processess[item].toString(),
+                                      style: TextStyle(
+                                          fontSize: Sizes.smallFontSize),
+                                    ),
+                                  );
+                                },
+                              ).toList(),
                             ),
                           ),
-                        )
-                      : const NoResult()),
-            ],
+                        ],
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+          body: SingleChildScrollView(
+            padding: EdgeInsets.only(
+                top: Sizes.smallFontSize / 2,
+                right: Sizes.smallFontSize / 2,
+                left: Sizes.smallFontSize / 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                orders != null && orders.isNotEmpty
+                    ? RefreshIndicator(
+                        onRefresh: () async {
+                          getData();
+                        },
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: orders
+                                .map(
+                                  (order) => orderWidget(
+                                      order: order, provider: provider),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      )
+                    : const NoResult(),
+              ],
+            ),
           ),
         );
       },
@@ -340,7 +297,6 @@ class _MyOrderState extends State<MyOrder> {
 
   Widget orderWidget(
       {required MyOrderModel order, required MyOrderProvider provider}) {
-    final theme = Theme.of(context);
     return InkWell(
       onTap: () => goto(
         MyOrderDetail(
@@ -357,7 +313,8 @@ class _MyOrderState extends State<MyOrder> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TitleContainer(child: Col(t1: 'Дугаар', t2: order.orderNo.toString())),
+                TitleContainer(
+                    child: Col(t1: 'Дугаар', t2: order.orderNo.toString())),
                 Col(t1: 'Дүн', t2: toPrice(order.totalPrice.toString())),
                 Col(
                     t1: 'Огноо',
@@ -393,11 +350,7 @@ class _MyOrderState extends State<MyOrder> {
             (order.process == 'Бэлэн болсон' ||
                     order.process == 'Түгээлтэнд гарсан')
                 ? InkWell(
-                    onTap: () {
-                      provider
-                          .confirmOrder(order.id, context)
-                          .then((e) => getData());
-                    },
+                    onTap: () => confirmOrder(order.id, provider),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: IntrinsicWidth(
@@ -407,17 +360,20 @@ class _MyOrderState extends State<MyOrder> {
                               borderRadius: BorderRadius.circular(10)),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 15, vertical: 10),
-                          child: const Center(
+                          child: Center(
                             child: Row(
                               children: [
                                 Text(
-                                  'Батлагаажуулах',
+                                  'Хүлээн авсан',
                                   style: TextStyle(
                                       color: Colors.white,
                                       letterSpacing: 1,
-                                      fontSize: 12,
+                                      fontSize: Sizes.smallFontSize,
                                       fontWeight: FontWeight.bold),
                                 ),
+                                SizedBox(width: Sizes.smallFontSize),
+                                Icon(Icons.check,
+                                    color: white, size: Sizes.mediulFontSize)
                               ],
                             ),
                           ),
@@ -432,20 +388,19 @@ class _MyOrderState extends State<MyOrder> {
     );
   }
 
-  dropContainer({required Widget child}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.grey.shade200,
+  dropContainer({required Widget child, Function()? ontap}) {
+    return InkWell(
+      onTap: ontap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: white,
+          borderRadius: BorderRadius.circular(Sizes.smallFontSize),
         ),
+        padding: EdgeInsets.symmetric(
+          horizontal: Sizes.smallFontSize,
+        ),
+        child: child,
       ),
-      margin: const EdgeInsets.only(left: 10),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 15,
-      ),
-      child: child,
     );
   }
 }

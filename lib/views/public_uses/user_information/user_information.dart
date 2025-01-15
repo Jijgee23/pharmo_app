@@ -94,7 +94,6 @@ class _UserInformationState extends State<UserInformation> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        final theme = Theme.of(context);
         return Dialog(
           child: Container(
             padding: const EdgeInsets.all(10),

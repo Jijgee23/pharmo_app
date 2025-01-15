@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -62,7 +63,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -100,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
               highlightColor: theme.primaryColor.withOpacity(.5),
               child: Container(
                 decoration: BoxDecoration(
-                    color:theme.primaryColor.withOpacity(0.7),
+                    color: theme.primaryColor.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(50),
                     gradient: LinearGradient(colors: [
                       theme.primaryColor.withOpacity(0.9),
@@ -141,10 +141,9 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-  
+
   // Single indicator widget
   Widget _indicator(int index) {
-    final theme = Theme.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
       margin: const EdgeInsets.symmetric(horizontal: 4),

@@ -3,6 +3,7 @@ import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
@@ -16,7 +17,6 @@ class BuyinPromo extends StatelessWidget {
   Widget build(BuildContext context) {
     var textStyle = TextStyle(
         fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
-        final theme = Theme.of(context);
     return Consumer<PromotionProvider>(
       builder: (_, promotion, child) {
         return Scaffold(
@@ -116,7 +116,6 @@ class BuyinPromo extends StatelessWidget {
   }
 
   product(e, String noImage, BuildContext context) {
-    final theme = Theme.of(context);
     return Stack(
       children: [
         Container(

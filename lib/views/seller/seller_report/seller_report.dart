@@ -44,7 +44,6 @@ class _SellerReportState extends State<SellerReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     List<Color> colors = [
       theme.primaryColor,
       theme.colorScheme.onPrimary,

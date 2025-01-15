@@ -25,3 +25,5 @@ final defaultDecoration = BoxDecoration(
 );
 
 final ctx = GlobalKeys.navigatorKey.currentState!.context;
+final screenH = Sizes.height;
+final screenW = Sizes.width;

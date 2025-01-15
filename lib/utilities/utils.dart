@@ -69,8 +69,9 @@ convertData(http.Response body) {
 
 getApiInformation(String endPoint, http.Response response) {
   try {
-    debugPrint(
-        '$endPoint, status: ${response.statusCode},\n body; ${response.body}');
+    print('<===$endPoint===>');
+    print('<===${response.statusCode}===>');
+    print('<===${convertData(response)}===>');
   } catch (e) {
     debugPrint('ERROR at $endPoint : $e');
   }
@@ -87,7 +88,7 @@ apiGet(String endPoint) async {
 
 apiPost(String endPoint, Object? body) async {
   http.Response response = await http.post(setUrl(endPoint),
-      headers: getHeader(await getAccessToken()), body: body);
+      headers: getHeader(await getAccessToken()), body: jsonEncode(body));
   getApiInformation(endPoint, response);
   return response;
 }
@@ -96,7 +97,7 @@ apiPatch(String endPoint, Object body) async {
   http.Response response = await http.patch(
     setUrl(endPoint),
     headers: getHeader(await getAccessToken()),
-    body: body,
+    body: jsonEncode(body),
   );
   getApiInformation(endPoint, response);
   return response;
@@ -226,7 +227,7 @@ shadow() {
 }
 
 String maybeNull(String? text) {
-  if (text == null || text.isEmpty) {
+  if (text == null || text.isEmpty || text == 'null') {
     return '-';
   } else {
     return text;

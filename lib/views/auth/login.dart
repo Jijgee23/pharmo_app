@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/global_key.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/firebase_api.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
+import 'package:pharmo_app/views/auth/sign_up.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -75,6 +76,7 @@ class _LoginPageState extends State<LoginPage> {
     }).catchError((Object error) {
       debugPrint('Алдаа: $error');
     });
+    firebaseInit(context);
     _checkForUpdate();
   }
 
@@ -150,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
     bool logging = authController.loading;
-    final theme = Theme.of(context);
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(color: theme.primaryColor),
@@ -316,228 +318,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class SignUpForm extends StatefulWidget {
-  const SignUpForm({super.key});
-
-  @override
-  State<SignUpForm> createState() => _SignUpFormState();
-}
-
-class _SignUpFormState extends State<SignUpForm> {
-  final TextEditingController ema = TextEditingController();
-  final TextEditingController pass = TextEditingController();
-  final TextEditingController phone = TextEditingController();
-  final TextEditingController passConfirm = TextEditingController();
-  final TextEditingController otp = TextEditingController();
-  bool showPasss = false;
-  bool otpSent = false;
-  setOtpSent(bool n) {
-    setState(() {
-      otpSent = n;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
-    final h = MediaQuery.of(context).size.height;
-    final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: theme.primaryColor,
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.contain,
-                      image: AssetImage(
-                        'assets/picon.png',
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: h * .05,
-                  left: 20,
-                  child: back(color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: topBorderRadius(),
-              ),
-              child: SingleChildScrollView(
-                child: Wrap(
-                  runSpacing: 15,
-                  children: [
-                    authText('Бүртгүүлэх'),
-                    CustomTextField(
-                      controller: ema,
-                      hintText: 'Имейл',
-                      obscureText: false,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: validateEmail,
-                    ),
-                    CustomTextField(
-                      controller: phone,
-                      hintText: 'Утасны дугаар',
-                      obscureText: false,
-                      keyboardType: TextInputType.phone,
-                      validator: validatePhone,
-                    ),
-                    (otpSent)
-                        ? CustomTextField(
-                            controller: otp,
-                            hintText: 'Батлагаажуулах код',
-                            keyboardType: TextInputType.number,
-                          )
-                        : const SizedBox(),
-                    (otpSent)
-                        ? CustomTextField(
-                            controller: pass,
-                            hintText: 'Нууц үг',
-                            obscureText: !showPasss,
-                            keyboardType: TextInputType.visiblePassword,
-                            validator: validatePassword,
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  showPasss = !showPasss;
-                                });
-                              },
-                              icon: Icon(
-                                  showPasss
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: theme.primaryColor),
-                            ),
-                          )
-                        : const SizedBox(),
-                    (otpSent)
-                        ? CustomTextField(
-                            controller: passConfirm,
-                            hintText: 'Нууц үг давтах',
-                            obscureText: !showPasss,
-                            keyboardType: TextInputType.visiblePassword,
-                            validator: validatePassword,
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  showPasss = !showPasss;
-                                });
-                              },
-                              icon: Icon(
-                                  showPasss
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: theme.primaryColor),
-                            ),
-                          )
-                        : const SizedBox(),
-                    (!otpSent)
-                        ? CustomButton(
-                            text: 'Батлагаажуулах код авах',
-                            ontap: () => getOtp(authController),
-                          )
-                        : CustomButton(
-                            text: 'Батлагаажуулах',
-                            ontap: () => confirm(authController),
-                          ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  getOtp(AuthController authController) async {
-    if (ema.text.isNotEmpty && phone.text.isNotEmpty) {
-      dynamic res = await authController.signUpGetOtp(ema.text, phone.text);
-      final keyK = res['errorType'];
-      if (keyK == 1) {
-        setOtpSent(true);
-      }
-      message(res['message']);
-    } else {
-      message('Бүртгэлийг талбарууд гүйцээнэ үү!');
-    }
-  }
-
-  confirm(AuthController authController) async {
-    if (pass.text == passConfirm.text && pass.text.isNotEmpty) {
-      dynamic res = await authController.register(
-          ema.text, phone.text, pass.text, otp.text);
-      message(res['message']);
-      if (res['errorType'] == 1) {
-        Get.back();
-      }
-    } else {
-      message('Нууц үг таарахгүй байна!');
-    }
-  }
-}
-
 topBorderRadius() {
   return const BorderRadius.only(
     topLeft: Radius.circular(30),
     topRight: Radius.circular(30),
   );
-}
-
-class PharmoIndicator extends StatefulWidget {
-  const PharmoIndicator({super.key});
-
-  @override
-  State<PharmoIndicator> createState() => _PharmoIndicatorState();
-}
-
-class _PharmoIndicatorState extends State<PharmoIndicator>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Transform.rotate(
-          angle: _controller.value * 2 * 3.141592653589793, // Full circle
-          child: child,
-        );
-      },
-      child: Image.asset(
-        'assets/logo_circle.png',
-        height: 50,
-      ),
-    );
-  }
 }
 
 Widget authText(String text) {
@@ -548,8 +333,7 @@ Widget authText(String text) {
       style: TextStyle(
         fontSize: Sizes.mediulFontSize,
         fontWeight: FontWeight.bold,
-        color: Theme.of(GlobalKeys.navigatorKey.currentState!.context)
-            .primaryColor,
+        color: theme.primaryColor,
       ),
     ),
   );

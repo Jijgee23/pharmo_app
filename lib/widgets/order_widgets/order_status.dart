@@ -16,14 +16,8 @@ class OrderStatus extends StatelessWidget {
       'Хүргэгдсэн'
     ];
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         Text(
-          'Захиалгын төлөв',
-          style: TextStyle(
-            color: Theme.of(context).primaryColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,9 +58,8 @@ class CustomStep extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Image.asset(
-            reached ? 'assets/icons/check.png' : 'assets/icons/circle.png',
-            height: 25,
-          ),
+              reached ? 'assets/icons/check.png' : 'assets/icons/circle.png',
+              height: 25),
           Text(
             title,
             style: TextStyle(

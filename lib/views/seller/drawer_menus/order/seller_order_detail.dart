@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/order_widgets/order_status.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
-import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
-import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:provider/provider.dart';
 
 class SellerOrderDetail extends StatefulWidget {
@@ -41,129 +41,134 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
     setFetching(false);
   }
 
+  List<String> titles = [
+    'Захиалын дугаар',
+    'Харилцагч',
+    'Явц',
+    'Нийн дүн',
+    'Тоо ширхэг',
+    'Төлбөрийн хэлбэр',
+    'Тайлбар'
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Consumer<PharmProvider>(
       builder: (context, pp, child) {
-        // var cxs = CrossAxisAlignment.center;
         final order = pp.orderDets[0];
+        List<String> datas = [
+          order.orderNo,
+          order.customer,
+          order.status,
+          toPrice(order.totalPrice),
+          order.totalCount.toString(),
+          order.payType,
+          order.note
+        ];
         return (felching == true)
             ? const PharmoIndicator()
             : Scaffold(
-                body: DefaultBox(
-                  title: 'Захиалгын дэлгэрэнгүй',
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Wrap(
-                      children: [
-                        OrderStatus(process: order.process),
-                        Box(
+                appBar: AppBar(leading: const ChevronBack()),
+                body: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                      top: Sizes.bigFontSize,
+                      left: Sizes.smallFontSize,
+                      right: Sizes.smallFontSize),
+                  child: Wrap(
+                    runSpacing: Sizes.smallFontSize,
+                    children: [
+                      ...titles.map((t) => Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '$t:',
+                                  style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: Sizes.mediulFontSize),
+                                ),
+                                Text(maybeNull(datas[titles.indexOf(t)]),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: Sizes.mediulFontSize,
+                                    ))
+                              ],
+                            ),
+                          )),
+                      SizedBox(height: Sizes.mediulFontSize),
+                      OrderStatus(process: order.process),
+                      if (pp.orderDets[0].items.isNotEmpty)
+                        SingleChildScrollView(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Col(t1: 'Захиалын дугаар', t2: order.orderNo),
-                                  Col(t1: 'Харилцагч', t2: order.customer),
-                                  Col(t1: 'Төлөв', t2: order.status)
-                                ],
+                              Text(
+                                'Захиалгын бараанууд',
+                                style: TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: Sizes.mediulFontSize),
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Col(
-                                      t1: 'Нийн дүн',
-                                      t2: toPrice(order.totalPrice)),
-                                  Col(
-                                      t1: 'Тоо ширхэг',
-                                      t2: order.totalCount.toString()),
-                                  Col(t1: 'Төлбөрийн хэлбэр', t2: order.payType)
-                                ],
+                              SizedBox(height: Sizes.mediulFontSize),
+                              ...pp.orderDets[0].items.map(
+                                (item) => Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      boxShadow: shadow(),
+                                      color: AppColors.background,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  padding: const EdgeInsets.all(10),
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Col(t1: 'Нэр', t2: item.itemName),
+                                          Col(
+                                            t1: 'Нийт дүн',
+                                            t2: toPrice(item.itemTotalPrice),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Col(
+                                              t1: 'Тоо ширхэг',
+                                              t2: item.iQty.toString()),
+                                          InkWell(
+                                            onTap: () =>
+                                                changeQty(order.id, item),
+                                            child: const Text(
+                                              'Тоо ширхэг өөрчлөх',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: AppColors.succesColor,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        if (order.note != 'null')
-                          Container(
-                            margin: const EdgeInsets.symmetric(vertical: 5),
-                            child: SelectableText(
-                              'Тайлбар: ${order.note}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 12),
-                            ),
-                          ),
-                        if (pp.orderDets[0].items.isNotEmpty)
-                          SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                ...pp.orderDets[0].items.map(
-                                  (item) => Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        boxShadow: shadow(),
-                                        color: AppColors.background,
-                                        borderRadius:
-                                            BorderRadius.circular(20)),
-                                    padding: const EdgeInsets.all(10),
-                                    margin: const EdgeInsets.only(bottom: 10),
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Col(t1: 'Нэр', t2: item.itemName),
-                                            Col(
-                                              t1: 'Нийт дүн',
-                                              t2: toPrice(item.itemTotalPrice),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Col(
-                                                t1: 'Тоо ширхэг',
-                                                t2: item.iQty.toString()),
-                                            InkWell(
-                                              onTap: () =>
-                                                  changeQty(order.id, item),
-                                              child: const Text(
-                                                'Тоо ширхэг өөрчлөх',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color:
-                                                        AppColors.succesColor,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        CustomButton(
-                          text: 'Захиалгын мэдээлэл засах',
-                          ontap: () {
-                            Get.bottomSheet(
-                              EditSellerOrder(
-                                  note: order.note,
-                                  pt: order.payType,
-                                  oId: order.id),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                      CustomButton(
+                        text: 'Захиалгын мэдээлэл засах',
+                        ontap: () {
+                          Get.bottomSheet(
+                            EditSellerOrder(
+                                note: order.note,
+                                pt: order.payType,
+                                oId: order.id),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               );

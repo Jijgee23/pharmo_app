@@ -24,9 +24,8 @@ class ProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    double fontSize = height * 0.0135;
-    final theme = Theme.of(context);
+    
+    double fontSize = Sizes.height * 0.0135;
     return Consumer<HomeProvider>(builder: (context, home, child) {
       bool isNotPharm = (home.userRole != 'PA');
       return InkWell(
@@ -34,7 +33,7 @@ class ProductWidget extends StatelessWidget {
         child: Stack(
           children: [
             Container(
-              height: height * 0.37,
+              height:  Sizes.height * 0.37,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: Colors.white,
@@ -48,7 +47,7 @@ class ProductWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  image(height, fontSize),
+                  image( Sizes.height, fontSize),
                   Text(
                     item.name!,
                     softWrap: true,
@@ -91,7 +90,7 @@ class ProductWidget extends StatelessWidget {
                         Text(
                           'Үлд: ${maybeNull(item.qty.toString())}',
                           style: TextStyle(
-                              color: theme.colorScheme.onPrimary,
+                              color: theme.colorScheme.onPrimary,fontSize: Sizes.smallFontSize,
                               fontWeight: FontWeight.bold),
                         )
                     ],
@@ -134,7 +133,7 @@ class ProductWidget extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
             image: DecorationImage(
-              fit: BoxFit.scaleDown,
+              fit: BoxFit.contain,
               filterQuality: FilterQuality.high,
               opacity: item.image != null ? 1 : 0.25,
               image: item.image != null && splitURL(item.image!).length == 2
@@ -177,9 +176,8 @@ class ProductWidgetListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-    final fs = height * .013;
-    final theme = Theme.of(context);
+    
+    final fs = Sizes.height * .013;
     final home = Provider.of<HomeProvider>(context, listen: false);
     return InkWell(
       onTap: () => goto(ProductDetail(prod: item)),

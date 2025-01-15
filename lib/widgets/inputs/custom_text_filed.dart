@@ -38,7 +38,6 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sw = MediaQuery.of(context).size.width;
-    final theme = Theme.of(context);
     final border = OutlineInputBorder(
         borderSide:
             BorderSide(color: theme.primaryColor.withOpacity(0.7), width: 1.2),

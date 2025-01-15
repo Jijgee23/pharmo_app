@@ -5,7 +5,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
-import 'package:pharmo_app/views/auth/login.dart';
+import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:provider/provider.dart';
@@ -51,11 +51,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
   Widget build(BuildContext context) {
     final home = Provider.of<HomeProvider>(context, listen: false);
     return (fetching == true)
-        ? const Scaffold(
-            body: Center(
-              child: PharmoIndicator(),
-            ),
-          )
+        ? const Scaffold(body: Center(child: PharmoIndicator()))
         : Consumer<PharmProvider>(
             builder: (context, pp, child) {
               final d = pp.customerDetail;
@@ -161,9 +157,8 @@ info(String v, String v2, TextEditingController controller,
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 20),
-    decoration: BoxDecoration(
-        color: card,
-        borderRadius: BorderRadius.circular(20)),
+    decoration:
+        BoxDecoration(color: card, borderRadius: BorderRadius.circular(20)),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

@@ -143,11 +143,11 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> startShipment(
       int shipmentId, double? lat, double? lng, BuildContext context) async {
     try {
-      var body = jsonEncode({
+      var body = {
         "shipmentId": shipmentId,
         "lat": (lat != null) ? lat : null,
         "lng": (lng != null) ? lng : null
-      });
+      };
       await getLocation(context);
       await HomeProvider().getPosition();
       final res = await apiPatch('start_shipment/', body);
@@ -167,12 +167,12 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> endShipment(int shipmentId, double? lat, double? lng,
       bool force, BuildContext context) async {
     try {
-      var body = jsonEncode({
+      var body = {
         "shipmentId": shipmentId,
         "lat": (lat != null) ? lat : null,
         "lng": (lng != null) ? lng : null,
         "force": force
-      });
+      };
       await HomeProvider().getPosition();
       await getLocation(context);
       final res = await apiPatch('end_shipment/', body);
@@ -191,7 +191,7 @@ class JaggerProvider extends ChangeNotifier {
       String note, String amount, BuildContext context) async {
     try {
       final res = await apiPost(
-          'shipment_expense/', jsonEncode({"note": note, "amount": amount}));
+          'shipment_expense/', {"note": note, "amount": amount});
       if (res.statusCode == 201) {
         await getExpenses();
         return buildResponse(0, null, 'Түгээлтийн зарлага нэмэгдлээ.');
@@ -207,8 +207,8 @@ class JaggerProvider extends ChangeNotifier {
 
   addnote(int shipId, int itemId, BuildContext context) async {
     try {
-      var body = jsonEncode(
-          {"shipId": shipId, "itemId": itemId, "note": feedback.text});
+      var body = 
+          {"shipId": shipId, "itemId": itemId, "note": feedback.text};
       final res = await apiPatch('shipment_add_note/', body);
       if (res.statusCode == 200) {
         message('Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
@@ -221,8 +221,8 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> setFeedback(int shipId, int itemId) async {
     try {
-      var body = jsonEncode(
-          {"shipId": shipId, "itemId": itemId, "note": feedback.text});
+      var body =
+          {"shipId": shipId, "itemId": itemId, "note": feedback.text};
       final res = await apiPatch('shipment_add_note/', body);
       if (res.statusCode == 200) {
         message('Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
@@ -236,7 +236,7 @@ class JaggerProvider extends ChangeNotifier {
   Future<dynamic> editExpenseAmount(int id) async {
     try {
       final res = await apiPatch('shipment_expense/$id/',
-          jsonEncode({"note": note.text, "amount": amount.text}));
+          {"note": note.text, "amount": amount.text});
       notifyListeners();
       if (res.statusCode == 200) {
         final response = convertData(res);
@@ -263,7 +263,7 @@ class JaggerProvider extends ChangeNotifier {
   updateQTY(int itemId, int qty) async {
     try {
       var res = await apiPatch(
-          'update_item_qty/', jsonEncode({"itemId": itemId, "qty": qty}));
+          'update_item_qty/', {"itemId": itemId, "qty": qty});
       if (res.statusCode == 200) {
         await getJaggers();
         message('Амжилттай засагдлаа.');
@@ -332,7 +332,7 @@ class JaggerProvider extends ChangeNotifier {
         await prefs.setString('latitude', latitude);
         await prefs.setString('longitude', longitude);
         final res = await apiPatch('update_shipment_location/',
-            jsonEncode({"lat": latitude, "lon": longitude}));
+            {"lat": latitude, "lon": longitude});
         if (res.statusCode == 200) {
           final response = convertData(res);
           return {

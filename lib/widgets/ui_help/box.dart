@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class Box extends StatelessWidget {
   final Widget child;
@@ -8,16 +9,14 @@ class Box extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       padding: EdgeInsets.symmetric(
-          vertical: size.height * 0.015, horizontal: size.width * 0.0025),
+          vertical: Sizes.height * 0.015, horizontal:  Sizes.width * 0.0025),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(size.height * 0.005),
+        borderRadius: BorderRadius.circular(Sizes.height * 0.005),
         boxShadow: shadow,
       ),
       child: child,

@@ -4,6 +4,7 @@ import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -72,7 +73,6 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
         fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
     var box = const SizedBox(height: 10);
     final promo = widget.promo;
-    final theme = Theme.of(context);
     return Consumer2<HomeProvider, PromotionProvider>(
       builder: (_, home, promotionProvider, child) => Scaffold(
         backgroundColor: theme.primaryColor,

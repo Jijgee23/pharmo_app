@@ -14,12 +14,9 @@ class Ibtn extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.all(Sizes.width * 0.02),
         padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(blurRadius: 7, color: Theme.of(context).shadowColor),
-          ],
         ),
         child: Center(
           child: Icon(icon, color: color ?? Colors.black, size: 18),

@@ -17,50 +17,33 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading,
     this.title,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
-
   @override
   final Size preferredSize;
 
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context);
-    final theme = Theme.of(context);
-    return Consumer<HomeProvider>(
-      builder: (_, homeprovider, child) {
+    return Consumer2<HomeProvider, BasketProvider>(
+      builder: (_, homeprovider, basketProvider, child) {
         return ChangeNotifierProvider(
           create: (context) => BasketProvider(),
           child: AppBar(
-            iconTheme: IconThemeData(color: theme.primaryColor),
             centerTitle: true,
             title: title,
             leading: leading,
             actions: [
-              // Ibtn(
-              //   onTap: () {},
-              //   icon: Icons.notifications,
-              //   color: theme.primaryColor,
-              // ),
               InkWell(
-                onTap: () {
-                  homeprovider
-                      .changeIndex(homeprovider.userRole == 'PA' ? 1 : 2);
-                },
+                onTap: () => homeprovider
+                    .changeIndex(homeprovider.userRole == 'PA' ? 1 : 2),
                 child: Stack(
                   children: [
                     Container(
                       margin: const EdgeInsets.only(right: 10),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                              blurRadius: 7,
-                              color: Theme.of(context).shadowColor),
-                        ],
-                      ),
                       child: const Center(
-                          child: Icon(Icons.shopping_cart, size: 18)),
+                          child: Icon(
+                        Icons.shopping_cart,
+                        size: 24,
+                        color: Colors.white,
+                      )),
                     ),
                     Positioned(
                       right: 2,

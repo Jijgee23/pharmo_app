@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class Button extends StatelessWidget {
   final String text;
@@ -10,7 +11,6 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     return Container(
       width: width ?? size.width * 0.4,

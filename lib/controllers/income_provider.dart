@@ -1,7 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/income.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -64,10 +60,10 @@ class IncomeProvider extends ChangeNotifier {
     try {
       final response = await apiPost(
           'income_record/',
-          jsonEncode({
+         {
             'note': note,
             'amount': amount,
-          }));
+          });
       if (response.statusCode == 201) {
         message('Амжилттай бүртгэгдлээ');
       }
@@ -81,7 +77,7 @@ class IncomeProvider extends ChangeNotifier {
   updateIncome(int id, String note, String amount) async {
     try {
       final response = await apiPatch(
-          'income_record/$id/', jsonEncode({'note': note, 'amount': amount}));
+          'income_record/$id/', {'note': note, 'amount': amount});
       if (response.statusCode == 200) {
         message('Амжилттай');
       }

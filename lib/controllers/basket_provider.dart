@@ -1,6 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
@@ -9,6 +6,7 @@ import 'package:pharmo_app/views/public_uses/cart/order_done.dart';
 import 'package:pharmo_app/views/public_uses/cart/qr_code.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class BasketProvider extends ChangeNotifier {
   final TextEditingController qty = TextEditingController();
@@ -56,7 +54,7 @@ class BasketProvider extends ChangeNotifier {
 
   getBasket() async {
     try {
-      final resBasket = await apiGet('get_basket');
+      final resBasket = await apiGet('get_basket/');
       if (resBasket.statusCode == 200) {
         final res = convertData(resBasket);
         _basket = Basket.fromJson(res);
@@ -87,8 +85,7 @@ class BasketProvider extends ChangeNotifier {
                 shoppingCarts[i]["qty"];
           }
         }
-        final response =
-            await apiPatch('check_qty/', jsonEncode({"data": bodyStr}));
+        final response = await apiPatch('check_qty/', {"data": bodyStr});
         if (response.statusCode == 200) {
           Map res = convertData(response);
           qtys.clear();
@@ -112,9 +109,9 @@ class BasketProvider extends ChangeNotifier {
 
   checkItemQty(int id, int qty) async {
     try {
-      var body = jsonEncode({
+      var body = {
         "data": {"$id": qty}
-      });
+      };
       final response = await apiPatch('check_qty/', body);
       if (response.statusCode == 200) {
         Map<String, dynamic> res = convertData(response);
@@ -149,7 +146,7 @@ class BasketProvider extends ChangeNotifier {
         case 1:
           final response = await apiPost(
             'basket_item/',
-            jsonEncode({'product': productId, 'qty': qty}),
+            {'product': productId, 'qty': qty},
           );
           if (response.statusCode == 201) {
             return buildResponse(1, response, 'сагсанд нэмэгдлээ.');
@@ -183,7 +180,7 @@ class BasketProvider extends ChangeNotifier {
   Future<dynamic> clearBasket() async {
     try {
       final response =
-          await apiPost('clear_basket/', jsonEncode({'basketId': basket.id}));
+          await apiPost('clear_basket/', {'basketId': basket.id});
       await getBasket();
       if (response.statusCode == 200) {
         debugPrint('basket cleared');
@@ -213,8 +210,8 @@ class BasketProvider extends ChangeNotifier {
       } else {
         qty = qty - 1;
       }
-      final resQR = await apiPatch('basket_item/$itemId/',
-          jsonEncode({"qty": int.parse(qty.toString())}));
+      http.Response resQR = await apiPatch(
+          'basket_item/$itemId/', {"qty": int.parse(qty.toString())});
       if (resQR.statusCode == 200) {
         await getBasket();
         return buildResponse(1, null, 'Барааны тоог амжилттай өөрчиллөө.');
@@ -233,12 +230,12 @@ class BasketProvider extends ChangeNotifier {
       required String note,
       required BuildContext context}) async {
     try {
-      var body = jsonEncode({
+      var body = {
         'basketId': basketId,
         'branchId': (branchId == -1) ? null : branchId,
         'note': note != '' ? note : null
-      });
-      final response = await apiPost('pharmacy/order/', body);
+      };
+      http.Response response = await apiPost('pharmacy/order/', body);
       final res = convertData(response);
       if (response.statusCode == 200) {
         Future(() async {
@@ -261,10 +258,10 @@ class BasketProvider extends ChangeNotifier {
       String? note,
       required BuildContext context}) async {
     try {
-      var body = jsonEncode({
+      var body ={
         'branchId': (branchId == 0) ? null : branchId,
         'note': note != '' ? note : null
-      });
+      };
       final resQR = await apiPost('ci/', body);
       final data = convertData(resQR);
       final status = resQR.statusCode;

@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:http/http.dart' as http;
 
 class MyOrderProvider extends ChangeNotifier {
   List<MyOrderModel> _orders = <MyOrderModel>[];
@@ -32,7 +30,7 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  filterOrder(String type, String query) async {
+  Future filterOrder(String type, String query) async {
     try {
       final res = await apiGet('seller/order/?$type=$query');
       if (res.statusCode == 200) {
@@ -215,28 +213,24 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> confirmOrder(int orderId, BuildContext context) async {
+  Future confirmOrder(int orderId) async {
     try {
-      final res =
-          await apiPatch('pharmacy/accept_order/', jsonEncode({"id": orderId}));
-      final response = convertData(res);
-      print('response: $response ConfirmOrderStatus: ${res.statusCode}');
-      if (res.statusCode == 200) {
-        message(
-             'Таны захиалга амжилттай баталгаажлаа.');
-        notifyListeners();
-      } else if (res.statusCode == 400) {
-        message( 'Захиалгын түгээлт эхлээгүй');
-      } else {
-        notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Захиалга баталгаажуулах үед алдаа гарлаа.'
-        };
+      http.Response res =
+          await apiPatch('pharmacy/accept_order/', {"id": orderId});
+      print('++++++++++++++++++${res.statusCode}++++++++++++++++++');
+      switch (res.statusCode) {
+        case 200:
+          await getMyorders();
+          return buildResponse(
+              1, null, 'Таны захиалга амжилттай баталгаажлаа.');
+
+        case 400:
+          return buildResponse(2, null, 'Захиалгын түгээлт эхлээгүй');
+        default:
+          return buildResponse(3, null, 'Түр хүлээгээд дахин оролдно уу!');
       }
     } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
+      return buildResponse(4, null, 'Түр хүлээгээд дахин оролдно уу!');
     }
   }
 }

@@ -8,7 +8,7 @@ class Ctnr extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final theme = Theme.of(context);
+    // theme
     final h = Sizes.height;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: h * .015, vertical: h * .015),
