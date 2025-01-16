@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/basket.dart';
 import 'package:pharmo_app/models/order_qrcode.dart';
+import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/cart/order_done.dart';
 import 'package:pharmo_app/views/public_uses/cart/qr_code.dart';
@@ -85,7 +89,8 @@ class BasketProvider extends ChangeNotifier {
                 shoppingCarts[i]["qty"];
           }
         }
-        final response = await apiPatch('check_qty/', {"data": bodyStr});
+        final response =
+            await apiPatch('check_qty/', jsonEncode({"data": bodyStr}));
         if (response.statusCode == 200) {
           Map res = convertData(response);
           qtys.clear();
@@ -109,10 +114,11 @@ class BasketProvider extends ChangeNotifier {
 
   checkItemQty(int id, int qty) async {
     try {
-      var body = {
-        "data": {"$id": qty}
-      };
-      final response = await apiPatch('check_qty/', body);
+      http.Response response = await apiPatch(
+          'check_qty/',
+          jsonEncode({
+            "data": {'$id': qty}
+          }));
       if (response.statusCode == 200) {
         Map<String, dynamic> res = convertData(response);
         if (res['$id'] == null) {
@@ -131,38 +137,31 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> addBasket({
-    int? productId,
-    int? itemnameId,
+  Future addProduct({
+    required Product product,
     required int qty,
   }) async {
-    final int checkId = itemnameId ?? productId!;
     try {
-      final dynamic check = await checkItemQty(checkId, qty);
-      final int status = check['errorType'];
-      switch (status) {
-        case 0:
-          return buildResponse(0, null, 'Бараа дууссан.');
-        case 1:
-          final response = await apiPost(
-            'basket_item/',
-            {'product': productId, 'qty': qty},
-          );
-          if (response.statusCode == 201) {
-            return buildResponse(1, response, 'сагсанд нэмэгдлээ.');
+      http.Response response = await apiPatch(
+          'user_basket/', jsonEncode({'product_id': product.id, 'qty': qty}));
+      if (response.statusCode == 200) {
+        if (convertData(response).toString().contains('available_qty')) {
+          if (convertData(response)['available_qty'] == 0) {
+            return buildResponse(4, null, 'Бараа дууссан');
           } else {
-            return buildResponse(
-                2, null, 'Уг бараа өмнө сагсанд бүртгэгдсэн байна.');
+            return buildResponse(0, null,
+                'Үлдэгдэл хүрэлцэхгүй байна. Боломжит үлдэглэл ${convertData(response)['available_qty']}');
           }
-        case 2:
-          return buildResponse(3, null, 'Барааны үлдэгдэл хүрэлцэхгүй байна.');
-        case 3:
-        default:
-          return buildResponse(4, null, 'Алдаа гарлаа.');
+        } else {
+          await getBasket();
+          return buildResponse(1, null, '${product.name} сагсанд нэмэгдлээ');
+        }
+      } else {
+        return buildResponse(2, null, wait);
       }
     } catch (e, stackTrace) {
       debugPrint('Stack Trace: $stackTrace');
-      return buildResponse(4, e, 'Алдаа гарлаа.');
+      return buildResponse(3, null, wait);
     }
   }
 
@@ -179,8 +178,7 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket() async {
     try {
-      final response =
-          await apiPost('clear_basket/', {'basketId': basket.id});
+      final response = await apiPost('clear_basket/', {'basketId': basket.id});
       await getBasket();
       if (response.statusCode == 200) {
         debugPrint('basket cleared');
@@ -210,8 +208,8 @@ class BasketProvider extends ChangeNotifier {
       } else {
         qty = qty - 1;
       }
-      http.Response resQR = await apiPatch(
-          'basket_item/$itemId/', {"qty": int.parse(qty.toString())});
+      http.Response resQR = await apiPatch('basket_item/$itemId/',
+          jsonEncode({"qty": int.parse(qty.toString())}));
       if (resQR.statusCode == 200) {
         await getBasket();
         return buildResponse(1, null, 'Барааны тоог амжилттай өөрчиллөө.');
@@ -258,7 +256,7 @@ class BasketProvider extends ChangeNotifier {
       String? note,
       required BuildContext context}) async {
     try {
-      var body ={
+      var body = {
         'branchId': (branchId == 0) ? null : branchId,
         'note': note != '' ? note : null
       };

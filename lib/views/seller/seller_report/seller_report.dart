@@ -63,7 +63,7 @@ class _SellerReportState extends State<SellerReportPage> {
         body: Container(
           padding: EdgeInsets.all(Sizes.smallFontSize),
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: Sizes.mediulFontSize),
+            padding: EdgeInsets.symmetric(horizontal: Sizes.mediumFontSize),
             child: Wrap(
               children: [
                 Container(
@@ -141,7 +141,7 @@ class _SellerReportState extends State<SellerReportPage> {
         vertical: Sizes.smallFontSize,
       ),
       decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-      width: Sizes.width / 3 - (Sizes.mediulFontSize * 2.5),
+      width: Sizes.width / 3 - (Sizes.mediumFontSize * 2.5),
       child: Center(child: SmallText(t)),
     );
   }
@@ -171,7 +171,7 @@ class _SellerReportState extends State<SellerReportPage> {
         vertical: Sizes.smallFontSize,
       ),
       decoration: BoxDecoration(color: color ?? Theme.of(context).primaryColor),
-      width: Sizes.width / 3 - (Sizes.mediulFontSize * 2.5),
+      width: Sizes.width / 3 - (Sizes.mediumFontSize * 2.5),
       child: Center(child: SmallText(t)),
     );
   }

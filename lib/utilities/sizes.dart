@@ -11,7 +11,7 @@ class Sizes {
   }
 
   static final smallFontSize = height * 0.012;
-  static final mediulFontSize = height * 0.016;
+  static final mediumFontSize = height * 0.016;
   static final bigFontSize = height * 0.02;
 }
 
@@ -27,3 +27,4 @@ final defaultDecoration = BoxDecoration(
 final ctx = GlobalKeys.navigatorKey.currentState!.context;
 final screenH = Sizes.height;
 final screenW = Sizes.width;
+String wait = 'Түр хүлээгээд дахин оролдоно уу!';

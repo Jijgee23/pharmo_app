@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/income.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -77,7 +79,7 @@ class IncomeProvider extends ChangeNotifier {
   updateIncome(int id, String note, String amount) async {
     try {
       final response = await apiPatch(
-          'income_record/$id/', {'note': note, 'amount': amount});
+          'income_record/$id/', jsonEncode({'note': note, 'amount': amount}));
       if (response.statusCode == 200) {
         message('Амжилттай');
       }

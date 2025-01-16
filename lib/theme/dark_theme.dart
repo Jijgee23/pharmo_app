@@ -31,17 +31,10 @@ final darkTheme = ThemeData(
       color: darkPrimary,
     ),
     focusedBorder: const OutlineInputBorder(
-      borderSide: BorderSide(
-        color: darkPrimary,
-        width: 1,
-      ),
+      borderSide: BorderSide(color: darkPrimary, width: 1),
     ),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-    labelStyle: const TextStyle(
-      color: darkPrimary,
-    ),
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+    labelStyle: const TextStyle(color: darkPrimary),
   ),
   checkboxTheme: CheckboxThemeData(
     checkColor: WidgetStateProperty.all(darkPrimary),

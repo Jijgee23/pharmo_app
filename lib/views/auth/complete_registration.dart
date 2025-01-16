@@ -82,10 +82,10 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
       appBar: AppBar(
         title: Text('Бүртгэл гүйцээх',
             style:
-                TextStyle(color: Colors.black, fontSize: Sizes.mediulFontSize)),
+                TextStyle(color: Colors.black, fontSize: Sizes.mediumFontSize)),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: Sizes.mediulFontSize),
+        padding: EdgeInsets.symmetric(horizontal: Sizes.mediumFontSize),
         child: Wrap(
           spacing: Sizes.width / 2,
           runSpacing: Sizes.bigFontSize,

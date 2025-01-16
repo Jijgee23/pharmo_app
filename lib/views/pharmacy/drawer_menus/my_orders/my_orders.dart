@@ -373,7 +373,7 @@ class _MyOrderState extends State<MyOrder> {
                                 ),
                                 SizedBox(width: Sizes.smallFontSize),
                                 Icon(Icons.check,
-                                    color: white, size: Sizes.mediulFontSize)
+                                    color: white, size: Sizes.mediumFontSize)
                               ],
                             ),
                           ),

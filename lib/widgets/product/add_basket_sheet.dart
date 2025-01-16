@@ -48,14 +48,17 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${widget.product.name!} /${toPrice(widget.product.price)}/',
-                softWrap: true,
-                style: TextStyle(
-                  color: AppColors.secondary,
-                  fontWeight: FontWeight.w600,
-                  overflow: TextOverflow.ellipsis,
-                  fontSize: fs,
+              Expanded(
+                child: Text(
+                  '${widget.product.name!} /${toPrice(widget.product.price)}/',
+                  softWrap: true,
+                  maxLines: 3,
+                  style: TextStyle(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.w600,
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: fs,
+                  ),
                 ),
               ),
               const PopSheet()
@@ -100,27 +103,9 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
   }
 
   Future<void> addBasket(Product item, int qty) async {
-    try {
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
-      Map<String, dynamic> res = await basketProvider.addBasket(
-        productId: item.id,
-        itemnameId: item.itemnameId,
-        qty: qty,
-      );
-      switch (res['errorType']) {
-        case 1:
-          await basketProvider.getBasket();
-          message('${item.name} сагсанд нэмэгдлээ');
-          break;
-        default:
-          message(res['message']);
-          break;
-      }
-    } catch (e, stackTrace) {
-      debugPrint('Stack Trace: $stackTrace');
-      message('Алдаа гарлаа. Дахин оролдоно уу!');
-    }
+    final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    dynamic res = await basketProvider.addProduct(qty: qty, product: item);
+    message(res['message']);
   }
 }
 

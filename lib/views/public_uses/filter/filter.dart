@@ -5,9 +5,11 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/category.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filter/filtered_products.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class FilterPage extends StatefulWidget {
@@ -50,15 +52,15 @@ class _FilterPageState extends State<FilterPage> {
               (homeProvider.mnfrs.isNotEmpty) ? 'Нийлүүлэгч' : '',
               (homeProvider.vndrs.isNotEmpty) ? 'Үйлдвэрлэгч' : '',
             ];
+            List<dynamic> views = [_categories(), _mnfrs(), _vndrs()];
+
             return Scaffold(
               appBar: CustomAppBar(
-                leading: back(color: Theme.of(context).primaryColor),
-                title: const Text(
-                  'Ангилал',
-                  style: TextStyle(fontSize: 14),
-                ),
+                leading: const ChevronBack(),
+                title: Text('Ангилал',
+                    style: TextStyle(fontSize: Sizes.mediumFontSize)),
               ),
-              body: Column(   
+              body: Column(
                 children: [
                   TabBar(
                       indicatorColor: Colors.blue,
@@ -78,8 +80,18 @@ class _FilterPageState extends State<FilterPage> {
                           )
                           .toList()),
                   Expanded(
-                    child: TabBarView(
-                        children: [_categories(), _mnfrs(), _vndrs()]),
+                    child: TabBarView(children: [
+                      ...views.map(
+                        (v) => SingleChildScrollView(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Sizes.smallFontSize,
+                          ),
+                          child: Column(
+                            children: v,
+                          ),
+                        ),
+                      ),
+                    ]),
                   ),
                 ],
               ),
@@ -90,79 +102,69 @@ class _FilterPageState extends State<FilterPage> {
     );
   }
 
-  _categories() {
+  List<Widget> _categories() {
     final cats = homeProvider.categories;
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          ...cats.map((cat) => CategoryItem(cat: cat)),
-        ],
-      ),
-    );
+    return [
+      ...cats.map(
+        (cat) => CategoryItem(cat: cat),
+      )
+    ];
   }
 
   _mnfrs() {
     final mnfrs = homeProvider.mnfrs;
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          ...mnfrs.map(
-            (m) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  child: Text(
-                    homeProvider.mnfrs[mnfrs.indexOf(m)].name,
-                    style: const TextStyle(color: Colors.black, fontSize: 12),
-                  ),
-                  onTap: () {
-                    goto(
-                      FilteredProducts(
-                          type: 'mnfr',
-                          title: homeProvider.mnfrs[mnfrs.indexOf(m)].name,
-                          filterKey: homeProvider.mnfrs[mnfrs.indexOf(m)].id),
-                    );
-                  },
-                ),
+    return [
+      ...mnfrs.map(
+        (m) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              child: Text(
+                homeProvider.mnfrs[mnfrs.indexOf(m)].name,
+                style: const TextStyle(color: Colors.black, fontSize: 12),
               ),
+              onTap: () {
+                goto(
+                  FilteredProducts(
+                      type: 'mnfr',
+                      title: homeProvider.mnfrs[mnfrs.indexOf(m)].name,
+                      filterKey: homeProvider.mnfrs[mnfrs.indexOf(m)].id),
+                );
+              },
             ),
           ),
-        ],
+        ),
       ),
-    );
+    ];
   }
 
   _vndrs() {
     final vndrs = homeProvider.vndrs;
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          ...vndrs.map(
-            (v) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  child: Text(
-                    homeProvider.vndrs[vndrs.indexOf(v)].name,
-                    style: const TextStyle(color: Colors.black, fontSize: 12),
-                  ),
-                  onTap: () {
-                    goto(
-                      FilteredProducts(
-                          type: 'vndr',
-                          title: homeProvider.vndrs[vndrs.indexOf(v)].name,
-                          filterKey: homeProvider.vndrs[vndrs.indexOf(v)].id),
-                    );
-                  },
-                ),
+    return [
+      ...vndrs.map(
+        (v) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: InkWell(
+              child: Text(
+                homeProvider.vndrs[vndrs.indexOf(v)].name,
+                style: const TextStyle(color: Colors.black, fontSize: 12),
               ),
+              onTap: () {
+                goto(
+                  FilteredProducts(
+                      type: 'vndr',
+                      title: homeProvider.vndrs[vndrs.indexOf(v)].name,
+                      filterKey: homeProvider.vndrs[vndrs.indexOf(v)].id),
+                );
+              },
             ),
           ),
-        ],
+        ),
       ),
-    );
+    ];
   }
 }
 
@@ -212,7 +214,7 @@ class _CategoryItemState extends State<CategoryItem> {
                             : Icons.chevron_right_rounded,
                         color: isExpanded
                             ? AppColors.secondary
-                            : Theme.of(context).colorScheme.onSecondary,
+                            : theme.colorScheme.onSecondary,
                         size: 20,
                       )
                     : const SizedBox()

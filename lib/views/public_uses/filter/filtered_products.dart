@@ -52,13 +52,17 @@ class _FilteredProductsState extends State<FilteredProducts> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: ChevronBack(color: theme.primaryColor),
+        leading: const ChevronBack(),
         centerTitle: true,
         title: Text(
           widget.title,
-          style:  TextStyle(color: theme.primaryColor, fontSize: 14),
+          style: TextStyle(color: theme.primaryColor, fontSize: 14),
         ),
-        actions: const [CartIcon()],
+        actions: const [
+          CartIcon(
+            color: Colors.white,
+          )
+        ],
       ),
       body: Container(
         padding: const EdgeInsets.only(right: 10, left: 10),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
@@ -216,7 +217,7 @@ class MyOrderProvider extends ChangeNotifier {
   Future confirmOrder(int orderId) async {
     try {
       http.Response res =
-          await apiPatch('pharmacy/accept_order/', {"id": orderId});
+          await apiPatch('pharmacy/accept_order/', jsonEncode({"id": orderId}));
       print('++++++++++++++++++${res.statusCode}++++++++++++++++++');
       switch (res.statusCode) {
         case 200:

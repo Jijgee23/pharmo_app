@@ -111,12 +111,12 @@ class _LocationSelectorState extends State<LocationSelector> {
                 ),
                 Positioned(
                   bottom: Sizes.smallFontSize,
-                  left: Sizes.width / 2 - Sizes.mediulFontSize * 2,
+                  left: Sizes.width / 2 - Sizes.mediumFontSize * 2,
                   child: InkWell(
                     onTap: () => Navigator.pop(context, _selectedLocation),
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                          horizontal: Sizes.mediulFontSize,
+                          horizontal: Sizes.mediumFontSize,
                           vertical: Sizes.smallFontSize),
                       decoration: BoxDecoration(
                           color: Colors.green,

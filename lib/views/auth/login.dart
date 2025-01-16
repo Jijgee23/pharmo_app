@@ -331,7 +331,7 @@ Widget authText(String text) {
     child: Text(
       text,
       style: TextStyle(
-        fontSize: Sizes.mediulFontSize,
+        fontSize: Sizes.mediumFontSize,
         fontWeight: FontWeight.bold,
         color: theme.primaryColor,
       ),

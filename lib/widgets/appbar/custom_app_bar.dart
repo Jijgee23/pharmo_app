@@ -39,11 +39,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Container(
                       margin: const EdgeInsets.only(right: 10),
                       child: const Center(
-                          child: Icon(
-                        Icons.shopping_cart,
-                        size: 24,
-                        color: Colors.white,
-                      )),
+                        child: Icon(
+                          Icons.shopping_cart,
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                     Positioned(
                       right: 2,

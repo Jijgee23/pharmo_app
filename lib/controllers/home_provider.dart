@@ -106,25 +106,41 @@ class HomeProvider extends ChangeNotifier {
 
   void refresh(BuildContext context, HomeProvider homeProvider,
       PromotionProvider promotionProvider) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (PromotionProvider().markedPromotions.isNotEmpty) {
-        showMarkedPromos(context, promotionProvider);
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (PromotionProvider().markedPromotions.isNotEmpty) {
+    //     showMarkedPromos(context, promotionProvider);
+    //   }
+    // });
   }
 
   // Барааний жагсаалт & бараа хайх
   getProducts(int pageKey) async {
     try {
-      final response = await apiGet(!searching
-          ? 'products/?page=$pageKey&page_size=$pageSize'
-          : 'products/search/?k=$queryType&v=$query');
+      final response =
+          await apiGet('products/?page=$pageKey&page_size=$pageSize');
       if (response.statusCode == 200) {
         final res = convertData(response);
         final prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
         return prods;
+      }
+    } catch (e) {
+      debugPrint('error============= on getProduct> ${e.toString()}');
+    }
+  }
+
+  getProductsByQuery(String query) async {
+    try {
+      if (query.isNotEmpty) {
+        final response = await apiGet('products/search/?k=$queryType&v=$query');
+        if (response.statusCode == 200) {
+          final res = convertData(response);
+          final prods = (res['results'] as List)
+              .map((data) => Product.fromJson(data))
+              .toList();
+          return prods;
+        }
       }
     } catch (e) {
       debugPrint('error============= on getProduct> ${e.toString()}');
@@ -379,8 +395,8 @@ class HomeProvider extends ChangeNotifier {
 
   getCustomerBranch() async {
     try {
-      final response = await apiPost('seller/customer_branch/',
-          {'customerId': selectedCustomerId});
+      final response = await apiPost(
+          'seller/customer_branch/', {'customerId': selectedCustomerId});
       branchList.clear();
       if (response.statusCode == 200) {
         List<dynamic> res = convertData(response);
@@ -455,7 +471,7 @@ class HomeProvider extends ChangeNotifier {
   deactiveUser(String password, BuildContext context) async {
     try {
       final response = await apiPatch(
-          'auth/delete_user_account/', {'pwd': password});
+          'auth/delete_user_account/', jsonEncode({'pwd': password}));
       if (response.statusCode == 200) {
         AuthController().logout();
         message(
@@ -472,13 +488,12 @@ class HomeProvider extends ChangeNotifier {
   createSellerOrder(BuildContext context, String type) async {
     final basket = Provider.of<BasketProvider>(context, listen: false);
     try {
-      Object body = 
-        {
-          'customer_id': selectedCustomerId,
-          'basket_id': basket.basket.id,
-          'payType': type,
-          "note": (note != null) ? note : null
-        };
+      Object body = {
+        'customer_id': selectedCustomerId,
+        'basket_id': basket.basket.id,
+        'payType': type,
+        "note": (note != null) ? note : null
+      };
       final response = await apiPost('seller/order/', body);
       if (response.statusCode == 201) {
         final res = convertData(response);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/seller/customer/customer_details_paga.dart';
@@ -167,57 +168,66 @@ class _CustomerListState extends State<CustomerList> {
   }
 
   // Харилцагч
-  InkWell _customerBuilder(HomeProvider homeProvider, Customer c) {
-    return InkWell(
-      onTap: () => _onTabCustomer(c),
-      child: Ctnr(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    greyText(
-                        c.name!,
-                        (homeProvider.selectedCustomerId == c.id)
-                            ? AppColors.succesColor
-                            : black),
-                    if (c.loanBlock == true)
-                      Text('Харилцагч дээр захиалга зээлээр өгөхгүй!',
-                          style: redText),
-                    const SizedBox(width: 10),
-                    if (c.location == false)
-                      Text('Байршил тодорхойгүй', style: redText)
-                  ],
+  Widget _customerBuilder(HomeProvider homeProvider, Customer c) {
+    bool selected = c.id == homeProvider.selectedCustomerId;
+    return Ctnr(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              InkWell(
+                onTap: () => _onTabCustomer(c),
+                child: AnimatedContainer(
+                  duration: const Duration(seconds: 1),
+                  padding: EdgeInsets.all(!selected ? 12 : 2),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey)),
+                  child: selected
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : const SizedBox(),
                 ),
-              ],
-            ),
-            InkWell(
-              onTap: () => goto(CustomerDetailsPage(customer: c)),
-              child: Icon(
-                Icons.chevron_right_rounded,
-                color: Colors.blue.shade700,
               ),
-            )
-          ],
-        ),
+              SizedBox(width: Sizes.mediumFontSize),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  greyText(c.name!, selected ? AppColors.succesColor : grey600),
+                  if (c.loanBlock == true)
+                    Text('Харилцагч дээр захиалга зээлээр өгөхгүй!',
+                        style: redText),
+                  const SizedBox(width: 10),
+                  if (c.location == false)
+                    Text('Байршил тодорхойгүй', style: redText)
+                ],
+              ),
+            ],
+          ),
+          InkWell(
+            onTap: () => goto(CustomerDetailsPage(customer: c)),
+            child: Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.blue.shade700,
+            ),
+          )
+        ],
       ),
     );
   }
 
   TextStyle redText = TextStyle(
-    color: Colors.red.shade800,
-    fontSize: 12,
-    fontWeight: FontWeight.w600,
+    color: Colors.red.shade600,
+    fontSize: Sizes.smallFontSize,
+    fontWeight: FontWeight.w400,
   );
 
   _onTabCustomer(Customer c) {
     if (c.rn != null) {
       homeProvider.changeSelectedCustomerId(c.id!);
       homeProvider.changeSelectedCustomerName(c.name!);
-      homeProvider.changeIndex(1);
+      // homeProvider.changeIndex(1);
     } else {
       message('Регистерийн дугааргүй харилцагч сонгох боломжгүй!');
     }
@@ -228,10 +238,17 @@ class _CustomerListState extends State<CustomerList> {
       onTap: () => registerCustomer(pp),
       child: Ctnr(
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            greyText('Харилцагч бүртгэх', null),
-            const Icon(Icons.add, color: succesColor),
+            Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey)),
+                child: const Icon(Icons.add, color: Colors.green)),
+            SizedBox(width: Sizes.mediumFontSize),
+            greyText('Харилцагч бүртгэх', grey600),
           ],
         ),
       ),
@@ -287,18 +304,19 @@ class _CustomerListState extends State<CustomerList> {
     } else {
       await pp
           .registerCustomer(
-            name.text,
-            rn.text,
-            email.text,
-            phone.text,
-            note.text,
-            homeProvider.currentLatitude.toString(),
-            homeProvider.currentLongitude.toString(),
-            context,
-          )
-          .whenComplete(
-            () => popSheet(),
-          );
+        name.text,
+        rn.text,
+        email.text,
+        phone.text,
+        note.text,
+        homeProvider.currentLatitude.toString(),
+        homeProvider.currentLongitude.toString(),
+        context,
+      )
+          .whenComplete(() {
+        pp.getCustomers(1, 100, context);
+        popSheet();
+      });
     }
   }
 

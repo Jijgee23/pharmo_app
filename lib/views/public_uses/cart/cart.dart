@@ -53,46 +53,43 @@ class _CartState extends State<Cart> {
         final basketIsEmpty =
             (basketProvider.basket.totalCount == 0 || basket.items!.isEmpty);
         return Scaffold(
-          body: Container(
-            margin: const EdgeInsets.only(bottom: kToolbarHeight),
-            child: Column(
-              children: [
-                Expanded(
+          body: basketIsEmpty
+              ? const Center(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      EmptyBasket(),
+                    ],
+                  ),
+                )
+              : Container(
+                  margin: const EdgeInsets.only(bottom: kToolbarHeight),
+                  child: Column(
                     children: [
                       SizedBox(height: Sizes.smallFontSize),
                       // Сагсны мэдээлэл
-                      if (!basketIsEmpty) const CartInfo(),
-                      // Сагсанд байгаа бараанууд
-                      (!basketIsEmpty)
-                          ? Expanded(
-                              child: ListView.builder(
-                                itemCount: cartDatas.length,
-                                itemBuilder: (context, index) {
-                                  return CartItem(
-                                      detail: cartDatas[index] ?? {});
-                                },
-                              ),
-                            )
-                          : const Center(child: EmptyBasket()),
+                      const CartInfo(),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: cartDatas.length,
+                          itemBuilder: (context, index) {
+                            return CartItem(detail: cartDatas[index] ?? {});
+                          },
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: CustomButton(
+                          text: 'Захиалга үүсгэх',
+                          ontap: () async => await placeOrder(context),
+                        ),
+                      ),
+                      SizedBox(
+                        height: (Platform.isIOS) ? 30 : 20,
+                      ),
                     ],
                   ),
                 ),
-                if (!basketIsEmpty)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    child: CustomButton(
-                      text: 'Захиалга үүсгэх',
-                      ontap: () async => await placeOrder(context),
-                    ),
-                  ),
-                SizedBox(
-                  height: (Platform.isIOS) ? 30 : 20,
-                ),
-              ],
-            ),
-          ),
         );
       },
     );

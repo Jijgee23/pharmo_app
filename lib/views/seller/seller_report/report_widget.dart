@@ -44,7 +44,7 @@ class _ReportWidgetState extends State<ReportWidget> {
         vertical: Sizes.smallFontSize,
       ),
       decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-      width: Sizes.width / 3 - (Sizes.mediulFontSize * 2.5),
+      width: Sizes.width / 3 - (Sizes.mediumFontSize * 2.5),
       child: Center(child: SmallText(t)),
     );
   }

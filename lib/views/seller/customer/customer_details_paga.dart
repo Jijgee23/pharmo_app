@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -72,20 +73,24 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                         runSpacing: 15,
                         children: [
                           (isEditable)
-                              ? info(
-                                  'Нэр:', d.name ?? '', name, null, isEditable)
+                              ? info('Нэр:', maybeNull(d.name), name, null,
+                                  isEditable)
                               : const SizedBox(),
-                          info('РД', d.rn ?? '', rn, null, isEditable),
-                          info('И-Мейл', d.email ?? '', email, validateEmail,
+                          info('РД', maybeNull(d.rn), rn, null, isEditable),
+                          info('И-Мейл', maybeNull(d.email), email,
+                              validateEmail, isEditable),
+                          info('Утас', maybeNull(d.phone), phone, validatePhone,
                               isEditable),
-                          info('Утас', d.phone ?? '', phone, validatePhone,
+                          info('Утас 2', maybeNull(d.phone2), phone2,
+                              validatePhone, isEditable),
+                          info('Утас 2', maybeNull(d.phone3), phone3,
+                              validatePhone, isEditable),
+                          info('Тайлбар', maybeNull(d.note), note, null,
                               isEditable),
-                          info('Утас 2', d.phone2 ?? '', phone2, validatePhone,
-                              isEditable),
-                          info('Утас 2', d.phone3 ?? '', phone3, validatePhone,
-                              isEditable),
-                          info('Тайлбар', d.note ?? '', note, null, isEditable),
-                          (d.loanLimitUse == true && d.loanLimit! >= 0.0)
+                          (d.loanLimitUse == true &&
+                                  double.parse(
+                                          maybeNull(d.loanLimit.toString())) >=
+                                      0.0)
                               ? info('Зээлийн лимит', d.loanLimit.toString(),
                                   TextEditingController(), null, isEditable)
                               : const SizedBox(),
@@ -94,29 +99,29 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                                   text: 'Хадгалах',
                                   ontap: () {
                                     pp.editCustomer(
-                                        id: d.id!,
+                                        id: parseInt(d.id),
                                         name: name.text.isNotEmpty
                                             ? name.text
-                                            : d.name!,
+                                            : maybeNullToJson(d.name),
                                         rn: rn.text.isNotEmpty
                                             ? rn.text
-                                            : d.rn!,
+                                            : maybeNullToJson(d.rn),
                                         email: email.text.isNotEmpty
                                             ? email.text
-                                            : d.email!,
+                                            : maybeNullToJson(d.email),
                                         phone: phone.text.isNotEmpty
                                             ? phone.text
-                                            : d.phone!,
+                                            : maybeNullToJson(d.phone),
                                         note: note.text.isNotEmpty
                                             ? note.text
-                                            : d.note!,
+                                            : maybeNullToJson(d.note),
                                         context: context,
                                         phone2: phone2.text.isNotEmpty
                                             ? phone2.text
-                                            : d.phone2,
+                                            : maybeNullToJson(d.phone2),
                                         phone3: phone3.text.isNotEmpty
                                             ? phone3.text
-                                            : d.phone3,
+                                            : maybeNullToJson(d.phone3),
                                         lat: (notLocated)
                                             ? home.currentLatitude
                                             : null,

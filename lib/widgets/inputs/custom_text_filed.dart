@@ -41,7 +41,7 @@ class CustomTextField extends StatelessWidget {
     final border = OutlineInputBorder(
         borderSide:
             BorderSide(color: theme.primaryColor.withOpacity(0.7), width: 1.2),
-        borderRadius: BorderRadius.circular(Sizes.mediulFontSize));
+        borderRadius: BorderRadius.circular(Sizes.mediumFontSize));
     return SizedBox(
       child: TextFormField(
         textAlign: align ?? TextAlign.start,

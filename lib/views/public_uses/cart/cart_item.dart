@@ -266,7 +266,7 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
               child: Text(
                 widget.title!,
                 style: TextStyle(
-                    fontSize: Sizes.mediulFontSize,
+                    fontSize: Sizes.mediumFontSize,
                     fontWeight: FontWeight.w700),
               ),
             ),

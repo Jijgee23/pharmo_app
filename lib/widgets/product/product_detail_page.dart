@@ -10,7 +10,6 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -97,7 +96,9 @@ class _ProductDetailState extends State<ProductDetail>
           ? const Center(child: PharmoIndicator())
           : Consumer<BasketProvider>(
               builder: (context, basket, child) => Scaffold(
-                appBar: CustomAppBar(
+                appBar: AppBar(
+                  backgroundColor: white,
+                  surfaceTintColor: white,
                   leading: const ChevronBack(),
                   title: Text(
                     widget.prod.name.toString(),
@@ -109,6 +110,41 @@ class _ProductDetailState extends State<ProductDetail>
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  actions: [
+                    Stack(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(right: 10),
+                          child: Center(
+                            child: Icon(
+                              Icons.shopping_cart,
+                              size: 24,
+                              color: theme.primaryColor,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 2,
+                          top: 2,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 2.5),
+                            decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Text(
+                              basket.basket.totalCount.toString(),
+                              style: const TextStyle(
+                                color: white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 body: Container(
                   color: theme.scaffoldBackgroundColor,
@@ -116,66 +152,6 @@ class _ProductDetailState extends State<ProductDetail>
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            '#${widget.prod.barcode.toString()}',
-                            style: TextStyle(
-                                color: Colors.blueGrey,
-                                fontSize: Sizes.mediulFontSize),
-                          ),
-                        ),
-                        div,
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.secondary,
-                                AppColors.cleanWhite,
-                              ],
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(
-                                        'Бөөний үнэ',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize:
-                                                Sizes.smallFontSize * 1.2),
-                                      ),
-                                      Text(toPrice(['salePrice']),
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: Sizes.mediulFontSize,
-                                              fontWeight: FontWeight.bold))
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  Text('Үндсэн үнэ',
-                                      style: TextStyle(
-                                          fontSize: Sizes.smallFontSize * 1.2)),
-                                  Text(
-                                    toPrice(widget.prod.price),
-                                    style: TextStyle(
-                                        fontSize: Sizes.mediulFontSize,
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        div,
                         Container(
                           decoration: BoxDecoration(
                               color: Colors.white,
@@ -186,7 +162,7 @@ class _ProductDetailState extends State<ProductDetail>
                                 ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
                                 : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg',
                             child: Container(
-                              height: Sizes.height * 0.23,
+                              height: Sizes.height * 0.3,
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
@@ -203,6 +179,15 @@ class _ProductDetailState extends State<ProductDetail>
                                 ),
                               ),
                             ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: SelectableText(
+                            '#${maybeNull(widget.prod.barcode.toString())}',
+                            style: TextStyle(
+                                color: Colors.blueGrey,
+                                fontSize: Sizes.mediumFontSize),
                           ),
                         ),
                         div,
@@ -260,17 +245,114 @@ class _ProductDetailState extends State<ProductDetail>
                             ],
                           ),
                         ),
+                        // Container(
+                        //   padding: const EdgeInsets.all(10),
+                        //   decoration: const BoxDecoration(
+                        //     gradient: LinearGradient(
+                        //       colors: [
+                        //         AppColors.secondary,
+                        //         AppColors.cleanWhite,
+                        //       ],
+                        //     ),
+                        //   ),
+                        //   child: Row(
+                        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //     children: [
+                        //       Row(
+                        //         children: [
+                        //           Column(
+                        //             children: [
+                        //               Text(
+                        //                 'Бөөний үнэ',
+                        //                 style: TextStyle(
+                        //                     color: Colors.white,
+                        //                     fontSize:
+                        //                         Sizes.smallFontSize * 1.2),
+                        //               ),
+                        //               Text(toPrice(['salePrice']),
+                        //                   style: TextStyle(
+                        //                       color: Colors.white,
+                        //                       fontSize: Sizes.mediumFontSize,
+                        //                       fontWeight: FontWeight.bold))
+                        //             ],
+                        //           ),
+                        //         ],
+                        //       ),
+                        //       Column(
+                        //         children: [
+                        //           Text('Үндсэн үнэ',
+                        //               style: TextStyle(
+                        //                   fontSize: Sizes.smallFontSize * 1.2)),
+                        //           Text(
+                        //             toPrice(widget.prod.price),
+                        //             style: TextStyle(
+                        //                 fontSize: Sizes.mediumFontSize,
+                        //                 fontWeight: FontWeight.bold),
+                        //           )
+                        //         ],
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                        // CustomButton(
+                        //   borderRadius: Sizes.smallFontSize,
+                        //   padding: EdgeInsets.symmetric(
+                        //       vertical: Sizes.mediumFontSize),
+                        //   text: 'Сагслах',
+                        //   ontap: () => showSheet(basket),
+                        // ),
                       ],
                     ),
                   ),
                 ),
                 bottomNavigationBar: Container(
-                  height: 70,
+                  height: Sizes.height * 0.14,
                   padding: EdgeInsets.symmetric(
                       vertical: 10, horizontal: Sizes.width * 0.03),
-                  child: CustomButton(
-                    text: 'Сагсанд нэмэх',
-                    ontap: () => showSheet(basket),
+                  child: Column(
+                    children: [
+                      div,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Үндсэн үнэ',
+                                  style:
+                                      TextStyle(fontSize: Sizes.smallFontSize)),
+                              Text(
+                                maybeNull(widget.prod.price.toString()),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: Sizes.mediumFontSize),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('Бөөний үнэ',
+                                  style:
+                                      TextStyle(fontSize: Sizes.smallFontSize)),
+                              Text(
+                                maybeNull(widget.prod.salePrice.toString()),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: Sizes.mediumFontSize),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      CustomButton(
+                        borderRadius: Sizes.smallFontSize,
+                        padding: EdgeInsets.symmetric(
+                            vertical: Sizes.mediumFontSize),
+                        text: 'Сагслах',
+                        ontap: () => showSheet(basket),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -286,7 +368,7 @@ class _ProductDetailState extends State<ProductDetail>
           setInitQyu(basket.qty.text);
           addBasket();
         },
-        initValue: '0',
+        initValue: '',
       ),
     );
   }
@@ -300,20 +382,16 @@ class _ProductDetailState extends State<ProductDetail>
       } else if (int.parse(initQTY) <= 0) {
         message('0 ба түүгээс бага байж болохгүй!');
       } else {
-        Map<String, dynamic> res = await basketProvider.addBasket(
-            productId: widget.prod.id,
-            itemnameId: widget.prod.itemnameId,
-            qty: int.parse(initQTY));
-        if (res['errorType'] == 1) {
-          basketProvider.getBasket();
-          message('${widget.prod.name} сагсанд нэмэгдлээ.');
-        } else {
-          message(res['message']);
+        Map<String, dynamic> res = await basketProvider.addProduct(
+            product: widget.prod, qty: int.parse(initQTY));
+        message(res['message']);
+        if (res['errorType'] != 0) {
+          Navigator.pop(context);
         }
       }
     } catch (e) {
       print(e);
-      message('Алдаа гарлаа!');
+      message(wait);
     }
     Navigator.pop(context);
   }
@@ -328,11 +406,10 @@ class _ProductDetailState extends State<ProductDetail>
       child: Container(
         width: sw * 0.4,
         decoration: BoxDecoration(
-          color: selected ? AppColors.secondary : Colors.transparent,
+          color: selected ? theme.primaryColor : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color:
-                selected ? Colors.transparent : Theme.of(context).primaryColor,
+            color: selected ? Colors.transparent : theme.primaryColor,
           ),
         ),
         margin: const EdgeInsets.symmetric(vertical: 5),
@@ -355,12 +432,12 @@ class _ProductDetailState extends State<ProductDetail>
       children: [
         Text(title,
             style: TextStyle(
-                color: Colors.grey.shade700, fontSize: Sizes.mediulFontSize)),
+                color: Colors.grey.shade700, fontSize: Sizes.mediumFontSize)),
         Text(text,
             style: TextStyle(
                 color: Colors.black87,
                 fontWeight: FontWeight.bold,
-                fontSize: Sizes.mediulFontSize)),
+                fontSize: Sizes.mediumFontSize)),
       ],
     );
   }

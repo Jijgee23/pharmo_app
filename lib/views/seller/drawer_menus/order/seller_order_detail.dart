@@ -85,17 +85,17 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                                   '$t:',
                                   style: TextStyle(
                                       color: Colors.black87,
-                                      fontSize: Sizes.mediulFontSize),
+                                      fontSize: Sizes.mediumFontSize),
                                 ),
                                 Text(maybeNull(datas[titles.indexOf(t)]),
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: Sizes.mediulFontSize,
+                                      fontSize: Sizes.mediumFontSize,
                                     ))
                               ],
                             ),
                           )),
-                      SizedBox(height: Sizes.mediulFontSize),
+                      SizedBox(height: Sizes.mediumFontSize),
                       OrderStatus(process: order.process),
                       if (pp.orderDets[0].items.isNotEmpty)
                         SingleChildScrollView(
@@ -105,9 +105,9 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                                 'Захиалгын бараанууд',
                                 style: TextStyle(
                                     color: Colors.black87,
-                                    fontSize: Sizes.mediulFontSize),
+                                    fontSize: Sizes.mediumFontSize),
                               ),
-                              SizedBox(height: Sizes.mediulFontSize),
+                              SizedBox(height: Sizes.mediumFontSize),
                               ...pp.orderDets[0].items.map(
                                 (item) => Container(
                                   width: double.infinity,

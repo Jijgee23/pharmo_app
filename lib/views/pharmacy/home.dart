@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
+import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
@@ -13,8 +12,8 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:pharmo_app/widgets/product_scrolls/paged_sliver_grid.dart';
-import 'package:pharmo_app/widgets/product_scrolls/paged_sliver_list.dart';
+import 'package:pharmo_app/widgets/others/no_items.dart';
+import 'package:pharmo_app/widgets/product/product_widget.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
@@ -30,33 +29,52 @@ class _HomeState extends State<Home> {
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
   late PromotionProvider promotionProvider;
-  final PagingController<int, dynamic> _pagingController =
-      PagingController(firstPageKey: 1);
-  final PagingController<int, dynamic> _filtering =
-      PagingController(firstPageKey: 1);
+  final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
-
-    basket();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _fetchMoreProducts();
+      }
+    });
+    fetchProducts(pageKey);
+    basketProvider.getBasket();
     if (homeProvider.userRole == 'PA') {
       initPharmo();
     }
-    _pagingController.addPageRequestListener((pageKey) {
-      fetchPage(pageKey);
+  }
+
+  void _fetchMoreProducts() async {
+    setState(() {
+      pageKey = pageKey + 1;
+      fetchProducts(pageKey);
+    });
+  }
+
+  clearItems() {
+    setState(() {
+      fetchedItems.clear();
+    });
+  }
+
+  setPage(int n) {
+    setState(() {
+      pageKey = n;
     });
   }
 
   refresh() {
-    homeProvider.refresh(context, homeProvider, promotionProvider);
-    _pagingController.refresh();
+    setPage(1);
   }
 
   @override
   void dispose() {
     super.dispose();
+    _scrollController.dispose();
   }
 
   initPharmo() async {
@@ -71,50 +89,35 @@ class _HomeState extends State<Home> {
     // });
   }
 
-  basket() async => await basketProvider.getBasket();
+  List<Product> fetchedItems = [];
+  setItems(List<Product> items) {
+    setState(() {
+      fetchedItems.addAll(items);
+    });
+  }
 
   // Барааны жагсаалт авах
-  Future<void> fetchPage(int pageKey) async {
-    try {
-      final items = await homeProvider.getProducts(pageKey);
-      final isLastPage = items!.length < homeProvider.pageSize;
-      final nextPageKey = pageKey + 1;
-      if (isLastPage) {
-        _pagingController.appendLastPage(items);
-      } else {
-        _pagingController.appendPage(items, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
+  Future<void> fetchProducts(int pageKey) async {
+    List<Product> items = await homeProvider.getProducts(pageKey);
+    if (items.isNotEmpty) {
+      setItems(items);
+    }
+  }
+
+  filterProducts(String query) async {
+    List<Product> items = await homeProvider.getProductsByQuery(query);
+    if (items.isNotEmpty) {
+      setState(() {
+        fetchedItems.clear();
+      });
+      setItems(items);
     }
   }
 
   List<IconData> icons = [Icons.discount, Icons.star, Icons.new_releases];
 
-  goFilt(String query, String title, int pageKey, bool hasSale) async {
-    final items = await homeProvider.filterProducts(query);
-    final isLastPage = items!.length < homeProvider.pageSize;
-    final nextPageKey = pageKey + 1;
-    if (isLastPage) {
-      _filtering.appendLastPage(items);
-    } else {
-      _filtering.appendPage(items, nextPageKey);
-    }
-    goto(
-      Scaffold(
-        appBar: CustomAppBar(
-          leading: const ChevronBack(),
-          title: Text(title, style: Constants.headerTextStyle),
-        ),
-        body: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 5),
-          child: CustomGrid(
-            pagingController: _filtering,
-            hasSale: hasSale,
-          ),
-        ),
-      ),
-    );
+  goFilt(String query, String title, bool hasSale) async {
+    goto(FilteredProducts(query: query, title: title));
   }
 
   bool isCategoryView = false;
@@ -128,15 +131,12 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-
-    final smallFontSize = height * .0125;
+    // final smallFontSize = Sizes.height * .0125;
     return RefreshIndicator(
       onRefresh: () => Future.sync(() {
         refresh();
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           homeProvider.refresh(context, homeProvider, promotionProvider);
-          _pagingController.refresh();
         });
       }),
       child: Consumer3<HomeProvider, BasketProvider, PromotionProvider>(
@@ -150,13 +150,19 @@ class _HomeState extends State<Home> {
                   context,
                   homeProvider,
                   basketProvider,
-                  smallFontSize,
+                  Sizes.smallFontSize,
                   search,
                 ),
-                if (homeProvider.userRole == 'PA' &&
-                    homeProvider.isScrolling == false)
-                  filtering(smallFontSize),
-                products(homeProvider),
+                if (homeProvider.userRole == 'PA')
+                  filtering(Sizes.smallFontSize),
+                fetchedItems.isNotEmpty
+                    ? products(homeProvider)
+                    : Column(
+                        children: [
+                          SizedBox(height: Sizes.height / 5),
+                          const NoItems()
+                        ],
+                      ),
               ],
             ),
           );
@@ -167,11 +173,12 @@ class _HomeState extends State<Home> {
 
   // Хайлт
   searchBar(
-      BuildContext context,
-      HomeProvider homeProvider,
-      BasketProvider basketProvider,
-      double smallFontSize,
-      TextEditingController search) {
+    BuildContext context,
+    HomeProvider homeProvider,
+    BasketProvider basketProvider,
+    double smallFontSize,
+    TextEditingController search,
+  ) {
     return Row(
       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -192,7 +199,7 @@ class _HomeState extends State<Home> {
                       child: Text(
                         '${homeProvider.supName} :',
                         style: TextStyle(
-                          fontSize: smallFontSize,
+                          fontSize: Sizes.mediumFontSize - 2,
                           color: AppColors.succesColor,
                           fontWeight: FontWeight.bold,
                         ),
@@ -203,11 +210,12 @@ class _HomeState extends State<Home> {
                 Expanded(
                     child: TextFormField(
                   cursorHeight: smallFontSize,
-                  style: TextStyle(fontSize: smallFontSize),
+                  style: TextStyle(fontSize: Sizes.mediumFontSize),
                   decoration: InputDecoration(
                     hintText: '${homeProvider.searchType} хайх',
-                    hintStyle:
-                        TextStyle(fontSize: smallFontSize, color: Colors.black),
+                    hintStyle: TextStyle(
+                        fontSize: Sizes.mediumFontSize - 2,
+                        color: Colors.black),
                     border: InputBorder.none,
                     focusedBorder: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -252,9 +260,6 @@ class _HomeState extends State<Home> {
                 } else if (index == 1) {
                   homeProvider.setQueryType('barcode');
                 }
-                // else {
-                //   homeProvider.setQueryType('intName');
-                // }
               },
               child: Text(
                 e,
@@ -272,65 +277,51 @@ class _HomeState extends State<Home> {
 
   // Хайлт функц
   _onfieldChanged(String v) {
-    print('v: $v');
-    try {
-      Future.delayed(
-        const Duration(milliseconds: 0),
-        () {
-          if (v.isNotEmpty) {
-            WidgetsBinding.instance.addPostFrameCallback((t) {
-              homeProvider.changeSearching(true);
-              homeProvider.changeQueryValue(v);
-              _pagingController.refresh();
-            });
-          } else {
-            WidgetsBinding.instance.addPostFrameCallback((t) {
-              homeProvider.changeSearching(false);
-              _pagingController.refresh();
-            });
-          }
-        },
-      );
-    } catch (e) {
-      //
+    if (v.isNotEmpty) {
+      filterProducts(v);
+    } else {
+      fetchProducts(pageKey);
     }
   }
 
   _onFieldSubmitted(String v) {
-    print('v: $v');
-    WidgetsBinding.instance.addPostFrameCallback((t) {
-      if (v.isEmpty) {
-        homeProvider.changeSearching(false);
-        _pagingController.refresh();
-      } else {
-        // homeProvider.changeSearching(true);
-        _pagingController.refresh();
-      }
-    });
+    if (v.isEmpty) {
+      fetchProducts(pageKey);
+    } else {
+      filterProducts(v);
+    }
   }
 
   Widget products(HomeProvider homeProvider) {
     if (homeProvider.supID == 0 || homeProvider.supID == null) {
-      return Container(
-        child: Text(
-          'Нийлүүлэгч сонгоно уу!',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Colors.red,
-              fontSize: Sizes.mediulFontSize,
-              fontWeight: FontWeight.bold),
-        ),
-      );
+      return errorWidget();
     } else {
-      return Expanded(
-        child: homeProvider.searching
-            ? !homeProvider.isList
-                ? CustomGrid(pagingController: _pagingController)
-                : CustomList(pagingController: _pagingController)
-            : !homeProvider.isList
-                ? CustomGrid(pagingController: _pagingController)
-                : CustomList(pagingController: _pagingController),
-      );
+      if (homeProvider.isList) {
+        return Expanded(
+          child: ListView.builder(
+            itemCount: fetchedItems.length,
+            controller: _scrollController,
+            itemBuilder: (context, idx) {
+              Product product = fetchedItems[idx];
+              return ProductWidgetListView(item: product);
+            },
+          ),
+        );
+      } else {
+        return Expanded(
+          child: GridView.builder(
+            controller: _scrollController,
+            shrinkWrap: true,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2),
+            itemCount: fetchedItems.length,
+            itemBuilder: (context, idx) {
+              Product product = fetchedItems[idx];
+              return ProductWidget(item: product);
+            },
+          ),
+        );
+      }
     }
   }
 
@@ -339,70 +330,53 @@ class _HomeState extends State<Home> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(2.5),
       scrollDirection: Axis.horizontal,
-      child: Row(
+      child: Wrap(
+        spacing: 10,
         children: [
-          InkWell(
-            onTap: () => goto(const FilterPage()),
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.25,
-              decoration: getDecoration(context),
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.list,
-                        color: AppColors.secondary, size: 20),
-                    const SizedBox(width: 5),
-                    Text(
-                      'Ангилал',
-                      style: TextStyle(fontSize: smallFontSize),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
+          filt(e: 'Ангилал', icon: Icons.list, ontap: () => onTapCategory()),
           ...filters.map(
-            (e) => InkWell(
-              onTap: () {
-                _filtering.itemList?.clear();
-                if (filters.indexOf(e) == 0) {
-                  goFilt('discount__gt=0', 'Хямдралтай', pageKey, true);
-                } else if (filters.indexOf(e) == 1) {
-                  goFilt('ordering=-created_at', 'Эрэлттэй', pageKey, false);
-                } else {
-                  goFilt('supplier_indemand_products/', 'Шинэ', pageKey, false);
-                }
-              },
-              child: Row(
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    decoration: getDecoration(context),
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(icons[filters.indexOf(e)],
-                              color: AppColors.secondary, size: 20),
-                          const SizedBox(width: 5),
-                          Text(
-                            e,
-                            style: TextStyle(fontSize: smallFontSize),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-              ),
+            (e) => filt(
+              e: e,
+              icon: icons[filters.indexOf(e)],
+              ontap: () => ontapFilter(e),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  onTapCategory() {
+    goto(const FilterPage());
+  }
+
+  ontapFilter(String e) {
+    if (filters.indexOf(e) == 0) {
+      goFilt('discount__gt=0', 'Хямдралтай', true);
+    } else if (filters.indexOf(e) == 1) {
+      goFilt('ordering=-created_at', 'Эрэлттэй', false);
+    } else {
+      goFilt('supplier_indemand_products/', 'Шинэ', false);
+    }
+  }
+
+  filt({required String e, required IconData icon, required Function() ontap}) {
+    return InkWell(
+      onTap: ontap,
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.3,
+        decoration: getDecoration(context),
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: AppColors.secondary, size: 20),
+              const SizedBox(width: 5),
+              Text(e, style: TextStyle(fontSize: Sizes.smallFontSize + 2)),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -448,15 +422,28 @@ class _HomeState extends State<Home> {
     await homeProvider.changeSupName(e.name);
     homeProvider.setSupId(int.parse(e.id));
     basketProvider.getBasket();
+    clearItems();
+    fetchProducts(pageKey);
     // await promotionProvider.getMarkedPromotion();
     homeProvider.refresh(context, homeProvider, promotionProvider);
-    _pagingController.refresh();
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   if (promotionProvider.markedPromotions.isNotEmpty) {
     //     homeProvider.showMarkedPromos(context, promotionProvider);
     //   }
     // });
     // Navigator.pop(context);
+  }
+
+  Widget errorWidget() {
+    return Text(
+      'Нийлүүлэгч сонгоно уу!',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: Sizes.mediumFontSize,
+        fontWeight: FontWeight.bold,
+      ),
+    );
   }
 }
 
@@ -473,4 +460,67 @@ getDecoration(BuildContext context) {
     ],
     borderRadius: BorderRadius.circular(30),
   );
+}
+
+class Products extends StatelessWidget {
+  final ScrollController controller;
+  final List<Product> products;
+  const Products({super.key, required this.controller, required this.products});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      controller: controller,
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      itemCount: products.length,
+      itemBuilder: (context, idx) {
+        Product product = products[idx];
+        return ProductWidget(item: product);
+      },
+    );
+  }
+}
+
+class FilteredProducts extends StatefulWidget {
+  final String query;
+  final String title;
+  const FilteredProducts({super.key, required this.query, required this.title});
+
+  @override
+  State<FilteredProducts> createState() => _FilteredProductsState();
+}
+
+class _FilteredProductsState extends State<FilteredProducts> {
+  List<Product> items = [];
+  late HomeProvider home;
+  setItems() async {
+    final prods = await home.filterProducts(widget.query);
+    setState(() {
+      items.addAll(prods);
+    });
+  }
+
+  @override
+  initState() {
+    super.initState();
+    home = Provider.of<HomeProvider>(context, listen: false);
+    setItems();
+  }
+
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(
+        leading: const ChevronBack(),
+        title: Text(widget.title, style: Constants.headerTextStyle),
+      ),
+      body: Products(
+        controller: scrollController,
+        products: items,
+      ),
+    );
+  }
 }

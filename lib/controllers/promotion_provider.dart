@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/models/promotion.dart';
@@ -188,7 +190,7 @@ class PromotionProvider extends ChangeNotifier {
 
   checkPayment(BuildContext context) async {
     final response = await apiPatch(
-        'pharmacy/promo_order/cp/', {"invoiceId": qrData.invoiceId});
+        'pharmacy/promo_order/cp/', jsonEncode({"invoiceId": qrData.invoiceId}));
     final data = convertData(response);
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));

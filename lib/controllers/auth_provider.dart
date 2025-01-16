@@ -385,6 +385,7 @@ class AuthController extends ChangeNotifier {
         'os': deviceData['os'],
         'osVersion': deviceData['osVersion']
       };
+      print(data['deviceId']);
 
       http.Response response = await apiPost('device_id/', data);
       if (response.statusCode == 200) {

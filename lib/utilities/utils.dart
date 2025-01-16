@@ -78,38 +78,54 @@ getApiInformation(String endPoint, http.Response response) {
 }
 
 apiGet(String endPoint) async {
-  http.Response response = await http.get(
-    setUrl(endPoint),
-    headers: getHeader(await getAccessToken()),
-  );
-  getApiInformation(endPoint, response);
-  return response;
+  try {
+    http.Response response = await http.get(
+      setUrl(endPoint),
+      headers: getHeader(await getAccessToken()),
+    );
+    getApiInformation(endPoint, response);
+    return response;
+  } catch (e) {
+    debugPrint(e.toString());
+  }
 }
 
 apiPost(String endPoint, Object? body) async {
-  http.Response response = await http.post(setUrl(endPoint),
-      headers: getHeader(await getAccessToken()), body: jsonEncode(body));
-  getApiInformation(endPoint, response);
-  return response;
+  try {
+    http.Response response = await http.post(setUrl(endPoint),
+        headers: getHeader(await getAccessToken()), body: jsonEncode(body));
+    getApiInformation(endPoint, response);
+    return response;
+  } catch (e) {
+    debugPrint(e.toString());
+  }
 }
 
-apiPatch(String endPoint, Object body) async {
-  http.Response response = await http.patch(
-    setUrl(endPoint),
-    headers: getHeader(await getAccessToken()),
-    body: jsonEncode(body),
-  );
-  getApiInformation(endPoint, response);
-  return response;
+apiPatch(String endPoint, Object? body) async {
+  try {
+    http.Response response = await http.patch(
+      setUrl(endPoint),
+      headers: getHeader(await getAccessToken()),
+      body: body,
+    );
+    getApiInformation(endPoint, response);
+    return response;
+  } catch (e) {
+    debugPrint(e.toString());
+  }
 }
 
 apiDelete(String endPoint) async {
-  http.Response response = await http.delete(
-    setUrl(endPoint),
-    headers: getHeader(await getAccessToken()),
-  );
-  getApiInformation(endPoint, response);
-  return response;
+  try {
+    http.Response response = await http.delete(
+      setUrl(endPoint),
+      headers: getHeader(await getAccessToken()),
+    );
+    getApiInformation(endPoint, response);
+    return response;
+  } catch (e) {
+    debugPrint(e.toString());
+  }
 }
 
 Map<String, dynamic> buildResponse(
@@ -229,6 +245,14 @@ shadow() {
 String maybeNull(String? text) {
   if (text == null || text.isEmpty || text == 'null') {
     return '-';
+  } else {
+    return text;
+  }
+}
+
+String maybeNullToJson(String? text) {
+  if (text == null || text.isEmpty || text == 'null') {
+    return '';
   } else {
     return text;
   }
