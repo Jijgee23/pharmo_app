@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -181,7 +182,7 @@ class AuthController extends ChangeNotifier {
   // Хэрэглэгчийн эрхээс хамаарч дэлгэц харуулах
   void _navigateBasedOnRole(String role) async {
     // await getDeviceToken();
-    await getDeviceInfo();
+
     gotoRemoveUntil(const IndexPharma());
     switch (role) {
       case 'S':
@@ -196,6 +197,7 @@ class AuthController extends ChangeNotifier {
       default:
         message('Веб хуудсаар хандана уу');
     }
+    await getDeviceInfo();
   }
 
   //Токен шинэчлэх
@@ -398,12 +400,24 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<String> getToken() async {
-    if (Platform.isAndroid) {
-      return await FirebaseMessaging.instance.getToken() ?? '';
-    } else {
-      await FirebaseMessaging.instance.getAPNSToken();
-      return await FirebaseMessaging.instance.getToken() ?? '';
+  Future getToken() async {
+    try {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+
+        if (iosInfo.isPhysicalDevice == false) {
+          return 'SIMULATOR';
+        } else {
+          await FirebaseMessaging.instance.getAPNSToken();
+          await Future.delayed(const Duration(seconds: 2));
+          return await FirebaseMessaging.instance.getToken() ?? '';
+        }
+      } else {
+        return await FirebaseMessaging.instance.getToken() ?? '';
+      }
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 

@@ -269,7 +269,9 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         CustomTextButton(
                           text: 'Бүртгүүлэх',
-                          onTap: () {
+                          onTap: ()async {
+                            // String g = await authController.getToken();
+                            // print(g);
                             goto(const SignUpForm());
                           },
                         ),
