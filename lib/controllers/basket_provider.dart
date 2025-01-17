@@ -178,7 +178,7 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket() async {
     try {
-      final response = await apiPost('clear_basket/', {'basketId': basket.id});
+      final response = await apiPatch('clear_basket/', jsonEncode({'basket_id': basket.id}));
       await getBasket();
       if (response.statusCode == 200) {
         debugPrint('basket cleared');
