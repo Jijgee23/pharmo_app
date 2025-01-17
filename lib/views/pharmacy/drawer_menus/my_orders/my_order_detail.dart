@@ -45,30 +45,25 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
           action: const CartIcon(
             color: Colors.white,
           ),
-          child: Column(
+          child: Wrap(runSpacing: Sizes.smallFontSize,
             children: [
               OrderStatus(process: widget.order.process!),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  col(t1: 'Дүн', t2: '${widget.order.totalPrice.toString()} ₮'),
+                  col(t1: 'Дүн', t2: toPrice(widget.order.totalPrice)),
                   col(t1: 'Тоо ширхэг', t2: widget.order.totalCount.toString()),
                   col(t1: 'Нийлүүлэгч', t2: widget.order.supplier.toString()),
                 ],
               ),
-              Expanded(
-                child: Scrollbar(
-                  thickness: 1,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Column(
-                      children: [
-                        ...provider.orderDetails.map(
-                          (o) => productBuilder(o),
-                        )
-                      ],
-                    ),
-                  ),
+              SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
+                  children: [
+                    ...provider.orderDetails.map(
+                      (o) => productBuilder(o),
+                    )
+                  ],
                 ),
               )
             ],
@@ -127,7 +122,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
               ),
               detailColumn(
                 label: 'Нийт үнэ',
-                value: '${o.itemTotalPrice}₮',
+                value: toPrice(o.itemTotalPrice),
                 valueColor: theme.primaryColor,
               ),
             ],

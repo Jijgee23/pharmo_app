@@ -17,8 +17,9 @@ class DefaultBox extends StatelessWidget {
         leading: const ChevronBack(),
         title: Text(
           title,
+          maxLines: 2,
           style: const TextStyle(
-              color: Colors.white, fontSize: 15, letterSpacing: 2),
+              color: Colors.white, fontSize: 15, letterSpacing: 1),
         ),
         actions: [
           action ?? SizedBox(width: size.width * 0.08),

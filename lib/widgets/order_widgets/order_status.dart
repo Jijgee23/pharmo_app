@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 
 class OrderStatus extends StatelessWidget {
@@ -15,23 +16,26 @@ class OrderStatus extends StatelessWidget {
       'Түгээлтэнд гарсан',
       'Хүргэгдсэн'
     ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ...processes.map(
-              (p) => CustomStep(
-                title: p,
-                idx: processes.indexOf(p),
-                process: process,
+    return Padding(
+      padding: EdgeInsets.only(top: Sizes.mediumFontSize),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...processes.map(
+                (p) => CustomStep(
+                  title: p,
+                  idx: processes.indexOf(p),
+                  process: process,
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

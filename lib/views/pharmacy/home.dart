@@ -198,7 +198,7 @@ class _HomeState extends State<Home> {
                       onTap: () => _onPickSupplier(context),
                       child: Text(
                         '${homeProvider.supName} :',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: Sizes.mediumFontSize - 2,
                           color: AppColors.succesColor,
                           fontWeight: FontWeight.bold,
@@ -210,10 +210,10 @@ class _HomeState extends State<Home> {
                 Expanded(
                     child: TextFormField(
                   cursorHeight: smallFontSize,
-                  style: TextStyle(fontSize: Sizes.mediumFontSize),
+                  style:const TextStyle(fontSize: Sizes.mediumFontSize),
                   decoration: InputDecoration(
                     hintText: '${homeProvider.searchType} хайх',
-                    hintStyle: TextStyle(
+                    hintStyle:const TextStyle(
                         fontSize: Sizes.mediumFontSize - 2,
                         color: Colors.black),
                     border: InputBorder.none,

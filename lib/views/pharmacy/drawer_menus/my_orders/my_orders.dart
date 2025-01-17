@@ -36,31 +36,11 @@ class _MyOrderState extends State<MyOrder> {
   final Map<String, String> _branches = {};
   final Map<String, String> _suppliers = {};
 
-  @override
-  void initState() {
-    super.initState();
-    getData();
-    getBranches();
-    getSuppliers();
-  }
-
-  getData() async {
-    try {
-      final orderProvider =
-          Provider.of<MyOrderProvider>(context, listen: false);
-      dynamic res = await orderProvider.getMyorders();
-      if (res['errorType'] == 1) {
-        // showSuccessMessage(res['message'], );
-      } else {
-        message(
-          res['message'],
-        );
-      }
-    } catch (e) {
-      message(
-        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
-      );
-    }
+  getOrders() async {
+    final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
+    await orderProvider.getMyorders();
+    await getBranches();
+    await getSuppliers();
   }
 
   getBranches() async {
@@ -149,25 +129,21 @@ class _MyOrderState extends State<MyOrder> {
   }
 
   filterOrders() async {
-    try {
-      final orderProvider =
-          Provider.of<MyOrderProvider>(context, listen: false);
-      // dynamic res =
-      await orderProvider.filterOrders(_selectedFilter, _selectedItem);
-      // if (res['errorType'] == 1) {
-      //   // message(res['message']);
-      // } else {
-      //   // message(res['message']);
-      // }
-    } catch (e) {
-      // message('Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!');
-    }
+    final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
+    await orderProvider.filterOrders(_selectedFilter, _selectedItem);
   }
 
-  confirmOrder(int orderId, MyOrderProvider orderProvider) async {
+  confirmOrder(int orderId) async {
+    final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
     dynamic res = await orderProvider.confirmOrder(orderId);
-    print(res.runtimeType);
+    print(res['message']);
     message(res['message']);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getOrders();
   }
 
   @override
@@ -178,89 +154,7 @@ class _MyOrderState extends State<MyOrder> {
         return Scaffold(
           appBar: AppBar(
             leading: const ChevronBack(),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                dropContainer(
-                  child: DropdownButton<String>(
-                    style: TextStyle(fontSize: 14, color: theme.primaryColor),
-                    dropdownColor: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    underline: const SizedBox(),
-                    value: _selectedFilter,
-                    onChanged: (String? value) async {
-                      setState(() {
-                        _selectedFilter = value!;
-                        selected = _filters[value]!;
-                      });
-                      await fillDropdown();
-                    },
-                    selectedItemBuilder: (BuildContext context) {
-                      return _filters.keys.map<Widget>(
-                        (String item) {
-                          return Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              _filters[item].toString(),
-                              style: TextStyle(
-                                color: theme.primaryColor,
-                                fontSize: Sizes.smallFontSize,
-                              ),
-                            ),
-                          );
-                        },
-                      ).toList();
-                    },
-                    items: _filters.keys
-                        .map<DropdownMenuItem<String>>((String item) {
-                      return DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(_filters[item].toString()),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                if (_selectedFilter != '')
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          dropContainer(
-                            child: DropdownButton<String>(
-                              style: TextStyle(
-                                  fontSize: 14, color: theme.primaryColor),
-                              dropdownColor: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              value: _selectedItem,
-                              underline: const SizedBox(),
-                              onChanged: (String? value) {
-                                setState(() => _selectedItem = value!);
-                                filterOrders();
-                              },
-                              items: _processess.keys
-                                  .map<DropdownMenuItem<String>>(
-                                (String item) {
-                                  return DropdownMenuItem<String>(
-                                    value: item,
-                                    child: Text(
-                                      _processess[item].toString(),
-                                      style: TextStyle(
-                                          fontSize: Sizes.smallFontSize),
-                                    ),
-                                  );
-                                },
-                              ).toList(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-              ],
-            ),
+            title: appBarTitle(),
           ),
           body: SingleChildScrollView(
             padding: EdgeInsets.only(
@@ -272,9 +166,7 @@ class _MyOrderState extends State<MyOrder> {
               children: [
                 orders != null && orders.isNotEmpty
                     ? RefreshIndicator(
-                        onRefresh: () async {
-                          getData();
-                        },
+                        onRefresh: () async => getOrders(),
                         child: SingleChildScrollView(
                           child: Column(
                             children: orders
@@ -292,6 +184,90 @@ class _MyOrderState extends State<MyOrder> {
           ),
         );
       },
+    );
+  }
+
+  Row appBarTitle() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        dropContainer(
+          child: DropdownButton<String>(
+            style: filterStyle(),
+            isDense: true,
+            padding: EdgeInsets.symmetric(vertical: Sizes.smallFontSize),
+            dropdownColor: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            underline: const SizedBox(),
+            value: _selectedFilter,
+            onChanged: (String? value) async {
+              setState(() {
+                _selectedFilter = value!;
+                selected = _filters[value]!;
+              });
+              await fillDropdown();
+            },
+            selectedItemBuilder: (BuildContext context) {
+              return _filters.keys.map<Widget>(
+                (String item) {
+                  return Container(
+                      alignment: Alignment.centerLeft,
+                      child: filterText(_filters[item].toString()));
+                },
+              ).toList();
+            },
+            items: _filters.keys.map<DropdownMenuItem<String>>((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: filterText(_filters[item].toString()),
+              );
+            }).toList(),
+          ),
+        ),
+        if (_selectedFilter != '')
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              dropContainer(
+                child: DropdownButton<String>(
+                  isDense: true,
+                  padding: EdgeInsets.symmetric(vertical: Sizes.smallFontSize),
+                  style: filterStyle(),
+                  dropdownColor: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  value: _selectedItem,
+                  underline: const SizedBox(),
+                  onChanged: (String? value) {
+                    setState(() => _selectedItem = value!);
+                    filterOrders();
+                  },
+                  items: _processess.keys.map<DropdownMenuItem<String>>(
+                    (String item) {
+                      return DropdownMenuItem<String>(
+                        value: item,
+                        child: filterText(_processess[item].toString()),
+                      );
+                    },
+                  ).toList(),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget filterText(String text) {
+    return Text(
+      text,
+      style: filterStyle(),
+    );
+  }
+
+  TextStyle filterStyle() {
+    return TextStyle(
+      fontSize: Sizes.smallFontSize + 1,
+      color: theme.colorScheme.onPrimary,
     );
   }
 
@@ -350,7 +326,7 @@ class _MyOrderState extends State<MyOrder> {
             (order.process == 'Бэлэн болсон' ||
                     order.process == 'Түгээлтэнд гарсан')
                 ? InkWell(
-                    onTap: () => confirmOrder(order.id, provider),
+                    onTap: () => confirmOrder(order.id),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: IntrinsicWidth(
@@ -360,7 +336,7 @@ class _MyOrderState extends State<MyOrder> {
                               borderRadius: BorderRadius.circular(10)),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 15, vertical: 10),
-                          child: Center(
+                          child: const Center(
                             child: Row(
                               children: [
                                 Text(
@@ -388,19 +364,15 @@ class _MyOrderState extends State<MyOrder> {
     );
   }
 
-  dropContainer({required Widget child, Function()? ontap}) {
-    return InkWell(
-      onTap: ontap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: white,
-          borderRadius: BorderRadius.circular(Sizes.smallFontSize),
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: Sizes.smallFontSize,
-        ),
-        child: child,
+  dropContainer({required Widget child}) {
+    return Container(
+      width: Sizes.width * 0.375,
+      decoration: BoxDecoration(
+        color: white,
+        borderRadius: BorderRadius.circular(Sizes.smallFontSize),
       ),
+      padding:const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
+      child: Center(child: child),
     );
   }
 }

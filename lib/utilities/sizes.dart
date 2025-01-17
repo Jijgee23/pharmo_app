@@ -10,9 +10,9 @@ class Sizes {
     return MediaQuery.of(GlobalKeys.navigatorKey.currentContext!).size.height;
   }
 
-  static final smallFontSize = height * 0.012;
-  static final mediumFontSize = height * 0.016;
-  static final bigFontSize = height * 0.02;
+  static const smallFontSize = 10.0;
+  static const mediumFontSize = 14.0;
+  static const bigFontSize = 18.0;
 }
 
 final theme = Theme.of(GlobalKeys.navigatorKey.currentState!.context);
