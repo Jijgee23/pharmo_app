@@ -96,8 +96,6 @@ class _SplashScreenState extends State<SplashScreen> {
                       curve: Curves.fastLinearToSlowEaseIn);
                 }
               },
-              splashColor: theme.primaryColor.withOpacity(.5),
-              highlightColor: theme.primaryColor.withOpacity(.5),
               child: Container(
                 decoration: BoxDecoration(
                     color: theme.primaryColor.withOpacity(0.7),

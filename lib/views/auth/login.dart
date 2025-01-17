@@ -8,7 +8,6 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/auth/sign_up.dart';
-import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
@@ -269,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         CustomTextButton(
                           text: 'Бүртгүүлэх',
-                          onTap: ()async {
+                          onTap: () async {
                             // String g = await authController.getToken();
                             // print(g);
                             goto(const SignUpForm());
@@ -292,16 +291,20 @@ class _LoginPageState extends State<LoginPage> {
           ],
         ),
       ),
-      bottomNavigationBar: !logging
-          ? Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(20),
-              child: CustomTextButton(
-                text: 'Нууцлалын бодлого',
-                onTap: () => goto(const PrivacyPolicy()),
-              ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.all(Sizes.smallFontSize),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.email, color: theme.colorScheme.onPrimary),
+            SizedBox(width: Sizes.mediumFontSize),
+            Text(
+              'contact@infosystems.mn',
+              style: TextStyle(color: theme.colorScheme.onPrimary),
             )
-          : const SizedBox(),
+          ],
+        ),
+      ),
     );
   }
 

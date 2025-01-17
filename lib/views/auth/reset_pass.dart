@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:otp_text_field_v2/otp_field_v2.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class ResetPassword extends StatefulWidget {
@@ -27,8 +28,12 @@ class _ResetPasswordState extends State<ResetPassword> {
   Widget build(BuildContext context) {
     return Consumer<AuthController>(
       builder: (context, auth, child) => Scaffold(
-        extendBody: true,
-        appBar: const SideMenuAppbar(title: 'Нууц үг сэргээх'),
+        appBar: AppBar(
+          title:  Text('Нууц үг сэргээх',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: Sizes.mediumFontSize)),
+          centerTitle: true,
+          leading: const ChevronBack(),
+        ),
         body: Center(
           child: Container(
             margin: const EdgeInsets.all(20),

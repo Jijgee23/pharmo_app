@@ -7,8 +7,8 @@ final lightTheme = ThemeData(
   shadowColor: Colors.grey.shade300,
   // brightness: Brightness.light,
   scaffoldBackgroundColor: white,
-  splashColor: Colors.transparent,
-  highlightColor: Colors.transparent,
+  splashColor: primary.withOpacity(.3),
+  highlightColor: primary.withOpacity(.3),
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
     primary: primary,

@@ -13,7 +13,6 @@ class SideMenuAppbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      toolbarHeight: 40,
       title: Text(title,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
       centerTitle: true,

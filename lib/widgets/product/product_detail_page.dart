@@ -91,6 +91,28 @@ class _ProductDetailState extends State<ProductDetail>
   @override
   Widget build(BuildContext context) {
     final div = Divider(color: theme.primaryColor, thickness: .7);
+    List<String> infos = [
+      'Барааны дуусах хугацаа',
+      'Ерөнхий нэршил',
+      'Тун хэмжээ',
+      'Хөнгөлөлт',
+      'Хэлбэр',
+      'Мастер савалгааны тоо',
+      'Олгох нөхцөл',
+      'Улс',
+      'Үйлдвэрлэгч'
+    ];
+    List<String> datas = [
+      det['expDate'].toString(),
+      det['intName'].toString(),
+      '',
+      '',
+      '',
+      det['master_box_qty'].toString(),
+      '',
+      '',
+      det['mnfr'].toString()
+    ];
     return Scaffold(
       body: (fetching)
           ? const Center(child: PharmoIndicator())
@@ -110,253 +132,182 @@ class _ProductDetailState extends State<ProductDetail>
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  actions: [
-                    Stack(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          child: Center(
-                            child: Icon(
-                              Icons.shopping_cart,
-                              size: 24,
-                              color: theme.primaryColor,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          right: 2,
-                          top: 2,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 5, vertical: 2.5),
-                            decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Text(
-                              basket.basket.totalCount.toString(),
-                              style: const TextStyle(
-                                color: white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  actions: [],
                 ),
                 body: Container(
                   color: theme.scaffoldBackgroundColor,
-                  padding: EdgeInsets.all(Sizes.width * 0.03),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10)),
-                          child: InstaImageViewer(
-                            imageUrl: widget.prod.image != null &&
-                                    splitURL(widget.prod.image!).length == 2
-                                ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
-                                : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg',
-                            child: Container(
-                              height: Sizes.height * 0.3,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                image: DecorationImage(
-                                  fit: BoxFit.contain,
-                                  filterQuality: FilterQuality.high,
-                                  alignment: Alignment.center,
-                                  image: NetworkImage(widget.prod.image !=
-                                              null &&
+                  padding:
+                      EdgeInsets.symmetric(horizontal: Sizes.mediumFontSize),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: InstaImageViewer(
+                                  imageUrl: widget.prod.image != null &&
                                           splitURL(widget.prod.image!).length ==
                                               2
-                                      ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_300x300.${splitURL(widget.prod.image!)[1]}'
-                                      : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg'),
+                                      ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
+                                      : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg',
+                                  child: Container(
+                                    height: Sizes.height * 0.3,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      image: DecorationImage(
+                                        fit: BoxFit.contain,
+                                        filterQuality: FilterQuality.high,
+                                        alignment: Alignment.center,
+                                        image: NetworkImage(widget.prod.image !=
+                                                    null &&
+                                                splitURL(widget.prod.image!)
+                                                        .length ==
+                                                    2
+                                            ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_300x300.${splitURL(widget.prod.image!)[1]}'
+                                            : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg'),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: SelectableText(
-                            '#${maybeNull(widget.prod.barcode.toString())}',
-                            style: TextStyle(
-                                color: Colors.blueGrey,
-                                fontSize: Sizes.mediumFontSize),
-                          ),
-                        ),
-                        div,
-                        Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween, // Or spaceBetween
-                          children: [
-                            myTab(title: 'Барааны мэдээлэл', index: 0),
-                            myTab(title: 'Урамшуулал', index: 1),
-                          ],
-                        ),
-                        SizedBox(
-                          height: Sizes.height * 0.25,
-                          child: TabBarView(
-                            controller: tabController,
-                            children: [
-                              Column(
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: SelectableText(
+                                  '#${maybeNull(widget.prod.barcode.toString())}',
+                                  style: TextStyle(
+                                      color: Colors.blueGrey,
+                                      fontSize: Sizes.mediumFontSize),
+                                ),
+                              ),
+                              div,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceBetween, // Or spaceBetween
                                 children: [
-                                  infoRow('Барааны дуусах хугацаа',
-                                      det['expDate'] ?? ''),
-                                  infoRow(
-                                      'Ерөнхий нэршил', det['intName'] ?? ''),
-                                  infoRow('Тун хэмжээ', ''),
-                                  infoRow('Хөнгөлөлт', ''),
-                                  infoRow('Хэлбэр', ''),
-                                  infoRow(
-                                      'Мастер савалгааны тоо',
-                                      (det['master_box_qty'] == null)
-                                          ? ''
-                                          : det['master_box_qty'].toString()),
-                                  infoRow('Олгох нөхцөл', ''),
-                                  infoRow('Улс', ''),
-                                  infoRow(
-                                      'Үйлдвэрлэгч',
-                                      (det['mnfr'] != null)
-                                          ? det['mnfr']['name']
-                                          : ""),
+                                  myTab(title: 'Барааны мэдээлэл', index: 0),
+                                  myTab(title: 'Урамшуулал', index: 1),
                                 ],
                               ),
-                              Column(
-                                children: [
-                                  infoRow(
-                                      'Бөөний үнэ',
-                                      det['salePrice'] != null
-                                          ? det['salePrice'].toString()
-                                          : ''),
-                                  infoRow(
-                                      'Бөөний тоо', '${det['saleQty'] ?? ''}'),
-                                  infoRow(
-                                      'Хямдрал', '${det['discount'] ?? ''}'),
-                                  infoRow('Хямдрал дуусах хугацаа',
-                                      det['discountExpireDate'] ?? '')
-                                ],
+                              SizedBox(
+                                height: Sizes.height * 0.25,
+                                child: TabBarView(
+                                  controller: tabController,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        ...infos.map((i) =>
+                                            infoRow(i, datas[infos.indexOf(i)]))
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        infoRow(
+                                            'Бөөний үнэ',
+                                            det['salePrice'] != null
+                                                ? det['salePrice'].toString()
+                                                : ''),
+                                        infoRow('Бөөний тоо',
+                                            '${det['saleQty'] ?? ''}'),
+                                        infoRow('Хямдрал',
+                                            '${det['discount'] ?? ''}'),
+                                        infoRow('Хямдрал дуусах хугацаа',
+                                            det['discountExpireDate'] ?? '')
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        // Container(
-                        //   padding: const EdgeInsets.all(10),
-                        //   decoration: const BoxDecoration(
-                        //     gradient: LinearGradient(
-                        //       colors: [
-                        //         AppColors.secondary,
-                        //         AppColors.cleanWhite,
-                        //       ],
-                        //     ),
-                        //   ),
-                        //   child: Row(
-                        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //     children: [
-                        //       Row(
-                        //         children: [
-                        //           Column(
-                        //             children: [
-                        //               Text(
-                        //                 'Бөөний үнэ',
-                        //                 style: TextStyle(
-                        //                     color: Colors.white,
-                        //                     fontSize:
-                        //                         Sizes.smallFontSize * 1.2),
-                        //               ),
-                        //               Text(toPrice(['salePrice']),
-                        //                   style: TextStyle(
-                        //                       color: Colors.white,
-                        //                       fontSize: Sizes.mediumFontSize,
-                        //                       fontWeight: FontWeight.bold))
-                        //             ],
-                        //           ),
-                        //         ],
-                        //       ),
-                        //       Column(
-                        //         children: [
-                        //           Text('Үндсэн үнэ',
-                        //               style: TextStyle(
-                        //                   fontSize: Sizes.smallFontSize * 1.2)),
-                        //           Text(
-                        //             toPrice(widget.prod.price),
-                        //             style: TextStyle(
-                        //                 fontSize: Sizes.mediumFontSize,
-                        //                 fontWeight: FontWeight.bold),
-                        //           )
-                        //         ],
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                        // CustomButton(
-                        //   borderRadius: Sizes.smallFontSize,
-                        //   padding: EdgeInsets.symmetric(
-                        //       vertical: Sizes.mediumFontSize),
-                        //   text: 'Сагслах',
-                        //   ontap: () => showSheet(basket),
-                        // ),
-                      ],
-                    ),
-                  ),
-                ),
-                bottomNavigationBar: Container(
-                  height: Sizes.height * 0.14,
-                  padding: EdgeInsets.symmetric(
-                      vertical: 10, horizontal: Sizes.width * 0.03),
-                  child: Column(
-                    children: [
-                      div,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ),
+                      Column(
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Үндсэн үнэ',
-                                  style:
-                                      TextStyle(fontSize: Sizes.smallFontSize)),
-                              Text(
-                                maybeNull(widget.prod.price.toString()),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: Sizes.mediumFontSize),
-                              ),
+                              price(
+                                  title: 'Үндсэн үнэ',
+                                  value:
+                                      maybeNull(widget.prod.price.toString())),
+                              price(
+                                  title: 'Бөөний үнэ',
+                                  value: maybeNull(
+                                      widget.prod.salePrice.toString()),
+                                  cxs: CrossAxisAlignment.end),
                             ],
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text('Бөөний үнэ',
-                                  style:
-                                      TextStyle(fontSize: Sizes.smallFontSize)),
-                              Text(
-                                maybeNull(widget.prod.salePrice.toString()),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: Sizes.mediumFontSize),
-                              ),
-                            ],
+                          CustomButton(
+                            borderRadius: Sizes.smallFontSize,
+                            padding: EdgeInsets.symmetric(
+                                vertical: Sizes.mediumFontSize),
+                            text: 'Сагслах',
+                            ontap: () => showSheet(basket),
                           ),
                         ],
-                      ),
-                      CustomButton(
-                        borderRadius: Sizes.smallFontSize,
-                        padding: EdgeInsets.symmetric(
-                            vertical: Sizes.mediumFontSize),
-                        text: 'Сагслах',
-                        ontap: () => showSheet(basket),
-                      ),
+                      )
                     ],
                   ),
                 ),
               ),
             ),
+    );
+  }
+
+  Widget price(
+      {required String title, required String value, CrossAxisAlignment? cxs}) {
+    return Column(
+      crossAxisAlignment: cxs ?? CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontSize: Sizes.smallFontSize + 2)),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: Sizes.mediumFontSize,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget basketIcon(BasketProvider basket) {
+    return Stack(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(right: 10),
+          child: Center(
+            child: Icon(
+              Icons.shopping_cart,
+              size: 24,
+              color: theme.primaryColor,
+            ),
+          ),
+        ),
+        Positioned(
+          right: 2,
+          top: 2,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+            decoration: BoxDecoration(
+                color: Colors.red, borderRadius: BorderRadius.circular(15)),
+            child: Text(
+              basket.basket.totalCount.toString(),
+              style: const TextStyle(
+                color: white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -426,18 +377,34 @@ class _ProductDetailState extends State<ProductDetail>
     );
   }
 
-  infoRow(String title, String text) {
+  Widget infoRow(String title, String text) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
+        Text(
+          title,
+          textAlign: TextAlign.start,
+          style: TextStyle(
+            color: Colors.grey.shade700,
+            fontSize: Sizes.mediumFontSize,
+          ),
+        ),
+        SizedBox(
+          width: Sizes.width / 2,
+          child: Text(
+            maybeNull(text),
+            textAlign: TextAlign.end,
+            maxLines: 2,
+            softWrap: true,
             style: TextStyle(
-                color: Colors.grey.shade700, fontSize: Sizes.mediumFontSize)),
-        Text(text,
-            style: TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.bold,
-                fontSize: Sizes.mediumFontSize)),
+              color: Colors.black87,
+              fontWeight: FontWeight.bold,
+              fontSize: Sizes.mediumFontSize,
+              overflow: TextOverflow.fade,
+            ),
+          ),
+        ),
       ],
     );
   }
