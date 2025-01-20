@@ -65,10 +65,11 @@ class _CustomerListState extends State<CustomerList> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PharmProvider>(
-        builder: (_, homeProvider, pp, child) {
-      return Scaffold(
-          body: Column(children: [_searchBar(pp), _customersList(pp)]));
-    });
+      builder: (_, homeProvider, pp, child) {
+        return Scaffold(
+            body: Column(children: [_searchBar(pp), _customersList(pp)]));
+      },
+    );
   }
 
   // Хайлтын widget

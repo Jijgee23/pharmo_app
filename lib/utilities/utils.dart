@@ -1,12 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// ignore: depend_on_referenced_packages
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
 
 void goto(Widget widget) {
   Get.to(
@@ -175,7 +177,7 @@ String toPrice(dynamic v) {
     } else {
       throw Exception('Unsupported value type');
     }
-    String formattedNumber = NumberFormat('#,##0.##').format(numberValue);
+    String formattedNumber = intl.NumberFormat('#,##0.##').format(numberValue);
     return '$formattedNumber₮';
   } catch (e) {
     return '0₮';
@@ -260,4 +262,27 @@ String maybeNullToJson(String? text) {
 
 String getDate(DateTime date) {
   return date.toString().substring(0, 10);
+}
+
+Future<File> compressImage(File imageFile) async {
+  if (isImageLessThan1MB(imageFile)) {
+    return imageFile;
+  } else {
+    final bytes = await imageFile.readAsBytes();
+    img.Image? image = img.decodeImage(Uint8List.fromList(bytes));
+    image = img.copyResize(image!, width: 800);
+    int quality = 80;
+    List<int> compressedBytes = img.encodeJpg(image, quality: quality);
+    File compressedImage = File('${imageFile.parent.path}/compressed_image.jpg')
+      ..writeAsBytesSync(compressedBytes);
+    print('Original size: ${imageFile.lengthSync()} bytes');
+    print('Compressed size: ${compressedImage.lengthSync()} bytes');
+    return compressedImage;
+  }
+}
+
+bool isImageLessThan1MB(File imageFile) {
+  const int oneMBInBytes = 1 * 1024 * 1024;
+  int fileSize = imageFile.lengthSync();
+  return fileSize < oneMBInBytes;
 }

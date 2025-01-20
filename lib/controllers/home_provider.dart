@@ -133,7 +133,7 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-   uploadImage({
+  uploadImage({
     required int id,
     required List<File> images,
     // List<int>? deletion
@@ -163,15 +163,13 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  deleteImages({required int id, required List<int> ids}) async {
+  deleteImages({required int id, required int imageID}) async {
     try {
       var request =
           http.MultipartRequest('PATCH', setUrl('update_product_image/'));
       request.headers['Authorization'] = await getAccessToken();
       request.fields['product_id'] = id.toString();
-      // images!.map((image) async => request.files
-      //     .add(await http.MultipartFile.fromPath('images', image.path)));
-      request.fields['images_to_remove'] = ids.toString();
+      request.fields['images_to_remove'] = imageID.toString();
       var res = await request.send();
       print(res.statusCode);
       String responseBody = await res.stream.bytesToString();

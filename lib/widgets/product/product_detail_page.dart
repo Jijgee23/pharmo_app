@@ -162,7 +162,7 @@ class _ProductDetailState extends State<ProductDetail>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        imageViewer(),
+                        imageViewer(home, isNotPharma),
                         Expanded(
                           child: SingleChildScrollView(
                             controller: ScrollController(),
@@ -306,7 +306,7 @@ class _ProductDetailState extends State<ProductDetail>
     );
   }
 
-  imageViewer() {
+  imageViewer(HomeProvider home, bool isNotPharma) {
     if (det.containsKey('images') == true) {
       final pictures = det['images'] as List;
       return Container(
@@ -317,9 +317,32 @@ class _ProductDetailState extends State<ProductDetail>
             mainAxisAlignment: MainAxisAlignment.center,
             children: pictures
                 .map(
-                  (p) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: imageWidget('${dotenv.env['IMAGE_URL']}${p['url']}'),
+                  (p) => Stack(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: imageWidget(
+                            '${dotenv.env['IMAGE_URL']}${p['url']}'),
+                      ),
+                      if (isNotPharma == true)
+                        Positioned(
+                          right: 0,
+                          child: InkWell(
+                            onTap: () => deleteImage(home, p['id'][0]),
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.onPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.remove,
+                                color: white,
+                              ),
+                            ),
+                          ),
+                        )
+                    ],
                   ),
                 )
                 .toList(),
@@ -344,17 +367,20 @@ class _ProductDetailState extends State<ProductDetail>
     dynamic res = await home.uploadImage(id: widget.prod.id, images: images);
     message(res['message']);
     if (res['errorType'] == 0) {
-      Navigator.pop(context);
+      await getProductDetail();
+      clearImages();
     }
   }
 
   List<File> images = [];
-  addImageToList(File image) {
+
+  addImageToList(File image) async {
+    File i = await compressImage(image);
     if (images.length > 5) {
       message('5 хүртэлт зураг оруулах боломжтой');
     } else {
       setState(() {
-        images.add(image);
+        images.add(i);
       });
     }
   }
@@ -422,6 +448,20 @@ class _ProductDetailState extends State<ProductDetail>
     setState(() {
       images.removeAt(images.indexOf(image));
     });
+  }
+
+  clearImages() {
+    setState(() {
+      images.clear();
+    });
+  }
+
+  deleteImage(HomeProvider home, int id) async {
+    dynamic res = await home.deleteImages(id: widget.prod.id, imageID: id);
+    message(res['message']);
+    if (res['errorType'] == 0) {
+      await getProductDetail();
+    }
   }
 
   Widget price(

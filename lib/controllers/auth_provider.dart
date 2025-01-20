@@ -20,7 +20,6 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/admin/admin_index.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
