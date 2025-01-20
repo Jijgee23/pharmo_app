@@ -366,7 +366,7 @@ class _MyOrderState extends State<MyOrder> {
 
   dropContainer({required Widget child}) {
     return Container(
-      width: Sizes.width * 0.375,
+      // width: Sizes.width * 0.375,
       decoration: BoxDecoration(
         color: white,
         borderRadius: BorderRadius.circular(Sizes.smallFontSize),
