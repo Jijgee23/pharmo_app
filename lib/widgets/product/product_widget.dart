@@ -86,8 +86,7 @@ class ProductWidget extends StatelessWidget {
                           onTap: () =>
                               Get.bottomSheet(AddBasketSheet(product: item)),
                           child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 3, horizontal: 5),
+                              padding: const EdgeInsets.all(3),
                               decoration: BoxDecoration(
                                   color: Colors.white,
                                   border: Border.all(
