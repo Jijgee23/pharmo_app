@@ -56,14 +56,16 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
                   col(t1: 'Нийлүүлэгч', t2: widget.order.supplier.toString()),
                 ],
               ),
-              SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  children: [
-                    ...provider.orderDetails.map(
-                      (o) => productBuilder(o),
-                    )
-                  ],
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    children: [
+                      ...provider.orderDetails.map(
+                        (o) => productBuilder(o),
+                      )
+                    ],
+                  ),
                 ),
               )
             ],

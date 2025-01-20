@@ -156,7 +156,7 @@ class _MyOrderState extends State<MyOrder> {
             leading: const ChevronBack(),
             title: appBarTitle(),
           ),
-          body: Container(
+          body: SingleChildScrollView(
             padding: EdgeInsets.only(
                 top: Sizes.smallFontSize / 2,
                 right: Sizes.smallFontSize / 2,
@@ -167,16 +167,14 @@ class _MyOrderState extends State<MyOrder> {
                 orders != null && orders.isNotEmpty
                     ? RefreshIndicator(
                         onRefresh: () async => getOrders(),
-                        child: Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: orders
-                                  .map(
-                                    (order) => orderWidget(
-                                        order: order, provider: provider),
-                                  )
-                                  .toList(),
-                            ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: orders
+                                .map(
+                                  (order) => orderWidget(
+                                      order: order, provider: provider),
+                                )
+                                .toList(),
                           ),
                         ),
                       )
@@ -197,7 +195,6 @@ class _MyOrderState extends State<MyOrder> {
           child: DropdownButton<String>(
             style: filterStyle(),
             isDense: true,
-            // isExpanded: true,
             padding: EdgeInsets.symmetric(vertical: Sizes.smallFontSize),
             dropdownColor: Colors.white,
             borderRadius: BorderRadius.circular(10),
