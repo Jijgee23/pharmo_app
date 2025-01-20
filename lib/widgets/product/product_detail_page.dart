@@ -191,27 +191,8 @@ class _ProductDetailState extends State<ProductDetail>
                                   child: TabBarView(
                                     controller: tabController,
                                     children: [
-                                      Column(
-                                        children: [
-                                          ...infos.map((i) => infoRow(
-                                              i, datas[infos.indexOf(i)]))
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          infoRow(
-                                              'Бөөний үнэ',
-                                              det['salePrice'] != null
-                                                  ? det['salePrice'].toString()
-                                                  : ''),
-                                          infoRow('Бөөний тоо',
-                                              '${det['saleQty'] ?? ''}'),
-                                          infoRow('Хямдрал',
-                                              '${det['discount'] ?? ''}'),
-                                          infoRow('Хямдрал дуусах хугацаа',
-                                              det['discountExpireDate'] ?? '')
-                                        ],
-                                      ),
+                                      myTabView(infos, datas),
+                                      myTabView(infos2, datas2),
                                     ],
                                   ),
                                 ),
@@ -313,6 +294,7 @@ class _ProductDetailState extends State<ProductDetail>
                               text: 'Сагслах',
                               ontap: () => showSheet(basket),
                             ),
+                            const SizedBox(height: Sizes.mediumFontSize)
                           ],
                         )
                       ],
@@ -559,35 +541,48 @@ class _ProductDetailState extends State<ProductDetail>
     );
   }
 
+  Widget myTabView(
+    List<String> list1,
+    List<String> list2,
+  ) {
+    return Column(
+      children: list1.map((i) => infoRow(i, list2[list1.indexOf(i)])).toList(),
+    );
+  }
+
   Widget infoRow(String title, String text) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          textAlign: TextAlign.start,
-          style: TextStyle(
-            color: Colors.grey.shade700,
-            fontSize: Sizes.mediumFontSize,
+        Expanded(
+          child: Text(
+            title,
+            textAlign: TextAlign.start,
+            maxLines: 2,
+            softWrap: true,
+            style: textStyle(color: Colors.grey.shade700),
           ),
         ),
-        SizedBox(
-          width: Sizes.width / 2,
+        Expanded(
           child: Text(
             maybeNull(text),
             textAlign: TextAlign.end,
             maxLines: 2,
             softWrap: true,
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
-              fontSize: Sizes.mediumFontSize,
-              overflow: TextOverflow.fade,
-            ),
+            style: textStyle(),
           ),
         ),
       ],
+    );
+  }
+
+  textStyle({Color? color}) {
+    return TextStyle(
+      color: color ?? Colors.black87,
+      fontWeight: FontWeight.bold,
+      fontSize: Sizes.smallFontSize + 3,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
