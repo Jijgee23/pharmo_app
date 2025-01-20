@@ -4,7 +4,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/pharmacy/index.dart';
+import 'package:pharmo_app/views/index.dart';
 import 'package:provider/provider.dart';
 
 class OrderDone extends StatefulWidget {

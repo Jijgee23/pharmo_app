@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -14,6 +18,7 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/ui_help/def_input_container.dart';
 import 'package:provider/provider.dart';
 
 class ProductDetail extends StatefulWidget {
@@ -80,6 +85,9 @@ class _ProductDetailState extends State<ProductDetail>
     return strings;
   }
 
+  final noImage =
+      'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg';
+
   final fontsize = Sizes.height * 0.015;
   String initQTY = 'Тоо ширхэг';
   setInitQyu(String n) {
@@ -116,148 +124,308 @@ class _ProductDetailState extends State<ProductDetail>
     return Scaffold(
       body: (fetching)
           ? const Center(child: PharmoIndicator())
-          : Consumer<BasketProvider>(
-              builder: (context, basket, child) => Scaffold(
-                appBar: AppBar(
-                  backgroundColor: white,
-                  surfaceTintColor: white,
-                  leading: const ChevronBack(),
-                  title: Text(
-                    widget.prod.name.toString(),
-                    softWrap: true,
-                    style: TextStyle(
-                        color: theme.primaryColor,
-                        fontSize: Sizes.smallFontSize * 1.2,
-                        fontWeight: FontWeight.bold),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+          : Consumer2<BasketProvider, HomeProvider>(
+              builder: (context, basket, home, child) {
+                bool isNotPharma = (home.userRole != 'PA');
+                return Scaffold(
+                  appBar: AppBar(
+                    backgroundColor: white,
+                    surfaceTintColor: white,
+                    leading: const ChevronBack(),
+                    title: Text(
+                      widget.prod.name.toString(),
+                      softWrap: true,
+                      style: TextStyle(
+                          color: theme.primaryColor,
+                          fontSize: Sizes.smallFontSize * 1.2,
+                          fontWeight: FontWeight.bold),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    actions: [],
                   ),
-                  actions: [],
-                ),
-                body: Container(
-                  color: theme.scaffoldBackgroundColor,
-                  padding:
-                      EdgeInsets.symmetric(horizontal: Sizes.mediumFontSize),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: InstaImageViewer(
-                                  imageUrl: widget.prod.image != null &&
-                                          splitURL(widget.prod.image!).length ==
-                                              2
-                                      ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_1000x1000.${splitURL(widget.prod.image!)[1]}'
-                                      : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg',
-                                  child: Container(
-                                    height: Sizes.height * 0.3,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      image: DecorationImage(
-                                        fit: BoxFit.contain,
-                                        filterQuality: FilterQuality.high,
-                                        alignment: Alignment.center,
-                                        image: NetworkImage(widget.prod.image !=
-                                                    null &&
-                                                splitURL(widget.prod.image!)
-                                                        .length ==
-                                                    2
-                                            ? '${dotenv.env['IMAGE_URL']}${splitURL(widget.prod.image!)[0]}_300x300.${splitURL(widget.prod.image!)[1]}'
-                                            : 'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg'),
-                                      ),
-                                    ),
+                  body: Container(
+                    color: theme.scaffoldBackgroundColor,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: Sizes.mediumFontSize),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        imageViewer(),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            controller: ScrollController(),
+                            child: Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: SelectableText(
+                                    '#${maybeNull(widget.prod.barcode.toString())}',
+                                    style: const TextStyle(
+                                        color: Colors.blueGrey,
+                                        fontSize: Sizes.mediumFontSize),
                                   ),
                                 ),
-                              ),
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: SelectableText(
-                                  '#${maybeNull(widget.prod.barcode.toString())}',
-                                  style: TextStyle(
-                                      color: Colors.blueGrey,
-                                      fontSize: Sizes.mediumFontSize),
-                                ),
-                              ),
-                              div,
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceBetween, // Or spaceBetween
-                                children: [
-                                  myTab(title: 'Барааны мэдээлэл', index: 0),
-                                  myTab(title: 'Урамшуулал', index: 1),
-                                ],
-                              ),
-                              SizedBox(
-                                height: Sizes.height * 0.25,
-                                child: TabBarView(
-                                  controller: tabController,
+                                div,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Column(
-                                      children: [
-                                        ...infos.map((i) =>
-                                            infoRow(i, datas[infos.indexOf(i)]))
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        infoRow(
-                                            'Бөөний үнэ',
-                                            det['salePrice'] != null
-                                                ? det['salePrice'].toString()
-                                                : ''),
-                                        infoRow('Бөөний тоо',
-                                            '${det['saleQty'] ?? ''}'),
-                                        infoRow('Хямдрал',
-                                            '${det['discount'] ?? ''}'),
-                                        infoRow('Хямдрал дуусах хугацаа',
-                                            det['discountExpireDate'] ?? '')
-                                      ],
-                                    ),
+                                    myTab(title: 'Барааны мэдээлэл', index: 0),
+                                    myTab(title: 'Урамшуулал', index: 1),
                                   ],
                                 ),
-                              ),
-                            ],
+                                SizedBox(
+                                  height: Sizes.height * 0.25,
+                                  child: TabBarView(
+                                    controller: tabController,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          ...infos.map((i) => infoRow(
+                                              i, datas[infos.indexOf(i)]))
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          infoRow(
+                                              'Бөөний үнэ',
+                                              det['salePrice'] != null
+                                                  ? det['salePrice'].toString()
+                                                  : ''),
+                                          infoRow('Бөөний тоо',
+                                              '${det['saleQty'] ?? ''}'),
+                                          infoRow('Хямдрал',
+                                              '${det['discount'] ?? ''}'),
+                                          infoRow('Хямдрал дуусах хугацаа',
+                                              det['discountExpireDate'] ?? '')
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (isNotPharma) div,
+                                if (isNotPharma)
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      DefInputContainer(
+                                          ontap: () => chooseImageSource(),
+                                          width: Sizes.width * 0.35,
+                                          child: const Text('Зураг нэмэх',
+                                              style: TextStyle(
+                                                  fontWeight:
+                                                      FontWeight.w600))),
+                                      if (images.isNotEmpty)
+                                        DefInputContainer(
+                                            ontap: () => sendImage(home),
+                                            width: Sizes.width * 0.35,
+                                            child: const Text("Хадгалах",
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w600))),
+                                    ],
+                                  ),
+                                if (isNotPharma)
+                                  const SizedBox(height: Sizes.smallFontSize),
+                                if (isNotPharma)
+                                  if (images.isNotEmpty)
+                                    DefInputContainer(
+                                      child: Wrap(
+                                        runSpacing: Sizes.smallFontSize,
+                                        children: [
+                                          ...images.map(
+                                            (image) => Stack(
+                                              children: [
+                                                Container(
+                                                    decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                            color: Colors.grey),
+                                                        borderRadius: BorderRadius
+                                                            .circular(Sizes
+                                                                .smallFontSize)),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            Sizes
+                                                                .smallFontSize),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                            right: Sizes
+                                                                .bigFontSize),
+                                                    child: Image.file(image,
+                                                        height:
+                                                            Sizes.width * .2,
+                                                        width:
+                                                            Sizes.width * .2)),
+                                                Positioned(
+                                                    top: -10,
+                                                    right: 0,
+                                                    child: InkWell(
+                                                        onTap: () =>
+                                                            removeImage(image),
+                                                        child: const Icon(
+                                                            Icons.remove,
+                                                            color: Colors.red)))
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                const SizedBox(height: Sizes.bigFontSize),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              price(
-                                  title: 'Үндсэн үнэ',
-                                  value:
-                                      maybeNull(widget.prod.price.toString())),
-                              price(
-                                  title: 'Бөөний үнэ',
-                                  value: maybeNull(
-                                      widget.prod.salePrice.toString()),
-                                  cxs: CrossAxisAlignment.end),
-                            ],
-                          ),
-                          CustomButton(
-                            borderRadius: Sizes.smallFontSize,
-                            padding: EdgeInsets.symmetric(
-                                vertical: Sizes.mediumFontSize),
-                            text: 'Сагслах',
-                            ontap: () => showSheet(basket),
-                          ),
-                        ],
-                      )
-                    ],
+                        Column(
+                          children: [
+                            div,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                price(
+                                    title: 'Үндсэн үнэ',
+                                    value: maybeNull(
+                                        widget.prod.price.toString())),
+                                price(
+                                    title: 'Бөөний үнэ',
+                                    value: maybeNull(
+                                        widget.prod.salePrice.toString()),
+                                    cxs: CrossAxisAlignment.end),
+                              ],
+                            ),
+                            CustomButton(
+                              borderRadius: Sizes.smallFontSize,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: Sizes.mediumFontSize),
+                              text: 'Сагслах',
+                              ontap: () => showSheet(basket),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
     );
+  }
+
+  imageViewer() {
+    if (det.containsKey('images') == true) {
+      final pictures = det['images'] as List;
+      return Container(
+        padding: const EdgeInsets.all(Sizes.smallFontSize),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: pictures
+                .map(
+                  (p) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: imageWidget('${dotenv.env['IMAGE_URL']}${p['url']}'),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+    } else {
+      return imageWidget(noImage);
+    }
+  }
+
+  Widget imageWidget(String url) {
+    return Image.network(
+      url,
+      height: Sizes.height * 0.25,
+      width: Sizes.height * 0.25,
+    );
+  }
+
+  sendImage(HomeProvider home) async {
+    print(images.length);
+    dynamic res = await home.uploadImage(id: widget.prod.id, images: images);
+    message(res['message']);
+    if (res['errorType'] == 0) {
+      Navigator.pop(context);
+    }
+  }
+
+  List<File> images = [];
+  addImageToList(File image) {
+    if (images.length > 5) {
+      message('5 хүртэлт зураг оруулах боломжтой');
+    } else {
+      setState(() {
+        images.add(image);
+      });
+    }
+  }
+
+  Future<void> pickLogo(ImageSource source) async {
+    await Permission.storage.request();
+    await Permission.camera.request();
+    final pickedFile = await ImagePicker().pickImage(source: source);
+    addImageToList(File(pickedFile!.path));
+  }
+
+  chooseImageSource() {
+    Get.bottomSheet(
+      Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(Sizes.bigFontSize),
+                topRight: Radius.circular(Sizes.bigFontSize))),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              picker(
+                  text: 'Зураг дарах',
+                  icon: Icons.camera,
+                  ontap: () =>
+                      pickLogo(ImageSource.camera).then((g) => Get.back())),
+              picker(
+                  text: 'Зураг оруулах',
+                  icon: Icons.image,
+                  ontap: () =>
+                      pickLogo(ImageSource.gallery).then((g) => Get.back())),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget picker({required String text,required IconData icon, required Function() ontap}) {
+    return InkWell(
+      onTap: ontap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            vertical: Sizes.bigFontSize, horizontal: Sizes.bigFontSize * 2),
+        child: Row(
+          children: [
+            Icon(icon),
+            const SizedBox(width: Sizes.mediumFontSize),
+            Text(
+              text,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  removeImage(File image) {
+    setState(() {
+      images.removeAt(images.indexOf(image));
+    });
   }
 
   Widget price(

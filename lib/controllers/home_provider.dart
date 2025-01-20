@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -27,6 +28,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 class HomeProvider extends ChangeNotifier {
   bool isScrolling = false;
@@ -114,6 +116,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // Барааний жагсаалт & бараа хайх
+
   getProducts(int pageKey) async {
     try {
       final response =
@@ -127,6 +130,60 @@ class HomeProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('error============= on getProduct> ${e.toString()}');
+    }
+  }
+
+   uploadImage({
+    required int id,
+    required List<File> images,
+    // List<int>? deletion
+  }) async {
+    try {
+      var request =
+          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      request.headers['Authorization'] = await getAccessToken();
+      request.fields['product_id'] = id.toString();
+
+      images
+          .map((image) async => request.files
+              .add(await http.MultipartFile.fromPath('images', image.path)))
+          .toList();
+      var res = await request.send();
+      print(res.statusCode);
+      String responseBody = await res.stream.bytesToString();
+      print(responseBody);
+      if (res.statusCode == 200) {
+        return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
+      } else {
+        message(wait);
+        return buildResponse(1, null, wait);
+      }
+    } catch (e) {
+      return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
+    }
+  }
+
+  deleteImages({required int id, required List<int> ids}) async {
+    try {
+      var request =
+          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      request.headers['Authorization'] = await getAccessToken();
+      request.fields['product_id'] = id.toString();
+      // images!.map((image) async => request.files
+      //     .add(await http.MultipartFile.fromPath('images', image.path)));
+      request.fields['images_to_remove'] = ids.toString();
+      var res = await request.send();
+      print(res.statusCode);
+      String responseBody = await res.stream.bytesToString();
+      print(responseBody);
+      if (res.statusCode == 200) {
+        return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
+      } else {
+        message(wait);
+        return buildResponse(1, null, wait);
+      }
+    } catch (e) {
+      return buildResponse(2, null, 'Түх хүлээгээд дахин оролдоно уу!');
     }
   }
 

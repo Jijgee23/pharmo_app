@@ -7,17 +7,16 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/public_uses/cart/cart.dart';
-import 'package:pharmo_app/views/pharmacy/home.dart';
+import 'package:pharmo_app/views/home.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_orders.dart';
 import 'package:pharmo_app/views/seller/seller_report/seller_report.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
+import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
 import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
+import 'package:pharmo_app/widgets/drawer/my_drawer.dart';
 import 'package:provider/provider.dart';
-
-import '../../widgets/bottom_bar/bottom_bar.dart';
-import '../../widgets/drawer/my_drawer.dart';
 
 class IndexPharma extends StatefulWidget {
   const IndexPharma({super.key});
@@ -49,7 +48,7 @@ class _IndexPharmaState extends State<IndexPharma> {
               title: isPharma
                   ? Text(
                       getAppBarText(homeProvider.currentIndex),
-                      style: TextStyle(
+                      style:const TextStyle(
                         color: white,
                         fontSize: Sizes.smallFontSize + 2,
                         fontWeight: FontWeight.bold,

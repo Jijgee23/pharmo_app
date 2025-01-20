@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -21,11 +20,12 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/admin/admin_index.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
-import 'package:pharmo_app/views/pharmacy/index.dart';
+import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -193,6 +193,9 @@ class AuthController extends ChangeNotifier {
         break;
       case 'D':
         gotoRemoveUntil(const IndexDeliveryMan());
+        break;
+      case 'A':
+        gotoRemoveUntil(const AdminIndex());
         break;
       default:
         message('Веб хуудсаар хандана уу');

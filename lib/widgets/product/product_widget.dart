@@ -55,9 +55,9 @@ class ProductWidget extends StatelessWidget {
                       softWrap: true,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black,
-                        fontSize: Sizes.mediumFontSize -2,
+                        fontSize: Sizes.mediumFontSize - 2,
                       ),
                     ),
                     Row(
@@ -66,7 +66,7 @@ class ProductWidget extends StatelessWidget {
                       children: [
                         Text(
                           toPrice(item.price),
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                             fontSize: Sizes.mediumFontSize * .9,

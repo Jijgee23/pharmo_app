@@ -257,3 +257,7 @@ String maybeNullToJson(String? text) {
     return text;
   }
 }
+
+String getDate(DateTime date) {
+  return date.toString().substring(0, 10);
+}

@@ -8,7 +8,7 @@ import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
-import 'package:pharmo_app/views/pharmacy/index.dart';
+import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';

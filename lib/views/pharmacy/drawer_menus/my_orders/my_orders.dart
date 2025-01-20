@@ -371,7 +371,7 @@ class _MyOrderState extends State<MyOrder> {
         color: white,
         borderRadius: BorderRadius.circular(Sizes.smallFontSize),
       ),
-      padding:const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
+      padding: const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
       child: Center(child: child),
     );
   }

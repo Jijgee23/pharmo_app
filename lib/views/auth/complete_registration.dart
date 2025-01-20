@@ -39,7 +39,6 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     });
   }
 
-  Future<void> requestPermissions() async {}
   File? image;
   File? logo;
   Future<void> _pickLogo() async {
