@@ -186,8 +186,8 @@ class _ProductDetailState extends State<ProductDetail>
                                     myTab(title: 'Урамшуулал', index: 1),
                                   ],
                                 ),
-                                Expanded(
-                                  // height: Sizes.height * 0.25,
+                                SizedBox(
+                                  height: 180,
                                   child: TabBarView(
                                     controller: tabController,
                                     children: [
@@ -199,8 +199,17 @@ class _ProductDetailState extends State<ProductDetail>
                                       ),
                                       Column(
                                         children: [
-                                          ...infos2.map((i) => infoRow(
-                                              i, datas2[infos.indexOf(i)]))
+                                          infoRow(
+                                              'Бөөний үнэ',
+                                              det['salePrice'] != null
+                                                  ? det['salePrice'].toString()
+                                                  : ''),
+                                          infoRow('Бөөний тоо',
+                                              '${det['saleQty'] ?? ''}'),
+                                          infoRow('Хямдрал',
+                                              '${det['discount'] ?? ''}'),
+                                          infoRow('Хямдрал дуусах хугацаа',
+                                              det['discountExpireDate'] ?? '')
                                         ],
                                       ),
                                     ],
