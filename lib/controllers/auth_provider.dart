@@ -194,9 +194,9 @@ class AuthController extends ChangeNotifier {
       case 'D':
         gotoRemoveUntil(const IndexDeliveryMan());
         break;
-      case 'A':
-        gotoRemoveUntil(const AdminIndex());
-        break;
+      // case 'A':
+      //   gotoRemoveUntil(const AdminIndex());
+      //   break;
       default:
         message('Веб хуудсаар хандана уу');
     }
