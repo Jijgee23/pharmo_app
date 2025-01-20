@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
@@ -436,7 +435,7 @@ class _ProductDetailState extends State<ProductDetail>
         Text(title, style: TextStyle(fontSize: Sizes.smallFontSize + 2)),
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: Sizes.mediumFontSize,
           ),
@@ -550,16 +549,20 @@ class _ProductDetailState extends State<ProductDetail>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          textAlign: TextAlign.start,
-          style: TextStyle(
-            color: Colors.grey.shade700,
-            fontSize: Sizes.mediumFontSize,
+        Expanded(
+          child: Text(
+            title,
+            textAlign: TextAlign.start,
+             maxLines: 2,
+             softWrap: true,
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontSize: Sizes.mediumFontSize,
+              overflow: TextOverflow.ellipsis
+            ),
           ),
         ),
-        SizedBox(
-          width: Sizes.width / 2,
+        Expanded(
           child: Text(
             maybeNull(text),
             textAlign: TextAlign.end,

@@ -34,7 +34,7 @@ class ProductWidget extends StatelessWidget {
         child: Stack(
           children: [
             Container(
-              height: Sizes.height * 0.37,
+              height: Sizes.height * .4,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(Sizes.smallFontSize - 2),
                   color: Colors.white,
@@ -62,14 +62,14 @@ class ProductWidget extends StatelessWidget {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           toPrice(item.price),
                           style: const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
-                            fontSize: Sizes.mediumFontSize * .9,
+                            fontSize: Sizes.mediumFontSize - 2,
                           ),
                         ),
                         if (isNotPharm)

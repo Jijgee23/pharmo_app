@@ -210,10 +210,10 @@ class _HomeState extends State<Home> {
                 Expanded(
                     child: TextFormField(
                   cursorHeight: smallFontSize,
-                  style:const TextStyle(fontSize: Sizes.mediumFontSize),
+                  style: const TextStyle(fontSize: Sizes.mediumFontSize),
                   decoration: InputDecoration(
                     hintText: '${homeProvider.searchType} хайх',
-                    hintStyle:const TextStyle(
+                    hintStyle: const TextStyle(
                         fontSize: Sizes.mediumFontSize - 2,
                         color: Colors.black),
                     border: InputBorder.none,
@@ -313,7 +313,9 @@ class _HomeState extends State<Home> {
             controller: _scrollController,
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2),
+              crossAxisCount: 2,
+              childAspectRatio: .9
+            ),
             itemCount: fetchedItems.length,
             itemBuilder: (context, idx) {
               Product product = fetchedItems[idx];

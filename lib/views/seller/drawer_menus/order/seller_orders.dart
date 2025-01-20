@@ -120,7 +120,7 @@ class _SellerOrdersState extends State<SellerOrders> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: Sizes.width * .6,
+              width: Sizes.width * .5,
               child: TextFormField(
                 controller: search,
                 cursorColor: Colors.black,
