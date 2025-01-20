@@ -120,6 +120,18 @@ class _ProductDetailState extends State<ProductDetail>
       '',
       det['mnfr'].toString()
     ];
+    List<String> infos2 = [
+      'Бөөний үнэ',
+      'Бөөний тоо',
+      'Хямдрал',
+      'Хямдрал дуусах хугацаа'
+    ];
+    List<String> datas2 = [
+      maybeNull(det['salePrice'].toString()),
+      maybeNull(det['saleQty'].toString()),
+      maybeNull(det['discount'].toString()),
+      maybeNull(det['discountExpireDate'].toString())
+    ];
     return Scaffold(
       body: (fetching)
           ? const Center(child: PharmoIndicator())
@@ -174,8 +186,8 @@ class _ProductDetailState extends State<ProductDetail>
                                     myTab(title: 'Урамшуулал', index: 1),
                                   ],
                                 ),
-                                SizedBox(
-                                  height: Sizes.height * 0.25,
+                                Expanded(
+                                  // height: Sizes.height * 0.25,
                                   child: TabBarView(
                                     controller: tabController,
                                     children: [
@@ -187,17 +199,8 @@ class _ProductDetailState extends State<ProductDetail>
                                       ),
                                       Column(
                                         children: [
-                                          infoRow(
-                                              'Бөөний үнэ',
-                                              det['salePrice'] != null
-                                                  ? det['salePrice'].toString()
-                                                  : ''),
-                                          infoRow('Бөөний тоо',
-                                              '${det['saleQty'] ?? ''}'),
-                                          infoRow('Хямдрал',
-                                              '${det['discount'] ?? ''}'),
-                                          infoRow('Хямдрал дуусах хугацаа',
-                                              det['discountExpireDate'] ?? '')
+                                          ...infos2.map((i) => infoRow(
+                                              i, datas2[infos.indexOf(i)]))
                                         ],
                                       ),
                                     ],
@@ -401,7 +404,10 @@ class _ProductDetailState extends State<ProductDetail>
     );
   }
 
-  Widget picker({required String text,required IconData icon, required Function() ontap}) {
+  Widget picker(
+      {required String text,
+      required IconData icon,
+      required Function() ontap}) {
     return InkWell(
       onTap: ontap,
       child: Container(
@@ -435,7 +441,7 @@ class _ProductDetailState extends State<ProductDetail>
         Text(title, style: TextStyle(fontSize: Sizes.smallFontSize + 2)),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: Sizes.mediumFontSize,
           ),
@@ -549,20 +555,16 @@ class _ProductDetailState extends State<ProductDetail>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Text(
-            title,
-            textAlign: TextAlign.start,
-             maxLines: 2,
-             softWrap: true,
-            style: TextStyle(
-              color: Colors.grey.shade700,
-              fontSize: Sizes.mediumFontSize,
-              overflow: TextOverflow.ellipsis
-            ),
+        Text(
+          title,
+          textAlign: TextAlign.start,
+          style: TextStyle(
+            color: Colors.grey.shade700,
+            fontSize: Sizes.mediumFontSize,
           ),
         ),
-        Expanded(
+        SizedBox(
+          width: Sizes.width / 2,
           child: Text(
             maybeNull(text),
             textAlign: TextAlign.end,
