@@ -5,11 +5,11 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/category.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filter/filtered_products.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:provider/provider.dart';
 
 class FilterPage extends StatefulWidget {
@@ -55,11 +55,7 @@ class _FilterPageState extends State<FilterPage> {
             List<dynamic> views = [_categories(), _mnfrs(), _vndrs()];
 
             return Scaffold(
-              appBar: CustomAppBar(
-                leading: const ChevronBack(),
-                title: Text('Ангилал',
-                    style: TextStyle(fontSize: Sizes.mediumFontSize)),
-              ),
+              appBar: const SideAppBar(text: 'Ангилал', hasBasket: true),
               body: Column(
                 children: [
                   TabBar(
@@ -83,9 +79,8 @@ class _FilterPageState extends State<FilterPage> {
                     child: TabBarView(children: [
                       ...views.map(
                         (v) => SingleChildScrollView(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: Sizes.smallFontSize,
-                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: Sizes.smallFontSize),
                           child: Column(
                             children: v,
                           ),
@@ -115,26 +110,11 @@ class _FilterPageState extends State<FilterPage> {
     final mnfrs = homeProvider.mnfrs;
     return [
       ...mnfrs.map(
-        (m) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              child: Text(
-                homeProvider.mnfrs[mnfrs.indexOf(m)].name,
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-              onTap: () {
-                goto(
-                  FilteredProducts(
-                      type: 'mnfr',
-                      title: homeProvider.mnfrs[mnfrs.indexOf(m)].name,
-                      filterKey: homeProvider.mnfrs[mnfrs.indexOf(m)].id),
-                );
-              },
-            ),
-          ),
-        ),
+        (m) => item(
+            text: homeProvider.mnfrs[mnfrs.indexOf(m)].name,
+            type: 'mnfr',
+            title: homeProvider.mnfrs[mnfrs.indexOf(m)].name,
+            filterKey: homeProvider.mnfrs[mnfrs.indexOf(m)].id),
       ),
     ];
   }
@@ -143,28 +123,33 @@ class _FilterPageState extends State<FilterPage> {
     final vndrs = homeProvider.vndrs;
     return [
       ...vndrs.map(
-        (v) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: InkWell(
-              child: Text(
-                homeProvider.vndrs[vndrs.indexOf(v)].name,
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-              onTap: () {
-                goto(
-                  FilteredProducts(
-                      type: 'vndr',
-                      title: homeProvider.vndrs[vndrs.indexOf(v)].name,
-                      filterKey: homeProvider.vndrs[vndrs.indexOf(v)].id),
-                );
-              },
-            ),
-          ),
+        (v) => item(
+          text: homeProvider.vndrs[vndrs.indexOf(v)].name,
+          type: 'vndr',
+          title: homeProvider.vndrs[vndrs.indexOf(v)].name,
+          filterKey: homeProvider.vndrs[vndrs.indexOf(v)].id,
         ),
       ),
     ];
+  }
+
+  Widget item(
+      {required String text,
+      required String type,
+      required String title,
+      required int filterKey}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: GestureDetector(
+          child: Text(text,
+              style: const TextStyle(color: Colors.black, fontSize: 12)),
+          onTap: () => goto(
+              FilteredProducts(type: type, title: title, filterKey: filterKey)),
+        ),
+      ),
+    );
   }
 }
 
@@ -182,17 +167,9 @@ class _CategoryItemState extends State<CategoryItem> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        if (widget.cat.children!.isNotEmpty) {
-          setState(() => isExpanded = !isExpanded);
-        } else {
-          goto(
-            FilteredProducts(
-                type: 'cat', title: widget.cat.name, filterKey: widget.cat.id),
-          );
-        }
-      },
-      child: Container(
+      onTap: () => onTap(),
+      child: AnimatedContainer(
+        duration: duration,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,11 +179,13 @@ class _CategoryItemState extends State<CategoryItem> {
                 Text(
                   widget.cat.name,
                   style: TextStyle(
-                      color: isExpanded
-                          ? AppColors.secondary
-                          : Theme.of(context).colorScheme.onSecondary,
-                      fontSize: 12),
+                    color: isExpanded
+                        ? AppColors.secondary
+                        : theme.colorScheme.onSecondary,
+                    fontSize: Sizes.mediumFontSize,
+                  ),
                 ),
+                const SizedBox(width: Sizes.mediumFontSize),
                 widget.cat.children!.isNotEmpty
                     ? Icon(
                         isExpanded
@@ -232,5 +211,14 @@ class _CategoryItemState extends State<CategoryItem> {
         ),
       ),
     );
+  }
+
+  onTap() {
+    if (widget.cat.children!.isNotEmpty) {
+      setState(() => isExpanded = !isExpanded);
+    } else {
+      goto(FilteredProducts(
+          type: 'cat', title: widget.cat.name, filterKey: widget.cat.id));
+    }
   }
 }

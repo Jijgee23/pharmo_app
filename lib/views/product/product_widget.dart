@@ -33,7 +33,8 @@ class ProductWidget extends StatelessWidget {
         highlightColor: Colors.grey,
         child: Stack(
           children: [
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
               height: Sizes.height * .4,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(Sizes.smallFontSize - 2),
@@ -44,62 +45,63 @@ class ProductWidget extends StatelessWidget {
               margin: EdgeInsets.all(Sizes.smallFontSize / 3),
               padding: EdgeInsets.all(Sizes.smallFontSize / 2),
               child: InkWell(
-                onTap: () => goto(ProductDetail(prod: item)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    image(Sizes.height, fontSize),
-                    Text(
-                      item.name!,
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: Sizes.mediumFontSize - 2,
+                      onTap: () => goto(ProductDetail(prod: item)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          image(Sizes.height, fontSize),
+                          Text(
+                            item.name!,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: Sizes.mediumFontSize - 2,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                toPrice(item.price),
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: Sizes.mediumFontSize - 2,
+                                ),
+                              ),
+                              if (isNotPharm)
+                                Text(
+                                  'Үлд: ${maybeNull(item.qty.toString())}',
+                                  style: TextStyle(
+                                      color: theme.colorScheme.onPrimary,
+                                      fontSize: Sizes.smallFontSize,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              InkWell(
+                                highlightColor: Colors.grey,
+                                splashColor: Colors.grey,
+                                onTap: () => Get.bottomSheet(
+                                    AddBasketSheet(product: item)),
+                                child: Container(
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                            color: theme.primaryColor,
+                                            width: 1.5),
+                                        borderRadius: BorderRadius.circular(5)),
+                                    child: Icon(Icons.add,
+                                        color: theme.primaryColor)),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          toPrice(item.price),
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: Sizes.mediumFontSize - 2,
-                          ),
-                        ),
-                        if (isNotPharm)
-                          Text(
-                            'Үлд: ${maybeNull(item.qty.toString())}',
-                            style: TextStyle(
-                                color: theme.colorScheme.onPrimary,
-                                fontSize: Sizes.smallFontSize,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        InkWell(
-                          highlightColor: Colors.grey,
-                          splashColor: Colors.grey,
-                          onTap: () =>
-                              Get.bottomSheet(AddBasketSheet(product: item)),
-                          child: Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(
-                                      color: theme.primaryColor, width: 1.5),
-                                  borderRadius: BorderRadius.circular(5)),
-                              child:
-                                  Icon(Icons.add, color: theme.primaryColor)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
             ),
             (hasSale == true)
                 ? Positioned(

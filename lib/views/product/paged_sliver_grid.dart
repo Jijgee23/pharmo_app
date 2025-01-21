@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:pharmo_app/views/product/product_widget.dart';
-import 'package:provider/provider.dart';
 
 class CustomGrid extends StatefulWidget {
   final PagingController<int, dynamic> pagingController;
@@ -28,8 +26,7 @@ class _CustomGridState extends State<CustomGrid> {
 
   @override
   Widget build(BuildContext context) {
-    return MyScroller(
-      c: PagedGridView<int, dynamic>(
+    return  PagedGridView<int, dynamic>(
         showNewPageProgressIndicatorAsGridChild: true,
         showNewPageErrorIndicatorAsGridChild: true,
         showNoMoreItemsIndicatorAsGridChild: true,
@@ -54,35 +51,35 @@ class _CustomGridState extends State<CustomGrid> {
           itemBuilder: (_, item, index) =>
               ProductWidget(item: item, hasSale: widget.hasSale),
         ),
-      ),
+      
     );
   }
 }
 
-class MyScroller extends StatelessWidget {
-  final Widget c;
-  const MyScroller({super.key, required this.c});
+// class MyScroller extends StatelessWidget {
+//   final Widget c;
+//   const MyScroller({super.key, required this.c});
 
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<HomeProvider>(
-      builder: (context, home, child) => NotificationListener(
-        onNotification: (notification) {
-          if (notification is ScrollUpdateNotification &&
-              notification.scrollDelta! < 0) {
-            home.setScrolling(false);
-          } else if (notification is ScrollUpdateNotification &&
-              notification.scrollDelta! > 0) {
-            if (notification.metrics.atEdge) {
-              home.setScrolling(false);
-            } else {
-              home.setScrolling(true);
-            }
-          }
-          return true;
-        },
-        child: c,
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Consumer<HomeProvider>(
+//       builder: (context, home, child) => NotificationListener(
+//         onNotification: (notification) {
+//           if (notification is ScrollUpdateNotification &&
+//               notification.scrollDelta! < 0) {
+//             home.setScrolling(false);
+//           } else if (notification is ScrollUpdateNotification &&
+//               notification.scrollDelta! > 0) {
+//             if (notification.metrics.atEdge) {
+//               home.setScrolling(false);
+//             } else {
+//               home.setScrolling(true);
+//             }
+//           }
+//           return true;
+//         },
+//         child: c,
+//       ),
+//     );
+//   }
+// }

@@ -43,8 +43,8 @@ final darkTheme = ThemeData(
     fillColor: const WidgetStatePropertyAll(Colors.transparent),
   ),
   fontFamily: 'Inter',
-  splashColor: darkPrimary.withOpacity(.3),
-  highlightColor: darkPrimary.withOpacity(.3),
+  splashColor: transperant,
+  highlightColor: transperant,
   textTheme: const TextTheme(
     bodyLarge: TextStyle(color: Colors.black, fontSize: 18),
     bodyMedium: TextStyle(color: Colors.black, fontSize: 14),

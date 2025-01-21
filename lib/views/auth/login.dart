@@ -59,6 +59,9 @@ class _LoginPageState extends State<LoginPage> {
   void getLocalData() {
     if (box1.get('email') != null) {
       ema.text = box1.get('email');
+      setState(() {
+        rememberMe = true;
+      });
     }
     if (box1.get('password') != null) {
       pass.text = box1.get('password');

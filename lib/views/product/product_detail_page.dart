@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -83,8 +84,6 @@ class _ProductDetailState extends State<ProductDetail>
     return strings;
   }
 
-  
-
   final fontsize = Sizes.height * 0.015;
   String initQTY = 'Тоо ширхэг';
   setInitQyu(String n) {
@@ -151,7 +150,6 @@ class _ProductDetailState extends State<ProductDetail>
                     ),
                   ),
                   body: Container(
-                    color: theme.scaffoldBackgroundColor,
                     padding: const EdgeInsets.symmetric(
                         horizontal: Sizes.mediumFontSize),
                     child: Column(
@@ -305,20 +303,14 @@ class _ProductDetailState extends State<ProductDetail>
     if (det.containsKey('images') == true) {
       final pictures = det['images'] as List;
       return Container(
-        padding: const EdgeInsets.all(Sizes.smallFontSize),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: pictures
+          padding: const EdgeInsets.all(Sizes.smallFontSize),
+          child: CarouselSlider(
+            items: pictures
                 .map(
                   (p) => Stack(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: imageWidget(
-                            '${dotenv.env['IMAGE_URL']}${p['url']}'),
-                      ),
+                      imageWidget(
+                          '${dotenv.env['IMAGE_URL']}${p['url']}'),
                       if (isNotPharma == true)
                         Positioned(
                           right: 0,
@@ -330,20 +322,20 @@ class _ProductDetailState extends State<ProductDetail>
                                 color: theme.colorScheme.onPrimary,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
-                                Icons.remove,
-                                color: white,
-                              ),
+                              child: const Icon(Icons.remove, color: white),
                             ),
                           ),
-                        )
+                        ),
                     ],
                   ),
                 )
                 .toList(),
-          ),
-        ),
-      );
+            options: CarouselOptions(
+              viewportFraction: 1,
+              autoPlay: true,
+              autoPlayAnimationDuration: duration * 2,
+            ),
+          ));
     } else {
       return imageWidget(noImage);
     }
@@ -354,6 +346,7 @@ class _ProductDetailState extends State<ProductDetail>
       url,
       height: Sizes.height * 0.25,
       width: Sizes.height * 0.25,
+      fit: BoxFit.cover,
     );
   }
 

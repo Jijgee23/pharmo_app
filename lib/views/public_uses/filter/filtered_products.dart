@@ -1,12 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/widgets/icon/cart_icon.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:pharmo_app/views/product/paged_sliver_grid.dart';
+import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/views/home.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:provider/provider.dart';
 
 class FilteredProducts extends StatefulWidget {
@@ -25,81 +23,56 @@ class FilteredProducts extends StatefulWidget {
 
 class _FilteredProductsState extends State<FilteredProducts> {
   final int _pageSize = 20;
+  int pageKey = 1;
+  setPageKey(int n) {
+    setState(() {
+      pageKey + n;
+    });
+  }
 
-  final PagingController<int, dynamic> _pagingController =
-      PagingController(firstPageKey: 1);
   late HomeProvider homeProvider;
+  List<Product> products = [];
+  final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
-      if (widget.type == 'cat') {
-        _fetchByCategory(widget.filterKey, pageKey);
-      } else {
-        _fetchByMnfrsOrVndrs(widget.type!, widget.filterKey, pageKey);
-      }
-    });
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        setPageKey(pageKey + 1);
+        fetItems();
+      }
+    });
+
+    fetItems();
   }
 
   @override
   void dispose() {
-    _pagingController.dispose();
     super.dispose();
+  }
+
+  fetItems() async {
+    List<Product> items = await homeProvider.filter(
+        widget.type!, widget.filterKey, pageKey, _pageSize);
+    setState(() {
+      products.addAll(items);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const ChevronBack(),
-        centerTitle: true,
-        title: Text(
-          widget.title,
-          style: TextStyle(color: theme.primaryColor, fontSize: 14),
+    return Consumer<HomeProvider>(
+      builder: (context, home, child) => Scaffold(
+        appBar: SideAppBar(text: widget.title, hasBasket: true),
+        body: Center(
+          child: Container(
+            padding: const EdgeInsets.only(right: 10, left: 10),
+            child: Products(controller: _scrollController, products: products),
+          ),
         ),
-        actions: const [
-          CartIcon(
-            color: Colors.white,
-          )
-        ],
-      ),
-      body: Container(
-        padding: const EdgeInsets.only(right: 10, left: 10),
-        child: CustomGrid(pagingController: _pagingController),
       ),
     );
-  }
-
-  Future<void> _fetchByMnfrsOrVndrs(
-      String type, int filters, int pageKey) async {
-    try {
-      final newItems =
-          await homeProvider.filter(type, filters, pageKey, _pageSize);
-      final isLastPage = newItems!.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
-    }
-  }
-
-  Future<void> _fetchByCategory(int key, int pageKey) async {
-    try {
-      final newItems = await homeProvider.filterCate(key, pageKey, _pageSize);
-      final isLastPage = newItems!.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
-    }
   }
 }

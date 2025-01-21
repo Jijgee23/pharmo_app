@@ -31,7 +31,7 @@ final grey400 = Colors.grey.shade400;
 final grey500 = Colors.grey.shade500;
 final grey600 = Colors.grey.shade600;
 const card = Color(0XFFdee2ff);
-
+const transperant = Colors.transparent;
 final horizontalPadding = EdgeInsets.symmetric(
   horizontal: Sizes.width * 0.02,
 );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -36,26 +36,15 @@ class _IndexPharmaState extends State<IndexPharma> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<HomeProvider, BasketProvider>(
-      builder: (context, homeProvider, basketProvider, _) {
+    return Consumer<HomeProvider>(
+      builder: (context, homeProvider, _) {
         bool isPharma = homeProvider.userRole == 'PA';
         return Scaffold(
           extendBody: true,
           drawer: MyDrawer(
-            drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems(),
-          ),
+              drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems()),
           appBar: CustomAppBar(
-            title: isPharma
-                ? Text(
-                    getAppBarText(homeProvider.currentIndex),
-                    style: const TextStyle(
-                      color: white,
-                      fontSize: Sizes.smallFontSize + 2,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                : getSellerAppBarTitle(),
-          ),
+              title: isPharma ? pharmAppBarTitle() : sellerAppBarTitle()),
           body: Container(
             padding: const EdgeInsets.only(right: 10, left: 10),
             child: isPharma
@@ -65,26 +54,106 @@ class _IndexPharmaState extends State<IndexPharma> {
           bottomNavigationBar: BottomBar(
             labels: isPharma ? pharmaLabels : sellerLabels,
             icons: isPharma ? pharmaIcons : sellericons,
-          ));
-          // bottomNavigationBar: BottomNavigationBar(
-          //   onTap: (value) => homeProvider.changeIndex(value),
-          //   currentIndex: homeProvider.currentIndex,
-          //   selectedIconTheme: const IconThemeData(color: white, size: 30),
-          //   backgroundColor: theme.primaryColor,
-          //   unselectedIconTheme: IconThemeData(color: grey500),
-          //   selectedLabelStyle: const TextStyle(color: white),
-          //   unselectedLabelStyle: TextStyle(color: grey500),
-          //   items: const [
-          //     BottomNavigationBarItem(
-          //         icon: Icon(Icons.people), label: 'Харилцагч'),
-          //     BottomNavigationBarItem(
-          //         icon: Icon(Icons.grid_view), label: 'Бараа'),
-          //     BottomNavigationBarItem(
-          //         icon: Icon(Icons.shopping_cart), label: 'Сагс'),
-          //   ],
-          // ),
-        
+          ),
+        );
       },
+    );
+  }
+
+  pharmAppBarTitle() {
+    if (homeProvider.currentIndex == 0) {
+      return searchBar(homeProvider);
+    } else {
+      return const Text(
+        'Сагс',
+        style: TextStyle(
+          color: white,
+          fontWeight: FontWeight.bold,
+          fontSize: 13.0,
+        ),
+      );
+    }
+  }
+
+  sellerAppBarTitle() {
+    if (homeProvider.currentIndex == 1) {
+      return searchBar(homeProvider);
+    } else {
+      return getSellerAppBarTitle();
+    }
+  }
+
+  searchBar(HomeProvider homeProvider) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 7,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            decoration: BoxDecoration(
+                color: white, borderRadius: BorderRadius.circular(30)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (homeProvider.userRole == 'PA') suplierPicker(),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: TextFormField(
+                  cursorHeight: Sizes.smallFontSize + 2,
+                  style: const TextStyle(fontSize: Sizes.mediumFontSize),
+                  decoration: InputDecoration(
+                    hintText: '${homeProvider.searchType} хайх',
+                    hintStyle: const TextStyle(
+                        fontSize: Sizes.mediumFontSize - 2,
+                        color: Colors.black),
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  ),
+                  onChanged: (v) => _onfieldChanged(v),
+                  onFieldSubmitted: (v) => _onFieldSubmitted(v),
+                )),
+                InkWell(
+                    onTap: () => _changeSearchType(),
+                    child: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: black,
+                    )),
+                const SizedBox(width: 5),
+                viewMode()
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget suplierPicker() {
+    return IntrinsicWidth(
+      child: InkWell(
+        onTap: () => _onPickSupplier(context),
+        child: Text(
+          '${homeProvider.supName} :',
+          style: const TextStyle(
+            fontSize: Sizes.mediumFontSize - 2,
+            color: AppColors.succesColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget viewMode() {
+    return InkWell(
+      onTap: () => homeProvider.switchView(),
+      child: Icon(
+        homeProvider.isList ? Icons.grid_view : Icons.list_sharp,
+        color: black,
+      ),
     );
   }
 
@@ -106,18 +175,8 @@ class _IndexPharmaState extends State<IndexPharma> {
     ];
   }
 
-  getAppBarText(int index) {
-    switch (index) {
-      case 0:
-        return 'Бараа';
-      case 1:
-        return 'Сагс';
-    }
-  }
-
   final List _pharmacyPages = [
     const Home(),
-    // const FilterPage(),
     const Cart(),
   ];
 
@@ -158,7 +217,7 @@ class _IndexPharmaState extends State<IndexPharma> {
     ];
   }
 
-  getSellerAppBarTitle() {
+  Widget getSellerAppBarTitle() {
     const textStyle = TextStyle(
       color: white,
       fontSize: 12.0,
@@ -193,4 +252,105 @@ class _IndexPharmaState extends State<IndexPharma> {
     const Home(),
     const Cart(),
   ];
+  _changeSearchType() {
+    showMenu(
+      surfaceTintColor: Colors.white,
+      color: Colors.white,
+      context: context,
+      position: const RelativeRect.fromLTRB(150, 120, 0, 0),
+      items: homeProvider.stype
+          .map(
+            (e) => PopupMenuItem(
+              onTap: () {
+                homeProvider.setQueryTypeName(e);
+                int index = homeProvider.stype.indexOf(e);
+                if (index == 0) {
+                  homeProvider.setQueryType('name');
+                } else if (index == 1) {
+                  homeProvider.setQueryType('barcode');
+                }
+              },
+              child: Text(
+                e,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: Sizes.smallFontSize,
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  // Хайлт функц
+  _onfieldChanged(String v) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (v.isEmpty || v == '') {
+        homeProvider.setPageKey(1);
+        homeProvider.fetchProducts();
+      } else {
+        homeProvider.filterProduct(v);
+      }
+    });
+  }
+
+  _onFieldSubmitted(String v) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (v.isEmpty || v == '') {
+        homeProvider.setPageKey(1);
+        homeProvider.fetchProducts();
+      } else {
+        homeProvider.filterProduct(v);
+      }
+    });
+  }
+
+  _onPickSupplier(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    showMenu(
+      surfaceTintColor: Colors.white,
+      color: Colors.white,
+      context: context,
+      position: RelativeRect.fromLTRB(
+          size.width * 0.02, size.height * 0.15, size.width * 0.8, 0),
+      elevation: 12,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      items: homeProvider.supList
+          .map(
+            (e) => PopupMenuItem(
+              onTap: () async => await onPickSupp(e),
+              child: Text(
+                e.name,
+                style: TextStyle(
+                  color: e.name == homeProvider.supName
+                      ? AppColors.succesColor
+                      : Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  onPickSupp(Supplier e) async {
+    await homeProvider.pickSupplier(int.parse(e.id), context);
+    await homeProvider.changeSupName(e.name);
+    homeProvider.setSupId(int.parse(e.id));
+    // basketProvider.getBasket();
+    homeProvider.clearItems();
+    homeProvider.setPageKey(1);
+    homeProvider.fetchProducts();
+    // await promotionProvider.getMarkedPromotion();
+    // homeProvider.refresh(context, homeProvider, promotionProvider);
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (promotionProvider.markedPromotions.isNotEmpty) {
+    //     homeProvider.showMarkedPromos(context, promotionProvider);
+    //   }
+    // });
+    // Navigator.pop(context);
+  }
 }

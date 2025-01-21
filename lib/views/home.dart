@@ -4,14 +4,11 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/views/product/product_widget.dart';
 import 'package:provider/provider.dart';
@@ -35,40 +32,7 @@ class _HomeState extends State<Home> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        _fetchMoreProducts();
-      }
-    });
-    fetchProducts(pageKey);
-    basketProvider.getBasket();
-    if (homeProvider.userRole == 'PA') {
-      initPharmo();
-    }
-  }
-
-  void _fetchMoreProducts() async {
-    setState(() {
-      pageKey = pageKey + 1;
-      fetchProducts(pageKey);
-    });
-  }
-
-  clearItems() {
-    setState(() {
-      fetchedItems.clear();
-    });
-  }
-
-  setPage(int n) {
-    setState(() {
-      pageKey = n;
-    });
-  }
-
-  refresh() {
-    setPage(1);
+    initPublic();
   }
 
   @override
@@ -80,7 +44,6 @@ class _HomeState extends State<Home> {
   initPharmo() async {
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
     // await promotionProvider.getMarkedPromotion();
-
     // await homeProvider.getBranches();
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   if (promotionProvider.markedPromotions.isNotEmpty) {
@@ -89,80 +52,59 @@ class _HomeState extends State<Home> {
     // });
   }
 
-  List<Product> fetchedItems = [];
-  setItems(List<Product> items) {
-    setState(() {
-      fetchedItems.addAll(items);
-    });
-  }
-
-  // Барааны жагсаалт авах
-  Future<void> fetchProducts(int pageKey) async {
-    List<Product> items = await homeProvider.getProducts(pageKey);
-    if (items.isNotEmpty) {
-      setItems(items);
-    }
-  }
-
-  filterProducts(String query) async {
-    List<Product> items = await homeProvider.getProductsByQuery(query);
-    if (items.isNotEmpty) {
-      setState(() {
-        fetchedItems.clear();
+  initPublic() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          homeProvider.fetchMoreProducts();
+        }
       });
-      setItems(items);
-    }
+
+      homeProvider.clearItems();
+      homeProvider.setPageKey(1);
+      homeProvider.fetchProducts();
+      basketProvider.getBasket();
+      if (homeProvider.userRole == 'PA') {
+        initPharmo();
+      }
+    });
   }
 
   List<IconData> icons = [Icons.discount, Icons.star, Icons.new_releases];
 
-  goFilt(String query, String title, bool hasSale) async {
-    goto(FilteredProducts(query: query, title: title));
-  }
-
-  bool isCategoryView = false;
-  setIsCategoryView(bool n) {
+  List<String> filterNames = ['Хямдралтай', 'Эрэлттэй', 'Шинэ'];
+  List<String> filterss = [
+    'discount__gt=0',
+    'supplier_indemand_products',
+    'ordering=-created_at'
+  ];
+  String selectedFilter = 'Бүгд';
+  setSelectedFilter(String n) {
     setState(() {
-      isCategoryView = n;
+      selectedFilter = n;
     });
   }
 
-  List<String> filters = ['Хямдралтай', 'Эрэлттэй', 'Шинэ'];
-
   @override
   Widget build(BuildContext context) {
-    // final smallFontSize = Sizes.height * .0125;
     return RefreshIndicator(
       onRefresh: () => Future.sync(() {
-        refresh();
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          homeProvider.refresh(context, homeProvider, promotionProvider);
+          homeProvider.clearItems();
+          homeProvider.setPageKey(1);
+          homeProvider.fetchProducts();
+          // homeProvider.refresh(context, homeProvider, promotionProvider);
         });
       }),
-      child: Consumer3<HomeProvider, BasketProvider, PromotionProvider>(
-        builder: (_, homeProvider, basketProvider, promotionProvider, child) {
-          final search = homeProvider.searchController;
+      child: Consumer2<HomeProvider, PromotionProvider>(
+        builder: (_, home, promotionProvider, child) {
           return Container(
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Column(
               children: [
-                searchBar(
-                  context,
-                  homeProvider,
-                  basketProvider,
-                  Sizes.smallFontSize,
-                  search,
-                ),
-                if (homeProvider.userRole == 'PA')
-                  filtering(Sizes.smallFontSize),
-                fetchedItems.isNotEmpty
-                    ? products(homeProvider)
-                    : Column(
-                        children: [
-                          SizedBox(height: Sizes.height / 5),
-                          const NoItems()
-                        ],
-                      ),
+                if (home.userRole == 'PA') filtering(Sizes.smallFontSize),
+                getBody(home)
               ],
             ),
           );
@@ -171,138 +113,27 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // Хайлт
-  searchBar(
-    BuildContext context,
-    HomeProvider homeProvider,
-    BasketProvider basketProvider,
-    double smallFontSize,
-    TextEditingController search,
-  ) {
-    return Row(
-      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          flex: 7,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            margin: const EdgeInsets.only(bottom: 5),
-            decoration: getDecoration(context),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (homeProvider.userRole == 'PA')
-                  IntrinsicWidth(
-                    child: InkWell(
-                      onTap: () => _onPickSupplier(context),
-                      child: Text(
-                        '${homeProvider.supName} :',
-                        style: const TextStyle(
-                          fontSize: Sizes.mediumFontSize - 2,
-                          color: AppColors.succesColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: TextFormField(
-                  cursorHeight: smallFontSize,
-                  style: const TextStyle(fontSize: Sizes.mediumFontSize),
-                  decoration: InputDecoration(
-                    hintText: '${homeProvider.searchType} хайх',
-                    hintStyle: const TextStyle(
-                        fontSize: Sizes.mediumFontSize - 2,
-                        color: Colors.black),
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                  ),
-                  onChanged: (v) => _onfieldChanged(v),
-                  onFieldSubmitted: (v) => _onFieldSubmitted(v),
-                )),
-                InkWell(
-                    onTap: () => _changeSearchType(),
-                    child: const Icon(Icons.keyboard_arrow_down_rounded)),
-                const SizedBox(width: 5),
-                InkWell(
-                  onTap: () => homeProvider.switchView(),
-                  child: Icon(
-                    homeProvider.isList ? Icons.grid_view : Icons.list_sharp,
-                    color: black,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  _changeSearchType() {
-    showMenu(
-      surfaceTintColor: Colors.white,
-      color: Colors.white,
-      context: context,
-      position: const RelativeRect.fromLTRB(150, 120, 0, 0),
-      items: homeProvider.stype
-          .map(
-            (e) => PopupMenuItem(
-              onTap: () {
-                homeProvider.setQueryTypeName(e);
-                int index = homeProvider.stype.indexOf(e);
-                if (index == 0) {
-                  homeProvider.setQueryType('name');
-                } else if (index == 1) {
-                  homeProvider.setQueryType('barcode');
-                }
-              },
-              child: Text(
-                e,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: Sizes.smallFontSize,
-                ),
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  // Хайлт функц
-  _onfieldChanged(String v) {
-    if (v.isNotEmpty) {
-      filterProducts(v);
+  getBody(HomeProvider home) {
+    if (home.fetchedItems.isNotEmpty) {
+      return products(home);
     } else {
-      fetchProducts(pageKey);
+      return Column(
+        children: [SizedBox(height: Sizes.height / 5), const NoItems()],
+      );
     }
   }
 
-  _onFieldSubmitted(String v) {
-    if (v.isEmpty) {
-      fetchProducts(pageKey);
-    } else {
-      filterProducts(v);
-    }
-  }
-
-  Widget products(HomeProvider homeProvider) {
-    if (homeProvider.supID == 0 || homeProvider.supID == null) {
+  Widget products(HomeProvider home) {
+    if (home.supID == 0 || home.supID == null) {
       return errorWidget();
     } else {
-      if (homeProvider.isList) {
+      if (home.isList) {
         return Expanded(
           child: ListView.builder(
-            itemCount: fetchedItems.length,
+            itemCount: home.fetchedItems.length,
             controller: _scrollController,
             itemBuilder: (context, idx) {
-              Product product = fetchedItems[idx];
+              Product product = home.fetchedItems[idx];
               return ProductWidgetListView(item: product);
             },
           ),
@@ -313,12 +144,10 @@ class _HomeState extends State<Home> {
             controller: _scrollController,
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: .9
-            ),
-            itemCount: fetchedItems.length,
+                crossAxisCount: 2, childAspectRatio: .9),
+            itemCount: home.fetchedItems.length,
             itemBuilder: (context, idx) {
-              Product product = fetchedItems[idx];
+              Product product = home.fetchedItems[idx];
               return ProductWidget(item: product);
             },
           ),
@@ -335,109 +164,62 @@ class _HomeState extends State<Home> {
       child: Wrap(
         spacing: 10,
         children: [
-          filt(e: 'Ангилал', icon: Icons.list, ontap: () => onTapCategory()),
-          ...filters.map(
+          filt(
+              e: 'Ангилал',
+              icon: Icons.list,
+              ontap: () => goto(const FilterPage())),
+          filt(
+              e: 'Бүгд',
+              icon: Icons.list,
+              ontap: () {
+                setSelectedFilter('Бүгд');
+                homeProvider.setPageKey(1);
+                homeProvider.fetchProducts();
+              }),
+          ...filterNames.map(
             (e) => filt(
-              e: e,
-              icon: icons[filters.indexOf(e)],
-              ontap: () => ontapFilter(e),
-            ),
+                e: e,
+                icon: icons[filterNames.indexOf(e)],
+                ontap: () {
+                  setSelectedFilter(e);
+                  homeProvider.filterProducts(filterss[filterNames.indexOf(e)]);
+                }),
           ),
         ],
       ),
     );
   }
 
-  onTapCategory() {
-    goto(const FilterPage());
-  }
-
-  ontapFilter(String e) {
-    if (filters.indexOf(e) == 0) {
-      goFilt('discount__gt=0', 'Хямдралтай', true);
-    } else if (filters.indexOf(e) == 1) {
-      goFilt('ordering=-created_at', 'Эрэлттэй', false);
-    } else {
-      goFilt('supplier_indemand_products/', 'Шинэ', false);
-    }
-  }
-
   filt({required String e, required IconData icon, required Function() ontap}) {
+    bool selected = (e == selectedFilter);
     return InkWell(
+      splashColor: transperant,
+      highlightColor: transperant,
       onTap: ontap,
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.3,
-        decoration: getDecoration(context),
-        padding: const EdgeInsets.symmetric(vertical: 5),
+      child: AnimatedContainer(
+        duration: duration,
+        decoration: BoxDecoration(
+          color: selected ? theme.primaryColor.withOpacity(.5) : Colors.white,
+          borderRadius: BorderRadius.circular(Sizes.smallFontSize),
+        ),
+        padding: EdgeInsets.symmetric(
+            vertical: 5,
+            horizontal: selected ? Sizes.bigFontSize : Sizes.smallFontSize),
         child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: AppColors.secondary, size: 20),
-              const SizedBox(width: 5),
-              Text(e, style: TextStyle(fontSize: Sizes.smallFontSize + 2)),
-            ],
+          child: Text(
+            e,
+            style: const TextStyle(
+              fontSize: Sizes.smallFontSize + 2,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
     );
   }
 
-  // Нийлүүлэгч сонгох
-  _onPickSupplier(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    showMenu(
-      surfaceTintColor: Colors.white,
-      color: Colors.white,
-      context: context,
-      position: RelativeRect.fromLTRB(
-        size.width * 0.02,
-        size.height * 0.15,
-        size.width * 0.8,
-        0,
-      ),
-      elevation: 12,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      items: homeProvider.supList
-          .map(
-            (e) => PopupMenuItem(
-              onTap: () async => await onPickSupp(e),
-              child: Text(
-                e.name,
-                style: TextStyle(
-                  color: e.name == homeProvider.supName
-                      ? AppColors.succesColor
-                      : Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  onPickSupp(Supplier e) async {
-    await homeProvider.pickSupplier(int.parse(e.id), context);
-    await homeProvider.changeSupName(e.name);
-    homeProvider.setSupId(int.parse(e.id));
-    basketProvider.getBasket();
-    clearItems();
-    fetchProducts(pageKey);
-    // await promotionProvider.getMarkedPromotion();
-    homeProvider.refresh(context, homeProvider, promotionProvider);
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (promotionProvider.markedPromotions.isNotEmpty) {
-    //     homeProvider.showMarkedPromos(context, promotionProvider);
-    //   }
-    // });
-    // Navigator.pop(context);
-  }
-
   Widget errorWidget() {
-    return Text(
+    return const Text(
       'Нийлүүлэгч сонгоно уу!',
       textAlign: TextAlign.center,
       style: TextStyle(
@@ -447,21 +229,6 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-}
-
-getDecoration(BuildContext context) {
-  return BoxDecoration(
-    color: Colors.white,
-    boxShadow: [
-      BoxShadow(
-        color: Theme.of(context).shadowColor,
-        blurRadius: 10,
-        // offset: const Offset(5, 5),
-        blurStyle: BlurStyle.normal,
-      )
-    ],
-    borderRadius: BorderRadius.circular(30),
-  );
 }
 
 class Products extends StatelessWidget {
@@ -480,49 +247,6 @@ class Products extends StatelessWidget {
         Product product = products[idx];
         return ProductWidget(item: product);
       },
-    );
-  }
-}
-
-class FilteredProducts extends StatefulWidget {
-  final String query;
-  final String title;
-  const FilteredProducts({super.key, required this.query, required this.title});
-
-  @override
-  State<FilteredProducts> createState() => _FilteredProductsState();
-}
-
-class _FilteredProductsState extends State<FilteredProducts> {
-  List<Product> items = [];
-  late HomeProvider home;
-  setItems() async {
-    final prods = await home.filterProducts(widget.query);
-    setState(() {
-      items.addAll(prods);
-    });
-  }
-
-  @override
-  initState() {
-    super.initState();
-    home = Provider.of<HomeProvider>(context, listen: false);
-    setItems();
-  }
-
-  final ScrollController scrollController = ScrollController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        leading: const ChevronBack(),
-        title: Text(widget.title, style: Constants.headerTextStyle),
-      ),
-      body: Products(
-        controller: scrollController,
-        products: items,
-      ),
     );
   }
 }
