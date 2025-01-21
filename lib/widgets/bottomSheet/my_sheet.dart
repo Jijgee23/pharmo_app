@@ -9,7 +9,7 @@ class SheetContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView( // Makes the content scrollable
+    return SingleChildScrollView(
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(15),
@@ -61,6 +61,6 @@ class SheetContainer extends StatelessWidget {
 void mySheet({String? title, required List<Widget> children}) {
   Get.bottomSheet(
     SheetContainer(title: title, children: children),
-    isScrollControlled: true, // Allows the sheet to expand fully
+    isScrollControlled: true,
   );
 }

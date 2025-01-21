@@ -42,10 +42,12 @@ class CustomTextField extends StatelessWidget {
         borderSide:
             BorderSide(color: theme.primaryColor.withOpacity(0.7), width: 1.2),
         borderRadius: BorderRadius.circular(Sizes.mediumFontSize));
+    TextStyle ts =
+        TextStyle(color: theme.primaryColor.withOpacity(.8), fontSize: 14.0, fontWeight: FontWeight.w700);
     return SizedBox(
       child: TextFormField(
         textAlign: align ?? TextAlign.start,
-        style: TextStyle(color: Colors.black.withOpacity(.8), fontSize: 14.0),
+        style: ts,
         onChanged: onChanged,
         onFieldSubmitted: onSubmitted,
         onEditingComplete: onComplete,
@@ -58,13 +60,11 @@ class CustomTextField extends StatelessWidget {
         cursorColor: Colors.black,
         maxLines: maxLine ?? 1,
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: sw * 0.04,
-          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: sw * 0.04),
           labelText: hintText,
+          labelStyle: ts,
           // hintText: hintText,
-          hintStyle:
-              TextStyle(color: Colors.black.withOpacity(.8), fontSize: 14.0),
+          hintStyle: ts,
           border: border,
           errorBorder: border,
           enabledBorder: border,
