@@ -352,6 +352,7 @@ Widget input(String hint, TextEditingController contr,
             style: const TextStyle(fontSize: 12.0),
             cursorWidth: .8,
             keyboardType: keyType,
+            textInputAction: TextInputAction.done,
             validator: validator as String? Function(String?)?,
             decoration: InputDecoration(
               border: InputBorder.none,
@@ -369,4 +370,3 @@ Widget input(String hint, TextEditingController contr,
   );
 }
 // comment
-
