@@ -4,9 +4,8 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/seller/customer/customer_details_paga.dart';
-import 'package:pharmo_app/widgets/bottomSheet/mySheet.dart';
+import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
@@ -248,7 +247,7 @@ class _CustomerListState extends State<CustomerList> {
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.grey)),
                 child: const Icon(Icons.add, color: Colors.green)),
-            SizedBox(width: Sizes.mediumFontSize),
+            const SizedBox(width: Sizes.mediumFontSize),
             greyText('Харилцагч бүртгэх', grey600),
           ],
         ),
@@ -278,19 +277,30 @@ class _CustomerListState extends State<CustomerList> {
 
   // Харилцгагч бүртгэх
   registerCustomer(PharmProvider pp) {
+    final formKey = GlobalKey<FormState>();
     mySheet(
       title: 'Харилцагч бүртгэх',
       children: [
-        input('Нэр', name, null, null),
-        input('Регистрийн дугаар', rn, null, null),
-        input('И-Мейл', email, validateEmail, null),
-        input('Утас', phone, validatePhone, TextInputType.number),
-        const Text('Заавал биш',
-            style:
-                TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
-        input('Нэмэлт тайлбар ', note, null, null),
-        CustomButton(
-            text: 'Бүртгэх', ontap: () async => await _registerCustomer(pp)),
+        Form(
+          key: formKey,
+          child: Wrap(
+            runSpacing: Sizes.smallFontSize,
+            children: [
+              input('Нэр', name, null),
+              input('Регистрийн дугаар', rn, null),
+              input('И-Мейл', email, null),
+              input('Утас', phone,
+                  const TextInputType.numberWithOptions(signed: true)),
+              const Text('Заавал биш',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black54)),
+              input('Нэмэлт тайлбар ', note, null),
+              CustomButton(
+                  text: 'Бүртгэх',
+                  ontap: () async => await _registerCustomer(pp)),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -335,8 +345,7 @@ class _CustomerListState extends State<CustomerList> {
 }
 
 // TextField
-Widget input(String hint, TextEditingController contr,
-    Function(String?)? validator, TextInputType? keyType) {
+Widget input(String hint, TextEditingController contr, TextInputType? keyType) {
   return Container(
     decoration: BoxDecoration(
       color: card,
@@ -352,7 +361,7 @@ Widget input(String hint, TextEditingController contr,
             style: const TextStyle(fontSize: 12.0),
             cursorWidth: .8,
             keyboardType: keyType,
-            validator: validator as String? Function(String?)?,
+            textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               border: InputBorder.none,
               focusedBorder: InputBorder.none,
@@ -370,3 +379,50 @@ Widget input(String hint, TextEditingController contr,
 }
 // comment
 
+class InputField extends StatelessWidget {
+  final String hint;
+  final TextEditingController controller;
+  final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
+
+  const InputField({
+    super.key,
+    required this.hint,
+    required this.controller,
+    this.validator,
+    this.keyboardType,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration:
+          BoxDecoration(color: card, borderRadius: BorderRadius.circular(20)),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: controller,
+              cursorColor: Colors.black,
+              cursorHeight: 20,
+              style: const TextStyle(fontSize: 12.0),
+              cursorWidth: .8,
+              keyboardType: keyboardType,
+              textInputAction: TextInputAction.done,
+              validator: validator,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                hintText: hint,
+                hintStyle: const TextStyle(
+                  color: Colors.black38,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

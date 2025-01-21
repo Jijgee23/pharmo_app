@@ -4,7 +4,6 @@ import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:provider/provider.dart';
@@ -79,8 +78,8 @@ class BuyinPromo extends StatelessWidget {
                                       physics:
                                           const AlwaysScrollableScrollPhysics(),
                                       itemBuilder: (context, index) {
-                                        return product(
-                                            promo.gift?[index], noImage, context);
+                                        return product(promo.gift?[index],
+                                            noImage, context);
                                       },
                                       itemCount: promo.gift?.length,
                                     )

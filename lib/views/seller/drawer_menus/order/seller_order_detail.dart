@@ -213,8 +213,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                 ),
               ),
             ),
-            input('Тоо ширхэг оруулна уу', qtyController, null,
-                TextInputType.number),
+            input('Тоо ширхэг оруулна уу', qtyController, TextInputType.number),
             CustomButton(
               text: 'Хадгалах',
               ontap: () => _changeQty(oid, item),
@@ -292,7 +291,7 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
                 PopSheet()
               ],
             ),
-            input('Нэмэлт тайлбар', nc, null, null),
+            input('Нэмэлт тайлбар', nc, null),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
