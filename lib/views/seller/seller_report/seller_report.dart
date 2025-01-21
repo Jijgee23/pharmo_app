@@ -3,7 +3,7 @@ import 'package:pharmo_app/controllers/report_provider.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/seller_report/report_widget.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:provider/provider.dart';
 
@@ -50,7 +50,7 @@ class _SellerReportState extends State<SellerReportPage> {
     return Consumer<ReportProvider>(builder: (context, rp, child) {
       dynamic data = rp.report;
       return Scaffold(
-        appBar: AppBar(
+        appBar: SideAppBar(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -60,7 +60,6 @@ class _SellerReportState extends State<SellerReportPage> {
                   date: rp.currentDate2, handle: () => _showCalendar2(report)),
             ],
           ),
-          leading: const ChevronBack(),
         ),
         body: Container(
           padding: const EdgeInsets.all(Sizes.smallFontSize),

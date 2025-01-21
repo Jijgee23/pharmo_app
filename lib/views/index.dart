@@ -6,7 +6,7 @@ import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart';
-import 'package:pharmo_app/views/public_uses/cart/cart.dart';
+import 'package:pharmo_app/views/cart/cart.dart';
 import 'package:pharmo_app/views/home.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
@@ -40,32 +40,50 @@ class _IndexPharmaState extends State<IndexPharma> {
       builder: (context, homeProvider, basketProvider, _) {
         bool isPharma = homeProvider.userRole == 'PA';
         return Scaffold(
-            extendBody: true,
-            drawer: MyDrawer(
-              drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems(),
-            ),
-            appBar: CustomAppBar(
-              title: isPharma
-                  ? Text(
-                      getAppBarText(homeProvider.currentIndex),
-                      style:const TextStyle(
-                        color: white,
-                        fontSize: Sizes.smallFontSize + 2,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : getSellerAppBarTitle(),
-            ),
-            body: Container(
-              padding: const EdgeInsets.only(right: 10, left: 10),
-              child: isPharma
-                  ? _pharmacyPages[homeProvider.currentIndex]
-                  : _sellerPages[homeProvider.currentIndex],
-            ),
-            bottomNavigationBar: BottomBar(
-              labels: isPharma ? pharmaLabels : sellerLabels,
-              icons: isPharma ? pharmaIcons : sellericons,
-            ));
+          extendBody: true,
+          drawer: MyDrawer(
+            drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems(),
+          ),
+          appBar: CustomAppBar(
+            title: isPharma
+                ? Text(
+                    getAppBarText(homeProvider.currentIndex),
+                    style: const TextStyle(
+                      color: white,
+                      fontSize: Sizes.smallFontSize + 2,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                : getSellerAppBarTitle(),
+          ),
+          body: Container(
+            padding: const EdgeInsets.only(right: 10, left: 10),
+            child: isPharma
+                ? _pharmacyPages[homeProvider.currentIndex]
+                : _sellerPages[homeProvider.currentIndex],
+          ),
+          bottomNavigationBar: BottomBar(
+            labels: isPharma ? pharmaLabels : sellerLabels,
+            icons: isPharma ? pharmaIcons : sellericons,
+          ));
+          // bottomNavigationBar: BottomNavigationBar(
+          //   onTap: (value) => homeProvider.changeIndex(value),
+          //   currentIndex: homeProvider.currentIndex,
+          //   selectedIconTheme: const IconThemeData(color: white, size: 30),
+          //   backgroundColor: theme.primaryColor,
+          //   unselectedIconTheme: IconThemeData(color: grey500),
+          //   selectedLabelStyle: const TextStyle(color: white),
+          //   unselectedLabelStyle: TextStyle(color: grey500),
+          //   items: const [
+          //     BottomNavigationBarItem(
+          //         icon: Icon(Icons.people), label: 'Харилцагч'),
+          //     BottomNavigationBarItem(
+          //         icon: Icon(Icons.grid_view), label: 'Бараа'),
+          //     BottomNavigationBarItem(
+          //         icon: Icon(Icons.shopping_cart), label: 'Сагс'),
+          //   ],
+          // ),
+        
       },
     );
   }

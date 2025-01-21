@@ -5,7 +5,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/drawer_menus/order/seller_order_detail.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:pharmo_app/widgets/ui_help/container.dart';
@@ -74,22 +74,18 @@ class _SellerOrdersState extends State<SellerOrders> {
     return Consumer2<MyOrderProvider, PharmProvider>(
       builder: (_, provider, pp, child) {
         return Scaffold(
-          appBar: AppBar(
-            leading: const ChevronBack(),
-            centerTitle: true,
+          appBar: SideAppBar(
             title: searchBar(),
-            actions: [
-              InkWell(
-                onTap: () => showCalendar(),
-                child: Padding(
-                    padding: EdgeInsets.only(right: Sizes.smallFontSize),
-                    child: const Icon(Icons.calendar_month)),
-              )
-            ],
+            action: InkWell(
+              onTap: () => showCalendar(),
+              child: const Padding(
+                  padding: EdgeInsets.only(right: Sizes.smallFontSize),
+                  child: Icon(Icons.calendar_month)),
+            ),
           ),
           body: provider.sellerOrders.isNotEmpty
               ? SingleChildScrollView(
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                       top: Sizes.smallFontSize,
                       right: Sizes.smallFontSize,
                       left: Sizes.smallFontSize),
@@ -110,7 +106,7 @@ class _SellerOrdersState extends State<SellerOrders> {
 
   Widget searchBar() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
+      padding: const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(Sizes.smallFontSize),

@@ -4,7 +4,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/widgets/others/indicator.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
-import 'package:pharmo_app/widgets/product/product_widget.dart';
+import 'package:pharmo_app/views/product/product_widget.dart';
 import 'package:provider/provider.dart';
 
 class CustomGrid extends StatefulWidget {

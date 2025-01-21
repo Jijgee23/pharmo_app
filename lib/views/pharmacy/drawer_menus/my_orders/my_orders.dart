@@ -5,7 +5,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
@@ -152,12 +152,11 @@ class _MyOrderState extends State<MyOrder> {
       builder: (context, provider, _) {
         final orders = (provider.orders.isNotEmpty) ? provider.orders : null;
         return Scaffold(
-          appBar: AppBar(
-            leading: const ChevronBack(),
+          appBar: SideAppBar(
             title: appBarTitle(),
           ),
           body: SingleChildScrollView(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
                 top: Sizes.smallFontSize / 2,
                 right: Sizes.smallFontSize / 2,
                 left: Sizes.smallFontSize / 2),
@@ -195,7 +194,7 @@ class _MyOrderState extends State<MyOrder> {
           child: DropdownButton<String>(
             style: filterStyle(),
             isDense: true,
-            padding: EdgeInsets.symmetric(vertical: Sizes.smallFontSize),
+            padding: const EdgeInsets.symmetric(vertical: Sizes.smallFontSize),
             dropdownColor: Colors.white,
             borderRadius: BorderRadius.circular(10),
             underline: const SizedBox(),

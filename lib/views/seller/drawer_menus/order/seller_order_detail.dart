@@ -4,14 +4,14 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
+import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/order_widgets/order_status.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
+import 'package:pharmo_app/views/product/add_basket_sheet.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:provider/provider.dart';
 
@@ -34,10 +34,16 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
 
   @override
   void initState() {
-    super.initState();
     setFetching(true);
+    super.initState();
     p = Provider.of<PharmProvider>(context, listen: false);
     p.getSellerOrderDetail(widget.oId, context);
+    setFetching(false);
+  }
+
+  fetchInit() async {
+    setFetching(true);
+    await p.getSellerOrderDetail(widget.oId, context);
     setFetching(false);
   }
 
@@ -70,7 +76,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
             : Scaffold(
                 appBar: AppBar(leading: const ChevronBack()),
                 body: SingleChildScrollView(
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                       top: Sizes.bigFontSize,
                       left: Sizes.smallFontSize,
                       right: Sizes.smallFontSize),
@@ -83,31 +89,31 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                               children: [
                                 Text(
                                   '$t:',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.black87,
                                       fontSize: Sizes.mediumFontSize),
                                 ),
                                 Text(maybeNull(datas[titles.indexOf(t)]),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: Sizes.mediumFontSize,
                                     ))
                               ],
                             ),
                           )),
-                      SizedBox(height: Sizes.mediumFontSize),
+                      const SizedBox(height: Sizes.mediumFontSize),
                       OrderStatus(process: order.process),
                       if (pp.orderDets[0].items.isNotEmpty)
                         SingleChildScrollView(
                           child: Column(
                             children: [
-                              Text(
+                              const Text(
                                 'Захиалгын бараанууд',
                                 style: TextStyle(
                                     color: Colors.black87,
                                     fontSize: Sizes.mediumFontSize),
                               ),
-                              SizedBox(height: Sizes.mediumFontSize),
+                              const SizedBox(height: Sizes.mediumFontSize),
                               ...pp.orderDets[0].items.map(
                                 (item) => Container(
                                   width: double.infinity,
@@ -251,9 +257,15 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      nc.text = widget.note;
-    });
+    init();
+  }
+
+  init() {
+    if (widget.note != null && widget.note != 'null') {
+      setState(() {
+        nc.text = widget.note;
+      });
+    }
   }
 
   @override
@@ -275,10 +287,8 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Захиалгын мэдээлэл засах',
-                  style: TextStyle(fontSize: 12),
-                ),
+                Text('Захиалгын мэдээлэл засах',
+                    style: TextStyle(fontSize: 12)),
                 PopSheet()
               ],
             ),
@@ -287,29 +297,20 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 MyChip(
-                  title: 'Дансаар',
-                  v: 'T',
-                  selected: payType == 'T',
-                  ontap: () {
-                    setPayType('T');
-                  },
-                ),
+                    title: 'Дансаар',
+                    v: 'T',
+                    selected: payType == 'T',
+                    ontap: () => setPayType('T')),
                 MyChip(
-                  title: 'Бэлнээр',
-                  v: 'C',
-                  selected: payType == 'C',
-                  ontap: () {
-                    setPayType('C');
-                  },
-                ),
+                    title: 'Бэлнээр',
+                    v: 'C',
+                    selected: payType == 'C',
+                    ontap: () => setPayType('C')),
                 MyChip(
-                  title: 'Зээлээр',
-                  v: 'L',
-                  selected: payType == 'L',
-                  ontap: () {
-                    setPayType('L');
-                  },
-                ),
+                    title: 'Зээлээр',
+                    v: 'L',
+                    selected: payType == 'L',
+                    ontap: () => setPayType('L')),
               ],
             ),
             CustomButton(

@@ -6,10 +6,10 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/views/public_uses/cart/cart_info.dart';
-import 'package:pharmo_app/views/public_uses/cart/pharm_order_sheet.dart';
-import 'package:pharmo_app/views/public_uses/cart/seller_order_sheet.dart';
-import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
+import 'package:pharmo_app/views/cart/cart_info.dart';
+import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
+import 'package:pharmo_app/views/cart/seller_order_sheet.dart';
+import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
@@ -66,7 +66,7 @@ class _CartState extends State<Cart> {
                   margin: const EdgeInsets.only(bottom: kToolbarHeight),
                   child: Column(
                     children: [
-                      SizedBox(height: Sizes.smallFontSize),
+                      const SizedBox(height: Sizes.smallFontSize),
                       // Сагсны мэдээлэл
                       const CartInfo(),
                       Expanded(

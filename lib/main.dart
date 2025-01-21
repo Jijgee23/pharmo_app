@@ -11,10 +11,9 @@ import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
-import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/controllers/report_provider.dart';
-import 'package:pharmo_app/global_key.dart';
+import 'package:pharmo_app/utilities/global_key.dart';
 import 'package:pharmo_app/theme/dark_theme.dart';
 import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/utilities/firebase_api.dart';
@@ -41,7 +40,6 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => IncomeProvider()),
         ChangeNotifierProvider(create: (_) => AddressProvider()),
         ChangeNotifierProvider(create: (_) => PromotionProvider()),
-        ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => ReportProvider()),
         // ChangeNotifierProvider(create: (_) => FireProvider())
       ],

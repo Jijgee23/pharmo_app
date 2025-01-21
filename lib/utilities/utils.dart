@@ -135,9 +135,6 @@ Map<String, dynamic> buildResponse(
   return {'errorType': errorType, 'data': data, 'message': message};
 }
 
-String noImage =
-    'https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg';
-
 double parseDouble(dynamic value) {
   if (value == null) {
     return 0.0;

@@ -6,8 +6,8 @@ import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/widgets/product/add_basket_sheet.dart';
-import 'package:pharmo_app/widgets/product/product_detail_page.dart';
+import 'package:pharmo_app/views/product/add_basket_sheet.dart';
+import 'package:pharmo_app/views/product/product_detail_page.dart';
 import 'package:provider/provider.dart';
 
 //GRID VIEW

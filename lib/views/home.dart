@@ -13,7 +13,7 @@ import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/others/no_items.dart';
-import 'package:pharmo_app/widgets/product/product_widget.dart';
+import 'package:pharmo_app/views/product/product_widget.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {

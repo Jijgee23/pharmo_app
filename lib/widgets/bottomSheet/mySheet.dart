@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 
 class SheetContainer extends StatelessWidget {
   final String? title;
@@ -8,6 +9,7 @@ class SheetContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const space = SizedBox(height: Sizes.mediumFontSize);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(15),
@@ -24,9 +26,8 @@ class SheetContainer extends StatelessWidget {
               offset: const Offset(0, 5))
         ],
       ),
-      child: Wrap(
-        runSpacing: 20,
-        crossAxisAlignment: WrapCrossAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Align(
             alignment: Alignment.center,
@@ -37,14 +38,23 @@ class SheetContainer extends StatelessWidget {
                   color: Colors.grey, borderRadius: BorderRadius.circular(3)),
             ),
           ),
+          space,
           if (title != null)
             Align(
-                alignment: Alignment.center,
-                child: Text(title!,
-                    style: const TextStyle(fontWeight: FontWeight.bold))),
-          Wrap(
-            runSpacing: 20,
-            children: children,
+              alignment: Alignment.center,
+              child: Text(
+                title!,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          space,
+          Expanded(
+            child: SingleChildScrollView(
+              child: Wrap(
+                runSpacing: 20,
+                children: children,
+              ),
+            ),
           )
         ],
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 
 class DefaultBox extends StatelessWidget {
   final String title;
@@ -10,20 +10,16 @@ class DefaultBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        leading: const ChevronBack(),
+      appBar: SideAppBar(
         title: Text(
           title,
           maxLines: 2,
           style: const TextStyle(
               color: Colors.white, fontSize: 15, letterSpacing: 1),
         ),
-        actions: [
-          action ?? SizedBox(width: size.width * 0.08),
-        ],
+        action: action,
       ),
       body: child,
     );

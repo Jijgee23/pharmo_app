@@ -5,7 +5,7 @@ import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/models/promotion.dart';
 import 'package:pharmo_app/models/qr_data.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/public_uses/cart/order_done.dart';
+import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
 class PromotionProvider extends ChangeNotifier {

@@ -5,10 +5,9 @@ import 'package:pharmo_app/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/widgets/icon/cart_icon.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/order_widgets/order_status.dart';
 import 'package:pharmo_app/widgets/ui_help/container.dart';
-import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:provider/provider.dart';
 
 class MyOrderDetail extends StatefulWidget {
@@ -38,36 +37,40 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> titles = ['Дүн', 'Тоо ширхэг', 'Нийлүүлэгч'];
+    List<dynamic> data = [
+      toPrice(widget.order.totalPrice),
+      widget.order.totalCount.toString(),
+      widget.order.supplier.toString()
+    ];
     return Consumer<MyOrderProvider>(
       builder: (context, provider, child) {
-        return DefaultBox(
-          title: 'Захиалгын дугаар: ${widget.orderNo}',
-          action: const CartIcon(
-            color: Colors.white,
+        return Scaffold(
+          appBar: SideAppBar(
+            hasBasket: true,
+            text: 'Захиалгын дугаар: ${widget.orderNo}',
           ),
-          child: Wrap(runSpacing: Sizes.smallFontSize,
+          body: Column(
             children: [
               OrderStatus(process: widget.order.process!),
+              const SizedBox(height: Sizes.smallFontSize),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  col(t1: 'Дүн', t2: toPrice(widget.order.totalPrice)),
-                  col(t1: 'Тоо ширхэг', t2: widget.order.totalCount.toString()),
-                  col(t1: 'Нийлүүлэгч', t2: widget.order.supplier.toString()),
-                ],
+                children: titles
+                    .map((e) => col(t1: e, t2: data[titles.indexOf(e)]))
+                    .toList(),
               ),
+              const SizedBox(height: Sizes.smallFontSize),
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    children: [
-                      ...provider.orderDetails.map(
-                        (o) => productBuilder(o),
-                      )
-                    ],
-                  ),
-                ),
-              )
+                  child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: ListView.builder(
+                    itemCount: provider.orderDetails.length,
+                    itemBuilder: (context, idx) {
+                      var order = provider.orderDetails[idx];
+                      return productBuilder(order);
+                    }),
+              )),
             ],
           ),
         );
@@ -75,7 +78,7 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     );
   }
 
-  col({required String t1, required String t2, Color? t2Color}) {
+  Widget col({required String t1, required String t2, Color? t2Color}) {
     return Column(
       children: [
         Text(
@@ -93,6 +96,12 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
   }
 
   productBuilder(MyOrderDetailModel o) {
+    List<String> texts = ['Тоо ширхэг', 'Нэгж үнэ', 'Нийт үнэ'];
+    List<dynamic> values = [
+      o.iQty.toString(),
+      toPrice(o.itemPrice),
+      toPrice(o.itemTotalPrice)
+    ];
     return Ctnr(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,25 +118,12 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
               ),
             ),
           ),
-          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              detailColumn(
-                label: 'Тоо ширхэг',
-                value: o.iQty.toString(),
-              ),
-              detailColumn(
-                label: 'Нэгж үнэ',
-                value: toPrice(o.itemPrice),
-                valueColor: theme.primaryColor,
-              ),
-              detailColumn(
-                label: 'Нийт үнэ',
-                value: toPrice(o.itemTotalPrice),
-                valueColor: theme.primaryColor,
-              ),
-            ],
+            children: texts
+                .map((t) => detailColumn(
+                    label: t, value: maybeNull(values[texts.indexOf(t)])))
+                .toList(),
           ),
         ],
       ),
@@ -139,31 +135,17 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     required String value,
     Color valueColor = Colors.black,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey))
+      ]),
+      const SizedBox(height: 4),
+      Text(value,
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            color: Theme.of(context).colorScheme.onSecondary,
-          ),
-        ),
-      ],
-    );
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSecondary))
+    ]);
   }
 }
 

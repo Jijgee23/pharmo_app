@@ -6,7 +6,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/icon/cart_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:pharmo_app/widgets/product_scrolls/paged_sliver_grid.dart';
+import 'package:pharmo_app/views/product/paged_sliver_grid.dart';
 import 'package:provider/provider.dart';
 
 class FilteredProducts extends StatefulWidget {

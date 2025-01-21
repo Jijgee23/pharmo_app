@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/views/public_uses/cart/order_done.dart';
+import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
@@ -27,28 +27,10 @@ class _QRCodeState extends State<QRCode> {
     super.initState();
   }
 
-  // void startCheckingPayment() {
-  //   _timer = Timer.periodic(
-  //     const Duration(seconds: 3),
-  //     (Timer timer) async {
-  //       dynamic res = await basketProvider.checkPayment();
-  //       print(_timer!.isActive.toString());
-  //       if (res['errorType'] == 1) {
-  //         if (res['data'] == false) {
-  //         } else {
-  //           gotoRemoveUntil(
-  //               OrderDone(orderNo: res['data']['orderNo']), context);
-  //           _timer?.cancel();
-  //         }
-  //       }
-  //     },
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: const SideMenuAppbar(title: 'Бэлнээр төлөх'),
+        appBar: const SideAppBar(text: 'Бэлнээр төлөх'),
         body: Consumer<BasketProvider>(
           builder: (context, provider, _) {
             List? urls = provider.qrCode.urls;
@@ -62,7 +44,7 @@ class _QRCodeState extends State<QRCode> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(10),
-                          child:  Text(
+                          child: Text(
                             'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -140,9 +122,9 @@ class _QRCodeState extends State<QRCode> {
                                                       .externalApplication);
                                             } else {
                                               message(
-                                                  el['description'] +
-                                                      ' апп олдсонгүй.',
-                                                  );
+                                                el['description'] +
+                                                    ' апп олдсонгүй.',
+                                              );
                                             }
                                           },
                                           child: Container(
@@ -170,8 +152,8 @@ class _QRCodeState extends State<QRCode> {
                           if (res['errorType'] == 1) {
                             if (res['data'] == false) {
                               message(
-                                  'Төлбөр төлөгдөөгүй байна.',
-                                  );
+                                'Төлбөр төлөгдөөгүй байна.',
+                              );
                             } else {
                               Navigator.pushReplacement(
                                   context,
@@ -180,10 +162,13 @@ class _QRCodeState extends State<QRCode> {
                                           orderNo: res['data']['orderNo']
                                               .toString())));
                               message(
-                                  res['message'], );
+                                res['message'],
+                              );
                             }
                           } else {
-                            message(res['message'], );
+                            message(
+                              res['message'],
+                            );
                           }
                         }),
                   ],

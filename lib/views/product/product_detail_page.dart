@@ -7,16 +7,16 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/public_uses/cart/cart_item.dart';
+import 'package:pharmo_app/views/cart/cart_item.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/ui_help/def_input_container.dart';
 import 'package:provider/provider.dart';
 
@@ -32,7 +32,6 @@ class ProductDetail extends StatefulWidget {
 class _ProductDetailState extends State<ProductDetail>
     with SingleTickerProviderStateMixin {
   TextEditingController qtyController = TextEditingController();
-  late ProductProvider productProvider;
   late TabController tabController;
   bool fetching = false;
   setFetching(bool n) {
@@ -84,8 +83,7 @@ class _ProductDetailState extends State<ProductDetail>
     return strings;
   }
 
-  final noImage =
-      'https://st2.depositphotos.com/3904951/8925/v/450/depositphotos_89250312-stock-illustration-photo-picture-web-icon-in.jpg';
+  
 
   final fontsize = Sizes.height * 0.015;
   String initQTY = 'Тоо ширхэг';
@@ -139,21 +137,18 @@ class _ProductDetailState extends State<ProductDetail>
               builder: (context, basket, home, child) {
                 bool isNotPharma = (home.userRole != 'PA');
                 return Scaffold(
-                  appBar: AppBar(
-                    backgroundColor: white,
-                    surfaceTintColor: white,
-                    leading: const ChevronBack(),
+                  appBar: SideAppBar(
+                    hasBasket: true,
                     title: Text(
                       widget.prod.name.toString(),
                       softWrap: true,
-                      style: TextStyle(
-                          color: theme.primaryColor,
+                      style: const TextStyle(
+                          color: white,
                           fontSize: Sizes.smallFontSize * 1.2,
                           fontWeight: FontWeight.bold),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    actions: [],
                   ),
                   body: Container(
                     color: theme.scaffoldBackgroundColor,
@@ -288,7 +283,7 @@ class _ProductDetailState extends State<ProductDetail>
                               ],
                             ),
                             CustomButton(
-                              borderRadius: Sizes.smallFontSize,
+                              borderRadius: Sizes.bigFontSize,
                               padding: const EdgeInsets.symmetric(
                                   vertical: Sizes.mediumFontSize),
                               text: 'Сагслах',
@@ -559,10 +554,10 @@ class _ProductDetailState extends State<ProductDetail>
         tabController.animateTo(index);
       }),
       child: Container(
-        width: sw * 0.4,
+        width: sw * 0.43,
         decoration: BoxDecoration(
           color: selected ? theme.primaryColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(Sizes.bigFontSize),
           border: Border.all(
             color: selected ? Colors.transparent : theme.primaryColor,
           ),

@@ -17,7 +17,6 @@ import 'package:pharmo_app/controllers/income_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
-import 'package:pharmo_app/controllers/product_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
@@ -206,7 +205,7 @@ class AuthController extends ChangeNotifier {
   Future<void> refresh() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? rtoken = prefs.getString("refresh_token");
-    Object body = jsonEncode({'refresh': rtoken!});
+    Object body = {'refresh': rtoken!};
     var response = await apiPost('auth/refresh/', body);
     if (response.statusCode == 200) {
       String accessToken = json.decode(response.body)['access'];
@@ -255,7 +254,6 @@ class AuthController extends ChangeNotifier {
       PromotionProvider().dispose();
       JaggerProvider().dispose();
       IncomeProvider().dispose();
-      ProductProvider().dispose();
       PharmProvider().dispose();
       AuthController().dispose();
       MyOrderProvider().dispose();
