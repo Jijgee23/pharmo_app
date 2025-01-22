@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
@@ -164,10 +163,15 @@ class _SignUpFormState extends State<SignUpForm> {
   confirm(AuthController authController) async {
     if (pass.text == passConfirm.text && pass.text.isNotEmpty) {
       dynamic res = await authController.register(
-          ema.text, phone.text, pass.text, otp.text);
+        email: ema.text,
+        phone: phone.text,
+        otp: otp.text,
+        password: pass.text,
+      );
       message(res['message']);
+      print(res['errorType']);
       if (res['errorType'] == 1) {
-        Get.back();
+       Navigator.pop(context);
       }
     } else {
       message('Нууц үг таарахгүй байна!');

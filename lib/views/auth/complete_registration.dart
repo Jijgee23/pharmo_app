@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -8,6 +9,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/select_location.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -36,6 +38,13 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
   setType(String n) {
     setState(() {
       selectedType = n;
+    });
+  }
+
+  bool picked = false;
+  setPicked(bool b) {
+    setState(() {
+      picked = b;
     });
   }
 
@@ -74,15 +83,18 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
   }
 
   List<String> types = ['Эмийн сан', 'Эм ханган нийлүүлэгч'];
+  late HomeProvider home;
+  @override
+  initState() {
+    super.initState();
+    home = Provider.of<HomeProvider>(context, listen: false);
+    home.getPosition();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Бүртгэл гүйцээх',
-            style:
-                TextStyle(color: Colors.black, fontSize: Sizes.mediumFontSize)),
-      ),
+      appBar: SideAppBar(text: 'Бүртгэл гүйцээх'),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: Sizes.mediumFontSize),
         child: Wrap(
@@ -125,10 +137,17 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
             CustomTextField(
                 controller: additional, hintText: 'Нэмэлт мэдээлэл'),
             CustomTextField(controller: inviCode, hintText: 'Урилгын код'),
-            DefInputContainer(
-              child: const Text('Байршил сонгох'),
-              ontap: () => goto(const LocationSelector()),
+            Row(
+              children: [
+                Checkbox(value: picked, onChanged: (b) => setPicked(b!)),
+                Text('Одоогийн байршилаар бүртгэх',
+                    style: TextStyle(color: theme.primaryColor)),
+              ],
             ),
+            // DefInputContainer(
+            //   child: const Text('Байршил сонгох'),
+            //   ontap: () => goto(const LocationSelector()),
+            // ),
             CustomTextField(
                 controller: addressDetail, hintText: 'Хаягийн дэлгэрэнгүй'),
             CustomButton(
@@ -176,8 +195,8 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
           rd: rd.text,
           type: selectedType,
           license: image!,
-          lat: home.selectedLoc!.latitude,
-          lng: home.selectedLoc!.longitude,
+          lat: picked ? home.currentLatitude : null,
+          lng: picked ? home.currentLongitude : null,
           logo: logo,
         );
         message(res['message']);

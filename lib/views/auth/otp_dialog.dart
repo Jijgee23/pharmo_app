@@ -76,11 +76,10 @@ class _OtpDialogState extends State<OtpDialog> {
                   ontap: () {
                     authController
                         .register(
-                            emailController.text,
-                            phoneController.text,
-                            passwordController.text,
-                            otpController.text,
-                            )
+                            email: emailController.text,
+                            phone: phoneController.text,
+                            otp: otpController.text,
+                            password: passwordController.text)
                         .whenComplete(() {
                       passwordConfirmController.clear();
                       passwordController.clear();

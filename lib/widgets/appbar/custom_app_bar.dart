@@ -9,6 +9,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final IconData? icon;
   final Widget? leading;
   final Widget? title;
+  final bool? hasBasket;
 
   const CustomAppBar({
     super.key,
@@ -16,6 +17,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.icon,
     this.leading,
     this.title,
+    this.hasBasket,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
   @override
   final Size preferredSize;
@@ -24,6 +26,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, BasketProvider>(
       builder: (_, homeprovider, basketProvider, child) {
+        bool isSupSelected =
+            (homeprovider.supID != 0 || homeprovider.supID != null);
         return ChangeNotifierProvider(
           create: (context) => BasketProvider(),
           child: PreferredSize(
@@ -38,42 +42,43 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 title: title,
                 leading: leading,
                 actions: [
-                  InkWell(
-                    onTap: () => homeprovider
-                        .changeIndex(homeprovider.userRole == 'PA' ? 1 : 2),
-                    child: Stack(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          child: const Center(
-                            child: Icon(
-                              Icons.shopping_cart,
-                              size: 24,
-                              color: Colors.white,
+                  if (isSupSelected)
+                    InkWell(
+                      onTap: () => homeprovider
+                          .changeIndex(homeprovider.userRole == 'PA' ? 1 : 2),
+                      child: Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(right: 10),
+                            child: const Center(
+                              child: Icon(
+                                Icons.shopping_cart,
+                                size: 24,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          right: 2,
-                          top: 2,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 5, vertical: 2.5),
-                            decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Text(
-                              basketProvider.basket.totalCount.toString(),
-                              style: const TextStyle(
-                                  color: white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold),
+                          Positioned(
+                            right: 2,
+                            top: 2,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 2.5),
+                              decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Text(
+                                basketProvider.basket.totalCount.toString(),
+                                style: const TextStyle(
+                                    color: white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

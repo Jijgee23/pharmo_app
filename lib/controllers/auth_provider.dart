@@ -130,11 +130,10 @@ class AuthController extends ChangeNotifier {
     if (decodedToken['supplier'] != null) {
       await prefs.setInt('suppID', decodedToken['supplier']);
       int? k = prefs.getInt('suppID');
-      if (k == null) {
-        home.getSuppliers();
+      home.getSuppliers();
+      if (k != null) {
         home.pickSupplier(int.parse(home.supList[0].id), context);
         home.changeSupName(home.supList[0].name);
-      } else {
         home.setSupId(k);
       }
 
@@ -283,7 +282,11 @@ class AuthController extends ChangeNotifier {
   }
 
   // Бүртгүүлэх
-  register(String email, String phone, String otp, String password) async {
+  register(
+      {required String email,
+      required String phone,
+      required String otp,
+      required String password}) async {
     try {
       var body = {
         'email': email,
@@ -291,9 +294,11 @@ class AuthController extends ChangeNotifier {
         'otp': otp,
         'password': password
       };
-      final response = await apiPostWithoutToken('auth/register/', body);
+      http.Response response =
+          await apiPostWithoutToken('auth/register/', body);
       final data = jsonDecode(utf8.decode(response.bodyBytes));
-      if (response.statusCode == 200) {
+      print(data);
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return buildResponse(1, data, 'Бүртгэл үүслээ');
       } else if (response.statusCode == 500) {
         return buildResponse(2, data, 'Түр хүлээгээд дахин оролдоно уу!');
@@ -432,7 +437,7 @@ class AuthController extends ChangeNotifier {
       String? address,
       required File license,
       File? logo,
-      required double lat,
+      required double? lat,
       required double? lng}) async {
     print(lat);
     try {
@@ -454,7 +459,9 @@ class AuthController extends ChangeNotifier {
           jsonEncode({'lat': lat, 'lng': lng, 'address2': address}).toString();
       var res = await request.send();
       String responseBody = await res.stream.bytesToString();
-      if (res.statusCode == 200) {
+      print(res.statusCode);
+      print(responseBody);
+      if (res.statusCode == 200 || res.statusCode == 201) {
         return buildResponse(
             1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
       } else {
