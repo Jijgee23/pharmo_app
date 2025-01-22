@@ -36,15 +36,16 @@ class MyOrderProvider extends ChangeNotifier {
   deleteSellerOrders({required int orderId}) async {
     try {
       http.Response res = await apiDelete('seller/order/$orderId/');
+      print(res.body);
       if (res.statusCode == 204) {
         message('Захиалга устлаа');
-        getSellerOrders();
       } else {
         message(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
     }
+    getSellerOrders();
     notifyListeners();
   }
 

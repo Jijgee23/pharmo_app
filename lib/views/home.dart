@@ -121,7 +121,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget products(HomeProvider home) {
-    if (home.supID == 0 || home.supID == null) {
+    if (home.userRole == 'PA' && home.supID == 0 || home.supID == null) {
       return errorWidget();
     } else {
       if (home.isList) {
