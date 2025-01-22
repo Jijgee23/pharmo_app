@@ -7,6 +7,7 @@ import 'package:pharmo_app/models/qr_data.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:http/http.dart' as http;
 
 class PromotionProvider extends ChangeNotifier {
   List<Promotion> promotions = <Promotion>[];
@@ -95,6 +96,7 @@ class PromotionProvider extends ChangeNotifier {
       final response = await apiGet('get_promos/');
       if (response.statusCode == 200) {
         final res = convertData(response);
+        print(res);
         promotions.clear();
         List<dynamic> promos = res['results'];
         promotions = (promos).map((data) => Promotion.fromJson(data)).toList();
@@ -122,20 +124,20 @@ class PromotionProvider extends ChangeNotifier {
 
   getMarkedPromotion() async {
     try {
-      // final response = await apiGet('marked_promos/');
-      // print(convertData(response));
-      // if (response.statusCode == 200) {
-      //   var res = convertData(response);
-      //   markedPromotions.clear();
-      //   markedPromotions =
-      //       (res).map((data) => MarkedPromo.fromJson(data)).toList();
-      // } else if (response.statusCode == 204) {
-      //   markedPromotions.clear();
-      // }
-      notifyListeners();
+      http.Response response = await apiGet('marked_promos/');
+      print(convertData(response));
+      if (response.statusCode == 200) {
+        final res = convertData(response);
+        markedPromotions.clear();
+        markedPromotions =
+            (res as List).map((data) => MarkedPromo.fromJson(data)).toList();
+      } else if (response.statusCode == 204) {
+        markedPromotions.clear();
+      }
     } catch (e) {
-      debugPrint('ERROR AT MPROMO: ${e.toString()}');
+      // debugPrint('ERROR AT MPROMO: ${e.toString()}');
     }
+    notifyListeners();
   }
 
   filterPromotion(String type, String value) async {
@@ -158,6 +160,7 @@ class PromotionProvider extends ChangeNotifier {
       final response = await apiPatch('marked_promos/$id/', {});
       if (response.statusCode == 200) {
         message('Амжилттай');
+        getMarkedPromotion();
       } else {
         message('Амжилтгүй');
       }
@@ -189,8 +192,8 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   checkPayment(BuildContext context) async {
-    final response = await apiPatch(
-        'pharmacy/promo_order/cp/', jsonEncode({"invoiceId": qrData.invoiceId}));
+    final response = await apiPatch('pharmacy/promo_order/cp/',
+        jsonEncode({"invoiceId": qrData.invoiceId}));
     final data = convertData(response);
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));

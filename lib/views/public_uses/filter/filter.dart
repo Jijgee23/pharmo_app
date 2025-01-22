@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/category.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
@@ -41,7 +40,7 @@ class _FilterPageState extends State<FilterPage> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () => Future.sync(() async {
-        homeProvider.refresh(context, homeProvider, PromotionProvider());
+        homeProvider.refresh(context);
       }),
       child: DefaultTabController(
         length: 3,

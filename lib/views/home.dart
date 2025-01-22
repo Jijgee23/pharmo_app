@@ -32,7 +32,11 @@ class _HomeState extends State<Home> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
     initPublic();
+    if (homeProvider.userRole == 'PA') {
+      initPharmo();
+    }
   }
 
   @override
@@ -43,13 +47,13 @@ class _HomeState extends State<Home> {
 
   initPharmo() async {
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
-    // await promotionProvider.getMarkedPromotion();
-    // await homeProvider.getBranches();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (promotionProvider.markedPromotions.isNotEmpty) {
-    //     homeProvider.showMarkedPromos(context, promotionProvider);
-    //   }
-    // });
+    await promotionProvider.getMarkedPromotion();
+    await homeProvider.getBranches();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (promotionProvider.markedPromotions.isNotEmpty) {
+        homeProvider.showMarkedPromos();
+      }
+    });
   }
 
   initPublic() {
@@ -89,12 +93,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () => Future.sync(() {
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          homeProvider.clearItems();
-          homeProvider.setPageKey(1);
-          homeProvider.fetchProducts();
-          // homeProvider.refresh(context, homeProvider, promotionProvider);
-        });
+        homeProvider.refresh(context);
       }),
       child: Consumer2<HomeProvider, PromotionProvider>(
         builder: (_, home, promotionProvider, child) {

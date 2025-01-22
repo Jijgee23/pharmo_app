@@ -17,8 +17,7 @@ import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
-import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/buying_promo_dialog.dart';
-import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo_dialog.dart';
+import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -85,15 +84,19 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  ScrollController scrollController = ScrollController(onAttach: (position) {});
-
-  void refresh(BuildContext context, HomeProvider homeProvider,
-      PromotionProvider promotionProvider) {
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (PromotionProvider().markedPromotions.isNotEmpty) {
-    //     showMarkedPromos(context, promotionProvider);
-    //   }
-    // });
+  void refresh(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        final promotion =
+            Provider.of<PromotionProvider>(context, listen: false);
+        clearItems();
+        setPageKey(1);
+        fetchProducts();
+        if (promotion.markedPromotions.isNotEmpty) {
+          showMarkedPromos();
+        }
+      },
+    );
   }
 
   // Барааний жагсаалт & бараа хайх
@@ -104,11 +107,6 @@ class HomeProvider extends ChangeNotifier {
     pageKey = n;
     notifyListeners();
   }
-
-  // addItem(List<Product> items) {
-  //   fetchedItems.addAll(items);
-  //   notifyListeners();
-  // }
 
   clearItems() {
     fetchedItems.clear();
@@ -259,79 +257,8 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // Онцлох урамшуулал харуулах
-  showMarkedPromos(BuildContext context, PromotionProvider promotionProvider) {
-    final pageController = PageController();
-    Get.dialog(
-      Container(
-        margin: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(
-            Radius.circular(20),
-          ),
-        ),
-        height: double.infinity,
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            leadingWidth: double.infinity,
-            leading: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: () => pageController.previousPage(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.linear),
-                    child: const Text(
-                      'Өмнөх',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ),
-                  promotionProvider.markedPromotions.isEmpty
-                      ? const SizedBox()
-                      : InkWell(
-                          onTap: () {
-                            if (pageController.page ==
-                                promotionProvider.markedPromotions.length - 1) {
-                              Navigator.pop(context);
-                            } else {
-                              pageController.nextPage(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.linear,
-                              );
-                            }
-                          },
-                          child: const Text(
-                            'Дараах',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                        ),
-                ],
-              ),
-            ),
-          ),
-          body: Column(
-            children: [
-              Expanded(
-                child: PageView(
-                  controller: pageController,
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    ...promotionProvider.markedPromotions.map(
-                      (p) => (p.promoType == 2)
-                          ? MakredPromoOnDialog(promo: p)
-                          : BuyingPromoOnDialog(promo: p),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  showMarkedPromos() {
+    Get.dialog(const PromotionDialog());
   }
 
   // Ангилалийн жагсаалт авах
@@ -430,9 +357,11 @@ class HomeProvider extends ChangeNotifier {
       await promotionProvider.getMarkedPromotion();
       await getFilters();
       await basketProvider.getBasket();
+      final promotion = Provider.of<PromotionProvider>(context, listen: false);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (PromotionProvider().markedPromotions.isNotEmpty) {
-          showMarkedPromos(context, PromotionProvider());
+        print('MARKED PROMO LENGTH ${promotion.markedPromotions.length}');
+        if (promotion.markedPromotions.isNotEmpty) {
+          showMarkedPromos();
         }
       });
       notifyListeners();
@@ -662,6 +591,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   bool fetching = false;
+
   setFetching(bool n) {
     fetching = n;
     notifyListeners();

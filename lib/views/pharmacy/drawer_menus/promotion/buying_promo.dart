@@ -4,6 +4,7 @@ import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,13 @@ class BuyinPromo extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                        onPressed: () =>
+                            promotion.hidePromo(promo.id!, context),
+                        child: text('Дахиж харахгүй', color: black)),
+                  ),
                   (promo.desc != null)
                       ? Box(
                           child: Container(

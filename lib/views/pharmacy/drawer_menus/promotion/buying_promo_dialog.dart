@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
@@ -7,6 +6,8 @@ import 'package:pharmo_app/models/sector.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -30,8 +31,9 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
   @override
   Widget build(BuildContext context) {
     final promo = widget.promo;
-    var textStyle = TextStyle(
-        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
+    bool hasBundle = (promo.bundles != null);
+    bool hasGift = (promo.gift != null);
+    var myColor = Colors.red.shade600;
     var box = const SizedBox(height: 10);
     return Consumer2<PromotionProvider, HomeProvider>(
       builder: (context, promotionProvider, home, child) => Scaffold(
@@ -45,104 +47,75 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                   child: TextButton(
                       onPressed: () =>
                           promotionProvider.hidePromo(promo.id!, context),
-                      child: const Text('Дахиж харахгүй')),
+                      child: text('Дахиж харахгүй', color: black)),
                 ),
-                Text(
-                  promo.name!,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, letterSpacing: .7),
-                ),
-                (promo.desc != null)
-                    ? Box(
-                        child: Text(promo.desc!),
-                      )
-                    : const SizedBox(),
-                promo.bundles != null
-                    ? Box(
-                        child: Column(
-                          children: [
-                            const Text('Багц:',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 10),
-                            promo.bundles != null
-                                ? GridView.builder(
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      mainAxisSpacing: 10,
-                                      crossAxisSpacing: 10,
-                                    ),
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context, index) {
-                                      return product(promo.bundles?[index],
-                                          noImage, context);
-                                    },
-                                    itemCount: promo.bundles?.length,
-                                  )
-                                : const SizedBox(),
-                          ],
+                text(promo.name!),
+                if (promo.desc != null) text(promo.desc!),
+                if (hasBundle)
+                  Column(
+                    children: [
+                      text('Багц:'),
+                      const SizedBox(height: 10),
+                      if (hasBundle)
+                        GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                          ),
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return product(
+                                promo.bundles?[index], noImage, context);
+                          },
+                          itemCount: promo.bundles?.length,
                         ),
-                      )
-                    : const SizedBox(),
-                (promo.bundlePrice != null)
-                    ? Box(
-                        child: Column(
-                          children: [
-                            const Text('Багцийн үнэ:',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            Text(
-                                promo.bundlePrice != null
-                                    ? promo.bundlePrice.toString()
-                                    : '-',
-                                style: textStyle),
-                            box,
-                          ],
+                    ],
+                  ),
+                if (hasBundle)
+                  Column(
+                    children: [
+                      text('Багцийн үнэ:'),
+                      text(maybeNull(promo.bundlePrice.toString())),
+                      box,
+                    ],
+                  ),
+                if (hasGift)
+                  Column(
+                    children: [
+                      Icon(Icons.add, color: Colors.grey.shade900, size: 30),
+                      box,
+                      text('Бэлэг:'),
+                      box,
+                      GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
                         ),
+                        shrinkWrap: true,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return product(promo.gift?[index], noImage, context);
+                        },
+                        itemCount: promo.gift?.length,
                       )
-                    : const SizedBox(),
-                (promo.gift != null)
-                    ? Box(
-                        child: Column(
-                          children: [
-                            Icon(Icons.add,
-                                color: Colors.grey.shade900, size: 30),
-                            box,
-                            const Text('Бэлэг:',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            box,
-                            GridView.builder(
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 10,
-                                crossAxisSpacing: 10,
-                              ),
-                              shrinkWrap: true,
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                return product(
-                                    promo.gift?[index], noImage, context);
-                              },
-                              itemCount: promo.gift?.length,
-                            )
-                          ],
-                        ),
-                      )
-                    : const SizedBox(),
-                promo.endDate != null
-                    ? Box(
-                        child: Column(
-                          children: [
-                            box,
-                            const Text('Урамшуулал дуусах хугацаа:'),
-                            Text(promo.endDate!.substring(0, 10),
-                                style: textStyle),
-                          ],
-                        ),
-                      )
-                    : const SizedBox(),
+                    ],
+                  ),
+                if (promo.endDate != null)
+                  Box(
+                    child: Column(
+                      children: [
+                        box,
+                        text('Урамшуулал дуусах хугацаа:'),
+                        text(promo.endDate!.substring(0, 10),
+                            color: myColor, size: 20),
+                      ],
+                    ),
+                  ),
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 5),
                   child: CustomButton(
@@ -151,246 +124,248 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                         promotionProvider.orderStarted ? 'Цуцлах' : 'Захиалах',
                   ),
                 ),
-                (promotionProvider.orderStarted == false)
-                    ? const SizedBox()
-                    : Column(
+                if (promotionProvider.orderStarted)
+                  Column(
+                    children: [
+                      Column(
                         children: [
-                          Box(
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('Нийт тоо, ширхэг:'),
-                                    Text(solveQTY().toString()),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('Үнийн дүн:'),
-                                    Text(
-                                        '${promotionProvider.promoDetail.bundlePrice.toString()}₮'),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                          box,
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(right: 5),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
-                                  decoration: BoxDecoration(
-                                    color: promotionProvider.delivery
-                                        ? Colors.grey.shade300
-                                        : theme.primaryColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () =>
-                                        promotionProvider.setDelivery(false),
-                                    child:
-                                        const Center(child: Text('Хүргэлтээр')),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(left: 5),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
-                                  decoration: BoxDecoration(
-                                    color: !promotionProvider.delivery
-                                        ? Colors.grey.shade300
-                                        : theme.primaryColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () =>
-                                        promotionProvider.setDelivery(true),
-                                    child:
-                                        const Center(child: Text('Очиж авах')),
-                                  ),
-                                ),
-                              )
+                              text('Нийт тоо, ширхэг:'),
+                              text(solveQTY().toString()),
                             ],
                           ),
-                          box,
-                          promotionProvider.delivery
-                              ? const SizedBox()
-                              : Box(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: home.branches
-                                        .map((e) => branch(e))
-                                        .toList(),
-                                  ),
-                                ),
-                          box,
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(right: 5),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
-                                  decoration: BoxDecoration(
-                                    color: !promotionProvider.isCash
-                                        ? Colors.grey.shade300
-                                        : theme.primaryColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      promotionProvider.setPayType();
-                                      promotionProvider.setIsCash(true);
-                                    },
-                                    child: const Center(child: Text('Бэлнээр')),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(left: 5),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
-                                  decoration: BoxDecoration(
-                                    color: promotionProvider.isCash
-                                        ? Colors.grey.shade300
-                                        : theme.primaryColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      promotionProvider.setPayType();
-                                      promotionProvider.setIsCash(false);
-                                    },
-                                    child: const Center(child: Text('Зээлээр')),
-                                  ),
-                                ),
-                              ),
+                              text('Үнийн дүн:'),
+                              text(toPrice(promotionProvider
+                                  .promoDetail.bundlePrice
+                                  .toString())),
                             ],
-                          ),
-                          box,
-                          InkWell(
-                              borderRadius: BorderRadius.circular(10),
-                              splashColor: Colors.blue.shade100,
-                              onTap: () => promotionProvider
-                                  .setHasnote(!promotionProvider.hasNote),
-                              child: Text('Нэмэлт тайлбар',
-                                  style: TextStyle(
-                                      color: Theme.of(context).primaryColor))),
-                          box,
-                          !promotionProvider.hasNote
-                              ? const SizedBox()
-                              : CustomTextField(
-                                  hintText: 'Тайлбар', controller: note),
-                          box,
-                          Container(
-                            margin: const EdgeInsets.symmetric(vertical: 5),
-                            child: CustomButton(
-                              ontap: () {
-                                promotionProvider.orderPromo(widget.promo.id!,
-                                    selectedBranch, note.text, context);
-                              },
-                              text: 'Баталгаажуулах',
+                          )
+                        ],
+                      ),
+                      box,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              decoration: BoxDecoration(
+                                color: promotionProvider.delivery
+                                    ? Colors.grey.shade300
+                                    : theme.primaryColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: InkWell(
+                                onTap: () =>
+                                    promotionProvider.setDelivery(false),
+                                child: const Center(child: Text('Хүргэлтээр')),
+                              ),
                             ),
                           ),
-                          box,
-                          !promotionProvider.showQr
-                              ? const SizedBox()
-                              : Column(
-                                  children: [
-                                    const Text(
-                                      'Дараах QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна',
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Center(
-                                        child: QrImageView(
-                                      data: promotionProvider.qrData.qrTxt!,
-                                      size: 250,
-                                    )),
-                                    InkWell(
-                                        borderRadius: BorderRadius.circular(10),
-                                        splashColor: Colors.blue.shade100,
-                                        onTap: () => promotionProvider.setBank(
-                                            !promotionProvider.useBank),
-                                        child: const Text(
-                                          'Банкны аппаар төлөх',
-                                          style:
-                                              TextStyle(color: AppColors.main),
-                                        )),
-                                    !promotionProvider.useBank
-                                        ? const SizedBox()
-                                        : SizedBox(
-                                            width: double.infinity,
-                                            child: Scrollbar(
-                                              thickness: 1,
-                                              child: SingleChildScrollView(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                child: Row(
-                                                    children:
-                                                        promotionProvider.qrData
-                                                                    .urls !=
-                                                                null
-                                                            ? promotionProvider
-                                                                .qrData.urls!
-                                                                .map(
-                                                                    (e) =>
-                                                                        InkWell(
-                                                                          splashColor: Colors
-                                                                              .blue
-                                                                              .shade100,
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(10),
-                                                                          onTap:
-                                                                              () async {
-                                                                            bool
-                                                                                found =
-                                                                                await canLaunchUrl(Uri.parse(e.link!));
-                                                                            if (found) {
-                                                                              await launchUrl(Uri.parse(e.link!), mode: LaunchMode.externalApplication);
-                                                                            } else {
-                                                                              message('${e.description!} банкны апп олдсонгүй.');
-                                                                            }
-                                                                          },
-                                                                          child: Container(
-                                                                              margin: const EdgeInsets.all(10),
-                                                                              child: Image.network(
-                                                                                e.logo!,
-                                                                                width: 60,
-                                                                              )),
-                                                                        ))
-                                                                .toList()
-                                                            : []),
-                                              ),
-                                            ),
-                                          ),
-                                    box,
-                                    Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 5),
-                                      child: CustomButton(
-                                        ontap: () => promotionProvider
-                                            .checkPayment(context),
-                                        text: 'Төлбөр шалгах',
-                                      ),
-                                    ),
-                                    box,
-                                  ],
-                                ),
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              decoration: BoxDecoration(
+                                color: !promotionProvider.delivery
+                                    ? Colors.grey.shade300
+                                    : theme.primaryColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: InkWell(
+                                onTap: () =>
+                                    promotionProvider.setDelivery(true),
+                                child: const Center(child: Text('Очиж авах')),
+                              ),
+                            ),
+                          )
                         ],
-                      )
+                      ),
+                      box,
+                      promotionProvider.delivery
+                          ? const SizedBox()
+                          : Box(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: home.branches
+                                    .map((e) => branch(e))
+                                    .toList(),
+                              ),
+                            ),
+                      box,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              decoration: BoxDecoration(
+                                color: !promotionProvider.isCash
+                                    ? Colors.grey.shade300
+                                    : theme.primaryColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  promotionProvider.setPayType();
+                                  promotionProvider.setIsCash(true);
+                                },
+                                child: const Center(child: Text('Бэлнээр')),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              decoration: BoxDecoration(
+                                color: promotionProvider.isCash
+                                    ? Colors.grey.shade300
+                                    : theme.primaryColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  promotionProvider.setPayType();
+                                  promotionProvider.setIsCash(false);
+                                },
+                                child: const Center(child: Text('Зээлээр')),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      box,
+                      InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          splashColor: Colors.blue.shade100,
+                          onTap: () => promotionProvider
+                              .setHasnote(!promotionProvider.hasNote),
+                          child: Text('Нэмэлт тайлбар',
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor))),
+                      box,
+                      !promotionProvider.hasNote
+                          ? const SizedBox()
+                          : CustomTextField(
+                              hintText: 'Тайлбар', controller: note),
+                      box,
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        child: CustomButton(
+                          ontap: () {
+                            promotionProvider.orderPromo(widget.promo.id!,
+                                selectedBranch, note.text, context);
+                          },
+                          text: 'Баталгаажуулах',
+                        ),
+                      ),
+                      box,
+                      !promotionProvider.showQr
+                          ? const SizedBox()
+                          : Column(
+                              children: [
+                                const Text(
+                                  'Дараах QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна',
+                                  textAlign: TextAlign.center,
+                                ),
+                                Center(
+                                    child: QrImageView(
+                                  data: promotionProvider.qrData.qrTxt!,
+                                  size: 250,
+                                )),
+                                InkWell(
+                                    borderRadius: BorderRadius.circular(10),
+                                    splashColor: Colors.blue.shade100,
+                                    onTap: () => promotionProvider
+                                        .setBank(!promotionProvider.useBank),
+                                    child: const Text(
+                                      'Банкны аппаар төлөх',
+                                      style: TextStyle(color: AppColors.main),
+                                    )),
+                                !promotionProvider.useBank
+                                    ? const SizedBox()
+                                    : SizedBox(
+                                        width: double.infinity,
+                                        child: Scrollbar(
+                                          thickness: 1,
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            child: Row(
+                                                children:
+                                                    promotionProvider
+                                                                .qrData.urls !=
+                                                            null
+                                                        ? promotionProvider
+                                                            .qrData.urls!
+                                                            .map((e) => InkWell(
+                                                                  splashColor:
+                                                                      Colors
+                                                                          .blue
+                                                                          .shade100,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                  onTap:
+                                                                      () async {
+                                                                    bool found =
+                                                                        await canLaunchUrl(
+                                                                            Uri.parse(e.link!));
+                                                                    if (found) {
+                                                                      await launchUrl(
+                                                                          Uri.parse(e
+                                                                              .link!),
+                                                                          mode:
+                                                                              LaunchMode.externalApplication);
+                                                                    } else {
+                                                                      message(
+                                                                          '${e.description!} банкны апп олдсонгүй.');
+                                                                    }
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                          margin: const EdgeInsets
+                                                                              .all(
+                                                                              10),
+                                                                          child:
+                                                                              Image.network(
+                                                                            e.logo!,
+                                                                            width:
+                                                                                60,
+                                                                          )),
+                                                                ))
+                                                            .toList()
+                                                        : []),
+                                          ),
+                                        ),
+                                      ),
+                                box,
+                                Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 5),
+                                  child: CustomButton(
+                                    ontap: () =>
+                                        promotionProvider.checkPayment(context),
+                                    text: 'Төлбөр шалгах',
+                                  ),
+                                ),
+                                box,
+                              ],
+                            ),
+                    ],
+                  )
               ],
             ),
           ),

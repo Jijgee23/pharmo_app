@@ -1,10 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/marked_promo.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/buying_promo_dialog.dart';
-import 'package:pharmo_app/widgets/ui_help/box.dart';
 
 class MakredPromoOnDialog extends StatelessWidget {
   final MarkedPromo promo;
@@ -12,92 +11,81 @@ class MakredPromoOnDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = TextStyle(
-        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
+    var myColor = Colors.red.shade600;
+    bool noGift = (promo.gift != null);
     return Container(
       padding: const EdgeInsets.all(20),
       child: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            (promo.desc != null)
-                ? Box(
-                    child: Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: Text(promo.desc!),
-                  ))
-                : const SizedBox(),
-            Box(
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                direction: Axis.horizontal,
+            if (promo.desc != null)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                child: Text(promo.desc!),
+              ),
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              direction: Axis.horizontal,
+              children: [
+                text('Захиалгын дүн '),
+                text(maybeNull(toPrice(promo.total)), color: myColor, size: 20),
+                text('-с дээш бол '),
+                text(maybeNull(promo.procent.toString()),
+                    color: myColor, size: 20),
+                text(' хямдрал '),
+                noGift ? text('эдэлж') : text('эдлээрэй!')
+              ],
+            ),
+            if (noGift)
+              const Icon(Icons.add, color: AppColors.secondary, size: 30),
+            if (noGift)
+              Column(
                 children: [
-                  const Text('Захиалгын дүн '),
-                  Text(
-                    '${promo.total}₮ ',
-                    style: TextStyle(fontSize: 20, color: Colors.red.shade600),
-                  ),
-                  const Text('-с дээш бол '),
-                  Text(
-                    '${promo.procent}% ',
-                    style: TextStyle(fontSize: 20, color: Colors.red.shade600),
-                  ),
-                  const Text('хямдрал '),
-                  promo.gift != null
-                      ? const Text('эдэлж')
-                      : const Text('эдлээрэй!')
+                  (noGift)
+                      ? GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 20,
+                            crossAxisSpacing: 20,
+                          ),
+                          shrinkWrap: true,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return product(
+                                promo.gift?[index], noImage, context);
+                          },
+                          itemCount: promo.gift?.length,
+                        )
+                      : const SizedBox(),
+                  const SizedBox(height: 15),
+                  const Text('бэлгэнд аваарай!')
                 ],
               ),
-            ),
-            (promo.gift != null)
-                ? const Icon(Icons.add, color: AppColors.secondary, size: 30)
-                : const SizedBox(),
-            (promo.gift != null)
-                ? Box(
-                    child: Column(
-                      children: [
-                        (promo.gift != null)
-                            ? GridView.builder(
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: 20,
-                                  crossAxisSpacing: 20,
-                                ),
-                                shrinkWrap: true,
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  return product(
-                                      promo.gift?[index], noImage, context);
-                                },
-                                itemCount: promo.gift?.length,
-                              )
-                            : const SizedBox(),
-                        const SizedBox(height: 15),
-                        const Text('бэлгэнд аваарай!')
-                      ],
-                    ),
-                  )
-                : const SizedBox(),
-            promo.endDate != null
-                ? Box(
-                    child: Column(
-                      children: [
-                        const Text('Урамшуулал дуусах хугацаа:'),
-                        Text(
-                          promo.endDate != null
-                              ? promo.endDate!.substring(0, 10)
-                              : '-',
-                          style: textStyle,
-                        )
-                      ],
-                    ),
-                  )
-                : const SizedBox(),
+            if (promo.endDate != null)
+              Column(
+                children: [
+                  text('Урамшуулал дуусах хугацаа:'),
+                  text(maybeNull(promo.endDate), color: myColor, size: 20)
+                ],
+              )
           ],
         ),
       ),
     );
   }
+}
+
+Widget text(String text, {Color? color, double? size}) {
+  return Text(
+    text,
+    style: TextStyle(
+      fontWeight: FontWeight.bold,
+      color: color ?? black,
+      fontSize: size ?? 14,
+    ),
+  );
 }
