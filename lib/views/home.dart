@@ -9,8 +9,8 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
-import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/views/product/product_widget.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
@@ -60,7 +60,6 @@ class _HomeState extends State<Home> {
           homeProvider.fetchMoreProducts();
         }
       });
-
       homeProvider.clearItems();
       homeProvider.setPageKey(1);
       homeProvider.fetchProducts();
@@ -117,9 +116,7 @@ class _HomeState extends State<Home> {
     if (home.fetchedItems.isNotEmpty) {
       return products(home);
     } else {
-      return Column(
-        children: [SizedBox(height: Sizes.height / 5), const NoItems()],
-      );
+      return const Center(child: NoResult());
     }
   }
 

@@ -5,10 +5,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/customer/customer_details_paga.dart';
-import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/others/no_items.dart';
 import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
@@ -22,28 +19,6 @@ class CustomerList extends StatefulWidget {
 class _CustomerListState extends State<CustomerList> {
   late HomeProvider homeProvider;
   late PharmProvider pharmProvider;
-  String selectedFilter = 'Нэрээр';
-  String filter = 'name';
-  TextInputType selectedType = TextInputType.name;
-  setFilter(v) {
-    setState(
-      () {
-        selectedFilter = v;
-        if (v == 'Нэрээр') {
-          filter = 'name';
-          selectedType = TextInputType.text;
-        } else if (v == 'Утасны дугаараар') {
-          filter = 'phone';
-          selectedType = TextInputType.number;
-        } else {
-          filter = 'rn';
-          selectedType = TextInputType.text;
-        }
-      },
-    );
-  }
-
-  List<String> filters = ['Нэрээр', 'Утасны дугаараар', 'Регистрийн дугаараар'];
   @override
   void initState() {
     super.initState();
@@ -66,104 +41,26 @@ class _CustomerListState extends State<CustomerList> {
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (_, homeProvider, pp, child) {
         return Scaffold(
-            body: Column(children: [_searchBar(pp), _customersList(pp)]));
-      },
-    );
-  }
-
-  // Хайлтын widget
-  Widget _searchBar(PharmProvider pp) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(color: Theme.of(context).shadowColor, blurRadius: 5)
-        ],
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              cursorColor: Colors.black,
-              cursorHeight: 20,
-              cursorWidth: .8,
-              keyboardType: selectedType,
-              onChanged: (value) => _onSearch(value, pp),
-              decoration: _formStyle(),
+          body: Container(
+            padding: const EdgeInsets.only(top: Sizes.smallFontSize),
+            child: Column(
+              children: [
+                _customersList(pp),
+              ],
             ),
           ),
-          InkWell(
-            onTap: () => _setFilter,
-            child: const Icon(Icons.arrow_drop_down, color: Colors.blue),
-          ),
-        ],
-      ),
+        );
+      },
     );
-  }
-
-  _formStyle() {
-    return InputDecoration(
-      border: InputBorder.none,
-      focusedBorder: InputBorder.none,
-      hintText: '$selectedFilter хайх',
-      hintStyle: const TextStyle(
-        color: Colors.black38,
-        fontSize: 14,
-      ),
-    );
-  }
-
-  _setFilter() {
-    showMenu(
-      color: Colors.white,
-      context: context,
-      shadowColor: Colors.grey.shade500,
-      position: const RelativeRect.fromLTRB(100, 100, 0, 0),
-      items: [
-        ...filters.map(
-          (f) => PopupMenuItem(
-              child: Text(
-                f,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-              onTap: () => setFilter(f)),
-        )
-      ],
-    );
-  }
-
-  // Хайлтын функц
-  void _onSearch(String value, PharmProvider pp) {
-    WidgetsBinding.instance.addPostFrameCallback((cb) async {
-      if (value.isEmpty) {
-        await pharmProvider.getCustomers(1, 100, context);
-      } else {
-        await pp.filtCustomers(filter, controller.text, context);
-      }
-    });
   }
 
   // Харилцагчдын жагсаалт
   _customersList(PharmProvider pp) {
     return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            addCusotmer(pp),
-            if (pp.filteredCustomers.isNotEmpty)
-              ...pp.filteredCustomers.map(
-                (c) => _customerBuilder(homeProvider, c),
-              ),
-            if (pp.filteredCustomers.isEmpty) const NoItems(),
-            const SizedBox(height: kTextTabBarHeight + 20)
-          ],
-        ),
-      ),
+      child: ListView.builder(
+          itemCount: pp.filteredCustomers.length,
+          itemBuilder: (context, index) =>
+              _customerBuilder(homeProvider, pp.filteredCustomers[index])),
     );
   }
 
@@ -232,29 +129,6 @@ class _CustomerListState extends State<CustomerList> {
       message('Регистерийн дугааргүй харилцагч сонгох боломжгүй!');
     }
   }
-
-  addCusotmer(PharmProvider pp) {
-    return InkWell(
-      onTap: () => registerCustomer(pp),
-      child: Ctnr(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey)),
-                child: const Icon(Icons.add, color: Colors.green)),
-            const SizedBox(width: Sizes.mediumFontSize),
-            greyText('Харилцагч бүртгэх', grey600),
-          ],
-        ),
-      ),
-    );
-  }
-
   greyText(String t, Color? color) {
     return Text(
       t,
@@ -264,83 +138,6 @@ class _CustomerListState extends State<CustomerList> {
         fontWeight: FontWeight.bold,
       ),
     );
-  }
-
-  final TextEditingController controller = TextEditingController();
-  final TextEditingController name = TextEditingController();
-  final TextEditingController rn = TextEditingController();
-  final TextEditingController email = TextEditingController();
-  final TextEditingController phone = TextEditingController();
-  final TextEditingController phone2 = TextEditingController();
-  final TextEditingController phone3 = TextEditingController();
-  final TextEditingController note = TextEditingController();
-
-  // Харилцгагч бүртгэх
-  registerCustomer(PharmProvider pp) {
-    final formKey = GlobalKey<FormState>();
-    mySheet(
-      title: 'Харилцагч бүртгэх',
-      children: [
-        Form(
-          key: formKey,
-          child: Wrap(
-            runSpacing: Sizes.smallFontSize,
-            children: [
-              input('Нэр', name, null),
-              input('Регистрийн дугаар', rn, null),
-              input('И-Мейл', email, null),
-              input('Утас', phone,
-                  const TextInputType.numberWithOptions(signed: true)),
-              const Text('Заавал биш',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black54)),
-              input('Нэмэлт тайлбар ', note, null),
-              CustomButton(
-                  text: 'Бүртгэх',
-                  ontap: () async => await _registerCustomer(pp)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Бүртгэх
-  _registerCustomer(PharmProvider pp) async {
-    if (name.text.isEmpty ||
-        rn.text.isEmpty ||
-        email.text.isEmpty ||
-        phone.text.isEmpty) {
-      message('Бүртгэл гүйцээнээ үү!');
-    } else {
-      await pp
-          .registerCustomer(
-        name.text,
-        rn.text,
-        email.text,
-        phone.text,
-        note.text,
-        homeProvider.currentLatitude.toString(),
-        homeProvider.currentLongitude.toString(),
-        context,
-      )
-          .whenComplete(() {
-        pp.getCustomers(1, 100, context);
-        popSheet();
-      });
-    }
-  }
-
-  popSheet() {
-    name.clear();
-    phone.clear();
-    note.clear();
-    email.clear();
-    rn.clear();
-    phone2.clear();
-    phone3.clear();
-    note.clear();
-    Navigator.pop(context);
   }
 }
 
@@ -376,53 +173,4 @@ Widget input(String hint, TextEditingController contr, TextInputType? keyType) {
       ],
     ),
   );
-}
-// comment
-
-class InputField extends StatelessWidget {
-  final String hint;
-  final TextEditingController controller;
-  final String? Function(String?)? validator;
-  final TextInputType? keyboardType;
-
-  const InputField({
-    super.key,
-    required this.hint,
-    required this.controller,
-    this.validator,
-    this.keyboardType,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration:
-          BoxDecoration(color: card, borderRadius: BorderRadius.circular(20)),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              cursorColor: Colors.black,
-              cursorHeight: 20,
-              style: const TextStyle(fontSize: 12.0),
-              cursorWidth: .8,
-              keyboardType: keyboardType,
-              textInputAction: TextInputAction.done,
-              validator: validator,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                hintText: hint,
-                hintStyle: const TextStyle(
-                  color: Colors.black38,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

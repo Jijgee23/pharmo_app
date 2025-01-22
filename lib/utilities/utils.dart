@@ -73,7 +73,7 @@ getApiInformation(String endPoint, http.Response response) {
   try {
     print('<===$endPoint===>');
     print('<===${response.statusCode}===>');
-    print('<===${convertData(response)}===>');
+    // print('<===${response.body}===>');
   } catch (e) {
     debugPrint('ERROR at $endPoint : $e');
   }

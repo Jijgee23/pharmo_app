@@ -85,8 +85,8 @@ class _CartItemState extends State<CartItem> {
               SlidableAction(
                 flex: 1,
                 onPressed: (context) => removeBasketItem(),
-                backgroundColor: Colors.red.withOpacity(0.8),
-                foregroundColor: Colors.white,
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.red,
                 icon: Icons.delete,
                 label: 'Хасах',
                 borderRadius: BorderRadius.circular(8),

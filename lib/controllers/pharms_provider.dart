@@ -151,14 +151,13 @@ class PharmProvider extends ChangeNotifier {
         filteredCustomers.clear();
         List<dynamic> pharms = data['results'];
         filteredCustomers = pharms.map((p) => Customer.fromJson(p)).toList();
-        notifyListeners();
       } else {
         message('Алдаа гарлаа');
       }
-      notifyListeners();
     } catch (e) {
       debugPrint(e.toString());
     }
+    notifyListeners();
   }
 
   editSellerOrder(String note, String pt, int orderId, BuildContext c) async {

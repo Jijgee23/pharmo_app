@@ -3,9 +3,8 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/ui_help/box.dart';
-import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -28,27 +27,24 @@ class _UserInformationState extends State<UserInformation> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultBox(
-      title: 'Миний бүртгэл',
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Box(
-            child: Container(
-              padding:
-                  EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
-              child: Column(
-                children: [
-                  info(title: 'Имейл хаяг:', value: home.userEmail!),
-                  info(
-                      title: 'Хэрэглэгчийн төрөл:',
-                      value: getRole(home.userRole!))
-                ],
-              ),
+    return Scaffold(
+      appBar: const SideAppBar(text: 'Миний бүртгэл'),
+      body: Padding(
+        padding: const EdgeInsets.all(Sizes.smallFontSize),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              children: [
+                info(title: 'Имейл хаяг:', value: home.userEmail!),
+                info(
+                    title: 'Хэрэглэгчийн төрөл:',
+                    value: getRole(home.userRole!))
+              ],
             ),
-          ),
-          CustomButton(text: 'Бүртгэл устгах', ontap: () => confirmDeletion())
-        ],
+            CustomButton(text: 'Бүртгэл устгах', ontap: () => confirmDeletion())
+          ],
+        ),
       ),
     );
   }

@@ -302,15 +302,21 @@ class _ProductDetailState extends State<ProductDetail>
   imageViewer(HomeProvider home, bool isNotPharma) {
     if (det.containsKey('images') == true) {
       final pictures = det['images'] as List;
-      return Container(
-          padding: const EdgeInsets.all(Sizes.smallFontSize),
-          child: CarouselSlider(
-            items: pictures
+      return  Container(
+        padding: const EdgeInsets.all(Sizes.smallFontSize),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: pictures
                 .map(
                   (p) => Stack(
                     children: [
-                      imageWidget(
-                          '${dotenv.env['IMAGE_URL']}${p['url']}'),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: imageWidget(
+                            '${dotenv.env['IMAGE_URL']}${p['url']}'),
+                      ),
                       if (isNotPharma == true)
                         Positioned(
                           right: 0,
@@ -322,20 +328,54 @@ class _ProductDetailState extends State<ProductDetail>
                                 color: theme.colorScheme.onPrimary,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.remove, color: white),
+                              child: const Icon(
+                                Icons.remove,
+                                color: white,
+                              ),
                             ),
                           ),
-                        ),
+                        )
                     ],
                   ),
                 )
                 .toList(),
-            options: CarouselOptions(
-              viewportFraction: 1,
-              autoPlay: true,
-              autoPlayAnimationDuration: duration * 2,
-            ),
-          ));
+          ),
+        ),
+      );
+      // Container(
+      //     padding: const EdgeInsets.all(Sizes.smallFontSize),
+      //     child: CarouselSlider(
+      //       items: pictures
+      //           .map(
+      //             (p) => Stack(
+      //               children: [
+      //                 imageWidget(
+      //                     '${dotenv.env['IMAGE_URL']}${p['url']}'),
+      //                 if (isNotPharma == true)
+      //                   Positioned(
+      //                     right: 0,
+      //                     child: InkWell(
+      //                       onTap: () => deleteImage(home, p['id'][0]),
+      //                       child: Container(
+      //                         padding: const EdgeInsets.all(5),
+      //                         decoration: BoxDecoration(
+      //                           color: theme.colorScheme.onPrimary,
+      //                           shape: BoxShape.circle,
+      //                         ),
+      //                         child: const Icon(Icons.remove, color: white),
+      //                       ),
+      //                     ),
+      //                   ),
+      //               ],
+      //             ),
+      //           )
+      //           .toList(),
+      //       options: CarouselOptions(
+      //         viewportFraction: 1,
+      //         autoPlay: true,
+      //         autoPlayAnimationDuration: duration * 2,
+      //       ),
+      //     ));
     } else {
       return imageWidget(noImage);
     }

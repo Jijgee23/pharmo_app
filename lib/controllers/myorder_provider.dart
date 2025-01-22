@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
 class MyOrderProvider extends ChangeNotifier {
   List<MyOrderModel> _orders = <MyOrderModel>[];
@@ -29,6 +31,21 @@ class MyOrderProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  deleteSellerOrders({required int orderId}) async {
+    try {
+      http.Response res = await apiDelete('seller/order/$orderId/');
+      if (res.statusCode == 204) {
+        message('Захиалга устлаа');
+        getSellerOrders();
+      } else {
+        message(wait);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    notifyListeners();
   }
 
   Future filterOrder(String type, String query) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -175,7 +176,7 @@ class _SellerOrdersState extends State<SellerOrders> {
         child: StatefulBuilder(
           builder: (dialogContext, setDialogState) {
             return Container(
-              padding: EdgeInsets.all(Sizes.smallFontSize),
+              padding: const EdgeInsets.all(Sizes.smallFontSize),
               child: Wrap(
                 children: [
                   CalendarDatePicker(
@@ -247,42 +248,67 @@ class OrderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cxs = CrossAxisAlignment.center;
-    return Ctnr(
-      child: InkWell(
-        onTap: () => goto(SellerOrderDetail(oId: order.id)),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Consumer<MyOrderProvider>(
+      builder: (context, provider, child) => Slidable(
+        endActionPane: ActionPane(
+          motion: const StretchMotion(),
           children: [
-            Column(
-              children: [
-                Col(t1: 'Харилцагч', t2: order.customer ?? '', cxs: cxs),
-                Col(t1: 'Дугаар', t2: order.orderNo!.toString(), cxs: cxs),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Col(t1: 'Нийт үнэ', t2: toPrice(order.totalPrice), cxs: cxs),
-                Col(
-                    t1: 'Тоо ширхэг',
-                    t2: order.totalCount!.toString(),
-                    cxs: cxs),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Col(
-                    t1: 'Үүссэн огноо',
-                    t2: order.createdOn!.substring(0, 10),
-                    cxs: cxs),
-                Col(t1: 'Төлөв', t2: getStatus(order.status!), cxs: cxs),
-              ],
-            ),
+            SlidableAction(
+              flex: 2,
+              onPressed: (context) => deleteOrder(provider),
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.red,
+              icon: Icons.delete,
+              label: 'Устгах',
+              borderRadius: BorderRadius.circular(8),
+            )
           ],
+        ),
+        child: Ctnr(
+          child: InkWell(
+            onTap: () => goto(SellerOrderDetail(oId: order.id)),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    Col(t1: 'Харилцагч', t2: order.customer ?? '', cxs: cxs),
+                    Col(t1: 'Дугаар', t2: order.orderNo!.toString(), cxs: cxs),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Col(
+                        t1: 'Нийт үнэ',
+                        t2: toPrice(order.totalPrice),
+                        cxs: cxs),
+                    Col(
+                        t1: 'Тоо ширхэг',
+                        t2: order.totalCount!.toString(),
+                        cxs: cxs)
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Col(
+                        t1: 'Үүссэн огноо',
+                        t2: order.createdOn!.substring(0, 10),
+                        cxs: cxs),
+                    Col(t1: 'Төлөв', t2: getStatus(order.status!), cxs: cxs),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  deleteOrder(MyOrderProvider op) async {
+    await op.deleteSellerOrders(orderId: order.id);
   }
 }

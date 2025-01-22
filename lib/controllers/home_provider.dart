@@ -99,7 +99,7 @@ class HomeProvider extends ChangeNotifier {
   // Барааний жагсаалт & бараа хайх
   List<Product> fetchedItems = [];
   int pageKey = 1;
-  final int pageSize = 20;
+  final int pageSize = 100;
   setPageKey(int n) {
     pageKey = n;
     notifyListeners();
