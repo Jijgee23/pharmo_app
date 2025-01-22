@@ -125,23 +125,22 @@ class AuthController extends ChangeNotifier {
     if (home.userRole == 'PA') {
       await homeProvider.getSuppliers();
       await homeProvider.getBranches();
-    }
+      if (decodedToken['supplier'] != null) {
+        await prefs.setInt('suppID', decodedToken['supplier']);
+        int? k = prefs.getInt('suppID');
+        home.getSuppliers();
+        if (k != null) {
+          home.pickSupplier(int.parse(home.supList[0].id), context);
+          home.changeSupName(home.supList[0].name);
+          home.setSupId(k);
+        }
 
-    if (decodedToken['supplier'] != null) {
-      await prefs.setInt('suppID', decodedToken['supplier']);
-      int? k = prefs.getInt('suppID');
-      home.getSuppliers();
-      if (k != null) {
-        home.pickSupplier(int.parse(home.supList[0].id), context);
-        home.changeSupName(home.supList[0].name);
-        home.setSupId(k);
+        // HomeProvider().getSuppliers();
+        // HomeProvider()
+        //     .pickSupplier(int.parse(HomeProvider().supList[0].id), context);
+      } else {
+        message('Нийлүүлэгч сонгоно уу!');
       }
-
-      // HomeProvider().getSuppliers();
-      // HomeProvider()
-      //     .pickSupplier(int.parse(HomeProvider().supList[0].id), context);
-    } else {
-      message('Нийлүүлэгч сонгоно уу!');
     }
 
     Hive.box('auth').put('role', decodedToken['role']);
