@@ -271,8 +271,8 @@ class _ProductDetailState extends State<ProductDetail>
                               children: [
                                 price(
                                     title: 'Үндсэн үнэ',
-                                    value: toPrice(
-                                        widget.prod.price.toString())),
+                                    value:
+                                        toPrice(widget.prod.price.toString())),
                                 price(
                                     title: 'Бөөний үнэ',
                                     value: toPrice(
@@ -282,7 +282,8 @@ class _ProductDetailState extends State<ProductDetail>
                             ),
                             const SizedBox(height: Sizes.mediumFontSize),
                             CustomButton(
-                              borderRadius: Sizes.bigFontSize + Sizes.smallFontSize,
+                              borderRadius:
+                                  Sizes.bigFontSize + Sizes.smallFontSize,
                               padding: const EdgeInsets.symmetric(
                                   vertical: Sizes.mediumFontSize),
                               text: 'Сагслах',
@@ -303,7 +304,7 @@ class _ProductDetailState extends State<ProductDetail>
   imageViewer(HomeProvider home, bool isNotPharma) {
     if (det.containsKey('images') == true) {
       final pictures = det['images'] as List;
-      return  Container(
+      return Container(
         padding: const EdgeInsets.all(Sizes.smallFontSize),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -414,11 +415,15 @@ class _ProductDetailState extends State<ProductDetail>
     }
   }
 
-  Future<void> pickLogo(ImageSource source) async {
-    await Permission.storage.request();
-    await Permission.camera.request();
-    final pickedFile = await ImagePicker().pickImage(source: source);
-    addImageToList(File(pickedFile!.path));
+  Future pickLogo(ImageSource source) async {
+    try {
+      await Permission.storage.request();
+      await Permission.camera.request();
+      final pickedFile = await ImagePicker().pickImage(source: source);
+      addImageToList(File(pickedFile!.path));
+    } catch (e) {
+      print(e);
+    }
   }
 
   chooseImageSource() {
@@ -436,13 +441,17 @@ class _ProductDetailState extends State<ProductDetail>
               picker(
                   text: 'Зураг дарах',
                   icon: Icons.camera,
-                  ontap: () =>
-                      pickLogo(ImageSource.camera).then((g) => Get.back())),
+                  ontap: () async {
+                    await pickLogo(ImageSource.camera);
+                    Navigator.pop(context);
+                  }),
               picker(
                   text: 'Зураг оруулах',
                   icon: Icons.image,
-                  ontap: () =>
-                      pickLogo(ImageSource.gallery).then((g) => Get.back())),
+                  ontap: () async {
+                    pickLogo(ImageSource.gallery);
+                    Navigator.pop(context);
+                  }),
             ],
           ),
         ),
