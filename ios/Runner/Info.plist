@@ -43,6 +43,8 @@
 	<string>This app needs access to location when open.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to pick images.</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>We need access to your microphone for recording.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

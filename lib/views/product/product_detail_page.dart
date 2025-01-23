@@ -415,14 +415,22 @@ class _ProductDetailState extends State<ProductDetail>
     }
   }
 
-  Future pickLogo(ImageSource source) async {
-    try {
-      await Permission.storage.request();
+  Future<void> pickLogo(ImageSource source) async {
+    if (await Permission.camera.isDenied || await Permission.storage.isDenied) {
       await Permission.camera.request();
+      await Permission.storage.request();
+    }
+
+    try {
       final pickedFile = await ImagePicker().pickImage(source: source);
-      addImageToList(File(pickedFile!.path));
+      if (pickedFile != null) {
+        File imageFile = File(pickedFile.path);
+        addImageToList(imageFile);
+      } else {
+        message("Зураг сонгоно уу!");
+      }
     } catch (e) {
-      print(e);
+      message("Зураг сонгох үед алдаа гарлаа!");
     }
   }
 
@@ -441,17 +449,13 @@ class _ProductDetailState extends State<ProductDetail>
               picker(
                   text: 'Зураг дарах',
                   icon: Icons.camera,
-                  ontap: () async {
-                    await pickLogo(ImageSource.camera);
-                    Navigator.pop(context);
-                  }),
+                  ontap: () =>
+                      pickLogo(ImageSource.camera).then((g) => Get.back())),
               picker(
                   text: 'Зураг оруулах',
                   icon: Icons.image,
-                  ontap: () async {
-                    pickLogo(ImageSource.gallery);
-                    Navigator.pop(context);
-                  }),
+                  ontap: () =>
+                      pickLogo(ImageSource.gallery).then((g) => Get.back())),
             ],
           ),
         ),
