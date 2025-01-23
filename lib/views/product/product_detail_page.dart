@@ -357,6 +357,7 @@ class _ProductDetailState extends State<ProductDetail>
     message(res['message']);
     if (res['errorType'] == 0) {
       await getProductDetail();
+      home.refresh(context);
       clearImages();
     }
   }
@@ -462,6 +463,7 @@ class _ProductDetailState extends State<ProductDetail>
     message(res['message']);
     if (res['errorType'] == 0) {
       await getProductDetail();
+      home.refresh(context);
     }
   }
 

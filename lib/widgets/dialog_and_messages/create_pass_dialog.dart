@@ -91,8 +91,8 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                     password2.isNotEmpty &&
                     otp.isNotEmpty &&
                     password2 == password) {
-                  dynamic cp = await auth.createPassword(
-                      email: email, otp: otp, newPassword: password);
+                  dynamic cp =
+                      await auth.createPassword(email, otp, password, context);
                   message(cp['message']);
                   if (cp['errorType'] == 1) {
                     Navigator.pop(context);

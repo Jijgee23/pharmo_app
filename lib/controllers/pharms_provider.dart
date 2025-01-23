@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/order_list.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -70,7 +71,6 @@ class PharmProvider extends ChangeNotifier {
           orderList.add(OrderList.fromJson((ordList[i])));
         }
       }
-      notifyListeners();
     } catch (e) {
       notifyListeners();
     }
@@ -79,9 +79,10 @@ class PharmProvider extends ChangeNotifier {
   /// харилцагч
   getCustomers(int page, int size, BuildContext c) async {
     try {
-      final response =
-          await apiGet('seller/customer/?page=$page&page_size=$size');
-      if (response.statusCode == 200) {
+      final response = await apiRequest(
+          method: 'GET',
+          endPoint: 'seller/customer/?page=$page&page_size=$size');
+      if (response!.statusCode == 200) {
         Map data = convertData(response);
         filteredCustomers.clear();
         List<dynamic> pharms = data['results'];
@@ -98,17 +99,18 @@ class PharmProvider extends ChangeNotifier {
 
   getCustomerDetail(int custId, BuildContext c) async {
     try {
-      final response = await apiGet('seller/customer/$custId');
-      if (response.statusCode == 200) {
+      final response =
+          await apiRequest(method: 'GET', endPoint: 'seller/customer/$custId');
+      if (response!.statusCode == 200) {
         dynamic data = convertData(response);
         customerDetail = CustomerDetail.fromJson(data);
-        notifyListeners();
       } else {
-        message('Алдаа гарлаа');
+        message(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
     }
+    notifyListeners();
   }
 
   sendCustomerLocation(int custId, BuildContext c) async {
@@ -184,12 +186,10 @@ class PharmProvider extends ChangeNotifier {
   getSellerOrderDetail(int oId, BuildContext c) async {
     try {
       final response = await apiGet('seller/order/$oId/');
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && response.body != null) {
         clearOrderDets();
         var data = convertData(response);
-        print(data);
-        orderDets.add(SellerOrder.fromJson(data));
-        notifyListeners();
+        return data;
       } else {
         message('Алдаа гарлаа');
       }

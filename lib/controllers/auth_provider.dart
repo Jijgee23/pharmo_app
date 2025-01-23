@@ -19,6 +19,7 @@ import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login.dart';
@@ -310,6 +311,7 @@ class AuthController extends ChangeNotifier {
     } catch (e) {
       return buildResponse(0, null, 'Алдаа гарлаа');
     }
+    notifyListeners();
   }
 
   resetPassOtp(String email) async {
@@ -327,28 +329,28 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  createPassword(
-      {required String email,
-      required String otp,
-      required String newPassword}) async {
+  createPassword(String email, String otp, String newPassword,
+      BuildContext context) async {
     try {
-      final response = await http.post(
-        setUrl('auth/reset/'),
-        headers: header,
-        body: jsonEncode({
-          'email': email,
-          'otp': otp,
-          'new_pwd': newPassword,
-        }),
-      );
-      notifyListeners();
+      final response = await http.post(setUrl('auth/reset/'),
+          headers: header,
+          body:
+              jsonEncode({'email': email, 'otp': otp, 'new_pwd': newPassword}));
       if (response.statusCode == 200) {
-        return buildResponse(1, '', 'Нууц үг амжилттай үүслээ');
+        message('Нууц үг амжилттай үүслээ');
+        Navigator.pop(context);
       } else {
-        return buildResponse(2, '', 'Түр хэлээгээд дахин оролдоно уу!');
+        final data = convertData(response);
+        if (data.toString().contains('Баталгаажуулах')) {
+          message('Баталгаажуулах код буруу байна!');
+        } else if (data.toString().contains('new_pwd')) {
+          message('Нууц үг шаардлага хангахгүй байна!');
+        } else {
+          message(wait);
+        }
       }
     } catch (e) {
-      return buildResponse(2, '', 'Түр хэлээгээд дахин оролдоно уу!');
+      return message(wait);
     }
   }
 

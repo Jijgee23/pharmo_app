@@ -81,6 +81,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     } else if (homeProvider.selectedCustomerId == 0) {
       message('Захиалагч сонгоно уу!');
       homeProvider.changeIndex(0);
+      Navigator.pop(context);
     } else {
       await basketProvider.checkQTYs();
       if (payType == '') {

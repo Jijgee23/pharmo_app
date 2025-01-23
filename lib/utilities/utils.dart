@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart' as intl;
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
@@ -131,6 +131,44 @@ apiDelete(String endPoint) async {
   }
 }
 
+Future<http.Response?> apiRequest({
+  required String method,
+  required String endPoint,
+  Map<String, dynamic>? body,
+}) async {
+  try {
+    final Uri url = setUrl(endPoint);
+    final Map<String, String> headers = await getHeader(await getAccessToken());
+
+    http.Response response;
+    
+    switch (method.toUpperCase()) {
+      case 'GET':
+        response = await http.get(url, headers: headers);
+        break;
+      case 'POST':
+        response =
+            await http.post(url, headers: headers, body: jsonEncode(body));
+        break;
+      case 'PATCH':
+        response =
+            await http.patch(url, headers: headers, body: jsonEncode(body));
+        break;
+      case 'DELETE':
+        response = await http.delete(url, headers: headers);
+        break;
+      default:
+        throw UnsupportedError('HTTP method $method is not supported.');
+    }
+
+    getApiInformation(endPoint, response);
+    return response;
+  } catch (e) {
+    debugPrint('Error in $method request to $endPoint: $e');
+    return null;
+  }
+}
+
 Map<String, dynamic> buildResponse(
     int errorType, dynamic data, String? message) {
   return {'errorType': errorType, 'data': data, 'message': message};
@@ -244,7 +282,7 @@ shadow() {
 
 String maybeNull(String? text) {
   if (text == null || text.isEmpty || text == 'null') {
-    return '-';
+    return '';
   } else {
     return text;
   }
@@ -281,7 +319,7 @@ Future compressImage(File imageFile) async {
     }
   } catch (e) {
     print(e.toString());
-  }       
+  }
 }
 
 bool isImageLessThan1MB(File imageFile) {

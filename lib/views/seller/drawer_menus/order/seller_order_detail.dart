@@ -6,11 +6,11 @@ import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/order_widgets/order_status.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/views/product/add_basket_sheet.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:provider/provider.dart';
@@ -32,18 +32,23 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
     });
   }
 
+  Map<String, dynamic> det = {};
+
   @override
   void initState() {
-    setFetching(true);
     super.initState();
     p = Provider.of<PharmProvider>(context, listen: false);
-    p.getSellerOrderDetail(widget.oId, context);
-    setFetching(false);
+    fetchInit();
   }
 
   fetchInit() async {
     setFetching(true);
-    await p.getSellerOrderDetail(widget.oId, context);
+    final data = await p.getSellerOrderDetail(widget.oId, context);
+    print(data);
+    setState(() {
+      det = data;
+    });
+    // await p.getSellerOrderDetail(widget.oId, context);
     setFetching(false);
   }
 
@@ -59,134 +64,136 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PharmProvider>(
-      builder: (context, pp, child) {
-        final order = pp.orderDets[0];
-        List<String> datas = [
-          order.orderNo,
-          order.customer,
-          order.status,
-          toPrice(order.totalPrice),
-          order.totalCount.toString(),
-          order.payType,
-          order.note
-        ];
-        return (felching == true)
-            ? const PharmoIndicator()
-            : Scaffold(
-                appBar: AppBar(leading: const ChevronBack()),
-                body: SingleChildScrollView(
-                  padding: const EdgeInsets.only(
-                      top: Sizes.bigFontSize,
-                      left: Sizes.smallFontSize,
-                      right: Sizes.smallFontSize),
-                  child: Wrap(
-                    runSpacing: Sizes.smallFontSize,
-                    children: [
-                      ...titles.map((t) => Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '$t:',
-                                  style: const TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: Sizes.mediumFontSize),
-                                ),
-                                Text(maybeNull(datas[titles.indexOf(t)]),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: Sizes.mediumFontSize,
-                                    ))
-                              ],
-                            ),
-                          )),
-                      const SizedBox(height: Sizes.mediumFontSize),
-                      OrderStatus(process: order.process),
-                      if (pp.orderDets[0].items.isNotEmpty)
-                        SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              const Text(
-                                'Захиалгын бараанууд',
-                                style: TextStyle(
-                                    color: Colors.black87,
-                                    fontSize: Sizes.mediumFontSize),
-                              ),
-                              const SizedBox(height: Sizes.mediumFontSize),
-                              ...pp.orderDets[0].items.map(
-                                (item) => Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                      boxShadow: shadow(),
-                                      color: AppColors.background,
-                                      borderRadius: BorderRadius.circular(20)),
-                                  padding: const EdgeInsets.all(10),
-                                  margin: const EdgeInsets.only(bottom: 10),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Col(t1: 'Нэр', t2: item.itemName),
-                                          Col(
-                                            t1: 'Нийт дүн',
-                                            t2: toPrice(item.itemTotalPrice),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Col(
-                                              t1: 'Тоо ширхэг',
-                                              t2: item.iQty.toString()),
-                                          InkWell(
-                                            onTap: () =>
-                                                changeQty(order.id, item),
-                                            child: const Text(
-                                              'Тоо ширхэг өөрчлөх',
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: AppColors.succesColor,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+    List<String> datas = [
+      det['orderNo'].toString(),
+      det['customer'].toString(),
+      det['process'].toString(),
+      toPrice(det['totalPrice']),
+      det['totalCount'].toString(),
+      det['payType'].toString(),
+      det['note'].toString(),
+    ];
+    return (felching == true)
+        ? const Center(
+            child: SizedBox(width: 50, height: 50, child: PharmoIndicator()),
+          )
+        : Scaffold(
+            appBar: SideAppBar(text: maybeNull(det['orderNo'].toString())),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.only(
+                  top: Sizes.bigFontSize,
+                  left: Sizes.smallFontSize,
+                  right: Sizes.smallFontSize),
+              child: Wrap(
+                runSpacing: Sizes.smallFontSize,
+                children: [
+                  ...titles.map((t) => Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '$t:',
+                            style: const TextStyle(
+                                color: Colors.black87,
+                                fontSize: Sizes.mediumFontSize),
                           ),
+                          Text(
+                            maybeNull(datas[titles.indexOf(t)]),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: Sizes.mediumFontSize,
+                            ),
+                          )
+                        ],
+                      )),
+                  const SizedBox(height: Sizes.mediumFontSize),
+                  OrderStatus(process: det['process']),
+                  products(),
+                  CustomButton(
+                    text: 'Захиалгын мэдээлэл засах',
+                    ontap: () {
+                      Get.bottomSheet(
+                        EditSellerOrder(
+                          note: det['note'],
+                          pt: det['payType'],
+                          oId: det['id'],
                         ),
-                      CustomButton(
-                        text: 'Захиалгын мэдээлэл засах',
-                        ontap: () {
-                          Get.bottomSheet(
-                            EditSellerOrder(
-                                note: order.note,
-                                pt: order.payType,
-                                oId: order.id),
-                          );
-                        },
-                      ),
-                    ],
+                      );
+                    },
                   ),
+                ],
+              ),
+            ),
+          );
+  }
+
+  products() {
+    if (det.containsKey('items') == true) {
+      final items = det['items'] as List;
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            const Text(
+              'Захиалгын бараанууд',
+              style: TextStyle(
+                  color: Colors.black87, fontSize: Sizes.mediumFontSize),
+            ),
+            const SizedBox(height: Sizes.mediumFontSize),
+            ...items.map(
+              (item) => Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    boxShadow: shadow(),
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(20)),
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.only(bottom: 10),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Col(t1: 'Нэр', t2: item['itemName']),
+                        Col(
+                          t1: 'Нийт дүн',
+                          t2: toPrice(item['itemTotalPrice']),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Col(
+                            t1: 'Тоо ширхэг',
+                            t2: maybeNull(item['iQty'].toString())),
+                        InkWell(
+                          onTap: () => changeQty(det['id'], item),
+                          child: const Text(
+                            'Тоо ширхэг өөрчлөх',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.succesColor,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
                 ),
-              );
-      },
-    );
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 
   final TextEditingController qtyController = TextEditingController();
 
-  changeQty(int oid, OrderItem item) {
+  changeQty(int oid, dynamic item) {
     setState(() {
-      qtyController.text = item.itemQty.toString();
+      qtyController.text = item['itemQty'].toString();
     });
     Get.bottomSheet(
       Container(
@@ -205,7 +212,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
             Align(
               alignment: Alignment.center,
               child: Text(
-                item.itemName,
+                item['itemName'],
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
@@ -216,7 +223,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
             input('Тоо ширхэг оруулна уу', qtyController, TextInputType.number),
             CustomButton(
               text: 'Хадгалах',
-              ontap: () => _changeQty(oid, item),
+              ontap: () => _changeQty(det['id'], item),
             ),
           ],
         ),
@@ -224,7 +231,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
     );
   }
 
-  _changeQty(int oid, OrderItem item) async {
+  _changeQty(int oid, dynamic item) async {
     if (qtyController.text.isEmpty) {
       message('Тоон утга оруулна уу!');
     } else if (int.parse(qtyController.text) == 0) {
@@ -232,7 +239,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
     } else {
       int qty = int.parse(qtyController.text);
       dynamic res = await p.changeItemQty(
-          context: context, oId: oid, itemId: item.productId, qty: qty);
+          context: context, oId: oid, itemId: item['productId'], qty: qty);
       print('update qty: ${res['errorType']}');
       message(res['message']);
       Get.back();

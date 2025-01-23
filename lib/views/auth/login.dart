@@ -139,7 +139,10 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 20),
                   CustomButton(
                     text: 'Дахин ачаалуулах',
-                    ontap: () => Restart.restartApp(),
+                    ontap: () => Restart.restartApp(
+                      notificationTitle: 'Шинэчлэлт татагдлаа',
+                      notificationBody: 'Энд дарж нээнэ үү!',
+                    ),
                   ),
                 ],
               ),
@@ -271,19 +274,16 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         CustomTextButton(
                           text: 'Бүртгүүлэх',
-                          onTap: () async {
-                            // String g = await authController.getToken();
-                            // print(g);
-                            goto(const SignUpForm());
-                          },
+                          onTap: () => goto(const SignUpForm()),
                         ),
                       ],
                     ),
                     if (_isCheckingForUpdates)
                       const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SmallText('Шинэчлэлт шалгаж байна'),
+                          SizedBox(width: Sizes.bigFontSize),
                           CircularProgressIndicator.adaptive(),
                         ],
                       )
@@ -313,15 +313,22 @@ class _LoginPageState extends State<LoginPage> {
 
   _handleLogin(AuthController auth) async {
     await _checkForUpdate();
-    if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
-      await auth.login(ema.text, pass.text, context).whenComplete(() async {
-        if (rememberMe) {
-          await box1.put('email', ema.text);
-          await box1.put('password', pass.text);
-        }
-      });
+    final status = await _updater.checkForUpdate(track: currentTrack);
+    if (status == UpdateStatus.outdated) {
+      _downloadUpdate().then((e) => _restartBanner());
+    } else if (status == UpdateStatus.restartRequired) {
+      _restartBanner();
     } else {
-      message('Нэврэх нэр, нууц үг оруулна уу');
+      if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
+        await auth.login(ema.text, pass.text, context).whenComplete(() async {
+          if (rememberMe) {
+            await box1.put('email', ema.text);
+            await box1.put('password', pass.text);
+          }
+        });
+      } else {
+        message('Нэврэх нэр, нууц үг оруулна уу');
+      }
     }
   }
 }
