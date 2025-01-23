@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:http/http.dart' as http;
@@ -261,21 +262,26 @@ String getDate(DateTime date) {
   return date.toString().substring(0, 10);
 }
 
-Future<File> compressImage(File imageFile) async {
-  if (isImageLessThan1MB(imageFile)) {
-    return imageFile;
-  } else {
-    final bytes = await imageFile.readAsBytes();
-    img.Image? image = img.decodeImage(Uint8List.fromList(bytes));
-    image = img.copyResize(image!, width: 800);
-    int quality = 80;
-    List<int> compressedBytes = img.encodeJpg(image, quality: quality);
-    File compressedImage = File('${imageFile.parent.path}/compressed_image.jpg')
-      ..writeAsBytesSync(compressedBytes);
-    print('Original size: ${imageFile.lengthSync()} bytes');
-    print('Compressed size: ${compressedImage.lengthSync()} bytes');
-    return compressedImage;
-  }
+Future compressImage(File imageFile) async {
+  try {
+    if (isImageLessThan1MB(imageFile)) {
+      return imageFile;
+    } else {
+      final bytes = await imageFile.readAsBytes();
+      img.Image? image = img.decodeImage(Uint8List.fromList(bytes));
+      image = img.copyResize(image!, width: 800);
+      int quality = 80;
+      List<int> compressedBytes = img.encodeJpg(image, quality: quality);
+      File compressedImage =
+          File('${imageFile.parent.path}/compressed_image.jpg')
+            ..writeAsBytesSync(compressedBytes);
+      print('Original size: ${imageFile.lengthSync()} bytes');
+      print('Compressed size: ${compressedImage.lengthSync()} bytes');
+      return compressedImage;
+    }
+  } catch (e) {
+    print(e.toString());
+  }       
 }
 
 bool isImageLessThan1MB(File imageFile) {

@@ -1,8 +1,10 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 
 void message(String message) {
+  print(message);
   Get.showSnackbar(
     GetSnackBar(
       message: message,

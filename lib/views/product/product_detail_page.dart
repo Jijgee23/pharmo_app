@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-// import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -305,20 +305,13 @@ class _ProductDetailState extends State<ProductDetail>
     if (det.containsKey('images') == true) {
       final pictures = det['images'] as List;
       return Container(
-        padding: const EdgeInsets.all(Sizes.smallFontSize),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: pictures
+          padding: const EdgeInsets.all(Sizes.smallFontSize),
+          child: CarouselSlider(
+            items: pictures
                 .map(
                   (p) => Stack(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: imageWidget(
-                            '${dotenv.env['IMAGE_URL']}${p['url']}'),
-                      ),
+                      imageWidget('${dotenv.env['IMAGE_URL']}${p['url']}'),
                       if (isNotPharma == true)
                         Positioned(
                           right: 0,
@@ -330,54 +323,20 @@ class _ProductDetailState extends State<ProductDetail>
                                 color: theme.colorScheme.onPrimary,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
-                                Icons.remove,
-                                color: white,
-                              ),
+                              child: const Icon(Icons.remove, color: white),
                             ),
                           ),
-                        )
+                        ),
                     ],
                   ),
                 )
                 .toList(),
-          ),
-        ),
-      );
-      // Container(
-      //     padding: const EdgeInsets.all(Sizes.smallFontSize),
-      //     child: CarouselSlider(
-      //       items: pictures
-      //           .map(
-      //             (p) => Stack(
-      //               children: [
-      //                 imageWidget(
-      //                     '${dotenv.env['IMAGE_URL']}${p['url']}'),
-      //                 if (isNotPharma == true)
-      //                   Positioned(
-      //                     right: 0,
-      //                     child: InkWell(
-      //                       onTap: () => deleteImage(home, p['id'][0]),
-      //                       child: Container(
-      //                         padding: const EdgeInsets.all(5),
-      //                         decoration: BoxDecoration(
-      //                           color: theme.colorScheme.onPrimary,
-      //                           shape: BoxShape.circle,
-      //                         ),
-      //                         child: const Icon(Icons.remove, color: white),
-      //                       ),
-      //                     ),
-      //                   ),
-      //               ],
-      //             ),
-      //           )
-      //           .toList(),
-      //       options: CarouselOptions(
-      //         viewportFraction: 1,
-      //         autoPlay: true,
-      //         autoPlayAnimationDuration: duration * 2,
-      //       ),
-      //     ));
+            options: CarouselOptions(
+              viewportFraction: 1,
+              autoPlay: true,
+              autoPlayAnimationDuration: duration * 2,
+            ),
+          ));
     } else {
       return imageWidget(noImage);
     }
@@ -404,33 +363,29 @@ class _ProductDetailState extends State<ProductDetail>
 
   List<File> images = [];
 
-  addImageToList(File image) async {
-    File i = await compressImage(image);
-    if (images.length > 5) {
-      message('5 хүртэлт зураг оруулах боломжтой');
-    } else {
-      setState(() {
-        images.add(i);
-      });
-    }
-  }
-
   Future<void> pickLogo(ImageSource source) async {
-    if (await Permission.camera.isDenied || await Permission.storage.isDenied) {
-      await Permission.camera.request();
-      await Permission.storage.request();
-    }
-
     try {
+      if (await Permission.camera.isDenied ||
+          await Permission.storage.isDenied) {
+        await Permission.camera.request();
+        await Permission.storage.request();
+      }
       final pickedFile = await ImagePicker().pickImage(source: source);
       if (pickedFile != null) {
         File imageFile = File(pickedFile.path);
-        addImageToList(imageFile);
+        File i = await compressImage(imageFile);
+        if (images.length > 5) {
+          message('5 хүртэлт зураг оруулах боломжтой');
+        } else {
+          setState(() {
+            images.add(i);
+          });
+        }
       } else {
         message("Зураг сонгоно уу!");
       }
     } catch (e) {
-      message("Зураг сонгох үед алдаа гарлаа!");
+      message("Зураг сонгох үед алдаа гарлаа! ${e.toString()}");
     }
   }
 
@@ -449,13 +404,17 @@ class _ProductDetailState extends State<ProductDetail>
               picker(
                   text: 'Зураг дарах',
                   icon: Icons.camera,
-                  ontap: () =>
-                      pickLogo(ImageSource.camera).then((g) => Get.back())),
+                  ontap: () {
+                    pickLogo(ImageSource.camera);
+                    Navigator.pop(context);
+                  }),
               picker(
                   text: 'Зураг оруулах',
                   icon: Icons.image,
-                  ontap: () =>
-                      pickLogo(ImageSource.gallery).then((g) => Get.back())),
+                  ontap: () {
+                    pickLogo(ImageSource.gallery);
+                    Navigator.pop(context);
+                  })
             ],
           ),
         ),
