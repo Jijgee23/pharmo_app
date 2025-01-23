@@ -147,18 +147,9 @@ class ProductSearcher extends StatelessWidget {
     await home.pickSupplier(int.parse(e.id), context);
     await home.changeSupName(e.name);
     home.setSupId(int.parse(e.id));
-    // basketProvider.getBasket();
     home.clearItems();
     home.setPageKey(1);
     home.fetchProducts();
-    // await promotionProvider.getMarkedPromotion();
-    // homeProvider.refresh(context, homeProvider, promotionProvider);
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (promotionProvider.markedPromotions.isNotEmpty) {
-    //     homeProvider.showMarkedPromos(context, promotionProvider);
-    //   }
-    // });
-    // Navigator.pop(context);
   }
 
   Widget suplierPicker(HomeProvider home, BuildContext context) {

@@ -18,6 +18,7 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
+import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login.dart';
@@ -129,17 +130,15 @@ class AuthController extends ChangeNotifier {
         await prefs.setInt('suppID', decodedToken['supplier']);
         int? k = prefs.getInt('suppID');
         home.getSuppliers();
-        if (k != null) {
-          home.pickSupplier(int.parse(home.supList[0].id), context);
-          home.changeSupName(home.supList[0].name);
-          home.setSupId(k);
-        }
-
-        // HomeProvider().getSuppliers();
-        // HomeProvider()
-        //     .pickSupplier(int.parse(HomeProvider().supList[0].id), context);
+        home.setSupId(k);
+        Supplier sup = home.supList.firstWhere((e) => (int.parse(e.id) == k));
+        home.changeSupName(sup.name);
       } else {
-        message('Нийлүүлэгч сонгоно уу!');
+        await home.getSuppliers();
+        Supplier supp = home.supList[0];
+        home.pickSupplier(int.parse(supp.id), context);
+        home.setSupId(int.parse(supp.id));
+        home.changeSupName(supp.name);
       }
     }
 

@@ -124,11 +124,11 @@ class PromotionProvider extends ChangeNotifier {
 
   getMarkedPromotion() async {
     try {
+      markedPromotions.clear();
       http.Response response = await apiGet('marked_promos/');
       print(convertData(response));
       if (response.statusCode == 200) {
         final res = convertData(response);
-        markedPromotions.clear();
         markedPromotions =
             (res as List).map((data) => MarkedPromo.fromJson(data)).toList();
       } else if (response.statusCode == 204) {

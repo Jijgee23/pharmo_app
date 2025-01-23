@@ -34,9 +34,6 @@ class _HomeState extends State<Home> {
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
     initPublic();
-    if (homeProvider.userRole == 'PA') {
-      initPharmo();
-    }
   }
 
   @override
@@ -45,19 +42,12 @@ class _HomeState extends State<Home> {
     _scrollController.dispose();
   }
 
-  initPharmo() async {
-    promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
-    await promotionProvider.getMarkedPromotion();
-    await homeProvider.getBranches();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (promotionProvider.markedPromotions.isNotEmpty) {
-        homeProvider.showMarkedPromos();
-      }
-    });
-  }
-
   initPublic() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      promotionProvider =
+          Provider.of<PromotionProvider>(context, listen: false);
+      await promotionProvider.getMarkedPromotion();
+      await homeProvider.getBranches();
       _scrollController.addListener(() {
         if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent) {
@@ -68,8 +58,9 @@ class _HomeState extends State<Home> {
       homeProvider.setPageKey(1);
       homeProvider.fetchProducts();
       basketProvider.getBasket();
-      if (homeProvider.userRole == 'PA') {
-        initPharmo();
+      if (homeProvider.userRole == 'PA' &&
+          promotionProvider.markedPromotions.isNotEmpty) {
+        homeProvider.showMarkedPromos();
       }
     });
   }
