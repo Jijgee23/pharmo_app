@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:carousel_slider/carousel_slider.dart';
+// import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -180,7 +180,7 @@ class _ProductDetailState extends State<ProductDetail>
                                   ],
                                 ),
                                 SizedBox(
-                                  height: 180,
+                                  height: 220,
                                   child: TabBarView(
                                     controller: tabController,
                                     children: [
@@ -271,17 +271,18 @@ class _ProductDetailState extends State<ProductDetail>
                               children: [
                                 price(
                                     title: 'Үндсэн үнэ',
-                                    value: maybeNull(
+                                    value: toPrice(
                                         widget.prod.price.toString())),
                                 price(
                                     title: 'Бөөний үнэ',
-                                    value: maybeNull(
+                                    value: toPrice(
                                         widget.prod.salePrice.toString()),
                                     cxs: CrossAxisAlignment.end),
                               ],
                             ),
+                            const SizedBox(height: Sizes.mediumFontSize),
                             CustomButton(
-                              borderRadius: Sizes.bigFontSize,
+                              borderRadius: Sizes.bigFontSize + Sizes.smallFontSize,
                               padding: const EdgeInsets.symmetric(
                                   vertical: Sizes.mediumFontSize),
                               text: 'Сагслах',
