@@ -41,6 +41,13 @@ class _ProductDetailState extends State<ProductDetail>
     });
   }
 
+  bool playing = true;
+  togglePlay() {
+    setState(() {
+      playing = !playing;
+    });
+  }
+
   Map<String, dynamic> det = {};
 
   @override
@@ -91,6 +98,8 @@ class _ProductDetailState extends State<ProductDetail>
       initQTY = n;
     });
   }
+
+  final CarouselSliderController slideController = CarouselSliderController();
 
   @override
   Widget build(BuildContext context) {
@@ -161,34 +170,6 @@ class _ProductDetailState extends State<ProductDetail>
                             controller: ScrollController(),
                             child: Column(
                               children: [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: SelectableText(
-                                    '#${maybeNull(widget.prod.barcode.toString())}',
-                                    style: const TextStyle(
-                                        color: Colors.blueGrey,
-                                        fontSize: Sizes.mediumFontSize),
-                                  ),
-                                ),
-                                div,
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    myTab(title: 'Барааны мэдээлэл', index: 0),
-                                    myTab(title: 'Урамшуулал', index: 1),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 220,
-                                  child: TabBarView(
-                                    controller: tabController,
-                                    children: [
-                                      myTabView(infos, datas),
-                                      myTabView(infos2, datas2),
-                                    ],
-                                  ),
-                                ),
                                 if (isNotPharma) div,
                                 if (isNotPharma)
                                   Row(
@@ -259,6 +240,34 @@ class _ProductDetailState extends State<ProductDetail>
                                       ),
                                     ),
                                 const SizedBox(height: Sizes.bigFontSize),
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: SelectableText(
+                                    '#${maybeNull(widget.prod.barcode.toString())}',
+                                    style: const TextStyle(
+                                        color: Colors.blueGrey,
+                                        fontSize: Sizes.mediumFontSize),
+                                  ),
+                                ),
+                                div,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    myTab(title: 'Барааны мэдээлэл', index: 0),
+                                    myTab(title: 'Урамшуулал', index: 1),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 220,
+                                  child: TabBarView(
+                                    controller: tabController,
+                                    children: [
+                                      myTabView(infos, datas),
+                                      myTabView(infos2, datas2),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -304,50 +313,76 @@ class _ProductDetailState extends State<ProductDetail>
   imageViewer(HomeProvider home, bool isNotPharma) {
     if (det.containsKey('images') == true) {
       final pictures = det['images'] as List;
-      return Container(
-          padding: const EdgeInsets.all(Sizes.smallFontSize),
-          child: CarouselSlider(
-            items: pictures
-                .map(
-                  (p) => Stack(
-                    children: [
-                      imageWidget('${dotenv.env['IMAGE_URL']}${p['url']}'),
-                      if (isNotPharma == true)
-                        Positioned(
-                          right: 0,
-                          child: InkWell(
-                            onTap: () => deleteImage(home, p['id'][0]),
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.onPrimary,
-                                shape: BoxShape.circle,
+      return Stack(
+        children: [
+          Positioned(
+            left: 0,
+            top: Sizes.height * 0.1,
+            child: InkWell(
+                onTap: () => slideController.previousPage(),
+                child: const Icon(Icons.chevron_left)),
+          ),
+          Positioned(
+            right: 0,
+            top: Sizes.height * 0.1,
+            child: InkWell(
+                onTap: () => slideController.nextPage(),
+                child: const Icon(Icons.chevron_right)),
+          ),
+          Container(
+              padding: const EdgeInsets.all(Sizes.smallFontSize),
+              child: CarouselSlider(
+                carouselController: slideController,
+                items: pictures
+                    .map(
+                      (p) => Stack(
+                        children: [
+                          imageWidget('${dotenv.env['IMAGE_URL']}${p['url']}'),
+                          if (isNotPharma == true)
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: InkWell(
+                                onTap: () => deleteImage(home, p['id'][0]),
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.rectangle,
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(10))),
+                                  child: const Icon(Icons.delete, color: white),
+                                ),
                               ),
-                              child: const Icon(Icons.remove, color: white),
                             ),
-                          ),
-                        ),
-                    ],
-                  ),
-                )
-                .toList(),
-            options: CarouselOptions(
-              viewportFraction: 1,
-              autoPlay: true,
-              autoPlayAnimationDuration: duration * 2,
-            ),
-          ));
+                        ],
+                      ),
+                    )
+                    .toList(),
+                options: CarouselOptions(
+                  viewportFraction: 1,
+                  autoPlay: true,
+                  autoPlayAnimationDuration: duration,
+                  pauseAutoPlayOnTouch: true,
+                ),
+              )),
+        ],
+      );
     } else {
       return imageWidget(noImage);
     }
   }
 
   Widget imageWidget(String url) {
-    return Image.network(
-      url,
-      height: Sizes.height * 0.25,
-      width: Sizes.height * 0.25,
-      fit: BoxFit.cover,
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.black, borderRadius: BorderRadius.circular(10)),
+      child: Image.network(
+        url,
+        height: Sizes.height * 0.25,
+        width: Sizes.height * 0.25,
+        fit: BoxFit.cover,
+      ),
     );
   }
 

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class SignUpForm extends StatefulWidget {
@@ -33,7 +33,6 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
-    final h = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: theme.primaryColor,
       body: Column(
@@ -51,11 +50,7 @@ class _SignUpFormState extends State<SignUpForm> {
                     ),
                   ),
                 ),
-                Positioned(
-                  top: h * .05,
-                  left: 20,
-                  child: back(color: Colors.white),
-                ),
+               const ChevronBack()
               ],
             ),
           ),

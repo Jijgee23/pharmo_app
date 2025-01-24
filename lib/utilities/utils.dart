@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart' as intl;
@@ -24,24 +23,6 @@ void gotoRemoveUntil(Widget widget) {
     widget,
     curve: Curves.fastLinearToSlowEaseIn,
     transition: Transition.rightToLeft,
-  );
-}
-
-back({Color? color}) {
-  return InkWell(
-    borderRadius: BorderRadius.circular(100),
-    splashColor: Colors.black.withOpacity(0.3),
-    onTap: () => Get.back(),
-    child: Container(
-      margin: EdgeInsets.all(Sizes.width * 0.02),
-      padding: EdgeInsets.all(Sizes.width * 0.02),
-      decoration:
-          BoxDecoration(color: color ?? Colors.white, shape: BoxShape.circle),
-      child: const Icon(
-        Icons.chevron_left,
-        color: Colors.black,
-      ),
-    ),
   );
 }
 
@@ -66,7 +47,7 @@ setUrl(String endPoint) {
 }
 
 convertData(http.Response body) {
-  var d = jsonDecode(utf8.decode(body.bodyBytes));
+  final d = jsonDecode(utf8.decode(body.bodyBytes));
   return d;
 }
 
@@ -139,9 +120,8 @@ Future<http.Response?> apiRequest({
   try {
     final Uri url = setUrl(endPoint);
     final Map<String, String> headers = await getHeader(await getAccessToken());
-
     http.Response response;
-    
+   
     switch (method.toUpperCase()) {
       case 'GET':
         response = await http.get(url, headers: headers);
