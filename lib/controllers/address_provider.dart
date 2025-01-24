@@ -27,6 +27,15 @@ class AddressProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void reset() {
+    provinces.clear();
+    districts.clear();
+    khoroos.clear();
+    setProvinceId(0);
+    setDistrictId(0);
+    setKhorooId(0);
+  }
+
   setDistrictId(int id) {
     _selectedDistrict = id;
     notifyListeners();
@@ -75,7 +84,7 @@ class AddressProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      message( 'Алдаа гарлаа.');
+      message('Алдаа гарлаа.');
     }
   }
 
@@ -88,7 +97,7 @@ class AddressProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      message( 'Алдаа гарлаа.');
+      message('Алдаа гарлаа.');
     }
   }
 }

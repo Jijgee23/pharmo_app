@@ -178,7 +178,8 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket() async {
     try {
-      final response = await apiPatch('clear_basket/', jsonEncode({'basket_id': basket.id}));
+      final response =
+          await apiPatch('clear_basket/', jsonEncode({'basket_id': basket.id}));
       await getBasket();
       if (response.statusCode == 200) {
         debugPrint('basket cleared');
@@ -311,6 +312,13 @@ class BasketProvider extends ChangeNotifier {
     } catch (e) {
       return {'errorType': 3, 'data': e, 'message': e};
     }
+  }
+
+  void reset() {
+    qty.clear();
+    _count = 0;
+    userrole = '';
+    shoppingCarts.clear();
   }
 }
 

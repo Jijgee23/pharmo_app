@@ -44,7 +44,6 @@ class _HomeJaggerState extends State<HomeJagger> {
   void dispose() {
     // timer?.cancel();
     super.dispose();
-    super.dispose();
   }
 
   startShipment(int shipmentId) async {
@@ -82,9 +81,9 @@ class _HomeJaggerState extends State<HomeJagger> {
       const Duration(seconds: 30),
       (timer) async {
         if (mounted) {
-          setState(() {
-            count = 0;
-          });
+          // setState(() {
+          //   count = 0;
+          // });
         }
       },
     );
@@ -193,14 +192,10 @@ class _HomeJaggerState extends State<HomeJagger> {
             iconName: Icons.edit_note,
             onTap: () => Future(() async {
                   endShipment(e.id, false);
-                  endTimer(context);
-                  // print(e.endTime);
                 }),
             onSecondaryTap: () => Future(() async {
                   endShipment(e.id, true);
-                  endTimer(context);
                   await jaggerProvider.fetchJaggers();
-                  // print(e.endTime);
                 })),
       );
     } else {

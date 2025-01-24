@@ -24,6 +24,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class HomeProvider extends ChangeNotifier {
+  void reset() {
+    _searchController.clear();
+    queryType = 'name';
+    searchType = 'Нэрээр';
+    isList = false;
+    query = '';
+    searching = false;
+    currentIndex = 0;
+    invisible = false;
+    selectedCustomerName = '';
+    selectedCustomerId = 0;
+    userId = 0;
+    selectedBranchId = -1;
+    payType = 'NOW';
+    branches.clear();
+    branchList.clear();
+    categories.clear();
+  }
+
   final TextEditingController _searchController = TextEditingController();
   TextEditingController get searchController => _searchController;
   List<String> stype = ['Нэрээр', 'Баркодоор'];
@@ -481,7 +500,7 @@ class HomeProvider extends ChangeNotifier {
       final response = await apiPatch(
           'auth/delete_user_account/', jsonEncode({'pwd': password}));
       if (response.statusCode == 200) {
-        AuthController().logout();
+        AuthController().logout(context);
         message(
           '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа',
         );

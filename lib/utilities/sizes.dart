@@ -13,6 +13,11 @@ class Sizes {
   static const smallFontSize = 10.0;
   static const mediumFontSize = 14.0;
   static const bigFontSize = 18.0;
+
+  static bool isTablet() {
+    final mediaQuery = MediaQuery.of(GlobalKeys.navigatorKey.currentContext!);
+    return mediaQuery.size.shortestSide >= 600;
+  }
 }
 
 final theme = Theme.of(GlobalKeys.navigatorKey.currentState!.context);

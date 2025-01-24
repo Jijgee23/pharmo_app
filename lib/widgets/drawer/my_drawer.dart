@@ -152,7 +152,7 @@ void logout(BuildContext context) {
                     text: 'Тийм',
                     onTap: () {
                       Provider.of<AuthController>(context, listen: false)
-                          .logout();
+                          .logout(context);
                       Provider.of<AuthController>(context, listen: false)
                           .toggleVisibile();
                       Provider.of<HomeProvider>(context, listen: false)

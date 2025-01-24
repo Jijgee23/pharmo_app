@@ -23,12 +23,12 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
   @override
   void initState() {
     super.initState();
+    jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
     init();
   }
 
   init() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
       jaggerProvider.getExpenses();
     });
   }

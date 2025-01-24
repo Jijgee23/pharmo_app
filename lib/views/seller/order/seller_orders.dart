@@ -5,13 +5,15 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/seller/drawer_menus/order/seller_order_detail.dart';
+import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo_dialog.dart';
+import 'package:pharmo_app/views/seller/order/seller_order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class SellerOrders extends StatefulWidget {
   const SellerOrders({super.key});
@@ -255,7 +257,8 @@ class OrderWidget extends StatelessWidget {
           children: [
             SlidableAction(
               flex: 2,
-              onPressed: (context) => deleteOrder(provider),
+              onPressed: (context) =>
+                  askDeletetion(context, provider, order.orderNo.toString()),
               backgroundColor: Colors.transparent,
               foregroundColor: Colors.red,
               icon: Icons.delete,
@@ -308,7 +311,47 @@ class OrderWidget extends StatelessWidget {
     );
   }
 
-  deleteOrder(MyOrderProvider op) async {
+  askDeletetion(BuildContext context, MyOrderProvider op, String name) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: white,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(Sizes.bigFontSize),
+            child: Column(
+              children: [
+                text('Та $name дугаартай захиалгыг устгамаар байна уу?',
+                    color: black, align: TextAlign.center),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    btn(true, context, op),
+                    btn(false, context, op),
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  btn(bool isPop, BuildContext context, MyOrderProvider op) {
+    return DialogButton(
+      width: Sizes.width * 0.3,
+      color: theme.primaryColor,
+      child: SmallText(isPop ? 'Үгүй' : 'Тийм', color: white),
+      onPressed: () => isPop
+          ? Navigator.pop(context)
+          : deleteOrder(op).then(
+              (e) => Navigator.pop(context),
+            ),
+    );
+  }
+
+  Future deleteOrder(MyOrderProvider op) async {
     await op.deleteSellerOrders(orderId: order.id);
   }
 }

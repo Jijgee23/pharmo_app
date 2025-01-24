@@ -130,8 +130,8 @@ class _HomeState extends State<Home> {
           child: GridView.builder(
             controller: _scrollController,
             shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, childAspectRatio: .9),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: Sizes.isTablet() ? 3 : 2, childAspectRatio: .9),
             itemCount: home.fetchedItems.length,
             itemBuilder: (context, idx) {
               Product product = home.fetchedItems[idx];

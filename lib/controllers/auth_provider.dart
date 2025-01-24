@@ -10,14 +10,8 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:pharmo_app/controllers/address_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/income_provider.dart';
-import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/controllers/myorder_provider.dart';
-import 'package:pharmo_app/controllers/pharms_provider.dart';
-import 'package:pharmo_app/controllers/promotion_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -219,16 +213,16 @@ class AuthController extends ChangeNotifier {
   }
 
   // Системээс гарах
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
     try {
       final response = await http.post(
         setUrl('auth/logout/'),
         headers: getHeader(await getAccessToken()),
       );
       if (response.statusCode == 200) {
-        await _completeLogout();
+        await _completeLogout(context);
       } else {
-        await _completeLogout();
+        await _completeLogout(context);
         // message('Холболт саллаа.');
       }
       notifyListeners();
@@ -237,25 +231,18 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  _completeLogout() async {
+  _completeLogout(BuildContext context) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('access_token');
     prefs.remove('refresh_token');
-    await _disposeProviders();
+    await _disposeProviders(context);
     Get.offAll(() => const LoginPage());
   }
 
-  Future<void> _disposeProviders() async {
+  Future<void> _disposeProviders(BuildContext context) async {
     try {
-      HomeProvider().dispose();
-      BasketProvider().dispose();
-      PromotionProvider().dispose();
-      JaggerProvider().dispose();
-      IncomeProvider().dispose();
-      PharmProvider().dispose();
-      AuthController().dispose();
-      MyOrderProvider().dispose();
-      AddressProvider().dispose();
+      Provider.of<BasketProvider>(context, listen: false).reset();
+      Provider.of<HomeProvider>(context, listen: false).reset();
     } catch (e) {
       debugPrint('Error disposing providers: ${e.toString()}');
     }

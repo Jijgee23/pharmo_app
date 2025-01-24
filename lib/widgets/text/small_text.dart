@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 
 class SmallText extends StatelessWidget {
@@ -15,6 +16,7 @@ class SmallText extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       softWrap: true,
       style: TextStyle(
+        color: color ?? black,
         fontSize: Sizes.smallFontSize + 2,
         fontWeight: (isbold == true) ? FontWeight.bold : FontWeight.w400,
       ),

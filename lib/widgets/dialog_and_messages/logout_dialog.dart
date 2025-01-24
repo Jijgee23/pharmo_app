@@ -24,7 +24,7 @@ class LogoutDialog extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              authController.logout();
+              authController.logout(context);
               authController.toggleVisibile();
             },
             child: const Text('Тийм'),

@@ -43,6 +43,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ReportProvider()),
         // ChangeNotifierProvider(create: (_) => FireProvider())
       ],
+      
       child: const MyApp(),
     ),
   );

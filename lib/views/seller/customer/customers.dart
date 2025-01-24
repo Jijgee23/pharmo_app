@@ -67,49 +67,50 @@ class _CustomerListState extends State<CustomerList> {
   // Харилцагч
   Widget _customerBuilder(HomeProvider homeProvider, Customer c) {
     bool selected = c.id == homeProvider.selectedCustomerId;
-    return Ctnr(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              InkWell(
-                onTap: () => _onTabCustomer(c),
-                child: AnimatedContainer(
-                  duration: const Duration(seconds: 1),
-                  padding: EdgeInsets.all(!selected ? 12 : 2),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey)),
-                  child: selected
-                      ? const Icon(Icons.check, color: Colors.green)
-                      : const SizedBox(),
+    return InkWell(
+      onTap: () => goto(CustomerDetailsPage(customer: c)),
+      child: Ctnr(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () => _onTabCustomer(c),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    padding: EdgeInsets.all(!selected ? 15 : 5),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.grey)),
+                    child: selected
+                        ? const Icon(Icons.check, color: Colors.green)
+                        : const SizedBox(),
+                  ),
                 ),
-              ),
-              SizedBox(width: Sizes.mediumFontSize),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  greyText(c.name!, selected ? AppColors.succesColor : grey600),
-                  if (c.loanBlock == true)
-                    Text('Харилцагч дээр захиалга зээлээр өгөхгүй!',
-                        style: redText),
-                  const SizedBox(width: 10),
-                  if (c.location == false)
-                    Text('Байршил тодорхойгүй', style: redText)
-                ],
-              ),
-            ],
-          ),
-          InkWell(
-            onTap: () => goto(CustomerDetailsPage(customer: c)),
-            child: Icon(
+                const SizedBox(width: Sizes.mediumFontSize),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    greyText(
+                        c.name!, selected ? AppColors.succesColor : grey600),
+                    if (c.loanBlock == true)
+                      Text('Харилцагч дээр захиалга зээлээр өгөхгүй!',
+                          style: redText),
+                    const SizedBox(width: 10),
+                    if (c.location == false)
+                      Text('Байршил тодорхойгүй', style: redText)
+                  ],
+                ),
+              ],
+            ),
+            Icon(
               Icons.chevron_right_rounded,
               color: Colors.blue.shade700,
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -121,14 +122,20 @@ class _CustomerListState extends State<CustomerList> {
   );
 
   _onTabCustomer(Customer c) {
-    if (c.rn != null) {
-      homeProvider.changeSelectedCustomerId(c.id!);
-      homeProvider.changeSelectedCustomerName(c.name!);
-      // homeProvider.changeIndex(1);
+    if (c.id == homeProvider.selectedCustomerId) {
+      homeProvider.changeSelectedCustomerId(0);
+      homeProvider.changeSelectedCustomerName('');
     } else {
-      message('Регистерийн дугааргүй харилцагч сонгох боломжгүй!');
+      if (c.rn != null) {
+        homeProvider.changeSelectedCustomerId(c.id!);
+        homeProvider.changeSelectedCustomerName(c.name!);
+        // homeProvider.changeIndex(1);
+      } else {
+        message('Регистерийн дугааргүй харилцагч сонгох боломжгүй!');
+      }
     }
   }
+
   greyText(String t, Color? color) {
     return Text(
       t,

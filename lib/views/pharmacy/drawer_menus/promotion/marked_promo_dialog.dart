@@ -79,9 +79,10 @@ class MakredPromoOnDialog extends StatelessWidget {
   }
 }
 
-Widget text(String text, {Color? color, double? size}) {
+Widget text(String text, {Color? color, double? size, TextAlign? align}) {
   return Text(
     text,
+    textAlign: align ?? TextAlign.start,
     style: TextStyle(
       fontWeight: FontWeight.bold,
       color: color ?? black,

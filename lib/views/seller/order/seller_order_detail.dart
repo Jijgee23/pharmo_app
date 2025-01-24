@@ -5,7 +5,7 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
-import 'package:pharmo_app/views/seller/customers.dart';
+import 'package:pharmo_app/views/seller/customer/customers.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
