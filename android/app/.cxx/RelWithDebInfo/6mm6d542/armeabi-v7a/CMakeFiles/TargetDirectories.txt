@@ -1,0 +1,2 @@
+C:/Users/jijge/OneDrive/Documents/GitHub/pharmo_app/android/app/.cxx/RelWithDebInfo/6mm6d542/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/jijge/OneDrive/Documents/GitHub/pharmo_app/android/app/.cxx/RelWithDebInfo/6mm6d542/armeabi-v7a/CMakeFiles/rebuild_cache.dir
