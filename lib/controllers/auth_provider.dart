@@ -49,8 +49,8 @@ class AuthController extends ChangeNotifier {
   }
 
   apiPostWithoutToken(String endPoint, Object? body) async {
-    http.Response response = await http.post(setUrl(endPoint),
-        headers: header, body: jsonEncode(body));
+    http.Response response =
+        await http.post(setUrl(endPoint), headers: header, body: jsonEncode(body));
     getApiInformation(endPoint, response);
     return response;
   }
@@ -68,8 +68,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // Нэвтрэх
-  Future<void> login(
-      String email, String password, BuildContext context) async {
+  Future<void> login(String email, String password, BuildContext context) async {
     setLogging(true);
     try {
       var responseLogin = await apiPostWithoutToken(
@@ -77,6 +76,7 @@ class AuthController extends ChangeNotifier {
         {'email': email, 'password': password},
       );
       final decodedResponse = convertData(responseLogin);
+      print(decodedResponse);
       if (responseLogin.statusCode == 200) {
         _handleSuccessfulLogin(decodedResponse, context);
       } else if (responseLogin.statusCode == 400) {
@@ -96,8 +96,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // Нэвтрэх амжилттай
-  Future<void> _handleSuccessfulLogin(
-      Map<String, dynamic> res, BuildContext context) async {
+  Future<void> _handleSuccessfulLogin(Map<String, dynamic> res, BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', res['access_token']);
     await prefs.setString('refresh_token', res['refresh_token']);
@@ -274,14 +273,8 @@ class AuthController extends ChangeNotifier {
       required String otp,
       required String password}) async {
     try {
-      var body = {
-        'email': email,
-        'phone': phone,
-        'otp': otp,
-        'password': password
-      };
-      http.Response response =
-          await apiPostWithoutToken('auth/register/', body);
+      var body = {'email': email, 'phone': phone, 'otp': otp, 'password': password};
+      http.Response response = await apiPostWithoutToken('auth/register/', body);
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       print(data);
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -316,13 +309,10 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  createPassword(String email, String otp, String newPassword,
-      BuildContext context) async {
+  createPassword(String email, String otp, String newPassword, BuildContext context) async {
     try {
       final response = await http.post(setUrl('auth/reset/'),
-          headers: header,
-          body:
-              jsonEncode({'email': email, 'otp': otp, 'new_pwd': newPassword}));
+          headers: header, body: jsonEncode({'email': email, 'otp': otp, 'new_pwd': newPassword}));
       if (response.statusCode == 200) {
         message('Нууц үг амжилттай үүслээ');
         Navigator.pop(context);
@@ -429,12 +419,8 @@ class AuthController extends ChangeNotifier {
     print(lat);
     try {
       var request = http.MultipartRequest('POST', setUrl('company/'));
-      request.files
-          .add(await http.MultipartFile.fromPath('license', license.path));
-      logo != null
-          ? request.files
-              .add(await http.MultipartFile.fromPath('logo', logo.path))
-          : null;
+      request.files.add(await http.MultipartFile.fromPath('license', license.path));
+      logo != null ? request.files.add(await http.MultipartFile.fromPath('logo', logo.path)) : null;
       request.fields['email'] = ema;
       request.fields['password'] = pass;
       request.fields['name'] = name;
@@ -449,12 +435,10 @@ class AuthController extends ChangeNotifier {
       print(res.statusCode);
       print(responseBody);
       if (res.statusCode == 200 || res.statusCode == 201) {
-        return buildResponse(
-            1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
+        return buildResponse(1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
       } else {
         if (responseBody.contains('already exists')) {
-          return buildResponse(
-              2, null, 'И-Мейл, РД эсвэл нэр давхардаж байна!');
+          return buildResponse(2, null, 'И-Мейл, РД эсвэл нэр давхардаж байна!');
         } else {
           return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
         }

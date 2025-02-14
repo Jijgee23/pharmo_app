@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/jagger_expense_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
+import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
 class ShipmentExpensePage extends StatefulWidget {
@@ -19,18 +20,33 @@ class ShipmentExpensePage extends StatefulWidget {
 
 class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
   late JaggerProvider jaggerProvider;
+  bool loading = false;
+  setLoading(bool n) {
+    setState(() {
+      loading = n;
+    });
+  }
 
   @override
   void initState() {
+    setLoading(true);
     super.initState();
     jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
-    init();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetch();
+    });
   }
 
-  init() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      jaggerProvider.getExpenses();
-    });
+  fetch() async {
+    await jaggerProvider.getExpenses();
+
+    if (mounted) setLoading(false);
+  }
+
+  refresh() {
+    setLoading(true);
+    fetch();
   }
 
   final TextEditingController amount = TextEditingController();
@@ -38,37 +54,32 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Consumer<JaggerProvider>(
-        builder: (context, provider, _) {
-          final jaggerOrders =
-              provider.jaggerOrders.isNotEmpty ? provider.jaggerOrders : null;
-          return jaggerOrders != null && jaggerOrders.isNotEmpty
-              ? SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      ...jaggerOrders.map((el) => expenseBuilder(el)),
-                      SizedBox(height: MediaQuery.of(context).size.height * .08)
-                    ],
-                  ),
-                )
-              : const Center(child: NoResult());
-        },
-      ),
+    return Consumer<JaggerProvider>(
+      builder: (context, provider, _) {
+        final expenses = provider.expenses;
+        bool empty = expenses.isEmpty;
+        return DataScreen(
+          loading: loading,
+          empty: empty,
+          onRefresh: () => refresh(),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ...expenses.map((el) => expenseBuilder(el)),
+                SizedBox(height: MediaQuery.of(context).size.height * .08)
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget expenseBuilder(JaggerExpenseOrder el) {
     return Container(
-      decoration: BoxDecoration(
-        color: card,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(color: Theme.of(context).shadowColor, blurRadius: 3)
-        ],
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(borderRadius: border20, gradient: pinkGradinet),
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: padding15,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -76,11 +87,7 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Col(
-                  fontSize1: 12,
-                  fontSize2: 14,
-                  t1: 'Тайлбар',
-                  t2: el.note.toString()),
+              Col(fontSize1: 12, fontSize2: 14, t1: 'Тайлбар', t2: el.note.toString()),
               Col(t1: 'Дүн', t2: toPrice(el.amount!.toString())),
               InkWell(
                 onTap: () {
@@ -90,8 +97,7 @@ class _ShipmentExpensePageState extends State<ShipmentExpensePage> {
                 },
                 child: const Text(
                   'Засах',
-                  style:
-                      TextStyle(color: secondary, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: white, fontWeight: FontWeight.bold),
                 ),
               ),
             ],

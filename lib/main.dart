@@ -41,9 +41,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => AddressProvider()),
         ChangeNotifierProvider(create: (_) => PromotionProvider()),
         ChangeNotifierProvider(create: (_) => ReportProvider()),
-        // ChangeNotifierProvider(create: (_) => FireProvider())
       ],
-      
       child: const MyApp(),
     ),
   );
@@ -57,32 +55,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late AuthController auth;
-  late Box box;
-  bool isSplashed = false;
-
   @override
   void initState() {
     super.initState();
-    auth = Provider.of<AuthController>(context, listen: false);
-    _openBox();
-  }
-
-  Future<void> _openBox() async {
-    try {
-      box = await Hive.openBox('auth');
-      getSplashState();
-    } catch (e) {
-      debugPrint('Error opening Hive box: $e');
-    }
-  }
-
-  getSplashState() async {
-    if (box.get('splash') == true) {
-      setState(() {
-        isSplashed == true;
-      });
-    }
   }
 
   @override

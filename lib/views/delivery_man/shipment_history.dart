@@ -31,8 +31,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
   String searchText = '-с өмнөх';
   String counter = '1';
   bool isStartDate = true;
-  final TextEditingController _countController =
-      TextEditingController(text: '1');
+  final TextEditingController _countController = TextEditingController(text: '1');
 
   void getWidget(String filter, String type, JaggerProvider provider) {
     if (filter == 'Огноогоор') {
@@ -131,8 +130,8 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 12)),
+                      style:
+                          const TextStyle(fontWeight: FontWeight.w500, fontSize: 12, color: black)),
                 );
               }).toList(),
               onChanged: (a) {
@@ -165,8 +164,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
                 getWidget(a, provider.type, provider);
               },
               hint: Text(provider.filter,
-                  style: const TextStyle(
-                      fontSize: 14, color: AppColors.cleanBlack)),
+                  style: const TextStyle(fontSize: 14, color: AppColors.cleanBlack)),
             ),
           ),
         ],
@@ -179,9 +177,8 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
         ? SingleChildScrollView(
             child: Column(
               children: provider.shipments
-                  .map((ship) => !provider.isFetching
-                      ? ShipmentBuilder(shipment: ship)
-                      : shipSkeleton())
+                  .map((ship) =>
+                      !provider.isFetching ? ShipmentBuilder(shipment: ship) : shipSkeleton())
                   .toList(),
             ),
           )
@@ -241,8 +238,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
           ),
           const SizedBox(width: 10),
           filterButton(() {
-            provider.filterShipment(
-                provider.isStartDate == true ? 'end' : 'start',
+            provider.filterShipment(provider.isStartDate == true ? 'end' : 'start',
                 provider.selectedDate.toString().substring(0, 10));
           })
         ],
@@ -262,9 +258,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
               child: TextField(
                 textAlign: TextAlign.center,
                 controller: _countController,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
+                inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
                 keyboardType: TextInputType.number,
                 onChanged: (v) => setState(() => counter = v),
                 decoration: const InputDecoration(
@@ -302,35 +296,25 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
                                 (e) => InkWell(
                                   onTap: () {
                                     provider.changeOperator(e);
-                                    if (e == '=' &&
-                                        provider.filter ==
-                                            'Захиалгын тоогоор') {
+                                    if (e == '=' && provider.filter == 'Захиалгын тоогоор') {
                                       provider.changeType('ordersCnt');
                                     } else if (e == '=>' &&
-                                        provider.filter ==
-                                            'Захиалгын тоогоор') {
+                                        provider.filter == 'Захиалгын тоогоор') {
                                       provider.changeType('ordersCnt__lte');
                                     } else if (e == '=<' &&
-                                        provider.filter ==
-                                            'Захиалгын тоогоор') {
+                                        provider.filter == 'Захиалгын тоогоор') {
                                       provider.changeType('ordersCnt__gte');
-                                    } else if (e == '=' &&
-                                        provider.filter == 'Явцын хувиар') {
+                                    } else if (e == '=' && provider.filter == 'Явцын хувиар') {
                                       provider.changeType('progress');
-                                    } else if (e == '=>' &&
-                                        provider.filter == 'Явцын хувиар') {
+                                    } else if (e == '=>' && provider.filter == 'Явцын хувиар') {
                                       provider.changeType('progress__lte');
-                                    } else if (e == '=<' &&
-                                        provider.filter == 'Явцын хувиар') {
+                                    } else if (e == '=<' && provider.filter == 'Явцын хувиар') {
                                       provider.changeType('progress__gte');
-                                    } else if (e == '=' &&
-                                        provider.filter == 'Зарлагын дүнгээр') {
+                                    } else if (e == '=' && provider.filter == 'Зарлагын дүнгээр') {
                                       provider.changeType('expense');
-                                    } else if (e == '=>' &&
-                                        provider.filter == 'Зарлагын дүнгээр') {
+                                    } else if (e == '=>' && provider.filter == 'Зарлагын дүнгээр') {
                                       provider.changeType('expense__lte');
-                                    } else if (e == '=<' &&
-                                        provider.filter == 'Зарлагын дүнгээр') {
+                                    } else if (e == '=<' && provider.filter == 'Зарлагын дүнгээр') {
                                       provider.changeType('expense__gte');
                                     }
                                     Navigator.pop(context);
@@ -344,8 +328,8 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
                                         ),
                                       ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 15),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                                     child: Center(child: Text(e)),
                                   ),
                                 ),
@@ -459,14 +443,10 @@ class _ShipmentBuilderState extends State<ShipmentBuilder> {
           children: [
             row(
                 title: 'Эхлэсэн цаг:',
-                value: (widget.shipment.startTime != null)
-                    ? widget.shipment.startTime!
-                    : '-'),
+                value: (widget.shipment.startTime != null) ? widget.shipment.startTime! : '-'),
             row(
                 title: 'Дууссан цаг:',
-                value: (widget.shipment.endTime != null)
-                    ? widget.shipment.endTime!
-                    : '-'),
+                value: (widget.shipment.endTime != null) ? widget.shipment.endTime! : '-'),
             row(
                 title: 'Үүссэн огноо:',
                 value: (widget.shipment.createdOn != null)
@@ -519,9 +499,7 @@ class _ShipmentBuilderState extends State<ShipmentBuilder> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: TextStyle(color: Colors.grey.shade700)),
-        Text(value,
-            style: const TextStyle(
-                color: AppColors.secondary, fontWeight: FontWeight.bold))
+        Text(value, style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold))
       ],
     );
   }

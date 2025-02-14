@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 
 class Col extends StatelessWidget {
   final String t1;
@@ -7,12 +8,7 @@ class Col extends StatelessWidget {
   final double? fontSize2;
   final CrossAxisAlignment? cxs;
   const Col(
-      {super.key,
-      required this.t1,
-      required this.t2,
-      this.fontSize1,
-      this.fontSize2,
-      this.cxs});
+      {super.key, required this.t1, required this.t2, this.fontSize1, this.fontSize2, this.cxs});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +20,9 @@ class Col extends StatelessWidget {
           softWrap: true,
           maxLines: 2,
           style: TextStyle(
-            fontSize: fontSize1 ?? 10,
+            fontSize: fontSize1 ?? 12,
             fontWeight: FontWeight.bold,
-            color: Colors.grey,
+            color: black.withOpacity(.5),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -35,9 +31,10 @@ class Col extends StatelessWidget {
           maxLines: 1,
           softWrap: true,
           style: TextStyle(
-            fontSize: fontSize2 ?? 12,
+            fontSize: fontSize2 ?? 14,
             fontWeight: FontWeight.bold,
             overflow: TextOverflow.ellipsis,
+            color: black,
           ),
         ),
       ],

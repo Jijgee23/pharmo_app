@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/customer/customer_details_paga.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
 class CustomerList extends StatefulWidget {
@@ -26,6 +26,7 @@ class _CustomerListState extends State<CustomerList> {
     pharmProvider = Provider.of<PharmProvider>(context, listen: false);
     pharmProvider.getCustomers(1, 100, context);
     homeProvider.getPosition();
+    pharmProvider.getZones();
     setState(() => uid = homeProvider.userId);
   }
 
@@ -69,7 +70,10 @@ class _CustomerListState extends State<CustomerList> {
     bool selected = c.id == homeProvider.selectedCustomerId;
     return InkWell(
       onTap: () => goto(CustomerDetailsPage(customer: c)),
-      child: Ctnr(
+      child: Container(
+        padding: padding15,
+        margin: EdgeInsets.only(bottom: Sizes.height * .008),
+        decoration: BoxDecoration(color: primary.withOpacity(.3), borderRadius: border20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -80,34 +84,31 @@ class _CustomerListState extends State<CustomerList> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
                     padding: EdgeInsets.all(!selected ? 15 : 5),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey)),
-                    child: selected
-                        ? const Icon(Icons.check, color: Colors.green)
-                        : const SizedBox(),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      // border: Border.all(color: Colors.grey),
+                    ),
+                    child:
+                        selected ? const Icon(Icons.check, color: Colors.green) : const SizedBox(),
                   ),
                 ),
                 const SizedBox(width: Sizes.mediumFontSize),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    greyText(
-                        c.name!, selected ? AppColors.succesColor : grey600),
+                    greyText(c.name!, selected ? AppColors.succesColor : black),
                     if (c.loanBlock == true)
-                      Text('Харилцагч дээр захиалга зээлээр өгөхгүй!',
-                          style: redText),
+                      Text('Харилцагч дээр захиалга зээлээр өгөхгүй!', style: redText),
                     const SizedBox(width: 10),
-                    if (c.location == false)
-                      Text('Байршил тодорхойгүй', style: redText)
+                    if (c.location == false) Text('Байршил тодорхойгүй', style: redText)
                   ],
                 ),
               ],
             ),
-            Icon(
+            const Icon(
               Icons.chevron_right_rounded,
-              color: Colors.blue.shade700,
+              color: white,
             )
           ],
         ),
@@ -115,8 +116,8 @@ class _CustomerListState extends State<CustomerList> {
     );
   }
 
-  TextStyle redText = TextStyle(
-    color: Colors.red.shade600,
+  TextStyle redText = const TextStyle(
+    color: Colors.red,
     fontSize: Sizes.smallFontSize,
     fontWeight: FontWeight.w400,
   );

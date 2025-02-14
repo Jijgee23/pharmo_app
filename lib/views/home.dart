@@ -36,21 +36,13 @@ class _HomeState extends State<Home> {
     initPublic();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _scrollController.dispose();
-  }
-
   initPublic() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      promotionProvider =
-          Provider.of<PromotionProvider>(context, listen: false);
+      promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
       await promotionProvider.getMarkedPromotion();
       await homeProvider.getBranches();
       _scrollController.addListener(() {
-        if (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent) {
+        if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
           homeProvider.fetchMoreProducts();
         }
       });
@@ -58,8 +50,7 @@ class _HomeState extends State<Home> {
       homeProvider.setPageKey(1);
       homeProvider.fetchProducts();
       basketProvider.getBasket();
-      if (homeProvider.userRole == 'PA' &&
-          promotionProvider.markedPromotions.isNotEmpty) {
+      if (homeProvider.userRole == 'PA' && promotionProvider.markedPromotions.isNotEmpty) {
         homeProvider.showMarkedPromos();
       }
     });
@@ -68,11 +59,7 @@ class _HomeState extends State<Home> {
   List<IconData> icons = [Icons.discount, Icons.star, Icons.new_releases];
 
   List<String> filterNames = ['Хямдралтай', 'Эрэлттэй', 'Шинэ'];
-  List<String> filterss = [
-    'discount__gt=0',
-    'supplier_indemand_products',
-    'ordering=-created_at'
-  ];
+  List<String> filterss = ['discount__gt=0', 'supplier_indemand_products', 'ordering=-created_at'];
   String selectedFilter = 'Бүгд';
   setSelectedFilter(String n) {
     setState(() {
@@ -93,7 +80,7 @@ class _HomeState extends State<Home> {
             child: Column(
               children: [
                 if (home.userRole == 'PA') filtering(Sizes.smallFontSize),
-                getBody(home)
+                getBody(home),
               ],
             ),
           );
@@ -151,10 +138,7 @@ class _HomeState extends State<Home> {
       child: Wrap(
         spacing: 10,
         children: [
-          filt(
-              e: 'Ангилал',
-              icon: Icons.list,
-              ontap: () => goto(const FilterPage())),
+          filt(e: 'Ангилал', icon: Icons.list, ontap: () => goto(const FilterPage())),
           filt(
               e: 'Бүгд',
               icon: Icons.list,
@@ -190,8 +174,7 @@ class _HomeState extends State<Home> {
           borderRadius: BorderRadius.circular(Sizes.smallFontSize),
         ),
         padding: EdgeInsets.symmetric(
-            vertical: 5,
-            horizontal: selected ? Sizes.bigFontSize : Sizes.smallFontSize),
+            vertical: 5, horizontal: selected ? Sizes.bigFontSize : Sizes.smallFontSize),
         child: Center(
           child: Text(
             e,
@@ -227,8 +210,7 @@ class Products extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       controller: controller,
-      gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemCount: products.length,
       itemBuilder: (context, idx) {
         Product product = products[idx];

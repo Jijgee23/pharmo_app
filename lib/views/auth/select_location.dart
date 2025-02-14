@@ -44,16 +44,14 @@ class _LocationSelectorState extends State<LocationSelector> {
 
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
+      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
         // Handle permission denied
         return;
       }
     }
 
     // Get the current position
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     LatLng currentLocation = LatLng(position.latitude, position.longitude);
 
     setState(() {
@@ -94,8 +92,7 @@ class _LocationSelectorState extends State<LocationSelector> {
         backgroundColor: theme.colorScheme.onPrimary,
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator()) // Show loading indicator
+          ? const Center(child: CircularProgressIndicator()) // Show loading indicator
           : Stack(
               children: <Widget>[
                 GoogleMap(
@@ -115,15 +112,12 @@ class _LocationSelectorState extends State<LocationSelector> {
                   child: InkWell(
                     onTap: () => Navigator.pop(context, _selectedLocation),
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: Sizes.mediumFontSize,
-                          vertical: Sizes.smallFontSize),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: Sizes.mediumFontSize, vertical: Sizes.smallFontSize),
                       decoration: BoxDecoration(
                           color: Colors.green,
-                          borderRadius:
-                              BorderRadius.circular(Sizes.bigFontSize)),
-                      child: const Text('Болсон',
-                          style: TextStyle(color: Colors.white)),
+                          borderRadius: BorderRadius.circular(Sizes.bigFontSize)),
+                      child: const Text('Болсон', style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

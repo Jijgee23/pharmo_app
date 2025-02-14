@@ -67,9 +67,7 @@ class _FilterPageState extends State<FilterPage> {
                               child: Text(
                                 fil!,
                                 style: const TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold),
+                                    color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold),
                               ),
                             ),
                           )
@@ -78,8 +76,7 @@ class _FilterPageState extends State<FilterPage> {
                     child: TabBarView(children: [
                       ...views.map(
                         (v) => SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: Sizes.smallFontSize),
+                          padding: const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
                           child: Column(
                             children: v,
                           ),
@@ -133,19 +130,14 @@ class _FilterPageState extends State<FilterPage> {
   }
 
   Widget item(
-      {required String text,
-      required String type,
-      required String title,
-      required int filterKey}) {
+      {required String text, required String type, required String title, required int filterKey}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Align(
         alignment: Alignment.centerLeft,
         child: GestureDetector(
-          child: Text(text,
-              style: const TextStyle(color: Colors.black, fontSize: 12)),
-          onTap: () => goto(
-              FilteredProducts(type: type, title: title, filterKey: filterKey)),
+          child: categoryText(text, black),
+          onTap: () => goto(FilteredProducts(type: type, title: title, filterKey: filterKey)),
         ),
       ),
     );
@@ -175,14 +167,9 @@ class _CategoryItemState extends State<CategoryItem> {
           children: [
             Row(
               children: [
-                Text(
+                categoryText(
                   widget.cat.name,
-                  style: TextStyle(
-                    color: isExpanded
-                        ? AppColors.secondary
-                        : theme.colorScheme.onSecondary,
-                    fontSize: Sizes.mediumFontSize,
-                  ),
+                  isExpanded ? AppColors.secondary : theme.colorScheme.onSecondary,
                 ),
                 const SizedBox(width: Sizes.mediumFontSize),
                 widget.cat.children!.isNotEmpty
@@ -190,9 +177,7 @@ class _CategoryItemState extends State<CategoryItem> {
                         isExpanded
                             ? Icons.keyboard_arrow_down_outlined
                             : Icons.chevron_right_rounded,
-                        color: isExpanded
-                            ? AppColors.secondary
-                            : theme.colorScheme.onSecondary,
+                        color: isExpanded ? AppColors.secondary : theme.colorScheme.onSecondary,
                         size: 20,
                       )
                     : const SizedBox()
@@ -216,8 +201,18 @@ class _CategoryItemState extends State<CategoryItem> {
     if (widget.cat.children!.isNotEmpty) {
       setState(() => isExpanded = !isExpanded);
     } else {
-      goto(FilteredProducts(
-          type: 'cat', title: widget.cat.name, filterKey: widget.cat.id));
+      goto(FilteredProducts(type: 'cat', title: widget.cat.name, filterKey: widget.cat.id));
     }
   }
+}
+
+categoryText(String txt, Color color) {
+  return Text(
+    txt,
+    style: TextStyle(
+      color: color,
+      fontSize: Sizes.mediumFontSize,
+      fontWeight: FontWeight.bold,
+    ),
+  );
 }

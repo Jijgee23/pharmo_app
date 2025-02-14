@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -39,11 +40,9 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     final sw = MediaQuery.of(context).size.width;
     final border = OutlineInputBorder(
-        borderSide:
-            BorderSide(color: theme.primaryColor.withOpacity(0.7), width: 1.2),
+        borderSide: BorderSide(color: grey400, width: 1.5),
         borderRadius: BorderRadius.circular(Sizes.mediumFontSize));
-    TextStyle ts =
-        TextStyle(color: theme.primaryColor.withOpacity(.8), fontSize: 14.0, fontWeight: FontWeight.w700);
+    TextStyle ts = TextStyle(color: grey600, fontSize: 14.0, fontWeight: FontWeight.w700);
     return SizedBox(
       child: TextFormField(
         textAlign: align ?? TextAlign.start,
@@ -61,9 +60,9 @@ class CustomTextField extends StatelessWidget {
         maxLines: maxLine ?? 1,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: sw * 0.04),
-          labelText: hintText,
+          // labelText: hintText,
           labelStyle: ts,
-          // hintText: hintText,
+          hintText: hintText,
           hintStyle: ts,
           border: border,
           errorBorder: border,

@@ -19,27 +19,21 @@ class _SplashScreenState extends State<SplashScreen> {
   bool isSplashed = false;
   @override
   void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((c) {
-      _openBox();
+    WidgetsBinding.instance.addPostFrameCallback((c) async {
+      await _openBox();
     });
+    super.initState();
   }
 
   Future<void> _openBox() async {
     try {
-      box1 = await Hive.openBox('auth');
-      getLocalData();
-    } catch (e) {
-      debugPrint('Error opening Hive box: $e');
-    }
-  }
-
-  void getLocalData() {
-    if (box1.get('splash') != null) {
       Future.delayed(Duration.zero, () => goto(const LoginPage()));
+      box1 = await Hive.openBox('auth');
       setState(() {
         isSplashed = box1.get('splash');
       });
+    } catch (e) {
+      debugPrint('Error opening Hive box: $e');
     }
   }
 
@@ -75,9 +69,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 controller: _pageController,
                 scrollDirection: Axis.horizontal,
                 pageSnapping: true,
-                onPageChanged: (p) {
-                  setPage(p);
-                },
+                onPageChanged: (p) => setPage(p),
                 allowImplicitScrolling: true,
                 children: urls.map((u) => splash(u, urls.indexOf(u))).toList(),
               ),
@@ -92,8 +84,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 } else {
                   setPage(page + 1);
                   _pageController.nextPage(
-                      duration: const Duration(seconds: 1),
-                      curve: Curves.fastLinearToSlowEaseIn);
+                      duration: const Duration(seconds: 1), curve: Curves.fastLinearToSlowEaseIn);
                 }
               },
               child: Container(
@@ -131,8 +122,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children:
-                  List.generate(urls.length, (index) => _indicator(index)),
+              children: List.generate(urls.length, (index) => _indicator(index)),
             ),
           ],
         ),
@@ -148,9 +138,7 @@ class _SplashScreenState extends State<SplashScreen> {
       height: 8,
       width: page == index ? 24 : 8,
       decoration: BoxDecoration(
-        color: page == index
-            ? theme.primaryColor.withOpacity(0.7)
-            : Colors.grey.shade700,
+        color: page == index ? theme.primaryColor.withOpacity(0.7) : Colors.grey.shade700,
         borderRadius: BorderRadius.circular(4),
       ),
     );

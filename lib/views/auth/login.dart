@@ -159,28 +159,32 @@ class _LoginPageState extends State<LoginPage> {
     bool logging = authController.loading;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(color: theme.primaryColor),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.contain,
-                    image: AssetImage('assets/picon.png'),
-                  ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Container(
+              width: double.maxFinite,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: primary.withOpacity(.3),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
                 ),
               ),
+              child: Image.asset('assets/picon.png'),
             ),
-            Expanded(
-              flex: 3,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                decoration: BoxDecoration(
-                    color: theme.cardColor, borderRadius: topBorderRadius()),
+          ),
+          Expanded(
+            flex: 4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+              ),
+              child: Center(
                 child: Wrap(
                   runSpacing: 15,
                   children: [
@@ -213,10 +217,8 @@ class _LoginPageState extends State<LoginPage> {
                             hover = !hover;
                           });
                         },
-                        icon: Icon(
-                          hover ? Icons.visibility_off : Icons.visibility,
-                          color: theme.primaryColor,
-                        ),
+                        icon: Icon(hover ? Icons.visibility_off : Icons.visibility,
+                            color: theme.primaryColor.withOpacity(.3)),
                       ),
                     ),
                     Row(
@@ -232,8 +234,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         Checkbox(
                           visualDensity: VisualDensity.compact,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           value: rememberMe,
                           onChanged: (val) {
                             setState(() {
@@ -253,8 +254,7 @@ class _LoginPageState extends State<LoginPage> {
                                 const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child:
-                                      CircularProgressIndicator(color: white),
+                                  child: CircularProgressIndicator(color: white),
                                 ),
                                 SizedBox(width: Sizes.width * 0.03),
                                 const Text(
@@ -269,13 +269,8 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CustomTextButton(
-                          text: 'Нууц үг сэргээх',
-                          onTap: () => goto(const ResetPassword()),
-                        ),
-                        CustomTextButton(
-                          text: 'Бүртгүүлэх',
-                          onTap: () => goto(const SignUpForm()),
-                        ),
+                            text: 'Нууц үг сэргээх', onTap: () => goto(const ResetPassword())),
+                        CustomTextButton(text: 'Бүртгүүлэх', onTap: () => goto(const SignUpForm())),
                       ],
                     ),
                     if (_isCheckingForUpdates)
@@ -291,21 +286,14 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.all(Sizes.smallFontSize),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.email, color: theme.colorScheme.onPrimary),
-            SizedBox(width: Sizes.mediumFontSize),
-            Text(
-              'contact@infosystems.mn',
-              style: TextStyle(color: theme.colorScheme.onPrimary),
-            )
-          ],
+        height: 70,
+        decoration: BoxDecoration(
+          color: primary.withOpacity(.3),
+          borderRadius: topBorderRadius(),
         ),
       ),
     );
@@ -342,14 +330,21 @@ topBorderRadius() {
 
 Widget authText(String text) {
   return Align(
-    alignment: Alignment.center,
+    alignment: Alignment.centerLeft,
     child: Text(
       text,
       style: TextStyle(
-        fontSize: Sizes.mediumFontSize,
-        fontWeight: FontWeight.bold,
+        fontSize: 30,
+        fontWeight: FontWeight.w900,
         color: theme.primaryColor,
       ),
     ),
+  );
+}
+
+bottomRadius() {
+  return const BorderRadius.only(
+    bottomLeft: Radius.circular(30),
+    bottomRight: Radius.circular(30),
   );
 }

@@ -34,11 +34,10 @@ class _ResetPasswordState extends State<ResetPassword> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Бүртгэлтэй и-мейл хаягаа оруулна уу?'),
-                Constants.boxV10,
+                // const Text('Бүртгэлтэй и-мейл хаягаа оруулна уу?'),
+                // Constants.boxV10,
                 CustomTextField(
-                  controller: email,
-                ),
+                    controller: email, validator: (p0) => validateEmail(p0), hintText: 'И-мейл'),
                 Constants.boxV10,
                 (!boolean)
                     ? CustomButton(
@@ -102,8 +101,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                             text: 'Хадгалах',
                             ontap: () {
                               if (password.text == confirmPassword.text) {
-                                auth.createPassword(
-                                    email.text, opt, password.text, context);
+                                auth.createPassword(email.text, opt, password.text, context);
                               } else {
                                 message('Нууц үг таарахгүй байна');
                               }

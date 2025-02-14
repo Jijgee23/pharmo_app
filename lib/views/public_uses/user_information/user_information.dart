@@ -37,9 +37,7 @@ class _UserInformationState extends State<UserInformation> {
             Column(
               children: [
                 info(title: 'Имейл хаяг:', value: home.userEmail!),
-                info(
-                    title: 'Хэрэглэгчийн төрөл:',
-                    value: getRole(home.userRole!))
+                info(title: 'Хэрэглэгчийн төрөл:', value: getRole(home.userRole!))
               ],
             ),
             CustomButton(text: 'Бүртгэл устгах', ontap: () => confirmDeletion())
@@ -64,22 +62,18 @@ class _UserInformationState extends State<UserInformation> {
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [Constants.defaultShadow],
-        color: AppColors.background,
+        borderRadius: border20,
+        color: primary.withOpacity(.3),
       ),
-      padding: const EdgeInsets.all(10),
+      padding: padding15,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
           Text(
             value,
-            style: const TextStyle(
-                fontWeight: FontWeight.w500, color: Colors.black54),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: black, fontSize: 16),
           ),
         ],
       ),
@@ -92,9 +86,9 @@ class _UserInformationState extends State<UserInformation> {
       builder: (BuildContext context) {
         return Dialog(
           child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: padding15,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: border20,
               color: white,
             ),
             child: SingleChildScrollView(
@@ -102,7 +96,7 @@ class _UserInformationState extends State<UserInformation> {
                 children: [
                   const Text(
                     'Нууц үгээ оруулна уу?',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
                   CustomTextField(

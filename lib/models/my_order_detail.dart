@@ -22,8 +22,8 @@ class MyOrderDetailModel {
   MyOrderDetailModel.fromJson(Map<String, dynamic> json)
       : itemId = json['itemId'],
         itemName = json['itemName'],
-        itemPrice = json['itemPrice'],
-        itemTotalPrice = json['itemTotalPrice'],
+        itemPrice = json['itemPrice'].toString(),
+        itemTotalPrice = json['itemTotalPrice'].toString(),
         itemQty = json['itemQty'],
         rQty = json['rQty'],
         iQty = json['iQty'],

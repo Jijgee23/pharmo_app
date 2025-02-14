@@ -34,23 +34,17 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
     return Scaffold(
-      backgroundColor: theme.primaryColor,
       body: Column(
         children: [
           Expanded(
             child: Stack(
               children: [
                 Container(
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.contain,
-                      image: AssetImage(
-                        'assets/picon.png',
-                      ),
-                    ),
-                  ),
-                ),
-               const ChevronBack()
+                    decoration: BoxDecoration(
+                        borderRadius: bottomRadius(),
+                        color: theme.primaryColor.withOpacity(.3),
+                        image: const DecorationImage(image: AssetImage('assets/picon.png')))),
+                const Positioned(top: 30, left: 15, child: ChevronBack())
               ],
             ),
           ),
@@ -93,8 +87,7 @@ class _SignUpFormState extends State<SignUpForm> {
                             showPasss = !showPasss;
                           });
                         },
-                        icon: Icon(
-                            showPasss ? Icons.visibility : Icons.visibility_off,
+                        icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
                             color: theme.primaryColor),
                       ),
                     ),
@@ -110,8 +103,7 @@ class _SignUpFormState extends State<SignUpForm> {
                             showPasss = !showPasss;
                           });
                         },
-                        icon: Icon(
-                            showPasss ? Icons.visibility : Icons.visibility_off,
+                        icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
                             color: theme.primaryColor),
                       ),
                     ),
@@ -165,7 +157,7 @@ class _SignUpFormState extends State<SignUpForm> {
       message(res['message']);
       print(res['errorType']);
       if (res['errorType'] == 1) {
-       Navigator.pop(context);
+        Navigator.pop(context);
       }
     } else {
       message('Нууц үг таарахгүй байна!');

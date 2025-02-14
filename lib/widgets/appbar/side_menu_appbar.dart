@@ -13,6 +13,7 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? title;
   final bool hasBasket;
   final Widget? action;
+  final Color? color;
 
   const SideAppBar({
     super.key,
@@ -23,6 +24,7 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.hasBasket = false,
     this.action,
     this.text,
+    this.color,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
   @override
   final Size preferredSize;
@@ -41,6 +43,8 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
                 bottomRight: Radius.circular(30),
               ),
               child: AppBar(
+                backgroundColor: color,
+                surfaceTintColor: color,
                 centerTitle: true,
                 title: (text != null)
                     ? Text(
@@ -54,10 +58,7 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
                       )
                     : title,
                 leading: leading ?? const ChevronBack(),
-                actions: [
-                  if (hasBasket) basketIcon(home, basket),
-                  action ?? const SizedBox()
-                ],
+                actions: [if (hasBasket) basketIcon(home, basket), action ?? const SizedBox()],
               ),
             ),
           ),
@@ -82,12 +83,10 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
             top: 2,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-              decoration: BoxDecoration(
-                  color: Colors.red, borderRadius: BorderRadius.circular(15)),
+              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(15)),
               child: Text(
                 basket.basket.totalCount.toString(),
-                style: const TextStyle(
-                    color: white, fontSize: 10, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: white, fontSize: 10, fontWeight: FontWeight.bold),
               ),
             ),
           ),

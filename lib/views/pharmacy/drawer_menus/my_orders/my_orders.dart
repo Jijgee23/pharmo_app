@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
-import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
@@ -46,13 +46,11 @@ class _MyOrderState extends State<MyOrder> {
   getBranches() async {
     try {
       _branches[''] = '';
-      final orderProvider =
-          Provider.of<MyOrderProvider>(context, listen: false);
+      final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
       dynamic res = await orderProvider.getBranches();
       if (res['errorType'] == 1) {
         for (int i = 0; i < res['data'].length; i++) {
-          _branches[res['data'][i]['id'].toString()] =
-              res['data'][i]['name'].toString();
+          _branches[res['data'][i]['id'].toString()] = res['data'][i]['name'].toString();
         }
       } else {
         message(
@@ -69,8 +67,7 @@ class _MyOrderState extends State<MyOrder> {
   getSuppliers() async {
     try {
       _suppliers[''] = '';
-      final orderProvider =
-          Provider.of<MyOrderProvider>(context, listen: false);
+      final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
       dynamic res = await orderProvider.getSuppliers();
       if (res['errorType'] == 1) {
         res['data'].forEach((key, value) {
@@ -100,7 +97,7 @@ class _MyOrderState extends State<MyOrder> {
             "M": "Бэлтгэж эхэлсэн",
             "P": "Бэлэн болсон",
             "O": "Хүргэлтэнд гарсан",
-            "D": "Хүргэгдсэн",
+            "A": "Хүргэгдсэн",
           };
         } else if (_selectedFilter == '1') {
           _processess = {
@@ -170,8 +167,7 @@ class _MyOrderState extends State<MyOrder> {
                           child: Column(
                             children: orders
                                 .map(
-                                  (order) => orderWidget(
-                                      order: order, provider: provider),
+                                  (order) => orderWidget(order: order, provider: provider),
                                 )
                                 .toList(),
                           ),
@@ -230,7 +226,7 @@ class _MyOrderState extends State<MyOrder> {
               dropContainer(
                 child: DropdownButton<String>(
                   isDense: true,
-                  padding: EdgeInsets.symmetric(vertical: Sizes.smallFontSize),
+                  padding: const EdgeInsets.symmetric(vertical: Sizes.smallFontSize),
                   style: filterStyle(),
                   dropdownColor: Colors.white,
                   borderRadius: BorderRadius.circular(10),
@@ -257,47 +253,67 @@ class _MyOrderState extends State<MyOrder> {
   }
 
   Widget filterText(String text) {
-    return Text(
-      text,
-      style: filterStyle(),
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 100),
+      child: Text(
+        text,
+        overflow: TextOverflow.fade,
+        softWrap: true,
+        style: filterStyle(),
+      ),
     );
   }
 
   TextStyle filterStyle() {
     return TextStyle(
-      fontSize: Sizes.smallFontSize + 1,
-      color: theme.colorScheme.onPrimary,
+      fontSize: 14,
+      color: theme.colorScheme.primary,
+      overflow: TextOverflow.fade,
+      fontWeight: FontWeight.w600,
     );
   }
 
-  Widget orderWidget(
-      {required MyOrderModel order, required MyOrderProvider provider}) {
+  Widget orderWidget({required MyOrderModel order, required MyOrderProvider provider}) {
     return InkWell(
       onTap: () => goto(
         MyOrderDetail(
           id: order.id,
           order: order,
-          orderNo: order.orderNo.toString(),
-          process: getProcessNumber(order.process!),
         ),
       ),
-      child: Ctnr(
+      child: Container(
+        decoration:
+            BoxDecoration(color: white, borderRadius: border10, border: Border.all(color: grey300)),
+        padding: padding15,
         margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-        child: Column(
+        child: Wrap(
+          runSpacing: 10,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Container(
+                  decoration: BoxDecoration(
+                      color: primary.withOpacity(.3), borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.home, color: primary),
+                      const SizedBox(width: 5),
+                      Text(order.supplier!, style: const TextStyle(fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
                 TitleContainer(
-                    child: Col(t1: 'Дугаар', t2: order.orderNo.toString())),
-                Col(t1: 'Дүн', t2: toPrice(order.totalPrice.toString())),
-                Col(
-                    t1: 'Огноо',
-                    t2: order.createdOn.toString().substring(0, 10))
+                  child: Col(
+                      t1: toPrice(order.totalPrice.toString()), t2: '#${order.orderNo.toString()}'),
+                ),
               ],
             ),
-            const SizedBox(
-              height: 10,
+            Container(
+              height: 1.8,
+              width: double.maxFinite,
+              color: grey300,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -305,58 +321,63 @@ class _MyOrderState extends State<MyOrder> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Төлөв',
-                      style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey),
-                    ),
                     Text(
                       order.status!,
-                      style: const TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 14, color: Colors.black),
                     ),
+                    Text(
+                      order.process!,
+                      style: const TextStyle(fontSize: 14, color: Colors.black),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(''),
+                    Text(order.process!, style: const TextStyle(fontSize: 14, color: Colors.black)),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            (order.process == 'Бэлэн болсон' ||
-                    order.process == 'Түгээлтэнд гарсан')
-                ? InkWell(
-                    onTap: () => confirmOrder(order.id),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: IntrinsicWidth(
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: theme.primaryColor,
-                              borderRadius: BorderRadius.circular(10)),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 10),
-                          child: const Center(
-                            child: Row(
-                              children: [
-                                Text(
-                                  'Хүлээн авсан',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      letterSpacing: 1,
-                                      fontSize: Sizes.smallFontSize,
-                                      fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                (order.process == 'Бэлэн болсон' || order.process == 'Түгээлтэнд гарсан')
+                    ? InkWell(
+                        onTap: () => confirmOrder(order.id),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: IntrinsicWidth(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: theme.primaryColor,
+                                  borderRadius: BorderRadius.circular(10)),
+                              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                              child: const Center(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Хүлээн авах',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    // SizedBox(width: Sizes.smallFontSize),
+                                    // Icon(Icons.check, color: white, size: Sizes.mediumFontSize)
+                                  ],
                                 ),
-                                SizedBox(width: Sizes.smallFontSize),
-                                Icon(Icons.check,
-                                    color: white, size: Sizes.mediumFontSize)
-                              ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  )
-                : const SizedBox(),
+                      )
+                    : const SizedBox(),
+              ],
+            )
           ],
         ),
       ),
@@ -365,6 +386,7 @@ class _MyOrderState extends State<MyOrder> {
 
   dropContainer({required Widget child}) {
     return Container(
+      width: Sizes.width * .38,
       decoration: BoxDecoration(
         color: white,
         borderRadius: BorderRadius.circular(Sizes.smallFontSize),

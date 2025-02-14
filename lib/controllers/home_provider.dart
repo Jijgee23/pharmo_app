@@ -106,8 +106,7 @@ class HomeProvider extends ChangeNotifier {
   void refresh(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
-        final promotion =
-            Provider.of<PromotionProvider>(context, listen: false);
+        final promotion = Provider.of<PromotionProvider>(context, listen: false);
         clearItems();
         setPageKey(1);
         fetchProducts();
@@ -157,13 +156,10 @@ class HomeProvider extends ChangeNotifier {
 
   getProducts(int pageKey) async {
     try {
-      final response =
-          await apiGet('products/?page=$pageKey&page_size=$pageSize');
+      final response = await apiGet('products/?page=$pageKey&page_size=$pageSize');
       if (response.statusCode == 200) {
         final res = convertData(response);
-        final prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
+        final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         return prods;
       }
     } catch (e) {
@@ -179,9 +175,7 @@ class HomeProvider extends ChangeNotifier {
         if (response.statusCode == 200) {
           clearItems();
           final res = convertData(response);
-          final prods = (res['results'] as List)
-              .map((data) => Product.fromJson(data))
-              .toList();
+          final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
           return prods;
         }
       }
@@ -197,9 +191,7 @@ class HomeProvider extends ChangeNotifier {
       final response = await apiGet('products/?$filter');
       if (response.statusCode == 200) {
         final res = convertData(response);
-        final prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
+        final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         clearItems();
         fetchedItems.addAll(prods);
         return prods;
@@ -216,14 +208,13 @@ class HomeProvider extends ChangeNotifier {
     // List<int>? deletion
   }) async {
     try {
-      var request =
-          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      var request = http.MultipartRequest('PATCH', setUrl('update_product_image/'));
       request.headers['Authorization'] = await getAccessToken();
       request.fields['product_id'] = id.toString();
 
       images
-          .map((image) async => request.files
-              .add(await http.MultipartFile.fromPath('images', image.path)))
+          .map((image) async =>
+              request.files.add(await http.MultipartFile.fromPath('images', image.path)))
           .toList();
       var res = await request.send();
       print(res.statusCode);
@@ -242,8 +233,7 @@ class HomeProvider extends ChangeNotifier {
 
   deleteImages({required int id, required int imageID}) async {
     try {
-      var request =
-          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      var request = http.MultipartRequest('PATCH', setUrl('update_product_image/'));
       request.headers['Authorization'] = await getAccessToken();
       request.fields['product_id'] = id.toString();
       request.fields['images_to_remove'] = imageID.toString();
@@ -286,15 +276,10 @@ class HomeProvider extends ChangeNotifier {
       final response = await apiGet('product/filters/');
       if (response.statusCode == 200) {
         Map res = convertData(response);
-        categories =
-            (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
+        categories = (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
 
-        mnfrs = (res['mnfrs'] as List)
-            .map((e) => Manufacturer.fromJson(e))
-            .toList();
-        vndrs = (res['vndrs'] as List)
-            .map((e) => Manufacturer.fromJson(e))
-            .toList();
+        mnfrs = (res['mnfrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
+        vndrs = (res['vndrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -305,13 +290,11 @@ class HomeProvider extends ChangeNotifier {
 // Бараа ангиллаар шүүх
   filter(String type, int filters, int page, int pageSize) async {
     try {
-      final response = await apiGet(
-          'products/?$type=[$filters]&page=$page&page_size=$pageSize');
+      final response = await apiGet('products/?$type=[$filters]&page=$page&page_size=$pageSize');
       if (response.statusCode == 200) {
         Map res = convertData(response);
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
+        List<Product> prods =
+            (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         return prods;
       }
     } catch (e) {
@@ -321,13 +304,11 @@ class HomeProvider extends ChangeNotifier {
 
   filterCate(int id, int page, int pageSize) async {
     try {
-      final response = await apiGet(
-          'products/?category=[$id]&page=$page&page_size=$pageSize');
+      final response = await apiGet('products/?category=[$id]&page=$page&page_size=$pageSize');
       if (response.statusCode == 200) {
         Map<String, dynamic> res = convertData(response);
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
+        List<Product> prods =
+            (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         return prods;
       }
     } catch (e) {
@@ -369,10 +350,8 @@ class HomeProvider extends ChangeNotifier {
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
       await prefs.setInt('picked_suplier', res['id']);
-      final promotionProvider =
-          Provider.of<PromotionProvider>(context, listen: false);
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
+      final promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
+      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
       await promotionProvider.getMarkedPromotion();
       await getFilters();
       await basketProvider.getBasket();
@@ -422,8 +401,7 @@ class HomeProvider extends ChangeNotifier {
 
   getCustomerBranch() async {
     try {
-      final response = await apiPost(
-          'seller/customer_branch/', {'customerId': selectedCustomerId});
+      final response = await apiPost('seller/customer_branch/', {'customerId': selectedCustomerId});
       branchList.clear();
       if (response.statusCode == 200) {
         List<dynamic> res = convertData(response);
@@ -440,65 +418,23 @@ class HomeProvider extends ChangeNotifier {
 
   Future getPosition() async {
     _currentLocation = await _getCurrentLocation();
-    currentLatitude =
-        double.parse(_currentLocation!.latitude.toStringAsFixed(6));
-    currentLongitude =
-        double.parse(_currentLocation!.longitude.toStringAsFixed(6));
+    currentLatitude = double.parse(_currentLocation!.latitude.toStringAsFixed(6));
+    currentLongitude = double.parse(_currentLocation!.longitude.toStringAsFixed(6));
   }
 
   Future<Position> _getCurrentLocation() async {
     servicePermission = await Geolocator.isLocationServiceEnabled();
-
     if (!servicePermission) {}
     permission = await Geolocator.checkPermission();
-
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
     return await Geolocator.getCurrentPosition();
   }
 
-  searchByLocation(BuildContext context) async {
-    try {
-      Object body = {
-        'lat': currentLatitude,
-        'lng': currentLongitude,
-      };
-      final response = await apiPost('seller/search_by_location/', body);
-      if (response.statusCode == 200) {
-        if (jsonDecode(utf8.decode(response.bodyBytes).toString()) ==
-            'not found') {
-          message(
-            'Харилцагч олдсонгүй',
-          );
-        } else {
-          Map<String, dynamic> res = convertData(response);
-          message(
-              '${res['company']['name']} харилцагчийн ${res['name']} олдлоо');
-          if (res['manager']['id'] == null) {
-            selectedCustomerId = res['director']['id'];
-            selectedCustomerName = res['company']['name'];
-            getSelectedUser(selectedCustomerId, selectedCustomerName);
-            changeIndex(1);
-          } else {
-            selectedCustomerId = res['manager']['id'];
-            selectedCustomerName = res['company']['name'];
-            getSelectedUser(selectedCustomerId, selectedCustomerName);
-            changeIndex(1);
-          }
-        }
-      } else {
-        message('Серверийн алдаа');
-      }
-    } catch (e) {
-      message('Интернет холболтоо шалгана уу!.');
-    }
-  }
-
   deactiveUser(String password, BuildContext context) async {
     try {
-      final response = await apiPatch(
-          'auth/delete_user_account/', jsonEncode({'pwd': password}));
+      final response = await apiPatch('auth/delete_user_account/', jsonEncode({'pwd': password}));
       if (response.statusCode == 200) {
         AuthController().logout(context);
         message(

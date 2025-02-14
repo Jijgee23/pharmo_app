@@ -121,18 +121,16 @@ Future<http.Response?> apiRequest({
     final Uri url = setUrl(endPoint);
     final Map<String, String> headers = await getHeader(await getAccessToken());
     http.Response response;
-   
+
     switch (method.toUpperCase()) {
       case 'GET':
         response = await http.get(url, headers: headers);
         break;
       case 'POST':
-        response =
-            await http.post(url, headers: headers, body: jsonEncode(body));
+        response = await http.post(url, headers: headers, body: jsonEncode(body));
         break;
       case 'PATCH':
-        response =
-            await http.patch(url, headers: headers, body: jsonEncode(body));
+        response = await http.patch(url, headers: headers, body: jsonEncode(body));
         break;
       case 'DELETE':
         response = await http.delete(url, headers: headers);
@@ -149,8 +147,7 @@ Future<http.Response?> apiRequest({
   }
 }
 
-Map<String, dynamic> buildResponse(
-    int errorType, dynamic data, String? message) {
+Map<String, dynamic> buildResponse(int errorType, dynamic data, String? message) {
   return {'errorType': errorType, 'data': data, 'message': message};
 }
 
@@ -248,6 +245,48 @@ getStatus(String status) {
   }
 }
 
+getProcessGif(String process) {
+  if (process == 'Шинэ') {
+    return 'assets/stickers/hourglass.gif';
+  } else if (process == 'Бэлтгэж эхэлсэн') {
+    return 'assets/stickers/box.gif';
+  } else if (process == 'Бэлэн болсон') {
+    return 'assets/stickers/delivery-service.gif';
+  } else if (process == 'Түгээлтэнд гарсан') {
+    return 'assets/stickers/truck_animation.gif';
+  } else if (process == 'Хүлээн авсан') {
+    return 'assets/stickers/delivery-completed.gif';
+  } else {
+    return 'assets/stickers/hourglass.gif';
+  }
+}
+
+getStatusGif(String status) {
+  if (status == 'Төлбөр хүлээгдэж буй') {
+    return 'assets/stickers/payment-time.gif';
+  } else if (status == 'Төлбөр төлөгдсөн') {
+    return 'assets/stickers/credit-card.gif';
+  } else if (status == 'Цуцлагдсан') {
+    return 'assets/stickers/delivery-service.gif';
+  } else if (status == 'Биелсэн') {
+    return 'assets/stickers/verified.gif';
+  } else {
+    return 'assets/stickers/hourglass.gif';
+  }
+}
+
+getPayType(String status) {
+  if (status == 'L') {
+    return 'Зээлээр';
+  } else if (status == 'C') {
+    return 'Бэлнээр';
+  } else if (status == 'T') {
+    return 'Дансаар';
+  } else {
+    return 'Тодорхой биш';
+  }
+}
+
 checker(Map response, String key) {
   if (response.containsKey(key)) {
     return true;
@@ -290,9 +329,8 @@ Future compressImage(File imageFile) async {
       image = img.copyResize(image!, width: 800);
       int quality = 80;
       List<int> compressedBytes = img.encodeJpg(image, quality: quality);
-      File compressedImage =
-          File('${imageFile.parent.path}/compressed_image.jpg')
-            ..writeAsBytesSync(compressedBytes);
+      File compressedImage = File('${imageFile.parent.path}/compressed_image.jpg')
+        ..writeAsBytesSync(compressedBytes);
       print('Original size: ${imageFile.lengthSync()} bytes');
       print('Compressed size: ${compressedImage.lengthSync()} bytes');
       return compressedImage;

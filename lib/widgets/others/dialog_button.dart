@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo_dialog.dart';
 
 class DialogBtn extends StatelessWidget {
   final String? title;
@@ -7,18 +10,18 @@ class DialogBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 100 ,
-      padding:const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: InkWell(
-        onTap: onTap ?? () => Navigator.of(context).pop(),
+    return SizedBox(
+      width: Sizes.width * .3,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: theme.primaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        onPressed: onTap ?? () => Navigator.of(context).pop(),
         child: Center(
-          child: Text(title != null ? title! : 'Хаах',
-              style: const TextStyle(color: Colors.white)),
+          child: text(title != null ? title! : 'Хаах', color: white),
         ),
       ),
     );

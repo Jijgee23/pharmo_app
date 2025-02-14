@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/seller/customer/customers.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/order_widgets/order_status.dart';
 import 'package:pharmo_app/views/product/add_basket_sheet.dart';
-import 'package:pharmo_app/widgets/ui_help/col.dart';
+import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../../../widgets/loader/order_status.dart';
+
 class SellerOrderDetail extends StatefulWidget {
-  final int oId;
+  final String oId;
   const SellerOrderDetail({super.key, required this.oId});
 
   @override
@@ -38,24 +39,25 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
   void initState() {
     super.initState();
     p = Provider.of<PharmProvider>(context, listen: false);
-    fetchInit();
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      setFetching(true);
+      fetchInit();
+    });
   }
 
   fetchInit() async {
-    setFetching(true);
     final data = await p.getSellerOrderDetail(widget.oId, context);
-    print(data);
+    if (!mounted) return;
     setState(() {
       det = data;
+      felching = false;
     });
-    // await p.getSellerOrderDetail(widget.oId, context);
-    setFetching(false);
   }
 
   List<String> titles = [
     'Захиалын дугаар',
     'Харилцагч',
-    'Явц',
     'Нийн дүн',
     'Тоо ширхэг',
     'Төлбөрийн хэлбэр',
@@ -65,65 +67,59 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
   @override
   Widget build(BuildContext context) {
     List<String> datas = [
-      det['orderNo'].toString(),
-      det['customer'].toString(),
-      det['process'].toString(),
-      toPrice(det['totalPrice']),
-      det['totalCount'].toString(),
-      det['payType'].toString(),
-      det['note'].toString(),
+      maybeNull(det['orderNo'].toString()),
+      maybeNull(det['customer'].toString()),
+      maybeNull(toPrice(det['totalPrice'])),
+      maybeNull(det['totalCount'].toString()),
+      maybeNull(det['payType'].toString()),
+      maybeNull(det['note'].toString()),
     ];
-    return (felching == true)
-        ? const Center(
-            child: SizedBox(width: 50, height: 50, child: PharmoIndicator()),
-          )
-        : Scaffold(
-            appBar: SideAppBar(text: maybeNull(det['orderNo'].toString())),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                  top: Sizes.bigFontSize,
-                  left: Sizes.smallFontSize,
-                  right: Sizes.smallFontSize),
-              child: Wrap(
-                runSpacing: Sizes.smallFontSize,
+    return DataScreen(
+      loading: felching,
+      empty: !det.containsKey('items'),
+      appbar: SideAppBar(text: maybeNull(det['orderNo'].toString())),
+      child: SingleChildScrollView(
+        child: Wrap(
+          runSpacing: Sizes.smallFontSize,
+          children: [
+            OrderStatusAnimation(
+                process: det['process'], status: det['status'], margin: const EdgeInsets.all(0)),
+            ...titles.map(
+              (t) => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ...titles.map((t) => Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '$t:',
-                            style: const TextStyle(
-                                color: Colors.black87,
-                                fontSize: Sizes.mediumFontSize),
-                          ),
-                          Text(
-                            maybeNull(datas[titles.indexOf(t)]),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: Sizes.mediumFontSize,
-                            ),
-                          )
-                        ],
-                      )),
-                  const SizedBox(height: Sizes.mediumFontSize),
-                  OrderStatus(process: det['process']),
-                  products(),
-                  CustomButton(
-                    text: 'Захиалгын мэдээлэл засах',
-                    ontap: () {
-                      Get.bottomSheet(
-                        EditSellerOrder(
-                          note: det['note'],
-                          pt: det['payType'],
-                          oId: det['id'],
-                        ),
-                      );
-                    },
+                  Text(
+                    '$t:',
+                    style: const TextStyle(color: Colors.black87, fontSize: Sizes.mediumFontSize),
                   ),
+                  Text(
+                    maybeNull(datas[titles.indexOf(t)]),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Sizes.mediumFontSize,
+                    ),
+                  )
                 ],
               ),
             ),
-          );
+            const SizedBox(height: Sizes.mediumFontSize),
+            products(),
+            CustomButton(
+              text: 'Захиалгын мэдээлэл засах',
+              ontap: () {
+                Get.bottomSheet(
+                  EditSellerOrder(
+                    note: det['note'],
+                    pt: det['payType'],
+                    oId: det['id'],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   products() {
@@ -132,54 +128,8 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
       return SingleChildScrollView(
         child: Column(
           children: [
-            const Text(
-              'Захиалгын бараанууд',
-              style: TextStyle(
-                  color: Colors.black87, fontSize: Sizes.mediumFontSize),
-            ),
-            const SizedBox(height: Sizes.mediumFontSize),
             ...items.map(
-              (item) => Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    boxShadow: shadow(),
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(20)),
-                padding: const EdgeInsets.all(10),
-                margin: const EdgeInsets.only(bottom: 10),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Col(t1: 'Нэр', t2: item['itemName']),
-                        Col(
-                          t1: 'Нийт дүн',
-                          t2: toPrice(item['itemTotalPrice']),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Col(
-                            t1: 'Тоо ширхэг',
-                            t2: maybeNull(item['iQty'].toString())),
-                        InkWell(
-                          onTap: () => changeQty(det['id'], item),
-                          child: const Text(
-                            'Тоо ширхэг өөрчлөх',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.succesColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
+              (item) => prodBuilder(item),
             ),
           ],
         ),
@@ -187,6 +137,69 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
     } else {
       return const SizedBox();
     }
+  }
+
+  Container prodBuilder(item) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration:
+          BoxDecoration(color: white, borderRadius: border10, border: Border.all(color: grey300)),
+      child: Wrap(
+        runSpacing: 7.5,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              text(item['itemName'], primary),
+              text('${item['itemTotalPrice']} (нэгж)', secondary, align: TextAlign.end)
+            ],
+          ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            text("Анх захиалсан тоо ширхэг", black),
+            text(maybeNull(item['iQty'].toString()), grey500, align: TextAlign.end)
+          ]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            text("Тоо ширхэг", black),
+            text(maybeNull(item['itemQty'].toString()), grey500, align: TextAlign.end)
+          ]),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              text("Нийт үнэ", black),
+              text(toPrice(item['itemTotalPrice']), secondary, align: TextAlign.end)
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(),
+              InkWell(
+                  onTap: () => changeQty(det['id'], item),
+                  child: text('Тоо ширхэг өөрчлөх', succesColor))
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  text(String value, Color color, {TextAlign? align}) {
+    return SizedBox(
+      width: Sizes.width * .38,
+      child: Text(
+        value,
+        maxLines: 2,
+        textAlign: align ?? TextAlign.start,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: color,
+          fontSize: 16,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
   }
 
   final TextEditingController qtyController = TextEditingController();
@@ -238,8 +251,8 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
       message('Тоо ширхэг 0 байж болохгүй!');
     } else {
       int qty = int.parse(qtyController.text);
-      dynamic res = await p.changeItemQty(
-          context: context, oId: oid, itemId: item['productId'], qty: qty);
+      dynamic res =
+          await p.changeItemQty(context: context, oId: oid, itemId: item['productId'], qty: qty);
       print('update qty: ${res['errorType']}');
       message(res['message']);
       Get.back();
@@ -251,8 +264,7 @@ class EditSellerOrder extends StatefulWidget {
   final String note;
   final String pt;
   final int oId;
-  const EditSellerOrder(
-      {super.key, required this.note, required this.pt, required this.oId});
+  const EditSellerOrder({super.key, required this.note, required this.pt, required this.oId});
 
   @override
   State<EditSellerOrder> createState() => _EditSellerOrderState();
@@ -293,8 +305,7 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Захиалгын мэдээлэл засах',
-                    style: TextStyle(fontSize: 12)),
+                Text('Захиалгын мэдээлэл засах', style: TextStyle(fontSize: 12)),
                 PopSheet()
               ],
             ),
@@ -322,8 +333,7 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
             CustomButton(
               text: 'Хадгалах',
               ontap: () {
-                final pharmProvider =
-                    Provider.of<PharmProvider>(context, listen: false);
+                final pharmProvider = Provider.of<PharmProvider>(context, listen: false);
                 pharmProvider
                     .editSellerOrder(nc.text, payType, widget.oId, context)
                     .then((e) => Navigator.pop(context));

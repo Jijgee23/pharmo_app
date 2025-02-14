@@ -5,6 +5,7 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/views/seller/order/seller_order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
@@ -95,8 +96,7 @@ class _SellerOrdersState extends State<SellerOrders> {
                   child: Wrap(runSpacing: Sizes.smallFontSize / 3, children: [
                     ...provider.sellerOrders.map(
                       (e) => OrderWidget(
-                        order: provider
-                            .sellerOrders[provider.sellerOrders.indexOf(e)],
+                        order: provider.sellerOrders[provider.sellerOrders.indexOf(e)],
                       ),
                     )
                   ]),
@@ -136,7 +136,7 @@ class _SellerOrdersState extends State<SellerOrders> {
                     }
                   });
                 },
-                style: TextStyle(fontSize: Sizes.smallFontSize),
+                style: const TextStyle(fontSize: Sizes.smallFontSize),
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   focusedBorder: InputBorder.none,
@@ -226,8 +226,7 @@ class _SellerOrdersState extends State<SellerOrders> {
 
   _filter() async {
     await orderProvider
-        .filterOrder(
-            !isEnd ? 'end' : 'start', selectedDate.toString().substring(0, 10))
+        .filterOrder(!isEnd ? 'end' : 'start', selectedDate.toString().substring(0, 10))
         .whenComplete(() => Navigator.pop(context));
   }
 
@@ -249,7 +248,6 @@ class OrderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cxs = CrossAxisAlignment.center;
     return Consumer<MyOrderProvider>(
       builder: (context, provider, child) => Slidable(
         endActionPane: ActionPane(
@@ -257,8 +255,7 @@ class OrderWidget extends StatelessWidget {
           children: [
             SlidableAction(
               flex: 2,
-              onPressed: (context) =>
-                  askDeletetion(context, provider, order.orderNo.toString()),
+              onPressed: (context) => askDeletetion(context, provider, order.orderNo.toString()),
               backgroundColor: Colors.transparent,
               foregroundColor: Colors.red,
               icon: Icons.delete,
@@ -269,38 +266,51 @@ class OrderWidget extends StatelessWidget {
         ),
         child: Ctnr(
           child: InkWell(
-            onTap: () => goto(SellerOrderDetail(oId: order.id)),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            onTap: () => goto(SellerOrderDetail(oId: maybeNull(order.id.toString()))),
+            child: Wrap(
+              runSpacing: 10,
               children: [
-                Column(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Col(t1: 'Харилцагч', t2: order.customer ?? '', cxs: cxs),
-                    Col(t1: 'Дугаар', t2: order.orderNo!.toString(), cxs: cxs),
+                    Container(
+                      decoration: BoxDecoration(
+                          color: primary.withOpacity(.3), borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.person, color: primary),
+                          const SizedBox(width: 5),
+                          Text(maybeNull(order.customer),
+                              style: const TextStyle(fontWeight: FontWeight.bold))
+                        ],
+                      ),
+                    ),
+                    TitleContainer(
+                      child: Col(
+                          t1: toPrice(order.totalPrice.toString()),
+                          t2: '#${order.orderNo.toString()}'),
+                    ),
                   ],
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Col(
-                        t1: 'Нийт үнэ',
-                        t2: toPrice(order.totalPrice),
-                        cxs: cxs),
-                    Col(
-                        t1: 'Тоо ширхэг',
-                        t2: order.totalCount!.toString(),
-                        cxs: cxs)
-                  ],
+                Container(
+                  height: 1.8,
+                  width: double.maxFinite,
+                  color: grey300,
                 ),
-                Column(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Col(
-                        t1: 'Үүссэн огноо',
-                        t2: order.createdOn!.substring(0, 10),
-                        cxs: cxs),
-                    Col(t1: 'Төлөв', t2: getStatus(order.status!), cxs: cxs),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        tx(order.status),
+                        tx(order.process),
+                        tx(order.createdOn.toString().substring(0, 10))
+                      ],
+                    ),
+                    const SizedBox()
                   ],
                 ),
               ],
@@ -309,6 +319,10 @@ class OrderWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  tx(String? s) {
+    return Text(maybeNull(s), style: const TextStyle(fontSize: 14, color: Colors.black));
   }
 
   askDeletetion(BuildContext context, MyOrderProvider op, String name) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 
 class Ctnr extends StatelessWidget {
@@ -9,17 +10,16 @@ class Ctnr extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // theme
     final h = Sizes.height;
     return AnimatedContainer(
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 500),
       padding: EdgeInsets.symmetric(horizontal: h * .015, vertical: h * .015),
       margin: margin ?? EdgeInsets.only(bottom: h * .008),
       decoration: BoxDecoration(
+          // gradient: pinkGradinet,
           color: white,
-          borderRadius: BorderRadius.circular(20),
-          border:
-              Border.all(color: theme.colorScheme.onPrimary.withOpacity(.5))),
+          borderRadius: border10,
+          border: Border.all(color: grey300)),
       child: child,
     );
   }

@@ -14,11 +14,9 @@ class ProductSearcher extends StatelessWidget {
       builder: (context, home, child) => Row(
         children: [
           Expanded(
-            flex: 7,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 15),
-              decoration: BoxDecoration(
-                  color: white, borderRadius: BorderRadius.circular(30)),
+              decoration: BoxDecoration(color: white, borderRadius: BorderRadius.circular(30)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -28,12 +26,11 @@ class ProductSearcher extends StatelessWidget {
                   Expanded(
                       child: TextFormField(
                     cursorHeight: Sizes.smallFontSize + 2,
-                    style: const TextStyle(fontSize: Sizes.mediumFontSize),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                     decoration: InputDecoration(
                       hintText: '${home.searchType} хайх',
-                      hintStyle: const TextStyle(
-                          fontSize: Sizes.mediumFontSize - 2,
-                          color: Colors.black),
+                      hintStyle:
+                          const TextStyle(fontSize: Sizes.mediumFontSize - 2, color: Colors.black),
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -64,7 +61,7 @@ class ProductSearcher extends StatelessWidget {
       surfaceTintColor: Colors.white,
       color: Colors.white,
       context: context,
-      position: const RelativeRect.fromLTRB(150, 120, 0, 0),
+      position: const RelativeRect.fromLTRB(150, 10, 10, 10),
       items: home.stype
           .map(
             (e) => PopupMenuItem(
@@ -79,11 +76,8 @@ class ProductSearcher extends StatelessWidget {
               },
               child: Text(
                 e,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: Sizes.smallFontSize,
-                ),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),
               ),
             ),
           )
@@ -120,8 +114,7 @@ class ProductSearcher extends StatelessWidget {
       surfaceTintColor: Colors.white,
       color: Colors.white,
       context: context,
-      position: RelativeRect.fromLTRB(
-          size.width * 0.02, size.height * 0.15, size.width * 0.8, 0),
+      position: RelativeRect.fromLTRB(size.width * 0.02, size.height * 0.15, size.width * 0.8, 0),
       elevation: 12,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       items: home.supList

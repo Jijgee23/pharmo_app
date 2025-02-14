@@ -30,8 +30,13 @@ final grey300 = Colors.grey.shade300;
 final grey400 = Colors.grey.shade400;
 final grey500 = Colors.grey.shade500;
 final grey600 = Colors.grey.shade600;
+const zircon = Color(0XFFfbfcff);
+const frenchGrey = Color(0XFFb7bac2);
+const atnessGrey = Color(0XFFe5e8ee);
 const card = Color(0XFFdee2ff);
 const transperant = Colors.transparent;
+const darkBlue = Color(0XFF0A1931);
+const neonBlue = Color(0XFF00AEEF);
 final horizontalPadding = EdgeInsets.symmetric(
   horizontal: Sizes.width * 0.02,
 );

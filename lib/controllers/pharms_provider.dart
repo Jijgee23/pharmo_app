@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/models/delivery.dart';
 import 'package:pharmo_app/models/order_list.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -63,8 +64,7 @@ class PharmProvider extends ChangeNotifier {
 
   getOrderList(int customerId) async {
     try {
-      final response =
-          await apiGet('seller/order_history/?pharmacyId=$customerId');
+      final response = await apiGet('seller/order_history/?pharmacyId=$customerId');
       if (response.statusCode == 200) {
         List<dynamic> ordList = jsonDecode(utf8.decode(response.bodyBytes));
         for (int i = 0; i < ordList.length; i++) {
@@ -79,9 +79,8 @@ class PharmProvider extends ChangeNotifier {
   /// харилцагч
   getCustomers(int page, int size, BuildContext c) async {
     try {
-      final response = await apiRequest(
-          method: 'GET',
-          endPoint: 'seller/customer/?page=$page&page_size=$size');
+      final response =
+          await apiRequest(method: 'GET', endPoint: 'seller/customer/?page=$page&page_size=$size');
       if (response!.statusCode == 200) {
         Map data = convertData(response);
         filteredCustomers.clear();
@@ -99,8 +98,7 @@ class PharmProvider extends ChangeNotifier {
 
   getCustomerDetail(int custId, BuildContext c) async {
     try {
-      final response =
-          await apiRequest(method: 'GET', endPoint: 'seller/customer/$custId');
+      final response = await apiRequest(method: 'GET', endPoint: 'seller/customer/$custId');
       if (response!.statusCode == 200) {
         dynamic data = convertData(response);
         customerDetail = CustomerDetail.fromJson(data);
@@ -164,8 +162,8 @@ class PharmProvider extends ChangeNotifier {
 
   editSellerOrder(String note, String pt, int orderId, BuildContext c) async {
     try {
-      final response = await apiPatch(
-          'seller/order/$orderId/', jsonEncode({"note": note, "payType": pt}));
+      final response =
+          await apiPatch('seller/order/$orderId/', jsonEncode({"note": note, "payType": pt}));
       if (response.statusCode == 200) {
         message('Амжилттай засагдлаа');
         notifyListeners();
@@ -183,7 +181,7 @@ class PharmProvider extends ChangeNotifier {
     orderDets.clear();
   }
 
-  getSellerOrderDetail(int oId, BuildContext c) async {
+  getSellerOrderDetail(String oId, BuildContext c) async {
     try {
       final response = await apiGet('seller/order/$oId/');
       if (response.statusCode == 200 && response.body != null) {
@@ -204,14 +202,13 @@ class PharmProvider extends ChangeNotifier {
       required int qty,
       required BuildContext context}) async {
     try {
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
+      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
       dynamic check = await basketProvider.checkItemQty(itemId, qty);
       if (check['errorType'] == 0) {
         message('Бараа дууссан');
       } else if (check['errorType'] == 1) {
-        final response = await apiPatch('seller/order/$oId/update_item/',
-            jsonEncode({"itemId": itemId, "qty": qty}));
+        final response = await apiPatch(
+            'seller/order/$oId/update_item/', jsonEncode({"itemId": itemId, "qty": qty}));
         if (response.statusCode == 200) {
           return buildResponse(1, response, 'Амжилттай өөрлөгдлөө');
         } else if (response.statusCode == 400) {
@@ -236,8 +233,8 @@ class PharmProvider extends ChangeNotifier {
     }
   }
 
-  Future registerCustomer(String name, String rn, String email, String phone,
-      String? note, String? lat, String? lng, BuildContext context) async {
+  Future registerCustomer(String name, String rn, String email, String phone, String? note,
+      String? lat, String? lng, BuildContext context) async {
     try {
       var body = {
         "name": name,
@@ -246,18 +243,23 @@ class PharmProvider extends ChangeNotifier {
         "phone": phone,
         note ?? "note": note,
         "lat": lat,
-        "lng": lng
+        "lng": lng,
+        "zone_id": selectedZone.id
       };
       await Provider.of<HomeProvider>(context, listen: false).getPosition();
-      var response = await apiPost('seller/customer/', body);
-      if (response.statusCode == 201) {
-        message('Амжилттай бүртгэгдлээ.');
+      if (selectedZone.id == -1) {
+        message('Бүс сонгоно уу!');
       } else {
-        final data = convertData(response);
-        if (data['error'] == 'name_exists!') {
-          message('Нэр бүртгэлтэй байна!');
+        var response = await apiPost('seller/customer/', body);
+        if (response.statusCode == 201) {
+          message('Амжилттай бүртгэгдлээ.');
         } else {
-          message('Алдаа гарлаа!');
+          final data = convertData(response);
+          if (data['error'] == 'name_exists!') {
+            message('Нэр бүртгэлтэй байна!');
+          } else {
+            message('Алдаа гарлаа!');
+          }
         }
       }
       notifyListeners();
@@ -309,10 +311,32 @@ class PharmProvider extends ChangeNotifier {
 
   Future getCustomerFavs(dynamic customerId) async {
     try {
-      final response =
-          await apiPost('seller/customer_favs/', {"customer_id": customerId});
+      final response = await apiPost('seller/customer_favs/', {"customer_id": customerId});
       if (response.statusCode == 201) {
         // final data = jsonDecode(utf8.decode(response.bodyBytes));
+      } else {}
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  List<Zone> zones = [];
+  Zone selectedZone = Zone(id: -1, name: 'Бүс сонгох');
+
+  void setZone(Zone zone) {
+    selectedZone = zone;
+    notifyListeners();
+  }
+
+  Future getZones() async {
+    try {
+      final response = await apiGet('seller/get_delivery_zones/');
+      print(response.body);
+      if (response.statusCode == 200) {
+        final data = convertData(response);
+        zones = (data as List).map((z) => Zone.fromJson(z)).toList();
+        // final data = jsonDecode(utf8.decode(response.bodyBytes));
+        notifyListeners();
       } else {}
     } catch (e) {
       debugPrint(e.toString());

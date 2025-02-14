@@ -14,7 +14,8 @@ class ChevronBack extends StatelessWidget {
         style: ButtonStyle(
           iconColor: WidgetStatePropertyAll<Color>(color ?? Colors.white),
           backgroundColor: WidgetStatePropertyAll<Color>(
-              backgroundColor ?? Colors.black.withOpacity(0.2)),
+            backgroundColor ?? Colors.black.withOpacity(0.2),
+          ),
         ),
       ),
     );

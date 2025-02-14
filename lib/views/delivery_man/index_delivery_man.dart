@@ -3,8 +3,8 @@ import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/delivery_man/tabs/home/jagger_home.dart';
-import 'package:pharmo_app/views/delivery_man/drawer_menus/shipment_history/shipment_history.dart';
+import 'package:pharmo_app/views/delivery_man/home/jagger_home.dart';
+import 'package:pharmo_app/views/delivery_man/shipment_history.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 
 import '../../widgets/bottom_bar/bottom_bar.dart';
 import '../../widgets/drawer/my_drawer.dart';
-import 'tabs/expend/shipment_expense.dart';
+import 'expend/shipment_expense.dart';
 
 class IndexDeliveryMan extends StatefulWidget {
   const IndexDeliveryMan({super.key});
@@ -39,8 +39,6 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
     homeProvider.getUserInfo();
-    jaggerProvider.fetchJaggers();
-    homeProvider.getPosition();
     super.initState();
   }
 
@@ -52,10 +50,7 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AuthController>(
-            create: (context) => AuthController())
-      ],
+      providers: [ChangeNotifierProvider<AuthController>(create: (context) => AuthController())],
       child: Consumer2<AuthController, HomeProvider>(
         builder: (context, authController, home, _) {
           return Scaffold(
@@ -78,9 +73,7 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
               ],
             ),
             appBar: DMAppBar(
-              title: (homeProvider.currentIndex == 0)
-                  ? 'Өнөөдрийн түгээлтүүд'
-                  : 'Зарлагууд',
+              title: (homeProvider.currentIndex == 0) ? 'Өнөөдрийн түгээлтүүд' : 'Зарлагууд',
               actions: [getAction()],
             ),
             body: _pages[home.currentIndex],
@@ -122,8 +115,7 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
 
   addExpenseAmount() {
     Future(() async {
-      dynamic res =
-          await jaggerProvider.addExpense(note.text, amount.text, context);
+      dynamic res = await jaggerProvider.addExpense(note.text, amount.text, context);
       print(res['errorType']);
       message(res['message']);
     }).whenComplete(() async {

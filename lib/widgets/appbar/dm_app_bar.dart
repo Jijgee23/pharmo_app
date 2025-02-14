@@ -26,13 +26,22 @@ class DMAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => BasketProvider(),
-      child: AppBar(
-        centerTitle: true,
-        title: Text(
-          title,
-          style: Constants.headerTextStyle,
+      child: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(30),
+            bottomRight: Radius.circular(30),
+          ),
+          child: AppBar(
+            centerTitle: true,
+            title: Text(
+              title,
+              style: Constants.headerTextStyle,
+            ),
+            actions: actions,
+          ),
         ),
-        actions: actions,
       ),
     );
   }
