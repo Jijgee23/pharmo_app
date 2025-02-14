@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -30,8 +31,7 @@ class ProductDetail extends StatefulWidget {
   State<ProductDetail> createState() => _ProductDetailState();
 }
 
-class _ProductDetailState extends State<ProductDetail>
-    with SingleTickerProviderStateMixin {
+class _ProductDetailState extends State<ProductDetail> with SingleTickerProviderStateMixin {
   TextEditingController qtyController = TextEditingController();
   late TabController tabController;
   bool fetching = false;
@@ -104,40 +104,10 @@ class _ProductDetailState extends State<ProductDetail>
   @override
   Widget build(BuildContext context) {
     final div = Divider(color: theme.primaryColor, thickness: .7);
-    List<String> infos = [
-      'Барааны дуусах хугацаа',
-      'Ерөнхий нэршил',
-      'Тун хэмжээ',
-      'Хөнгөлөлт',
-      'Хэлбэр',
-      'Мастер савалгааны тоо',
-      'Олгох нөхцөл',
-      'Улс',
-      'Үйлдвэрлэгч'
-    ];
-    List<String> datas = [
-      det['expDate'].toString(),
-      det['intName'].toString(),
-      '',
-      '',
-      '',
-      det['master_box_qty'].toString(),
-      '',
-      '',
-      det['mnfr'].toString()
-    ];
-    List<String> infos2 = [
-      'Бөөний үнэ',
-      'Бөөний тоо',
-      'Хямдрал',
-      'Хямдрал дуусах хугацаа'
-    ];
-    List<String> datas2 = [
-      maybeNull(det['salePrice'].toString()),
-      maybeNull(det['saleQty'].toString()),
-      maybeNull(det['discount'].toString()),
-      maybeNull(det['discountExpireDate'].toString())
-    ];
+    List<String> infos = ['Барааны дуусах хугацаа', 'Ерөнхий нэршил', 'Тун хэмжээ', 'Хөнгөлөлт', 'Хэлбэр', 'Мастер савалгааны тоо', 'Олгох нөхцөл', 'Улс', 'Үйлдвэрлэгч'];
+    List<String> datas = [det['expDate'].toString(), det['intName'].toString(), '', '', '', det['master_box_qty'].toString(), '', '', det['mnfr'].toString()];
+    List<String> infos2 = ['Бөөний үнэ', 'Бөөний тоо', 'Хямдрал', 'Хямдрал дуусах хугацаа'];
+    List<String> datas2 = [maybeNull(det['salePrice'].toString()), maybeNull(det['saleQty'].toString()), maybeNull(det['discount'].toString()), maybeNull(det['discountExpireDate'].toString())];
     return Scaffold(
       body: (fetching)
           ? const Center(child: PharmoIndicator())
@@ -150,17 +120,13 @@ class _ProductDetailState extends State<ProductDetail>
                     title: Text(
                       widget.prod.name.toString(),
                       softWrap: true,
-                      style: const TextStyle(
-                          color: white,
-                          fontSize: Sizes.smallFontSize * 1.2,
-                          fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: white, fontSize: Sizes.smallFontSize * 1.2, fontWeight: FontWeight.bold),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   body: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: Sizes.mediumFontSize),
+                    padding: const EdgeInsets.symmetric(horizontal: Sizes.mediumFontSize),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -173,28 +139,13 @@ class _ProductDetailState extends State<ProductDetail>
                                 if (isNotPharma) div,
                                 if (isNotPharma)
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      DefInputContainer(
-                                          ontap: () => chooseImageSource(),
-                                          width: Sizes.width * 0.35,
-                                          child: const Text('Зураг нэмэх',
-                                              style: TextStyle(
-                                                  fontWeight:
-                                                      FontWeight.w600))),
-                                      if (images.isNotEmpty)
-                                        DefInputContainer(
-                                            ontap: () => sendImage(home),
-                                            width: Sizes.width * 0.35,
-                                            child: const Text("Хадгалах",
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w600))),
+                                      DefInputContainer(ontap: () => chooseImageSource(), width: Sizes.width * 0.35, child: const Text('Зураг нэмэх', style: TextStyle(fontWeight: FontWeight.w600))),
+                                      if (images.isNotEmpty) DefInputContainer(ontap: () => sendImage(home), width: Sizes.width * 0.35, child: const Text("Хадгалах", style: TextStyle(fontWeight: FontWeight.w600))),
                                     ],
                                   ),
-                                if (isNotPharma)
-                                  const SizedBox(height: Sizes.smallFontSize),
+                                if (isNotPharma) const SizedBox(height: Sizes.smallFontSize),
                                 if (isNotPharma)
                                   if (images.isNotEmpty)
                                     DefInputContainer(
@@ -205,34 +156,11 @@ class _ProductDetailState extends State<ProductDetail>
                                             (image) => Stack(
                                               children: [
                                                 Container(
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            color: Colors.grey),
-                                                        borderRadius: BorderRadius
-                                                            .circular(Sizes
-                                                                .smallFontSize)),
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            Sizes
-                                                                .smallFontSize),
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                            right: Sizes
-                                                                .bigFontSize),
-                                                    child: Image.file(image,
-                                                        height:
-                                                            Sizes.width * .2,
-                                                        width:
-                                                            Sizes.width * .2)),
-                                                Positioned(
-                                                    top: -10,
-                                                    right: 0,
-                                                    child: InkWell(
-                                                        onTap: () =>
-                                                            removeImage(image),
-                                                        child: const Icon(
-                                                            Icons.remove,
-                                                            color: Colors.red)))
+                                                    decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(Sizes.smallFontSize)),
+                                                    padding: const EdgeInsets.all(Sizes.smallFontSize),
+                                                    margin: const EdgeInsets.only(right: Sizes.bigFontSize),
+                                                    child: Image.file(image, height: Sizes.width * .2, width: Sizes.width * .2)),
+                                                Positioned(top: -10, right: 0, child: InkWell(onTap: () => removeImage(image), child: const Icon(Icons.remove, color: Colors.red)))
                                               ],
                                             ),
                                           )
@@ -244,15 +172,12 @@ class _ProductDetailState extends State<ProductDetail>
                                   alignment: Alignment.topLeft,
                                   child: SelectableText(
                                     '#${maybeNull(widget.prod.barcode.toString())}',
-                                    style: const TextStyle(
-                                        color: Colors.blueGrey,
-                                        fontSize: Sizes.mediumFontSize),
+                                    style: const TextStyle(color: Colors.blueGrey, fontSize: Sizes.mediumFontSize),
                                   ),
                                 ),
                                 div,
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     myTab(title: 'Барааны мэдээлэл', index: 0),
                                     myTab(title: 'Урамшуулал', index: 1),
@@ -278,23 +203,14 @@ class _ProductDetailState extends State<ProductDetail>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                price(
-                                    title: 'Үндсэн үнэ',
-                                    value:
-                                        toPrice(widget.prod.price.toString())),
-                                price(
-                                    title: 'Бөөний үнэ',
-                                    value: toPrice(
-                                        widget.prod.salePrice.toString()),
-                                    cxs: CrossAxisAlignment.end),
+                                price(title: 'Үндсэн үнэ', value: toPrice(widget.prod.price.toString())),
+                                price(title: 'Бөөний үнэ', value: toPrice(widget.prod.salePrice.toString()), cxs: CrossAxisAlignment.end),
                               ],
                             ),
                             const SizedBox(height: Sizes.mediumFontSize),
                             CustomButton(
-                              borderRadius:
-                                  Sizes.bigFontSize + Sizes.smallFontSize,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: Sizes.mediumFontSize),
+                              borderRadius: Sizes.bigFontSize + Sizes.smallFontSize,
+                              padding: const EdgeInsets.symmetric(vertical: Sizes.mediumFontSize),
                               text: 'Сагслах',
                               ontap: () => showSheet(basket),
                             ),
@@ -318,16 +234,12 @@ class _ProductDetailState extends State<ProductDetail>
           Positioned(
             left: 0,
             top: Sizes.height * 0.1,
-            child: InkWell(
-                onTap: () => slideController.previousPage(),
-                child: const Icon(Icons.chevron_left)),
+            child: InkWell(onTap: () => slideController.previousPage(), child: const Icon(Icons.chevron_left)),
           ),
           Positioned(
             right: 0,
             top: Sizes.height * 0.1,
-            child: InkWell(
-                onTap: () => slideController.nextPage(),
-                child: const Icon(Icons.chevron_right)),
+            child: InkWell(onTap: () => slideController.nextPage(), child: const Icon(Icons.chevron_right)),
           ),
           Container(
               padding: const EdgeInsets.all(Sizes.smallFontSize),
@@ -346,11 +258,7 @@ class _ProductDetailState extends State<ProductDetail>
                                 onTap: () => deleteImage(home, p['id'][0]),
                                 child: Container(
                                   padding: const EdgeInsets.all(5),
-                                  decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.rectangle,
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10))),
+                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.rectangle, borderRadius: BorderRadius.only(topLeft: Radius.circular(10))),
                                   child: const Icon(Icons.delete, color: white),
                                 ),
                               ),
@@ -375,8 +283,7 @@ class _ProductDetailState extends State<ProductDetail>
 
   Widget imageWidget(String url) {
     return Container(
-      decoration: BoxDecoration(
-          color: Colors.black, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10)),
       child: Image.network(
         url,
         height: Sizes.height * 0.25,
@@ -401,8 +308,7 @@ class _ProductDetailState extends State<ProductDetail>
 
   Future<void> pickLogo(ImageSource source) async {
     try {
-      if (await Permission.camera.isDenied ||
-          await Permission.storage.isDenied) {
+      if (await Permission.camera.isDenied || await Permission.storage.isDenied) {
         await Permission.camera.request();
         await Permission.storage.request();
       }
@@ -429,11 +335,7 @@ class _ProductDetailState extends State<ProductDetail>
     Get.bottomSheet(
       Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(Sizes.bigFontSize),
-                topRight: Radius.circular(Sizes.bigFontSize))),
+        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(Sizes.bigFontSize), topRight: Radius.circular(Sizes.bigFontSize))),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -458,15 +360,11 @@ class _ProductDetailState extends State<ProductDetail>
     );
   }
 
-  Widget picker(
-      {required String text,
-      required IconData icon,
-      required Function() ontap}) {
+  Widget picker({required String text, required IconData icon, required Function() ontap}) {
     return InkWell(
       onTap: ontap,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            vertical: Sizes.bigFontSize, horizontal: Sizes.bigFontSize * 2),
+        padding: const EdgeInsets.symmetric(vertical: Sizes.bigFontSize, horizontal: Sizes.bigFontSize * 2),
         child: Row(
           children: [
             Icon(icon),
@@ -502,8 +400,7 @@ class _ProductDetailState extends State<ProductDetail>
     }
   }
 
-  Widget price(
-      {required String title, required String value, CrossAxisAlignment? cxs}) {
+  Widget price({required String title, required String value, CrossAxisAlignment? cxs}) {
     return Column(
       crossAxisAlignment: cxs ?? CrossAxisAlignment.start,
       children: [
@@ -537,8 +434,7 @@ class _ProductDetailState extends State<ProductDetail>
           top: 2,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-            decoration: BoxDecoration(
-                color: Colors.red, borderRadius: BorderRadius.circular(15)),
+            decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(15)),
             child: Text(
               basket.basket.totalCount.toString(),
               style: const TextStyle(
@@ -568,15 +464,13 @@ class _ProductDetailState extends State<ProductDetail>
 
   void addBasket() async {
     try {
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
+      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
       if (initQTY == 'Тоо ширхэг' || initQTY.isEmpty || initQTY == '') {
         message('Тоон утга оруулна уу!');
       } else if (int.parse(initQTY) <= 0) {
         message('0 ба түүгээс бага байж болохгүй!');
       } else {
-        Map<String, dynamic> res = await basketProvider.addProduct(
-            product: widget.prod, qty: int.parse(initQTY));
+        Map<String, dynamic> res = await basketProvider.addProduct(product: widget.prod, qty: int.parse(initQTY));
         message(res['message']);
         if (res['errorType'] != 0) {
           Navigator.pop(context);
@@ -610,9 +504,7 @@ class _ProductDetailState extends State<ProductDetail>
         child: Center(
           child: Text(
             title!,
-            style: TextStyle(
-                color: selected ? Colors.white : Colors.black,
-                fontSize: Sizes.smallFontSize * 1.2),
+            style: TextStyle(color: selected ? Colors.white : Colors.black, fontSize: Sizes.smallFontSize * 1.2),
           ),
         ),
       ),
