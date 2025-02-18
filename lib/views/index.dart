@@ -42,16 +42,11 @@ class _IndexPharmaState extends State<IndexPharma> {
         bool isPharma = homeProvider.userRole == 'PA';
         return Scaffold(
           extendBody: true,
-          drawer: MyDrawer(
-              drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems()),
-          appBar: CustomAppBar(
-              title: isPharma ? pharmAppBarTitle() : sellerAppBarTitle()),
-          body: Container(
-            padding: const EdgeInsets.only(right: 10, left: 10),
-            child: isPharma
-                ? _pharmacyPages[homeProvider.currentIndex]
-                : _sellerPages[homeProvider.currentIndex],
-          ),
+          drawer: MyDrawer(drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems()),
+          appBar: CustomAppBar(title: isPharma ? pharmAppBarTitle() : sellerAppBarTitle()),
+          body: isPharma
+              ? _pharmacyPages[homeProvider.currentIndex]
+              : _sellerPages[homeProvider.currentIndex],
           bottomNavigationBar: BottomBar(
             labels: isPharma ? pharmaLabels : sellerLabels,
             icons: isPharma ? pharmaIcons : sellericons,
@@ -68,8 +63,7 @@ class _IndexPharmaState extends State<IndexPharma> {
       default:
         return const Text(
           'Сагс',
-          style: TextStyle(
-              color: white, fontWeight: FontWeight.bold, fontSize: 13.0),
+          style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 13.0),
         );
     }
   }

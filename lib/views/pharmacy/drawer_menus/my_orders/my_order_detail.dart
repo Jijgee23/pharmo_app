@@ -7,6 +7,7 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:pharmo_app/widgets/loader/order_status.dart';
 import 'package:provider/provider.dart';
 
@@ -20,16 +21,36 @@ class MyOrderDetail extends StatefulWidget {
 }
 
 class _MyOrderDetailState extends State<MyOrderDetail> {
-  late MyOrderProvider orderProvider;
-  @override
-  void initState() {
-    orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
-    orderProvider.getMyorderDetail(widget.id);
-    super.initState();
+  bool fetching = false;
+  setFetching(bool n) {
+    setState(() {
+      fetching = n;
+    });
   }
 
   @override
+  void initState() {
+    super.initState();
+    setFetching(true);
+    getDetails();
+  }
+
+  getDetails() async {
+    final res = await apiGet('pharmacy/orders/${widget.id}/items/');
+    final data = convertData(res);
+    if (res.statusCode == 200) {
+      setState(() {
+        products = (data as List).map((e) => MyOrderDetailModel.fromJson(e)).toList();
+      });
+    }
+    if (mounted) setFetching(false);
+  }
+
+  List<MyOrderDetailModel> products = [];
+
+  @override
   Widget build(BuildContext context) {
+    final order = widget.order;
     List<String> titles = ['Дүн', 'Тоо ширхэг', 'Нийлүүлэгч'];
     List<dynamic> data = [
       toPrice(widget.order.totalPrice),
@@ -38,28 +59,31 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
     ];
     return Consumer<MyOrderProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          appBar: SideAppBar(hasBasket: true, text: 'Захиалгын дугаар: ${widget.order.orderNo}'),
-          body: Column(
+        return DataScreen(
+          appbar: SideAppBar(text: 'Захиалгын дугаар: ${widget.order.orderNo}'),
+          loading: fetching,
+          empty: false,
+          child: Column(
             children: [
-              const SizedBox(height: Sizes.mediumFontSize),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: titles.map((e) => col(t1: e, t2: data[titles.indexOf(e)])).toList(),
               ),
               const SizedBox(height: Sizes.smallFontSize),
-              OrderStatusAnimation(process: widget.order.process!, status: widget.order.status!),
+              OrderStatusAnimation(process: order.process!, status: order.status!),
               const SizedBox(height: Sizes.smallFontSize),
               Expanded(
-                  child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ListView.builder(
-                    itemCount: provider.orderDetails.length,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: ListView.builder(
+                    itemCount: products.length,
                     itemBuilder: (context, idx) {
-                      var order = provider.orderDetails[idx];
+                      var order = products[idx];
                       return productBuilder(order);
-                    }),
-              )),
+                    },
+                  ),
+                ),
+              ),
             ],
           ),
         );

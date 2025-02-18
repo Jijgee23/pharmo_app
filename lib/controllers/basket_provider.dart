@@ -62,9 +62,7 @@ class BasketProvider extends ChangeNotifier {
       if (resBasket.statusCode == 200) {
         final res = convertData(resBasket);
         _basket = Basket.fromJson(res);
-        _count = _basket.items != null && _basket.items!.isNotEmpty
-            ? _basket.items!.length
-            : 0;
+        _count = _basket.items != null && _basket.items!.isNotEmpty ? _basket.items!.length : 0;
         _shoppingCarts = _basket.items!;
       } else {
         return buildResponse(1, '', 'Сагсны мэдээлэл татахад алдаа гарлаа!');
@@ -82,15 +80,12 @@ class BasketProvider extends ChangeNotifier {
         for (int i = 0; i < _shoppingCarts.length; i++) {
           if (shoppingCarts[i]["product_itemname_id"] != null &&
               shoppingCarts[i]["product_itemname_id"] > 0) {
-            bodyStr['${shoppingCarts[i]["product_itemname_id"]}'] =
-                shoppingCarts[i]["qty"];
+            bodyStr['${shoppingCarts[i]["product_itemname_id"]}'] = shoppingCarts[i]["qty"];
           } else {
-            bodyStr['${shoppingCarts[i]["product_id"]}'] =
-                shoppingCarts[i]["qty"];
+            bodyStr['${shoppingCarts[i]["product_id"]}'] = shoppingCarts[i]["qty"];
           }
         }
-        final response =
-            await apiPatch('check_qty/', jsonEncode({"data": bodyStr}));
+        final response = await apiPatch('check_qty/', jsonEncode({"data": bodyStr}));
         if (response.statusCode == 200) {
           Map res = convertData(response);
           qtys.clear();
@@ -100,8 +95,7 @@ class BasketProvider extends ChangeNotifier {
             }
           });
           if (qtys.isNotEmpty) {
-            return buildResponse(
-                0, null, 'Барааны үлдэгдэл хүрэлцэхгүй байна!');
+            return buildResponse(0, null, 'Барааны үлдэгдэл хүрэлцэхгүй байна!');
           } else {
             return buildResponse(1, res, '');
           }
@@ -142,8 +136,8 @@ class BasketProvider extends ChangeNotifier {
     required int qty,
   }) async {
     try {
-      http.Response response = await apiPatch(
-          'user_basket/', jsonEncode({'product_id': product.id, 'qty': qty}));
+      http.Response response =
+          await apiPatch('user_basket/', jsonEncode({'product_id': product.id, 'qty': qty}));
       if (response.statusCode == 200) {
         if (convertData(response).toString().contains('available_qty')) {
           if (convertData(response)['available_qty'] == 0) {
@@ -178,8 +172,7 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket() async {
     try {
-      final response =
-          await apiPatch('clear_basket/', jsonEncode({'basket_id': basket.id}));
+      final response = await apiPatch('clear_basket/', jsonEncode({'basket_id': basket.id}));
       await getBasket();
       if (response.statusCode == 200) {
         debugPrint('basket cleared');
@@ -209,8 +202,8 @@ class BasketProvider extends ChangeNotifier {
       } else {
         qty = qty - 1;
       }
-      http.Response resQR = await apiPatch('basket_item/$itemId/',
-          jsonEncode({"qty": int.parse(qty.toString())}));
+      http.Response resQR =
+          await apiPatch('basket_item/$itemId/', jsonEncode({"qty": int.parse(qty.toString())}));
       if (resQR.statusCode == 200) {
         await getBasket();
         return buildResponse(1, null, 'Барааны тоог амжилттай өөрчиллөө.');
@@ -257,10 +250,7 @@ class BasketProvider extends ChangeNotifier {
       String? note,
       required BuildContext context}) async {
     try {
-      var body = {
-        'branchId': (branchId == 0) ? null : branchId,
-        'note': note != '' ? note : null
-      };
+      var body = {'branchId': (branchId == 0) ? null : branchId, 'note': note != '' ? note : null};
       final resQR = await apiPost('ci/', body);
       final data = convertData(resQR);
       final status = resQR.statusCode;
@@ -291,23 +281,13 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> checkPayment() async {
     try {
-      final resQR = await apiGet('cp/');
+      http.Response resQR = await apiGet('cp/');
+      print(resQR.body);
       if (resQR.statusCode == 200) {
         dynamic response = convertData(resQR);
-        await clearBasket();
-        notifyListeners();
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Төлбөр амжилттай төлөгдсөн байна.'
-        };
-      } else {
-        notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Төлбөр шалгах үед алдаа гарлаа.'
-        };
+        return {'errorType': 1, 'data': response, 'message': 'Төлбөр амжилттай төлөгдсөн байна.'};
+      } else if (resQR.statusCode == 404) {
+        return {'errorType': 2, 'data': null, 'message': 'Нэхэмжлэх үүсээгүй.'};
       }
     } catch (e) {
       return {'errorType': 3, 'data': e, 'message': e};

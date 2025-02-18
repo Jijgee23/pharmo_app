@@ -24,8 +24,7 @@ class MyOrderProvider extends ChangeNotifier {
         final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
-        sellerOrders =
-            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        sellerOrders = (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -56,8 +55,7 @@ class MyOrderProvider extends ChangeNotifier {
         final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
-        sellerOrders =
-            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        sellerOrders = (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -72,8 +70,7 @@ class MyOrderProvider extends ChangeNotifier {
         final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
-        sellerOrders =
-            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        sellerOrders = (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -88,8 +85,7 @@ class MyOrderProvider extends ChangeNotifier {
         final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
-        sellerOrders =
-            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        sellerOrders = (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -106,18 +102,10 @@ class MyOrderProvider extends ChangeNotifier {
         List<dynamic> ords = response['orders'];
         _orders = (ords).map((data) => MyOrderModel.fromJson(data)).toList();
         notifyListeners();
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Захиалгуудыг амжилттай авчирлаа.'
-        };
+        return {'errorType': 1, 'data': response, 'message': 'Захиалгуудыг амжилттай авчирлаа.'};
       } else {
         notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'
-        };
+        return {'errorType': 2, 'data': null, 'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
       return {'errorType': 3, 'data': e, 'message': e};
@@ -131,16 +119,11 @@ class MyOrderProvider extends ChangeNotifier {
         _orderDetails.clear();
         final response = convertData(res);
         List<dynamic> dtls = response;
-        _orderDetails =
-            (dtls).map((data) => MyOrderDetailModel.fromJson(data)).toList();
+        _orderDetails = (dtls).map((data) => MyOrderDetailModel.fromJson(data)).toList();
         notifyListeners();
       } else {
         notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'
-        };
+        return {'errorType': 2, 'data': null, 'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -152,17 +135,9 @@ class MyOrderProvider extends ChangeNotifier {
       final response = await apiGet('suppliers');
       if (response.statusCode == 200) {
         final res = convertData(response);
-        return {
-          'errorType': 1,
-          'data': res,
-          'message': 'Нийлүүлэгчидийг амжилттай авчирлаа.'
-        };
+        return {'errorType': 1, 'data': res, 'message': 'Нийлүүлэгчидийг амжилттай авчирлаа.'};
       } else {
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Нийлүүлэгчидийг авчрахад алдаа гарлаа.'
-        };
+        return {'errorType': 2, 'data': null, 'message': 'Нийлүүлэгчидийг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
       return {'errorType': 3, 'data': e, 'message': e};
@@ -174,25 +149,16 @@ class MyOrderProvider extends ChangeNotifier {
       final response = await apiGet('branch');
       if (response.statusCode == 200) {
         final res = convertData(response);
-        return {
-          'errorType': 1,
-          'data': res,
-          'message': 'Нийлүүлэгчидийг амжилттай авчирлаа.'
-        };
+        return {'errorType': 1, 'data': res, 'message': 'Нийлүүлэгчидийг амжилттай авчирлаа.'};
       } else {
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Нийлүүлэгчидийг авчрахад алдаа гарлаа.'
-        };
+        return {'errorType': 2, 'data': null, 'message': 'Нийлүүлэгчидийг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
       return {'errorType': 3, 'data': e, 'message': e};
     }
   }
 
-  Future<dynamic> filterOrders(
-      String selectedFilter, String selectedItem) async {
+  Future<dynamic> filterOrders(String selectedFilter, String selectedItem) async {
     try {
       dynamic res;
       if (selectedFilter == '0') {
@@ -214,18 +180,10 @@ class MyOrderProvider extends ChangeNotifier {
         List<dynamic> ords = response['orders'];
         _orders = (ords).map((data) => MyOrderModel.fromJson(data)).toList();
         notifyListeners();
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Захиалгуудыг амжилттай авчирлаа.'
-        };
+        return {'errorType': 1, 'data': response, 'message': 'Захиалгуудыг амжилттай авчирлаа.'};
       } else {
         notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'
-        };
+        return {'errorType': 2, 'data': null, 'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'};
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -234,14 +192,12 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future confirmOrder(int orderId) async {
     try {
-      http.Response res =
-          await apiPatch('pharmacy/accept_order/', jsonEncode({"id": orderId}));
+      http.Response res = await apiPatch('pharmacy/accept_order/', jsonEncode({"id": orderId}));
       print('++++++++++++++++++${res.statusCode}++++++++++++++++++');
       switch (res.statusCode) {
         case 200:
           await getMyorders();
-          return buildResponse(
-              1, null, 'Таны захиалга амжилттай баталгаажлаа.');
+          return buildResponse(1, null, 'Таны захиалга амжилттай баталгаажлаа.');
 
         case 400:
           return buildResponse(2, null, 'Захиалгын түгээлт эхлээгүй');

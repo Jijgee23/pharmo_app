@@ -35,81 +35,73 @@ class ProductWidget extends StatelessWidget {
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              height: Sizes.height * .4,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(Sizes.smallFontSize - 2),
                   color: Colors.white,
-                  border: Border.all(
-                      color: const Color.fromARGB(255, 207, 206, 206),
-                      width: 1)),
-              margin: EdgeInsets.all(Sizes.smallFontSize / 3),
-              padding: EdgeInsets.all(Sizes.smallFontSize / 2),
+                  border: Border.all(color: const Color.fromARGB(255, 207, 206, 206), width: 1)),
+              margin: const EdgeInsets.all(Sizes.smallFontSize / 3),
+              padding: const EdgeInsets.all(Sizes.smallFontSize / 2),
               child: InkWell(
-                      onTap: () => goto(ProductDetail(prod: item)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          image(Sizes.height, fontSize),
-                          Text(
-                            item.name!,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: Sizes.mediumFontSize - 2,
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                toPrice(item.price),
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: Sizes.mediumFontSize - 2,
-                                ),
-                              ),
-                              if (isNotPharm)
-                                Text(
-                                  'Үлд: ${maybeNull(item.qty.toString())}',
-                                  style: TextStyle(
-                                      color: theme.colorScheme.onPrimary,
-                                      fontSize: Sizes.smallFontSize,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              InkWell(
-                                highlightColor: Colors.grey,
-                                splashColor: Colors.grey,
-                                onTap: () => Get.bottomSheet(
-                                    AddBasketSheet(product: item)),
-                                child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                            color: theme.primaryColor,
-                                            width: 1.5),
-                                        borderRadius: BorderRadius.circular(5)),
-                                    child: Icon(Icons.add,
-                                        color: theme.primaryColor)),
-                              ),
-                            ],
-                          ),
-                        ],
+                onTap: () => goto(ProductDetail(prod: item)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    image(Sizes.height, fontSize),
+                    Text(
+                      item.name!,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: Sizes.mediumFontSize - 2,
                       ),
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          toPrice(item.price),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: Sizes.mediumFontSize - 2,
+                          ),
+                        ),
+                        if (isNotPharm)
+                          Text(
+                            'Үлд: ${maybeNull(item.qty.toString())}',
+                            style: TextStyle(
+                                color: theme.colorScheme.onPrimary,
+                                fontSize: Sizes.smallFontSize,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        InkWell(
+                          highlightColor: Colors.grey,
+                          splashColor: Colors.grey,
+                          onTap: () => Get.bottomSheet(AddBasketSheet(product: item)),
+                          child: Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: theme.primaryColor, width: 1.5),
+                                  borderRadius: BorderRadius.circular(5)),
+                              child: Icon(Icons.add, color: theme.primaryColor)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
             (hasSale == true)
                 ? Positioned(
                     top: 0,
                     right: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 2, horizontal: 5),
+                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                       decoration: BoxDecoration(
                         color: AppColors.secondary,
                         borderRadius: BorderRadius.circular(10),
@@ -171,9 +163,8 @@ class ProductWidgetListView extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: theme.cardColor,
-            border: Border.all(
-                color: const Color.fromARGB(255, 207, 206, 206), width: 1)),
-        margin: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 5),
+            border: Border.all(color: const Color.fromARGB(255, 207, 206, 206), width: 1)),
+        margin: const EdgeInsets.symmetric(vertical: 2.5),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         width: double.infinity,
         child: Row(
@@ -185,10 +176,8 @@ class ProductWidgetListView extends StatelessWidget {
                 children: [
                   Text(
                     item.name!,
-                    style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: fs,
-                        fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(color: Colors.black87, fontSize: fs, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -224,8 +213,7 @@ class ProductWidgetListView extends StatelessWidget {
             InkWell(
               onTap: () => Get.bottomSheet(AddBasketSheet(product: item)),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(

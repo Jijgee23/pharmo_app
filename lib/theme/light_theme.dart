@@ -28,17 +28,13 @@ final lightTheme = ThemeData(
       applyTextScaling: true,
     ),
   ),
-  inputDecorationTheme: InputDecorationTheme(
-    hintStyle: const TextStyle(
+  inputDecorationTheme: const InputDecorationTheme(
+    hintStyle: TextStyle(
       color: primary,
     ),
-    focusedBorder: const OutlineInputBorder(
-      borderSide: BorderSide(color: primary, width: 1),
-    ),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-    labelStyle: const TextStyle(color: primary),
+    focusedBorder: InputBorder.none,
+    border: InputBorder.none,
+    labelStyle: TextStyle(color: primary),
   ),
   checkboxTheme: CheckboxThemeData(
     checkColor: WidgetStateProperty.all(primary),

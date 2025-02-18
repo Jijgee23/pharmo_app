@@ -1,3 +1,5 @@
+import 'package:pharmo_app/utilities/utils.dart';
+
 class Delivery {
   int id;
   DeliveryMan delman;
@@ -81,8 +83,8 @@ class Zone {
 
   factory Zone.fromJson(Map<String, dynamic> json) {
     return Zone(
-      id: json['id'],
-      name: json['name'],
+      id: parseInt(json['id']),
+      name: json['name'].toString(),
     );
   }
 
@@ -134,16 +136,16 @@ class Order {
       user: json['user'] != null ? User.fromJson(json['user']) : null,
       customer: json['customer'] != null ? User.fromJson(json['customer']) : null,
       orderer: json['orderer'] != null ? User.fromJson(json['orderer']) : null,
-      totalPrice: json['totalPrice'].toDouble(),
-      totalCount: json['totalCount'],
-      status: json['status'],
-      process: json['process'],
+      totalPrice: json['totalPrice']?.toDouble() ?? 0.0,
+      totalCount: json['totalCount'] ?? 0,
+      status: json['status'] ?? '',
+      process: json['process'] ?? '',
       seller: json['seller'] != null ? User.fromJson(json['seller']) : null,
-      deliveryId: json['delivery_id'],
-      payType: json['payType'],
-      zone: Zone.fromJson(json['zone']),
-      createdOn: json['createdOn'],
-      items: (json['items'] as List).map((e) => Item.fromJson(e)).toList(),
+      deliveryId: json['delivery_id'] ?? 0,
+      payType: json['payType'] ?? '',
+      zone: Zone.fromJson(json['zone'] ?? {}),
+      createdOn: json['createdOn'] ?? '',
+      items: (json['items'] as List? ?? []).map((e) => Item.fromJson(e)).toList(),
     );
   }
 
@@ -169,13 +171,19 @@ class Order {
 class User {
   String id;
   String name;
+  Zone? zone;
+  String? lat;
+  String? lng;
 
-  User({required this.id, required this.name});
+  User({required this.id, required this.name, this.zone, this.lat, this.lng});
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'].toString(),
-      name: json['name'],
+      name: json['name']?.toString() ?? '',
+      zone: json['zone'] != null ? Zone.fromJson(json['zone']) : null,
+      lat: json['lat']?.toString(),
+      lng: json['lng']?.toString(),
     );
   }
 

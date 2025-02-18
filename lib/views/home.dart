@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
@@ -10,7 +9,7 @@ import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/views/product/product_widget.dart';
-import 'package:pharmo_app/widgets/others/no_result.dart';
+import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
@@ -20,6 +19,13 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool loading = false;
+  setLoading(bool n) {
+    setState(() {
+      loading = n;
+    });
+  }
+
   IconData viewIcon = Icons.grid_view;
   int pageKey = 1;
   bool hasSale = true;
@@ -27,9 +33,11 @@ class _HomeState extends State<Home> {
   late BasketProvider basketProvider;
   late PromotionProvider promotionProvider;
   final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
@@ -37,23 +45,27 @@ class _HomeState extends State<Home> {
   }
 
   initPublic() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
-      await promotionProvider.getMarkedPromotion();
-      await homeProvider.getBranches();
-      _scrollController.addListener(() {
-        if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-          homeProvider.fetchMoreProducts();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async {
+        setLoading(true);
+        promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
+        await promotionProvider.getMarkedPromotion();
+        await homeProvider.getBranches();
+        _scrollController.addListener(() {
+          if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+            homeProvider.fetchMoreProducts();
+          }
+        });
+        homeProvider.clearItems();
+        homeProvider.setPageKey(1);
+        homeProvider.fetchProducts();
+        basketProvider.getBasket();
+        if (homeProvider.userRole == 'PA' && promotionProvider.markedPromotions.isNotEmpty) {
+          homeProvider.showMarkedPromos();
         }
-      });
-      homeProvider.clearItems();
-      homeProvider.setPageKey(1);
-      homeProvider.fetchProducts();
-      basketProvider.getBasket();
-      if (homeProvider.userRole == 'PA' && promotionProvider.markedPromotions.isNotEmpty) {
-        homeProvider.showMarkedPromos();
-      }
-    });
+        if (mounted) setLoading(false);
+      },
+    );
   }
 
   List<IconData> icons = [Icons.discount, Icons.star, Icons.new_releases];
@@ -67,34 +79,31 @@ class _HomeState extends State<Home> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(() {
-        homeProvider.refresh(context);
-      }),
-      child: Consumer2<HomeProvider, PromotionProvider>(
-        builder: (_, home, promotionProvider, child) {
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: Column(
-              children: [
-                if (home.userRole == 'PA') filtering(Sizes.smallFontSize),
-                getBody(home),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+  refresh() async {
+    setLoading(true);
+    await homeProvider.clearItems();
+    await homeProvider.setPageKey(1);
+    await homeProvider.fetchProducts();
+    setLoading(false);
   }
 
-  getBody(HomeProvider home) {
-    if (home.fetchedItems.isNotEmpty) {
-      return products(home);
-    } else {
-      return const Center(child: NoResult());
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<HomeProvider, PromotionProvider>(
+      builder: (_, home, promotionProvider, child) {
+        return DataScreen(
+          onRefresh: () => refresh(),
+          loading: loading,
+          empty: home.fetchedItems.isEmpty,
+          child: Column(
+            children: [
+              if (home.userRole == 'PA') filtering(Sizes.smallFontSize),
+              products(home),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget products(HomeProvider home) {
@@ -118,7 +127,9 @@ class _HomeState extends State<Home> {
             controller: _scrollController,
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: Sizes.isTablet() ? 3 : 2, childAspectRatio: .9),
+              crossAxisCount: Sizes.isTablet() ? 3 : 2,
+              childAspectRatio: .9,
+            ),
             itemCount: home.fetchedItems.length,
             itemBuilder: (context, idx) {
               Product product = home.fetchedItems[idx];

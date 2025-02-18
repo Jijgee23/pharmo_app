@@ -23,10 +23,8 @@ class Sizes {
 final theme = Theme.of(GlobalKeys.navigatorKey.currentState!.context);
 
 final defaultDecoration = BoxDecoration(
-  border: Border.all(color: theme.primaryColor),
-  borderRadius: BorderRadius.circular(
-    Sizes.smallFontSize,
-  ),
+  border: Border.all(color: Colors.grey.shade200),
+  borderRadius: BorderRadius.circular(10),
 );
 
 final ctx = GlobalKeys.navigatorKey.currentState!.context;

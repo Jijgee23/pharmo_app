@@ -1,6 +1,3 @@
-
-
-
 class JaggerExpenseOrder {
   int id;
   String? note;

@@ -50,16 +50,8 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     });
   }
 
-  List<String> payTypes = [
-    // 'Дансаар',
-    'Бэлнээр',
-    'Зээлээр'
-  ];
-  List<String> payS = [
-    // 'T',
-    'C',
-    'L',
-  ];
+  List<String> payTypes = ['Бэлнээр', 'Дансаар', 'Зээлээр'];
+  List<String> payS = ['C', 'T', 'L'];
 
   List<String> deliveryTypes = ['Очиж авах', 'Хүргэлтээр'];
   List<String> delS = ['N', 'D'];
@@ -183,51 +175,33 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
   createOrder() async {
     await basketProvider.checkQTYs();
     if (deliveryType == '') {
-      message(
-        'Хүргэлтийн хэлбэр сонгоно уу!',
-      );
+      message('Хүргэлтийн хэлбэр сонгоно уу!');
     } else if (deliveryType == 'D') {
       if (selectedBranchId == -1) {
-        message(
-          'Салбар сонгоно уу!',
-        );
+        message('Салбар сонгоно уу!');
       } else {
-        if (payType == '') {
-          message(
-            'Төлбөрийн хэлбэр сонгоно уу!',
-          );
-        } else if (payType == 'C') {
-          await basketProvider.createQR(
-              basketId: basketProvider.basket.id,
-              branchId: selectedBranchId,
-              note: noteController.text,
-              context: context);
-        } else if (payType == 'L') {
-          await basketProvider.createOrder(
-              basketId: basketProvider.basket.id,
-              branchId: selectedBranchId,
-              note: noteController.text,
-              context: context);
-        }
+        selectPayType();
       }
     } else if (deliveryType == 'N') {
-      if (payType == '') {
-        message(
-          'Төлбөрийн хэлбэр сонгоно уу!',
-        );
-      } else if (payType == 'C') {
-        await basketProvider.createQR(
-            basketId: basketProvider.basket.id,
-            branchId: selectedBranchId,
-            note: noteController.text,
-            context: context);
-      } else if (payType == 'L') {
-        await basketProvider.createOrder(
-            basketId: basketProvider.basket.id,
-            branchId: selectedBranchId,
-            note: noteController.text,
-            context: context);
-      }
+      selectPayType();
+    }
+  }
+
+  selectPayType() async {
+    if (payType == '') {
+      message('Төлбөрийн хэлбэр сонгоно уу!');
+    } else if (payType == 'C') {
+      await basketProvider.createQR(
+          basketId: basketProvider.basket.id,
+          branchId: selectedBranchId,
+          note: noteController.text,
+          context: context);
+    } else {
+      await basketProvider.createOrder(
+          basketId: basketProvider.basket.id,
+          branchId: selectedBranchId,
+          note: noteController.text,
+          context: context);
     }
   }
 }

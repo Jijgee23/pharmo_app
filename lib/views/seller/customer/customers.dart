@@ -7,6 +7,7 @@ import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/customer/customer_details_paga.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:provider/provider.dart';
 
 class CustomerList extends StatefulWidget {
@@ -24,31 +25,38 @@ class _CustomerListState extends State<CustomerList> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     pharmProvider = Provider.of<PharmProvider>(context, listen: false);
-    pharmProvider.getCustomers(1, 100, context);
-    homeProvider.getPosition();
-    pharmProvider.getZones();
-    setState(() => uid = homeProvider.userId);
+    init();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  init() {
+    WidgetsBinding.instance.addPostFrameCallback((cb) async {
+      setLoading(true);
+      await pharmProvider.getCustomers(1, 100, context);
+      await homeProvider.getPosition();
+      await pharmProvider.getZones();
+      setState(() => uid = homeProvider.userId);
+      setLoading(false);
+    });
   }
 
   int uid = -1;
+  bool loading = false;
+  setLoading(bool n) {
+    setState(() {
+      loading = n;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (_, homeProvider, pp, child) {
-        return Scaffold(
-          body: Container(
-            padding: const EdgeInsets.only(top: Sizes.smallFontSize),
-            child: Column(
-              children: [
-                _customersList(pp),
-              ],
-            ),
+        return DataScreen(
+          onRefresh: () async => init(),
+          loading: loading,
+          empty: pp.filteredCustomers.isEmpty,
+          child: Column(
+            children: [_customersList(pp)],
           ),
         );
       },
@@ -59,9 +67,12 @@ class _CustomerListState extends State<CustomerList> {
   _customersList(PharmProvider pp) {
     return Expanded(
       child: ListView.builder(
-          itemCount: pp.filteredCustomers.length,
-          itemBuilder: (context, index) =>
-              _customerBuilder(homeProvider, pp.filteredCustomers[index])),
+        itemCount: pp.filteredCustomers.length,
+        itemBuilder: (context, index) => _customerBuilder(
+          homeProvider,
+          pp.filteredCustomers[index],
+        ),
+      ),
     );
   }
 
@@ -73,7 +84,7 @@ class _CustomerListState extends State<CustomerList> {
       child: Container(
         padding: padding15,
         margin: EdgeInsets.only(bottom: Sizes.height * .008),
-        decoration: BoxDecoration(color: primary.withOpacity(.3), borderRadius: border20),
+        decoration: BoxDecoration(color: primary.withOpacity(.15), borderRadius: border20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

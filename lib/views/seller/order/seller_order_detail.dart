@@ -82,26 +82,28 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
         child: Wrap(
           runSpacing: Sizes.smallFontSize,
           children: [
-            OrderStatusAnimation(
-                process: det['process'], status: det['status'], margin: const EdgeInsets.all(0)),
-            ...titles.map(
-              (t) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '$t:',
-                    style: const TextStyle(color: Colors.black87, fontSize: Sizes.mediumFontSize),
-                  ),
-                  Text(
-                    maybeNull(datas[titles.indexOf(t)]),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Sizes.mediumFontSize,
+            if (det['process'] != null)
+              OrderStatusAnimation(
+                  process: det['process'], status: det['status'], margin: const EdgeInsets.all(0)),
+            if (datas != null)
+              ...titles.map(
+                (t) => Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '$t:',
+                      style: const TextStyle(color: Colors.black87, fontSize: Sizes.mediumFontSize),
                     ),
-                  )
-                ],
+                    Text(
+                      datas[titles.indexOf(t)],
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: Sizes.mediumFontSize,
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: Sizes.mediumFontSize),
             products(),
             CustomButton(
@@ -109,7 +111,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
               ontap: () {
                 Get.bottomSheet(
                   EditSellerOrder(
-                    note: det['note'],
+                    note: maybeNull(det['note']),
                     pt: det['payType'],
                     oId: det['id'],
                   ),

@@ -7,8 +7,7 @@ class DefInputContainer extends StatelessWidget {
   final String? title;
   final Function()? ontap;
   final double? width;
-  const DefInputContainer(
-      {super.key, required this.child, this.ontap, this.title, this.width});
+  const DefInputContainer({super.key, required this.child, this.ontap, this.title, this.width});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +18,12 @@ class DefInputContainer extends StatelessWidget {
           if (title != null) SmallText(title!),
           Container(
             margin: EdgeInsets.only(top: title != null ? 10 : 0),
-            decoration: defaultDecoration,
+            decoration: BoxDecoration(
+              border: Border.all(color: theme.primaryColor),
+              borderRadius: BorderRadius.circular(10),
+            ),
             width: width,
-            padding: EdgeInsets.all(Sizes.smallFontSize),
+            padding: const EdgeInsets.all(Sizes.smallFontSize),
             child: Center(child: child),
           ),
         ],

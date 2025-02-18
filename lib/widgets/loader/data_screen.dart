@@ -6,6 +6,7 @@ class DataScreen extends StatelessWidget {
   final bool loading;
   final bool empty;
   final Widget child;
+  final Widget? customEmpty;
   final Future<void> Function()? onRefresh;
   final PreferredSizeWidget? appbar;
   final BottomNavigationBar? navbar;
@@ -18,6 +19,7 @@ class DataScreen extends StatelessWidget {
     this.onRefresh,
     this.appbar,
     this.navbar,
+    this.customEmpty,
   });
 
   @override
@@ -32,10 +34,10 @@ class DataScreen extends StatelessWidget {
         body: loading
             ? const CustomShimmer()
             : (empty)
-                ? noResult()
+                ? customEmpty ?? noResult()
                 : Container(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
-                    margin: const EdgeInsets.only(top: 15),
+                    margin: const EdgeInsets.only(top: 10),
                     child: child,
                   ),
         bottomNavigationBar: navbar,

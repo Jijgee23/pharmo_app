@@ -35,8 +35,8 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     });
   }
 
-  List<String> payTypes = ['Дансаар', 'Бэлнээр', 'Зээлээр'];
-  List<String> payS = ['T', 'C', 'L'];
+  List<String> payTypes = ['Бэлнээр', 'Дансаар', 'Зээлээр'];
+  List<String> payS = ['C', 'T', 'L'];
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +74,8 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
   }
 
   _createOrder() async {
+    // final res = await apiPost('ci/', {});
+    // print(res.body);
     if (basketProvider.basket.totalCount == 0) {
       message('Сагс хоосон байна!');
     } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
@@ -86,6 +88,9 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
       await basketProvider.checkQTYs();
       if (payType == '') {
         message('Төлбөрийн хэлбэр сонгоно уу!');
+        // } else if (payType == 'C') {
+        //   final res = await apiPost('ci/', {});
+        //   print(res.body);
       } else {
         homeProvider.createSellerOrder(context, payType);
       }

@@ -1,2 +1,0 @@
-C:/Users/jijge/OneDrive/Documents/GitHub/pharmo_app/android/app/.cxx/RelWithDebInfo/6mm6d542/x86_64/CMakeFiles/edit_cache.dir
-C:/Users/jijge/OneDrive/Documents/GitHub/pharmo_app/android/app/.cxx/RelWithDebInfo/6mm6d542/x86_64/CMakeFiles/rebuild_cache.dir

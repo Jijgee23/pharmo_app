@@ -9,10 +9,10 @@ import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_order_detail
 import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/views/seller/order/seller_order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:pharmo_app/widgets/ui_help/container.dart';
-import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
@@ -26,12 +26,28 @@ class SellerOrders extends StatefulWidget {
 class _SellerOrdersState extends State<SellerOrders> {
   late MyOrderProvider orderProvider;
   final TextEditingController search = TextEditingController();
+  bool loading = false;
+  setLoading(bool n) {
+    setState(() {
+      loading = n;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
-    orderProvider.getSellerOrders();
+    init();
+  }
+
+  init() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async {
+        setLoading(true);
+        await orderProvider.getSellerOrders();
+        if (mounted) setLoading(false);
+      },
+    );
   }
 
   String selectedFilter = 'Харилцагчийн нэрээр';
@@ -77,8 +93,9 @@ class _SellerOrdersState extends State<SellerOrders> {
   Widget build(BuildContext context) {
     return Consumer2<MyOrderProvider, PharmProvider>(
       builder: (_, provider, pp, child) {
-        return Scaffold(
-          appBar: SideAppBar(
+        return DataScreen(
+          onRefresh: () async => await init(),
+          appbar: SideAppBar(
             title: searchBar(),
             action: InkWell(
               onTap: () => showCalendar(),
@@ -87,21 +104,17 @@ class _SellerOrdersState extends State<SellerOrders> {
                   child: Icon(Icons.calendar_month)),
             ),
           ),
-          body: provider.sellerOrders.isNotEmpty
-              ? SingleChildScrollView(
-                  padding: const EdgeInsets.only(
-                      top: Sizes.smallFontSize,
-                      right: Sizes.smallFontSize,
-                      left: Sizes.smallFontSize),
-                  child: Wrap(runSpacing: Sizes.smallFontSize / 3, children: [
-                    ...provider.sellerOrders.map(
-                      (e) => OrderWidget(
-                        order: provider.sellerOrders[provider.sellerOrders.indexOf(e)],
-                      ),
-                    )
-                  ]),
-                )
-              : const NoResult(),
+          loading: loading,
+          empty: provider.sellerOrders.isEmpty,
+          child: SingleChildScrollView(
+            child: Wrap(runSpacing: Sizes.smallFontSize / 3, children: [
+              ...provider.sellerOrders.map(
+                (e) => OrderWidget(
+                  order: provider.sellerOrders[provider.sellerOrders.indexOf(e)],
+                ),
+              )
+            ]),
+          ),
         );
       },
     );
@@ -136,14 +149,12 @@ class _SellerOrdersState extends State<SellerOrders> {
                     }
                   });
                 },
-                style: const TextStyle(fontSize: Sizes.smallFontSize),
+                style: const TextStyle(fontSize: 14),
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   hintText: '$selectedFilter хайх',
-                  hintStyle: const TextStyle(
-                    color: Colors.black38,
-                  ),
+                  hintStyle: const TextStyle(color: Colors.black38),
                 ),
               ),
             ),

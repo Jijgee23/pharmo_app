@@ -254,7 +254,7 @@ class _MyOrderState extends State<MyOrder> {
 
   Widget filterText(String text) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 100),
+      constraints: BoxConstraints(maxWidth: Sizes.width * .25, minWidth: Sizes.width * .25),
       child: Text(
         text,
         overflow: TextOverflow.fade,
@@ -266,7 +266,7 @@ class _MyOrderState extends State<MyOrder> {
 
   TextStyle filterStyle() {
     return TextStyle(
-      fontSize: 14,
+      fontSize: 12,
       color: theme.colorScheme.primary,
       overflow: TextOverflow.fade,
       fontWeight: FontWeight.w600,
@@ -330,14 +330,7 @@ class _MyOrderState extends State<MyOrder> {
                       style: const TextStyle(fontSize: 14, color: Colors.black),
                     ),
                   ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const Text(''),
-                    Text(order.process!, style: const TextStyle(fontSize: 14, color: Colors.black)),
-                  ],
-                ),
+                )
               ],
             ),
             const SizedBox(height: 10),
@@ -386,11 +379,9 @@ class _MyOrderState extends State<MyOrder> {
 
   dropContainer({required Widget child}) {
     return Container(
-      width: Sizes.width * .38,
-      decoration: BoxDecoration(
-        color: white,
-        borderRadius: BorderRadius.circular(Sizes.smallFontSize),
-      ),
+      // width: Sizes.width * .35,
+      decoration:
+          BoxDecoration(color: white, borderRadius: BorderRadius.circular(Sizes.smallFontSize)),
       padding: const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
       child: Center(child: child),
     );
