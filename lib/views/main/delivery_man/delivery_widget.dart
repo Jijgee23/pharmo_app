@@ -110,8 +110,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
                       decoration:
                           BoxDecoration(color: Colors.blueGrey.shade50, borderRadius: border20),
                       padding: const EdgeInsets.all(5),
-                      child: SizedBox(
-                        height: 160, // Ensure proper display height
+                      child: Container(
+                        constraints: const BoxConstraints(maxHeight: 220, minHeight: 180),
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
