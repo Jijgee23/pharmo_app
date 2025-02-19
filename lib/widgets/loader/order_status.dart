@@ -24,18 +24,28 @@ class OrderStatusAnimation extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Column(children: [
-            Text(process, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            Image.asset(getProcessGif(process), height: 50)
-          ]),
-          Column(
-            children: [
-              Text(status, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              Image.asset(getStatusGif(status), height: 50),
-            ],
-          )
+          widget(process, getProcessGif(process)),
+          widget(status, getStatusGif(status)),
         ],
       ),
+    );
+  }
+
+  widget(String title, String url) {
+    return Column(
+      children: [
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Image.asset(url, height: 50)
+      ],
     );
   }
 }

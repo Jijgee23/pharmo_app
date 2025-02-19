@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/controllers/models/products.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 
 class ProductProvider extends ChangeNotifier {
@@ -11,7 +11,7 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setPageKey(int n){
+  setPageKey(int n) {
     pageKey = n;
     notifyListeners();
   }
@@ -25,13 +25,10 @@ class ProductProvider extends ChangeNotifier {
 
   getProducts() async {
     try {
-      final response =
-          await apiGet('products/?page=$pageKey&page_size=$pageSize');
+      final response = await apiGet('products/?page=$pageKey&page_size=$pageSize');
       if (response.statusCode == 200) {
         final res = convertData(response);
-        final prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
+        final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         return prods;
       }
     } catch (e) {

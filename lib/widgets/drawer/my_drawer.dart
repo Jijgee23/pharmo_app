@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:provider/provider.dart';
 import '../../utilities/utils.dart';
 import '../../views/public_uses/privacy_policy/privacy_policy.dart';
@@ -38,12 +35,9 @@ class MyDrawer extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: theme.cardColor,
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(color: theme.shadowColor, blurRadius: 5)
-                      ]),
+                      boxShadow: [BoxShadow(color: theme.shadowColor, blurRadius: 5)]),
                   margin: const EdgeInsets.only(bottom: 10),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -86,9 +80,7 @@ class MyDrawer extends StatelessWidget {
                         onPressed: () => homeProvider.toggleTheme(),
                         icon: Icon(
                           color: black,
-                          homeProvider.isDarkMode
-                              ? Icons.dark_mode
-                              : Icons.light_mode,
+                          homeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
                         ),
                       ),
                     ],
@@ -108,12 +100,12 @@ class MyDrawer extends StatelessWidget {
                   asset: 'assets/icons_2/privacy.png',
                   onTap: () => goto(const PrivacyPolicy()),
                 ),
-                DrawerItem(
-                  title: 'Гарах',
-                  asset: 'assets/icons_2/signout.png',
-                  onTap: () => logout(context),
-                  mainColor: Colors.red,
-                ),
+                // DrawerItem(
+                //   title: 'Гарах',
+                //   asset: 'assets/icons_2/signout.png',
+                //   onTap: () => logout(context),
+                //   mainColor: Colors.red,
+                // ),
               ],
             ),
           ),
@@ -121,51 +113,4 @@ class MyDrawer extends StatelessWidget {
       ),
     );
   }
-}
-
-void logout(BuildContext context) {
-  Get.dialog(
-    Dialog(
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(20)),
-        child: SingleChildScrollView(
-          child: Wrap(
-            runSpacing: 20,
-            children: [
-              const Text(
-                'Системээс гарах',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const Text('Системээс гарахдаа итгэлтэй байна уу?'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Button(
-                    width: Sizes.width * 0.3,
-                    text: 'Үгүй',
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  Button(
-                    width: Sizes.width * 0.3,
-                    text: 'Тийм',
-                    onTap: () {
-                      Provider.of<AuthController>(context, listen: false)
-                          .logout(context);
-                      Provider.of<AuthController>(context, listen: false)
-                          .toggleVisibile();
-                      Provider.of<HomeProvider>(context, listen: false)
-                          .changeIndex(0);
-                    },
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
-    ),
-    barrierDismissible: false,
-  );
 }

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/income.dart';
+import 'package:pharmo_app/controllers/models/income.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
@@ -40,11 +40,10 @@ class IncomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  getIncomeListByDateRanged(
-      String date1, String date2) async {
+  getIncomeListByDateRanged(String date1, String date2) async {
     try {
-      final response = await apiGet(
-          'income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2');
+      final response =
+          await apiGet('income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2');
       if (response.statusCode == 200) {
         Map res = convertData(response);
         List<dynamic> resList = res['results'];
@@ -60,12 +59,10 @@ class IncomeProvider extends ChangeNotifier {
 
   recordIncome(String note, String amount) async {
     try {
-      final response = await apiPost(
-          'income_record/',
-         {
-            'note': note,
-            'amount': amount,
-          });
+      final response = await apiPost('income_record/', {
+        'note': note,
+        'amount': amount,
+      });
       if (response.statusCode == 201) {
         message('Амжилттай бүртгэгдлээ');
       }
@@ -78,8 +75,8 @@ class IncomeProvider extends ChangeNotifier {
 
   updateIncome(int id, String note, String amount) async {
     try {
-      final response = await apiPatch(
-          'income_record/$id/', jsonEncode({'note': note, 'amount': amount}));
+      final response =
+          await apiPatch('income_record/$id/', jsonEncode({'note': note, 'amount': amount}));
       if (response.statusCode == 200) {
         message('Амжилттай');
       }

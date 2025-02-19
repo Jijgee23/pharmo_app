@@ -37,6 +37,7 @@ const card = Color(0XFFdee2ff);
 const transperant = Colors.transparent;
 const darkBlue = Color(0XFF0A1931);
 const neonBlue = Color(0XFF00AEEF);
+const softGrey = Color(0XFFfafafa);
 final horizontalPadding = EdgeInsets.symmetric(
   horizontal: Sizes.width * 0.02,
 );

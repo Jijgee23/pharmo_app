@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
-import 'package:pharmo_app/views/pharmacy/drawer_menus/my_orders/my_orders.dart';
-import 'package:pharmo_app/views/cart/cart.dart';
-import 'package:pharmo_app/views/home.dart';
-import 'package:pharmo_app/views/pharmacy/drawer_menus/promotion/promotion_screen.dart';
+import 'package:pharmo_app/views/main/delivery_man/jagger_home.dart';
+import 'package:pharmo_app/views/main/cart/cart.dart';
+import 'package:pharmo_app/views/main/home.dart';
 import 'package:pharmo_app/views/product/product_searcher.dart';
-import 'package:pharmo_app/views/seller/customer/customers.dart';
-import 'package:pharmo_app/views/seller/order/seller_orders.dart';
-import 'package:pharmo_app/views/seller/seller_report/add_customer.dart';
-import 'package:pharmo_app/views/seller/seller_report/customer_searcher.dart';
-import 'package:pharmo_app/views/seller/seller_report/seller_report.dart';
+import 'package:pharmo_app/views/main/profile.dart';
+import 'package:pharmo_app/views/main/seller/customers.dart';
+import 'package:pharmo_app/views/main/seller/add_customer.dart';
+import 'package:pharmo_app/views/main/seller/customer_searcher.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
-import 'package:pharmo_app/widgets/drawer/drawer_item.dart';
-import 'package:pharmo_app/widgets/drawer/my_drawer.dart';
 import 'package:provider/provider.dart';
 
 class IndexPharma extends StatefulWidget {
@@ -39,102 +32,94 @@ class _IndexPharmaState extends State<IndexPharma> {
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
       builder: (context, homeProvider, _) {
-        bool isPharma = homeProvider.userRole == 'PA';
+        String role = homeProvider.userRole ?? '';
         return Scaffold(
           extendBody: true,
-          drawer: MyDrawer(drawers: isPharma ? pharmaDrawerItems() : sellerDrawerItems()),
-          appBar: CustomAppBar(title: isPharma ? pharmAppBarTitle() : sellerAppBarTitle()),
-          body: isPharma
-              ? _pharmacyPages[homeProvider.currentIndex]
-              : _sellerPages[homeProvider.currentIndex],
-          bottomNavigationBar: BottomBar(
-            labels: isPharma ? pharmaLabels : sellerLabels,
-            icons: isPharma ? pharmaIcons : sellericons,
-          ),
+          appBar: CustomAppBar(title: getAppbar(role)),
+          body: getPages(role)[homeProvider.currentIndex],
+          bottomNavigationBar: BottomBar(icons: getIcons(role)),
         );
       },
     );
   }
 
-  pharmAppBarTitle() {
-    switch (homeProvider.currentIndex) {
-      case 0:
-        return const ProductSearcher();
-      default:
-        return const Text(
-          'Сагс',
-          style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 13.0),
-        );
+  Widget getAppbar(String role) {
+    if (role == 'PA') {
+      switch (homeProvider.currentIndex) {
+        case 0:
+          return const ProductSearcher();
+        case 2:
+          return appBarSingleText('Миний профайл');
+        default:
+          return appBarSingleText('Сагс');
+      }
+    } else if (role == 'S') {
+      switch (homeProvider.currentIndex) {
+        case 0:
+          return const Row(
+            children: [
+              Expanded(flex: 8, child: CustomerSearcher()),
+              SizedBox(width: 10),
+              Expanded(child: AddCustomer()),
+            ],
+          );
+        case 1:
+          return const ProductSearcher();
+        case 3:
+          return appBarSingleText('Миний профайл');
+
+        default:
+          return selectedCustomer(homeProvider);
+      }
+    } else {
+      switch (homeProvider.currentIndex) {
+        case 0:
+          return appBarSingleText('Өнөөдрийн түгээлтүүд');
+        case 1:
+          return const Row(
+            children: [
+              Expanded(flex: 8, child: CustomerSearcher()),
+              SizedBox(width: 10),
+              Expanded(child: AddCustomer()),
+            ],
+          );
+        case 2:
+          return const ProductSearcher();
+        case 4:
+          return appBarSingleText('Миний профайл');
+        default:
+          return selectedCustomer(homeProvider);
+      }
     }
   }
 
-  Widget sellerAppBarTitle() {
-    switch (homeProvider.currentIndex) {
-      case 0:
-        return const Row(
-          children: [
-            Expanded(flex: 8, child: CustomerSearcher()),
-            SizedBox(width: 10),
-            Expanded(child: AddCustomer()),
-          ],
-        );
-      case 1:
-        return const ProductSearcher();
-      default:
-        return selectedCustomer(homeProvider);
+  appBarSingleText(String v) {
+    return Text(v, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
+  }
+
+  List<String> getIcons(String role) {
+    if (role == 'PA') {
+      return ['category', 'cart', 'user'];
+    } else if (role == 'S') {
+      return ['users', 'category', 'cart', 'user'];
+    } else {
+      return ['truck-side', 'users', 'category', 'cart', 'user'];
     }
   }
 
-  // FOR PARMACY
-  List<String> pharmaIcons = ['category', 'cart'];
-  List<String> pharmaLabels = ['Бараа', 'Сагс'];
-  List<String> sellericons = ['user', 'category', 'cart'];
-  List<String> sellerLabels = ['Харилцагч', 'Бараа', 'Сагс'];
-
-  pharmaDrawerItems() {
-    return [
-      DrawerItem(
-          title: 'Захиалгууд',
-          asset: 'assets/icons_2/time-past.png',
-          onTap: () => goto(const MyOrder())),
-      DrawerItem(
-          title: 'Урамшуулал',
-          asset: 'assets/icons_2/gift-box-benefits.png',
-          onTap: () => goto(const PromotionWidget())),
-    ];
+  List<Widget> getPages(String role) {
+    if (role == 'PA') {
+      return [const Home(), const Cart(), const Profile()];
+    } else if (role == "S") {
+      return [const CustomerList(), const Home(), const Cart(), const Profile()];
+    } else {
+      return [
+        const HomeJagger(),
+        const CustomerList(),
+        const Home(),
+        const Cart(),
+        const Profile()
+      ];
+    }
   }
-
-  sellerDrawerItems() {
-    return [
-      DrawerItem(
-          title: 'Захиалгууд',
-          onTap: () => goto(const SellerOrders()),
-          asset: 'assets/icons_2/time-past.png'),
-      DrawerItem(
-          title: 'Тайлан',
-          onTap: () => goto(const SellerReportPage()),
-          asset: 'assets/icons_2/wallet-income.png'),
-      homeProvider.userRole == 'D'
-          ? DrawerItem(
-              title: 'Түгээгчрүү шилжих',
-              onTap: () {
-                homeProvider.changeIndex(0);
-                gotoRemoveUntil(const IndexDeliveryMan());
-              },
-              asset: 'assets/icons_2/swap.png',
-            )
-          : const SizedBox(),
-    ];
-  }
-
-  final List _pharmacyPages = [
-    const Home(),
-    const Cart(),
-  ];
-
-  final List _sellerPages = [
-    const CustomerList(),
-    const Home(),
-    const Cart(),
-  ];
 }

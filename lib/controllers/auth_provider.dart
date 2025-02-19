@@ -12,13 +12,13 @@ import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/models/supplier.dart';
+import 'package:pharmo_app/controllers/models/account.dart';
+import 'package:pharmo_app/controllers/models/supplier.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
-import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -32,6 +32,12 @@ class AuthController extends ChangeNotifier {
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
   Map<String, String> deviceData = {};
+  late Account _account;
+  Account get account => _account;
+  setAccountInfo(Account a) {
+    _account = a;
+    notifyListeners();
+  }
 
   void toggleVisibile() {
     invisible = !invisible;
@@ -103,6 +109,7 @@ class AuthController extends ChangeNotifier {
 
     final accessToken = prefs.getString('access_token')!;
     final decodedToken = JwtDecoder.decode(accessToken);
+    print(decodedToken.runtimeType);
 
     _userInfo = decodedToken;
 
@@ -116,6 +123,8 @@ class AuthController extends ChangeNotifier {
     final home = Provider.of<HomeProvider>(context, listen: false);
     await home.getUserInfo();
     print('HOME USER: ${home.userRole}');
+
+    setAccountInfo(Account.fromJson(decodedToken));
 
     if (home.userRole == 'PA') {
       await homeProvider.getSuppliers();
@@ -134,12 +143,14 @@ class AuthController extends ChangeNotifier {
         home.setSupId(int.parse(supp.id));
         home.changeSupName(supp.name);
       }
+    } else {
+      await prefs.setString('company_name', decodedToken['company_name']);
     }
 
     Hive.box('auth').put('role', decodedToken['role']);
     await basketProvider.getBasket();
     await basketProvider.getBasketCount;
-    _navigateBasedOnRole(decodedToken['role']);
+    _navigateBasedOnRole(_account.role);
     debugPrint(accessToken);
     tokerRefresher();
     notifyListeners();
@@ -181,11 +192,8 @@ class AuthController extends ChangeNotifier {
         gotoRemoveUntil(const IndexPharma());
         break;
       case 'D':
-        gotoRemoveUntil(const IndexDeliveryMan());
+        gotoRemoveUntil(const IndexPharma());
         break;
-      // case 'A':
-      //   gotoRemoveUntil(const AdminIndex());
-      //   break;
       default:
         message('Веб хуудсаар хандана уу');
     }

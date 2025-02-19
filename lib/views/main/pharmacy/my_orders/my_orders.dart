@@ -1,0 +1,373 @@
+import 'package:flutter/material.dart';
+import 'package:pharmo_app/controllers/myorder_provider.dart';
+import 'package:pharmo_app/controllers/models/my_order.dart';
+import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/main/pharmacy/my_orders/my_order_detail.dart';
+import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../widgets/ui_help/col.dart';
+
+class MyOrder extends StatefulWidget {
+  const MyOrder({super.key});
+  @override
+  State<MyOrder> createState() => _MyOrderState();
+}
+
+class _MyOrderState extends State<MyOrder> {
+  final Map<String, String> _filters = {
+    "": "Шүүлтүүр сонгох",
+    "0": "Статус",
+    "1": "Явц",
+    "2": "Төлбөрийн хэлбэр",
+    "3": "Захиалсан салбар",
+    "4": "Нийлүүлэгч",
+  };
+
+  String _selectedItem = '';
+  String _selectedFilter = '';
+  String selected = '';
+  Map<String, String> _processess = {};
+  final Map<String, String> _branches = {};
+  final Map<String, String> _suppliers = {};
+
+  getOrders() async {
+    final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
+    await orderProvider.getMyorders();
+    await getBranches();
+    await getSuppliers();
+  }
+
+  getBranches() async {
+    try {
+      _branches[''] = '';
+      final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
+      dynamic res = await orderProvider.getBranches();
+      if (res['errorType'] == 1) {
+        for (int i = 0; i < res['data'].length; i++) {
+          _branches[res['data'][i]['id'].toString()] = res['data'][i]['name'].toString();
+        }
+      } else {
+        message(
+          res['message'],
+        );
+      }
+    } catch (e) {
+      message(
+        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+      );
+    }
+  }
+
+  getSuppliers() async {
+    try {
+      _suppliers[''] = '';
+      final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
+      dynamic res = await orderProvider.getSuppliers();
+      if (res['errorType'] == 1) {
+        res['data'].forEach((key, value) {
+          _suppliers[key.toString()] = value.toString();
+        });
+      } else {
+        message(
+          res['message'],
+        );
+      }
+    } catch (e) {
+      message(
+        'Өгөгдөл авчрах үед алдаа гарлаа. Админтай холбогдоно уу!',
+      );
+    }
+  }
+
+  fillDropdown() async {
+    try {
+      _selectedItem = '';
+      _processess.clear();
+      setState(() {
+        if (_selectedFilter == '0') {
+          _processess = {
+            "": "Сонгох",
+            "N": "Шинэ",
+            "M": "Бэлтгэж эхэлсэн",
+            "P": "Бэлэн болсон",
+            "O": "Хүргэлтэнд гарсан",
+            "A": "Хүргэгдсэн",
+          };
+        } else if (_selectedFilter == '1') {
+          _processess = {
+            "": "Сонгох",
+            "W": "Төлбөр хүлээгдэж буй",
+            "P": "Төлбөр төлөгдсөн",
+            "S": "Цуцлагдсан",
+            "R": "Буцаагдсан",
+            "C": "Биелсэн",
+          };
+        } else if (_selectedFilter == '2') {
+          _processess = {
+            "": "Сонгох",
+            "C": "Бэлнээр",
+            "L": "Зээлээр",
+          };
+        } else if (_selectedFilter == '3') {
+          _processess = _branches;
+        } else if (_selectedFilter == '4') {
+          _processess = _suppliers;
+        }
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  filterOrders() async {
+    final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
+    await orderProvider.filterOrders(_selectedFilter, _selectedItem);
+  }
+
+  confirmOrder(int orderId) async {
+    final orderProvider = Provider.of<MyOrderProvider>(context, listen: false);
+    dynamic res = await orderProvider.confirmOrder(orderId);
+    print(res['message']);
+    message(res['message']);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getOrders();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<MyOrderProvider>(
+      builder: (context, provider, _) {
+        final orders = (provider.orders.isNotEmpty) ? provider.orders : null;
+        return Scaffold(
+          appBar: SideAppBar(
+            title: appBarTitle(),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.only(
+                top: Sizes.smallFontSize / 2,
+                right: Sizes.smallFontSize / 2,
+                left: Sizes.smallFontSize / 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                orders != null && orders.isNotEmpty
+                    ? RefreshIndicator(
+                        onRefresh: () async => getOrders(),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: orders
+                                .map(
+                                  (order) => orderWidget(order: order, provider: provider),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      )
+                    : const NoResult(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Row appBarTitle() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        dropContainer(
+          child: DropdownButton<String>(
+            style: filterStyle(),
+            isDense: true,
+            padding: const EdgeInsets.symmetric(vertical: Sizes.smallFontSize),
+            dropdownColor: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            underline: const SizedBox(),
+            value: _selectedFilter,
+            onChanged: (String? value) async {
+              setState(() {
+                _selectedFilter = value!;
+                selected = _filters[value]!;
+              });
+              await fillDropdown();
+            },
+            selectedItemBuilder: (BuildContext context) {
+              return _filters.keys.map<Widget>(
+                (String item) {
+                  return Container(
+                      alignment: Alignment.centerLeft,
+                      child: filterText(_filters[item].toString()));
+                },
+              ).toList();
+            },
+            items: _filters.keys.map<DropdownMenuItem<String>>((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: filterText(_filters[item].toString()),
+              );
+            }).toList(),
+          ),
+        ),
+        if (_selectedFilter != '')
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              dropContainer(
+                child: DropdownButton<String>(
+                  isDense: true,
+                  padding: const EdgeInsets.symmetric(vertical: Sizes.smallFontSize),
+                  style: filterStyle(),
+                  dropdownColor: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  value: _selectedItem,
+                  underline: const SizedBox(),
+                  onChanged: (String? value) {
+                    setState(() => _selectedItem = value!);
+                    filterOrders();
+                  },
+                  items: _processess.keys.map<DropdownMenuItem<String>>(
+                    (String item) {
+                      return DropdownMenuItem<String>(
+                        value: item,
+                        child: filterText(_processess[item].toString()),
+                      );
+                    },
+                  ).toList(),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget filterText(String text) {
+    return Container(
+      constraints: BoxConstraints(maxWidth: Sizes.width * .25, minWidth: Sizes.width * .25),
+      child: Text(
+        text,
+        overflow: TextOverflow.fade,
+        softWrap: true,
+        style: filterStyle(),
+      ),
+    );
+  }
+
+  TextStyle filterStyle() {
+    return TextStyle(
+      fontSize: 12,
+      color: theme.colorScheme.primary,
+      overflow: TextOverflow.fade,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  Widget orderWidget({required MyOrderModel order, required MyOrderProvider provider}) {
+    return InkWell(
+      onTap: () => goto(
+        MyOrderDetail(
+          id: order.id,
+          order: order,
+        ),
+      ),
+      child: Container(
+        decoration:
+            BoxDecoration(color: white, borderRadius: border10, border: Border.all(color: grey300)),
+        padding: padding15,
+        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+        child: Column(
+          spacing: 7.5,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      color: primary.withOpacity(.3), borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.home, color: primary),
+                      const SizedBox(width: 5),
+                      Text(order.supplier!, style: const TextStyle(fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
+                TitleContainer(
+                  child: Col(
+                      t1: toPrice(order.totalPrice.toString()), t2: '#${order.orderNo.toString()}'),
+                ),
+              ],
+            ),
+            Container(
+              height: 1.8,
+              width: double.maxFinite,
+              color: grey300,
+            ),
+            infoText(order.status),
+            infoText(order.process),
+            infoText(order.createdOn.toString().substring(0, 10)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                (order.process == 'Бэлэн болсон' || order.process == 'Түгээлтэнд гарсан')
+                    ? acceptButton(order)
+                    : const SizedBox(),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget acceptButton(MyOrderModel order) {
+    return ElevatedButton(
+      onPressed: () => confirmOrder(order.id),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: succesColor,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: const Center(
+        child: Text(
+          'Хүлээн авах',
+          style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  infoText(String? v) {
+    if (v == null) {
+      return const SizedBox.shrink();
+    } else {
+      return Text(v, style: const TextStyle(fontSize: 14, color: Colors.black));
+    }
+  }
+
+  dropContainer({required Widget child}) {
+    return Container(
+      // width: Sizes.width * .35,
+      decoration:
+          BoxDecoration(color: white, borderRadius: BorderRadius.circular(Sizes.smallFontSize)),
+      padding: const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
+      child: Center(child: child),
+    );
+  }
+}

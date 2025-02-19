@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/my_order.dart';
-import 'package:pharmo_app/models/my_order_detail.dart';
+import 'package:pharmo_app/controllers/models/my_order.dart';
+import 'package:pharmo_app/controllers/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:http/http.dart' as http;

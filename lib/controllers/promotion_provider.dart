@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/marked_promo.dart';
-import 'package:pharmo_app/models/promotion.dart';
-import 'package:pharmo_app/models/qr_data.dart';
+import 'package:pharmo_app/controllers/models/marked_promo.dart';
+import 'package:pharmo_app/controllers/models/promotion.dart';
+import 'package:pharmo_app/controllers/models/qr_data.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/cart/order_done.dart';
+import 'package:pharmo_app/views/main/cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:http/http.dart' as http;
 
@@ -129,8 +129,7 @@ class PromotionProvider extends ChangeNotifier {
       print(convertData(response));
       if (response.statusCode == 200) {
         final res = convertData(response);
-        markedPromotions =
-            (res as List).map((data) => MarkedPromo.fromJson(data)).toList();
+        markedPromotions = (res as List).map((data) => MarkedPromo.fromJson(data)).toList();
       } else if (response.statusCode == 204) {
         markedPromotions.clear();
       }
@@ -169,8 +168,7 @@ class PromotionProvider extends ChangeNotifier {
     }
   }
 
-  orderPromo(
-      int promoId, int branchId, String? note, BuildContext context) async {
+  orderPromo(int promoId, int branchId, String? note, BuildContext context) async {
     try {
       var body = {
         "payType": payType,
@@ -192,8 +190,8 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   checkPayment(BuildContext context) async {
-    final response = await apiPatch('pharmacy/promo_order/cp/',
-        jsonEncode({"invoiceId": qrData.invoiceId}));
+    final response =
+        await apiPatch('pharmacy/promo_order/cp/', jsonEncode({"invoiceId": qrData.invoiceId}));
     final data = convertData(response);
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));

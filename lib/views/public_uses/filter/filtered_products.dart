@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/views/home.dart';
+import 'package:pharmo_app/controllers/models/products.dart';
+import 'package:pharmo_app/views/main/home.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:provider/provider.dart';
 
@@ -12,10 +12,7 @@ class FilteredProducts extends StatefulWidget {
   final int filterKey;
   final String title;
   const FilteredProducts(
-      {super.key,
-      required this.type,
-      required this.filterKey,
-      required this.title});
+      {super.key, required this.type, required this.filterKey, required this.title});
 
   @override
   State<FilteredProducts> createState() => _FilteredProductsState();
@@ -38,8 +35,7 @@ class _FilteredProductsState extends State<FilteredProducts> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
         setPageKey(pageKey + 1);
         fetItems();
       }
@@ -54,8 +50,8 @@ class _FilteredProductsState extends State<FilteredProducts> {
   }
 
   fetItems() async {
-    List<Product> items = await homeProvider.filter(
-        widget.type!, widget.filterKey, pageKey, _pageSize);
+    List<Product> items =
+        await homeProvider.filter(widget.type!, widget.filterKey, pageKey, _pageSize);
     setState(() {
       products.addAll(items);
     });
