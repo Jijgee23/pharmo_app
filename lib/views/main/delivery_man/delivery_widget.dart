@@ -106,14 +106,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
               child: expanded
-                  ? Container(
-                      decoration:
-                          BoxDecoration(color: Colors.blueGrey.shade50, borderRadius: border20),
-                      padding: const EdgeInsets.all(5),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxHeight: 200,
-                        ),// Ensure proper display height
+                  ?  Container(
+                        constraints: const BoxConstraints(maxHeight: 220, minHeight: 180),
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
@@ -121,7 +115,6 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
                                 widget.order.items.map((item) => product(item, context)).toList(),
                           ),
                         ),
-                      ),
                     )
                   : const SizedBox.shrink(),
             ),
