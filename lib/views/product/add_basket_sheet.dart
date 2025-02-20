@@ -36,6 +36,7 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
     final height = MediaQuery.of(context).size.height;
     final fs = height * .013;
     return Container(
+      width: double.maxFinite,
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
           color: Colors.white,
@@ -68,13 +69,7 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
               const PopSheet()
             ],
           ),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: TextFormField(
+           TextFormField(
                 autofocus: true,
                 textAlign: TextAlign.end,
                 controller: qty,
@@ -91,10 +86,22 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
                     color: Colors.grey.shade500,
                     fontWeight: FontWeight.w600,
                   ),
+                  disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: primary.withOpacity(.5))
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: primary.withOpacity(.5))
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: primary.withOpacity(.5))
+                  ),
                 ),
               ),
-            ),
-          ),
+            
+          
           CustomButton(
             text: 'Сагсанд нэмэх',
             ontap: () async {

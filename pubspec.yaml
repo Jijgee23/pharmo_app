@@ -1,7 +1,7 @@
 name: pharmo_app
 description: "Эмийн бөөний худалда, захиалгын систем."
 
-version: 1.0.11+52
+version: 1.0.12+55
 environment:
   sdk: '>=3.3.3 <4.0.0'
 

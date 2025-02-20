@@ -110,8 +110,10 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
                       decoration:
                           BoxDecoration(color: Colors.blueGrey.shade50, borderRadius: border20),
                       padding: const EdgeInsets.all(5),
-                      child: SizedBox(
-                        height: 160, // Ensure proper display height
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxHeight: 200,
+                        ),// Ensure proper display height
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
@@ -142,8 +144,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
     return Container(
       width: itemWidth.clamp(minItemWidth, maxItemWidth),
       constraints: const BoxConstraints(
-        minHeight: 180,
-        maxHeight: 220,
+       // minHeight: 200,
+       // maxHeight: 250,
         minWidth: 130,
         maxWidth: 140,
       ),
