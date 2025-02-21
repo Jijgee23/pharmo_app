@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/views/main/delivery_man/jagger_home.dart';
 import 'package:pharmo_app/views/main/cart/cart.dart';
 import 'package:pharmo_app/views/main/home.dart';
 import 'package:pharmo_app/views/product/product_searcher.dart';
@@ -53,7 +52,7 @@ class _IndexPharmaState extends State<IndexPharma> {
         default:
           return appBarSingleText('Сагс');
       }
-    } else if (role == 'S') {
+    } else {
       switch (homeProvider.currentIndex) {
         case 0:
           return const Row(
@@ -71,25 +70,6 @@ class _IndexPharmaState extends State<IndexPharma> {
         default:
           return selectedCustomer(homeProvider);
       }
-    } else {
-      switch (homeProvider.currentIndex) {
-        case 0:
-          return appBarSingleText('Өнөөдрийн түгээлтүүд');
-        case 1:
-          return const Row(
-            children: [
-              Expanded(flex: 8, child: CustomerSearcher()),
-              SizedBox(width: 10),
-              Expanded(child: AddCustomer()),
-            ],
-          );
-        case 2:
-          return const ProductSearcher();
-        case 4:
-          return appBarSingleText('Миний профайл');
-        default:
-          return selectedCustomer(homeProvider);
-      }
     }
   }
 
@@ -100,26 +80,16 @@ class _IndexPharmaState extends State<IndexPharma> {
   List<String> getIcons(String role) {
     if (role == 'PA') {
       return ['category', 'cart', 'user'];
-    } else if (role == 'S') {
-      return ['users', 'category', 'cart', 'user'];
     } else {
-      return ['truck-side', 'users', 'category', 'cart', 'user'];
+      return ['users', 'category', 'cart', 'user'];
     }
   }
 
   List<Widget> getPages(String role) {
     if (role == 'PA') {
       return [const Home(), const Cart(), const Profile()];
-    } else if (role == "S") {
-      return [const CustomerList(), const Home(), const Cart(), const Profile()];
     } else {
-      return [
-        const HomeJagger(),
-        const CustomerList(),
-        const Home(),
-        const Cart(),
-        const Profile()
-      ];
+      return [const CustomerList(), const Home(), const Cart(), const Profile()];
     }
   }
 }

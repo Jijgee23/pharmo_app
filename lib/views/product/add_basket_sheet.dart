@@ -69,39 +69,34 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
               const PopSheet()
             ],
           ),
-           TextFormField(
-                autofocus: true,
-                textAlign: TextAlign.end,
-                controller: qty,
-                keyboardType: TextInputType.number,
-                style: TextStyle(
-                  color: Colors.grey.shade500,
-                  fontWeight: FontWeight.w600,
-                  fontSize: fs,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Тоо ширхэг оруулна уу!',
-                  contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  hintStyle: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: primary.withOpacity(.5))
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: primary.withOpacity(.5))
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: primary.withOpacity(.5))
-                  ),
-                ),
+          TextFormField(
+            autofocus: true,
+            textAlign: TextAlign.end,
+            controller: qty,
+            keyboardType: TextInputType.number,
+            style: TextStyle(
+              color: Colors.grey.shade500,
+              fontWeight: FontWeight.w600,
+              fontSize: fs,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Тоо ширхэг оруулна уу!',
+              contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              hintStyle: TextStyle(
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.w600,
               ),
-            
-          
+              disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: primary.withOpacity(.5))),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: primary.withOpacity(.5))),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: primary.withOpacity(.5))),
+            ),
+          ),
           CustomButton(
             text: 'Сагсанд нэмэх',
             ontap: () async {

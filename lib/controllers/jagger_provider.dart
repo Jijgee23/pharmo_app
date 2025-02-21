@@ -9,6 +9,7 @@ import 'package:pharmo_app/controllers/models/jagger.dart';
 import 'package:pharmo_app/controllers/models/jagger_expense_order.dart';
 import 'package:pharmo_app/controllers/models/ship.dart';
 import 'package:pharmo_app/controllers/models/shipment.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -109,10 +110,8 @@ class JaggerProvider extends ChangeNotifier {
     }
 
     timer = Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 10),
       (timer) async {
-        // int? id = pref.getInt('onDeliveryId');
-        print("Sending location...");
         getLocation(context);
         await sendJaggerLocation(id, context);
         setSending(true);
@@ -143,6 +142,7 @@ class JaggerProvider extends ChangeNotifier {
       http.Response response = await apiGet('delivery/delman_active/');
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
+        print(data);
         delivery = (data as List).map((d) => Delivery.fromJson(d)).toList();
         for (final d in delivery) {
           zones = d.zones;
@@ -153,6 +153,35 @@ class JaggerProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
     notifyListeners();
+  }
+
+  Future<dynamic> getDeliveryDetail(int id) async {
+    try {
+      http.Response response = await apiGet('order/$id/');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        print(data);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    notifyListeners();
+  }
+
+  addPaymentToDeliveryOrder(int orderId, String payType, String value) async {
+    final data = {"order_id": orderId, "pay_type": payType, "amount": value};
+    try {
+      final res = await apiPost('order_payment/', data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        message('Амжилттай хадгалагдлаа');
+        await getDeliveries();
+        notifyListeners();
+      } else {
+        message(wait);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   Future getExpenses() async {
@@ -361,7 +390,6 @@ class JaggerProvider extends ChangeNotifier {
     _latitude = _currentLocation!.latitude.toString().substring(0, 7);
     _longitude = _currentLocation!.longitude.toString().substring(0, 7);
     print('lat: $_latitude lng: $_longitude');
-    print("haha");
   }
 
   sendJaggerLocation(int deliveryId, BuildContext context) async {

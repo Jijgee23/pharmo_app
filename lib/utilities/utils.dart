@@ -197,51 +197,41 @@ String toPrice(dynamic v) {
   }
 }
 
-getProcessNumber(String process) {
-  if (process == 'Шинэ') {
-    return 0;
-  } else if (process == 'Бэлтгэж эхэлсэн') {
-    return 1;
-  } else if (process == 'Бэлэн болсон') {
-    return 2;
-  } else if (process == 'Түгээлтэнд гарсан') {
-    return 3;
-  } else {
-    return 4;
+status(String status) {
+  switch (status) {
+    case "W":
+      return 'Төлбөр хүлээгдэж буй';
+    case "P":
+      return 'Төлбөр төлөгдсөн';
+    case "S":
+      return 'Цуцлагдсан';
+    case "C":
+      return 'Биелсэн';
+    default:
+      return 'Тодорхойгүй';
   }
 }
 
-getOrderProcess(String v) {
-  if (v == 'O') {
-    return "Хүргэлтэнд гарсан";
-  } else if (v == 'N') {
-    return 'Шинэ';
-  } else if (v == 'M') {
-    return 'Бэлтгэж эхлэсэн';
-  } else if (v == 'A') {
-    return 'Хүлээн авсан';
-  } else if (v == 'C') {
-    return 'Хаалттай';
-  } else if (v == 'R') {
-    return 'Буцаагдсан';
-  } else if (v == 'P') {
-    return 'Бэлэн болсон';
-  } else {
-    return '';
-  }
-}
-
-getStatus(String status) {
-  if (status == 'W') {
-    return 'Төлбөр хүлээгдэж буй';
-  } else if (status == 'P') {
-    return 'Төлбөр төлөгдсөн';
-  } else if (status == 'S') {
-    return 'Цуцлагдсан';
-  } else if (status == 'C') {
-    return 'Биелсэн';
-  } else {
-    return 'Тодорхой биш';
+process(String status) {
+  switch (status) {
+    case "D":
+      return 'Хүргэгдсэн';
+    case "C":
+      return 'Хаалттай';
+    case "R":
+      return 'Буцаагдсан';
+    case "O":
+      return 'Түгээлтэнд гарсан';
+    case "N":
+      return 'Шинэ';
+    case "P":
+      return 'Бэлэн болсон';
+    case "Т":
+      return 'Бэлтгэж эхлэсэн';
+    case "A":
+      return 'Хүлээн авсан';
+    default:
+      return 'Тодорхойгүй';
   }
 }
 
@@ -293,10 +283,6 @@ checker(Map response, String key) {
   } else {
     return false;
   }
-}
-
-shadow() {
-  return [BoxShadow(color: Colors.grey.shade400, blurRadius: 5)];
 }
 
 String maybeNull(String? text) {

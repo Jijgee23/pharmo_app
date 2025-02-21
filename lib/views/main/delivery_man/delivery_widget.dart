@@ -1,129 +1,64 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/main/delivery_man/delivery_detail.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
+import 'package:provider/provider.dart';
 
 class DeliveryWidget extends StatefulWidget {
   final Order order;
-  const DeliveryWidget({super.key, required this.order});
+  final int delId;
+  const DeliveryWidget({super.key, required this.order, required this.delId});
 
   @override
   State<DeliveryWidget> createState() => _DeliveryWidgetState();
 }
 
 class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProviderStateMixin {
-  bool expanded = false;
-  late AnimationController _controller;
-  late Animation<double> _iconRotation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _iconRotation = Tween<double>(begin: 0, end: 0.5).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void toggleExpand() {
-    setState(() {
-      expanded = !expanded;
-      if (expanded) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    });
-  }
-
-  User getUser() {
-    if (widget.order.user != null) {
-      return widget.order.user!;
-    } else if (widget.order.customer != null) {
-      return widget.order.customer!;
-    } else if (widget.order.orderer != null) {
-      return widget.order.orderer!;
-    } else {
-      return User(id: '1', name: '');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     List<String> expandedFields = ['Нийт үнэ', 'Тоо ширхэг', 'Явц', 'Төлөв', 'Төлбөрийн хэлбэр'];
     List<String> expandedValues = [
       toPrice(widget.order.totalPrice),
       widget.order.totalCount.toString(),
-      getOrderProcess(widget.order.process),
-      getStatus(widget.order.status),
+      process(widget.order.process),
+      status(widget.order.status),
       getPayType(widget.order.payType)
     ];
 
     return InkWell(
-      onTap: toggleExpand,
+      onTap: () => goto(DeliveryDetail(order: widget.order, delId: widget.delId)),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         padding: padding15,
         width: double.maxFinite,
         decoration: BoxDecoration(color: zircon, borderRadius: border20),
-        margin: const EdgeInsets.only(bottom: 10),
         child: Column(
+          spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                colored(getUser().name, Icons.person, neonBlue.withOpacity(.8)),
+                colored(widget.order.orderer != null ? widget.order.orderer!.name : '',
+                    Icons.person, neonBlue.withOpacity(.8)),
                 colored(widget.order.orderNo.toString(), Icons.numbers,
                     const Color.fromARGB(255, 66, 241, 145),
                     main: MainAxisAlignment.end),
               ],
             ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              child: expanded
-                  ? Column(
-                      children: expandedFields
-                          .map((v) => infoRow(v, expandedValues[expandedFields.indexOf(v)]))
-                          .toList(),
-                    )
-                  : const SizedBox.shrink(),
+            Column(
+              children: expandedFields
+                  .map((v) => infoRow(v, expandedValues[expandedFields.indexOf(v)]))
+                  .toList(),
             ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              child: expanded
-                  ?  Container(
-                        constraints: const BoxConstraints(maxHeight: 220, minHeight: 180),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children:
-                                widget.order.items.map((item) => product(item, context)).toList(),
-                          ),
-                        ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            Center(
-              child: RotationTransition(
-                turns: _iconRotation,
-                child: const Icon(Icons.arrow_drop_down, size: 30),
-              ),
-            ),
+            statusButton(context, widget.delId, widget.order.id)
           ],
         ),
       ),
@@ -137,8 +72,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
     return Container(
       width: itemWidth.clamp(minItemWidth, maxItemWidth),
       constraints: const BoxConstraints(
-       // minHeight: 200,
-       // maxHeight: 250,
+        // minHeight: 200,
+        // maxHeight: 250,
         minWidth: 130,
         maxWidth: 140,
       ),
@@ -195,35 +130,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
     );
   }
 
-  Widget infoRow(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   Widget colored(String text, IconData icon, Color color, {MainAxisAlignment? main}) {
     return Expanded(
-      // constraints: BoxConstraints(
-      //   minWidth: 100,
-      //   maxWidth: MediaQuery.of(context).size.width * 0.4,
-      // ),
       child: Row(
         mainAxisAlignment: main ?? MainAxisAlignment.start,
         children: [
@@ -243,5 +151,87 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
         ],
       ),
     );
+  }
+
+  changeStatus(String s) async {
+    final provider = Provider.of<JaggerProvider>(context, listen: false);
+    final data = {
+      "delivery_id": widget.delId,
+      "order_id": widget.order.id,
+      "process": getOrderProcess(s)
+    };
+    final response = await apiPatch('delivery/order/', jsonEncode(data));
+    print(response.body);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      await provider.getDeliveries();
+    }
+  }
+}
+
+Widget infoRow(String title, String value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        )
+      ],
+    ),
+  );
+}
+
+Widget statusButton(BuildContext context, int delId, int orderId) {
+  List<String> statuses = ['Хүргэгдсэн', 'Хаалттай', 'Буцаагдсан', 'Түгээлтэнд гарсан'];
+  final provider = Provider.of<JaggerProvider>(context, listen: false);
+
+  return CustomButton(
+    text: 'Төлөв өөрчлөх',
+    ontap: () {
+      showMenu(
+          context: context,
+          items: statuses
+              .map((s) => PopupMenuItem(
+                    onTap: () async {
+                      final data = {
+                        "delivery_id": delId,
+                        "order_id": orderId,
+                        "process": getOrderProcess(s)
+                      };
+                      final response = await apiPatch('delivery/order/', jsonEncode(data));
+                      if (response.statusCode == 200 || response.statusCode == 201) {
+                        await provider.getDeliveries();
+                      } else {
+                        message(wait);
+                      }
+                    },
+                    child: Text(s),
+                  ))
+              .toList(),
+          position: RelativeRect.fromLTRB(Sizes.width / 3, Sizes.height / 2, Sizes.width / 3, 0));
+    },
+  );
+}
+
+getOrderProcess(String status) {
+  switch (status) {
+    case "Хүргэгдсэн":
+      return "D";
+    case "Хаалттай":
+      return "C";
+    case "Буцаагдсан":
+      return "R";
+    case "Түгээлтэнд гарсан":
+      return "O";
+    default:
+      message('Төлөв сонгоно уу!');
   }
 }
