@@ -2,10 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/models/customer.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
+import 'package:pharmo_app/views/main/seller/customer_location_picker.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
@@ -46,6 +48,12 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
     setFetching(true);
     await pharm.getCustomerDetail(widget.customer.id!, context);
     setFetching(false);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    pharm.getCustomers(1, 100, context);
   }
 
   @override
@@ -115,8 +123,9 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                           (notLocated)
                               ? CustomButton(
                                   text: 'Байршил илгээх',
-                                  ontap: () => pp.sendCustomerLocation(d.id!, context),
-                                )
+                                  ontap: () => goto(LocationPicker(cusotmerId: d.id!))
+                                  // pp.sendCustomerLocation(d.id!, context),
+                                  )
                               : const SizedBox()
                         ],
                       ),

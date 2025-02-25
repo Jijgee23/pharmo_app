@@ -115,19 +115,6 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
     }
   }
 
-  Widget myRow(String tit, String? v) {
-    if (v != null || v == '' || v == 'null') {
-      return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text('$tit:',
-            style: const TextStyle(color: Colors.black87, fontSize: Sizes.mediumFontSize)),
-        Text(v!,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: Sizes.mediumFontSize))
-      ]);
-    } else {
-      return const SizedBox();
-    }
-  }
-
   products() {
     if (det.containsKey('items') == true) {
       final items = det['items'] as List;
@@ -356,5 +343,16 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
     setState(() {
       payType = v;
     });
+  }
+}
+
+Widget myRow(String tit, String? v) {
+  if (v != null || v == '' || v == 'null') {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Text('$tit:', style: const TextStyle(color: Colors.black87, fontSize: Sizes.mediumFontSize)),
+      Text(v!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: Sizes.mediumFontSize))
+    ]);
+  } else {
+    return const SizedBox();
   }
 }

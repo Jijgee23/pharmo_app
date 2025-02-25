@@ -7,18 +7,20 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/views/main/delivery_man/delivery_widget.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/marked_promo_dialog.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:pharmo_app/widgets/loader/waving_animation.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
-class HomeJagger extends StatefulWidget {
-  const HomeJagger({super.key});
+class DeliveryHome extends StatefulWidget {
+  const DeliveryHome({super.key});
   @override
-  State<HomeJagger> createState() => _HomeJaggerState();
+  State<DeliveryHome> createState() => _DeliveryHomeState();
 }
 
-class _HomeJaggerState extends State<HomeJagger> {
-  late JaggerProvider jaggerProvider;
+class _DeliveryHomeState extends State<DeliveryHome> {
   bool loading = false;
   setLoading(bool n) {
     setState(() {
@@ -29,32 +31,31 @@ class _HomeJaggerState extends State<HomeJagger> {
   @override
   initState() {
     super.initState();
-    jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
     fetch();
   }
 
   fetch() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       setLoading(true);
-      await jaggerProvider.getDeliveries();
-      await jaggerProvider.getLocation(context);
-      if (mounted) setLoading(false);
+      Future.microtask(() => context.read<JaggerProvider>().getDeliveries());
+      setLoading(false);
     });
   }
 
-  startShipment(int shipmentId) async {
+  startShipment(int shipmentId, JaggerProvider jagger) async {
     setLoading(true);
-    await jaggerProvider.startShipment(shipmentId, context);
+    await jagger.startShipment(shipmentId, context);
     if (mounted) setLoading(false);
   }
 
-  endShipment(int shipmentId, bool? force) async {
+  endShipment(int shipmentId, JaggerProvider jagger) async {
     setLoading(true);
-    await jaggerProvider.endShipment(shipmentId, context);
+    await jagger.endShipment(shipmentId, context);
+    Navigator.pop(context);
     if (mounted) setLoading(false);
   }
 
-  var pad = const EdgeInsets.only(left: 5, top: 5);
+  var pad = const EdgeInsets.only(left: 5);
   var st = const TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 16);
   refresh() async {
     setLoading(true);
@@ -143,7 +144,7 @@ class _HomeJaggerState extends State<HomeJagger> {
                     if (del.orders.isEmpty) {
                       return const SizedBox.shrink();
                     } else {
-                      return deliveryContaier(del);
+                      return deliveryContaier(del, jagger);
                     }
                   },
                 ),
@@ -156,32 +157,39 @@ class _HomeJaggerState extends State<HomeJagger> {
     );
   }
 
-  Container deliveryContaier(Delivery del) {
+  Container deliveryContaier(Delivery del, JaggerProvider jagger) {
     return Container(
       padding: padding15,
       width: double.maxFinite,
       decoration: BoxDecoration(color: primary, borderRadius: border20),
       child: Column(
+        spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          startingWidget(del),
-          Padding(padding: pad, child: Text('Захиалгууд:', style: st)),
-          const SizedBox(height: 10),
-          ...del.orders.map((order) => DeliveryWidget(order: order)),
-          endingWidget(del),
+          startingWidget(del, jagger),
+          const SizedBox(),
+          Button(
+              text: 'Байршил дамжуулах',
+              color: neonBlue,
+              onTap: () =>
+                  jagger.start(del.id, context).then((e) => message('Байршил дамжуулж эхлэлээ'))),
+          Text('Захиалгууд:', style: st),
+          ...del.orders.map((order) => DeliveryWidget(order: order, delId: del.id)),
+          endingWidget(del, jagger),
         ],
       ),
     );
   }
 
-  Row endingWidget(Delivery del) {
+  Row endingWidget(Delivery del, JaggerProvider jagger) {
     return Row(
       children: [
         (del.startedOn != null && del.endedOn == null)
             ? button(
                 title: 'Түгээлт дуусгах',
                 color: theme.primaryColor,
-                onTap: () => endShipment(del.id, false))
+                onTap: () => askEnd(del, jagger))
+            // endShipment(del.id, jagger))
             : const SizedBox(),
         (del.endedOn == null)
             ? const SizedBox()
@@ -190,24 +198,137 @@ class _HomeJaggerState extends State<HomeJagger> {
     );
   }
 
-  Widget startingWidget(Delivery del) {
+  askEnd(Delivery del, JaggerProvider jagger) {
+    List<Order>? unDeliveredOrders = del.orders.where((t) => t.process == 'O').toList();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Container(
+            decoration: BoxDecoration(color: white, borderRadius: BorderRadius.circular(20)),
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Column(
+                spacing: 15,
+                children: [
+                  if (unDeliveredOrders.isEmpty)
+                    const Text(
+                      'Та түгээлтийг дуусгахдаа итгэлтэй байна уу?',
+                      textAlign: TextAlign.center,
+                    ),
+                  if (unDeliveredOrders.isNotEmpty)
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: const TextStyle(color: black, fontSize: 16),
+                        children: [
+                          TextSpan(
+                              text:
+                                  'Танд хүргэж дуусаагүй ${unDeliveredOrders.length} захиалга байна. ('),
+                          ...unDeliveredOrders.map(
+                            (e) => TextSpan(
+                              children: [
+                                const TextSpan(
+                                  text: ' #',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: succesColor,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: '${e.orderNo},',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const TextSpan(text: ') ,Та түгээлтийг дуусгахдаа итгэлтэй байна уу?'),
+                        ],
+                      ),
+                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      DialogButton(
+                        width: 100,
+                        child: const Text('Үгүй'),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      DialogButton(
+                        width: 100,
+                        color: theme.primaryColor,
+                        child: const Text('Тийм'),
+                        onPressed: () => endShipment(del.id, jagger),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  askStart(Delivery del, JaggerProvider jagger) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Container(
+            decoration: BoxDecoration(color: white, borderRadius: BorderRadius.circular(20)),
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Column(
+                spacing: 15,
+                children: [
+                  const Text('Түгээлтийг эхлүүлэх үү?', textAlign: TextAlign.center),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      DialogButton(
+                        width: 100,
+                        child: const Text('Үгүй'),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      DialogButton(
+                        width: 100,
+                        color: theme.primaryColor,
+                        child: const Text('Тийм'),
+                        onPressed: () => Future(
+                          () async {
+                            startShipment(del.id, jagger);
+                            await jagger.getDeliveries();
+                          },
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget startingWidget(Delivery del, JaggerProvider jagger) {
     bool deliveryStarted = del.startedOn != null;
     return Column(
+      spacing: 10,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (!deliveryStarted)
           button(
               title: 'Түгээлт эхлүүлэх',
               color: theme.primaryColor,
-              onTap: () => Future(() async {
-                    startShipment(del.id);
-                    await jaggerProvider.getDeliveries();
-                  })),
+              onTap: () => askStart(del, jagger)),
         if (deliveryStarted)
-          Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: const WavingAnimation(
-                  assetPath: 'assets/stickers/truck_animation.gif', dots: true)),
+          const WavingAnimation(assetPath: 'assets/stickers/truck_animation.gif', dots: true),
         if (deliveryStarted)
           Padding(padding: pad, child: Text('Түгээлт эхлэсэн: ${del.startedOn}', style: st)),
       ],
@@ -229,10 +350,10 @@ class _HomeJaggerState extends State<HomeJagger> {
             shape: RoundedRectangleBorder(borderRadius: border20),
             padding: const EdgeInsets.symmetric(vertical: 10)),
         child: Center(
-            child: loading
-                ? const CircularProgressIndicator.adaptive(
-                    valueColor: AlwaysStoppedAnimation(white))
-                : text(title, color: white)),
+          child: loading
+              ? const CircularProgressIndicator.adaptive(valueColor: AlwaysStoppedAnimation(white))
+              : text(title, color: white),
+        ),
       ),
     );
   }

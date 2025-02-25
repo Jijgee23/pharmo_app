@@ -7,8 +7,10 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/controllers/models/jagger.dart';
 import 'package:pharmo_app/controllers/models/jagger_expense_order.dart';
+import 'package:pharmo_app/controllers/models/payment.dart';
 import 'package:pharmo_app/controllers/models/ship.dart';
 import 'package:pharmo_app/controllers/models/shipment.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -109,10 +111,8 @@ class JaggerProvider extends ChangeNotifier {
     }
 
     timer = Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 10),
       (timer) async {
-        // int? id = pref.getInt('onDeliveryId');
-        print("Sending location...");
         getLocation(context);
         await sendJaggerLocation(id, context);
         setSending(true);
@@ -143,6 +143,7 @@ class JaggerProvider extends ChangeNotifier {
       http.Response response = await apiGet('delivery/delman_active/');
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
+        print(data);
         delivery = (data as List).map((d) => Delivery.fromJson(d)).toList();
         for (final d in delivery) {
           zones = d.zones;
@@ -153,6 +154,35 @@ class JaggerProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
     notifyListeners();
+  }
+
+  Future<dynamic> getDeliveryDetail(int id) async {
+    try {
+      http.Response response = await apiGet('order/$id/');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        print(data);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    notifyListeners();
+  }
+
+  addPaymentToDeliveryOrder(int orderId, String payType, String value) async {
+    final data = {"order_id": orderId, "pay_type": payType, "amount": value};
+    try {
+      final res = await apiPost('order_payment/', data);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        message('Амжилттай хадгалагдлаа');
+        await getDeliveries();
+        notifyListeners();
+      } else {
+        message(wait);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   Future getExpenses() async {
@@ -361,7 +391,6 @@ class JaggerProvider extends ChangeNotifier {
     _latitude = _currentLocation!.latitude.toString().substring(0, 7);
     _longitude = _currentLocation!.longitude.toString().substring(0, 7);
     print('lat: $_latitude lng: $_longitude');
-    print("haha");
   }
 
   sendJaggerLocation(int deliveryId, BuildContext context) async {
@@ -404,16 +433,16 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<Delivery> history = <Delivery>[];
+
   getShipmentHistory() async {
     try {
-      changeFetching();
-      final res = await apiGet('shipment/history/');
+      final res = await apiGet('delivery/history/');
       if (res.statusCode == 200) {
-        Map<String, dynamic> data = convertData(res);
+        final data = convertData(res);
+        print(data);
         List<dynamic> ships = data['results'];
-        shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
-        changeFetching();
-        notifyListeners();
+        history = (ships).map((e) => Delivery.fromJson(e)).toList();
       }
     } catch (e) {
       debugPrint('Алдаа гарлаа: ${e.toString()}');
@@ -430,6 +459,41 @@ class JaggerProvider extends ChangeNotifier {
         debugPrint('ships: $data');
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
         notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  addCustomerPayment(String type, String amount, int customerId) async {
+    try {
+      final data = {"customer_id": customerId, "pay_type": type, "amount": amount};
+      final res = await apiPost('customer_payment/', data);
+      print(convertData(res));
+      if (res.statusCode == 201) {
+        message('Амжилттай бүртгэлээ');
+        await getCustomerPayment();
+      } else {
+        message(wait);
+      }
+    } catch (e) {
+      message(wait);
+      debugPrint(e.toString());
+    }
+  }
+
+  List<Payment> payments = [];
+
+  getCustomerPayment() async {
+    try {
+      final res = await apiGet('customer_payment/');
+      print(convertData(res));
+      if (res.statusCode == 200) {
+        final data = convertData(res);
+        payments = (data as List).map((payment) => Payment.fromJson(payment)).toList();
+        notifyListeners();
+      } else {
+        message(wait);
       }
     } catch (e) {
       debugPrint(e.toString());

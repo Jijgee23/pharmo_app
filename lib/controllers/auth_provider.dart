@@ -20,6 +20,7 @@ import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/index.dart';
+import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -32,10 +33,11 @@ class AuthController extends ChangeNotifier {
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
   Map<String, String> deviceData = {};
-  late Account _account;
+  Account _account = Account(uid: 0, email: '', role: '');
   Account get account => _account;
   setAccountInfo(Account a) {
     _account = a;
+    print("Account set: ${_account.name}, ${_account.email}");
     notifyListeners();
   }
 
@@ -192,7 +194,7 @@ class AuthController extends ChangeNotifier {
         gotoRemoveUntil(const IndexPharma());
         break;
       case 'D':
-        gotoRemoveUntil(const IndexPharma());
+        gotoRemoveUntil(const IndexDeliveryMan());
         break;
       default:
         message('Веб хуудсаар хандана уу');

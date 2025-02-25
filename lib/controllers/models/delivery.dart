@@ -35,7 +35,7 @@ class Delivery {
       lat: json['lat']?.toDouble(),
       lng: json['lng']?.toDouble(),
       endedOn: json['ended_on'],
-      progress: json['progress'],
+      progress: json['progress'].toString(),
       created: json['created'],
     );
   }
@@ -96,7 +96,7 @@ class Zone {
 
 class Order {
   int id;
-  int orderNo;
+  String orderNo;
   User? user;
   User? customer;
   User? orderer;
@@ -110,43 +110,44 @@ class Order {
   Zone zone;
   String createdOn;
   List<Item> items;
+  List<OrderPayment>? payments;
 
-  Order({
-    required this.id,
-    required this.orderNo,
-    this.user,
-    this.customer,
-    this.orderer,
-    required this.totalPrice,
-    required this.totalCount,
-    required this.status,
-    required this.process,
-    this.seller,
-    required this.deliveryId,
-    required this.payType,
-    required this.zone,
-    required this.createdOn,
-    required this.items,
-  });
+  Order(
+      {required this.id,
+      required this.orderNo,
+      this.user,
+      this.customer,
+      this.orderer,
+      required this.totalPrice,
+      required this.totalCount,
+      required this.status,
+      required this.process,
+      this.seller,
+      required this.deliveryId,
+      required this.payType,
+      required this.zone,
+      required this.createdOn,
+      required this.items,
+      this.payments});
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      id: json['id'],
-      orderNo: json['orderNo'],
-      user: json['user'] != null ? User.fromJson(json['user']) : null,
-      customer: json['customer'] != null ? User.fromJson(json['customer']) : null,
-      orderer: json['orderer'] != null ? User.fromJson(json['orderer']) : null,
-      totalPrice: json['totalPrice']?.toDouble() ?? 0.0,
-      totalCount: json['totalCount'] ?? 0,
-      status: json['status'] ?? '',
-      process: json['process'] ?? '',
-      seller: json['seller'] != null ? User.fromJson(json['seller']) : null,
-      deliveryId: json['delivery_id'] ?? 0,
-      payType: json['payType'] ?? '',
-      zone: Zone.fromJson(json['zone'] ?? {}),
-      createdOn: json['createdOn'] ?? '',
-      items: (json['items'] as List? ?? []).map((e) => Item.fromJson(e)).toList(),
-    );
+        id: json['id'],
+        orderNo: json['orderNo'].toString(),
+        user: json['user'] != null ? User.fromJson(json['user']) : null,
+        customer: json['customer'] != null ? User.fromJson(json['customer']) : null,
+        orderer: json['orderer'] != null ? User.fromJson(json['orderer']) : null,
+        totalPrice: json['totalPrice']?.toDouble() ?? 0.0,
+        totalCount: json['totalCount'] ?? 0,
+        status: json['status'] ?? '',
+        process: json['process'] ?? '',
+        seller: json['seller'] != null ? User.fromJson(json['seller']) : null,
+        deliveryId: json['delivery_id'] ?? 0,
+        payType: json['payType'] ?? '',
+        zone: Zone.fromJson(json['zone'] ?? {}),
+        createdOn: json['createdOn'] ?? '',
+        items: (json['items'] as List? ?? []).map((e) => Item.fromJson(e)).toList(),
+        payments: (json['payments'] as List? ?? []).map((e) => OrderPayment.fromJson(e)).toList());
   }
 
   Map<String, dynamic> toJson() => {
@@ -229,4 +230,46 @@ class Item {
         'itemTotalPrice': itemTotalPrice,
         'product_id': productId,
       };
+}
+
+class OrderPayment {
+  final int orderId;
+  final int paymentId;
+  final double amount;
+  final String payType;
+  final int receiverId;
+  final DateTime paidOn;
+
+  OrderPayment({
+    required this.orderId,
+    required this.paymentId,
+    required this.amount,
+    required this.payType,
+    required this.receiverId,
+    required this.paidOn,
+  });
+
+  // Factory constructor to create an instance from a JSON map
+  factory OrderPayment.fromJson(Map<String, dynamic> json) {
+    return OrderPayment(
+      orderId: json['order_id'] as int,
+      paymentId: json['payment_id'] as int,
+      amount: json['amount'].toDouble(),
+      payType: json['pay_type'] as String,
+      receiverId: json['receiver_id'] as int,
+      paidOn: DateTime.parse(json['paid_on']),
+    );
+  }
+
+  // Method to convert an instance to a JSON map
+  Map<String, dynamic> toJson() {
+    return {
+      'order_id': orderId,
+      'payment_id': paymentId,
+      'amount': amount,
+      'pay_type': payType,
+      'receiver_id': receiverId,
+      'paid_on': paidOn.toIso8601String(),
+    };
+  }
 }

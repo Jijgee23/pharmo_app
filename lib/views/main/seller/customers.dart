@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/models/customer.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
@@ -34,17 +35,20 @@ class _CustomerListState extends State<CustomerList> {
       await pharmProvider.getCustomers(1, 100, context);
       await homeProvider.getPosition();
       await pharmProvider.getZones();
-      setState(() => uid = homeProvider.userId);
       setLoading(false);
     });
+
+    setState(() => uid = homeProvider.userId);
   }
 
   int uid = -1;
   bool loading = false;
   setLoading(bool n) {
-    setState(() {
-      loading = n;
-    });
+    if (mounted) {
+      setState(() {
+        loading = n;
+      });
+    }
   }
 
   @override
@@ -84,7 +88,7 @@ class _CustomerListState extends State<CustomerList> {
       child: Container(
         padding: padding15,
         margin: EdgeInsets.only(bottom: Sizes.height * .008),
-        decoration: BoxDecoration(color: primary.withOpacity(.15), borderRadius: border20),
+        decoration: BoxDecoration(borderRadius: border20, border: Border.all(color: grey400)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -95,10 +99,10 @@ class _CustomerListState extends State<CustomerList> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
                     padding: EdgeInsets.all(!selected ? 15 : 5),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
-                      // border: Border.all(color: Colors.grey),
+                      border: Border.all(color: selected ? succesColor : Colors.grey),
                     ),
                     child:
                         selected ? const Icon(Icons.check, color: Colors.green) : const SizedBox(),
@@ -119,7 +123,7 @@ class _CustomerListState extends State<CustomerList> {
             ),
             const Icon(
               Icons.chevron_right_rounded,
-              color: white,
+              color: frenchGrey,
             )
           ],
         ),
@@ -129,7 +133,7 @@ class _CustomerListState extends State<CustomerList> {
 
   TextStyle redText = const TextStyle(
     color: Colors.red,
-    fontSize: Sizes.smallFontSize,
+    fontSize: 12,
     fontWeight: FontWeight.w400,
   );
 
