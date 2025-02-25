@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/models/customer.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
@@ -43,9 +44,11 @@ class _CustomerListState extends State<CustomerList> {
   int uid = -1;
   bool loading = false;
   setLoading(bool n) {
-    setState(() {
-      loading = n;
-    });
+    if (mounted) {
+      setState(() {
+        loading = n;
+      });
+    }
   }
 
   @override

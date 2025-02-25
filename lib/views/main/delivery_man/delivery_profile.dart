@@ -3,6 +3,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/index.dart';
+import 'package:pharmo_app/views/main/delivery_man/add_payment.dart';
 import 'package:pharmo_app/views/main/delivery_man/shipment_expense.dart';
 import 'package:pharmo_app/views/main/delivery_man/shipment_history.dart';
 import 'package:pharmo_app/views/main/profile.dart';
@@ -44,10 +45,18 @@ class DeliveryProfile extends StatelessWidget {
                         ontap: () => goto(const ShipmentExpensePage()),
                       ),
                       SideMenu(
+                          title: 'Төлбөр тооцоо бүртгэх',
+                          icon: Icons.money,
+                          color: Colors.green,
+                          ontap: () => goto(const AddPayment())),
+                      SideMenu(
                           title: 'Борлуулагчруу шилжих',
                           icon: Icons.change_circle,
                           color: Colors.pink,
-                          ontap: () => gotoRemoveUntil(const IndexPharma())),
+                          ontap: () {
+                            home.changeIndex(0);
+                            gotoRemoveUntil(const IndexPharma());
+                          }),
                       Container(
                           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                           child: const Text('Ерөнхий')),

@@ -35,7 +35,7 @@ class Delivery {
       lat: json['lat']?.toDouble(),
       lng: json['lng']?.toDouble(),
       endedOn: json['ended_on'],
-      progress: json['progress'],
+      progress: json['progress'].toString(),
       created: json['created'],
     );
   }
@@ -96,7 +96,7 @@ class Zone {
 
 class Order {
   int id;
-  int orderNo;
+  String orderNo;
   User? user;
   User? customer;
   User? orderer;
@@ -133,7 +133,7 @@ class Order {
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
         id: json['id'],
-        orderNo: json['orderNo'],
+        orderNo: json['orderNo'].toString(),
         user: json['user'] != null ? User.fromJson(json['user']) : null,
         customer: json['customer'] != null ? User.fromJson(json['customer']) : null,
         orderer: json['orderer'] != null ? User.fromJson(json['orderer']) : null,

@@ -7,6 +7,7 @@ import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/controllers/models/jagger.dart';
 import 'package:pharmo_app/controllers/models/jagger_expense_order.dart';
+import 'package:pharmo_app/controllers/models/payment.dart';
 import 'package:pharmo_app/controllers/models/ship.dart';
 import 'package:pharmo_app/controllers/models/shipment.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
@@ -432,16 +433,16 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<Delivery> history = <Delivery>[];
+
   getShipmentHistory() async {
     try {
-      changeFetching();
-      final res = await apiGet('shipment/history/');
+      final res = await apiGet('delivery/history/');
       if (res.statusCode == 200) {
-        Map<String, dynamic> data = convertData(res);
+        final data = convertData(res);
+        print(data);
         List<dynamic> ships = data['results'];
-        shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
-        changeFetching();
-        notifyListeners();
+        history = (ships).map((e) => Delivery.fromJson(e)).toList();
       }
     } catch (e) {
       debugPrint('Алдаа гарлаа: ${e.toString()}');
@@ -458,6 +459,41 @@ class JaggerProvider extends ChangeNotifier {
         debugPrint('ships: $data');
         shipments = (ships).map((e) => Shipment.fromJson(e)).toList();
         notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  addCustomerPayment(String type, String amount, int customerId) async {
+    try {
+      final data = {"customer_id": customerId, "pay_type": type, "amount": amount};
+      final res = await apiPost('customer_payment/', data);
+      print(convertData(res));
+      if (res.statusCode == 201) {
+        message('Амжилттай бүртгэлээ');
+        await getCustomerPayment();
+      } else {
+        message(wait);
+      }
+    } catch (e) {
+      message(wait);
+      debugPrint(e.toString());
+    }
+  }
+
+  List<Payment> payments = [];
+
+  getCustomerPayment() async {
+    try {
+      final res = await apiGet('customer_payment/');
+      print(convertData(res));
+      if (res.statusCode == 200) {
+        final data = convertData(res);
+        payments = (data as List).map((payment) => Payment.fromJson(payment)).toList();
+        notifyListeners();
+      } else {
+        message(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
