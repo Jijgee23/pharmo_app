@@ -171,7 +171,7 @@ class Order {
 
 class User {
   String id;
-  String name;
+  String? name;
   Zone? zone;
   String? lat;
   String? lng;
@@ -181,7 +181,7 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'].toString(),
-      name: json['name']?.toString() ?? '',
+      name: json['name'],
       zone: json['zone'] != null ? Zone.fromJson(json['zone']) : null,
       lat: json['lat']?.toString(),
       lng: json['lng']?.toString(),

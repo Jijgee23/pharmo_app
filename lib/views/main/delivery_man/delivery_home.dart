@@ -5,10 +5,13 @@ import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/views/main/delivery_man/add_payment.dart';
 import 'package:pharmo_app/views/main/delivery_man/delivery_widget.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:pharmo_app/widgets/loader/waving_animation.dart';
 import 'package:provider/provider.dart';
@@ -74,71 +77,73 @@ class _DeliveryHomeState extends State<DeliveryHome> {
           onRefresh: () async => await refresh(),
           child: SingleChildScrollView(
             child: Column(
+              spacing: 10,
               children: [
-                Container(
-                  decoration: BoxDecoration(gradient: pinkGradinet, borderRadius: border20),
-                  width: double.infinity,
-                  padding: padding15,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Танд одоогоор идэвхитэй ${dels.length} түгээлт байна.',
-                              textAlign: TextAlign.start,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            if (zones.isNotEmpty)
-                              const Text(
-                                'Хүргэлт хийх бүсүүд:',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            if (zones.isNotEmpty) const SizedBox(height: 6),
-                            if (zones.isNotEmpty)
-                              Wrap(
-                                spacing: 10,
-                                runSpacing: 5,
-                                children: zones
-                                    .map(
-                                      (e) => Container(
-                                        padding:
-                                            const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.9),
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child: Text(
-                                          e.name,
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 15),
+                CustomButton(text: 'Төлбөр бүртгэх', ontap: () => goto(const AddPayment())),
+                // Container(
+                //   decoration: BoxDecoration(gradient: pinkGradinet, borderRadius: border20),
+                //   width: double.infinity,
+                //   padding: padding15,
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //     children: [
+                //       Expanded(
+                //         child: Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           mainAxisAlignment: MainAxisAlignment.center,
+                //           children: [
+                //             Text(
+                //               'Танд одоогоор идэвхитэй ${dels.length} түгээлт байна.',
+                //               textAlign: TextAlign.start,
+                //               style: const TextStyle(
+                //                 fontSize: 18,
+                //                 fontWeight: FontWeight.w600,
+                //                 color: Colors.white,
+                //               ),
+                //             ),
+                //             const SizedBox(height: 8),
+                //             if (zones.isNotEmpty)
+                //               const Text(
+                //                 'Хүргэлт хийх бүсүүд:',
+                //                 style: TextStyle(
+                //                   fontSize: 16,
+                //                   fontWeight: FontWeight.w500,
+                //                   color: Colors.white70,
+                //                 ),
+                //               ),
+                //             if (zones.isNotEmpty) const SizedBox(height: 6),
+                //             if (zones.isNotEmpty)
+                //               Wrap(
+                //                 spacing: 10,
+                //                 runSpacing: 5,
+                //                 children: zones
+                //                     .map(
+                //                       (e) => Container(
+                //                         padding:
+                //                             const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                //                         decoration: BoxDecoration(
+                //                           color: Colors.white.withOpacity(0.9),
+                //                           borderRadius: BorderRadius.circular(10),
+                //                         ),
+                //                         child: Text(
+                //                           e.name,
+                //                           style: const TextStyle(
+                //                             color: Colors.black,
+                //                             fontSize: 14,
+                //                             fontWeight: FontWeight.bold,
+                //                           ),
+                //                         ),
+                //                       ),
+                //                     )
+                //                     .toList(),
+                //               ),
+                //           ],
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // const SizedBox(height: 15),
                 ...dels.map(
                   (del) {
                     if (del.orders.isEmpty) {
@@ -161,7 +166,7 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     return Container(
       padding: padding15,
       width: double.maxFinite,
-      decoration: BoxDecoration(color: primary, borderRadius: border20),
+      decoration: BoxDecoration(color: primary.withAlpha(150), borderRadius: border20),
       child: Column(
         spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,

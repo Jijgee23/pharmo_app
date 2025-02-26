@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -7,6 +8,7 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/main/delivery_man/delivery_detail.dart';
+import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:provider/provider.dart';
@@ -32,13 +34,25 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
       getPayType(widget.order.payType)
     ];
 
+    String getName() {
+      final order = widget.order;
+      if (order.orderer != null && order.orderer!.name != null) {
+        return order.orderer!.name!;
+      } else if (order.customer != null && order.customer!.name != null) {
+        return order.customer!.name!;
+      } else {
+        return order.user!.name!;
+      }
+    }
+
     return InkWell(
       onTap: () => goto(DeliveryDetail(order: widget.order, delId: widget.delId)),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         padding: padding15,
         width: double.maxFinite,
-        decoration: BoxDecoration(color: zircon, borderRadius: border20),
+        decoration: BoxDecoration(
+            color: getOrderProcessColor(widget.order.process), borderRadius: border20),
         child: Column(
           spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,8 +60,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                colored(widget.order.orderer != null ? widget.order.orderer!.name : '',
-                    Icons.person, neonBlue.withOpacity(.8)),
+                colored(getName(), Icons.person, neonBlue.withOpacity(.8)),
                 colored(widget.order.orderNo.toString(), Icons.numbers,
                     const Color.fromARGB(255, 66, 241, 145),
                     main: MainAxisAlignment.end),
@@ -55,10 +68,12 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
             ),
             Column(
               children: expandedFields
-                  .map((v) => infoRow(v, expandedValues[expandedFields.indexOf(v)]))
+                  .map(
+                    (v) => infoRow(v, expandedValues[expandedFields.indexOf(v)],
+                        color1: white, color2: white),
+                  )
                   .toList(),
             ),
-            statusButton(context, widget.delId, widget.order.id)
           ],
         ),
       ),
@@ -152,23 +167,9 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
       ),
     );
   }
-
-  changeStatus(String s) async {
-    final provider = Provider.of<JaggerProvider>(context, listen: false);
-    final data = {
-      "delivery_id": widget.delId,
-      "order_id": widget.order.id,
-      "process": getOrderProcess(s)
-    };
-    final response = await apiPatch('delivery/order/', jsonEncode(data));
-    print(response.body);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      await provider.getDeliveries();
-    }
-  }
 }
 
-Widget infoRow(String title, String value) {
+Widget infoRow(String title, String value, {Color? color1, Color? color2}) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 2.0),
     child: Row(
@@ -176,13 +177,11 @@ Widget infoRow(String title, String value) {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w500, color: color1 ?? black),
         ),
         Text(
           value,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: color2 ?? black),
         )
       ],
     ),
@@ -196,27 +195,43 @@ Widget statusButton(BuildContext context, int delId, int orderId) {
   return CustomButton(
     text: 'Төлөв өөрчлөх',
     ontap: () {
-      showMenu(
-          context: context,
-          items: statuses
-              .map((s) => PopupMenuItem(
-                    onTap: () async {
-                      final data = {
-                        "delivery_id": delId,
-                        "order_id": orderId,
-                        "process": getOrderProcess(s)
-                      };
-                      final response = await apiPatch('delivery/order/', jsonEncode(data));
-                      if (response.statusCode == 200 || response.statusCode == 201) {
-                        await provider.getDeliveries();
-                      } else {
-                        message(wait);
-                      }
-                    },
-                    child: Text(s),
-                  ))
-              .toList(),
-          position: RelativeRect.fromLTRB(Sizes.width / 3, Sizes.height / 2, Sizes.width / 3, 0));
+      Get.bottomSheet(
+        SheetContainer(
+          children: [
+            ...statuses.map(
+              (status) => InkWell(
+                onTap: () async {
+                  final data = {
+                    "delivery_id": delId,
+                    "order_id": orderId,
+                    "process": getOrderProcess(status)
+                  };
+                  final response = await apiPatch('delivery/order/', jsonEncode(data));
+                  if (response.statusCode == 200 || response.statusCode == 201) {
+                    message('Төлөв өөрчлөгдлөө');
+                    await provider.getDeliveries();
+                  } else {
+                    message(wait);
+                  }
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 7.5, horizontal: 20),
+                  decoration:
+                      const BoxDecoration(border: Border(bottom: BorderSide(color: atnessGrey))),
+                  child: Row(
+                    spacing: 15,
+                    children: [
+                      // const Icon(Icons.circle_rounded),
+                      Text(status),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      );
     },
   );
 }
@@ -233,5 +248,21 @@ getOrderProcess(String status) {
       return "O";
     default:
       message('Төлөв сонгоно уу!');
+  }
+}
+
+getOrderProcessColor(String process) {
+  print(process);
+  switch (process) {
+    case "D":
+      return Colors.green;
+    case "C":
+      return neonBlue;
+    case "R":
+      return Colors.redAccent;
+    case "O":
+      return Colors.amber;
+    default:
+      Colors.white;
   }
 }

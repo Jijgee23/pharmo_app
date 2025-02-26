@@ -47,12 +47,22 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
   final TextEditingController cash = TextEditingController();
   final TextEditingController account = TextEditingController();
   final TextEditingController lend = TextEditingController();
+  String getName() {
+    final order = widget.order;
+    if (order.orderer != null && order.orderer!.name != null) {
+      return order.orderer!.name!;
+    } else if (order.customer != null && order.customer!.name != null) {
+      return order.customer!.name!;
+    } else {
+      return order.user!.name!;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     Order order = widget.order;
     List<String> data = [
-      order.orderer!.name,
+      getName(),
       toPrice(order.totalPrice),
       maybeNull(order.totalCount.toString()),
       getPayType(widget.order.payType),
@@ -94,13 +104,6 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
                   itemBuilder: (context, idx) => _product(order.items[idx]),
                 ),
               ),
-              // if (order.payments!.isNotEmpty) title('Төлбөрүүд'),
-              // if (order.payments!.isNotEmpty) ...order.payments!.map((pay) => paymentWidget(pay)),
-              // title('Төлбөр нэмэх'),
-              // field('Бэлнээр', cash),
-              // field('Дансаар', account),
-              // field('Зээлээр', lend),
-              // CustomButton(text: 'Хадгалах', ontap: () => saveValues(jagger)),
               statusButton(context, widget.delId, order.id),
               const SizedBox(height: 100)
             ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/models/customer.dart';
 import 'package:pharmo_app/controllers/models/payment.dart';
@@ -33,22 +32,25 @@ class _AddPaymentState extends State<AddPayment> {
     });
   }
 
+  String viewMode = 'Жагсаалт';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Future.microtask(() => context.read<PharmProvider>().getCustomers(1, 100, context));
+      Future.microtask(() => context.read<PharmProvider>().getCustomers(1, 5, context));
       Future.microtask(() => context.read<JaggerProvider>().getCustomerPayment());
     });
   }
 
   final TextEditingController amount = TextEditingController();
+  final TextEditingController search = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<JaggerProvider, PharmProvider>(
       builder: (context, jagger, pharm, child) => Scaffold(
-        appBar: SideAppBar(text: 'Төлбөр, тооцоо бүртгэх', action: addIcon(jagger, pharm)),
+        appBar: const SideAppBar(text: 'Төлбөр, тооцоо бүртгэх'),
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Column(
@@ -56,11 +58,85 @@ class _AddPaymentState extends State<AddPayment> {
             spacing: 15,
             children: [
               const SizedBox(),
-              ...jagger.payments.map(
-                (payment) => paymentBuilder(payment),
-              )
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.primaryColor,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                padding: const EdgeInsets.all(3),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    switcher('Жагсаалт'),
+                    switcher('Бүртгэх'),
+                  ],
+                ),
+              ),
+              Column(
+                spacing: 15,
+                children: (viewMode == 'Жагсаалт')
+                    ? [
+                        ...jagger.payments.map(
+                          (payment) => paymentBuilder(payment),
+                        )
+                      ]
+                    : [
+                        CustomTextField(
+                          controller: search,
+                          hintText: 'Харицагч хайх',
+                          onChanged: (p0) async => await pharm.filtCustomers('name', p0!, context),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 15,
+                          children: [
+                            ...pharm.filteredCustomers.take(3).map((cus) => customerBuilder(cus))
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            picker('Бэлнээр', 'C'),
+                            picker('Дансаар', 'T'),
+                          ],
+                        ),
+                        CustomTextField(
+                          controller: amount,
+                          hintText: 'Дүн оруулах',
+                          keyboardType: TextInputType.number,
+                        ),
+                        CustomButton(text: 'Бүртгэх', ontap: () => _register(jagger)),
+                      ],
+              ),
+              const SizedBox(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget customerBuilder(Customer cus) {
+    bool sel = cus == customer;
+    return InkWell(
+      onTap: () => setState(() {
+        if (sel) {
+          customer = null;
+        } else {
+          customer = cus;
+        }
+      }),
+      child: AnimatedContainer(
+        duration: duration,
+        width: double.maxFinite,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: sel ? succesColor : atnessGrey),
+            color: sel ? succesColor.withOpacity(.3) : white),
+        child: Row(
+          spacing: 10,
+          children: [const Icon(Icons.person), Text(cus.name!)],
         ),
       ),
     );
@@ -74,27 +150,51 @@ class _AddPaymentState extends State<AddPayment> {
       padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 5,
         children: [
-          Text(payment.cust.name!),
-          Text(getPayType(payment.payType)),
-          Text(toPrice(payment.amount)),
-          Text(payment.paidOn.toString().substring(0, 10))
+          Container(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              decoration: BoxDecoration(
+                color: primary.withAlpha(50),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                spacing: 10,
+                children: [
+                  Icon(Icons.person, color: theme.primaryColor.withAlpha(200)),
+                  Text(payment.cust.name!, style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              )),
+          Text('${toPrice(payment.amount)} (${getPayType(payment.payType)})'),
+          // Text(toPrice(payment.amount)),
+          Text(payment.paidOn.toString().substring(0, 10),
+              style:
+                  TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey.shade700))
         ],
       ),
     );
   }
 
-  addIcon(JaggerProvider jagger, PharmProvider pharm) {
+  Widget switcher(String n) {
+    bool picked = n == viewMode;
     return InkWell(
-      onTap: () => addPayment(jagger, pharm),
-      child: Container(
-        margin: const EdgeInsets.only(right: 10),
-        padding: const EdgeInsets.all(8),
-        decoration: const BoxDecoration(
-          color: white,
-          shape: BoxShape.circle,
+      onTap: () => setState(() {
+        viewMode = n;
+      }),
+      child: AnimatedContainer(
+        duration: duration,
+        width: !picked ? Sizes.width * .38 : Sizes.width * .5,
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: !picked ? theme.primaryColor : white,
+          borderRadius: BorderRadius.circular(15),
         ),
-        child: Icon(Icons.add, color: theme.primaryColor),
+        child: Center(
+          child: Text(
+            n,
+            style: TextStyle(fontWeight: FontWeight.bold, color: !picked ? white : black),
+          ),
+        ),
       ),
     );
   }
@@ -109,83 +209,19 @@ class _AddPaymentState extends State<AddPayment> {
       message('Харилцагч сонгоно уу!');
     } else {
       await jagger.addCustomerPayment(pType, amount.text, parseInt(customer!.id));
-      Navigator.pop(context);
       amount.clear();
+      setState(() {
+        customer = null;
+        pType = 'E';
+        selected = 'e';
+      });
     }
   }
 
-  addPayment(JaggerProvider jagger, PharmProvider pharm) {
-    Get.bottomSheet(
-      StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          width: double.maxFinite,
-          padding: const EdgeInsets.all(15),
-          decoration: const BoxDecoration(
-            color: white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(15),
-              topRight: Radius.circular(15),
-            ),
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              spacing: 15,
-              children: [
-                const SizedBox(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    picker('Бэлнээр', 'C', setModalState),
-                    picker('Дансаар', 'T', setModalState),
-                  ],
-                ),
-                CustomTextField(
-                  controller: amount,
-                  hintText: 'Дүн оруулна уу',
-                  keyboardType: TextInputType.number,
-                ),
-                const Text('Харилцагч сонгох'),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: atnessGrey)),
-                  child: DropdownButton<Customer>(
-                    value: customer,
-                    underline: const SizedBox(),
-                    hint: const Text("Харилцагч сонгох"),
-                    dropdownColor: white,
-                    isExpanded: true,
-                    menuMaxHeight: 600,
-                    items: pharm.filteredCustomers
-                        .map((customer) => DropdownMenuItem<Customer>(
-                              value: customer,
-                              child: Text(
-                                maybeNull(customer.name),
-                                style: TextStyle(color: grey600),
-                              ),
-                            ))
-                        .toList(),
-                    onChanged: (Customer? newValue) {
-                      setModalState(() {
-                        customer = newValue;
-                      });
-                    },
-                  ),
-                ),
-                CustomButton(text: 'Бүртгэх', ontap: () => _register(jagger)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget picker(String n, String v, Function(void Function()) setModalState) {
+  Widget picker(String n, String v) {
     bool sel = (selected == n);
     return InkWell(
-      onTap: () => setModalState(() {
+      onTap: () => setState(() {
         selected = n;
         pType = v;
       }),
@@ -194,6 +230,7 @@ class _AddPaymentState extends State<AddPayment> {
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: sel ? 20 : 15),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
+          color: sel ? succesColor.withOpacity(.3) : white,
           border: Border.all(
             color: sel ? succesColor : grey300,
           ),

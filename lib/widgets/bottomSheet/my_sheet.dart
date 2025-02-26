@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 
 class SheetContainer extends StatelessWidget {
   final String? title;
@@ -12,31 +13,25 @@ class SheetContainer extends StatelessWidget {
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        decoration: const BoxDecoration(
+          color: white,
+          borderRadius: BorderRadius.only(
             topLeft: Radius.circular(30),
             topRight: Radius.circular(30),
           ),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                blurRadius: 15,
-                offset: const Offset(0, 5))
-          ],
         ),
-        child: Wrap(
-          runSpacing: 20,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        child: Column(
+          spacing: 15,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Align(
               alignment: Alignment.center,
               child: Container(
                 height: 4,
                 width: 50,
-                decoration: BoxDecoration(
-                    color: Colors.grey, borderRadius: BorderRadius.circular(3)),
+                decoration:
+                    BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(3)),
               ),
             ),
             if (title != null)
@@ -47,10 +42,11 @@ class SheetContainer extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-            Wrap(
-              runSpacing: 20,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 15,
               children: children,
-            ),
+            )
           ],
         ),
       ),
