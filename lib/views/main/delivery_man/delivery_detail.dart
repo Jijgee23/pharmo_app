@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -58,6 +59,17 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
     }
   }
 
+  getOrdereId() {
+    final order = widget.order;
+    if (order.orderer != null && order.orderer!.name != null) {
+      return order.orderer!.id;
+    } else if (order.customer != null && order.customer!.name != null) {
+      return order.customer!.id;
+    } else {
+      return order.user!.id;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Order order = widget.order;
@@ -71,45 +83,88 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
     List<String> titles = ['Захиалагч', 'Нийт үнэ', 'Тоо ширхэг', 'Төлбөрийн хэлбэр', "Огноо"];
 
     return Consumer<JaggerProvider>(
-      builder: (context, jagger, child) => DataScreen(
-        loading: false,
-        empty: false,
-        appbar: SideAppBar(
-          text: widget.order.orderNo.toString(),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            spacing: 10,
-            children: [
-              title('Төлөв, явц'),
-              OrderStatusAnimation(process: process(order.process), status: status(order.status)),
-              title('Үндсэн мэдээллүүд'),
-              ...titles.map((title) => infoRow(title, data[titles.indexOf(title)])),
-              title('Захиалгын бараанууд'),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: primary),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.all(10),
-                height: order.items.length <= 2 ? 180 : 300,
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio: 1.1,
-                  ),
-                  itemCount: order.items.length,
-                  itemBuilder: (context, idx) => _product(order.items[idx]),
-                ),
-              ),
-              statusButton(context, widget.delId, order.id),
-              const SizedBox(height: 100)
-            ],
+      builder: (context, jagger, child) {
+        bool hasLoc =
+            (order.orderer != null && order.orderer!.lat != null && order.orderer!.lat != 'null');
+        return DataScreen(
+          loading: false,
+          empty: false,
+          appbar: SideAppBar(
+            text: widget.order.orderNo.toString(),
           ),
-        ),
-      ),
+          child: SingleChildScrollView(
+            child: Column(
+              spacing: 10,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        text: 'Төлөв өөрчлөх',
+                        ontap: () => changeStatus(widget.delId, order.id, context)),
+                    CustomButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        text: 'Төлбөр бүртгэх',
+                        ontap: () => changeStatus(widget.delId, order.id, context)),
+                  ],
+                ),
+                title('Төлөв, явц'),
+                OrderStatusAnimation(process: process(order.process), status: status(order.status)),
+                title('Үндсэн мэдээллүүд'),
+                ...titles.map((title) => infoRow(title, data[titles.indexOf(title)])),
+                if (hasLoc) title('Байршил'),
+                if (hasLoc)
+                  Container(
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                    height: 300,
+                    child: GoogleMap(
+                      mapType: MapType.normal,
+                      buildingsEnabled: true,
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId('_loc'),
+                          position: LatLng(
+                            parseDouble(order.orderer!.lat),
+                            parseDouble(order.orderer!.lng),
+                          ),
+                          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+                        )
+                      },
+                      initialCameraPosition: CameraPosition(
+                        zoom: 12,
+                        target: LatLng(
+                          parseDouble(order.orderer!.lat),
+                          parseDouble(order.orderer!.lng),
+                        ),
+                      ),
+                    ),
+                  ),
+                title('Захиалгын бараанууд'),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: primary),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  height: order.items.length <= 2 ? 180 : 300,
+                  child: GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 1.1,
+                    ),
+                    itemCount: order.items.length,
+                    itemBuilder: (context, idx) => _product(order.items[idx]),
+                  ),
+                ),
+                const SizedBox(height: 100)
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -121,17 +176,7 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)));
   }
 
-  paymentWidget(OrderPayment pay) {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(getPayType(pay.payType)),
-          Text(toPrice(pay.amount)),
-        ],
-      ),
-    );
-  }
+  //
 
   saveValues(JaggerProvider jagger) async {
     if (cash.text.isNotEmpty) {

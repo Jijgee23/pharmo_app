@@ -11,6 +11,8 @@ import 'package:pharmo_app/views/main/delivery_man/delivery_detail.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:provider/provider.dart';
 
 class DeliveryWidget extends StatefulWidget {
@@ -23,6 +25,37 @@ class DeliveryWidget extends StatefulWidget {
 }
 
 class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProviderStateMixin {
+  String selected = 'e';
+  String pType = 'E';
+  setSelected(String s, String p) {
+    setState(() {
+      selected = s;
+      pType = p;
+    });
+  }
+
+  String getName() {
+    final order = widget.order;
+    if (order.orderer != null && order.orderer!.name != 'null') {
+      return order.orderer!.name;
+    } else if (order.customer != null && order.customer!.name != 'null') {
+      return order.customer!.name;
+    } else {
+      return order.user!.name;
+    }
+  }
+
+  String getId() {
+    final order = widget.order;
+    if (order.orderer != null && order.orderer!.id != null) {
+      return order.orderer!.id.toString();
+    } else if (order.customer != null && order.customer!.id != null) {
+      return order.customer!.id.toString();
+    } else {
+      return order.user!.id.toString();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<String> expandedFields = ['Нийт үнэ', 'Тоо ширхэг', 'Явц', 'Төлөв', 'Төлбөрийн хэлбэр'];
@@ -34,50 +67,117 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
       getPayType(widget.order.payType)
     ];
 
-    String getName() {
-      final order = widget.order;
-      if (order.orderer != null && order.orderer!.name != null) {
-        return order.orderer!.name!;
-      } else if (order.customer != null && order.customer!.name != null) {
-        return order.customer!.name!;
-      } else {
-        return order.user!.name!;
-      }
-    }
+    return Consumer<JaggerProvider>(
+      builder: (context, jagger, child) => InkWell(
+        onTap: () => goto(DeliveryDetail(order: widget.order, delId: widget.delId)),
+        onLongPress: () => changeStatus(widget.delId, widget.order.id, context),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: padding15,
+          width: double.maxFinite,
+          decoration: BoxDecoration(
+              color: getOrderProcessColor(widget.order.process), borderRadius: border20),
+          child: Column(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // colored(getName(), Icons.person, neonBlue.withOpacity(.8)),
+                  colored(
+                    widget.order.orderNo.toString(),
+                    Icons.numbers,
+                    const Color.fromARGB(255, 66, 241, 145),
+                    // main: MainAxisAlignment.end,
+                  ),
+                  if (!widget.order.orderer!.id.contains('p'))
+                    CustomTextButton(
+                      color: Colors.deepPurple,
+                      text: 'Төлбөр бүртгэх',
+                      onTap: () => registerSheet(jagger, getId()),
+                      // child: const Text('Төлбөр бүртгэх'),
+                    ),
+                ],
+              ),
+              Column(
+                children: expandedFields
+                    .map((v) => infoRow(v, expandedValues[expandedFields.indexOf(v)],
+                        color1: white, color2: white))
+                    .toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-    return InkWell(
-      onTap: () => goto(DeliveryDetail(order: widget.order, delId: widget.delId)),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: padding15,
-        width: double.maxFinite,
-        decoration: BoxDecoration(
-            color: getOrderProcessColor(widget.order.process), borderRadius: border20),
-        child: Column(
-          spacing: 10,
-          crossAxisAlignment: CrossAxisAlignment.start,
+  TextEditingController amountCr = TextEditingController();
+
+  registerSheet(JaggerProvider jagger, String customerId) {
+    Get.bottomSheet(
+      StatefulBuilder(
+        builder: (context, setModalState) => SheetContainer(
+          title: '${getName()} харилцагч дээр төлбөр бүртгэх',
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                colored(getName(), Icons.person, neonBlue.withOpacity(.8)),
-                colored(widget.order.orderNo.toString(), Icons.numbers,
-                    const Color.fromARGB(255, 66, 241, 145),
-                    main: MainAxisAlignment.end),
+                picker('Бэлнээр', 'C', setModalState),
+                picker('Дансаар', 'T', setModalState),
               ],
             ),
-            Column(
-              children: expandedFields
-                  .map(
-                    (v) => infoRow(v, expandedValues[expandedFields.indexOf(v)],
-                        color1: white, color2: white),
-                  )
-                  .toList(),
+            CustomTextField(controller: amountCr, hintText: 'Дүн оруулах'),
+            CustomButton(
+              text: 'Хадгалах',
+              ontap: () {
+                if (amountCr.text.isEmpty) {
+                  message('Дүн оруулна уу!');
+                } else {
+                  registerPayment(jagger, pType, amountCr.text, customerId);
+                }
+              },
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget picker(String n, String v, Function(void Function()) setModalState) {
+    bool sel = (selected == n);
+    return InkWell(
+      onTap: () => setModalState(() {
+        selected = n;
+        pType = v;
+      }),
+      child: AnimatedContainer(
+        duration: duration,
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: sel ? 20 : 15),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: sel ? succesColor.withOpacity(.3) : white,
+          border: Border.all(
+            color: sel ? succesColor : grey300,
+          ),
+        ),
+        child: Text(n),
+      ),
+    );
+  }
+
+  registerPayment(JaggerProvider jagger, String type, String amount, String customerId) async {
+    if (amount.isEmpty) {
+      message('Дүн оруулна уу!');
+    } else if (type == 'E') {
+      message('Төлбөрийн хэлбэр сонгоно уу!');
+    } else {
+      await jagger.addCustomerPayment(type, amount, customerId);
+      setSelected('E', 'e');
+      amountCr.clear();
+      Navigator.pop(context);
+    }
   }
 
   Widget product(Item item, BuildContext context) {
@@ -188,51 +288,51 @@ Widget infoRow(String title, String value, {Color? color1, Color? color2}) {
   );
 }
 
-Widget statusButton(BuildContext context, int delId, int orderId) {
+changeStatus(dynamic delId, int orderId, BuildContext context) {
   List<String> statuses = ['Хүргэгдсэн', 'Хаалттай', 'Буцаагдсан', 'Түгээлтэнд гарсан'];
   final provider = Provider.of<JaggerProvider>(context, listen: false);
-
-  return CustomButton(
-    text: 'Төлөв өөрчлөх',
-    ontap: () {
-      Get.bottomSheet(
-        SheetContainer(
-          children: [
-            ...statuses.map(
-              (status) => InkWell(
-                onTap: () async {
-                  final data = {
-                    "delivery_id": delId,
-                    "order_id": orderId,
-                    "process": getOrderProcess(status)
-                  };
-                  final response = await apiPatch('delivery/order/', jsonEncode(data));
-                  if (response.statusCode == 200 || response.statusCode == 201) {
-                    message('Төлөв өөрчлөгдлөө');
-                    await provider.getDeliveries();
-                  } else {
-                    message(wait);
-                  }
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 7.5, horizontal: 20),
-                  decoration:
-                      const BoxDecoration(border: Border(bottom: BorderSide(color: atnessGrey))),
-                  child: Row(
-                    spacing: 15,
-                    children: [
-                      // const Icon(Icons.circle_rounded),
-                      Text(status),
-                    ],
+  Get.bottomSheet(
+    SheetContainer(
+      children: [
+        ...statuses.map(
+          (status) => InkWell(
+            onTap: () async {
+              final data = {
+                "delivery_id": delId.toString(),
+                "order_id": orderId,
+                "process": getOrderProcess(status)
+              };
+              final response = await apiPatch('delivery/order/', jsonEncode(data));
+              if (response.statusCode == 200 || response.statusCode == 201) {
+                message('Төлөв өөрчлөгдлөө');
+                await provider.getDeliveries();
+              } else {
+                message(wait);
+              }
+              Navigator.pop(context);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 7.5, horizontal: 20),
+              decoration:
+                  const BoxDecoration(border: Border(bottom: BorderSide(color: atnessGrey))),
+              child: Row(
+                spacing: 15,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: black, width: 2),
+                    ),
                   ),
-                ),
+                  Text(status),
+                ],
               ),
-            )
-          ],
-        ),
-      );
-    },
+            ),
+          ),
+        )
+      ],
+    ),
   );
 }
 
@@ -255,14 +355,26 @@ getOrderProcessColor(String process) {
   print(process);
   switch (process) {
     case "D":
-      return Colors.green;
+      return const Color.fromARGB(255, 17, 187, 23);
     case "C":
-      return neonBlue;
+      return const Color.fromARGB(255, 100, 210, 250);
     case "R":
-      return Colors.redAccent;
+      return const Color.fromARGB(255, 240, 41, 41);
     case "O":
-      return Colors.amber;
+      return const Color.fromARGB(255, 241, 193, 48);
+    case "P":
+      return primary.withAlpha(200);
     default:
-      Colors.white;
+      primary.withAlpha(200);
+  }
+}
+
+findCustId(Order order) {
+  if (order.orderer != null) {
+    return order.orderer!.id;
+  } else if (order.customer != null) {
+    return order.customer!.id;
+  } else if (order.user != null) {
+    return order.user!.id;
   }
 }

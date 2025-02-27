@@ -4,7 +4,6 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/main/delivery_man/add_payment.dart';
-import 'package:pharmo_app/views/main/delivery_man/shipment_expense.dart';
 import 'package:pharmo_app/views/main/delivery_man/shipment_history.dart';
 import 'package:pharmo_app/views/main/profile.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
@@ -38,14 +37,14 @@ class DeliveryProfile extends StatelessWidget {
                           icon: Icons.history,
                           color: darkBlue,
                           ontap: () => goto(const ShipmentHistory())),
+                      // SideMenu(
+                      //   title: 'Түгээлтийн зарлага',
+                      //   icon: Icons.account_balance_wallet,
+                      //   color: neonBlue,
+                      //   ontap: () => goto(const ShipmentExpensePage()),
+                      // ),
                       SideMenu(
-                        title: 'Түгээлтийн зарлага',
-                        icon: Icons.account_balance_wallet,
-                        color: neonBlue,
-                        ontap: () => goto(const ShipmentExpensePage()),
-                      ),
-                      SideMenu(
-                          title: 'Төлбөр тооцоо бүртгэх',
+                          title: 'Төлбөрийн жагсаалт',
                           icon: Icons.money,
                           color: Colors.green,
                           ontap: () => goto(const AddPayment())),

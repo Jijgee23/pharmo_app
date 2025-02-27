@@ -18,6 +18,8 @@
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/launcher_icon"
+        android:hardwareAccelerated="false"
+        android:usesCleartextTraffic="true"
         android:enableOnBackInvokedCallback="true">
         
         <activity

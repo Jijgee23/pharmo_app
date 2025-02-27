@@ -4,7 +4,8 @@ import 'package:pharmo_app/utilities/sizes.dart';
 class CustomTextButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
-  const CustomTextButton({super.key, required this.text, required this.onTap});
+  final Color? color;
+  const CustomTextButton({super.key, required this.text, required this.onTap, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +18,9 @@ class CustomTextButton extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: theme.primaryColor,
+            color: color ?? theme.primaryColor,
             fontWeight: FontWeight.bold,
-            fontSize: 14
+            fontSize: 14,
           ),
         ),
       ),

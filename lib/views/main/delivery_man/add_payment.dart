@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/get_core.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/models/customer.dart';
 import 'package:pharmo_app/controllers/models/payment.dart';
@@ -8,6 +10,7 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -61,9 +64,9 @@ class _AddPaymentState extends State<AddPayment> {
               Container(
                 decoration: BoxDecoration(
                   color: theme.primaryColor,
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                padding: const EdgeInsets.all(3),
+                padding: const EdgeInsets.all(5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -77,7 +80,7 @@ class _AddPaymentState extends State<AddPayment> {
                 children: (viewMode == 'Жагсаалт')
                     ? [
                         ...jagger.payments.map(
-                          (payment) => paymentBuilder(payment),
+                          (payment) => paymentBuilder(payment, jagger),
                         )
                       ]
                     : [
@@ -90,7 +93,12 @@ class _AddPaymentState extends State<AddPayment> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 15,
                           children: [
-                            ...pharm.filteredCustomers.take(3).map((cus) => customerBuilder(cus))
+                            if (pharm.filteredCustomers.isNotEmpty)
+                              ...pharm.filteredCustomers.take(3).map((cus) => customerBuilder(cus)),
+                            if (pharm.filteredCustomers.isEmpty)
+                              const Align(
+                                  alignment: Alignment.center,
+                                  child: Text('Харилцагч олдсонгүй', textAlign: TextAlign.center))
                           ],
                         ),
                         Row(
@@ -142,35 +150,71 @@ class _AddPaymentState extends State<AddPayment> {
     );
   }
 
-  Container paymentBuilder(Payment payment) {
-    return Container(
-      width: double.maxFinite,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10), border: Border.all(color: atnessGrey)),
-      padding: const EdgeInsets.all(15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 5,
-        children: [
-          Container(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              decoration: BoxDecoration(
-                color: primary.withAlpha(50),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                spacing: 10,
-                children: [
-                  Icon(Icons.person, color: theme.primaryColor.withAlpha(200)),
-                  Text(payment.cust.name!, style: const TextStyle(fontWeight: FontWeight.bold)),
-                ],
-              )),
-          Text('${toPrice(payment.amount)} (${getPayType(payment.payType)})'),
-          // Text(toPrice(payment.amount)),
-          Text(payment.paidOn.toString().substring(0, 10),
-              style:
-                  TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey.shade700))
-        ],
+  Widget paymentBuilder(Payment payment, JaggerProvider jagger) {
+    return InkWell(
+      onTap: () => editPayment(jagger, payment),
+      child: Container(
+        width: double.maxFinite,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10), border: Border.all(color: atnessGrey)),
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 5,
+          children: [
+            Container(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                decoration: BoxDecoration(
+                  color: primary.withAlpha(50),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  spacing: 10,
+                  children: [
+                    Icon(Icons.person, color: theme.primaryColor.withAlpha(200)),
+                    Text(payment.cust.name!, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                )),
+            Text('${toPrice(payment.amount)} (${getPayType(payment.payType)})'),
+            Text(payment.paidOn.toString().substring(0, 10),
+                style: TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey.shade700))
+          ],
+        ),
+      ),
+    );
+  }
+
+  TextEditingController ctr = TextEditingController();
+
+  editPayment(JaggerProvider jagger, Payment payment) async {
+    setState(() {
+      ctr.text = payment.amount.toString();
+    });
+
+    setSelected(payment.payType == 'C' ? 'Бэлнээр' : 'Дансаар', payment.payType);
+    Get.bottomSheet(
+      StatefulBuilder(
+        builder: (context, setModalState) {
+          return SheetContainer(children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                picker2('Бэлнээр', 'C', setModalState),
+                picker2('Дансаар', 'T', setModalState)
+              ],
+            ),
+            CustomTextField(controller: ctr),
+            CustomButton(
+              text: 'Хадгалах',
+              ontap: () {
+                jagger.editCustomerPayment(
+                    payment.cust.id.toString(), payment.paymentId, pType, ctr.text);
+                Navigator.pop(context);
+              },
+            )
+          ]);
+        },
       ),
     );
   }
@@ -186,13 +230,13 @@ class _AddPaymentState extends State<AddPayment> {
         width: !picked ? Sizes.width * .38 : Sizes.width * .5,
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: !picked ? theme.primaryColor : white,
-          borderRadius: BorderRadius.circular(15),
+          color: !picked ? theme.primaryColor : succesColor,
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Center(
           child: Text(
             n,
-            style: TextStyle(fontWeight: FontWeight.bold, color: !picked ? white : black),
+            style: TextStyle(fontWeight: FontWeight.bold, color: !picked ? white : white),
           ),
         ),
       ),
@@ -208,7 +252,7 @@ class _AddPaymentState extends State<AddPayment> {
     } else if (customer == null) {
       message('Харилцагч сонгоно уу!');
     } else {
-      await jagger.addCustomerPayment(pType, amount.text, parseInt(customer!.id));
+      await jagger.addCustomerPayment(pType, amount.text, customer!.id.toString());
       amount.clear();
       setState(() {
         customer = null;
@@ -216,6 +260,28 @@ class _AddPaymentState extends State<AddPayment> {
         selected = 'e';
       });
     }
+  }
+
+  Widget picker2(String n, String v, Function(void Function()) setModalState) {
+    bool sel = (selected == n);
+    return InkWell(
+      onTap: () => setModalState(() {
+        selected = n;
+        pType = v;
+      }),
+      child: AnimatedContainer(
+        duration: duration,
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: sel ? 20 : 15),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: sel ? succesColor.withOpacity(.3) : white,
+          border: Border.all(
+            color: sel ? succesColor : grey300,
+          ),
+        ),
+        child: Text(n),
+      ),
+    );
   }
 
   Widget picker(String n, String v) {

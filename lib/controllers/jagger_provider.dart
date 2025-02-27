@@ -396,8 +396,15 @@ class JaggerProvider extends ChangeNotifier {
   sendJaggerLocation(int deliveryId, BuildContext context) async {
     try {
       getLocation(context);
-      http.Response res = await apiPatch('delivery/location/',
-          jsonEncode({"delivery_id": deliveryId, "lat": _latitude, "lng": _longitude}));
+      http.Response res = await apiPatch(
+          'delivery/location/',
+          jsonEncode(
+            {
+              "delivery_id": deliveryId,
+              "lat": parseDouble(_latitude),
+              "lng": parseDouble(_longitude)
+            },
+          ));
       print(res.body);
       if (res.statusCode == 200) {
         return {'errorType': 1, 'data': null, 'message': 'Түгээгчийн байршлыг амжилттай илгээлээ.'};
@@ -465,13 +472,37 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  addCustomerPayment(String type, String amount, int customerId) async {
+  addCustomerPayment(String type, String amount, String customerId) async {
     try {
-      final data = {"customer_id": customerId, "pay_type": type, "amount": amount};
+      final data = {"customer_id": int.parse(customerId), "pay_type": type, "amount": amount};
       final res = await apiPost('customer_payment/', data);
       print(convertData(res));
       if (res.statusCode == 201) {
         message('Амжилттай бүртгэлээ');
+        await getCustomerPayment();
+      } else {
+        message(wait);
+      }
+    } catch (e) {
+      message(wait);
+      debugPrint(e.toString());
+    }
+  }
+
+  editCustomerPayment(String customerId, int payId, String payType, String amount) async {
+    try {
+      print(amount);
+      final data = {
+        "customer_id": int.parse(customerId),
+        "payment_id": payId,
+        "pay_type": payType,
+        "amount": amount
+      };
+      final res = await apiPatch('customer_payment/', jsonEncode(data));
+      print(convertData(res));
+      if (res.statusCode == 200) {
+        getCustomerPayment();
+        message('Амжилттай хадгаллаа');
         await getCustomerPayment();
       } else {
         message(wait);
