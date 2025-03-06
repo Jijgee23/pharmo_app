@@ -72,6 +72,8 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>location</string>
+		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
@@ -103,6 +105,11 @@
     <key>CFBundleURLSchemes</key>
     <array>
       <string>Pharmo.mn</string>
+    </array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+	<string>task-identifier</string>
+	<string>be.tramckrijte.workmanagerExample.iOSBackgroundAppRefresh</string>
     </array>
   </dict>
 </array>

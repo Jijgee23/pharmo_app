@@ -24,6 +24,7 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
     homeProvider.getUserInfo();
+
     super.initState();
   }
 

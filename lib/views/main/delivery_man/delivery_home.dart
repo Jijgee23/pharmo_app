@@ -44,6 +44,10 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       setLoading(true);
       Future.microtask(() => context.read<JaggerProvider>().getDeliveries());
+      if (context.read<JaggerProvider>().delivery.isNotEmpty) {
+        Future.microtask(() => context.read<JaggerProvider>().initJagger());
+      }
+
       setLoading(false);
     });
   }
@@ -56,6 +60,7 @@ class _DeliveryHomeState extends State<DeliveryHome> {
 
   endShipment(int shipmentId, JaggerProvider jagger) async {
     setLoading(true);
+    jagger.stopForegroundService();
     await jagger.endShipment(shipmentId, context);
     Navigator.pop(context);
     if (mounted) setLoading(false);
@@ -148,10 +153,15 @@ class _DeliveryHomeState extends State<DeliveryHome> {
           const SizedBox(),
           if (jagger.timer == null || !jagger.timer!.isActive)
             Button(
-                text: 'Байршил дамжуулах',
-                color: neonBlue,
-                onTap: () =>
-                    jagger.start(del.id, context).then((e) => message('Байршил дамжуулж эхлэлээ'))),
+              text: 'Байршил дамжуулах',
+              color: neonBlue,
+              onTap: () async {
+                await jagger.initJagger();
+                await jagger
+                    .start(del.id, context)
+                    .then((e) => message('Байршил дамжуулж эхлэлээ'));
+              },
+            ),
           Text('Захиалгууд:', style: st),
           ...users.map(
             (user) => Container(
@@ -165,20 +175,17 @@ class _DeliveryHomeState extends State<DeliveryHome> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        maybeNull(user!.name),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
+                      Text(maybeNull(user!.name),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       if (!user.id.contains('p'))
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                           decoration: BoxDecoration(
                               color: neonBlue, borderRadius: BorderRadius.circular(15)),
                           child: CustomTextButton(
-                            color: white,
-                            text: 'Төлбөр бүртгэх',
-                            onTap: () => registerSheet(jagger, user),
-                          ),
+                              color: white,
+                              text: 'Төлбөр бүртгэх',
+                              onTap: () => registerSheet(jagger, user)),
                         ),
                     ],
                   ),

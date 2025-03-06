@@ -51,11 +51,11 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
   String getName() {
     final order = widget.order;
     if (order.orderer != null && order.orderer!.name != null) {
-      return order.orderer!.name!;
+      return order.orderer!.name;
     } else if (order.customer != null && order.customer!.name != null) {
-      return order.customer!.name!;
+      return order.customer!.name;
     } else {
-      return order.user!.name!;
+      return order.user!.name;
     }
   }
 
@@ -103,10 +103,10 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         text: 'Төлөв өөрчлөх',
                         ontap: () => changeStatus(widget.delId, order.id, context)),
-                    CustomButton(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        text: 'Төлбөр бүртгэх',
-                        ontap: () => changeStatus(widget.delId, order.id, context)),
+                    // CustomButton(
+                    //     padding: const EdgeInsets.symmetric(horizontal: 20),
+                    //     text: 'Төлбөр бүртгэх',
+                    //     ontap: () => changeStatus(widget.delId, order.id, context)),
                   ],
                 ),
                 title('Төлөв, явц'),

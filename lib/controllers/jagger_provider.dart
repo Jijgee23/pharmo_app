@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,6 +16,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
 
 class JaggerProvider extends ChangeNotifier {
   final List<Jagger> _jaggers = <Jagger>[];
@@ -113,8 +115,8 @@ class JaggerProvider extends ChangeNotifier {
     timer = Timer.periodic(
       const Duration(seconds: 10),
       (timer) async {
-        getLocation(context);
-        await sendJaggerLocation(id, context);
+        getLocation();
+        await sendJaggerLocation(id);
         setSending(true);
       },
     );
@@ -202,9 +204,9 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> startShipment(int shipmentId, BuildContext context) async {
     try {
-      await getLocation(context);
+      await getLocation();
       await Provider.of<HomeProvider>(context, listen: false).getPosition();
-      await getLocation(context);
+      await getLocation();
       final pref = await SharedPreferences.getInstance();
       var body = {"delivery_id": shipmentId, "lat": latitude, "lng": longitude};
       http.Response res = await apiPatch('delivery/start/', jsonEncode(body));
@@ -217,7 +219,7 @@ class JaggerProvider extends ChangeNotifier {
         start(shipmentId, context);
         message('Түгээлт эхлэлээ');
       } else {
-        dynamic send = sendJaggerLocation(shipmentId, context);
+        dynamic send = sendJaggerLocation(shipmentId);
         message(send['message']);
         message('Түгээлт эхлэхэд алдаа гарлаа');
       }
@@ -367,7 +369,7 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Position> _getCurrentLocation(BuildContext context) async {
+  Future<Position> _getCurrentLocation() async {
     servicePermission = await Geolocator.isLocationServiceEnabled();
 
     if (!servicePermission) {
@@ -386,23 +388,57 @@ class JaggerProvider extends ChangeNotifier {
   String get latitude => _latitude;
   String get longitude => _longitude;
 
-  getLocation(BuildContext context) async {
-    _currentLocation = await _getCurrentLocation(context);
+  getLocation() async {
+    _currentLocation = await _getCurrentLocation();
     _latitude = _currentLocation!.latitude.toString().substring(0, 7);
     _longitude = _currentLocation!.longitude.toString().substring(0, 7);
     print('lat: $_latitude lng: $_longitude');
   }
 
-  sendJaggerLocation(int deliveryId, BuildContext context) async {
+  initJagger() {
+    startForegroundService();
+    Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+    Workmanager().registerPeriodicTask("locationTask", "sendLocation",
+        frequency: const Duration(minutes: 10));
+  }
+
+  void callbackDispatcher() {
+    Workmanager().executeTask((task, inputData) async {
+      if (delivery.isNotEmpty) {
+        await sendJaggerLocation(delivery[0].id);
+      }
+      return Future.value(true);
+    });
+  }
+
+  void startForegroundService() {
+    FlutterForegroundTask.startService(
+      notificationTitle: 'Түгээлтийн мэдээлэл',
+      notificationText: 'Байршил дамжуулсан.',
+      callback: () async {
+        if (delivery.isNotEmpty) {
+          await sendJaggerLocation(delivery[0].id);
+        }
+      },
+    );
+  }
+
+  void stopForegroundService() {
+    FlutterForegroundTask.stopService();
+  }
+
+  sendJaggerLocation(int deliveryId) async {
     try {
-      getLocation(context);
+      _currentLocation = await _getCurrentLocation();
+      _latitude = _currentLocation!.latitude.toString().substring(0, 7);
+      _longitude = _currentLocation!.longitude.toString().substring(0, 7);
       http.Response res = await apiPatch(
           'delivery/location/',
           jsonEncode(
             {
               "delivery_id": deliveryId,
-              "lat": parseDouble(_latitude),
-              "lng": parseDouble(_longitude)
+              "lat": _currentLocation!.latitude,
+              "lng": _currentLocation!.longitude
             },
           ));
       print(res.body);
