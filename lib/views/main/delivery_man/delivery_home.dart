@@ -5,13 +5,13 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/utilities/location_service.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/main/delivery_man/delivery_widget.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -44,9 +44,6 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       setLoading(true);
       Future.microtask(() => context.read<JaggerProvider>().getDeliveries());
-      if (context.read<JaggerProvider>().delivery.isNotEmpty) {
-        Future.microtask(() => context.read<JaggerProvider>().initJagger());
-      }
 
       setLoading(false);
     });
@@ -54,14 +51,13 @@ class _DeliveryHomeState extends State<DeliveryHome> {
 
   startShipment(int shipmentId, JaggerProvider jagger) async {
     setLoading(true);
-    await jagger.startShipment(shipmentId, context);
+    await jagger.startShipment(shipmentId);
     if (mounted) setLoading(false);
   }
 
   endShipment(int shipmentId, JaggerProvider jagger) async {
     setLoading(true);
-    jagger.stopForegroundService();
-    await jagger.endShipment(shipmentId, context);
+    await jagger.endShipment(shipmentId);
     Navigator.pop(context);
     if (mounted) setLoading(false);
   }
@@ -151,17 +147,14 @@ class _DeliveryHomeState extends State<DeliveryHome> {
         children: [
           startingWidget(del, jagger),
           const SizedBox(),
-          if (jagger.timer == null || !jagger.timer!.isActive)
-            Button(
-              text: 'Байршил дамжуулах',
-              color: neonBlue,
-              onTap: () async {
-                await jagger.initJagger();
-                await jagger
-                    .start(del.id, context)
-                    .then((e) => message('Байршил дамжуулж эхлэлээ'));
-              },
-            ),
+          button(
+            title: 'Байршил дамжуулах',
+            color: neonBlue,
+            onTap: () async {
+              LocationService().startTracking(del.id);
+              message('Байршил дамжуулж эхлэлээ');
+            },
+          ),
           Text('Захиалгууд:', style: st),
           ...users.map(
             (user) => Container(
@@ -189,15 +182,15 @@ class _DeliveryHomeState extends State<DeliveryHome> {
                         ),
                     ],
                   ),
-                  ...del.orders.map((order) => getUser(order)!.id == user.id
-                      ? DeliveryWidget(order: order, delId: del.id)
-                      : const SizedBox()),
+                  ...del.orders.map(
+                    (order) => getUser(order)!.id == user.id
+                        ? DeliveryWidget(order: order, delId: del.id)
+                        : const SizedBox(),
+                  ),
                 ],
               ),
             ),
           ),
-          // ...del.orders.map((order) => DeliveryWidget(order: order, delId: del.id)),
-          // customer(123, del.orders),
           endingWidget(del, jagger),
         ],
       ),
@@ -417,7 +410,7 @@ class _DeliveryHomeState extends State<DeliveryHome> {
         style: ElevatedButton.styleFrom(
             backgroundColor: theme.colorScheme.onPrimary,
             shadowColor: grey400,
-            shape: RoundedRectangleBorder(borderRadius: border20),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             padding: const EdgeInsets.symmetric(vertical: 10)),
         child: Center(
           child: loading

@@ -6,15 +6,14 @@ class Button extends StatelessWidget {
   final Function()? onTap;
   final Color? color;
   final double? width;
-  const Button(
-      {super.key, required this.text, this.onTap, this.color, this.width});
+  const Button({super.key, required this.text, this.onTap, this.color, this.width});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Container(
       width: width ?? size.width * 0.4,
-      padding: EdgeInsets.symmetric(vertical: size.width * 0.03),
+      padding: EdgeInsets.symmetric(vertical: size.width * 0.03, horizontal: 10),
       decoration: BoxDecoration(
         color: color ?? theme.primaryColor,
         borderRadius: BorderRadius.circular(size.width * 0.05),

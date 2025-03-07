@@ -180,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
           Expanded(
             flex: 4,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: BoxDecoration(
                 color: theme.cardColor,
               ),

@@ -27,11 +27,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _openBox() async {
     try {
-      Future.delayed(Duration.zero, () => goto(const LoginPage()));
       box1 = await Hive.openBox('auth');
-      setState(() {
-        isSplashed = box1.get('splash');
-      });
+      if (box1.get('splash') == null) {
+      } else {
+        Future.delayed(Duration.zero, () => goto(const LoginPage()));
+      }
     } catch (e) {
       debugPrint('Error opening Hive box: $e');
     }

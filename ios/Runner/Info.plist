@@ -111,6 +111,10 @@
 	<string>task-identifier</string>
 	<string>be.tramckrijte.workmanagerExample.iOSBackgroundAppRefresh</string>
     </array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+    <string>dev.flutter.background.refresh</string>
+    </array>
   </dict>
 </array>
 </dict>

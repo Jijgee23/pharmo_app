@@ -1,22 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/controllers/models/jagger.dart';
 import 'package:pharmo_app/controllers/models/jagger_expense_order.dart';
 import 'package:pharmo_app/controllers/models/payment.dart';
 import 'package:pharmo_app/controllers/models/ship.dart';
 import 'package:pharmo_app/controllers/models/shipment.dart';
+import 'package:pharmo_app/utilities/location_service.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workmanager/workmanager.dart';
 
 class JaggerProvider extends ChangeNotifier {
   final List<Jagger> _jaggers = <Jagger>[];
@@ -68,6 +65,8 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Position? _currentPosition;
+
   final List<String> _filters = [
     'Огноогоор',
     'Захиалгын тоогоор',
@@ -103,39 +102,39 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Timer? timer;
+  // Timer? timer;
 
-  Future start(int id, BuildContext context) async {
-    // final pref = await SharedPreferences.getInstance();
-    if (timer != null && timer!.isActive) {
-      print("Timer is already active. Skipping start...");
-      return;
-    }
+  // Future start(int id) async {
+  //   // final pref = await SharedPreferences.getInstance();
+  //   if (timer != null && timer!.isActive) {
+  //     print("Timer is already active. Skipping start...");
+  //     return;
+  //   }
 
-    timer = Timer.periodic(
-      const Duration(seconds: 10),
-      (timer) async {
-        getLocation();
-        await sendJaggerLocation(id);
-        setSending(true);
-      },
-    );
+  //   timer = Timer.periodic(
+  //     const Duration(seconds: 10),
+  //     (timer) async {
+  //       getLocation();
+  //       await sendJaggerLocation(id);
+  //       setSending(true);
+  //     },
+  //   );
 
-    print("Timer started.");
-    notifyListeners();
-  }
+  //   print("Timer started.");
+  //   notifyListeners();
+  // }
 
-  void stop() {
-    if (timer != null && timer!.isActive) {
-      print("Timer is active. Canceling it now...");
-      timer!.cancel();
-      timer = null;
-      setSending(true);
-    } else {
-      print("Timer was already null or inactive.");
-    }
-    notifyListeners();
-  }
+  // void stop() {
+  //   if (timer != null && timer!.isActive) {
+  //     print("Timer is active. Canceling it now...");
+  //     timer!.cancel();
+  //     timer = null;
+  //     setSending(true);
+  //   } else {
+  //     print("Timer was already null or inactive.");
+  //   }
+  //   notifyListeners();
+  // }
 
   List<Delivery> delivery = [];
   List<Zone> zones = [];
@@ -145,10 +144,15 @@ class JaggerProvider extends ChangeNotifier {
       http.Response response = await apiGet('delivery/delman_active/');
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final prefs = await SharedPreferences.getInstance();
+
         print(data);
         delivery = (data as List).map((d) => Delivery.fromJson(d)).toList();
         for (final d in delivery) {
           zones = d.zones;
+        }
+        if (delivery.isNotEmpty) {
+          await prefs.setInt('onDeliveryId', delivery[0].id);
         }
         notifyListeners();
       }
@@ -202,21 +206,22 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> startShipment(int shipmentId, BuildContext context) async {
+  Future<dynamic> startShipment(int shipmentId) async {
     try {
-      await getLocation();
-      await Provider.of<HomeProvider>(context, listen: false).getPosition();
-      await getLocation();
+      // await getLocation();
       final pref = await SharedPreferences.getInstance();
-      var body = {"delivery_id": shipmentId, "lat": latitude, "lng": longitude};
+      var body = {
+        "delivery_id": shipmentId,
+        "lat": _currentPosition!.latitude,
+        "lng": _currentPosition!.longitude
+      };
       http.Response res = await apiPatch('delivery/start/', jsonEncode(body));
       print(res.body);
       if (res.statusCode == 200) {
-        // final response = convertData(res);
         pref.setInt('onDeliveryId', shipmentId);
         await getDeliveries();
         setSending(true);
-        start(shipmentId, context);
+        LocationService().startTracking(shipmentId);
         message('Түгээлт эхлэлээ');
       } else {
         dynamic send = sendJaggerLocation(shipmentId);
@@ -228,18 +233,17 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> endShipment(int shipmentId, BuildContext context) async {
+  Future<dynamic> endShipment(int shipmentId) async {
     try {
       var body = jsonEncode({"delivery_id": shipmentId});
-
       http.Response res = await apiPatch('delivery/end/', body);
       print(res.body);
       if (res.statusCode == 200) {
         final pref = await SharedPreferences.getInstance();
-        print("Status code 200 received. Stopping the timer...");
         pref.remove('onDeliveryId');
-        stop();
+        // stopLocationTracking();
         await getDeliveries();
+        LocationService().stopTracking();
         message('Түгээлт дууслаа.');
         notifyListeners();
       } else {
@@ -369,79 +373,42 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Position> _getCurrentLocation() async {
-    servicePermission = await Geolocator.isLocationServiceEnabled();
+  // Future<Position> _getCurrentLocation() async {
+  //   servicePermission = await Geolocator.isLocationServiceEnabled();
 
-    if (!servicePermission) {
-      message('Permission тохируулна уу');
-    }
-    permission = await Geolocator.checkPermission();
+  //   if (!servicePermission) {
+  //     message('Permission тохируулна уу');
+  //   }
+  //   permission = await Geolocator.checkPermission();
 
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    return await Geolocator.getCurrentPosition();
-  }
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //   }
+  //   return await Geolocator.getCurrentPosition();
+  // }
 
-  String _latitude = '';
-  String _longitude = '';
-  String get latitude => _latitude;
-  String get longitude => _longitude;
+  // getLocation() async {
+  //   _currentLocation = await _getCurrentLocation();
+  //   print(_currentLocation!.latitude);
+  //   _currentPosition = _currentLocation;
+  // }
 
-  getLocation() async {
-    _currentLocation = await _getCurrentLocation();
-    _latitude = _currentLocation!.latitude.toString().substring(0, 7);
-    _longitude = _currentLocation!.longitude.toString().substring(0, 7);
-    print('lat: $_latitude lng: $_longitude');
-  }
-
-  initJagger() {
-    startForegroundService();
-    Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
-    Workmanager().registerPeriodicTask("locationTask", "sendLocation",
-        frequency: const Duration(minutes: 10));
-  }
-
-  void callbackDispatcher() {
-    Workmanager().executeTask((task, inputData) async {
-      if (delivery.isNotEmpty) {
-        await sendJaggerLocation(delivery[0].id);
-      }
-      return Future.value(true);
-    });
-  }
-
-  void startForegroundService() {
-    FlutterForegroundTask.startService(
-      notificationTitle: 'Түгээлтийн мэдээлэл',
-      notificationText: 'Байршил дамжуулсан.',
-      callback: () async {
-        if (delivery.isNotEmpty) {
-          await sendJaggerLocation(delivery[0].id);
-        }
-      },
-    );
-  }
-
-  void stopForegroundService() {
-    FlutterForegroundTask.stopService();
-  }
+  // void startLocationTracking() {
+  //   LocationService().startTracking(delivery[0].id);
+  // }
 
   sendJaggerLocation(int deliveryId) async {
     try {
-      _currentLocation = await _getCurrentLocation();
-      _latitude = _currentLocation!.latitude.toString().substring(0, 7);
-      _longitude = _currentLocation!.longitude.toString().substring(0, 7);
       http.Response res = await apiPatch(
-          'delivery/location/',
-          jsonEncode(
-            {
-              "delivery_id": deliveryId,
-              "lat": _currentLocation!.latitude,
-              "lng": _currentLocation!.longitude
-            },
-          ));
-      print(res.body);
+        'delivery/location/',
+        jsonEncode(
+          {
+            "delivery_id": deliveryId,
+            "lat": _currentPosition!.latitude,
+            "lng": _currentPosition!.longitude
+          },
+        ),
+      );
       if (res.statusCode == 200) {
         return {'errorType': 1, 'data': null, 'message': 'Түгээгчийн байршлыг амжилттай илгээлээ.'};
       } else if (res.statusCode == 400) {
@@ -468,12 +435,6 @@ class JaggerProvider extends ChangeNotifier {
         'message': 'Түгээгчийн байршлыг илгээхэд алдаа гарлаа.'
       };
     }
-  }
-
-  bool isFetching = false;
-  changeFetching() {
-    isFetching = !isFetching;
-    notifyListeners();
   }
 
   List<Delivery> history = <Delivery>[];
@@ -573,10 +534,3 @@ class ValidationModel {
   String? error;
   ValidationModel(this.value, this.error);
 }
-
-getLatOrLng(double p) {
-  return p.toString().substring(0, 7);
-}
-
-
-//seller/get_delivery_zones/

@@ -64,7 +64,10 @@ class AuthController extends ChangeNotifier {
   }
 
   Map<String, String> get header {
-    return {'Content-Type': 'application/json; charset=UTF-8'};
+    return {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'X-Pharmo-Client': '!pharmo_app?',
+    };
   }
 
   bool checker(Map response, String key) {
@@ -371,7 +374,7 @@ class AuthController extends ChangeNotifier {
         };
       }
       final data = {
-        'deviceId': deviceData['deviceId'],
+        'token': deviceData['deviceId'],
         'platform': deviceData['platform'],
         'brand': deviceData['brand'],
         'model': deviceData['model'],
@@ -380,8 +383,7 @@ class AuthController extends ChangeNotifier {
         'osVersion': deviceData['osVersion']
       };
       print(data['deviceId']);
-
-      http.Response response = await apiPost('device_id/', data);
+      http.Response response = await apiPost('device_token/', data);
       if (response.statusCode == 200) {
         debugPrint('Device info sent');
       } else {

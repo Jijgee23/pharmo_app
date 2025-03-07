@@ -36,7 +36,8 @@ Future<String> getAccessToken() async {
 getHeader(String token) {
   Map<String, String> headers = {
     'Content-Type': 'application/json; charset=UTF-8',
-    'Authorization': token
+    'X-Pharmo-Client': '!pharmo_app?',
+    'Authorization': token,
   };
   return headers;
 }
