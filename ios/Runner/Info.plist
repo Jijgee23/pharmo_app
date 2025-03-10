@@ -73,7 +73,6 @@
 	<array>
 		<string>fetch</string>
 		<string>location</string>
-		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
@@ -108,8 +107,10 @@
     </array>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>
-	<string>task-identifier</string>
-	<string>be.tramckrijte.workmanagerExample.iOSBackgroundAppRefresh</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+    <string>mn.infosystems.pharmo.backgroundtaskidentifier</string>
+    </array>
     </array>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>

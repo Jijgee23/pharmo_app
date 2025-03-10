@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/admin/.shorebird/bin/cache/flutter/2e1bcd18e2dc3b8251dc0671085c6518d37e16ad/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/admin/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/admin/Documents/GitHub/pharmo_app/android/app/.cxx/RelWithDebInfo/1p4z5z6h/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/admin/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/admin/Documents/GitHub/pharmo_app/android/app/.cxx/RelWithDebInfo/1p4z5z6h/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

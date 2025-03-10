@@ -1,0 +1,2 @@
+/Users/admin/Documents/GitHub/pharmo_app/android/app/.cxx/RelWithDebInfo/1p4z5z6h/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/admin/Documents/GitHub/pharmo_app/android/app/.cxx/RelWithDebInfo/1p4z5z6h/armeabi-v7a/CMakeFiles/rebuild_cache.dir
