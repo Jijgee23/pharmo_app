@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/models/income.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -10,8 +8,8 @@ class IncomeProvider extends ChangeNotifier {
 
   getIncomeList() async {
     try {
-      final response = await apiGet('income_record/');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'income_record/');
+      if (response!.statusCode == 200) {
         Map res = convertData(response);
         List<dynamic> resList = res['results'];
         incomeList.clear();
@@ -26,8 +24,8 @@ class IncomeProvider extends ChangeNotifier {
 
   getIncomeListByDateSinlge(String date) async {
     try {
-      final response = await apiGet('income_record/?createdOn__date=$date');
-      if (response.statusCode == 200) {
+      final response = await apiRequest("GET", endPoint: 'income_record/?createdOn__date=$date');
+      if (response!.statusCode == 200) {
         Map res = convertData(response);
         List<dynamic> resList = res['results'];
         incomeList.clear();
@@ -42,9 +40,9 @@ class IncomeProvider extends ChangeNotifier {
 
   getIncomeListByDateRanged(String date1, String date2) async {
     try {
-      final response =
-          await apiGet('income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2');
-      if (response.statusCode == 200) {
+      final response = await apiRequest("GET",
+          endPoint: 'income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2');
+      if (response!.statusCode == 200) {
         Map res = convertData(response);
         List<dynamic> resList = res['results'];
         incomeList.clear();
@@ -59,11 +57,11 @@ class IncomeProvider extends ChangeNotifier {
 
   recordIncome(String note, String amount) async {
     try {
-      final response = await apiPost('income_record/', {
+      final response = await apiRequest('POST', endPoint: 'income_record/', body: {
         'note': note,
         'amount': amount,
       });
-      if (response.statusCode == 201) {
+      if (response!.statusCode == 201) {
         message('Амжилттай бүртгэгдлээ');
       }
       notifyListeners();
@@ -75,9 +73,9 @@ class IncomeProvider extends ChangeNotifier {
 
   updateIncome(int id, String note, String amount) async {
     try {
-      final response =
-          await apiPatch('income_record/$id/', jsonEncode({'note': note, 'amount': amount}));
-      if (response.statusCode == 200) {
+      final response = await apiRequest('PATCH',
+          endPoint: 'income_record/$id/', body: {'note': note, 'amount': amount});
+      if (response!.statusCode == 200) {
         message('Амжилттай');
       }
       notifyListeners();

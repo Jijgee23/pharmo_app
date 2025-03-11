@@ -1,0 +1,71 @@
+import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/utilities/sizes.dart';
+
+askDialog(BuildContext context, Function() onYes, String title, List<Widget>? children) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        child: Container(
+          decoration: BoxDecoration(color: white, borderRadius: BorderRadius.circular(15)),
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              spacing: 15,
+              children: [
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                ...children!,
+                DialogButton(
+                  title: 'Үгүй',
+                  bColor: grey400,
+                  tColor: black,
+                ),
+                DialogButton(
+                  title: 'Тийм',
+                  bColor: theme.colorScheme.onPrimary,
+                  tColor: white,
+                  onTap: onYes,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+class DialogButton extends StatelessWidget {
+  final String title;
+  final Color bColor;
+  final Color tColor;
+  final Function()? onTap;
+  const DialogButton({
+    super.key,
+    required this.title,
+    required this.bColor,
+    required this.tColor,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.maxFinite,
+      child: ElevatedButton(
+        onPressed: onTap ?? () => Navigator.pop(context),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: bColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          padding: const EdgeInsets.symmetric(vertical: 12.5),
+        ),
+        child: Text(title, style: TextStyle(color: tColor, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+}

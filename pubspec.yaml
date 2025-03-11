@@ -1,5 +1,6 @@
 name: pharmo_app
 description: "Эмийн бөөний худалда, захиалгын систем."
+publish_to: none
 
 version: 1.0.13+57
 environment:
@@ -55,7 +56,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.3
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
   image_path: "assets/1024.png"
 

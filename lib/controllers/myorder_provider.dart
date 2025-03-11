@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/models/my_order.dart';
 import 'package:pharmo_app/controllers/models/my_order_detail.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:http/http.dart' as http;
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
 class MyOrderProvider extends ChangeNotifier {
@@ -19,8 +17,8 @@ class MyOrderProvider extends ChangeNotifier {
   late MyOrderDetailModel fetchedDetail;
   getSellerOrders() async {
     try {
-      final res = await apiGet('seller/order/');
-      if (res.statusCode == 200) {
+      final res = await apiRequest('GET', endPoint: 'seller/order/');
+      if (res!.statusCode == 200) {
         final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
@@ -34,9 +32,8 @@ class MyOrderProvider extends ChangeNotifier {
 
   deleteSellerOrders({required int orderId}) async {
     try {
-      http.Response res = await apiDelete('seller/order/$orderId/');
-      print(res.body);
-      if (res.statusCode == 204) {
+      final res = await apiRequest('DELETE', endPoint: 'seller/order/$orderId/');
+      if (res!.statusCode == 204) {
         message('Захиалга устлаа');
       } else {
         message(wait);
@@ -50,8 +47,8 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future filterOrder(String type, String query) async {
     try {
-      final res = await apiGet('seller/order/?$type=$query');
-      if (res.statusCode == 200) {
+      final res = await apiRequest('GET', endPoint: 'seller/order/?$type=$query');
+      if (res!.statusCode == 200) {
         final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
@@ -65,8 +62,8 @@ class MyOrderProvider extends ChangeNotifier {
 
   getSellerOrdersByDateRanged(String startDate, String endDate) async {
     try {
-      final res = await apiGet('order/?start=$startDate&end=$endDate');
-      if (res.statusCode == 200) {
+      final res = await apiRequest('GET', endPoint: 'seller/order/?start=$startDate&end=$endDate');
+      if (res!.statusCode == 200) {
         final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
@@ -80,8 +77,8 @@ class MyOrderProvider extends ChangeNotifier {
 
   getSellerOrdersByDateSingle(String date) async {
     try {
-      final res = await apiGet('order/?start=$date');
-      if (res.statusCode == 200) {
+      final res = await apiRequest('GET', endPoint: 'seller/order/?start=$date');
+      if (res!.statusCode == 200) {
         final response = convertData(res);
         List<dynamic> ords = response['results'];
         sellerOrders.clear();
@@ -95,8 +92,8 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> getMyorders() async {
     try {
-      final res = await apiGet('pharmacy/orders/');
-      if (res.statusCode == 200) {
+      final res = await apiRequest('GET', endPoint: 'pharmacy/orders/');
+      if (res!.statusCode == 200) {
         _orders.clear();
         final response = convertData(res);
         List<dynamic> ords = response['orders'];
@@ -114,8 +111,8 @@ class MyOrderProvider extends ChangeNotifier {
 
   getMyorderDetail(int orderId) async {
     try {
-      final res = await apiGet('pharmacy/orders/$orderId/items/');
-      if (res.statusCode == 200) {
+      final res = await apiRequest('GET', endPoint: 'pharmacy/orders/$orderId/items/');
+      if (res!.statusCode == 200) {
         _orderDetails.clear();
         final response = convertData(res);
         List<dynamic> dtls = response;
@@ -132,8 +129,8 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> getSuppliers() async {
     try {
-      final response = await apiGet('suppliers');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'suppliers/');
+      if (response!.statusCode == 200) {
         final res = convertData(response);
         return {'errorType': 1, 'data': res, 'message': 'Нийлүүлэгчидийг амжилттай авчирлаа.'};
       } else {
@@ -146,8 +143,8 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> getBranches() async {
     try {
-      final response = await apiGet('branch');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'branch/');
+      if (response!.statusCode == 200) {
         final res = convertData(response);
         return {'errorType': 1, 'data': res, 'message': 'Нийлүүлэгчидийг амжилттай авчирлаа.'};
       } else {
@@ -162,17 +159,17 @@ class MyOrderProvider extends ChangeNotifier {
     try {
       dynamic res;
       if (selectedFilter == '0') {
-        res = await apiGet('pharmacy/orders/?process=$selectedItem');
+        res = await apiRequest('GET', endPoint: 'pharmacy/orders/?process=$selectedItem');
       } else if (selectedFilter == '1') {
-        res = await apiGet('pharmacy/orders/?status=$selectedItem');
+        res = await apiRequest('GET', endPoint: 'pharmacy/orders/?status=$selectedItem');
       } else if (selectedFilter == '2') {
-        res = await apiGet('pharmacy/orders/?payType=$selectedItem');
+        res = await apiRequest('GET', endPoint: 'pharmacy/orders/?payType=$selectedItem');
       } else if (selectedFilter == '3') {
-        res = await apiGet('pharmacy/orders/?address=$selectedItem');
+        res = await apiRequest('GET', endPoint: 'pharmacy/orders/?address=$selectedItem');
       } else if (selectedFilter == '4') {
-        res = await apiGet('pharmacy/orders/?supplier=$selectedItem');
+        res = await apiRequest('GET', endPoint: 'pharmacy/orders/?supplier=$selectedItem');
       } else {
-        res = await apiGet('pharmacy/orders/');
+        res = await apiRequest('GET', endPoint: 'pharmacy/orders/');
       }
       if (res.statusCode == 200) {
         _orders.clear();
@@ -192,9 +189,9 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future confirmOrder(int orderId) async {
     try {
-      http.Response res = await apiPatch('pharmacy/accept_order/', jsonEncode({"id": orderId}));
-      print('++++++++++++++++++${res.statusCode}++++++++++++++++++');
-      switch (res.statusCode) {
+      final res =
+          await apiRequest('PATCH', endPoint: 'pharmacy/accept_order/', body: {"id": orderId});
+      switch (res!.statusCode) {
         case 200:
           await getMyorders();
           return buildResponse(1, null, 'Таны захиалга амжилттай баталгаажлаа.');

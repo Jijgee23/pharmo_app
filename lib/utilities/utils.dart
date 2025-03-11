@@ -4,6 +4,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:pharmo_app/views/auth/login.dart';
+import 'package:pharmo_app/views/main/profile.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart' as intl;
@@ -62,59 +65,59 @@ getApiInformation(String endPoint, http.Response response) {
   }
 }
 
-apiGet(String endPoint) async {
-  try {
-    http.Response response = await http.get(
-      setUrl(endPoint),
-      headers: getHeader(await getAccessToken()),
-    );
-    getApiInformation(endPoint, response);
-    return response;
-  } catch (e) {
-    debugPrint(e.toString());
-  }
-}
+// apiGet(String endPoint) async {
+//   try {
+//     http.Response response = await http.get(
+//       setUrl(endPoint),
+//       headers: getHeader(await getAccessToken()),
+//     );
+//     getApiInformation(endPoint, response);
+//     return response;
+//   } catch (e) {
+//     debugPrint(e.toString());
+//   }
+// }
 
-apiPost(String endPoint, Object? body) async {
-  try {
-    http.Response response = await http.post(setUrl(endPoint),
-        headers: getHeader(await getAccessToken()), body: jsonEncode(body));
-    getApiInformation(endPoint, response);
-    return response;
-  } catch (e) {
-    debugPrint(e.toString());
-  }
-}
+// apiPost(String endPoint, Object? body) async {
+//   try {
+//     http.Response response = await http.post(setUrl(endPoint),
+//         headers: getHeader(await getAccessToken()), body: jsonEncode(body));
+//     getApiInformation(endPoint, response);
+//     return response;
+//   } catch (e) {
+//     debugPrint(e.toString());
+//   }
+// }
 
-apiPatch(String endPoint, Object? body) async {
-  try {
-    http.Response response = await http.patch(
-      setUrl(endPoint),
-      headers: getHeader(await getAccessToken()),
-      body: body,
-    );
-    getApiInformation(endPoint, response);
-    return response;
-  } catch (e) {
-    debugPrint(e.toString());
-  }
-}
+// apiPatch(String endPoint, Object? body) async {
+//   try {
+//     http.Response response = await http.patch(
+//       setUrl(endPoint),
+//       headers: getHeader(await getAccessToken()),
+//       body: body,
+//     );
+//     getApiInformation(endPoint, response);
+//     return response;
+//   } catch (e) {
+//     debugPrint(e.toString());
+//   }
+// }
 
-apiDelete(String endPoint) async {
-  try {
-    http.Response response = await http.delete(
-      setUrl(endPoint),
-      headers: getHeader(await getAccessToken()),
-    );
-    getApiInformation(endPoint, response);
-    return response;
-  } catch (e) {
-    debugPrint(e.toString());
-  }
-}
+// apiDelete(String endPoint) async {
+//   try {
+//     http.Response response = await http.delete(
+//       setUrl(endPoint),
+//       headers: getHeader(await getAccessToken()),
+//     );
+//     getApiInformation(endPoint, response);
+//     return response;
+//   } catch (e) {
+//     debugPrint(e.toString());
+//   }
+// }
 
-Future<http.Response?> apiRequest({
-  required String method,
+Future<http.Response?> apiRequest(
+  String method, {
   required String endPoint,
   Map<String, dynamic>? body,
 }) async {
@@ -122,7 +125,6 @@ Future<http.Response?> apiRequest({
     final Uri url = setUrl(endPoint);
     final Map<String, String> headers = await getHeader(await getAccessToken());
     http.Response response;
-
     switch (method.toUpperCase()) {
       case 'GET':
         response = await http.get(url, headers: headers);
@@ -138,6 +140,13 @@ Future<http.Response?> apiRequest({
         break;
       default:
         throw UnsupportedError('HTTP method $method is not supported.');
+    }
+    if (response.statusCode == 401) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.remove('access_token');
+      prefs.remove('refresh_token');
+      message('Өөр холболт илэрлээ. Та дахин нэвтэрнэ үү.');
+      gotoRemoveUntil(LoginPage());
     }
 
     getApiInformation(endPoint, response);

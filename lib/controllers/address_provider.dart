@@ -63,8 +63,8 @@ class AddressProvider extends ChangeNotifier {
 
   getProvince() async {
     try {
-      final response = await apiGet('aimag_hot/');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'aimag_hot/');
+      if (response!.statusCode == 200) {
         List res = jsonDecode(utf8.decode(response.bodyBytes));
         provinces = res.map((e) => Province.fromJson(e)).toList();
         notifyListeners();
@@ -76,8 +76,8 @@ class AddressProvider extends ChangeNotifier {
 
   getDistrictId(int provId, BuildContext context) async {
     try {
-      final response = await apiGet('sum_duureg/?aimag=$provId');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'sum_duureg/?aimag=$provId');
+      if (response!.statusCode == 200) {
         List res = jsonDecode(utf8.decode(response.bodyBytes));
         districts.clear();
         districts = res.map((e) => District.fromJson(e)).toList();
@@ -90,8 +90,8 @@ class AddressProvider extends ChangeNotifier {
 
   getKhoroo(int distId, BuildContext context) async {
     try {
-      final response = await apiGet('bag_horoo/?sum=$distId');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'bag_horoo/?sum=$distId');
+      if (response!.statusCode == 200) {
         List res = jsonDecode(utf8.decode(response.bodyBytes));
         khoroos = res.map((e) => Khoroo.fromJson(e)).toList();
         notifyListeners();

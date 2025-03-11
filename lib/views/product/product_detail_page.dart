@@ -69,8 +69,8 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
   getProductDetail() async {
     setFetching(true);
     try {
-      final response = await apiGet('products/${widget.prod.id}/');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'products/${widget.prod.id}/');
+      if (response!.statusCode == 200) {
         Map<String, dynamic> data = convertData(response);
         print(data);
         setState(() {

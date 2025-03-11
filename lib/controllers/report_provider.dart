@@ -17,8 +17,8 @@ class ReportProvider extends ChangeNotifier {
     String e =
         'seller/report/?by=$query&year=${currentDate.year}&month=${currentDate.month}&year2=${currentDate2.year}&month2=${currentDate2.month}';
     try {
-      final response = await apiGet(e);
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: e);
+      if (response!.statusCode == 200) {
         print(convertData(response).runtimeType);
         List<dynamic> data = convertData(response);
         setReport(data);

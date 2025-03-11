@@ -36,8 +36,8 @@ class _MyOrderDetailState extends State<MyOrderDetail> {
   }
 
   getDetails() async {
-    final res = await apiGet('pharmacy/orders/${widget.id}/items/');
-    final data = convertData(res);
+    final res = await apiRequest('GET', endPoint: 'pharmacy/orders/${widget.id}/items/');
+    final data = convertData(res!);
     if (res.statusCode == 200) {
       setState(() {
         products = (data as List).map((e) => MyOrderDetailModel.fromJson(e)).toList();

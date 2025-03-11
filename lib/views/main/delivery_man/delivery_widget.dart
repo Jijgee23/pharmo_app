@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
@@ -58,13 +57,13 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    List<String> expandedFields = ['Нийт үнэ', 'Тоо ширхэг', 'Явц', 'Төлөв', 'Төлбөрийн хэлбэр'];
+    List<String> expandedFields = ['Нийт үнэ', 'Тоо ширхэг', 'Явц', 'Төлөв'];
     List<String> expandedValues = [
       toPrice(widget.order.totalPrice),
       widget.order.totalCount.toString(),
       process(widget.order.process),
       status(widget.order.status),
-      getPayType(widget.order.payType)
+      // getPayType(widget.order.payType)
     ];
 
     return Consumer<JaggerProvider>(
@@ -73,10 +72,11 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
         onLongPress: () => changeStatus(widget.delId, widget.order.id, context),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          padding: padding15,
+          padding: padding10,
+          margin: EdgeInsets.only(top: 7.5),
           width: double.maxFinite,
           decoration: BoxDecoration(
-              color: getOrderProcessColor(widget.order.process), borderRadius: border20),
+              color: getOrderProcessColor(widget.order.process), borderRadius: border10),
           child: Column(
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,19 +84,16 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // colored(getName(), Icons.person, neonBlue.withOpacity(.8)),
                   colored(
                     widget.order.orderNo.toString(),
                     Icons.numbers,
                     const Color.fromARGB(255, 66, 241, 145),
-                    // main: MainAxisAlignment.end,
                   ),
                   if (!widget.order.orderer!.id.contains('p'))
                     CustomTextButton(
                       color: Colors.deepPurple,
                       text: 'Төлбөр бүртгэх',
                       onTap: () => registerSheet(jagger, getId()),
-                      // child: const Text('Төлбөр бүртгэх'),
                     ),
                 ],
               ),
@@ -106,6 +103,9 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
                         color1: white, color2: white))
                     .toList(),
               ),
+              Align(
+                  alignment: Alignment.centerRight,
+                  child: Text('Дэлгэрэнгүй >', style: const TextStyle(color: white))),
             ],
           ),
         ),
@@ -302,8 +302,8 @@ changeStatus(dynamic delId, int orderId, BuildContext context) {
                 "order_id": orderId,
                 "process": getOrderProcess(status)
               };
-              final response = await apiPatch('delivery/order/', jsonEncode(data));
-              if (response.statusCode == 200 || response.statusCode == 201) {
+              final response = await apiRequest('PATCH', endPoint: 'delivery/order/', body: data);
+              if (response!.statusCode == 200 || response.statusCode == 201) {
                 message('Төлөв өөрчлөгдлөө');
                 await provider.getDeliveries();
               } else {

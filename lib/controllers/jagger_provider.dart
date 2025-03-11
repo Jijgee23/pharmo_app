@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
@@ -9,6 +8,7 @@ import 'package:pharmo_app/controllers/models/jagger_expense_order.dart';
 import 'package:pharmo_app/controllers/models/payment.dart';
 import 'package:pharmo_app/controllers/models/ship.dart';
 import 'package:pharmo_app/controllers/models/shipment.dart';
+import 'package:pharmo_app/main.dart';
 import 'package:pharmo_app/utilities/location_service.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -34,7 +34,6 @@ class JaggerProvider extends ChangeNotifier {
   final ValidationModel _rqtyVal = ValidationModel(null, null);
   ValidationModel get rqtyVal => _rqtyVal;
 
-  Position? _currentLocation;
   late bool servicePermission = false;
   late LocationPermission permission;
 
@@ -102,47 +101,13 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Timer? timer;
-
-  // Future start(int id) async {
-  //   // final pref = await SharedPreferences.getInstance();
-  //   if (timer != null && timer!.isActive) {
-  //     print("Timer is already active. Skipping start...");
-  //     return;
-  //   }
-
-  //   timer = Timer.periodic(
-  //     const Duration(seconds: 10),
-  //     (timer) async {
-  //       getLocation();
-  //       await sendJaggerLocation(id);
-  //       setSending(true);
-  //     },
-  //   );
-
-  //   print("Timer started.");
-  //   notifyListeners();
-  // }
-
-  // void stop() {
-  //   if (timer != null && timer!.isActive) {
-  //     print("Timer is active. Canceling it now...");
-  //     timer!.cancel();
-  //     timer = null;
-  //     setSending(true);
-  //   } else {
-  //     print("Timer was already null or inactive.");
-  //   }
-  //   notifyListeners();
-  // }
-
   List<Delivery> delivery = [];
   List<Zone> zones = [];
 
   Future<dynamic> getDeliveries() async {
     try {
-      http.Response response = await apiGet('delivery/delman_active/');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'delivery/delman_active/');
+      if (response!.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         final prefs = await SharedPreferences.getInstance();
 
@@ -164,8 +129,8 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> getDeliveryDetail(int id) async {
     try {
-      http.Response response = await apiGet('order/$id/');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'order/$id/');
+      if (response!.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         print(data);
       }
@@ -178,8 +143,8 @@ class JaggerProvider extends ChangeNotifier {
   addPaymentToDeliveryOrder(int orderId, String payType, String value) async {
     final data = {"order_id": orderId, "pay_type": payType, "amount": value};
     try {
-      final res = await apiPost('order_payment/', data);
-      if (res.statusCode == 200 || res.statusCode == 201) {
+      final res = await apiRequest('POST', endPoint: 'order_payment/', body: data);
+      if (res!.statusCode == 200 || res.statusCode == 201) {
         message('Амжилттай хадгалагдлаа');
         await getDeliveries();
         notifyListeners();
@@ -193,8 +158,8 @@ class JaggerProvider extends ChangeNotifier {
 
   Future getExpenses() async {
     try {
-      final res = await apiGet('shipment_expense/');
-      if (res.statusCode == 200) {
+      final res = await apiRequest("GET", endPoint: 'shipment_expense/');
+      if (res!.statusCode == 200) {
         final response = convertData(res);
         expenses.clear();
         expenses =
@@ -208,25 +173,37 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> startShipment(int shipmentId) async {
     try {
-      // await getLocation();
-      final pref = await SharedPreferences.getInstance();
-      var body = {
-        "delivery_id": shipmentId,
-        "lat": _currentPosition!.latitude,
-        "lng": _currentPosition!.longitude
-      };
-      http.Response res = await apiPatch('delivery/start/', jsonEncode(body));
-      print(res.body);
-      if (res.statusCode == 200) {
-        pref.setInt('onDeliveryId', shipmentId);
-        await getDeliveries();
-        setSending(true);
-        LocationService().startTracking(shipmentId);
-        message('Түгээлт эхлэлээ');
+      servicePermission = await Geolocator.isLocationServiceEnabled();
+
+      if (!servicePermission) {
+        message('Permission тохируулна уу');
+      }
+      permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      } else if (permission == LocationPermission.deniedForever) {
+        message('Permission тохируулна уу');
       } else {
-        dynamic send = sendJaggerLocation(shipmentId);
-        message(send['message']);
-        message('Түгээлт эхлэхэд алдаа гарлаа');
+        _currentPosition = await _getCurrentLocation();
+        final pref = await SharedPreferences.getInstance();
+        var body = {
+          "delivery_id": shipmentId,
+          "lat": _currentPosition!.latitude,
+          "lng": _currentPosition!.longitude
+        };
+        final res = await apiRequest('PATCH', endPoint: 'delivery/start/', body: body);
+        if (res!.statusCode == 200) {
+          pref.setInt('onDeliveryId', shipmentId);
+          await getDeliveries();
+          setSending(true);
+          LocationService().startTracking(shipmentId);
+          message('Түгээлт эхлэлээ');
+        } else {
+          dynamic send = sendJaggerLocation(shipmentId);
+          message(send['message']);
+          message('Түгээлт эхлэхэд алдаа гарлаа');
+        }
       }
     } catch (e) {
       return {'fail': e};
@@ -235,15 +212,19 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> endShipment(int shipmentId) async {
     try {
-      var body = jsonEncode({"delivery_id": shipmentId});
-      http.Response res = await apiPatch('delivery/end/', body);
-      print(res.body);
-      if (res.statusCode == 200) {
+      var body = {"delivery_id": shipmentId};
+      final res = await apiRequest('PATCH', endPoint: 'delivery/end/', body: body);
+      if (res!.statusCode == 200) {
         final pref = await SharedPreferences.getInstance();
         pref.remove('onDeliveryId');
-        // stopLocationTracking();
         await getDeliveries();
         LocationService().stopTracking();
+        flutterLocalNotificationsPlugin.show(
+          0,
+          'Түгээлт дууслаа',
+          'Таны $shipmentId дугаартай түгээлт дууслаа.',
+          platformChannelSpecifics,
+        );
         message('Түгээлт дууслаа.');
         notifyListeners();
       } else {
@@ -263,8 +244,9 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> addExpense(String note, String amount, BuildContext context) async {
     try {
-      final res = await apiPost('shipment_expense/', {"note": note, "amount": amount});
-      if (res.statusCode == 201) {
+      final res = await apiRequest('POST',
+          endPoint: 'shipment_expense/', body: {"note": note, "amount": amount});
+      if (res!.statusCode == 201) {
         await getExpenses();
         return buildResponse(0, null, 'Түгээлтийн зарлага нэмэгдлээ.');
       } else {
@@ -279,9 +261,9 @@ class JaggerProvider extends ChangeNotifier {
 
   addnote(int shipId, int itemId, BuildContext context) async {
     try {
-      var body = jsonEncode({"shipId": shipId, "itemId": itemId, "note": feedback.text});
-      final res = await apiPatch('shipment_add_note/', body);
-      if (res.statusCode == 200) {
+      var body = {"shipId": shipId, "itemId": itemId, "note": feedback.text};
+      final res = await apiRequest('PATCH', endPoint: 'shipment_add_note/', body: body);
+      if (res!.statusCode == 200) {
         message('Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
         feedback.clear();
       }
@@ -292,9 +274,9 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> setFeedback(int shipId, int itemId) async {
     try {
-      var body = jsonEncode({"shipId": shipId, "itemId": itemId, "note": feedback.text});
-      final res = await apiPatch('shipment_add_note/', body);
-      if (res.statusCode == 200) {
+      var body = {"shipId": shipId, "itemId": itemId, "note": feedback.text};
+      final res = await apiRequest('PATCH', endPoint: 'shipment_add_note/', body: body);
+      if (res!.statusCode == 200) {
         message('Түгээлтийн тайлбар амжилттай нэмэгдлээ.');
         feedback.text = '';
       } else {}
@@ -305,10 +287,10 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> editExpenseAmount(int id) async {
     try {
-      final res = await apiPatch(
-          'shipment_expense/$id/', jsonEncode({"note": note.text, "amount": amount.text}));
-      notifyListeners();
-      if (res.statusCode == 200) {
+      final res = await apiRequest('PATCH',
+          endPoint: 'shipment_expense/$id/', body: {"note": note.text, "amount": amount.text});
+
+      if (res!.statusCode == 200) {
         final response = convertData(res);
         await getExpenses();
         amount.text = '';
@@ -328,10 +310,9 @@ class JaggerProvider extends ChangeNotifier {
 
   updateQTY(int itemId, int qty) async {
     try {
-      http.Response res =
-          await apiPatch('update_item_qty/', jsonEncode({"itemId": itemId, "qty": qty}));
-      print(res.body);
-      if (res.statusCode == 200) {
+      final res = await apiRequest('PATCH',
+          endPoint: 'update_item_qty/', body: {"itemId": itemId, "qty": qty});
+      if (res!.statusCode == 200) {
         await getDeliveries();
         message('Амжилттай засагдлаа.');
       } else {
@@ -373,19 +354,19 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<Position> _getCurrentLocation() async {
-  //   servicePermission = await Geolocator.isLocationServiceEnabled();
+  Future<Position> _getCurrentLocation() async {
+    servicePermission = await Geolocator.isLocationServiceEnabled();
 
-  //   if (!servicePermission) {
-  //     message('Permission тохируулна уу');
-  //   }
-  //   permission = await Geolocator.checkPermission();
+    if (!servicePermission) {
+      message('Permission тохируулна уу');
+    }
+    permission = await Geolocator.checkPermission();
 
-  //   if (permission == LocationPermission.denied) {
-  //     permission = await Geolocator.requestPermission();
-  //   }
-  //   return await Geolocator.getCurrentPosition();
-  // }
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    return await Geolocator.getCurrentPosition();
+  }
 
   // getLocation() async {
   //   _currentLocation = await _getCurrentLocation();
@@ -399,17 +380,12 @@ class JaggerProvider extends ChangeNotifier {
 
   sendJaggerLocation(int deliveryId) async {
     try {
-      http.Response res = await apiPatch(
-        'delivery/location/',
-        jsonEncode(
-          {
-            "delivery_id": deliveryId,
-            "lat": _currentPosition!.latitude,
-            "lng": _currentPosition!.longitude
-          },
-        ),
-      );
-      if (res.statusCode == 200) {
+      final res = await apiRequest('PATCH', endPoint: 'delivery/location/', body: {
+        "delivery_id": deliveryId,
+        "lat": _currentPosition!.latitude,
+        "lng": _currentPosition!.longitude
+      });
+      if (res!.statusCode == 200) {
         return {'errorType': 1, 'data': null, 'message': 'Түгээгчийн байршлыг амжилттай илгээлээ.'};
       } else if (res.statusCode == 400) {
         if (res.body.toString().contains('not found!')) {
@@ -441,8 +417,8 @@ class JaggerProvider extends ChangeNotifier {
 
   getShipmentHistory() async {
     try {
-      final res = await apiGet('delivery/history/');
-      if (res.statusCode == 200) {
+      final res = await apiRequest('GET', endPoint: 'shipment/history/');
+      if (res!.statusCode == 200) {
         final data = convertData(res);
         print(data);
         List<dynamic> ships = data['results'];
@@ -455,8 +431,8 @@ class JaggerProvider extends ChangeNotifier {
 
   filterShipment(String type, String value) async {
     try {
-      final res = await apiGet('shipment/history/?$type=$value');
-      if (res.statusCode == 200) {
+      final res = await apiRequest('GET', endPoint: 'shipment/history/?$type=$value');
+      if (res!.statusCode == 200) {
         Map<String, dynamic> data = convertData(res);
         shipments.clear();
         List<dynamic> ships = data['results'];
@@ -472,9 +448,8 @@ class JaggerProvider extends ChangeNotifier {
   addCustomerPayment(String type, String amount, String customerId) async {
     try {
       final data = {"customer_id": int.parse(customerId), "pay_type": type, "amount": amount};
-      final res = await apiPost('customer_payment/', data);
-      print(convertData(res));
-      if (res.statusCode == 201) {
+      final res = await apiRequest('POST', endPoint: 'customer_payment/', body: data);
+      if (res!.statusCode == 201) {
         message('Амжилттай бүртгэлээ');
         await getCustomerPayment();
       } else {
@@ -495,9 +470,8 @@ class JaggerProvider extends ChangeNotifier {
         "pay_type": payType,
         "amount": amount
       };
-      final res = await apiPatch('customer_payment/', jsonEncode(data));
-      print(convertData(res));
-      if (res.statusCode == 200) {
+      final res = await apiRequest('PATCH', endPoint: 'customer_payment/', body: data);
+      if (res!.statusCode == 200) {
         getCustomerPayment();
         message('Амжилттай хадгаллаа');
         await getCustomerPayment();
@@ -514,9 +488,8 @@ class JaggerProvider extends ChangeNotifier {
 
   getCustomerPayment() async {
     try {
-      final res = await apiGet('customer_payment/');
-      print(convertData(res));
-      if (res.statusCode == 200) {
+      final res = await apiRequest('GET', endPoint: 'customer_payment/');
+      if (res!.statusCode == 200) {
         final data = convertData(res);
         payments = (data as List).map((payment) => Payment.fromJson(payment)).toList();
         notifyListeners();

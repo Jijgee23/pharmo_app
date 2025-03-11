@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
@@ -20,9 +21,23 @@ import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+void initializeNotifications() {
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  flutterLocalNotificationsPlugin.initialize(initializationSettings);
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseApi.initFirebase();
+  initializeNotifications();
   await Upgrader.clearSavedSettings();
   await Hive.initFlutter();
   await dotenv.load(fileName: ".env");

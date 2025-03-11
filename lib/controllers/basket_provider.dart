@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/models/basket.dart';
 import 'package:pharmo_app/controllers/models/order_qrcode.dart';
@@ -10,7 +8,6 @@ import 'package:pharmo_app/views/main/cart/order_done.dart';
 import 'package:pharmo_app/views/main/cart/qr_code.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class BasketProvider extends ChangeNotifier {
   final TextEditingController qty = TextEditingController();
@@ -58,8 +55,8 @@ class BasketProvider extends ChangeNotifier {
 
   getBasket() async {
     try {
-      final resBasket = await apiGet('get_basket/');
-      if (resBasket.statusCode == 200) {
+      final resBasket = await apiRequest('GET', endPoint: 'get_basket/');
+      if (resBasket!.statusCode == 200) {
         final res = convertData(resBasket);
         _basket = Basket.fromJson(res);
         _count = _basket.items != null && _basket.items!.isNotEmpty ? _basket.items!.length : 0;
@@ -85,8 +82,8 @@ class BasketProvider extends ChangeNotifier {
             bodyStr['${shoppingCarts[i]["product_id"]}'] = shoppingCarts[i]["qty"];
           }
         }
-        final response = await apiPatch('check_qty/', jsonEncode({"data": bodyStr}));
-        if (response.statusCode == 200) {
+        final response = await apiRequest('PATCH', endPoint: 'check_qty/', body: {"data": bodyStr});
+        if (response!.statusCode == 200) {
           Map res = convertData(response);
           qtys.clear();
           res.forEach((k, v) {
@@ -108,12 +105,10 @@ class BasketProvider extends ChangeNotifier {
 
   checkItemQty(int id, int qty) async {
     try {
-      http.Response response = await apiPatch(
-          'check_qty/',
-          jsonEncode({
-            "data": {'$id': qty}
-          }));
-      if (response.statusCode == 200) {
+      final response = await apiRequest('PATCH', endPoint: 'check_qty/', body: {
+        "data": {'$id': qty}
+      });
+      if (response!.statusCode == 200) {
         Map<String, dynamic> res = convertData(response);
         if (res['$id'] == null) {
           return buildResponse(0, res, null);
@@ -136,9 +131,9 @@ class BasketProvider extends ChangeNotifier {
     required int qty,
   }) async {
     try {
-      http.Response response =
-          await apiPatch('user_basket/', jsonEncode({'product_id': product.id, 'qty': qty}));
-      if (response.statusCode == 200) {
+      final response = await apiRequest('PATCH',
+          endPoint: 'user_basket/', body: {'product_id': product.id, 'qty': qty});
+      if (response!.statusCode == 200) {
         if (convertData(response).toString().contains('available_qty')) {
           if (convertData(response)['available_qty'] == 0) {
             return buildResponse(4, null, 'Бараа дууссан');
@@ -172,9 +167,10 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket() async {
     try {
-      final response = await apiPatch('clear_basket/', jsonEncode({'basket_id': basket.id}));
+      final response =
+          await apiRequest('PATCH', endPoint: 'clear_basket/', body: {'basket_id': basket.id});
       await getBasket();
-      if (response.statusCode == 200) {
+      if (response!.statusCode == 200) {
         debugPrint('basket cleared');
         await getBasket();
         notifyListeners();
@@ -186,7 +182,7 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> removeBasketItem({required int itemId}) async {
     try {
-      await apiDelete('basket_item/$itemId/');
+      await apiRequest('DELETE', endPoint: 'basket_item/$itemId/');
     } catch (e) {
       return buildResponse(2, null, 'Сагснаас бараа устгах үед алдаа гарлаа.');
     }
@@ -202,9 +198,9 @@ class BasketProvider extends ChangeNotifier {
       } else {
         qty = qty - 1;
       }
-      http.Response resQR =
-          await apiPatch('basket_item/$itemId/', jsonEncode({"qty": int.parse(qty.toString())}));
-      if (resQR.statusCode == 200) {
+      final resQR = await apiRequest('PATCH',
+          endPoint: 'basket_item/$itemId/', body: {"qty": int.parse(qty.toString())});
+      if (resQR!.statusCode == 200) {
         await getBasket();
         return buildResponse(1, null, 'Барааны тоог амжилттай өөрчиллөө.');
       } else {
@@ -227,8 +223,8 @@ class BasketProvider extends ChangeNotifier {
         'branchId': (branchId == -1) ? null : branchId,
         'note': note != '' ? note : null
       };
-      http.Response response = await apiPost('pharmacy/order/', body);
-      final res = convertData(response);
+      final response = await apiRequest('POST', endPoint: 'pharmacy/order/', body: body);
+      final res = convertData(response!);
       if (response.statusCode == 200) {
         Future(() async {
           await clearBasket();
@@ -251,8 +247,8 @@ class BasketProvider extends ChangeNotifier {
       required BuildContext context}) async {
     try {
       var body = {'branchId': (branchId == 0) ? null : branchId, 'note': note != '' ? note : null};
-      final resQR = await apiPost('ci/', body);
-      final data = convertData(resQR);
+      final resQR = await apiRequest('POST', endPoint: 'ci/', body: body);
+      final data = convertData(resQR!);
       final status = resQR.statusCode;
       if (status == 200) {
         _qrCode = OrderQRCode.fromJson(data);
@@ -281,9 +277,8 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> checkPayment() async {
     try {
-      http.Response resQR = await apiGet('cp/');
-      print(resQR.body);
-      if (resQR.statusCode == 200) {
+      final resQR = await apiRequest('GET', endPoint: 'cp/');
+      if (resQR!.statusCode == 200) {
         dynamic response = convertData(resQR);
         return {'errorType': 1, 'data': response, 'message': 'Төлбөр амжилттай төлөгдсөн байна.'};
       } else if (resQR.statusCode == 404) {

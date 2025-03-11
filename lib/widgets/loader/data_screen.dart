@@ -36,8 +36,8 @@ class DataScreen extends StatelessWidget {
             : (empty)
                 ? customEmpty ?? noResult()
                 : Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 7.5),
+                    margin: const EdgeInsets.only(top: 7.5),
                     child: child,
                   ),
         bottomNavigationBar: navbar,

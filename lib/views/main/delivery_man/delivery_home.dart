@@ -1,24 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/location_service.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/main/delivery_man/delivery_widget.dart';
+import 'package:pharmo_app/views/main/delivery_man/orderer.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/marked_promo_dialog.dart';
-import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:pharmo_app/widgets/loader/waving_animation.dart';
 import 'package:provider/provider.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
 
 class DeliveryHome extends StatefulWidget {
   const DeliveryHome({super.key});
@@ -29,9 +22,7 @@ class DeliveryHome extends StatefulWidget {
 class _DeliveryHomeState extends State<DeliveryHome> {
   bool loading = false;
   setLoading(bool n) {
-    setState(() {
-      loading = n;
-    });
+    setState(() => loading = n);
   }
 
   @override
@@ -41,12 +32,13 @@ class _DeliveryHomeState extends State<DeliveryHome> {
   }
 
   fetch() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      setLoading(true);
-      Future.microtask(() => context.read<JaggerProvider>().getDeliveries());
-
-      setLoading(false);
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async {
+        setLoading(true);
+        Future.microtask(() => context.read<JaggerProvider>().getDeliveries());
+        setLoading(false);
+      },
+    );
   }
 
   startShipment(int shipmentId, JaggerProvider jagger) async {
@@ -69,15 +61,6 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     await fetch();
   }
 
-  String selected = 'e';
-  String pType = 'E';
-  setSelected(String s, String p) {
-    setState(() {
-      selected = s;
-      pType = p;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<JaggerProvider>(
@@ -85,21 +68,13 @@ class _DeliveryHomeState extends State<DeliveryHome> {
         final dels = jagger.delivery;
         return DataScreen(
           loading: loading,
-          empty: false,
+          empty: dels.isEmpty,
           onRefresh: () async => await refresh(),
           child: SingleChildScrollView(
             child: Column(
               spacing: 10,
               children: [
-                ...dels.map(
-                  (del) {
-                    if (del.orders.isEmpty) {
-                      return const SizedBox.shrink();
-                    } else {
-                      return deliveryContaier(del, jagger);
-                    }
-                  },
-                ),
+                ...dels.map((del) => deliveryContaier(del, jagger)),
                 const SizedBox(height: 100),
               ],
             ),
@@ -109,26 +84,15 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     );
   }
 
-  User? getUser(Order order) {
-    if (order.orderer != null) {
-      return order.orderer;
-    } else if (order.customer != null) {
-      return order.customer;
-    } else if (order.user != null) {
-      return order.user;
-    }
-    return null;
-  }
-
   List<User> getUniqueUsers(List<Order> orders) {
-    Set<String> userIds = {}; // Track unique user IDs
+    Set<String> userIds = {};
     List<User> users = [];
 
     for (var order in orders) {
       var user = getUser(order);
       if (user != null && !userIds.contains(user.id)) {
         users.add(user);
-        userIds.add(user.id); // Store ID to prevent duplicates
+        userIds.add(user.id);
       }
     }
     return users;
@@ -136,111 +100,47 @@ class _DeliveryHomeState extends State<DeliveryHome> {
 
   Widget deliveryContaier(Delivery del, JaggerProvider jagger) {
     List<User?> users = getUniqueUsers(del.orders);
-
     return Container(
-      padding: padding10,
+      padding: EdgeInsets.all(7.5),
       width: double.maxFinite,
-      decoration: BoxDecoration(color: primary.withAlpha(150), borderRadius: border20),
+      decoration: BoxDecoration(color: primary.withAlpha(150), borderRadius: border10),
       child: Column(
         spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(height: 5),
           startingWidget(del, jagger),
-          const SizedBox(),
           button(
             title: 'Байршил дамжуулах',
             color: neonBlue,
-            onTap: () async {
-              LocationService().startTracking(del.id);
-              message('Байршил дамжуулж эхлэлээ');
-            },
+            onTap: () => LocationService().startTracking(del.id),
           ),
           Text('Захиалгууд:', style: st),
-          ...users.map(
-            (user) => Container(
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                  border: Border.all(color: atnessGrey), borderRadius: BorderRadius.circular(15)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(maybeNull(user!.name),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      if (!user.id.contains('p'))
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                          decoration: BoxDecoration(
-                              color: neonBlue, borderRadius: BorderRadius.circular(15)),
-                          child: CustomTextButton(
-                              color: white,
-                              text: 'Төлбөр бүртгэх',
-                              onTap: () => registerSheet(jagger, user)),
-                        ),
-                    ],
-                  ),
-                  ...del.orders.map(
-                    (order) => getUser(order)!.id == user.id
-                        ? DeliveryWidget(order: order, delId: del.id)
-                        : const SizedBox(),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          ...users.map((user) => OrdererOrders(user: user, del: del)),
           endingWidget(del, jagger),
         ],
       ),
     );
   }
 
-  TextEditingController amountCr = TextEditingController();
-
-  registerSheet(JaggerProvider jagger, User user) {
-    String? name = user.name;
-    Get.bottomSheet(
-      StatefulBuilder(
-        builder: (context, setModalState) => SheetContainer(
-          title: name != null ? '$name харилцагч дээр төлбөр бүртгэх' : '',
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                picker('Бэлнээр', 'C', setModalState),
-                picker('Дансаар', 'T', setModalState),
-              ],
-            ),
-            CustomTextField(controller: amountCr, hintText: 'Дүн оруулах'),
-            CustomButton(
-              text: 'Хадгалах',
-              ontap: () {
-                if (amountCr.text.isEmpty) {
-                  message('Дүн оруулна уу!');
-                } else {
-                  registerPayment(jagger, pType, amountCr.text, user.id);
-                }
-              },
-            ),
-          ],
-        ),
-      ),
+  Widget startingWidget(Delivery del, JaggerProvider jagger) {
+    bool started = del.startedOn != null;
+    return Column(
+      spacing: 10,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!started)
+          button(
+            title: 'Түгээлт эхлүүлэх',
+            color: theme.primaryColor,
+            onTap: () => askStart(del, jagger),
+          ),
+        if (started)
+          const WavingAnimation(assetPath: 'assets/stickers/truck_animation.gif', dots: true),
+        if (started)
+          Padding(padding: pad, child: Text('Түгээлт эхлэсэн: ${del.startedOn}', style: st)),
+      ],
     );
-  }
-
-  registerPayment(JaggerProvider jagger, String type, String amount, String customerId) async {
-    if (amount.isEmpty) {
-      message('Дүн оруулна уу!');
-    } else if (type == 'E') {
-      message('Төлбөрийн хэлбэр сонгоно уу!');
-    } else {
-      await jagger.addCustomerPayment(type, amount, customerId);
-      setSelected('E', 'e');
-      amountCr.clear();
-      Navigator.pop(context);
-    }
   }
 
   Row endingWidget(Delivery del, JaggerProvider jagger) {
@@ -251,7 +151,6 @@ class _DeliveryHomeState extends State<DeliveryHome> {
                 title: 'Түгээлт дуусгах',
                 color: theme.primaryColor,
                 onTap: () => askEnd(del, jagger))
-            // endShipment(del.id, jagger))
             : const SizedBox(),
         (del.endedOn == null)
             ? const SizedBox()
@@ -262,140 +161,58 @@ class _DeliveryHomeState extends State<DeliveryHome> {
 
   askEnd(Delivery del, JaggerProvider jagger) {
     List<Order>? unDeliveredOrders = del.orders.where((t) => t.process == 'O').toList();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          child: Container(
-            decoration: BoxDecoration(color: white, borderRadius: BorderRadius.circular(20)),
-            padding: const EdgeInsets.all(20),
-            child: SingleChildScrollView(
-              child: Column(
-                spacing: 15,
-                children: [
-                  if (unDeliveredOrders.isEmpty)
-                    const Text(
-                      'Та түгээлтийг дуусгахдаа итгэлтэй байна уу?',
-                      textAlign: TextAlign.center,
-                    ),
-                  if (unDeliveredOrders.isNotEmpty)
-                    RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        style: const TextStyle(color: black, fontSize: 16),
-                        children: [
-                          TextSpan(
-                              text:
-                                  'Танд хүргэж дуусаагүй ${unDeliveredOrders.length} захиалга байна. ('),
-                          ...unDeliveredOrders.map(
-                            (e) => TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: ' #',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: succesColor,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: '${e.orderNo},',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const TextSpan(text: ') ,Та түгээлтийг дуусгахдаа итгэлтэй байна уу?'),
-                        ],
+    askDialog(context, () => endShipment(del.id, jagger), '', [
+      if (unDeliveredOrders.isEmpty)
+        Text(
+          'Та түгээлтийг дуусгахдаа итгэлтэй байна уу?',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      if (unDeliveredOrders.isNotEmpty)
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: black),
+            children: [
+              TextSpan(text: 'Танд хүргэж дуусаагүй ${unDeliveredOrders.length} захиалга байна. ('),
+              ...unDeliveredOrders.map(
+                (e) => TextSpan(
+                  children: [
+                    const TextSpan(
+                      text: ' #',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: succesColor,
                       ),
                     ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      DialogButton(
-                        width: 100,
-                        child: const Text('Үгүй'),
-                        onPressed: () => Navigator.pop(context),
+                    TextSpan(
+                      text: '${e.orderNo},',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
                       ),
-                      DialogButton(
-                        width: 100,
-                        color: theme.primaryColor,
-                        child: const Text('Тийм'),
-                        onPressed: () => endShipment(del.id, jagger),
-                      ),
-                    ],
-                  )
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ),
+              const TextSpan(text: 'Та түгээлтийг дуусгахдаа итгэлтэй байна уу?'),
+            ],
           ),
-        );
-      },
-    );
+        ),
+    ]);
   }
 
   askStart(Delivery del, JaggerProvider jagger) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          child: Container(
-            decoration: BoxDecoration(color: white, borderRadius: BorderRadius.circular(20)),
-            padding: const EdgeInsets.all(20),
-            child: SingleChildScrollView(
-              child: Column(
-                spacing: 15,
-                children: [
-                  const Text('Түгээлтийг эхлүүлэх үү?', textAlign: TextAlign.center),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      DialogButton(
-                        width: 100,
-                        child: const Text('Үгүй'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      DialogButton(
-                        width: 100,
-                        color: theme.primaryColor,
-                        child: const Text('Тийм'),
-                        onPressed: () => Future(
-                          () async {
-                            startShipment(del.id, jagger);
-                            await jagger.getDeliveries();
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ),
-                    ],
-                  )
-                ],
-              ),
+    askDialog(
+        context,
+        () => Future(
+              () async {
+                startShipment(del.id, jagger);
+                await jagger.getDeliveries();
+                Navigator.pop(context);
+              },
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget startingWidget(Delivery del, JaggerProvider jagger) {
-    bool deliveryStarted = del.startedOn != null;
-    return Column(
-      spacing: 10,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!deliveryStarted)
-          button(
-              title: 'Түгээлт эхлүүлэх',
-              color: theme.primaryColor,
-              onTap: () => askStart(del, jagger)),
-        if (deliveryStarted)
-          const WavingAnimation(assetPath: 'assets/stickers/truck_animation.gif', dots: true),
-        if (deliveryStarted)
-          Padding(padding: pad, child: Text('Түгээлт эхлэсэн: ${del.startedOn}', style: st)),
-      ],
-    );
+        'Түгээлтийг эхлүүлэх үү?',
+        []);
   }
 
   Center noResult() {
@@ -410,7 +227,7 @@ class _DeliveryHomeState extends State<DeliveryHome> {
         style: ElevatedButton.styleFrom(
             backgroundColor: theme.colorScheme.onPrimary,
             shadowColor: grey400,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             padding: const EdgeInsets.symmetric(vertical: 10)),
         child: Center(
           child: loading
@@ -420,26 +237,15 @@ class _DeliveryHomeState extends State<DeliveryHome> {
       ),
     );
   }
+}
 
-  Widget picker(String n, String v, Function(void Function()) setModalState) {
-    bool sel = (selected == n);
-    return InkWell(
-      onTap: () => setModalState(() {
-        selected = n;
-        pType = v;
-      }),
-      child: AnimatedContainer(
-        duration: duration,
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: sel ? 20 : 15),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: sel ? succesColor.withOpacity(.3) : white,
-          border: Border.all(
-            color: sel ? succesColor : grey300,
-          ),
-        ),
-        child: Text(n),
-      ),
-    );
+User? getUser(Order order) {
+  if (order.orderer != null) {
+    return order.orderer;
+  } else if (order.customer != null) {
+    return order.customer;
+  } else if (order.user != null) {
+    return order.user;
   }
+  return null;
 }

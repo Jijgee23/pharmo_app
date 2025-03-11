@@ -209,9 +209,9 @@ class AuthController extends ChangeNotifier {
   Future<void> refresh() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? rtoken = prefs.getString("refresh_token");
-    Object body = {'refresh': rtoken!};
-    var response = await apiPost('auth/refresh/', body);
-    if (response.statusCode == 200) {
+    var body = {'refresh': rtoken!};
+    var response = await apiRequest('POST', endPoint: 'auth/refresh/', body: body);
+    if (response!.statusCode == 200) {
       String accessToken = json.decode(response.body)['access'];
       await prefs.setString('access_token', accessToken);
       notifyListeners();
@@ -383,8 +383,8 @@ class AuthController extends ChangeNotifier {
         'osVersion': deviceData['osVersion']
       };
       print(data['deviceId']);
-      http.Response response = await apiPost('device_token/', data);
-      if (response.statusCode == 200) {
+      http.Response? response = await apiRequest('POST', endPoint: 'device_token/', body: data);
+      if (response!.statusCode == 200) {
         debugPrint('Device info sent');
       } else {
         debugPrint('Device info not sent');

@@ -156,8 +156,9 @@ class HomeProvider extends ChangeNotifier {
 
   getProducts(int pageKey) async {
     try {
-      final response = await apiGet('products/?page=$pageKey&page_size=$pageSize');
-      if (response.statusCode == 200) {
+      final response =
+          await apiRequest('GET', endPoint: 'products/?page=$pageKey&page_size=$pageSize');
+      if (response!.statusCode == 200) {
         final res = convertData(response);
         final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         return prods;
@@ -171,8 +172,9 @@ class HomeProvider extends ChangeNotifier {
   searchProducts(String query) async {
     try {
       if (query.isNotEmpty) {
-        final response = await apiGet('products/search/?k=$queryType&v=$query');
-        if (response.statusCode == 200) {
+        final response =
+            await apiRequest('GET', endPoint: 'products/search/?k=$queryType&v=$query');
+        if (response!.statusCode == 200) {
           clearItems();
           final res = convertData(response);
           final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
@@ -188,8 +190,8 @@ class HomeProvider extends ChangeNotifier {
   // хямдралтай, эрэлттэй, шинэ бараа
   filterProducts(String filter) async {
     try {
-      final response = await apiGet('products/?$filter');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'products/?$filter');
+      if (response!.statusCode == 200) {
         final res = convertData(response);
         final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
         clearItems();
@@ -254,8 +256,8 @@ class HomeProvider extends ChangeNotifier {
 
   Future getBranches() async {
     try {
-      final response = await apiGet('branch/');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'branch/');
+      if (response!.statusCode == 200) {
         List<dynamic> res = convertData(response);
         branches = (res).map((data) => Sector.fromJson(data)).toList();
       }
@@ -273,8 +275,8 @@ class HomeProvider extends ChangeNotifier {
   // Ангилалийн жагсаалт авах
   getFilters() async {
     try {
-      final response = await apiGet('product/filters/');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'product/filters/');
+      if (response!.statusCode == 200) {
         Map res = convertData(response);
         categories = (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
 
@@ -290,8 +292,9 @@ class HomeProvider extends ChangeNotifier {
 // Бараа ангиллаар шүүх
   filter(String type, int filters, int page, int pageSize) async {
     try {
-      final response = await apiGet('products/?$type=[$filters]&page=$page&page_size=$pageSize');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET',
+          endPoint: 'products/?$type=[$filters]&page=$page&page_size=$pageSize');
+      if (response!.statusCode == 200) {
         Map res = convertData(response);
         List<Product> prods =
             (res['results'] as List).map((data) => Product.fromJson(data)).toList();
@@ -304,8 +307,9 @@ class HomeProvider extends ChangeNotifier {
 
   filterCate(int id, int page, int pageSize) async {
     try {
-      final response = await apiGet('products/?category=[$id]&page=$page&page_size=$pageSize');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET',
+          endPoint: 'products/?category=[$id]&page=$page&page_size=$pageSize');
+      if (response!.statusCode == 200) {
         Map<String, dynamic> res = convertData(response);
         List<Product> prods =
             (res['results'] as List).map((data) => Product.fromJson(data)).toList();
@@ -321,8 +325,8 @@ class HomeProvider extends ChangeNotifier {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int? id = prefs.getInt('suppID');
-      final response = await apiGet('suppliers');
-      if (response.statusCode == 200) {
+      final response = await apiRequest('GET', endPoint: 'suppliers/');
+      if (response!.statusCode == 200) {
         Map res = convertData(response);
         _supList.clear();
         res.forEach((key, value) {
@@ -344,8 +348,8 @@ class HomeProvider extends ChangeNotifier {
   // Нийлүүлэгч сонгох
   pickSupplier(int supId, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final response = await apiPost('pick/', {'supplierId': supId});
-    if (response.statusCode == 200) {
+    final response = await apiRequest('POST', endPoint: 'pick/', body: {'supplierId': supId});
+    if (response!.statusCode == 200) {
       Map<String, dynamic> res = jsonDecode(response.body);
       await prefs.setString('access_token', res['access_token']);
       await prefs.setString('refresh_token', res['refresh_token']);
@@ -391,8 +395,8 @@ class HomeProvider extends ChangeNotifier {
 
   // Сагсны id авах
   getBasketId() async {
-    final response = await apiGet('get_basket/');
-    final res = convertData(response);
+    final response = await apiRequest('GET', endPoint: 'get_basket/');
+    final res = convertData(response!);
     if (response.statusCode == 200) {
       basketId = res['id'];
     }
@@ -401,9 +405,10 @@ class HomeProvider extends ChangeNotifier {
 
   getCustomerBranch() async {
     try {
-      final response = await apiPost('seller/customer_branch/', {'customerId': selectedCustomerId});
+      final response = await apiRequest('POST',
+          endPoint: 'seller/customer_branch/', body: {'customerId': selectedCustomerId});
       branchList.clear();
-      if (response.statusCode == 200) {
+      if (response!.statusCode == 200) {
         List<dynamic> res = convertData(response);
         for (int i = 0; i < res.length; i++) {
           branchList.add(Branch.fromJson(res[i]));
@@ -434,8 +439,9 @@ class HomeProvider extends ChangeNotifier {
 
   deactiveUser(String password, BuildContext context) async {
     try {
-      final response = await apiPatch('auth/delete_user_account/', jsonEncode({'pwd': password}));
-      if (response.statusCode == 200) {
+      final response =
+          await apiRequest('PATCH', endPoint: 'auth/delete_user_account/', body: {'pwd': password});
+      if (response!.statusCode == 200) {
         AuthController().logout(context);
         message(
           '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа',
@@ -451,14 +457,14 @@ class HomeProvider extends ChangeNotifier {
   createSellerOrder(BuildContext context, String type) async {
     final basket = Provider.of<BasketProvider>(context, listen: false);
     try {
-      Object body = {
+      var body = {
         'customer_id': selectedCustomerId,
         'basket_id': basket.basket.id,
         'payType': type,
         "note": (note != null) ? note : null
       };
-      final response = await apiPost('seller/order/', body);
-      if (response.statusCode == 201) {
+      final response = await apiRequest('POST', endPoint: 'seller/order/', body: body);
+      if (response!.statusCode == 201) {
         final res = convertData(response);
         final orderNumber = res['orderNo'];
         goto(OrderDone(orderNo: orderNumber.toString()));
