@@ -14,9 +14,24 @@ class LocationService {
   void startTracking(int id) async {
     // 📌 Эхлээд locationWhenInUse зөвшөөрлийг хүснэ
     PermissionStatus loc = await Permission.location.request();
+    PermissionStatus locAlways = await Permission.locationAlways.request();
 
-    if (loc.isGranted) {
-      // 📌 Дараа нь locationAlways зөвшөөрлийг хүсэх боломжтой болно
+    if (!loc.isGranted && !locAlways.isGranted) {
+      flutterLocalNotificationsPlugin.show(
+        0,
+        'Байршил хүлээгдэж байна',
+        'Таны байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна',
+        platformChannelSpecifics,
+      );
+    } else if (loc.isGranted && !locAlways.isGranted) {
+      await Geolocator.openAppSettings();
+      flutterLocalNotificationsPlugin.show(
+        0,
+        'Байршил хүлээгдэж байна',
+        'Таны байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна, Та эрхийг зөвшөөрнө үү',
+        platformChannelSpecifics,
+      );
+    } else {
       flutterLocalNotificationsPlugin.show(
         0,
         'Байршил дамжуулж байна',
@@ -35,13 +50,6 @@ class LocationService {
           print("📍 Байршил: Lat: ${position.latitude}, Long: ${position.longitude}");
           await _sendLocationToServer(position, id);
         },
-      );
-    } else {
-      flutterLocalNotificationsPlugin.show(
-        0,
-        'Байршил хүлээгдэж байна',
-        'Таны байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна',
-        platformChannelSpecifics,
       );
     }
   }
