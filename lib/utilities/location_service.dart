@@ -12,46 +12,48 @@ class LocationService {
   StreamSubscription<Position>? _positionStreamSubscription;
 
   void startTracking(int id) async {
-    // 📌 Эхлээд locationWhenInUse зөвшөөрлийг хүснэ
-    PermissionStatus loc = await Permission.location.request();
-    PermissionStatus locAlways = await Permission.locationAlways.request();
-
-    if (!loc.isGranted && !locAlways.isGranted) {
-      flutterLocalNotificationsPlugin.show(
-        0,
-        'Байршил хүлээгдэж байна',
-        'Таны байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна',
-        platformChannelSpecifics,
-      );
-    } else if (loc.isGranted && !locAlways.isGranted) {
-      await Geolocator.openAppSettings();
-      flutterLocalNotificationsPlugin.show(
-        0,
-        'Байршил хүлээгдэж байна',
-        'Таны байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна, Та эрхийг зөвшөөрнө үү',
-        platformChannelSpecifics,
-      );
-    } else {
-      flutterLocalNotificationsPlugin.show(
-        0,
-        'Байршил дамжуулж байна',
-        'Таны байршлыг арын төлөвт дамжуулж байна',
-        platformChannelSpecifics,
-      );
-
-      LocationSettings locationSettings = const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
-      );
-
-      _positionStreamSubscription =
-          Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-        (Position position) async {
-          print("📍 Байршил: Lat: ${position.latitude}, Long: ${position.longitude}");
-          await _sendLocationToServer(position, id);
-        },
-      );
+    PermissionStatus permission = await Permission.locationAlways.status;
+    print(permission);
+    switch (permission) {
+      case PermissionStatus.denied:
+        await Geolocator.openAppSettings();
+        message('Байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна');
+        break;
+      case PermissionStatus.permanentlyDenied:
+        await Geolocator.openAppSettings();
+        message('Байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна');
+        openAppSettings();
+        break;
+      case PermissionStatus.restricted:
+        await Geolocator.openAppSettings();
+        message('Байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна');
+        break;
+      default:
+        handleTracking(id);
+        break;
     }
+  }
+
+  void handleTracking(int id) async {
+    flutterLocalNotificationsPlugin.show(
+      0,
+      'Байршил дамжуулж байна',
+      'Таны байршлыг арын төлөвт дамжуулж байна',
+      platformChannelSpecifics,
+    );
+
+    LocationSettings locationSettings = const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 10,
+    );
+
+    _positionStreamSubscription =
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+      (Position position) async {
+        print("📍 Байршил: Lat: ${position.latitude}, Long: ${position.longitude}");
+        await _sendLocationToServer(position, id);
+      },
+    );
   }
 
   void stopTracking() {
@@ -64,6 +66,7 @@ class LocationService {
     final res = await apiRequest('PATCH',
         endPoint: 'delivery/location/',
         body: {"delivery_id": id, "lat": position.latitude, "lng": position.longitude});
+
     if (res!.statusCode == 200) {
     } else {
       print("Амжилтгүй: ${res.statusCode}");
