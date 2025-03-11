@@ -13,41 +13,37 @@ class LocationService {
 
   void startTracking(int id) async {
     // 📌 Эхлээд locationWhenInUse зөвшөөрлийг хүснэ
-    PermissionStatus loc = await Permission.locationWhenInUse.request();
+    PermissionStatus loc = await Permission.location.request();
 
     if (loc.isGranted) {
       // 📌 Дараа нь locationAlways зөвшөөрлийг хүсэх боломжтой болно
-      loc = await Permission.locationAlways.request();
+      flutterLocalNotificationsPlugin.show(
+        0,
+        'Байршил дамжуулж байна',
+        'Таны байршлыг арын төлөвт дамжуулж байна',
+        platformChannelSpecifics,
+      );
 
-      if (loc.isGranted) {
-        flutterLocalNotificationsPlugin.show(
-          0,
-          'Байршил дамжуулж байна',
-          'Таны байршлыг арын төлөвт дамжуулж байна',
-          platformChannelSpecifics,
-        );
+      LocationSettings locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+      );
 
-        LocationSettings locationSettings = const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 10,
-        );
-
-        _positionStreamSubscription =
-            Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-          (Position position) async {
-            print("📍 Байршил: Lat: ${position.latitude}, Long: ${position.longitude}");
-            await _sendLocationToServer(position, id);
-          },
-        );
-      } else {
-        await Permission.locationAlways.request();
-        flutterLocalNotificationsPlugin.show(
-          0,
-          'Байршил хүлээгдэж байна',
-          'Таны байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна',
-          platformChannelSpecifics,
-        );
-      }
+      _positionStreamSubscription =
+          Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+        (Position position) async {
+          print("📍 Байршил: Lat: ${position.latitude}, Long: ${position.longitude}");
+          await _sendLocationToServer(position, id);
+        },
+      );
+    } else {
+      await Permission.locationAlways.request();
+      flutterLocalNotificationsPlugin.show(
+        0,
+        'Байршил хүлээгдэж байна',
+        'Таны байршилыг дамжуулах эрхийг зөвшөөрөөгүй байна',
+        platformChannelSpecifics,
+      );
     }
   }
 
