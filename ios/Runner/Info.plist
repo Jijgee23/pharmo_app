@@ -57,12 +57,17 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera to take pictures.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Your location allows you to view pharmacy shop in delivery range of your address </string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This aop needs access to location in background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to location when open.</string>
+    <string>Манай апп таны байршлыг хүргэлтийн хяналт, захиалгын статус шинэчлэхэд ашиглана.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Манай апп таны байршлыг тасралтгүй хянаж, хүргэлтийн явцыг бодит цаг хугацаанд хянах зорилгоор ашиглана.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Манай апп байршлыг ашиглаж, хүргэлтийн үйлчилгээнд туслах болно.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+    <string>location</string>
+    </array>
+
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to pick images.</string>
 	<key>NSMicrophoneUsageDescription</key>
