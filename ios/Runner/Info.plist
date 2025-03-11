@@ -67,7 +67,6 @@
     <array>
     <string>location</string>
     </array>
-
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to pick images.</string>
 	<key>NSMicrophoneUsageDescription</key>
