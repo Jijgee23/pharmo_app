@@ -37,7 +37,6 @@ class LocationService {
         },
       );
     } else {
-      await Permission.locationAlways.request();
       flutterLocalNotificationsPlugin.show(
         0,
         'Байршил хүлээгдэж байна',
