@@ -12,7 +12,7 @@ class SheetContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        width: double.infinity,
+        width: double.maxFinite,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         decoration: const BoxDecoration(
           color: white,
@@ -30,8 +30,8 @@ class SheetContainer extends StatelessWidget {
               child: Container(
                 height: 4,
                 width: 50,
-                decoration:
-                    BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(3)),
+                decoration: BoxDecoration(
+                    color: Colors.grey, borderRadius: BorderRadius.circular(3)),
               ),
             ),
             if (title != null)

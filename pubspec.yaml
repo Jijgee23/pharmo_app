@@ -2,7 +2,7 @@ name: pharmo_app
 description: "Эмийн бөөний худалда, захиалгын систем."
 publish_to: none
 
-version: 1.0.13+57
+version: 1.0.13+60
 environment:
   sdk: '>=3.3.3 <4.0.0'
 
@@ -45,6 +45,7 @@ dependencies:
   google_maps_flutter: ^2.10.0
   image: ^4.5.2
   local_auth: ^2.3.0
+  location: ^5.0.0
 
 
 

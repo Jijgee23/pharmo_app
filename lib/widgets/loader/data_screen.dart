@@ -10,6 +10,7 @@ class DataScreen extends StatelessWidget {
   final Future<void> Function()? onRefresh;
   final PreferredSizeWidget? appbar;
   final BottomNavigationBar? navbar;
+  final Widget? fab;
 
   const DataScreen({
     super.key,
@@ -20,6 +21,7 @@ class DataScreen extends StatelessWidget {
     this.appbar,
     this.navbar,
     this.customEmpty,
+    this.fab,
   });
 
   @override
@@ -30,6 +32,8 @@ class DataScreen extends StatelessWidget {
       strokeWidth: 3,
       onRefresh: onRefresh ?? () async {},
       child: Scaffold(
+        floatingActionButton: fab,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
         appBar: appbar,
         body: loading
             ? const CustomShimmer()

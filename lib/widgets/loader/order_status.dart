@@ -18,9 +18,11 @@ class OrderStatusAnimation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-      margin: margin ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration:
-          BoxDecoration(color: white, borderRadius: border10, border: Border.all(color: grey300)),
+      decoration: BoxDecoration(
+        color: white,
+        borderRadius: border10,
+        boxShadow: [BoxShadow(color: frenchGrey, blurRadius: 5)],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [

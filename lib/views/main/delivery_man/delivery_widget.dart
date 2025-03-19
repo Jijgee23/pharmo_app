@@ -7,6 +7,7 @@ import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/main/delivery_man/delivery_detail.dart';
+import 'package:pharmo_app/views/main/delivery_man/status_changer.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -23,7 +24,8 @@ class DeliveryWidget extends StatefulWidget {
   State<DeliveryWidget> createState() => _DeliveryWidgetState();
 }
 
-class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProviderStateMixin {
+class _DeliveryWidgetState extends State<DeliveryWidget>
+    with SingleTickerProviderStateMixin {
   String selected = 'e';
   String pType = 'E';
   setSelected(String s, String p) {
@@ -63,20 +65,24 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
       widget.order.totalCount.toString(),
       process(widget.order.process),
       status(widget.order.status),
-      // getPayType(widget.order.payType)
     ];
 
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) => InkWell(
-        onTap: () => goto(DeliveryDetail(order: widget.order, delId: widget.delId)),
-        onLongPress: () => changeStatus(widget.delId, widget.order.id, context),
+        onTap: () =>
+            goto(DeliveryDetail(order: widget.order, delId: widget.delId)),
+        onLongPress: () => Get.bottomSheet(StatusChanger(
+            delId: widget.delId,
+            orderId: widget.order.id,
+            status: widget.order.process)),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           padding: padding10,
-          margin: EdgeInsets.only(top: 7.5),
-          width: double.maxFinite,
+          margin: EdgeInsets.only(right: 7.5),
+          width: Sizes.width * .88,
           decoration: BoxDecoration(
-              color: getOrderProcessColor(widget.order.process), borderRadius: border10),
+              color: getOrderProcessColor(widget.order.process),
+              borderRadius: border10),
           child: Column(
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,13 +105,15 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
               ),
               Column(
                 children: expandedFields
-                    .map((v) => infoRow(v, expandedValues[expandedFields.indexOf(v)],
+                    .map((v) => infoRow(
+                        v, expandedValues[expandedFields.indexOf(v)],
                         color1: white, color2: white))
                     .toList(),
               ),
               Align(
                   alignment: Alignment.centerRight,
-                  child: Text('Дэлгэрэнгүй >', style: const TextStyle(color: white))),
+                  child: Text('Дэлгэрэнгүй >',
+                      style: const TextStyle(color: white))),
             ],
           ),
         ),
@@ -167,7 +175,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
     );
   }
 
-  registerPayment(JaggerProvider jagger, String type, String amount, String customerId) async {
+  registerPayment(JaggerProvider jagger, String type, String amount,
+      String customerId) async {
     if (amount.isEmpty) {
       message('Дүн оруулна уу!');
     } else if (type == 'E') {
@@ -211,7 +220,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.shopping_bag, color: Colors.blueAccent, size: 30), // Product icon
+          const Icon(Icons.shopping_bag,
+              color: Colors.blueAccent, size: 30), // Product icon
           const SizedBox(height: 5),
           Text(
             '${item.itemName} (${item.itemQty})',
@@ -245,7 +255,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
     );
   }
 
-  Widget colored(String text, IconData icon, Color color, {MainAxisAlignment? main}) {
+  Widget colored(String text, IconData icon, Color color,
+      {MainAxisAlignment? main}) {
     return Expanded(
       child: Row(
         mainAxisAlignment: main ?? MainAxisAlignment.start,
@@ -282,54 +293,6 @@ Widget infoRow(String title, String value, {Color? color1, Color? color2}) {
         Text(
           value,
           style: TextStyle(fontWeight: FontWeight.bold, color: color2 ?? black),
-        )
-      ],
-    ),
-  );
-}
-
-changeStatus(dynamic delId, int orderId, BuildContext context) {
-  List<String> statuses = ['Хүргэгдсэн', 'Хаалттай', 'Буцаагдсан', 'Түгээлтэнд гарсан'];
-  final provider = Provider.of<JaggerProvider>(context, listen: false);
-  Get.bottomSheet(
-    SheetContainer(
-      children: [
-        ...statuses.map(
-          (status) => InkWell(
-            onTap: () async {
-              final data = {
-                "delivery_id": delId.toString(),
-                "order_id": orderId,
-                "process": getOrderProcess(status)
-              };
-              final response = await apiRequest('PATCH', endPoint: 'delivery/order/', body: data);
-              if (response!.statusCode == 200 || response.statusCode == 201) {
-                message('Төлөв өөрчлөгдлөө');
-                await provider.getDeliveries();
-              } else {
-                message(wait);
-              }
-              Navigator.pop(context);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 7.5, horizontal: 20),
-              decoration:
-                  const BoxDecoration(border: Border(bottom: BorderSide(color: atnessGrey))),
-              child: Row(
-                spacing: 15,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: black, width: 2),
-                    ),
-                  ),
-                  Text(status),
-                ],
-              ),
-            ),
-          ),
         )
       ],
     ),

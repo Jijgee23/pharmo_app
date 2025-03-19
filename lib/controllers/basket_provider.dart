@@ -59,7 +59,9 @@ class BasketProvider extends ChangeNotifier {
       if (resBasket!.statusCode == 200) {
         final res = convertData(resBasket);
         _basket = Basket.fromJson(res);
-        _count = _basket.items != null && _basket.items!.isNotEmpty ? _basket.items!.length : 0;
+        _count = _basket.items != null && _basket.items!.isNotEmpty
+            ? _basket.items!.length
+            : 0;
         _shoppingCarts = _basket.items!;
       } else {
         return buildResponse(1, '', 'Сагсны мэдээлэл татахад алдаа гарлаа!');
@@ -77,12 +79,15 @@ class BasketProvider extends ChangeNotifier {
         for (int i = 0; i < _shoppingCarts.length; i++) {
           if (shoppingCarts[i]["product_itemname_id"] != null &&
               shoppingCarts[i]["product_itemname_id"] > 0) {
-            bodyStr['${shoppingCarts[i]["product_itemname_id"]}'] = shoppingCarts[i]["qty"];
+            bodyStr['${shoppingCarts[i]["product_itemname_id"]}'] =
+                shoppingCarts[i]["qty"];
           } else {
-            bodyStr['${shoppingCarts[i]["product_id"]}'] = shoppingCarts[i]["qty"];
+            bodyStr['${shoppingCarts[i]["product_id"]}'] =
+                shoppingCarts[i]["qty"];
           }
         }
-        final response = await apiRequest('PATCH', endPoint: 'check_qty/', body: {"data": bodyStr});
+        final response = await apiRequest('PATCH',
+            endPoint: 'check_qty/', body: {"data": bodyStr});
         if (response!.statusCode == 200) {
           Map res = convertData(response);
           qtys.clear();
@@ -92,7 +97,8 @@ class BasketProvider extends ChangeNotifier {
             }
           });
           if (qtys.isNotEmpty) {
-            return buildResponse(0, null, 'Барааны үлдэгдэл хүрэлцэхгүй байна!');
+            return buildResponse(
+                0, null, 'Барааны үлдэгдэл хүрэлцэхгүй байна!');
           } else {
             return buildResponse(1, res, '');
           }
@@ -132,7 +138,8 @@ class BasketProvider extends ChangeNotifier {
   }) async {
     try {
       final response = await apiRequest('PATCH',
-          endPoint: 'user_basket/', body: {'product_id': product.id, 'qty': qty});
+          endPoint: 'user_basket/',
+          body: {'product_id': product.id, 'qty': qty});
       if (response!.statusCode == 200) {
         if (convertData(response).toString().contains('available_qty')) {
           if (convertData(response)['available_qty'] == 0) {
@@ -167,8 +174,8 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket() async {
     try {
-      final response =
-          await apiRequest('PATCH', endPoint: 'clear_basket/', body: {'basket_id': basket.id});
+      final response = await apiRequest('PATCH',
+          endPoint: 'clear_basket/', body: {'basket_id': basket.id});
       await getBasket();
       if (response!.statusCode == 200) {
         debugPrint('basket cleared');
@@ -199,7 +206,8 @@ class BasketProvider extends ChangeNotifier {
         qty = qty - 1;
       }
       final resQR = await apiRequest('PATCH',
-          endPoint: 'basket_item/$itemId/', body: {"qty": int.parse(qty.toString())});
+          endPoint: 'basket_item/$itemId/',
+          body: {"qty": int.parse(qty.toString())});
       if (resQR!.statusCode == 200) {
         await getBasket();
         return buildResponse(1, null, 'Барааны тоог амжилттай өөрчиллөө.');
@@ -223,7 +231,8 @@ class BasketProvider extends ChangeNotifier {
         'branchId': (branchId == -1) ? null : branchId,
         'note': note != '' ? note : null
       };
-      final response = await apiRequest('POST', endPoint: 'pharmacy/order/', body: body);
+      final response =
+          await apiRequest('POST', endPoint: 'pharmacy/order/', body: body);
       final res = convertData(response!);
       if (response.statusCode == 200) {
         Future(() async {
@@ -246,7 +255,10 @@ class BasketProvider extends ChangeNotifier {
       String? note,
       required BuildContext context}) async {
     try {
-      var body = {'branchId': (branchId == 0) ? null : branchId, 'note': note != '' ? note : null};
+      var body = {
+        'branchId': (branchId == 0) ? null : branchId,
+        'note': note != '' ? note : null
+      };
       final resQR = await apiRequest('POST', endPoint: 'ci/', body: body);
       final data = convertData(resQR!);
       final status = resQR.statusCode;
@@ -280,7 +292,11 @@ class BasketProvider extends ChangeNotifier {
       final resQR = await apiRequest('GET', endPoint: 'cp/');
       if (resQR!.statusCode == 200) {
         dynamic response = convertData(resQR);
-        return {'errorType': 1, 'data': response, 'message': 'Төлбөр амжилттай төлөгдсөн байна.'};
+        return {
+          'errorType': 1,
+          'data': response,
+          'message': 'Төлбөр амжилттай төлөгдсөн байна.'
+        };
       } else if (resQR.statusCode == 404) {
         return {'errorType': 2, 'data': null, 'message': 'Нэхэмжлэх үүсээгүй.'};
       }

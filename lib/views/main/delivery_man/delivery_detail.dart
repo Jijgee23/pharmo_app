@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/models/delivery.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/main/delivery_man/delivery_widget.dart';
+import 'package:pharmo_app/views/main/delivery_man/see_order_map.dart';
+import 'package:pharmo_app/views/main/delivery_man/status_changer.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
@@ -70,6 +72,13 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
     }
   }
 
+  bool trafficEnabled = false;
+  toglleTraffic() {
+    setState(() {
+      trafficEnabled = !trafficEnabled;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Order order = widget.order;
@@ -80,12 +89,23 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
       getPayType(widget.order.payType),
       order.createdOn.substring(0, 10)
     ];
-    List<String> titles = ['Захиалагч', 'Нийт үнэ', 'Тоо ширхэг', 'Төлбөрийн хэлбэр', "Огноо"];
+    List<String> titles = [
+      'Захиалагч',
+      'Нийт үнэ',
+      'Тоо ширхэг',
+      'Төлбөрийн хэлбэр',
+      "Огноо"
+    ];
 
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
-        bool hasLoc =
-            (order.orderer != null && order.orderer!.lat != null && order.orderer!.lat != 'null');
+        bool hasLoc = (order.orderer != null &&
+            order.orderer!.lat != null &&
+            order.orderer!.lat != 'null');
+        var boxDecoration = BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: white,
+            boxShadow: [BoxShadow(color: frenchGrey, blurRadius: 5)]);
         return DataScreen(
           loading: false,
           empty: false,
@@ -95,69 +115,61 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
           child: SingleChildScrollView(
             child: Column(
               spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                title('Төлөв, явц'),
+                OrderStatusAnimation(
+                    process: process(order.process),
+                    status: status(order.status)),
+                title('Үндсэн мэдээллүүд'),
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: boxDecoration,
+                  child: Column(
+                    children: [
+                      ...titles.map((title) =>
+                          infoRow(title, data[titles.indexOf(title)])),
+                    ],
+                  ),
+                ),
+                title('Захиалгын бараанууд'),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 5),
+                  decoration: boxDecoration,
+                  padding: const EdgeInsets.all(10),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      double itemWidth = constraints.maxWidth * 0.4;
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ...order.items
+                                .map((item) => _product(item, itemWidth)),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CustomButton(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        text: 'Төлөв өөрчлөх',
-                        ontap: () => changeStatus(widget.delId, order.id, context)),
-                    // CustomButton(
-                    //     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    //     text: 'Төлбөр бүртгэх',
-                    //     ontap: () => changeStatus(widget.delId, order.id, context)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      text: 'Төлөв өөрчлөх',
+                      ontap: () => Get.bottomSheet(StatusChanger(
+                        delId: widget.delId,
+                        orderId: widget.order.id,
+                        status: widget.order.process,
+                      )),
+                    ),
+                    if (hasLoc)
+                      CustomButton(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          text: 'Байршил',
+                          ontap: () => goto(SeeOrderMap(order: order))),
                   ],
-                ),
-                title('Төлөв, явц'),
-                OrderStatusAnimation(process: process(order.process), status: status(order.status)),
-                title('Үндсэн мэдээллүүд'),
-                ...titles.map((title) => infoRow(title, data[titles.indexOf(title)])),
-                if (hasLoc) title('Байршил'),
-                if (hasLoc)
-                  Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                    height: 300,
-                    child: GoogleMap(
-                      mapType: MapType.normal,
-                      buildingsEnabled: true,
-                      markers: {
-                        Marker(
-                          markerId: const MarkerId('_loc'),
-                          position: LatLng(
-                            parseDouble(order.orderer!.lat),
-                            parseDouble(order.orderer!.lng),
-                          ),
-                          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-                        )
-                      },
-                      initialCameraPosition: CameraPosition(
-                        zoom: 12,
-                        target: LatLng(
-                          parseDouble(order.orderer!.lat),
-                          parseDouble(order.orderer!.lng),
-                        ),
-                      ),
-                    ),
-                  ),
-                title('Захиалгын бараанууд'),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: primary),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  height: order.items.length <= 2 ? 180 : 300,
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      childAspectRatio: 1.1,
-                    ),
-                    itemCount: order.items.length,
-                    itemBuilder: (context, idx) => _product(order.items[idx]),
-                  ),
                 ),
                 const SizedBox(height: 100)
               ],
@@ -176,8 +188,6 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)));
   }
 
-  //
-
   saveValues(JaggerProvider jagger) async {
     if (cash.text.isNotEmpty) {
       await jagger.addPaymentToDeliveryOrder(widget.order.id, 'C', cash.text);
@@ -186,7 +196,8 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
       });
     }
     if (account.text.isNotEmpty) {
-      await jagger.addPaymentToDeliveryOrder(widget.order.id, 'T', account.text);
+      await jagger.addPaymentToDeliveryOrder(
+          widget.order.id, 'T', account.text);
       setState(() {
         account.clear();
       });
@@ -211,17 +222,19 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
           border: idecoration,
           enabledBorder: idecoration,
           focusedBorder: idecoration,
-          contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
           hintStyle: style,
         ),
       ),
     );
   }
 
-  _product(Item item) {
+  Widget _product(Item item, double itemWidth) {
     return Container(
-      width: double.maxFinite,
+      width: itemWidth,
       padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.only(right: 10),
       decoration: BoxDecoration(
         color: grey200,
         borderRadius: BorderRadius.circular(10),

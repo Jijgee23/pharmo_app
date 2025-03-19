@@ -8,6 +8,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/main/pharmacy/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/promotion_screen.dart';
+import 'package:pharmo_app/views/public_uses/about_us.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/main/seller/seller_orders.dart';
 import 'package:pharmo_app/views/main/seller/seller_report.dart';
@@ -36,15 +37,20 @@ class Profile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 15),
                               child: const Text('Бүртгэл')),
                           // menu('Тохиргоо', Icons.settings, color: primary),
                           // menu('Мэдэгдэл', Icons.notifications,
                           //     color: neonBlue, page: const NotificationPage()),
                           SideMenu(
-                            title: isPharma ? 'Захиалгууд' : 'Борлуулалтын захиалгууд',
+                            title: isPharma
+                                ? 'Захиалгууд'
+                                : 'Борлуулалтын захиалгууд',
                             icon: Icons.lock_clock,
-                            ontap: () => goto(isPharma ? const MyOrder() : const SellerOrders()),
+                            ontap: () => goto(isPharma
+                                ? const MyOrder()
+                                : const SellerOrders()),
                             color: Colors.amber,
                           ),
                           if (!isPharma)
@@ -72,13 +78,19 @@ class Profile extends StatelessWidget {
                               },
                             ),
                           Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 15),
                               child: const Text('Ерөнхий')),
                           SideMenu(
                               title: 'Нууцлалын бодлого',
                               icon: Icons.lock,
                               color: Colors.blue,
                               ontap: () => goto(const PrivacyPolicy())),
+                          SideMenu(
+                              title: 'Бидний тухай',
+                              icon: Icons.house,
+                              color: Colors.purple,
+                              ontap: () => goto(const AboutUs())),
                           SideMenu(
                             title: 'Системээс гарах',
                             icon: Icons.logout,
@@ -165,7 +177,11 @@ class SideMenu extends StatelessWidget {
   final Function() ontap;
 
   const SideMenu(
-      {super.key, required this.title, required this.icon, this.color, required this.ontap});
+      {super.key,
+      required this.title,
+      required this.icon,
+      this.color,
+      required this.ontap});
 
   @override
   Widget build(BuildContext context) {
@@ -289,9 +305,12 @@ void logout(BuildContext context) {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Provider.of<AuthController>(context, listen: false).logout(context);
-                      Provider.of<AuthController>(context, listen: false).toggleVisibile();
-                      Provider.of<HomeProvider>(context, listen: false).changeIndex(0);
+                      Provider.of<AuthController>(context, listen: false)
+                          .logout(context);
+                      Provider.of<AuthController>(context, listen: false)
+                          .toggleVisibile();
+                      Provider.of<HomeProvider>(context, listen: false)
+                          .changeIndex(0);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,

@@ -19,12 +19,10 @@ class IndexPharma extends StatefulWidget {
 }
 
 class _IndexPharmaState extends State<IndexPharma> {
-  late HomeProvider homeProvider;
 
   @override
   void initState() {
     super.initState();
-    homeProvider = Provider.of<HomeProvider>(context, listen: false);
   }
 
   @override
@@ -34,7 +32,7 @@ class _IndexPharmaState extends State<IndexPharma> {
         String role = homeProvider.userRole ?? '';
         return Scaffold(
           extendBody: true,
-          appBar: CustomAppBar(title: getAppbar(role)),
+          appBar: CustomAppBar(title: getAppbar(role, homeProvider)),
           body: getPages(role)[homeProvider.currentIndex],
           bottomNavigationBar: BottomBar(icons: getIcons(role)),
         );
@@ -42,7 +40,7 @@ class _IndexPharmaState extends State<IndexPharma> {
     );
   }
 
-  Widget getAppbar(String role) {
+  Widget getAppbar(String role, HomeProvider homeProvider) {
     if (role == 'PA') {
       switch (homeProvider.currentIndex) {
         case 0:

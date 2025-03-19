@@ -6,6 +6,7 @@ import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/main/delivery_man/add_payment.dart';
 import 'package:pharmo_app/views/main/delivery_man/shipment_history.dart';
 import 'package:pharmo_app/views/main/profile.dart';
+import 'package:pharmo_app/views/public_uses/about_us.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +28,8 @@ class DeliveryProfile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 15),
                           child: const Text('Бүртгэл')),
                       // menu('Тохиргоо', Icons.settings, color: primary),
                       // menu('Мэдэгдэл', Icons.notifications,
@@ -57,13 +59,19 @@ class DeliveryProfile extends StatelessWidget {
                             gotoRemoveUntil(const IndexPharma());
                           }),
                       Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 15),
                           child: const Text('Ерөнхий')),
                       SideMenu(
                           title: 'Нууцлалын бодлого',
                           icon: Icons.lock,
                           color: Colors.blue,
                           ontap: () => goto(const PrivacyPolicy())),
+                      SideMenu(
+                          title: 'Бидний тухай',
+                          icon: Icons.house,
+                          color: Colors.purple,
+                          ontap: () => goto(const AboutUs())),
                       SideMenu(
                         title: 'Системээс гарах',
                         icon: Icons.logout,

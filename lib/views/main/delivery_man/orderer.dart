@@ -44,14 +44,20 @@ class _OrdererOrdersState extends State<OrdererOrders> {
         child: Container(
           padding: const EdgeInsets.all(7.5),
           decoration: BoxDecoration(
-            color: primary.withAlpha(150),
+            color: primary.withAlpha(100),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               header(),
-              if (expanded) ...orders(),
+              if (expanded)
+                AspectRatio(
+                  aspectRatio: 3.5 / 2,
+                  child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(children: orders().toList())),
+                ),
               if (!widget.user!.id.contains('p')) addPay(context),
             ],
           ),
@@ -66,11 +72,13 @@ class _OrdererOrdersState extends State<OrdererOrders> {
       child: Container(
         margin: const EdgeInsets.only(top: 7.5),
         padding: const EdgeInsets.symmetric(vertical: 7.5, horizontal: 15),
-        decoration: BoxDecoration(color: neonBlue, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+            color: neonBlue, borderRadius: BorderRadius.circular(10)),
         child: CustomTextButton(
             color: white,
             text: 'Төлбөр бүртгэх',
-            onTap: () => registerSheet(context.read<JaggerProvider>(), widget.user!)),
+            onTap: () =>
+                registerSheet(context.read<JaggerProvider>(), widget.user!)),
       ),
     );
   }
@@ -113,7 +121,10 @@ class _OrdererOrdersState extends State<OrdererOrders> {
               shape: BoxShape.circle,
             ),
             child: Text(
-                widget.del.orders.where((t) => getUser(t)!.id == widget.user!.id).length.toString(),
+                widget.del.orders
+                    .where((t) => getUser(t)!.id == widget.user!.id)
+                    .length
+                    .toString(),
                 style: TextStyle(color: black, fontWeight: FontWeight.bold))),
       ],
     );
@@ -172,7 +183,8 @@ class _OrdererOrdersState extends State<OrdererOrders> {
     );
   }
 
-  registerPayment(JaggerProvider jagger, String type, String amount, String customerId) async {
+  registerPayment(JaggerProvider jagger, String type, String amount,
+      String customerId) async {
     if (amount.isEmpty) {
       message('Дүн оруулна уу!');
     } else if (type == 'E') {
