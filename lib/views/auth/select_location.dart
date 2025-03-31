@@ -31,21 +31,17 @@ class _LocationSelectorState extends State<LocationSelector> {
     _getCurrentLocation();
   }
 
-  // Method to get the current location
   Future<void> _getCurrentLocation() async {
-    // Check for location permissions
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (!serviceEnabled) {
-      // Handle location service not enabled
       return;
     }
 
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
-        // Handle permission denied
         return;
       }
     }
@@ -92,7 +88,7 @@ class _LocationSelectorState extends State<LocationSelector> {
         backgroundColor: theme.colorScheme.onPrimary,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+          ? const Center(child: CircularProgressIndicator()) 
           : Stack(
               children: <Widget>[
                 GoogleMap(

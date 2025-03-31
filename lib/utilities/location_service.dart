@@ -35,61 +35,8 @@ class LocationService {
     print(s);
   }
 
-  getMessage() {
-    Get.dialog(
-      Dialog(
-        backgroundColor: white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20), color: white),
-          child: Column(
-            spacing: 20,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold, color: black),
-                  children: [
-                    TextSpan(text: 'Байршилийн зөвшөөрлийг '),
-                    TextSpan(
-                        text: Platform.isAndroid ? 'All them time' : 'Always',
-                        style: TextStyle(color: Colors.redAccent)),
-                    TextSpan(text: ' болгон тохируулна уу!')
-                  ],
-                ),
-              ),
-              DialogButton(
-                  title: 'Хаах',
-                  bColor: atnessGrey,
-                  tColor: neonBlue,
-                  onTap: () => Get.back()),
-              DialogButton(
-                  title: 'Тохируулах',
-                  bColor: neonBlue,
-                  tColor: black,
-                  onTap: () => openAppSettings().then((e) => Get.back())),
-            ],
-          ),
-        ),
-      ),
-      barrierDismissible: false,
-      transitionCurve: Curves.easeInOut,
-      transitionDuration: Duration(milliseconds: 500),
-    );
-  }
-
   void handleTracking(int id) async {
-    flutterLocalNotificationsPlugin.show(
-      0,
-      'Байршил дамжуулж байна',
-      'Таны байршлыг арын төлөвт дамжуулж байна',
-      platformChannelSpecifics,
-    );
-
+    //local('Байршил дамжуулж байна', 'Таны байршлыг арын төлөвт дамжуулж байна');
     LocationSettings locationSettings = const LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 10,
@@ -121,11 +68,9 @@ class LocationService {
         });
 
     if (res!.statusCode == 200) {
-      flutterLocalNotificationsPlugin.show(
-        0,
+      local(
         'Байршил дамжуулж байна',
         'Таны байршлыг арын төлөвт дамжуулж байна. өргөрөг: ${position.latitude} уртраг: ${position.longitude}',
-        platformChannelSpecifics,
       );
     } else {
       print("Амжилтгүй: ${res.statusCode}");
@@ -146,3 +91,50 @@ const AndroidNotificationDetails androidPlatformChannelSpecifics =
 const NotificationDetails platformChannelSpecifics = NotificationDetails(
   android: androidPlatformChannelSpecifics,
 );
+
+getMessage() {
+  Get.dialog(
+    Dialog(
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20), color: white),
+        child: Column(
+          spacing: 20,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold, color: black),
+                children: [
+                  TextSpan(text: 'Байршилийн зөвшөөрлийг '),
+                  TextSpan(
+                      text: Platform.isAndroid ? 'All them time' : 'Always',
+                      style: TextStyle(color: Colors.redAccent)),
+                  TextSpan(text: ' болгон тохируулна уу!')
+                ],
+              ),
+            ),
+            DialogButton(
+                title: 'Хаах',
+                bColor: atnessGrey,
+                tColor: neonBlue,
+                onTap: () => Get.back()),
+            DialogButton(
+                title: 'Тохируулах',
+                bColor: neonBlue,
+                tColor: black,
+                onTap: () => openAppSettings().then((e) => Get.back())),
+          ],
+        ),
+      ),
+    ),
+    barrierDismissible: false,
+    transitionCurve: Curves.easeInOut,
+    transitionDuration: Duration(milliseconds: 500),
+  );
+}

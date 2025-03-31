@@ -38,7 +38,8 @@ class _DeliveryDetailState extends State<DeliveryDetail> {
 
   fetch() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Future.microtask(() => context.read<JaggerProvider>().getDeliveries());
+      Future.microtask(() =>
+          context.read<JaggerProvider>().getDeliveryDetail(widget.order.id));
     });
   }
 

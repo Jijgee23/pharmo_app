@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 
-void message(String message) {
+void message(String message, {bool isSuccess = false}) {
   Get.showSnackbar(
     GetSnackBar(
       message: message,
@@ -10,7 +11,8 @@ void message(String message) {
       margin: const EdgeInsets.symmetric(horizontal: 30),
       snackStyle: SnackStyle.FLOATING,
       borderRadius: 15,
-      backgroundColor: const Color.fromARGB(255, 255, 252, 63),
+      backgroundColor:
+          isSuccess ? succesColor : const Color.fromARGB(255, 255, 252, 63),
       forwardAnimationCurve: Curves.linear,
       reverseAnimationCurve: Curves.linearToEaseOut,
       isDismissible: true,
@@ -19,7 +21,8 @@ void message(String message) {
         child: Text(
           textAlign: TextAlign.center,
           message,
-          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          style:
+              const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         ),
       ),
     ),

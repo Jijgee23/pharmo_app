@@ -78,11 +78,11 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>Biometric authentication is required for secure login.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Таны байршлыг хүргэлтийн явцыг хянах зорилгоор ашиглана.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Хүргэлтийн явцад таны байршлыг хянах бөгөөд хүргэлт дууссаны дараа зогсоно.</string>
+    <string>We need your location to track active deliveries and ensure timely arrival for customers.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+	<string>We continuously track your location only during active deliveries to help customers monitor their orders.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Манай апп таны байршлыг хүргэлтийн хяналт, захиалгын статус шинэчлэхэд ашиглана.</string>
+	<string>Your location is used to update delivery progress and estimate arrival times.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>We need access to your microphone for recording.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

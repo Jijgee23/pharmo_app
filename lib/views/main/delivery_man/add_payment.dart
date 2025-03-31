@@ -40,8 +40,10 @@ class _AddPaymentState extends State<AddPayment> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Future.microtask(() => context.read<PharmProvider>().getCustomers(1, 5, context));
-      Future.microtask(() => context.read<JaggerProvider>().getCustomerPayment());
+      Future.microtask(
+          () => context.read<PharmProvider>().getCustomers(1, 5, context));
+      Future.microtask(
+          () => context.read<JaggerProvider>().getCustomerPayment());
     });
   }
 
@@ -57,7 +59,7 @@ class _AddPaymentState extends State<AddPayment> {
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 15,
+            spacing: 10,
             children: [
               const SizedBox(),
               Container(
@@ -75,7 +77,7 @@ class _AddPaymentState extends State<AddPayment> {
                 ),
               ),
               Column(
-                spacing: 15,
+                spacing: 10,
                 children: (viewMode == 'Жагсаалт')
                     ? [
                         ...jagger.payments.map(
@@ -86,18 +88,22 @@ class _AddPaymentState extends State<AddPayment> {
                         CustomTextField(
                           controller: search,
                           hintText: 'Харицагч хайх',
-                          onChanged: (p0) async => await pharm.filtCustomers('name', p0!, context),
+                          onChanged: (p0) async =>
+                              await pharm.filtCustomers('name', p0!, context),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 15,
                           children: [
                             if (pharm.filteredCustomers.isNotEmpty)
-                              ...pharm.filteredCustomers.take(3).map((cus) => customerBuilder(cus)),
+                              ...pharm.filteredCustomers
+                                  .take(3)
+                                  .map((cus) => customerBuilder(cus)),
                             if (pharm.filteredCustomers.isEmpty)
                               const Align(
                                   alignment: Alignment.center,
-                                  child: Text('Харилцагч олдсонгүй', textAlign: TextAlign.center))
+                                  child: Text('Харилцагч олдсонгүй',
+                                      textAlign: TextAlign.center))
                           ],
                         ),
                         Row(
@@ -112,7 +118,8 @@ class _AddPaymentState extends State<AddPayment> {
                           hintText: 'Дүн оруулах',
                           keyboardType: TextInputType.number,
                         ),
-                        CustomButton(text: 'Бүртгэх', ontap: () => _register(jagger)),
+                        CustomButton(
+                            text: 'Бүртгэх', ontap: () => _register(jagger)),
                       ],
               ),
               const SizedBox(),
@@ -155,14 +162,17 @@ class _AddPaymentState extends State<AddPayment> {
       child: Container(
         width: double.maxFinite,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), border: Border.all(color: atnessGrey)),
+          borderRadius: BorderRadius.circular(10),
+          color: getPaymentColor(payment.payType).withAlpha(100),
+        ),
         padding: const EdgeInsets.all(15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 5,
           children: [
             Container(
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 decoration: BoxDecoration(
                   color: primary.withAlpha(50),
                   borderRadius: BorderRadius.circular(10),
@@ -170,18 +180,45 @@ class _AddPaymentState extends State<AddPayment> {
                 child: Row(
                   spacing: 10,
                   children: [
-                    Icon(Icons.person, color: theme.primaryColor.withAlpha(200)),
-                    Text(payment.cust.name!, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Icon(Icons.person,
+                        color: theme.primaryColor.withAlpha(200)),
+                    Text(payment.cust.name!,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 )),
             Text('${toPrice(payment.amount)} (${getPayType(payment.payType)})'),
-            Text(payment.paidOn.toString().substring(0, 10),
-                style: TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey.shade700))
+            Row(
+              children: [
+                timeText(payment.paidOn.toString().substring(0, 10)),
+                timeText(payment.paidOn.toString().substring(10, 19)),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Text timeText(String t) {
+    return Text(
+      t,
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: Colors.grey.shade700,
+      ),
+    );
+  }
+
+  Color getPaymentColor(String payTime) {
+    switch (payTime) {
+      case 'C':
+        return Colors.green;
+      case 'T':
+        return neonBlue;
+      default:
+        return Colors.white;
+    }
   }
 
   TextEditingController ctr = TextEditingController();
@@ -191,7 +228,8 @@ class _AddPaymentState extends State<AddPayment> {
       ctr.text = payment.amount.toString();
     });
 
-    setSelected(payment.payType == 'C' ? 'Бэлнээр' : 'Дансаар', payment.payType);
+    setSelected(
+        payment.payType == 'C' ? 'Бэлнээр' : 'Дансаар', payment.payType);
     Get.bottomSheet(
       StatefulBuilder(
         builder: (context, setModalState) {
@@ -207,8 +245,8 @@ class _AddPaymentState extends State<AddPayment> {
             CustomButton(
               text: 'Хадгалах',
               ontap: () {
-                jagger.editCustomerPayment(
-                    payment.cust.id.toString(), payment.paymentId, pType, ctr.text);
+                jagger.editCustomerPayment(payment.cust.id.toString(),
+                    payment.paymentId, pType, ctr.text);
                 Navigator.pop(context);
               },
             )
@@ -235,7 +273,8 @@ class _AddPaymentState extends State<AddPayment> {
         child: Center(
           child: Text(
             n,
-            style: TextStyle(fontWeight: FontWeight.bold, color: !picked ? white : white),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: !picked ? white : white),
           ),
         ),
       ),
@@ -251,7 +290,8 @@ class _AddPaymentState extends State<AddPayment> {
     } else if (customer == null) {
       message('Харилцагч сонгоно уу!');
     } else {
-      await jagger.addCustomerPayment(pType, amount.text, customer!.id.toString());
+      await jagger.addCustomerPayment(
+          pType, amount.text, customer!.id.toString());
       amount.clear();
       setState(() {
         customer = null;

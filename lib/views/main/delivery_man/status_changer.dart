@@ -12,11 +12,12 @@ class StatusChanger extends StatefulWidget {
   final int delId;
   final int orderId;
   final String status;
-  const StatusChanger(
-      {super.key,
-      required this.delId,
-      required this.orderId,
-      required this.status});
+  const StatusChanger({
+    super.key,
+    required this.delId,
+    required this.orderId,
+    required this.status,
+  });
 
   @override
   State<StatusChanger> createState() => _StatusChangerState();
@@ -72,8 +73,16 @@ class _StatusChangerState extends State<StatusChanger> {
         final response =
             await apiRequest('PATCH', endPoint: 'delivery/order/', body: data);
         if (response!.statusCode == 200 || response.statusCode == 201) {
-          message('Төлөв өөрчлөгдлөө');
+          message('Төлөв өөрчлөгдлөө', isSuccess: true);
           await provider.getDeliveries();
+        } else if (response.statusCode == 400) {
+          if (convertData(response)
+              .toString()
+              .contains('Delivery not started!')) {
+            message('Түгээлт эхлээгүй!');
+          } else {
+            message('Амжилтгүй!');
+          }
         } else {
           message(wait);
         }

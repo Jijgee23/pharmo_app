@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -16,7 +14,7 @@ import 'package:pharmo_app/controllers/models/sector.dart';
 import 'package:pharmo_app/controllers/models/supplier.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/main/cart/order_done.dart';
+import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/promotion_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
@@ -106,7 +104,8 @@ class HomeProvider extends ChangeNotifier {
   void refresh(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
-        final promotion = Provider.of<PromotionProvider>(context, listen: false);
+        final promotion =
+            Provider.of<PromotionProvider>(context, listen: false);
         clearItems();
         setPageKey(1);
         fetchProducts();
@@ -156,11 +155,13 @@ class HomeProvider extends ChangeNotifier {
 
   getProducts(int pageKey) async {
     try {
-      final response =
-          await apiRequest('GET', endPoint: 'products/?page=$pageKey&page_size=$pageSize');
+      final response = await apiRequest('GET',
+          endPoint: 'products/?page=$pageKey&page_size=$pageSize');
       if (response!.statusCode == 200) {
         final res = convertData(response);
-        final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        final prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         return prods;
       }
     } catch (e) {
@@ -172,12 +173,14 @@ class HomeProvider extends ChangeNotifier {
   searchProducts(String query) async {
     try {
       if (query.isNotEmpty) {
-        final response =
-            await apiRequest('GET', endPoint: 'products/search/?k=$queryType&v=$query');
+        final response = await apiRequest('GET',
+            endPoint: 'products/search/?k=$queryType&v=$query');
         if (response!.statusCode == 200) {
           clearItems();
           final res = convertData(response);
-          final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+          final prods = (res['results'] as List)
+              .map((data) => Product.fromJson(data))
+              .toList();
           return prods;
         }
       }
@@ -193,7 +196,9 @@ class HomeProvider extends ChangeNotifier {
       final response = await apiRequest('GET', endPoint: 'products/?$filter');
       if (response!.statusCode == 200) {
         final res = convertData(response);
-        final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        final prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         clearItems();
         fetchedItems.addAll(prods);
         return prods;
@@ -210,13 +215,14 @@ class HomeProvider extends ChangeNotifier {
     // List<int>? deletion
   }) async {
     try {
-      var request = http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      var request =
+          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
       request.headers['Authorization'] = await getAccessToken();
       request.fields['product_id'] = id.toString();
 
       images
-          .map((image) async =>
-              request.files.add(await http.MultipartFile.fromPath('images', image.path)))
+          .map((image) async => request.files
+              .add(await http.MultipartFile.fromPath('images', image.path)))
           .toList();
       var res = await request.send();
       print(res.statusCode);
@@ -235,7 +241,8 @@ class HomeProvider extends ChangeNotifier {
 
   deleteImages({required int id, required int imageID}) async {
     try {
-      var request = http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      var request =
+          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
       request.headers['Authorization'] = await getAccessToken();
       request.fields['product_id'] = id.toString();
       request.fields['images_to_remove'] = imageID.toString();
@@ -278,10 +285,15 @@ class HomeProvider extends ChangeNotifier {
       final response = await apiRequest('GET', endPoint: 'product/filters/');
       if (response!.statusCode == 200) {
         Map res = convertData(response);
-        categories = (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
+        categories =
+            (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
 
-        mnfrs = (res['mnfrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
-        vndrs = (res['vndrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
+        mnfrs = (res['mnfrs'] as List)
+            .map((e) => Manufacturer.fromJson(e))
+            .toList();
+        vndrs = (res['vndrs'] as List)
+            .map((e) => Manufacturer.fromJson(e))
+            .toList();
         notifyListeners();
       }
     } catch (e) {
@@ -293,11 +305,13 @@ class HomeProvider extends ChangeNotifier {
   filter(String type, int filters, int page, int pageSize) async {
     try {
       final response = await apiRequest('GET',
-          endPoint: 'products/?$type=[$filters]&page=$page&page_size=$pageSize');
+          endPoint:
+              'products/?$type=[$filters]&page=$page&page_size=$pageSize');
       if (response!.statusCode == 200) {
         Map res = convertData(response);
-        List<Product> prods =
-            (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         return prods;
       }
     } catch (e) {
@@ -311,8 +325,9 @@ class HomeProvider extends ChangeNotifier {
           endPoint: 'products/?category=[$id]&page=$page&page_size=$pageSize');
       if (response!.statusCode == 200) {
         Map<String, dynamic> res = convertData(response);
-        List<Product> prods =
-            (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         return prods;
       }
     } catch (e) {
@@ -348,14 +363,19 @@ class HomeProvider extends ChangeNotifier {
   // Нийлүүлэгч сонгох
   pickSupplier(int supId, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final response = await apiRequest('POST', endPoint: 'pick/', body: {'supplierId': supId});
-    if (response!.statusCode == 200) {
+    final response = await apiRequest('POST',
+        endPoint: 'pick/', body: {'supplierId': supId});
+    print("pick data:  ${response!.body}");
+    if (response.statusCode == 200) {
       Map<String, dynamic> res = jsonDecode(response.body);
-      await prefs.setString('access_token', res['access_token']);
-      await prefs.setString('refresh_token', res['refresh_token']);
+      print(res);
+      // await prefs.setString('access_token', res['access_token']);
+      // await prefs.setString('refresh_token', res['refresh_token']);
       await prefs.setInt('picked_suplier', res['id']);
-      final promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
-      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+      final promotionProvider =
+          Provider.of<PromotionProvider>(context, listen: false);
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
       await promotionProvider.getMarkedPromotion();
       await getFilters();
       await basketProvider.getBasket();
@@ -406,7 +426,8 @@ class HomeProvider extends ChangeNotifier {
   getCustomerBranch() async {
     try {
       final response = await apiRequest('POST',
-          endPoint: 'seller/customer_branch/', body: {'customerId': selectedCustomerId});
+          endPoint: 'seller/customer_branch/',
+          body: {'customerId': selectedCustomerId});
       branchList.clear();
       if (response!.statusCode == 200) {
         List<dynamic> res = convertData(response);
@@ -423,8 +444,10 @@ class HomeProvider extends ChangeNotifier {
 
   Future getPosition() async {
     _currentLocation = await _getCurrentLocation();
-    currentLatitude = double.parse(_currentLocation!.latitude.toStringAsFixed(6));
-    currentLongitude = double.parse(_currentLocation!.longitude.toStringAsFixed(6));
+    currentLatitude =
+        double.parse(_currentLocation!.latitude.toStringAsFixed(6));
+    currentLongitude =
+        double.parse(_currentLocation!.longitude.toStringAsFixed(6));
   }
 
   Future<Position> _getCurrentLocation() async {
@@ -439,8 +462,8 @@ class HomeProvider extends ChangeNotifier {
 
   deactiveUser(String password, BuildContext context) async {
     try {
-      final response =
-          await apiRequest('PATCH', endPoint: 'auth/delete_user_account/', body: {'pwd': password});
+      final response = await apiRequest('PATCH',
+          endPoint: 'auth/delete_user_account/', body: {'pwd': password});
       if (response!.statusCode == 200) {
         AuthController().logout(context);
         message(
@@ -463,7 +486,8 @@ class HomeProvider extends ChangeNotifier {
         'payType': type,
         "note": (note != null) ? note : null
       };
-      final response = await apiRequest('POST', endPoint: 'seller/order/', body: body);
+      final response =
+          await apiRequest('POST', endPoint: 'seller/order/', body: body);
       if (response!.statusCode == 201) {
         final res = convertData(response);
         final orderNumber = res['orderNo'];

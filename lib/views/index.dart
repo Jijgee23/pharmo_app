@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/views/main/cart/cart.dart';
+import 'package:pharmo_app/views/cart/cart.dart';
 import 'package:pharmo_app/views/main/home.dart';
 import 'package:pharmo_app/views/product/product_searcher.dart';
 import 'package:pharmo_app/views/main/profile.dart';

@@ -4,8 +4,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:pharmo_app/main.dart';
+import 'package:pharmo_app/utilities/location_service.dart';
 import 'package:pharmo_app/views/auth/login.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart' as intl;
@@ -17,6 +18,15 @@ void goto(Widget widget) {
     widget,
     curve: Curves.fastLinearToSlowEaseIn,
     transition: Transition.rightToLeft,
+  );
+}
+
+local(String title, String text) {
+  flutterLocalNotificationsPlugin.show(
+    0,
+    title,
+    text,
+    platformChannelSpecifics,
   );
 }
 
@@ -64,57 +74,6 @@ getApiInformation(String endPoint, http.Response response) {
   }
 }
 
-// apiGet(String endPoint) async {
-//   try {
-//     http.Response response = await http.get(
-//       setUrl(endPoint),
-//       headers: getHeader(await getAccessToken()),
-//     );
-//     getApiInformation(endPoint, response);
-//     return response;
-//   } catch (e) {
-//     debugPrint(e.toString());
-//   }
-// }
-
-// apiPost(String endPoint, Object? body) async {
-//   try {
-//     http.Response response = await http.post(setUrl(endPoint),
-//         headers: getHeader(await getAccessToken()), body: jsonEncode(body));
-//     getApiInformation(endPoint, response);
-//     return response;
-//   } catch (e) {
-//     debugPrint(e.toString());
-//   }
-// }
-
-// apiPatch(String endPoint, Object? body) async {
-//   try {
-//     http.Response response = await http.patch(
-//       setUrl(endPoint),
-//       headers: getHeader(await getAccessToken()),
-//       body: body,
-//     );
-//     getApiInformation(endPoint, response);
-//     return response;
-//   } catch (e) {
-//     debugPrint(e.toString());
-//   }
-// }
-
-// apiDelete(String endPoint) async {
-//   try {
-//     http.Response response = await http.delete(
-//       setUrl(endPoint),
-//       headers: getHeader(await getAccessToken()),
-//     );
-//     getApiInformation(endPoint, response);
-//     return response;
-//   } catch (e) {
-//     debugPrint(e.toString());
-//   }
-// }
-
 Future<http.Response?> apiRequest(
   String method, {
   required String endPoint,
@@ -129,10 +88,12 @@ Future<http.Response?> apiRequest(
         response = await http.get(url, headers: headers);
         break;
       case 'POST':
-        response = await http.post(url, headers: headers, body: jsonEncode(body));
+        response =
+            await http.post(url, headers: headers, body: jsonEncode(body));
         break;
       case 'PATCH':
-        response = await http.patch(url, headers: headers, body: jsonEncode(body));
+        response =
+            await http.patch(url, headers: headers, body: jsonEncode(body));
         break;
       case 'DELETE':
         response = await http.delete(url, headers: headers);
@@ -144,7 +105,6 @@ Future<http.Response?> apiRequest(
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.remove('access_token');
       prefs.remove('refresh_token');
-      message('Өөр холболт илэрлээ. Та дахин нэвтэрнэ үү.');
       gotoRemoveUntil(LoginPage());
     }
 
@@ -156,7 +116,8 @@ Future<http.Response?> apiRequest(
   }
 }
 
-Map<String, dynamic> buildResponse(int errorType, dynamic data, String? message) {
+Map<String, dynamic> buildResponse(
+    int errorType, dynamic data, String? message) {
   return {'errorType': errorType, 'data': data, 'message': message};
 }
 
@@ -324,8 +285,9 @@ Future compressImage(File imageFile) async {
       image = img.copyResize(image!, width: 800);
       int quality = 80;
       List<int> compressedBytes = img.encodeJpg(image, quality: quality);
-      File compressedImage = File('${imageFile.parent.path}/compressed_image.jpg')
-        ..writeAsBytesSync(compressedBytes);
+      File compressedImage =
+          File('${imageFile.parent.path}/compressed_image.jpg')
+            ..writeAsBytesSync(compressedBytes);
       print('Original size: ${imageFile.lengthSync()} bytes');
       print('Compressed size: ${compressedImage.lengthSync()} bytes');
       return compressedImage;

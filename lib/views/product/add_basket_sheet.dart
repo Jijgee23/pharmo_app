@@ -40,8 +40,8 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius:
-              BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20), topRight: Radius.circular(20))),
       child: Wrap(
         runSpacing: 20,
         crossAxisAlignment: WrapCrossAlignment.center,
@@ -81,7 +81,8 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
             ),
             decoration: InputDecoration(
               hintText: 'Тоо ширхэг оруулна уу!',
-              contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               hintStyle: TextStyle(
                 color: Colors.grey.shade500,
                 fontWeight: FontWeight.w600,
@@ -118,7 +119,7 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
   Future<void> addBasket(Product item, int qty) async {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
     dynamic res = await basketProvider.addProduct(qty: qty, product: item);
-    message(res['message']);
+    message(res['message'], isSuccess: true);
   }
 }
 

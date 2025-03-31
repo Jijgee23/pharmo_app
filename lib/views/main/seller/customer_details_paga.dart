@@ -28,7 +28,6 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
   final TextEditingController phone2 = TextEditingController();
   final TextEditingController phone3 = TextEditingController();
   final TextEditingController note = TextEditingController();
-  late PharmProvider pharm;
   dynamic data = {};
   bool fetching = false;
   setFetching(bool n) {
@@ -39,21 +38,27 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
 
   @override
   void initState() {
-    pharm = Provider.of<PharmProvider>(context, listen: false);
     getDetail();
     super.initState();
   }
 
   getDetail() async {
     setFetching(true);
-    await pharm.getCustomerDetail(widget.customer.id!, context);
+    await Future.microtask(
+      () => context.read<PharmProvider>().getCustomerDetail(
+            widget.customer.id!,
+            context,
+          ),
+    );
     setFetching(false);
   }
 
   @override
   void dispose() {
     super.dispose();
-    pharm.getCustomers(1, 100, context);
+    Future.microtask(
+      () => context.read<PharmProvider>().getCustomers(1, 100, context),
+    );
   }
 
   @override
@@ -64,12 +69,14 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
         : Consumer<PharmProvider>(
             builder: (context, pp, child) {
               final d = pp.customerDetail;
-              bool isEditable = (d.addedById != null && d.addedById == home.userId);
+              bool isEditable =
+                  (d.addedById != null && d.addedById == home.userId);
               bool notLocated = (d.lat == null && d.lng == null);
               return DefaultBox(
                 title: d.name!,
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -77,16 +84,24 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                         runSpacing: 15,
                         children: [
                           (isEditable)
-                              ? info('Нэр:', maybeNull(d.name), name, null, isEditable)
+                              ? info('Нэр:', maybeNull(d.name), name, null,
+                                  isEditable)
                               : const SizedBox(),
                           info('РД', maybeNull(d.rn), rn, null, isEditable),
-                          info('И-Мейл', maybeNull(d.email), email, validateEmail, isEditable),
-                          info('Утас', maybeNull(d.phone), phone, validatePhone, isEditable),
-                          info('Утас 2', maybeNull(d.phone2), phone2, validatePhone, isEditable),
-                          info('Утас 2', maybeNull(d.phone3), phone3, validatePhone, isEditable),
-                          info('Тайлбар', maybeNull(d.note), note, null, isEditable),
+                          info('И-Мейл', maybeNull(d.email), email,
+                              validateEmail, isEditable),
+                          info('Утас', maybeNull(d.phone), phone, validatePhone,
+                              isEditable),
+                          info('Утас 2', maybeNull(d.phone2), phone2,
+                              validatePhone, isEditable),
+                          info('Утас 2', maybeNull(d.phone3), phone3,
+                              validatePhone, isEditable),
+                          info('Тайлбар', maybeNull(d.note), note, null,
+                              isEditable),
                           (d.loanLimitUse == true &&
-                                  double.parse(maybeNull(d.loanLimit.toString())) >= 0.0)
+                                  double.parse(
+                                          maybeNull(d.loanLimit.toString())) >=
+                                      0.0)
                               ? info('Зээлийн лимит', d.loanLimit.toString(),
                                   TextEditingController(), null, isEditable)
                               : const SizedBox(),
@@ -99,7 +114,9 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                                         name: name.text.isNotEmpty
                                             ? name.text
                                             : maybeNullToJson(d.name),
-                                        rn: rn.text.isNotEmpty ? rn.text : maybeNullToJson(d.rn),
+                                        rn: rn.text.isNotEmpty
+                                            ? rn.text
+                                            : maybeNullToJson(d.rn),
                                         email: email.text.isNotEmpty
                                             ? email.text
                                             : maybeNullToJson(d.email),
@@ -116,14 +133,19 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                                         phone3: phone3.text.isNotEmpty
                                             ? phone3.text
                                             : maybeNullToJson(d.phone3),
-                                        lat: (notLocated) ? home.currentLatitude : null,
-                                        lng: (notLocated) ? home.currentLongitude : null);
+                                        lat: (notLocated)
+                                            ? home.currentLatitude
+                                            : null,
+                                        lng: (notLocated)
+                                            ? home.currentLongitude
+                                            : null);
                                   })
                               : const SizedBox(),
                           (notLocated)
                               ? CustomButton(
                                   text: 'Байршил илгээх',
-                                  ontap: () => goto(LocationPicker(cusotmerId: d.id!))
+                                  ontap: () =>
+                                      goto(LocationPicker(cusotmerId: d.id!))
                                   // pp.sendCustomerLocation(d.id!, context),
                                   )
                               : const SizedBox()
@@ -147,17 +169,20 @@ class EmailHelper {
   }
 }
 
-info(String v, String v2, TextEditingController controller, String? Function(String?)? validator,
-    bool? isEditable) {
+info(String v, String v2, TextEditingController controller,
+    String? Function(String?)? validator, bool? isEditable) {
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 20),
-    decoration: BoxDecoration(color: card, borderRadius: BorderRadius.circular(20)),
+    decoration:
+        BoxDecoration(color: card, borderRadius: BorderRadius.circular(20)),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-          child: Text(v, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+          child: Text(v,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
         ),
         Expanded(
           flex: 6,

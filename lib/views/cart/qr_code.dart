@@ -4,7 +4,6 @@ import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/main/cart/order_done.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -40,15 +39,19 @@ class _QRCodeState extends State<QRCode> {
                         'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 15, color: theme.primaryColor),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: theme.primaryColor),
                       ),
                       Center(
                           child: QrImageView(
                         data: provider.qrCode.qrTxt.toString(),
                         size: 200,
                       )),
-                      info('Төлөх дүн:', toPrice(provider.qrCode.totalPrice), color: secondary),
-                      info('Нийт тоо ширхэг:', provider.qrCode.totalCount.toString()),
+                      info('Төлөх дүн:', toPrice(provider.qrCode.totalPrice),
+                          color: secondary),
+                      info('Нийт тоо ширхэг:',
+                          provider.qrCode.totalCount.toString()),
                       Container(
                         width: double.maxFinite,
                         decoration: BoxDecoration(
@@ -62,7 +65,8 @@ class _QRCodeState extends State<QRCode> {
                                 crossAxisAlignment: WrapCrossAlignment.center,
                                 spacing: 10,
                                 runSpacing: 10,
-                                children: urls!.map((el) => bankIcon(el)).toList()),
+                                children:
+                                    urls!.map((el) => bankIcon(el)).toList()),
                           ),
                         ),
                       ),
@@ -79,7 +83,7 @@ class _QRCodeState extends State<QRCode> {
           height: 60,
           child: CustomButton(
             text: 'Төлбөр шалгах',
-            ontap: () => chechPayment(provider),
+            ontap: () async => await provider.checkPayment(),
           ),
         ),
       );
@@ -91,7 +95,8 @@ class _QRCodeState extends State<QRCode> {
       onTap: () async {
         bool found = await canLaunchUrl(Uri.parse(el['link']));
         if (found) {
-          await launchUrl(Uri.parse(el['link']), mode: LaunchMode.externalApplication);
+          await launchUrl(Uri.parse(el['link']),
+              mode: LaunchMode.externalApplication);
         } else {
           message(el['description'] + ' апп олдсонгүй.');
         }
@@ -107,29 +112,20 @@ class _QRCodeState extends State<QRCode> {
     );
   }
 
-  chechPayment(BasketProvider provider) async {
-    dynamic res = await provider.checkPayment();
-    if (res['errorType'] == 1) {
-      if (res['data'] == false) {
-        message('Төлбөр төлөгдөөгүй байна.');
-      } else {
-        message(res['message']);
-        gotoRemoveUntil(OrderDone(orderNo: res['data']['orderNo'].toString()));
-      }
-    } else {
-      message(res['message']);
-    }
-  }
-
   info(String title, String value, {Color? color}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title,
-            style:
-                TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.grey.shade500)),
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade500)),
         Text(value,
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: color ?? black)),
+            style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                color: color ?? black)),
       ],
     );
   }

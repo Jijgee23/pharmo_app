@@ -24,6 +24,9 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    if (homeProvider.branches.length == 1) {
+      setBranch(homeProvider.branches[0].name!, homeProvider.branches[0].id);
+    }
   }
 
   String deliveryType = '';
@@ -74,9 +77,10 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
           ],
         ),
         // Салбар сонгох
-        if (deliveryType == 'D') ...[
+        ...[
           InkWell(
-            onTap: () => selectBranch(),
+            onTap:
+                homeProvider.branches.length != 1 ? () => selectBranch() : null,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 500),
               decoration: BoxDecoration(
@@ -91,7 +95,8 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
                     selectedBranch,
                     style: TextStyle(fontSize: fs),
                   ),
-                  const Icon(Icons.arrow_drop_down)
+                  if (homeProvider.branches.length != 1)
+                    Icon(Icons.arrow_drop_down)
                 ],
               ),
             ),
@@ -142,6 +147,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
 
   selectBranch() async {
     await homeProvider.getBranches();
+
     showMenu(
       color: Colors.white,
       context: context,
@@ -192,16 +198,20 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
       message('Төлбөрийн хэлбэр сонгоно уу!');
     } else if (payType == 'C') {
       await basketProvider.createQR(
-          basketId: basketProvider.basket.id,
-          branchId: selectedBranchId,
-          note: noteController.text,
-          context: context);
+        basketId: basketProvider.basket.id,
+        branchId: selectedBranchId,
+        note: noteController.text,
+        deliveryType: deliveryType,
+        context: context,
+      );
     } else {
       await basketProvider.createOrder(
-          basketId: basketProvider.basket.id,
-          branchId: selectedBranchId,
-          note: noteController.text,
-          context: context);
+        basketId: basketProvider.basket.id,
+        branchId: selectedBranchId,
+        note: noteController.text,
+        deliveryType: deliveryType,
+        context: context,
+      );
     }
   }
 }

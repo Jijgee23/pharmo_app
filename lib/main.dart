@@ -21,7 +21,8 @@ import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 void initializeNotifications() {
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -30,7 +31,6 @@ void initializeNotifications() {
   final InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
   );
-
   flutterLocalNotificationsPlugin.initialize(initializationSettings);
 }
 

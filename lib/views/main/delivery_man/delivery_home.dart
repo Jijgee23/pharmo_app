@@ -15,6 +15,7 @@ import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:pharmo_app/widgets/loader/waving_animation.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class DeliveryHome extends StatefulWidget {
@@ -41,9 +42,18 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         setLoading(true);
+        final pref = await SharedPreferences.getInstance();
+        int? shipId = pref.getInt('onDeliveryId');
+        if (shipId != null) {
+          LocationService().startTracking(shipId);
+        }
         Future.microtask(() => context.read<JaggerProvider>().getDeliveries());
         Future.microtask(
             () => context.read<JaggerProvider>().getCurrentLocation());
+        Timer(const Duration(seconds: 1), () {
+          Future.microtask(() =>
+              context.read<JaggerProvider>().getDeliveryLocation(context));
+        });
         setLoading(false);
       },
     );
@@ -141,7 +151,7 @@ class _DeliveryHomeState extends State<DeliveryHome> {
         final dels = jagger.delivery;
         return DataScreen(
           loading: loading,
-          empty: dels.isEmpty,
+          empty: false,
           onRefresh: () async => await refresh(),
           child: SingleChildScrollView(
             controller: scrollController,
@@ -150,53 +160,7 @@ class _DeliveryHomeState extends State<DeliveryHome> {
               spacing: 10,
               children: [
                 if (jagger.lastPosition != null)
-                  InkWell(
-                    onTap: () => print('tapped'),
-                    child: AspectRatio(
-                      aspectRatio: aspectRatio,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          decoration: BoxDecoration(),
-                          child: Stack(
-                            children: [
-                              GoogleMap(
-                                onMapCreated: (controller) =>
-                                    _onMapCreated(controller),
-                                markers: markers,
-                                trafficEnabled: trafficEnabled,
-                                mapType: mapType,
-                                compassEnabled: true,
-                                mapToolbarEnabled: true,
-                                myLocationEnabled: true,
-                                initialCameraPosition: CameraPosition(
-                                  target: LatLng(jagger.lastPosition!.latitude,
-                                      jagger.lastPosition!.longitude),
-                                  zoom: zoomIndex,
-                                ),
-                                polylines: {
-                                  Polyline(
-                                      polylineId: PolylineId("route"),
-                                      points: jagger.routeCoords,
-                                      color: neonBlue,
-                                      width: 5),
-                                },
-                              ),
-                              mapIcon(() => toggleZoom(), Icons.fullscreen, 10,
-                                  aspectColor),
-                              mapIcon(() => toggleTraffic(), Icons.traffic, 55,
-                                  trafficColor),
-                              mapIcon(() => toggleView(), Icons.remove_red_eye,
-                                  100, neonBlue),
-                              mapIcon(() => zoomIn(), Icons.add, 145, black),
-                              mapIcon(
-                                  () => zoomOut(), Icons.remove, 190, black),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  map(jagger, aspectColor, trafficColor),
                 ...dels.map((del) => deliveryContaier(del, jagger)),
                 CustomTextButton(
                     text: 'Байршил дамжуулах заавар',
@@ -211,13 +175,57 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     );
   }
 
+  InkWell map(JaggerProvider jagger, Color aspectColor, Color trafficColor) {
+    return InkWell(
+      onTap: () => print('tapped'),
+      child: AspectRatio(
+        aspectRatio: aspectRatio,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            decoration: BoxDecoration(),
+            child: Stack(
+              children: [
+                GoogleMap(
+                  onMapCreated: (controller) => _onMapCreated(controller),
+                  markers: markers,
+                  trafficEnabled: trafficEnabled,
+                  mapType: mapType,
+                  compassEnabled: true,
+                  mapToolbarEnabled: true,
+                  myLocationEnabled: true,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(jagger.lastPosition!.latitude,
+                        jagger.lastPosition!.longitude),
+                    zoom: zoomIndex,
+                  ),
+                  polylines: {
+                    Polyline(
+                        polylineId: PolylineId("route"),
+                        points: jagger.routeCoords,
+                        color: neonBlue,
+                        width: 5),
+                  },
+                ),
+                mapIcon(() => toggleZoom(), Icons.fullscreen, 10, aspectColor),
+                mapIcon(() => toggleTraffic(), Icons.traffic, 55, trafficColor),
+                mapIcon(
+                    () => toggleView(), Icons.remove_red_eye, 100, neonBlue),
+                mapIcon(() => zoomIn(), Icons.add, 145, black),
+                mapIcon(() => zoomOut(), Icons.remove, 190, black),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   mapIcon(
-      GestureTapCallback ontap, IconData icon, double fromLeft, Color iColor,
-      {double? fromBotton, double? fromRight}) {
+      GestureTapCallback ontap, IconData icon, double fromLeft, Color iColor) {
     return Positioned(
-      bottom: fromBotton ?? 10,
+      bottom: 10,
       left: fromLeft,
-      right: fromRight,
       child: InkWell(
         onTap: ontap,
         child: Container(
@@ -226,10 +234,7 @@ class _DeliveryHomeState extends State<DeliveryHome> {
               color: white,
               shape: BoxShape.circle,
               boxShadow: [BoxShadow(color: grey500, blurRadius: 1)]),
-          child: Icon(
-            icon,
-            color: iColor,
-          ),
+          child: Icon(icon, color: iColor),
         ),
       ),
     );
@@ -321,7 +326,10 @@ class _DeliveryHomeState extends State<DeliveryHome> {
   askTracking(int id) {
     askDialog(
       context,
-      () => LocationService().startTracking(id),
+      () {
+        LocationService().startTracking(id);
+        Navigator.pop(context);
+      },
       'Хүргэлтийн үед л таний байршлийг хянахыг анхаарна уу!',
       [],
     );
@@ -374,19 +382,33 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     ]);
   }
 
-  askStart(Delivery del, JaggerProvider jagger) {
-    askDialog(
-      context,
-      () => Future(
-        () async {
-          startShipment(del.id, jagger);
-          await jagger.getDeliveries();
-          Navigator.pop(context);
-        },
-      ),
-      'Түгээлтийг эхлүүлэх үү?',
-      [Text('Хүргэлтийн үед л таний байршлийг хянахыг анхаарна уу!')],
-    );
+  askStart(Delivery del, JaggerProvider jagger) async {
+    final s = await Geolocator.checkPermission();
+    await Geolocator.requestPermission();
+    bool location = await Geolocator.isLocationServiceEnabled();
+    if (!location) {
+      await Geolocator.requestPermission();
+      if (s == LocationPermission.deniedForever) {
+        getMessage();
+      }
+    } else {
+      if (s == LocationPermission.always) {
+        askDialog(
+          context,
+          () => Future(
+            () async {
+              startShipment(del.id, jagger);
+              await jagger.getDeliveries();
+              Navigator.pop(context);
+            },
+          ),
+          'Түгээлтийг эхлүүлэх үү?',
+          [Text('Хүргэлтийн үед л таний байршлийг хянахыг анхаарна уу!')],
+        );
+      } else {
+        getMessage();
+      }
+    }
   }
 
   Center noResult() {

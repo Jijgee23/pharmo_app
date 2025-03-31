@@ -15,35 +15,51 @@ class ShipmentHistoryDetail extends StatelessWidget {
     return Scaffold(
       appBar: appBar(),
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          spacing: 20,
-          children: [const SizedBox(), ...delivery.orders.map((order) => orderBuilder(order))],
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: SingleChildScrollView(
+          child: Column(
+            spacing: 10,
+            children: [
+              const SizedBox(),
+              ...delivery.orders.map((order) => orderBuilder(order)),
+              SizedBox(height: 50)
+            ],
+          ),
         ),
       ),
     );
   }
 
-  SideAppBar appBar() =>
-      SideAppBar(text: 'Түгээлтийн дугаар: ${delivery.id}, ${maybeNull(delivery.delman.name)}');
+  SideAppBar appBar() => SideAppBar(text: 'Түгээлтийн дугаар: ${delivery.id}');
 
   orderBuilder(Order order) {
     List<String> data = [
+      maybeNull(order.orderer!.name),
       maybeNull(order.orderNo),
       order.createdOn,
+      order.totalCount.toString(),
       toPrice(order.totalPrice),
-      getPayType(order.payType)
+      getPayType(order.payType),
     ];
-    List<String> titles = ['Дугаар', 'Огноо', 'Дүн', 'Төлбөрийн хэлбэр'];
+    List<String> titles = [
+      'Захиалагч',
+      'Дугаар',
+      'Огноо',
+      'Тоо ширхэг',
+      'Дүн',
+      'Төлбөрийн хэлбэр'
+    ];
     return Container(
       padding: const EdgeInsets.all(10),
       width: double.maxFinite,
       decoration: BoxDecoration(
-          border: Border.all(color: grey200), borderRadius: BorderRadius.circular(10)),
+          border: Border.all(color: grey200),
+          borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OrderStatusAnimation(process: process(order.process), status: status(order.status)),
+          OrderStatusAnimation(
+              process: process(order.process), status: status(order.status)),
           ...titles.map((t) => myRow(t, data[titles.indexOf(t)])),
         ],
       ),

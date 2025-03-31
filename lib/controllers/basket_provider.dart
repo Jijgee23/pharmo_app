@@ -4,8 +4,8 @@ import 'package:pharmo_app/controllers/models/order_qrcode.dart';
 import 'package:pharmo_app/controllers/models/products.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/main/cart/order_done.dart';
-import 'package:pharmo_app/views/main/cart/qr_code.dart';
+import 'package:pharmo_app/views/cart/order_done.dart';
+import 'package:pharmo_app/views/cart/qr_code.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -220,20 +220,24 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> createOrder(
-      {required int basketId,
-      required int branchId,
-      required String note,
-      required BuildContext context}) async {
+  Future<dynamic> createOrder({
+    required int basketId,
+    required int branchId,
+    required String note,
+    required String deliveryType,
+    required BuildContext context,
+  }) async {
     try {
       var body = {
-        'basketId': basketId,
-        'branchId': (branchId == -1) ? null : branchId,
-        'note': note != '' ? note : null
+        'basket_id': basketId,
+        'branch_id': branchId,
+        'note': note != '' ? note : null,
+        'is_come': deliveryType == 'N' ? true : false
       };
       final response =
           await apiRequest('POST', endPoint: 'pharmacy/order/', body: body);
       final res = convertData(response!);
+      print(res);
       if (response.statusCode == 200) {
         Future(() async {
           await clearBasket();
@@ -252,16 +256,19 @@ class BasketProvider extends ChangeNotifier {
   Future<dynamic> createQR(
       {required int basketId,
       required int branchId,
+      required String deliveryType,
       String? note,
       required BuildContext context}) async {
     try {
       var body = {
-        'branchId': (branchId == 0) ? null : branchId,
-        'note': note != '' ? note : null
+        'branch_id': branchId,
+        'note': note != '' ? note : null,
+        'is_come': deliveryType == 'N' ? true : false,
       };
       final resQR = await apiRequest('POST', endPoint: 'ci/', body: body);
       final data = convertData(resQR!);
       final status = resQR.statusCode;
+      print(resQR.body);
       if (status == 200) {
         _qrCode = OrderQRCode.fromJson(data);
         goto(const QRCode());
@@ -289,16 +296,20 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> checkPayment() async {
     try {
-      final resQR = await apiRequest('GET', endPoint: 'cp/');
+      final resQR = await apiRequest('POST',
+          endPoint: 'cp/', body: {"invId": _qrCode.invId});
       if (resQR!.statusCode == 200) {
-        dynamic response = convertData(resQR);
-        return {
-          'errorType': 1,
-          'data': response,
-          'message': 'Төлбөр амжилттай төлөгдсөн байна.'
-        };
+        final data = convertData(resQR).toString();
+        if (data.contains('not paid')) {
+          message('Төлбөр төлөгдөөгүй байна.');
+        } else if (data.contains('paid')) {
+          message('Төлбөр амжилттай төлөгдсөн.', isSuccess: true);
+          goto(OrderDone(orderNo: convertData(resQR)['orderNo'].toString()));
+        } else {
+          message('Төлбөр төлөгдөөгүй байна.');
+        }
       } else if (resQR.statusCode == 404) {
-        return {'errorType': 2, 'data': null, 'message': 'Нэхэмжлэх үүсээгүй.'};
+        message('Нэхэмжлэх үүсээгүй.');
       }
     } catch (e) {
       return {'errorType': 3, 'data': e, 'message': e};

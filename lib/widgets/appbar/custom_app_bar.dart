@@ -28,7 +28,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Consumer3<HomeProvider, BasketProvider, AuthController>(
       builder: (_, homeprovider, basketProvider, auth, child) {
-        bool isSupSelected = (homeprovider.supID != 0 || homeprovider.supID != null);
+        bool isSupSelected =
+            (homeprovider.supID != 0 || homeprovider.supID != null);
         return ChangeNotifierProvider(
           create: (context) => BasketProvider(),
           child: PreferredSize(
@@ -45,7 +46,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 actions: [
                   if (isSupSelected)
                     InkWell(
-                      onTap: () => homeprovider.changeIndex(getBasketIndex(homeprovider.userRole!)),
+                      onTap: () => homeprovider
+                          .changeIndex(getBasketIndex(homeprovider.userRole!)),
                       child: Stack(
                         children: [
                           Container(
@@ -62,13 +64,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                             right: 2,
                             top: 2,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 2.5),
                               decoration: BoxDecoration(
-                                  color: Colors.red, borderRadius: BorderRadius.circular(15)),
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(15)),
                               child: Text(
                                 basketProvider.basket.totalCount.toString(),
                                 style: const TextStyle(
-                                    color: white, fontSize: 10, fontWeight: FontWeight.bold),
+                                    color: white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
@@ -86,14 +92,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   InkWell lead(HomeProvider homeprovider, AuthController auth) {
     return InkWell(
-      onTap: () => homeprovider.changeIndex(getProfileIndex(homeprovider.userRole!)),
+      onTap: () =>
+          homeprovider.changeIndex(getProfileIndex(homeprovider.userRole!)),
       child: Container(
         decoration: const BoxDecoration(color: white, shape: BoxShape.circle),
         margin: const EdgeInsets.only(left: 10),
         child: Center(
           child: Text(getLetter(auth).substring(0, 1),
-              style:
-                  TextStyle(color: theme.primaryColor, fontSize: 18, fontWeight: FontWeight.bold)),
+              style: TextStyle(
+                  color: theme.primaryColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold)),
         ),
       ),
     );
@@ -113,10 +122,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   getBasketIndex(String role) {
     if (role == 'PA') {
       return 1;
-    } else if (role == 'S') {
-      return 2;
     } else {
-      return 3;
+      return 2;
     }
   }
 
@@ -126,7 +133,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     } else if (role == 'S') {
       return 3;
     } else {
-      return 4;
+      return 3;
     }
   }
 }

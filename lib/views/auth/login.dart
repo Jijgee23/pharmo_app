@@ -217,7 +217,8 @@ class _LoginPageState extends State<LoginPage> {
                             hover = !hover;
                           });
                         },
-                        icon: Icon(hover ? Icons.visibility_off : Icons.visibility,
+                        icon: Icon(
+                            hover ? Icons.visibility_off : Icons.visibility,
                             color: theme.primaryColor.withOpacity(.3)),
                       ),
                     ),
@@ -234,7 +235,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         Checkbox(
                           visualDensity: VisualDensity.compact,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
                           value: rememberMe,
                           onChanged: (val) {
                             setState(() {
@@ -254,7 +256,8 @@ class _LoginPageState extends State<LoginPage> {
                                 const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(color: white),
+                                  child:
+                                      CircularProgressIndicator(color: white),
                                 ),
                                 SizedBox(width: Sizes.width * 0.03),
                                 const Text(
@@ -269,8 +272,11 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CustomTextButton(
-                            text: 'Нууц үг сэргээх', onTap: () => goto(const ResetPassword())),
-                        CustomTextButton(text: 'Бүртгүүлэх', onTap: () => goto(const SignUpForm())),
+                            text: 'Нууц үг сэргээх',
+                            onTap: () => goto(const ResetPassword())),
+                        CustomTextButton(
+                            text: 'Бүртгүүлэх',
+                            onTap: () => goto(const SignUpForm())),
                       ],
                     ),
                     if (_isCheckingForUpdates)
@@ -281,7 +287,7 @@ class _LoginPageState extends State<LoginPage> {
                           SizedBox(width: Sizes.bigFontSize),
                           CircularProgressIndicator.adaptive(),
                         ],
-                      )
+                      ),
                   ],
                 ),
               ),

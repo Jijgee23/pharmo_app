@@ -76,6 +76,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget>
             orderId: widget.order.id,
             status: widget.order.process)),
         child: AnimatedContainer(
+          curve: Curves.slowMiddle,
           duration: const Duration(milliseconds: 300),
           padding: padding10,
           margin: EdgeInsets.only(right: 7.5),

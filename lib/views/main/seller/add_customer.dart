@@ -81,8 +81,9 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
                   child: Container(
                     height: 4,
                     width: 50,
-                    decoration:
-                        BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(3)),
+                    decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(3)),
                   ),
                 ),
                 const Align(
@@ -90,25 +91,44 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
                   child: Text(
                     'Харилцагч бүртгэх',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold, color: black, fontSize: 16),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: black,
+                        fontSize: 16),
                   ),
                 ),
                 input('Нэр', name, null),
                 input('Регистрийн дугаар', rn, null),
                 input('И-Мейл', email, null),
-                input('Утас', phone, const TextInputType.numberWithOptions(signed: true)),
+                input('Утас', phone,
+                    const TextInputType.numberWithOptions(signed: true)),
                 const Text('Заавал биш',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black54)),
                 input('Нэмэлт тайлбар ', note, null),
                 const Text('Харилцагчийг бүсийг сонгоно уу!',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ...pp.zones.map((z) => zoneBuilder(z, pp)),
-                  ],
-                ),
-                CustomButton(text: 'Бүртгэх', ontap: () async => await _registerCustomer(pp, home)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black54)),
+                if (pp.zones.isNotEmpty)
+                  if (pp.zones.isNotEmpty)
+                    SizedBox(
+                      height: 50, // эсвэл тохирох өндөр өгнө
+                      child: SingleChildScrollView(
+                        scrollDirection:
+                            Axis.horizontal, // Хэвтээ гүйлгэлт болгох
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          spacing: 10,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            ...pp.zones.map((z) => zoneBuilder(z, pp)),
+                          ],
+                        ),
+                      ),
+                    ),
+                CustomButton(
+                    text: 'Бүртгэх',
+                    ontap: () async => await _registerCustomer(pp, home)),
               ],
             ),
           ),
@@ -123,11 +143,13 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
       onTap: () => pharm.setZone(zone),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: EdgeInsets.all(selected ? 15 : 10),
+        padding:
+            EdgeInsets.symmetric(horizontal: selected ? 15 : 10, vertical: 7.5),
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
           color: white,
-          border: Border.all(color: selected ? succesColor : grey400, width: selected ? 2 : 1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+              color: selected ? succesColor : grey400, width: selected ? 2 : 1),
         ),
         child: Text(
           zone.name,
@@ -142,12 +164,23 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
 
   // Бүртгэх
   _registerCustomer(PharmProvider pp, HomeProvider home) async {
-    if (name.text.isEmpty || rn.text.isEmpty || email.text.isEmpty || phone.text.isEmpty) {
+    if (name.text.isEmpty ||
+        rn.text.isEmpty ||
+        email.text.isEmpty ||
+        phone.text.isEmpty) {
       message('Бүртгэл гүйцээнээ үү!');
     } else {
       await pp
-          .registerCustomer(name.text, rn.text, email.text, phone.text, note.text,
-              home.currentLatitude.toString(), home.currentLongitude.toString(), context)
+          .registerCustomer(
+        name.text,
+        rn.text,
+        email.text,
+        phone.text,
+        note.text,
+        home.currentLatitude.toString(),
+        home.currentLongitude.toString(),
+        context,
+      )
           .whenComplete(() {
         pp.getCustomers(1, 100, context);
         popSheet();

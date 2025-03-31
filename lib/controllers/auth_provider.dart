@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -12,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/models/account.dart';
 import 'package:pharmo_app/controllers/models/supplier.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
@@ -254,6 +253,8 @@ class AuthController extends ChangeNotifier {
     try {
       Provider.of<BasketProvider>(context, listen: false).reset();
       Provider.of<HomeProvider>(context, listen: false).reset();
+      Provider.of<JaggerProvider>(context, listen: false).reset();
+      debugPrint('Providers disposed');
     } catch (e) {
       debugPrint('Error disposing providers: ${e.toString()}');
     }
