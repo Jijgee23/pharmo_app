@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="mn.infosystems.pharmo">
 
     <!-- Permissions (outside <application>) -->
@@ -16,14 +17,21 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />  
+	<uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />  
+
 
     <application
+        tools:replace="android:label"
         android:label="Pharmo"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/launcher_icon"
         android:hardwareAccelerated="false"
         android:usesCleartextTraffic="true"
+        android:foregroundServiceType="location"
         android:enableOnBackInvokedCallback="true">
 
         <activity

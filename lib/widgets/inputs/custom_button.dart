@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 
 class CustomButton extends StatelessWidget {
@@ -9,37 +10,42 @@ class CustomButton extends StatelessWidget {
   final EdgeInsets? padding;
   final double? borderRadius;
   final Widget? child;
-  const CustomButton(
-      {super.key,
-      required this.text,
-      required this.ontap,
-      this.color,
-      this.borderColor,
-      this.padding,
-      this.child,
-      this.borderRadius});
+  final bool enabled; // 🆕
+
+  const CustomButton({
+    super.key,
+    required this.text,
+    required this.ontap,
+    this.color,
+    this.borderColor,
+    this.padding,
+    this.child,
+    this.borderRadius,
+    this.enabled = true, // 🆕 default true
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ButtonStyle(
-        backgroundColor: WidgetStatePropertyAll(
-          color ?? theme.primaryColor,
-        ),
+        backgroundColor: WidgetStatePropertyAll(getColor()),
         padding: WidgetStatePropertyAll(
           padding ?? EdgeInsets.symmetric(vertical: Sizes.height * 0.015),
         ),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
             side: BorderSide(
-              color:
-                  borderColor != null ? Colors.transparent : theme.primaryColor,
+              color: borderColor ?? theme.primaryColor,
             ),
             borderRadius: BorderRadius.circular(borderRadius ?? 50),
           ),
         ),
+        // Disable үед opacity бууруулах бол style-д өөрчлөлт оруулж болно
+        foregroundColor: WidgetStatePropertyAll(
+          enabled ? Colors.white : Colors.white.withAlpha(150),
+        ),
       ),
-      onPressed: ontap,
+      onPressed: enabled ? ontap : null, // 🧠 disable logic энд
       child: Center(
         child: child ??
             Text(
@@ -52,5 +58,17 @@ class CustomButton extends StatelessWidget {
             ),
       ),
     );
+  }
+
+  getColor() {
+    if (color != null && enabled) {
+      return color;
+    } else if (color == null && enabled) {
+      return theme.primaryColor;
+    } else if (color != null && !enabled) {
+      return grey400;
+    } else if (color == null && !enabled) {
+      return grey400;
+    }
   }
 }

@@ -19,7 +19,6 @@ class IndexPharma extends StatefulWidget {
 }
 
 class _IndexPharmaState extends State<IndexPharma> {
-
   @override
   void initState() {
     super.initState();
@@ -72,7 +71,8 @@ class _IndexPharmaState extends State<IndexPharma> {
   }
 
   appBarSingleText(String v) {
-    return Text(v, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
+    return Text(v,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
   }
 
   List<String> getIcons(String role) {
@@ -87,7 +87,12 @@ class _IndexPharmaState extends State<IndexPharma> {
     if (role == 'PA') {
       return [const Home(), const Cart(), const Profile()];
     } else {
-      return [const CustomerList(), const Home(), const Cart(), const Profile()];
+      return [
+        const CustomerList(),
+        const Home(),
+        const Cart(),
+        const Profile()
+      ];
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
@@ -12,56 +11,80 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
+import 'package:pharmo_app/controllers/rep_provider.dart';
 import 'package:pharmo_app/controllers/report_provider.dart';
+import 'package:pharmo_app/services/notification_service.dart';
 import 'package:pharmo_app/utilities/global_key.dart';
 import 'package:pharmo_app/theme/dark_theme.dart';
 import 'package:pharmo_app/theme/light_theme.dart';
-import 'package:pharmo_app/utilities/firebase_api.dart';
+import 'package:pharmo_app/services/firebase_sevice.dart';
+import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
+import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
-
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-void initializeNotifications() {
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-  flutterLocalNotificationsPlugin.initialize(initializationSettings);
-}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseApi.initFirebase();
-  initializeNotifications();
+  Notify.initializeNotifications();
   await Upgrader.clearSavedSettings();
   await Hive.initFlutter();
   await dotenv.load(fileName: ".env");
-
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthController()),
         ChangeNotifierProvider(create: (_) => BasketProvider()),
-        ChangeNotifierProvider(create: (_) => JaggerProvider()),
+        ChangeNotifierProvider(
+            create: (_) => JaggerProvider()..startTracking()),
         ChangeNotifierProvider(create: (_) => MyOrderProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => PharmProvider()),
         ChangeNotifierProvider(create: (_) => IncomeProvider()),
         ChangeNotifierProvider(create: (_) => PromotionProvider()),
-        ChangeNotifierProvider(create: (_) => ReportProvider())
+        ChangeNotifierProvider(create: (_) => ReportProvider()),
+        ChangeNotifierProvider(create: (_) => RepProvider()..initTracking())
       ],
       child: const MyApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Box authBox;
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    openAuthBox();
+  }
+
+  Future<void> openAuthBox() async {
+    try {
+      authBox = await Hive.openBox('auth');
+      final email = authBox.get('email');
+      final password = authBox.get('password');
+      if (email != null && password != null) {
+        final auth = context.read<AuthController>();
+        await auth.checkForUpdate().whenComplete(() async {
+          await auth.login(email, password, context);
+        });
+      }
+    } catch (e) {
+      debugPrint('Hive error: $e');
+    } finally {
+      setState(() => loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,13 +96,17 @@ class MyApp extends StatelessWidget {
         darkTheme: darkTheme,
         navigatorKey: GlobalKeys.navigatorKey,
         themeMode: home.themeMode,
-        home: UpgradeAlert(
-          dialogStyle: UpgradeDialogStyle.cupertino,
-          showIgnore: false,
-          showLater: false,
-          showReleaseNotes: false,
-          child: const SplashScreen(),
-        ),
+        home: loading
+            ? Scaffold(
+                backgroundColor: Colors.white,
+                body: Center(child: PharmoIndicator()))
+            : UpgradeAlert(
+                dialogStyle: UpgradeDialogStyle.material,
+                showIgnore: false,
+                showLater: false,
+                showReleaseNotes: false,
+                child: authBox.isEmpty ? SplashScreen() : LoginPage(),
+              ),
       ),
     );
   }

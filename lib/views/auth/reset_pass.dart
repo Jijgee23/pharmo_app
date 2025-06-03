@@ -41,7 +41,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 Constants.boxV10,
                 (!boolean)
                     ? CustomButton(
-                        text: 'Батлагаажуулах код авах',
+                        text: 'Баталгаажуулах код авах',
                         ontap: () async {
                           dynamic sent = await auth.resetPassOtp(email.text);
                           print(sent['errorType']);
@@ -60,7 +60,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Батлагаажуулах нууц үгээ оруулна уу!'),
+                          const Text('Баталгаажуулах нууц үгээ оруулна уу!'),
                           Constants.boxV10,
                           OTPTextFieldV2(
                               controller: otpController,

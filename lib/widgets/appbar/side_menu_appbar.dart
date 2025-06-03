@@ -14,18 +14,22 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool hasBasket;
   final Widget? action;
   final Color? color;
+  final bool? hasRect;
+  final bool? centerTitle;
 
-  const SideAppBar({
-    super.key,
-    this.leadingOnTap,
-    this.icon,
-    this.leading,
-    this.title,
-    this.hasBasket = false,
-    this.action,
-    this.text,
-    this.color,
-  }) : preferredSize = const Size.fromHeight(kToolbarHeight);
+  const SideAppBar(
+      {super.key,
+      this.leadingOnTap,
+      this.icon,
+      this.leading,
+      this.title,
+      this.hasBasket = false,
+      this.action,
+      this.text,
+      this.color,
+      this.centerTitle,
+      this.hasRect = true,
+      this.preferredSize = const Size.fromHeight(kToolbarHeight)});
   @override
   final Size preferredSize;
 
@@ -38,14 +42,17 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
             child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
-              ),
+              borderRadius: hasRect!
+                  ? BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    )
+                  : BorderRadius.only(),
               child: AppBar(
                 backgroundColor: color,
                 surfaceTintColor: color,
-                centerTitle: true,
+                centerTitle: centerTitle ?? false,
+                elevation: 0,
                 title: (text != null)
                     ? Text(
                         text!,
@@ -58,7 +65,10 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
                       )
                     : title,
                 leading: leading ?? const ChevronBack(),
-                actions: [if (hasBasket) basketIcon(home, basket), action ?? const SizedBox()],
+                actions: [
+                  if (hasBasket) basketIcon(home, basket),
+                  action ?? const SizedBox()
+                ],
               ),
             ),
           ),
@@ -83,10 +93,12 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
             top: 2,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(15)),
+              decoration: BoxDecoration(
+                  color: Colors.red, borderRadius: BorderRadius.circular(15)),
               child: Text(
                 basket.basket.totalCount.toString(),
-                style: const TextStyle(color: white, fontSize: 10, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: white, fontSize: 10, fontWeight: FontWeight.bold),
               ),
             ),
           ),

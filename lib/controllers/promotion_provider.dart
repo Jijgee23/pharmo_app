@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/models/marked_promo.dart';
-import 'package:pharmo_app/controllers/models/promotion.dart';
-import 'package:pharmo_app/controllers/models/qr_data.dart';
+import 'package:pharmo_app/models/marked_promo.dart';
+import 'package:pharmo_app/models/promotion.dart';
+import 'package:pharmo_app/models/qr_data.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -90,7 +90,7 @@ class PromotionProvider extends ChangeNotifier {
 
   getPromotion() async {
     try {
-      final response = await apiRequest('GET', endPoint: 'get_promos/');
+      final response = await api(Api.get,  'get_promos/');
       if (response!.statusCode == 200) {
         final res = convertData(response);
         print(res);
@@ -106,7 +106,7 @@ class PromotionProvider extends ChangeNotifier {
 
   getDetail(int promoId) async {
     try {
-      final response = await apiRequest('GET', endPoint: 'get_promos/$promoId/');
+      final response = await api(Api.get,  'get_promos/$promoId/');
       if (response!.statusCode == 200) {
         Map<String, dynamic> p = convertData(response);
         MarkedPromo mp = MarkedPromo.fromJson(p);
@@ -122,7 +122,7 @@ class PromotionProvider extends ChangeNotifier {
   getMarkedPromotion() async {
     try {
       markedPromotions.clear();
-      final response = await apiRequest('GET', endPoint: 'marked_promos/');
+      final response = await api(Api.get,  'marked_promos/');
       if (response!.statusCode == 200) {
         final res = convertData(response);
         markedPromotions = (res as List).map((data) => MarkedPromo.fromJson(data)).toList();
@@ -137,7 +137,7 @@ class PromotionProvider extends ChangeNotifier {
 
   filterPromotion(String type, String value) async {
     try {
-      final response = await apiRequest('GET', endPoint: 'get_promos/?$type=$value');
+      final response = await api(Api.get,  'get_promos/?$type=$value');
       if (response!.statusCode == 200) {
         final res = convertData(response);
         List<dynamic> pro = res['results'];
@@ -152,7 +152,7 @@ class PromotionProvider extends ChangeNotifier {
 
   hidePromo(int id, BuildContext context) async {
     try {
-      final response = await apiRequest('PATCH', endPoint: 'marked_promos/$id/', body: {});
+      final response = await api(Api.patch,  'marked_promos/$id/', body: {});
       if (response!.statusCode == 200) {
         message('Амжилттай');
         getMarkedPromotion();
@@ -172,7 +172,7 @@ class PromotionProvider extends ChangeNotifier {
         "branchId": (delivery == false) ? branchId : null,
         "note": note,
       };
-      final response = await apiRequest('POST', endPoint: 'pharmacy/promo_order/', body: body);
+      final response = await api(Api.post,  'pharmacy/promo_order/', body: body);
       var data = convertData(response!);
       if (response.statusCode == 200) {
         qrData = QrData.fromJson(data);
@@ -186,8 +186,8 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   checkPayment(BuildContext context) async {
-    final response = await apiRequest('PATCH',
-        endPoint: 'pharmacy/promo_order/cp/', body: {"invoiceId": qrData.invoiceId});
+    final response = await api(Api.patch,
+         'pharmacy/promo_order/cp/', body: {"invoiceId": qrData.invoiceId});
     final data = convertData(response!);
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));

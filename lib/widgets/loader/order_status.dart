@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 
 class OrderStatusAnimation extends StatelessWidget {
@@ -17,12 +15,7 @@ class OrderStatusAnimation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-      decoration: BoxDecoration(
-        color: white,
-        borderRadius: border10,
-        boxShadow: [BoxShadow(color: frenchGrey, blurRadius: 5)],
-      ),
+      decoration: BoxDecoration(),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [

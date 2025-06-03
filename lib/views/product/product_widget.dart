@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/models/products.dart';
+import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -38,7 +38,9 @@ class ProductWidget extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(Sizes.smallFontSize - 2),
                   color: Colors.white,
-                  border: Border.all(color: const Color.fromARGB(255, 207, 206, 206), width: 1)),
+                  border: Border.all(
+                      color: const Color.fromARGB(255, 207, 206, 206),
+                      width: 1)),
               margin: const EdgeInsets.all(Sizes.smallFontSize / 3),
               padding: const EdgeInsets.all(Sizes.smallFontSize / 2),
               child: InkWell(
@@ -81,14 +83,17 @@ class ProductWidget extends StatelessWidget {
                         InkWell(
                           highlightColor: Colors.grey,
                           splashColor: Colors.grey,
-                          onTap: () => Get.bottomSheet(AddBasketSheet(product: item)),
+                          onTap: () =>
+                              Get.bottomSheet(AddBasketSheet(product: item)),
                           child: Container(
                               padding: const EdgeInsets.all(3),
                               decoration: BoxDecoration(
                                   color: Colors.white,
-                                  border: Border.all(color: theme.primaryColor, width: 1.5),
+                                  border: Border.all(
+                                      color: theme.primaryColor, width: 1.5),
                                   borderRadius: BorderRadius.circular(5)),
-                              child: Icon(Icons.add, color: theme.primaryColor)),
+                              child:
+                                  Icon(Icons.add, color: theme.primaryColor)),
                         ),
                       ],
                     ),
@@ -101,7 +106,8 @@ class ProductWidget extends StatelessWidget {
                     top: 0,
                     right: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 2, horizontal: 5),
                       decoration: BoxDecoration(
                         color: AppColors.secondary,
                         borderRadius: BorderRadius.circular(10),
@@ -163,7 +169,8 @@ class ProductWidgetListView extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: theme.cardColor,
-            border: Border.all(color: const Color.fromARGB(255, 207, 206, 206), width: 1)),
+            border: Border.all(
+                color: const Color.fromARGB(255, 207, 206, 206), width: 1)),
         margin: const EdgeInsets.symmetric(vertical: 2.5),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         width: double.infinity,
@@ -176,8 +183,10 @@ class ProductWidgetListView extends StatelessWidget {
                 children: [
                   Text(
                     item.name!,
-                    style:
-                        TextStyle(color: Colors.black87, fontSize: fs, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: fs,
+                        fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -213,7 +222,8 @@ class ProductWidgetListView extends StatelessWidget {
             InkWell(
               onTap: () => Get.bottomSheet(AddBasketSheet(product: item)),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(
@@ -221,7 +231,7 @@ class ProductWidgetListView extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(15)),
                 child: Text(
-                  'Сагсанд нэмэх',
+                  'Сагслах',
                   softWrap: true,
                   style: TextStyle(
                     color: theme.primaryColor,

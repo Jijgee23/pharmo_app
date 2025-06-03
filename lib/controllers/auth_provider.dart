@@ -5,14 +5,15 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/controllers/models/account.dart';
-import 'package:pharmo_app/controllers/models/supplier.dart';
+import 'package:pharmo_app/models/account.dart';
+import 'package:pharmo_app/models/supplier.dart';
+import 'package:pharmo_app/services/network_service.dart';
+import 'package:pharmo_app/services/user_service.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
@@ -20,15 +21,21 @@ import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
+import 'package:pharmo_app/views/main/rep_man/index.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart'
+    show Patch, ShorebirdUpdater, UpdateStatus, UpdateTrack;
+// ignore: depend_on_referenced_packages
+import 'package:http_parser/http_parser.dart' as pharser;
 
 class AuthController extends ChangeNotifier {
-  bool invisible = true;
-  bool invisible2 = false;
   bool loading = false;
+  bool remember = false;
   late Map<String, dynamic> _userInfo;
   Map<String, dynamic> get userInfo => _userInfo;
   Map<String, String> deviceData = {};
@@ -40,13 +47,8 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleVisibile() {
-    invisible = !invisible;
-    notifyListeners();
-  }
-
-  void toggleVisibile2() {
-    invisible2 = !invisible2;
+  setRemember(bool n) {
+    remember = n;
     notifyListeners();
   }
 
@@ -55,11 +57,20 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  apiPostWithoutToken(String endPoint, Object? body) async {
-    http.Response response = await http.post(setUrl(endPoint),
-        headers: header, body: jsonEncode(body));
-    getApiInformation(endPoint, response);
-    return response;
+  Future<http.Response?> apiPostWithoutToken(
+      String endPoint, Object? body) async {
+    http.Response? result;
+    if (await isOnline()) {
+      var response = await http.post(
+        setUrl(endPoint),
+        headers: header,
+        body: jsonEncode(body),
+      );
+      result = response;
+    } else {
+      message('Интернет холболтоо шалгана уу!');
+    }
+    return result;
   }
 
   Map<String, String> get header {
@@ -83,44 +94,46 @@ class AuthController extends ChangeNotifier {
     setLogging(true);
     try {
       var responseLogin = await apiPostWithoutToken(
-        'auth/login/',
-        {'email': email, 'password': password},
-      );
-      final decodedResponse = convertData(responseLogin);
+          'auth/login/', {'email': email, 'password': password});
+      final decodedResponse = convertData(responseLogin!);
       print(decodedResponse);
       if (responseLogin.statusCode == 200) {
-        _handleSuccessfulLogin(decodedResponse, context);
+        _handleSuccessfulLogin(decodedResponse, password, context);
       } else if (responseLogin.statusCode == 400) {
+        setLogging(false);
         _handleBadRequest(decodedResponse, email, password);
       } else if (responseLogin.statusCode == 401) {
+        setLogging(false);
       } else {
-        {
-          message('Имейл эсвэл нууц үг буруу байна!');
-        }
+        setLogging(false);
+        message('Имейл эсвэл нууц үг буруу байна!');
       }
       notifyListeners();
     } catch (e) {
       message('Интернет холболтоо шалгана уу!');
       debugPrint('error================= on login> ${e.toString()} ');
+    } finally {
+      setLogging(false);
     }
-    setLogging(false);
   }
 
   // Нэвтрэх амжилттай
   Future<void> _handleSuccessfulLogin(
-      Map<String, dynamic> res, BuildContext context) async {
+      Map<String, dynamic> res, String password, BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', res['access_token']);
     await prefs.setString('refresh_token', res['refresh_token']);
 
     final accessToken = prefs.getString('access_token')!;
+    print('');
     final decodedToken = JwtDecoder.decode(accessToken);
-    print(decodedToken.runtimeType);
-
     _userInfo = decodedToken;
+    if (remember) {
+      Userservice.saveUserData(decodedToken, password);
+    }
 
-    final homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    final homeProvider = context.read<HomeProvider>();
+    final basketProvider = context.read<BasketProvider>();
 
     await prefs.setString('useremail', decodedToken['email']);
     await prefs.setInt('user_id', decodedToken['user_id']);
@@ -128,37 +141,33 @@ class AuthController extends ChangeNotifier {
 
     final home = Provider.of<HomeProvider>(context, listen: false);
     await home.getUserInfo();
-    print('HOME USER: ${home.userRole}');
-
     setAccountInfo(Account.fromJson(decodedToken));
-
     if (home.userRole == 'PA') {
+      if (decodedToken['stock_id'] != null) {
+        await prefs.setInt('stock_id', decodedToken['stock_id']);
+      }
       await homeProvider.getSuppliers();
       await homeProvider.getBranches();
-      if (decodedToken['supplier'] != null) {
-        await prefs.setInt('suppID', decodedToken['supplier']);
+      if (decodedToken['supplier_id'] != null) {
+        await prefs.setInt('suppID', decodedToken['supplier_id']);
         int? k = prefs.getInt('suppID');
         home.getSuppliers();
-        home.setSupId(k);
-        Supplier sup = home.supList.firstWhere((e) => (int.parse(e.id) == k));
-        home.changeSupName(sup.name);
+        Supplier sup = home.supliers.firstWhere((e) => e.id == k);
+        home.setSupplier(sup);
       } else {
         await home.getSuppliers();
-        Supplier supp = home.supList[0];
-        home.pickSupplier(int.parse(supp.id), context);
-        home.setSupId(int.parse(supp.id));
-        home.changeSupName(supp.name);
+        Supplier sup = home.supliers[0];
+        print(sup.name);
+        home.pickSupplier(sup, sup.stocks[0], context);
+        home.setSupplier(sup);
       }
     } else {
       await prefs.setString('company_name', decodedToken['company_name']);
     }
-
-    Hive.box('auth').put('role', decodedToken['role']);
     await basketProvider.getBasket();
     await basketProvider.getBasketCount;
     _navigateBasedOnRole(_account.role);
     debugPrint(accessToken);
-    tokerRefresher();
     notifyListeners();
   }
 
@@ -196,6 +205,8 @@ class AuthController extends ChangeNotifier {
         break;
       case 'D':
         gotoRemoveUntil(const IndexDeliveryMan());
+      case 'R':
+        gotoRemoveUntil(IndexRep());
         break;
       default:
         message('Веб хуудсаар хандана уу');
@@ -203,13 +214,12 @@ class AuthController extends ChangeNotifier {
     await getDeviceInfo();
   }
 
-  //Токен шинэчлэх
+  // Токен шинэчлэх
   Future<void> refresh() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? rtoken = prefs.getString("refresh_token");
     var body = {'refresh': rtoken!};
-    var response =
-        await apiRequest('POST', endPoint: 'auth/refresh/', body: body);
+    var response = await api(Api.post, 'auth/refresh/', body: body);
     if (response!.statusCode == 200) {
       String accessToken = json.decode(response.body)['access'];
       await prefs.setString('access_token', accessToken);
@@ -267,7 +277,7 @@ class AuthController extends ChangeNotifier {
         'auth/reg_otp/',
         {'email': email, 'phone': phone},
       );
-      if (response.statusCode == 200) {
+      if (response!.statusCode == 200) {
         return buildResponse(1, null, 'Батлагаажуулах код илгээлээ.');
       } else if (response.statusCode == 400) {
         return buildResponse(2, null, 'И-Мейл эсвэл утас бүртгэлтэй байна!');
@@ -292,9 +302,8 @@ class AuthController extends ChangeNotifier {
         'otp': otp,
         'password': password
       };
-      http.Response response =
-          await apiPostWithoutToken('auth/register/', body);
-      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      final response = await apiPostWithoutToken('auth/register/', body);
+      final data = jsonDecode(utf8.decode(response!.bodyBytes));
       print(data);
       if (response.statusCode == 200 || response.statusCode == 201) {
         return buildResponse(1, data, 'Бүртгэл үүслээ');
@@ -391,9 +400,8 @@ class AuthController extends ChangeNotifier {
         'os': deviceData['os'],
         'osVersion': deviceData['osVersion']
       };
-      print(data['deviceId']);
       http.Response? response =
-          await apiRequest('POST', endPoint: 'device_token/', body: data);
+          await api(Api.post, 'device_token/', body: data);
       if (response!.statusCode == 200) {
         debugPrint('Device info sent');
       } else {
@@ -429,24 +437,40 @@ class AuthController extends ChangeNotifier {
       {required String ema,
       required String pass,
       required String name,
+      required String publicName,
       required String rd,
       required String type,
       String? additional,
       String? inviCode,
       String? address,
-      required File license,
+      required List<File> license,
       File? logo,
       required double? lat,
       required double? lng}) async {
-    print(lat);
     try {
-      var request = http.MultipartRequest('POST', setUrl('company/'));
-      request.files
-          .add(await http.MultipartFile.fromPath('license', license.path));
-      logo != null
-          ? request.files
-              .add(await http.MultipartFile.fromPath('logo', logo.path))
+      var request = http.MultipartRequest('POST', setUrl('company/info/'));
+
+      String basicAuth = 'Basic ${base64Encode(utf8.encode('$ema:$pass'))}';
+      if (license.isEmpty) {
+        message('Тусгай зөвшөөрөл оруулна уу!');
+        return;
+      }
+      List<http.MultipartFile> files = [];
+      for (File lic in license) {
+        final file = await http.MultipartFile.fromPath('license[]', lic.path,
+            contentType: pharser.MediaType('image', 'jpeg'));
+        print(lic.path);
+        files.add(file);
+      }
+      request.files.addAll(files);
+      request.headers['Authorization'] = basicAuth;
+      request.headers['Accept'] = 'application/json';
+      final compressedLogo = await compressImage(logo!);
+      compressedLogo != null
+          ? request.files.add(
+              await http.MultipartFile.fromPath('logo', compressedLogo.path))
           : null;
+      request.fields['public_name'] = publicName;
       request.fields['email'] = ema;
       request.fields['password'] = pass;
       request.fields['name'] = name;
@@ -456,6 +480,8 @@ class AuthController extends ChangeNotifier {
       request.fields['cType'] = (type == 'Эмийн сан') ? 'P' : 'S';
       request.fields['address2'] =
           jsonEncode({'lat': lat, 'lng': lng, 'address2': address}).toString();
+      print(request.fields);
+      print(request.files);
       var res = await request.send();
       String responseBody = await res.stream.bytesToString();
       print(res.statusCode);
@@ -474,5 +500,115 @@ class AuthController extends ChangeNotifier {
     } catch (e) {
       return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
     }
+  }
+
+  ShorebirdUpdater updater = ShorebirdUpdater();
+
+  final currentTrack = UpdateTrack.stable;
+  bool checking = false;
+  Patch? currentPatch;
+  setChecking(bool n) {
+    checking = n;
+    notifyListeners();
+  }
+
+  Future<void> checkForUpdate() async {
+    setChecking(true);
+    try {
+      final status = await updater.checkForUpdate(track: currentTrack);
+      if (status == UpdateStatus.unavailable) {
+        debugPrint('Шинэчлэлт байхгүй');
+        return;
+      }
+      if (status == UpdateStatus.upToDate) {
+        debugPrint('Шинэчлэлт шаардлагагүй');
+        return;
+      }
+
+      if (status == UpdateStatus.outdated) {
+        debugPrint('Шинэчлэлт татагдаж байна');
+        await updater.update(track: currentTrack).whenComplete(() async {
+          await restartBanner();
+        });
+      }
+      if (status == UpdateStatus.restartRequired) {
+        debugPrint('Дахин ачаалуулах');
+        await restartBanner();
+      }
+    } catch (error) {
+      debugPrint('Error checking for update: $error');
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  Future<void> getUpdateMessage() async {
+    final status = await updater.checkForUpdate(track: currentTrack);
+    if (status == UpdateStatus.unavailable) {
+      message('Шинэчлэлт байхгүй');
+      return;
+    }
+    if (status == UpdateStatus.upToDate) {
+      message('Шинэчлэлт шаардлагагүй');
+      return;
+    }
+
+    if (status == UpdateStatus.outdated) {
+      message('Шинэчлэлт татагдаж байна');
+      await updater.update(track: currentTrack).whenComplete(() async {
+        await restartBanner();
+      });
+    }
+    if (status == UpdateStatus.restartRequired) {
+      message('Дахин ачаалуулах шаардлагатай');
+      await restartBanner();
+    }
+  }
+
+  Future<void> restartBanner() async {
+    return Get.dialog(
+      Material(
+        color: Colors.transparent,
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            margin: const EdgeInsets.symmetric(horizontal: 30),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Шинэчлэлт татагдлаа!',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Дахин ачаалах шаардлагатай!',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  CustomButton(
+                    text: 'Дахин ачаалуулах',
+                    ontap: () {
+                      Restart.restartApp(
+                        notificationTitle: 'Шинэчлэлт татагдлаа',
+                        notificationBody: 'Энд дарж нээнэ үү!',
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

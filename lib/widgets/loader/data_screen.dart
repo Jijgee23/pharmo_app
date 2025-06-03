@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/loader/custom_shimmer.dart';
 
@@ -11,6 +12,9 @@ class DataScreen extends StatelessWidget {
   final PreferredSizeWidget? appbar;
   final BottomNavigationBar? navbar;
   final Widget? fab;
+  final Color? bg;
+  final EdgeInsetsGeometry? pad;
+  final Widget? customLoading;
 
   const DataScreen({
     super.key,
@@ -22,6 +26,9 @@ class DataScreen extends StatelessWidget {
     this.navbar,
     this.customEmpty,
     this.fab,
+    this.bg,
+    this.pad,
+    this.customLoading,
   });
 
   @override
@@ -32,18 +39,21 @@ class DataScreen extends StatelessWidget {
       strokeWidth: 3,
       onRefresh: onRefresh ?? () async {},
       child: Scaffold(
+        backgroundColor: bg,
         floatingActionButton: fab,
         floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
         appBar: appbar,
-        body: loading
-            ? const CustomShimmer()
-            : (empty)
-                ? customEmpty ?? noResult()
-                : Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7.5),
-                    margin: const EdgeInsets.only(top: 7.5),
-                    child: child,
-                  ),
+        body: AnimatedSwitcher(
+          duration: duration,
+          child: loading
+              ? customLoading ?? CustomShimmer()
+              : (empty)
+                  ? customEmpty ?? noResult()
+                  : Container(
+                      padding: pad ?? EdgeInsets.all(7.5),
+                      child: child,
+                    ),
+        ),
         bottomNavigationBar: navbar,
       ),
     );

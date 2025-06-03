@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/income_provider.dart';
-import 'package:pharmo_app/controllers/models/income.dart';
+import 'package:pharmo_app/models/income.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';

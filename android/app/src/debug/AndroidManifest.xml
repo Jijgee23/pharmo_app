@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="mn.infosystems.pharmo">
 
     <!-- Permissions (outside <application>) -->
@@ -17,7 +18,9 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission android:name="android.permission.CAMERA"/>
 
+
     <application
+        tools:replace="android:label"
         android:label="Pharmo"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
@@ -71,3 +74,4 @@
     </application>
 
 </manifest>
+    

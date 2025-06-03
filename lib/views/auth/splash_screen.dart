@@ -19,22 +19,14 @@ class _SplashScreenState extends State<SplashScreen> {
   bool isSplashed = false;
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((c) async {
-      await _openBox();
-    });
+    openBox();
     super.initState();
   }
 
-  Future<void> _openBox() async {
-    try {
+  Future<void> openBox() async {
+    WidgetsBinding.instance.addPostFrameCallback((c) async {
       box1 = await Hive.openBox('auth');
-      if (box1.get('splash') == null) {
-      } else {
-        Future.delayed(Duration.zero, () => goto(const LoginPage()));
-      }
-    } catch (e) {
-      debugPrint('Error opening Hive box: $e');
-    }
+    });
   }
 
   setPage(int newPage) {
@@ -75,8 +67,8 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            InkWell(
-              onTap: () async {
+            ElevatedButton(
+              onPressed: () async {
                 if (page == urls.length - 1) {
                   await box1.put('splash', true).whenComplete(() {
                     goto(const LoginPage());
@@ -84,37 +76,33 @@ class _SplashScreenState extends State<SplashScreen> {
                 } else {
                   setPage(page + 1);
                   _pageController.nextPage(
-                      duration: const Duration(seconds: 1), curve: Curves.fastLinearToSlowEaseIn);
+                    duration: const Duration(seconds: 1),
+                    curve: Curves.fastLinearToSlowEaseIn,
+                  );
                 }
               },
-              child: Container(
-                decoration: BoxDecoration(
-                    color: theme.primaryColor.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(50),
-                    gradient: LinearGradient(colors: [
-                      theme.primaryColor.withOpacity(0.9),
-                      theme.primaryColor.withOpacity(0.6)
-                    ])),
-                padding: const EdgeInsets.all(15),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(),
-                    Text(
-                      (page == urls.length - 1) ? 'Эхлэх' : 'Дараагийн',
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1),
-                    ),
-                    const Icon(
-                      Icons.chevron_right,
-                      color: Colors.white,
-                    )
-                  ],
-                ),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.all(10),
+                backgroundColor: theme.primaryColor.withAlpha(225),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(),
+                  Text(
+                    (page == urls.length - 1) ? 'Эхлэх' : 'Дараагийн',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    size: 32,
+                    color: Colors.white,
+                  )
+                ],
               ),
             ),
             const SizedBox(
@@ -122,7 +110,8 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(urls.length, (index) => _indicator(index)),
+              children:
+                  List.generate(urls.length, (index) => _indicator(index)),
             ),
           ],
         ),
@@ -138,7 +127,9 @@ class _SplashScreenState extends State<SplashScreen> {
       height: 8,
       width: page == index ? 24 : 8,
       decoration: BoxDecoration(
-        color: page == index ? theme.primaryColor.withOpacity(0.7) : Colors.grey.shade700,
+        color: page == index
+            ? theme.primaryColor.withOpacity(0.7)
+            : Colors.grey.shade700,
         borderRadius: BorderRadius.circular(4),
       ),
     );

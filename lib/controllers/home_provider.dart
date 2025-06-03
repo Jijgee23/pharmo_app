@@ -7,11 +7,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/controllers/models/branch.dart';
-import 'package:pharmo_app/controllers/models/category.dart';
-import 'package:pharmo_app/controllers/models/products.dart';
-import 'package:pharmo_app/controllers/models/sector.dart';
-import 'package:pharmo_app/controllers/models/supplier.dart';
+import 'package:pharmo_app/models/branch.dart';
+import 'package:pharmo_app/models/category.dart';
+import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/models/sector.dart';
+import 'package:pharmo_app/models/supplier.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
@@ -23,43 +23,31 @@ import 'package:http/http.dart' as http;
 
 class HomeProvider extends ChangeNotifier {
   void reset() {
-    _searchController.clear();
     queryType = 'name';
     searchType = 'Нэрээр';
-    isList = false;
     query = '';
-    searching = false;
     currentIndex = 0;
-    invisible = false;
     selectedCustomerName = '';
     selectedCustomerId = 0;
     userId = 0;
-    selectedBranchId = -1;
-    payType = 'NOW';
     branches.clear();
     branchList.clear();
     categories.clear();
+    supliers.clear();
   }
 
-  final TextEditingController _searchController = TextEditingController();
-  TextEditingController get searchController => _searchController;
   List<String> stype = ['Нэрээр', 'Баркодоор'];
   String queryType = 'name';
   String searchType = 'Нэрээр';
   bool isList = false;
   String query = '';
-  bool searching = false;
   int currentIndex = 0;
-  bool invisible = false;
   String selectedCustomerName = '';
   int selectedCustomerId = 0;
   String? userEmail;
   String? userRole;
   String? userName;
   int userId = 0;
-  int? basketId;
-  int selectedBranchId = -1;
-  String payType = 'NOW';
   String? note;
   List<Branch> branchList = <Branch>[];
   late LocationPermission permission;
@@ -68,36 +56,24 @@ class HomeProvider extends ChangeNotifier {
   LatLng? selectedLoc;
   double? currentLatitude;
   double? currentLongitude;
-  String? cName;
-  String? cRd;
-  String? email;
-  String? phone;
-  String? detail;
   List<Category> categories = <Category>[];
   List<Manufacturer> mnfrs = <Manufacturer>[];
   List<Manufacturer> vndrs = <Manufacturer>[];
-  late Map<String, dynamic> _userInfo;
-  Map<String, dynamic> get userInfo => _userInfo;
-  final List<Supplier> _supList = <Supplier>[];
-  List<Supplier> get supList => _supList;
-  String _supName = 'Нийлүүлэгч сонгох';
-  String get supName => _supName;
+  List<Supplier> supliers = [];
   List<Sector> branches = <Sector>[];
-  int supID = 0;
-  setSupId(int? k) async {
-    if (k == null) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      int? id = prefs.getInt('suppID');
-      supID = id!;
-    } else {
-      supID = k;
-    }
+  Supplier picked = Supplier(
+    id: 1,
+    name: 'Нийлүүлэгч сонгох',
+    logo: null,
+    stocks: [],
+  );
+  setSupplier(Supplier sup) {
+    picked = sup;
     notifyListeners();
   }
 
   setSelectedLoc(LatLng p) {
     selectedLoc = p;
-    print(p.latitude);
     notifyListeners();
   }
 
@@ -155,8 +131,8 @@ class HomeProvider extends ChangeNotifier {
 
   getProducts(int pageKey) async {
     try {
-      final response = await apiRequest('GET',
-          endPoint: 'products/?page=$pageKey&page_size=$pageSize');
+      var url = 'products/?page=$pageKey&page_size=$pageSize';
+      final response = await api(Api.get, url);
       if (response!.statusCode == 200) {
         final res = convertData(response);
         final prods = (res['results'] as List)
@@ -173,8 +149,8 @@ class HomeProvider extends ChangeNotifier {
   searchProducts(String query) async {
     try {
       if (query.isNotEmpty) {
-        final response = await apiRequest('GET',
-            endPoint: 'products/search/?k=$queryType&v=$query');
+        final response =
+            await api(Api.get, 'products/search/?k=$queryType&v=$query');
         if (response!.statusCode == 200) {
           clearItems();
           final res = convertData(response);
@@ -193,7 +169,7 @@ class HomeProvider extends ChangeNotifier {
   // хямдралтай, эрэлттэй, шинэ бараа
   filterProducts(String filter) async {
     try {
-      final response = await apiRequest('GET', endPoint: 'products/?$filter');
+      final response = await api(Api.get, 'products/?$filter');
       if (response!.statusCode == 200) {
         final res = convertData(response);
         final prods = (res['results'] as List)
@@ -263,7 +239,7 @@ class HomeProvider extends ChangeNotifier {
 
   Future getBranches() async {
     try {
-      final response = await apiRequest('GET', endPoint: 'branch/');
+      final response = await api(Api.get, 'branch/');
       if (response!.statusCode == 200) {
         List<dynamic> res = convertData(response);
         branches = (res).map((data) => Sector.fromJson(data)).toList();
@@ -282,7 +258,7 @@ class HomeProvider extends ChangeNotifier {
   // Ангилалийн жагсаалт авах
   getFilters() async {
     try {
-      final response = await apiRequest('GET', endPoint: 'product/filters/');
+      final response = await api(Api.get, 'product/filters/');
       if (response!.statusCode == 200) {
         Map res = convertData(response);
         categories =
@@ -304,9 +280,8 @@ class HomeProvider extends ChangeNotifier {
 // Бараа ангиллаар шүүх
   filter(String type, int filters, int page, int pageSize) async {
     try {
-      final response = await apiRequest('GET',
-          endPoint:
-              'products/?$type=[$filters]&page=$page&page_size=$pageSize');
+      final response = await api(
+          Api.get, 'products/?$type=[$filters]&page=$page&page_size=$pageSize');
       if (response!.statusCode == 200) {
         Map res = convertData(response);
         List<Product> prods = (res['results'] as List)
@@ -321,8 +296,8 @@ class HomeProvider extends ChangeNotifier {
 
   filterCate(int id, int page, int pageSize) async {
     try {
-      final response = await apiRequest('GET',
-          endPoint: 'products/?category=[$id]&page=$page&page_size=$pageSize');
+      final response = await api(
+          Api.get, 'products/?category=[$id]&page=$page&page_size=$pageSize');
       if (response!.statusCode == 200) {
         Map<String, dynamic> res = convertData(response);
         List<Product> prods = (res['results'] as List)
@@ -336,21 +311,24 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // Нийлүүлэгчдийн жагсаалт авах
+  Stock selected = Stock(id: -1, name: '');
+  setStock(Stock stock) {
+    selected = stock;
+    notifyListeners();
+  }
+
   getSuppliers() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int? id = prefs.getInt('suppID');
-      final response = await apiRequest('GET', endPoint: 'suppliers/');
+      final response = await api(Api.get, 'suppliers_list/');
       if (response!.statusCode == 200) {
-        Map res = convertData(response);
-        _supList.clear();
-        res.forEach((key, value) {
-          var model = Supplier(key, value);
-          if (id != null && int.parse(model.id) == id) {
-            changeSupName(model.name);
-          }
-          _supList.add(model);
-        });
+        final data = convertData(response);
+        supliers = (data as List).map((sup) => Supplier.fromJson(sup)).toList();
+        Supplier? selected = supliers.firstWhere((s) => s.id == id);
+        if (selected != null) {
+          setSupplier(selected);
+        }
         notifyListeners();
       } else {
         debugPrint('Түр хүлээгээд дахин оролдоно уу!');
@@ -361,36 +339,21 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // Нийлүүлэгч сонгох
-  pickSupplier(int supId, BuildContext context) async {
+  pickSupplier(Supplier sup, Stock stock, BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final response = await apiRequest('POST',
-        endPoint: 'pick/', body: {'supplierId': supId});
-    print("pick data:  ${response!.body}");
-    if (response.statusCode == 200) {
+    final response = await api(Api.patch, 'select_supplier/',
+        body: {'supplier_id': sup.id, 'stock_id': stock.id});
+    if (response!.statusCode == 200) {
+      setStock(stock);
+      setSupplier(sup);
       Map<String, dynamic> res = jsonDecode(response.body);
-      print(res);
-      // await prefs.setString('access_token', res['access_token']);
-      // await prefs.setString('refresh_token', res['refresh_token']);
-      await prefs.setInt('picked_suplier', res['id']);
-      final promotionProvider =
-          Provider.of<PromotionProvider>(context, listen: false);
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
-      await promotionProvider.getMarkedPromotion();
+      await prefs.setString('access_token', res['access_token']);
+      final promotion = context.read<PromotionProvider>();
+      final basket = context.read<BasketProvider>();
+      await promotion.getMarkedPromotion();
       await getFilters();
-      await basketProvider.getBasket();
-      final promotion = Provider.of<PromotionProvider>(context, listen: false);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        print('MARKED PROMO LENGTH ${promotion.markedPromotions.length}');
-        if (promotion.markedPromotions.isNotEmpty) {
-          showMarkedPromos();
-        }
-      });
+      await basket.getBasket();
       notifyListeners();
-    } else if (response.statusCode == 403) {
-      debugPrint('PERMISSION DENIED');
-    } else {
-      debugPrint('SERVER ERROR');
     }
   }
 
@@ -413,20 +376,9 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Сагсны id авах
-  getBasketId() async {
-    final response = await apiRequest('GET', endPoint: 'get_basket/');
-    final res = convertData(response!);
-    if (response.statusCode == 200) {
-      basketId = res['id'];
-    }
-    notifyListeners();
-  }
-
   getCustomerBranch() async {
     try {
-      final response = await apiRequest('POST',
-          endPoint: 'seller/customer_branch/',
+      final response = await api(Api.post, 'seller/customer_branch/',
           body: {'customerId': selectedCustomerId});
       branchList.clear();
       if (response!.statusCode == 200) {
@@ -434,7 +386,6 @@ class HomeProvider extends ChangeNotifier {
         for (int i = 0; i < res.length; i++) {
           branchList.add(Branch.fromJson(res[i]));
         }
-        selectedBranchId = res[0]['id'];
         notifyListeners();
       }
     } catch (e) {
@@ -462,8 +413,8 @@ class HomeProvider extends ChangeNotifier {
 
   deactiveUser(String password, BuildContext context) async {
     try {
-      final response = await apiRequest('PATCH',
-          endPoint: 'auth/delete_user_account/', body: {'pwd': password});
+      final response = await api(Api.patch, 'auth/delete_user_account/',
+          body: {'pwd': password});
       if (response!.statusCode == 200) {
         AuthController().logout(context);
         message(
@@ -486,8 +437,7 @@ class HomeProvider extends ChangeNotifier {
         'payType': type,
         "note": (note != null) ? note : null
       };
-      final response =
-          await apiRequest('POST', endPoint: 'seller/order/', body: body);
+      final response = await api(Api.post, 'seller/order/', body: body);
       if (response!.statusCode == 201) {
         final res = convertData(response);
         final orderNumber = res['orderNo'];
@@ -513,28 +463,8 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setPayType(String v) {
-    payType = v;
-    notifyListeners();
-  }
-
   setQueryTypeName(String newValue) {
     searchType = newValue;
-    notifyListeners();
-  }
-
-  changeQueryValue(String? value) {
-    query = value ?? '';
-    notifyListeners();
-  }
-
-  changeSearching(bool a) {
-    searching = a;
-    notifyListeners();
-  }
-
-  changeSupName(String name) async {
-    _supName = name;
     notifyListeners();
   }
 
@@ -553,11 +483,6 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  toggleInvisible() {
-    invisible = !invisible;
-    notifyListeners();
-  }
-
   switchView() {
     isList = !isList;
     notifyListeners();
@@ -572,13 +497,6 @@ class HomeProvider extends ChangeNotifier {
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
-    notifyListeners();
-  }
-
-  bool fetching = false;
-
-  setFetching(bool n) {
-    fetching = n;
     notifyListeners();
   }
 }

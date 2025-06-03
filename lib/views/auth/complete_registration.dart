@@ -27,6 +27,7 @@ class CompleteRegistration extends StatefulWidget {
 class _CompleteRegistrationState extends State<CompleteRegistration> {
   final rd = TextEditingController();
   final name = TextEditingController();
+  final publicName = TextEditingController();
   final address = TextEditingController();
   final additional = TextEditingController();
   final inviCode = TextEditingController();
@@ -45,7 +46,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     });
   }
 
-  File? image;
+  // File? image;
   File? logo;
   Future<void> _pickLogo() async {
     await Permission.storage.request();
@@ -57,19 +58,25 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     });
   }
 
+  List<File> licenses = [];
+
+  addImageToLicenses(File file) {
+    setState(() {
+      licenses.add(file);
+    });
+  }
+
   Future<void> _pickFromDevice() async {
     await Permission.storage.request();
     await Permission.camera.request();
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
-    setState(() {
-      image = File(pickedFile!.path);
-    });
+    addImageToLicenses(File(pickedFile!.path));
   }
 
-  void _removeImage() {
+  void _removeImage(File file) {
     setState(() {
-      image = null;
+      licenses.remove(file);
     });
   }
 
@@ -101,6 +108,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
             const SizedBox(),
             CustomTextField(controller: rd, hintText: 'Байгууллагын РД'),
             CustomTextField(controller: name, hintText: 'Байгууллагын нэр'),
+            CustomTextField(controller: publicName, hintText: 'Түгээмэл нэр'),
             typeSelector(context),
             DefInputContainer(
               title: logo != null ? 'Лого' : null,
@@ -122,12 +130,13 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
             DefInputContainer(
               title: logo != null ? 'Тусгай зөвшөөрөл' : null,
               ontap: () => _pickFromDevice(),
-              child: image == null
+              child: licenses.isEmpty
                   ? const Text('Тусгай зөвшөөрөл хавсаргах')
                   : Column(
+                      spacing: 10,
                       children: [
-                        Ibtn(onTap: () => _removeImage(), icon: Icons.delete),
-                        Image.file(image!),
+                        Ibtn(onTap: () => _pickFromDevice(), icon: Icons.add),
+                        ...licenses.map((l) => selectedLic(l))
                       ],
                     ),
             ),
@@ -148,10 +157,29 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
             CustomTextField(
                 controller: addressDetail, hintText: 'Хаягийн дэлгэрэнгүй'),
             CustomButton(
-                text: 'Батлагаажуулах', ontap: () => _registerComplete()),
+                text: 'Баталгаажуулах', ontap: () => _registerComplete()),
             const SizedBox()
           ],
         ),
+      ),
+    );
+  }
+
+  Container selectedLic(File l) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blueAccent),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Stack(
+        children: [
+          Image.file(l),
+          Positioned(
+            right: 0,
+            child: Ibtn(onTap: () => _removeImage(l), icon: Icons.delete),
+          )
+        ],
       ),
     );
   }
@@ -177,30 +205,45 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     final auth = Provider.of<AuthController>(context, listen: false);
     final home = Provider.of<HomeProvider>(context, listen: false);
 
-    if (rd.text.isEmpty || name.text.isEmpty) {
+    if (rd.text.isEmpty || name.text.isEmpty || publicName.text.isEmpty) {
       message('Талбарууд бөглөнө үү');
-    } else {
-      if (image == null) {
-        message('Тусгай зөвшөөрөл хавсаргана уу!');
-      } else if (selectedType == "Чиглэл") {
-        message('Байгууллагын чиглэлээ сонгоно уу!');
-      } else {
-        dynamic res = await auth.completeRegistration(
-          ema: widget.ema,
-          pass: widget.pass,
-          name: name.text,
-          rd: rd.text,
-          type: selectedType,
-          license: image!,
-          lat: picked ? home.currentLatitude : null,
-          lng: picked ? home.currentLongitude : null,
-          logo: logo,
-        );
-        message(res['message']);
-        if (res['errorType'] == 1) {
-          Navigator.pop(context);
-        }
-      }
+      return;
+    }
+    // if (image == null) {
+    //   message('Тусгай зөвшөөрөл хавсаргана уу!');
+    //   return;
+    // }
+    if (selectedType == "Чиглэл") {
+      message('Байгууллагын чиглэлээ сонгоно уу!');
+      return;
+    }
+    if (publicName.text.isEmpty) {
+      message('Байгууллагын чиглэлээ сонгоно уу!');
+      return;
+    }
+    if (logo == null) {
+      message('Лого хавсаргана уу!');
+      return;
+    }
+    if (licenses.isEmpty) {
+      message('Тусгай зөвшөөрөл хавсаргана уу!');
+      return;
+    }
+    dynamic res = await auth.completeRegistration(
+      ema: widget.ema,
+      pass: widget.pass,
+      name: name.text,
+      publicName: publicName.text,
+      rd: rd.text,
+      type: selectedType,
+      license: licenses,
+      lat: picked ? home.currentLatitude : null,
+      lng: picked ? home.currentLongitude : null,
+      logo: logo,
+    );
+    message(res['message']);
+    if (res['errorType'] == 1) {
+      Navigator.pop(context);
     }
   }
 }

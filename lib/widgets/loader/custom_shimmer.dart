@@ -7,7 +7,8 @@ class CustomShimmer extends StatefulWidget {
   _CustomShimmerState createState() => _CustomShimmerState();
 }
 
-class _CustomShimmerState extends State<CustomShimmer> with SingleTickerProviderStateMixin {
+class _CustomShimmerState extends State<CustomShimmer>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -37,7 +38,7 @@ class _CustomShimmerState extends State<CustomShimmer> with SingleTickerProvider
               end: Alignment.centerRight,
               colors: [Colors.grey[300]!, Colors.grey[100]!, Colors.grey[300]!],
               stops: const [0.1, 0.5, 0.9],
-              transform: GradientRotation(_controller.value * 3.14), // Animate gradient
+              transform: GradientRotation(_controller.value * 3.14),
             ).createShader(bounds);
           },
           child: Container(

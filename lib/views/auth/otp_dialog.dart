@@ -55,7 +55,7 @@ class _OtpDialogState extends State<OtpDialog> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               const Text(
-                'Батлагаажуулах',
+                'Баталгаажуулах',
                 style: TextStyle(fontSize: 24),
               ),
               const SizedBox(height: 16),
@@ -64,7 +64,7 @@ class _OtpDialogState extends State<OtpDialog> {
                 controller: otpController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                    labelText: 'Батлагаажуулах код',
+                    labelText: 'Баталгаажуулах код',
                     border: OutlineInputBorder()),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 obscureText: false,
@@ -72,7 +72,7 @@ class _OtpDialogState extends State<OtpDialog> {
               ),
               const SizedBox(height: 16),
               CustomButton(
-                  text: 'Батлагаажуулах',
+                  text: 'Баталгаажуулах',
                   ontap: () {
                     authController
                         .register(

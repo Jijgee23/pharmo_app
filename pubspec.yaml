@@ -2,7 +2,7 @@ name: pharmo_app
 description: "Эмийн бөөний худалда, захиалгын систем."
 publish_to: none
 
-version: 1.0.14+62
+version: 1.1.4+72
 environment:
   sdk: '>=3.3.3 <4.0.0'
 
@@ -45,6 +45,11 @@ dependencies:
   image: ^4.5.2
   local_auth: ^2.3.0
   location: ^8.0.0
+  shared_preferences: ^2.5.3
+  connectivity_plus: ^6.1.4
+  flutter_background_geolocation:
+    git:
+      url: https://github.com/transistorsoft/flutter_background_geolocation.git
 
 
 

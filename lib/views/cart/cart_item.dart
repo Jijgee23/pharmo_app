@@ -27,49 +27,16 @@ class CartItem extends StatefulWidget {
 }
 
 class _CartItemState extends State<CartItem> {
-  late BasketProvider basketProvider;
-  @override
-  void initState() {
-    basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    // basketProvider.checkQTYs();
-    checkErrorMessage();
-    super.initState();
-  }
-
-  late int selectedItem = 0;
-  bool checked = false;
-  String error = '';
-  final FocusNode focusNode = FocusNode();
-
-  void checkErrorMessage() {
-    final qtyId = widget.detail['qtyId'].toString();
-    final foundError = basketProvider.qtys.any((item) => item.id == qtyId);
-    if (foundError) {
-      setState(() {
-        error = 'Барааны үлдэгдэл хүрэлцэхгүй!';
-      });
-    }
-  }
-
   Future<void> removeBasketItem() async {
-    await basketProvider.removeBasketItem(itemId: widget.detail['id']);
-    await basketProvider.getBasket();
+    await context
+        .read<BasketProvider>()
+        .removeBasketItem(itemId: widget.detail['id']);
   }
 
-  Future<void> changeBasketItem(int itemId, String type, int qty) async {
-    dynamic check =
-        await basketProvider.checkItemQty((widget.detail['qtyId']), qty);
-    if (check['errorType'] == 0) {
-      message('Бараа дууссан, сагснаас хасна уу!');
-    } else if (check['errorType'] == 1) {
-      dynamic res = await basketProvider.changeBasketItem(
-          itemId: itemId, type: type, qty: qty);
-      message(res['message']);
-    } else {
-      message('Үлдэгдэл хүрэлцэхгүй байна!');
-    }
-    await basketProvider.getBasket();
-    print(check['errorType'].toString());
+  Future<void> changeBasketItem(int itemId, int qty) async {
+    await context
+        .read<BasketProvider>()
+        .addProduct(itemId, widget.detail['product_name'], qty);
   }
 
   @override
@@ -116,16 +83,6 @@ class _CartItemState extends State<CartItem> {
                 ),
                 const SizedBox(height: 8),
                 _productInformation(fs),
-                (error == '')
-                    ? const SizedBox()
-                    : Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          error,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
               ],
             ),
           ),
@@ -135,10 +92,10 @@ class _CartItemState extends State<CartItem> {
   }
 
   Widget _buildQuantityEditor(double fontSize) {
+    final basket = context.read<BasketProvider>();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        // border: Border.all(color: white),
         color: const Color.fromARGB(255, 242, 243, 252),
         borderRadius: BorderRadius.circular(15),
       ),
@@ -147,16 +104,15 @@ class _CartItemState extends State<CartItem> {
           _iconButton(
             icon: Icons.remove,
             onTap: () {
-              selectedItem = widget.detail['id'];
-              changeBasketItem(
-                  widget.detail['id'], 'minus', widget.detail['qty']);
+              changeBasketItem(widget.detail['product_id'],
+                  parseInt(widget.detail['qty']) - 1);
             },
           ),
           SizedBox(
             width: 40,
             child: InkWell(
               onTap: () => Get.bottomSheet(ChangeQtyPad(
-                onSubmit: () => _changeQTy(basketProvider.qty.text),
+                onSubmit: () => _changeQTy(basket.qty.text),
                 initValue: widget.detail['qty'].toString(),
               )),
               child: Text(
@@ -170,10 +126,8 @@ class _CartItemState extends State<CartItem> {
           _iconButton(
             icon: Icons.add,
             onTap: () {
-              selectedItem = widget.detail['id'];
-              changeBasketItem(
-                  widget.detail['id'], 'add', widget.detail['qty']);
-              focusNode.unfocus();
+              changeBasketItem(widget.detail['product_id'],
+                  parseInt(widget.detail['qty']) + 1);
             },
           ),
         ],
@@ -182,12 +136,13 @@ class _CartItemState extends State<CartItem> {
   }
 
   _changeQTy(String v) async {
+    final basket = context.read<BasketProvider>();
     if (v.isNotEmpty) {
       if (int.parse(v) == 0) {
         message('0 байж болохгүй!');
       } else {
         if (widget.detail['qty'] != int.parse(v)) {
-          await changeBasketItem(widget.detail['id'], 'set', int.parse(v));
+          await changeBasketItem(widget.detail['product_id'], int.parse(v));
         } else {
           message('Тоон утга өөрчлөгдөөгүй!');
         }
@@ -196,7 +151,7 @@ class _CartItemState extends State<CartItem> {
       message('Тоон утга оруулна уу!');
     }
     Navigator.pop(context);
-    await basketProvider.getBasket();
+    await basket.getBasket();
   }
 
   Widget _productInformation(double fs) {

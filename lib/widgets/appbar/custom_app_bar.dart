@@ -12,6 +12,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading;
   final Widget? title;
   final bool? hasBasket;
+  final List<Widget>? actions;
 
   const CustomAppBar({
     super.key,
@@ -20,6 +21,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading,
     this.title,
     this.hasBasket,
+    this.actions,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
   @override
   final Size preferredSize;
@@ -28,8 +30,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Consumer3<HomeProvider, BasketProvider, AuthController>(
       builder: (_, homeprovider, basketProvider, auth, child) {
-        bool isSupSelected =
-            (homeprovider.supID != 0 || homeprovider.supID != null);
+        bool isSupSelected = (homeprovider.picked.id != '-1');
         return ChangeNotifierProvider(
           create: (context) => BasketProvider(),
           child: PreferredSize(
@@ -42,46 +43,48 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: AppBar(
                 centerTitle: true,
                 title: title,
-                leading: lead(homeprovider, auth),
-                actions: [
-                  if (isSupSelected)
-                    InkWell(
-                      onTap: () => homeprovider
-                          .changeIndex(getBasketIndex(homeprovider.userRole!)),
-                      child: Stack(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(right: 10),
-                            child: const Center(
-                              child: Icon(
-                                Icons.shopping_cart,
-                                size: 24,
-                                color: Colors.white,
+                elevation: 0,
+                leading: leading ?? lead(homeprovider, auth),
+                actions: actions ??
+                    [
+                      if (isSupSelected && hasBasket != false)
+                        InkWell(
+                          onTap: () => homeprovider.changeIndex(
+                              getBasketIndex(homeprovider.userRole!)),
+                          child: Stack(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 10),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.shopping_cart,
+                                    size: 24,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          Positioned(
-                            right: 2,
-                            top: 2,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 2.5),
-                              decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Text(
-                                basketProvider.basket.totalCount.toString(),
-                                style: const TextStyle(
-                                    color: white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold),
+                              Positioned(
+                                right: 2,
+                                top: 2,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 2.5),
+                                  decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: Text(
+                                    basketProvider.basket.totalCount.toString(),
+                                    style: const TextStyle(
+                                        color: white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                ],
+                        ),
+                    ],
               ),
             ),
           ),
@@ -128,12 +131,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   getProfileIndex(String role) {
-    if (role == 'PA') {
-      return 2;
-    } else if (role == 'S') {
-      return 3;
-    } else {
-      return 3;
+    switch (role) {
+      case 'PA':
+        return 2;
+      case 'S':
+        return 3;
+      case 'R':
+        return 1;
+      default:
+        return 3;
     }
   }
 }

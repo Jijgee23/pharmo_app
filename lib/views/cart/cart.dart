@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
@@ -11,18 +10,18 @@ import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
+import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
 import 'package:provider/provider.dart';
 
 class Cart extends StatefulWidget {
   const Cart({super.key});
-
   @override
   State<Cart> createState() => _CartState();
 }
 
-class _CartState extends State<Cart> {
-  late BasketProvider basketProvider;
+class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
+  late AnimationController controller;
   bool loading = false;
   setLoading(bool n) {
     setState(() {
@@ -33,17 +32,40 @@ class _CartState extends State<Cart> {
   @override
   void initState() {
     super.initState();
-    basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..repeat(reverse: true);
     init();
   }
 
-  init() {
+  Future<void> init() async {
+    final basket = context.read<BasketProvider>();
     WidgetsBinding.instance.addPostFrameCallback((cb) async {
       setLoading(true);
-      await basketProvider.getBasket();
-      await basketProvider.checkQTYs();
+      await basket.getBasket();
       setLoading(false);
     });
+  }
+
+  shimmer() {
+    return ListView.separated(
+      padding: const EdgeInsets.all(5),
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return ShimmerBox(
+          height: 100,
+          controller: controller,
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -54,88 +76,53 @@ class _CartState extends State<Cart> {
         final basket = provider.basket;
         final basketIsEmpty = (basket.totalCount == 0 || basket.items!.isEmpty);
         return DataScreen(
+          pad: EdgeInsets.all(5),
           loading: loading,
           empty: basketIsEmpty,
+          customLoading: shimmer(),
+          onRefresh: () => init(),
           customEmpty: const Center(child: EmptyBasket()),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: kToolbarHeight),
+          child: SingleChildScrollView(
             child: Column(
               children: [
                 const SizedBox(height: Sizes.smallFontSize),
-                // Сагсны мэдээлэл
                 const CartInfo(),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: cartDatas.length,
-                    itemBuilder: (context, index) {
-                      return CartItem(detail: cartDatas[index] ?? {});
-                    },
-                  ),
+                ...cartDatas.map((e) => CartItem(detail: e)),
+                CustomButton(
+                  text: 'Захиалга үүсгэх',
+                  ontap: () async => await placeOrder(context),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  child: CustomButton(
-                    text: 'Захиалга үүсгэх',
-                    ontap: () async => await placeOrder(context),
-                  ),
-                ),
-                SizedBox(
-                  height: (Platform.isIOS) ? 30 : 20,
-                ),
+                // Expanded(
+                //   child: ListView.builder(
+                //     itemCount: cartDatas.length + 1,
+                //     itemBuilder: (context, index) {
+                //       if (index == cartDatas.length && !basketIsEmpty) {
+                //         return CustomButton(
+                //           text: 'Захиалга үүсгэх',
+                //           ontap: () async => await placeOrder(context),
+                //         );
+                //       } else {
+                //         return CartItem(detail: cartDatas[index] ?? {});
+                //       }
+                //     },
+                //   ),
+                // ),
+                SizedBox(height: kToolbarHeight + 50),
               ],
             ),
           ),
         );
-
-        //  Scaffold(
-        //   body: basketIsEmpty
-        //       ? const Center(
-        //           child: Column(
-        //             mainAxisAlignment: MainAxisAlignment.center,
-        //             children: [
-        //               EmptyBasket(),
-        //             ],
-        //           ),
-        //         )
-        //       : Container(
-        //           margin: const EdgeInsets.only(bottom: kToolbarHeight),
-        //           child: Column(
-        //             children: [
-        //               const SizedBox(height: Sizes.smallFontSize),
-        //               // Сагсны мэдээлэл
-        //               const CartInfo(),
-        //               Expanded(
-        //                 child: ListView.builder(
-        //                   itemCount: cartDatas.length,
-        //                   itemBuilder: (context, index) {
-        //                     return CartItem(detail: cartDatas[index] ?? {});
-        //                   },
-        //                 ),
-        //               ),
-        //               Container(
-        //                 margin: const EdgeInsets.only(bottom: 10),
-        //                 child: CustomButton(
-        //                   text: 'Захиалга үүсгэх',
-        //                   ontap: () async => await placeOrder(context),
-        //                 ),
-        //               ),
-        //               SizedBox(
-        //                 height: (Platform.isIOS) ? 30 : 20,
-        //               ),
-        //             ],
-        //           ),
-        //         ),
-        // );
       },
     );
   }
 
   placeOrder(BuildContext c) async {
-    await basketProvider.checkQTYs();
-    if (basketProvider.qtys.isNotEmpty) {
+    final basket = context.read<BasketProvider>();
+    await basket.getBasket();
+    if (basket.qtys.isNotEmpty) {
       message('Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!');
     } else {
-      if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
+      if (double.parse(basket.basket.totalPrice.toString()) < 10) {
         message('Үнийн дүн 10₮-с бага байж болохгүй!');
       } else {
         final home = Provider.of<HomeProvider>(context, listen: false);

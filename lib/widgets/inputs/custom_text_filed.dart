@@ -42,7 +42,8 @@ class CustomTextField extends StatelessWidget {
     final border = OutlineInputBorder(
         borderSide: BorderSide(color: grey400, width: 1.5),
         borderRadius: BorderRadius.circular(Sizes.mediumFontSize));
-    TextStyle ts = TextStyle(color: grey600, fontSize: 14.0, fontWeight: FontWeight.w700);
+    TextStyle ts =
+        TextStyle(color: grey600, fontSize: 14.0, fontWeight: FontWeight.w700);
     return SizedBox(
       child: TextFormField(
         textAlign: align ?? TextAlign.start,
@@ -63,7 +64,8 @@ class CustomTextField extends StatelessWidget {
           // labelText: hintText,
           labelStyle: ts,
           hintText: hintText,
-          hintStyle: ts,
+          hintStyle: TextStyle(
+              color: grey400, fontSize: 14.0, fontWeight: FontWeight.w700),
           border: border,
           errorBorder: border,
           enabledBorder: border,

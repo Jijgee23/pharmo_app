@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/models/income.dart';
+import 'package:pharmo_app/models/income.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
@@ -8,7 +8,7 @@ class IncomeProvider extends ChangeNotifier {
 
   getIncomeList() async {
     try {
-      final response = await apiRequest('GET', endPoint: 'income_record/');
+      final response = await api(Api.get, 'income_record/');
       if (response!.statusCode == 200) {
         Map res = convertData(response);
         List<dynamic> resList = res['results'];
@@ -24,7 +24,8 @@ class IncomeProvider extends ChangeNotifier {
 
   getIncomeListByDateSinlge(String date) async {
     try {
-      final response = await apiRequest("GET", endPoint: 'income_record/?createdOn__date=$date');
+      final response =
+          await api(Api.get, 'income_record/?createdOn__date=$date');
       if (response!.statusCode == 200) {
         Map res = convertData(response);
         List<dynamic> resList = res['results'];
@@ -40,8 +41,8 @@ class IncomeProvider extends ChangeNotifier {
 
   getIncomeListByDateRanged(String date1, String date2) async {
     try {
-      final response = await apiRequest("GET",
-          endPoint: 'income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2');
+      final response = await api(Api.get,
+          'income_record/?createdOn__date__gt=$date1&createdOn__date__lt=$date2');
       if (response!.statusCode == 200) {
         Map res = convertData(response);
         List<dynamic> resList = res['results'];
@@ -57,7 +58,7 @@ class IncomeProvider extends ChangeNotifier {
 
   recordIncome(String note, String amount) async {
     try {
-      final response = await apiRequest('POST', endPoint: 'income_record/', body: {
+      final response = await api(Api.post, 'income_record/', body: {
         'note': note,
         'amount': amount,
       });
@@ -73,8 +74,8 @@ class IncomeProvider extends ChangeNotifier {
 
   updateIncome(int id, String note, String amount) async {
     try {
-      final response = await apiRequest('PATCH',
-          endPoint: 'income_record/$id/', body: {'note': note, 'amount': amount});
+      final response = await api(Api.patch, 'income_record/$id/',
+          body: {'note': note, 'amount': amount});
       if (response!.statusCode == 200) {
         message('Амжилттай');
       }

@@ -8,6 +8,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/main/pharmacy/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/promotion_screen.dart';
+import 'package:pharmo_app/views/main/rep_man/visits.dart';
 import 'package:pharmo_app/views/public_uses/about_us.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/main/seller/seller_orders.dart';
@@ -23,6 +24,8 @@ class Profile extends StatelessWidget {
       builder: (context, homeProvider, auth, child) {
         bool isPharma = homeProvider.userRole == "PA";
         bool isDMan = homeProvider.userRole == "D";
+        bool isRep = homeProvider.userRole == 'R';
+        bool isSeller = homeProvider.userRole == 'S' || isDMan;
         return Scaffold(
           body: Center(
             child: Column(
@@ -40,20 +43,18 @@ class Profile extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 30, vertical: 15),
                               child: const Text('Бүртгэл')),
-                          // menu('Тохиргоо', Icons.settings, color: primary),
-                          // menu('Мэдэгдэл', Icons.notifications,
-                          //     color: neonBlue, page: const NotificationPage()),
-                          SideMenu(
-                            title: isPharma
-                                ? 'Захиалгууд'
-                                : 'Борлуулалтын захиалгууд',
-                            icon: Icons.lock_clock,
-                            ontap: () => goto(isPharma
-                                ? const MyOrder()
-                                : const SellerOrders()),
-                            color: Colors.amber,
-                          ),
-                          if (!isPharma)
+                          if (isSeller || isPharma)
+                            SideMenu(
+                              title: isPharma
+                                  ? 'Захиалгууд'
+                                  : 'Борлуулалтын захиалгууд',
+                              icon: Icons.lock_clock,
+                              ontap: () => goto(isPharma
+                                  ? const MyOrder()
+                                  : const SellerOrders()),
+                              color: Colors.amber,
+                            ),
+                          if (isSeller)
                             SideMenu(
                               title: 'Тайлан',
                               icon: Icons.report,
@@ -77,6 +78,13 @@ class Profile extends StatelessWidget {
                                 gotoRemoveUntil(const IndexDeliveryMan());
                               },
                             ),
+                          if (isRep)
+                            SideMenu(
+                              title: 'Уулзалтууд',
+                              icon: Icons.meeting_room,
+                              color: Colors.pink,
+                              ontap: () => goto(Visits()),
+                            ),
                           Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 30, vertical: 15),
@@ -91,6 +99,11 @@ class Profile extends StatelessWidget {
                               icon: Icons.house,
                               color: Colors.purple,
                               ontap: () => goto(const AboutUs())),
+                          SideMenu(
+                              title: 'Шинэчлэлт шалгах',
+                              icon: Icons.update,
+                              color: Colors.green,
+                              ontap: () async => await auth.getUpdateMessage()),
                           SideMenu(
                             title: 'Системээс гарах',
                             icon: Icons.logout,
@@ -187,6 +200,8 @@ class SideMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: ontap,
+      splashColor: Colors.black12,
+      highlightColor: Colors.black12,
       child: Container(
         decoration: const BoxDecoration(),
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
@@ -250,13 +265,6 @@ menu(String title, IconData icon, {required Function() ontap, Color? color}) {
     ),
   );
 }
-// IconButton(
-//       //   onPressed: () => homeProvider.toggleTheme(),
-//       //   icon: Icon(
-//       //     color: black,
-//       //     homeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-//       //   ),
-//       // ),
 
 void logout(BuildContext context) {
   Get.dialog(
@@ -304,14 +312,8 @@ void logout(BuildContext context) {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      Provider.of<AuthController>(context, listen: false)
-                          .logout(context);
-                      Provider.of<AuthController>(context, listen: false)
-                          .toggleVisibile();
-                      Provider.of<HomeProvider>(context, listen: false)
-                          .changeIndex(0);
-                    },
+                    onPressed: () =>
+                        context.read<AuthController>().logout(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
                       foregroundColor: Colors.white,

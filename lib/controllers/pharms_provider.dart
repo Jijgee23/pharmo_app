@@ -1,89 +1,22 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/models/customer.dart';
-import 'package:pharmo_app/controllers/models/delivery.dart';
-import 'package:pharmo_app/controllers/models/order_list.dart';
+import 'package:pharmo_app/models/customer.dart';
+import 'package:pharmo_app/models/delivery.dart';
+import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 
 class PharmProvider extends ChangeNotifier {
-  List<PharmFullInfo> pharmList = <PharmFullInfo>[];
-  List<PharmFullInfo> customeList = <PharmFullInfo>[];
-  List<PharmFullInfo> fullList = <PharmFullInfo>[];
-  List<PharmFullInfo> goodlist = <PharmFullInfo>[];
-  List<PharmFullInfo> badlist = <PharmFullInfo>[];
-  List<PharmFullInfo> limitedlist = <PharmFullInfo>[];
-  List<PharmFullInfo> filteredList = <PharmFullInfo>[];
-  List<OrderList> orderList = <OrderList>[];
-  getPharmacyList() async {
-    try {
-      final response =
-          await apiRequest('GET', endPoint: 'seller/pharmacy_list/');
-      if (response!.statusCode == 200) {
-        Map data = jsonDecode(utf8.decode(response.bodyBytes));
-        List<dynamic> pharms = data['pharmacies'];
-        fullList.clear();
-        pharmList.clear();
-        customeList.clear();
-        badlist.clear();
-        goodlist.clear();
-        limitedlist.clear();
-        for (int i = 0; i < pharms.length; i++) {
-          fullList.add(PharmFullInfo.fromJson(pharms[i]));
-          final bool isCustomer = pharms[i]['isCustomer'];
-          final bool isBad = pharms[i]['isBad'];
-          final bool isLimited = pharms[i]['debtLimit'] != 0 &&
-              pharms[i]['debt'] != 0 &&
-              pharms[i]['debt'] > pharms[i]['debtLimit'];
-          if (isCustomer == true) {
-            customeList.add(PharmFullInfo.fromJson(pharms[i]));
-          } else {
-            pharmList.add(PharmFullInfo.fromJson(pharms[i]));
-          }
-          if (isBad == true) {
-            badlist.add(PharmFullInfo.fromJson(pharms[i]));
-          }
-          if (isBad == false && isCustomer == true && isLimited == false) {
-            goodlist.add(PharmFullInfo.fromJson(pharms[i]));
-          }
-          if (isLimited == true) {
-            limitedlist.add(PharmFullInfo.fromJson(pharms[i]));
-          }
-          notifyListeners();
-        }
-      }
-      notifyListeners();
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
   List<Customer> filteredCustomers = <Customer>[];
-
-  getOrderList(int customerId) async {
-    try {
-      final response = await apiRequest('GET',
-          endPoint: 'seller/order_history/?pharmacyId=$customerId');
-      if (response!.statusCode == 200) {
-        List<dynamic> ordList = jsonDecode(utf8.decode(response.bodyBytes));
-        for (int i = 0; i < ordList.length; i++) {
-          orderList.add(OrderList.fromJson((ordList[i])));
-        }
-      }
-    } catch (e) {
-      notifyListeners();
-    }
-  }
 
   /// харилцагч
   getCustomers(int page, int size, BuildContext c) async {
     try {
-      final response = await apiRequest('GET',
-          endPoint: 'seller/customer/?page=$page&page_size=$size');
+      final response =
+          await api(Api.get, 'seller/customer/?page=$page&page_size=$size');
       if (response!.statusCode == 200) {
         Map data = convertData(response);
         filteredCustomers.clear();
@@ -99,12 +32,13 @@ class PharmProvider extends ChangeNotifier {
     }
   }
 
-  getCustomerDetail(int custId, BuildContext c) async {
+  Future<Map<String, dynamic>> getCustomerDetail(int custId) async {
+    Map<String, dynamic> result = {};
     try {
-      final response =
-          await apiRequest('GET', endPoint: 'seller/customer/$custId');
+      final response = await api(Api.get, 'seller/customer/$custId');
       if (response!.statusCode == 200) {
         dynamic data = convertData(response);
+        result = data;
         customerDetail = CustomerDetail.fromJson(data);
       } else {
         message(wait);
@@ -113,14 +47,14 @@ class PharmProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
     notifyListeners();
+    return result;
   }
 
   sendCustomerLocation(int custId, BuildContext c) async {
-    print('CSUTOMER ID: $custId');
     try {
       final home = Provider.of<HomeProvider>(c, listen: false);
-      final response = await apiRequest('PATCH',
-          endPoint: 'seller/customer/$custId/update_location/',
+      final response = await api(
+          Api.patch, 'seller/customer/$custId/update_location/',
           body: {
             "lat": home.currentLatitude,
             "lng": home.currentLongitude,
@@ -149,8 +83,8 @@ class PharmProvider extends ChangeNotifier {
 
   filtCustomers(String type, String v, BuildContext c) async {
     try {
-      final response = await apiRequest('GET',
-          endPoint: 'seller/customer/${getEndPoint(type, v)}');
+      final response =
+          await api(Api.get, 'seller/customer/${getEndPoint(type, v)}');
       if (response!.statusCode == 200) {
         Map data = convertData(response);
         filteredCustomers.clear();
@@ -167,8 +101,7 @@ class PharmProvider extends ChangeNotifier {
 
   editSellerOrder(String note, String pt, int orderId, BuildContext c) async {
     try {
-      final response = await apiRequest('PATCH',
-          endPoint: 'seller/order/$orderId/',
+      final response = await api(Api.patch, 'seller/order/$orderId/',
           body: {"note": note, "payType": pt});
       if (response!.statusCode == 200) {
         message('Амжилттай засагдлаа');
@@ -187,19 +120,18 @@ class PharmProvider extends ChangeNotifier {
     orderDets.clear();
   }
 
-  getSellerOrderDetail(String oId, BuildContext c) async {
+  Stream<MyOrderModel>? getSellerOrderDetail(int oId) async* {
+    MyOrderModel? result;
     try {
-      final response = await apiRequest("GET", endPoint: 'seller/order/$oId/');
+      final response = await api(Api.get, 'seller/order/$oId/');
       if (response!.statusCode == 200 && response.body != null) {
-        clearOrderDets();
-        var data = convertData(response);
-        return data;
-      } else {
-        message('Алдаа гарлаа');
+        result = MyOrderModel.fromJson(convertData(response));
       }
     } catch (e) {
+      message('Серверийн алдаа');
       debugPrint(e.toString());
     }
+    yield result!;
   }
 
   changeItemQty(
@@ -214,8 +146,7 @@ class PharmProvider extends ChangeNotifier {
       if (check['errorType'] == 0) {
         message('Бараа дууссан');
       } else if (check['errorType'] == 1) {
-        final response = await apiRequest('PATCH',
-            endPoint: 'seller/order/$oId/update_item/',
+        final response = await api(Api.patch, 'seller/order/$oId/update_item/',
             body: {"itemId": itemId, "qty": qty});
         if (response!.statusCode == 200) {
           return buildResponse(1, response, 'Амжилттай өөрлөгдлөө');
@@ -258,8 +189,7 @@ class PharmProvider extends ChangeNotifier {
       if (selectedZone.id == -1) {
         message('Бүс сонгоно уу!');
       } else {
-        var response =
-            await apiRequest('POST', endPoint: 'seller/customer/', body: body);
+        var response = await api(Api.post, 'seller/customer/', body: body);
         if (response!.statusCode == 201) {
           message('Амжилттай бүртгэгдлээ.');
         } else {
@@ -302,8 +232,7 @@ class PharmProvider extends ChangeNotifier {
         "lng": lng
       };
       await Provider.of<HomeProvider>(context, listen: false).getPosition();
-      final response = await apiRequest('PATCH',
-          endPoint: 'seller/customer/$id/', body: body);
+      final response = await api(Api.patch, 'seller/customer/$id/', body: body);
       if (response!.statusCode == 200) {
         message('Амжилттай засагдлаа.');
       } else {
@@ -321,8 +250,7 @@ class PharmProvider extends ChangeNotifier {
 
   Future getCustomerFavs(dynamic customerId) async {
     try {
-      final response =
-          await apiRequest('POST', endPoint: 'seller/customer_favs/', body: {
+      final response = await api(Api.post, 'seller/customer_favs/', body: {
         "customer_id": customerId,
       });
       if (response!.statusCode == 201) {
@@ -347,8 +275,7 @@ class PharmProvider extends ChangeNotifier {
 
   Future getZones() async {
     try {
-      final response =
-          await apiRequest('GET', endPoint: 'seller/get_delivery_zones/');
+      final response = await api(Api.get, 'seller/get_delivery_zones/');
       print(response!.body);
       if (response.statusCode == 200) {
         final data = convertData(response);
@@ -574,7 +501,7 @@ class CustomerDetail {
       created: json['created'].toString(),
       addedById: json['added_by_id'],
       loanBlock: json['loan_block'],
-      loanLimit: json['loan_limit'].toDouble(),
+      loanLimit: parseDouble(json['loan_limit']),
       loanLimitUse: json['loan_limit_use'],
       loanBalBlock: json['loan_bal_block'],
       custType: List<Map<String, dynamic>>.from(json['cust_type']),

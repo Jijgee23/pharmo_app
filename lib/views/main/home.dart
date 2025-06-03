@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/controllers/models/products.dart';
+import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
@@ -10,6 +10,7 @@ import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
 import 'package:pharmo_app/views/product/product_widget.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
+import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
@@ -18,7 +19,7 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   bool loading = false;
   setLoading(bool n) {
     setState(() {
@@ -33,11 +34,15 @@ class _HomeState extends State<Home> {
   late BasketProvider basketProvider;
   late PromotionProvider promotionProvider;
   final ScrollController _scrollController = ScrollController();
+  late AnimationController controller;
 
   @override
   void initState() {
     super.initState();
-
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..repeat(reverse: true);
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
     promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
@@ -48,11 +53,13 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         setLoading(true);
-        promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
+        promotionProvider =
+            Provider.of<PromotionProvider>(context, listen: false);
         await promotionProvider.getMarkedPromotion();
         await homeProvider.getBranches();
         _scrollController.addListener(() {
-          if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+          if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent) {
             homeProvider.fetchMoreProducts();
           }
         });
@@ -60,7 +67,8 @@ class _HomeState extends State<Home> {
         homeProvider.setPageKey(1);
         homeProvider.fetchProducts();
         basketProvider.getBasket();
-        if (homeProvider.userRole == 'PA' && promotionProvider.markedPromotions.isNotEmpty) {
+        if (homeProvider.userRole == 'PA' &&
+            promotionProvider.markedPromotions.isNotEmpty) {
           homeProvider.showMarkedPromos();
         }
         if (mounted) setLoading(false);
@@ -68,10 +76,21 @@ class _HomeState extends State<Home> {
     );
   }
 
+  @override
+  void dispose() {
+    controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   List<IconData> icons = [Icons.discount, Icons.star, Icons.new_releases];
 
   List<String> filterNames = ['Хямдралтай', 'Эрэлттэй', 'Шинэ'];
-  List<String> filterss = ['discount__gt=0', 'supplier_indemand_products', 'ordering=-created_at'];
+  List<String> filterss = [
+    'discount__gt=0',
+    'supplier_indemand_products',
+    'ordering=-created_at'
+  ];
   String selectedFilter = 'Бүгд';
   setSelectedFilter(String n) {
     setState(() {
@@ -95,6 +114,8 @@ class _HomeState extends State<Home> {
           onRefresh: () => refresh(),
           loading: loading,
           empty: home.fetchedItems.isEmpty,
+          customLoading: shimmer(),
+          pad: EdgeInsets.all(5.0),
           child: Column(
             children: [
               if (home.userRole == 'PA') filtering(Sizes.smallFontSize),
@@ -106,8 +127,24 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Widget shimmer() {
+    return Center(
+      child: GridView.builder(
+        gridDelegate:
+            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+        itemBuilder: (_, idx) {
+          return Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: ShimmerBox(controller: controller, height: 150),
+          );
+        },
+      ),
+    );
+  }
+
   Widget products(HomeProvider home) {
-    if (home.userRole == 'PA' && home.supID == 0 || home.supID == null) {
+    if (home.userRole == 'PA' && home.picked.id == '-1' ||
+        home.picked == null) {
       return errorWidget();
     } else {
       if (home.isList) {
@@ -149,7 +186,10 @@ class _HomeState extends State<Home> {
       child: Wrap(
         spacing: 10,
         children: [
-          filt(e: 'Ангилал', icon: Icons.list, ontap: () => goto(const FilterPage())),
+          filt(
+              e: 'Ангилал',
+              icon: Icons.list,
+              ontap: () => goto(const FilterPage())),
           filt(
               e: 'Бүгд',
               icon: Icons.list,
@@ -185,7 +225,8 @@ class _HomeState extends State<Home> {
           borderRadius: BorderRadius.circular(Sizes.smallFontSize),
         ),
         padding: EdgeInsets.symmetric(
-            vertical: 5, horizontal: selected ? Sizes.bigFontSize : Sizes.smallFontSize),
+            vertical: 5,
+            horizontal: selected ? Sizes.bigFontSize : Sizes.smallFontSize),
         child: Center(
           child: Text(
             e,
@@ -221,7 +262,8 @@ class Products extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       controller: controller,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemCount: products.length,
       itemBuilder: (context, idx) {
         Product product = products[idx];

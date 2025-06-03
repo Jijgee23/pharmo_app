@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/models/products.dart';
+import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
@@ -29,7 +29,8 @@ class ProductDetail extends StatefulWidget {
   State<ProductDetail> createState() => _ProductDetailState();
 }
 
-class _ProductDetailState extends State<ProductDetail> with SingleTickerProviderStateMixin {
+class _ProductDetailState extends State<ProductDetail>
+    with SingleTickerProviderStateMixin {
   TextEditingController qtyController = TextEditingController();
   late TabController tabController;
   bool fetching = false;
@@ -69,7 +70,7 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
   getProductDetail() async {
     setFetching(true);
     try {
-      final response = await apiRequest('GET', endPoint: 'products/${widget.prod.id}/');
+      final response = await api(Api.get, 'products/${widget.prod.id}/');
       if (response!.statusCode == 200) {
         Map<String, dynamic> data = convertData(response);
         print(data);
@@ -104,36 +105,53 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final div = Divider(color: theme.primaryColor, thickness: .7);
-    List<String> infos = [
-      'Барааны дуусах хугацаа',
-      'Ерөнхий нэршил',
-      'Тун хэмжээ',
-      'Хөнгөлөлт',
-      'Хэлбэр',
-      'Мастер савалгааны тоо',
-      'Олгох нөхцөл',
-      'Улс',
-      'Үйлдвэрлэгч',
-      'Бөөний үнэ',
-      'Бөөний тоо',
-      'Хямдрал',
-      'Хямдрал дуусах хугацаа'
-    ];
-    List<String> datas = [
-      det['expDate'].toString(),
-      det['intName'].toString(),
-      '',
-      '',
-      '',
-      det['master_box_qty'].toString(),
-      '',
-      '',
-      det['vndr'] != null ? det['vndr']['name'] : '',
-      toPrice(det['sale_price'].toString()),
-      det['sale_qty'].toString(),
-      toPrice(det['discount'].toString()),
-      det['discount_expiredate'].toString()
-    ];
+
+    final details = {
+      'Барааны дуусах хугацаа': det['expDate'].toString(),
+      'Ерөнхий нэршил': det['intName'].toString(),
+      'Тун хэмжээ': '',
+      'Хөнгөлөлт': '',
+      'Хэлбэр': '',
+      'Мастер савалгааны тоо': det['master_box_qty'].toString(),
+      'Олгох нөхцөл': '',
+      'Улс': '',
+      'Үйлдвэрлэгч': det['vndr'] != null ? det['vndr']['name'] : '',
+      'Бөөний үнэ': toPrice(det['sale_price'].toString()),
+      'Бөөний тоо': det['sale_qty'].toString(),
+      'Хямдрал': toPrice(det['discount'].toString()),
+      'Хямдрал дуусах хугацаа': det['discount_expiredate'].toString()
+    };
+
+    // List<String> infos = [
+    //   'Барааны дуусах хугацаа',
+    //   'Ерөнхий нэршил',
+    //   'Тун хэмжээ',
+    //   'Хөнгөлөлт',
+    //   'Хэлбэр',
+    //   'Мастер савалгааны тоо',
+    //   'Олгох нөхцөл',
+    //   'Улс',
+    //   'Үйлдвэрлэгч',
+    //   'Бөөний үнэ',
+    //   'Бөөний тоо',
+    //   'Хямдрал',
+    //   'Хямдрал дуусах хугацаа'
+    // ];
+    // List<String> datas = [
+    //   det['expDate'].toString(),
+    //   det['intName'].toString(),
+    //   '',
+    //   '',
+    //   '',
+    //   det['master_box_qty'].toString(),
+    //   '',
+    //   '',
+    //   det['vndr'] != null ? det['vndr']['name'] : '',
+    //   toPrice(det['sale_price'].toString()),
+    //   det['sale_qty'].toString(),
+    //   toPrice(det['discount'].toString()),
+    //   det['discount_expiredate'].toString()
+    // ];
     return Consumer2<BasketProvider, HomeProvider>(
       builder: (context, basket, home, child) {
         bool isNotPharma = (home.userRole != 'PA');
@@ -159,11 +177,14 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
                           child: SelectableText(
                             '#${widget.prod.barcode.toString()}',
                             style: const TextStyle(
-                                color: black, fontSize: 16, fontWeight: FontWeight.w700),
+                                color: black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700),
                           ),
                         ),
                       div,
-                      ...infos.map((i) => DetailText(title: i, value: datas[infos.indexOf(i)])),
+                      ...details.entries.map((det) =>
+                          DetailText(title: det.key, value: det.value)),
                       if (isNotPharma)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -172,13 +193,15 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
                                 ontap: () => chooseImageSource(),
                                 width: Sizes.width * 0.35,
                                 child: const Text('Зураг нэмэх',
-                                    style: TextStyle(fontWeight: FontWeight.w600))),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600))),
                             if (images.isNotEmpty)
                               DefInputContainer(
                                   ontap: () => sendImage(home),
                                   width: Sizes.width * 0.35,
                                   child: const Text("Хадгалах",
-                                      style: TextStyle(fontWeight: FontWeight.w600))),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600))),
                           ],
                         ),
                       if (isNotPharma) const SizedBox(height: 10),
@@ -193,19 +216,25 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
                                     children: [
                                       Container(
                                           decoration: BoxDecoration(
-                                              border: Border.all(color: Colors.grey),
+                                              border: Border.all(
+                                                  color: Colors.grey),
                                               borderRadius:
-                                                  BorderRadius.circular(Sizes.smallFontSize)),
-                                          padding: const EdgeInsets.all(Sizes.smallFontSize),
-                                          margin: const EdgeInsets.only(right: Sizes.bigFontSize),
+                                                  BorderRadius.circular(
+                                                      Sizes.smallFontSize)),
+                                          padding: const EdgeInsets.all(
+                                              Sizes.smallFontSize),
+                                          margin: const EdgeInsets.only(
+                                              right: Sizes.bigFontSize),
                                           child: Image.file(image,
-                                              height: Sizes.width * .2, width: Sizes.width * .2)),
+                                              height: Sizes.width * .2,
+                                              width: Sizes.width * .2)),
                                       Positioned(
                                         top: -10,
                                         right: 0,
                                         child: InkWell(
                                           onTap: () => removeImage(image),
-                                          child: const Icon(Icons.remove, color: Colors.red),
+                                          child: const Icon(Icons.remove,
+                                              color: Colors.red),
                                         ),
                                       ),
                                     ],
@@ -225,14 +254,17 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
                                   value: toPrice(widget.prod.price.toString())),
                               price(
                                   title: 'Бөөний үнэ',
-                                  value: toPrice(widget.prod.salePrice.toString()),
+                                  value:
+                                      toPrice(widget.prod.salePrice.toString()),
                                   cxs: CrossAxisAlignment.end),
                             ],
                           ),
                           const SizedBox(height: Sizes.mediumFontSize),
                           CustomButton(
-                            borderRadius: Sizes.bigFontSize + Sizes.smallFontSize,
-                            padding: const EdgeInsets.symmetric(vertical: Sizes.mediumFontSize),
+                            borderRadius:
+                                Sizes.bigFontSize + Sizes.smallFontSize,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: Sizes.mediumFontSize),
                             text: 'Сагслах',
                             ontap: () => showSheet(basket),
                           ),
@@ -250,8 +282,8 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
     );
   }
 
-  SliverAppBar imageBar(
-      BuildContext context, BasketProvider basket, HomeProvider home, bool isNotPharma) {
+  SliverAppBar imageBar(BuildContext context, BasketProvider basket,
+      HomeProvider home, bool isNotPharma) {
     return SliverAppBar(
       leading: const ChevronBack(),
       expandedHeight: context.width * 0.6,
@@ -305,18 +337,20 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
                       .map(
                         (p) => Stack(
                           children: [
-                            imageWidget('${dotenv.env['IMAGE_URL']}${p['url']}'),
+                            imageWidget('${dotenv.env['IMAGE_URL']}$p'),
                             if (isNotPharma == true)
                               Positioned(
                                 right: 3,
                                 bottom: 3,
                                 child: InkWell(
-                                  onTap: () => deleteImage(home, p['id'][0]),
+                                  onTap: () => deleteImage(home, p),
                                   child: Container(
                                     padding: const EdgeInsets.all(5),
                                     decoration: const BoxDecoration(
-                                        color: Colors.red, shape: BoxShape.circle),
-                                    child: const Icon(Icons.delete, color: white, size: 30),
+                                        color: Colors.red,
+                                        shape: BoxShape.circle),
+                                    child: const Icon(Icons.delete,
+                                        color: white, size: 30),
                                   ),
                                 ),
                               ),
@@ -341,9 +375,15 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
 
   Widget imageWidget(String url) {
     return Container(
-        decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10)),
-        child: Image.network(url,
-            height: Sizes.height * 0.25, width: Sizes.height * 0.25, fit: BoxFit.cover));
+      decoration: BoxDecoration(
+          color: Colors.black, borderRadius: BorderRadius.circular(10)),
+      child: Image.network(
+        url,
+        height: Sizes.height * 0.25,
+        width: Sizes.height * 0.25,
+        fit: BoxFit.cover,
+      ),
+    );
   }
 
   sendImage(HomeProvider home) async {
@@ -361,7 +401,8 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
 
   Future<void> pickLogo(ImageSource source) async {
     try {
-      if (await Permission.camera.isDenied || await Permission.storage.isDenied) {
+      if (await Permission.camera.isDenied ||
+          await Permission.storage.isDenied) {
         await Permission.camera.request();
         await Permission.storage.request();
       }
@@ -417,7 +458,10 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
     );
   }
 
-  Widget picker({required String text, required IconData icon, required Function() ontap}) {
+  Widget picker(
+      {required String text,
+      required IconData icon,
+      required Function() ontap}) {
     return InkWell(
       onTap: ontap,
       child: Container(
@@ -458,11 +502,13 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
     }
   }
 
-  Widget price({required String title, required String value, CrossAxisAlignment? cxs}) {
+  Widget price(
+      {required String title, required String value, CrossAxisAlignment? cxs}) {
     return Column(
       crossAxisAlignment: cxs ?? CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        Text(title,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         Text(
           value,
           style: const TextStyle(
@@ -497,7 +543,8 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
           top: 2,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-            decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(15)),
+            decoration: BoxDecoration(
+                color: Colors.red, borderRadius: BorderRadius.circular(15)),
             child: Text(
               basket.basket.totalCount.toString(),
               style: const TextStyle(
@@ -548,18 +595,18 @@ class _ProductDetailState extends State<ProductDetail> with SingleTickerProvider
 
   void addBasket() async {
     try {
-      final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+      final basketProvider =
+          Provider.of<BasketProvider>(context, listen: false);
       if (initQTY == 'Тоо ширхэг' || initQTY.isEmpty || initQTY == '') {
         message('Тоон утга оруулна уу!');
       } else if (int.parse(initQTY) <= 0) {
         message('0 ба түүгээс бага байж болохгүй!');
       } else {
-        Map<String, dynamic> res =
-            await basketProvider.addProduct(product: widget.prod, qty: int.parse(initQTY));
-        message(res['message']);
-        if (res['errorType'] != 0) {
-          Navigator.pop(context);
-        }
+        await basketProvider
+            .addProduct(widget.prod.id, widget.prod.name!, int.parse(initQTY))
+            .then(
+              (v) => Navigator.pop(context),
+            );
       }
     } catch (e) {
       print(e);
@@ -581,7 +628,8 @@ class DetailText extends StatefulWidget {
 class _DetailTextState extends State<DetailText> {
   @override
   Widget build(BuildContext context) {
-    bool isNotNull = widget.value != null && widget.value != '' && widget.value != "null";
+    bool isNotNull =
+        widget.value != null && widget.value != '' && widget.value != "null";
     if (isNotNull) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),

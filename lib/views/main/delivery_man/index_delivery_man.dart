@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/views/main/delivery_man/delivery_home.dart';
-import 'package:pharmo_app/views/main/delivery_man/delivery_orders.dart';
-import 'package:pharmo_app/views/main/delivery_man/delivery_profile.dart';
+import 'package:pharmo_app/views/main/delivery_man/home/delivery_home.dart';
+import 'package:pharmo_app/views/main/delivery_man/orders/delivery_orders.dart';
+import 'package:pharmo_app/views/main/delivery_man/profile/delivery_profile.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +39,8 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
           return Scaffold(
             extendBody: true,
             appBar: DMAppBar(
-                title: getTitle(home.currentIndex),),
+              title: getTitle(home.currentIndex),
+            ),
             body: _pages[home.currentIndex],
             bottomNavigationBar: BottomBar(icons: icons),
           );

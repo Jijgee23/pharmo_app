@@ -46,14 +46,16 @@ class _LocationPickerState extends State<LocationPicker> {
 
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
         // Handle permission denied
         return;
       }
     }
 
     // Get the current position
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     LatLng currentLocation = LatLng(position.latitude, position.longitude);
 
     setState(() {
@@ -91,7 +93,8 @@ class _LocationPickerState extends State<LocationPicker> {
       builder: (context, home, pp, child) => Scaffold(
         appBar: const SideAppBar(text: 'Байршил сонгох'),
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+            ? const Center(
+                child: CircularProgressIndicator()) // Show loading indicator
             : Stack(
                 children: <Widget>[
                   GoogleMap(
@@ -113,9 +116,12 @@ class _LocationPickerState extends State<LocationPicker> {
                       onTap: () => saveCustomerLocatoin(pp),
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 20),
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 10),
                         decoration: BoxDecoration(
-                            color: primary, borderRadius: BorderRadius.circular(Sizes.bigFontSize)),
+                            color: primary,
+                            borderRadius:
+                                BorderRadius.circular(Sizes.bigFontSize)),
                         child: const Text(
                           'Хадгалах',
                           style: TextStyle(
@@ -136,6 +142,6 @@ class _LocationPickerState extends State<LocationPicker> {
   saveCustomerLocatoin(PharmProvider pharm) async {
     await pharm.sendCustomerLocation(widget.cusotmerId, context);
     Navigator.pop(context);
-    await pharm.getCustomerDetail(widget.cusotmerId, context);
+    await pharm.getCustomerDetail(widget.cusotmerId);
   }
 }
