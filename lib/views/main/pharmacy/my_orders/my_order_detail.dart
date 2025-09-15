@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/myorder_provider.dart';
 import 'package:pharmo_app/models/my_order.dart';
 import 'package:pharmo_app/models/my_order_detail.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class MyOrderDetail extends StatefulWidget {
   final MyOrderModel order;

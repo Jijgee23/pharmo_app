@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/income.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/models/a_models.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class IncomeProvider extends ChangeNotifier {
   List<Income> incomeList = <Income>[];

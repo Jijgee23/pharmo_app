@@ -1,21 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/models/delivery.dart';
-import 'package:pharmo_app/models/delman.dart';
-import 'package:pharmo_app/models/payment.dart';
 import 'package:pharmo_app/services/network_service.dart';
 import 'package:pharmo_app/services/notification_service.dart';
 import 'package:pharmo_app/services/settings.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-    as bg;
+// import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+//     as bg;
+import 'package:pharmo_app/controllers/a_controlller.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
+import 'package:pharmo_app/models/a_models.dart';
 
 class JaggerProvider extends ChangeNotifier {
   late bool servicePermission = false;
@@ -101,26 +98,30 @@ class JaggerProvider extends ChangeNotifier {
     if (onDeliveryId == null) {
       return;
     }
-    bg.BackgroundGeolocation.ready(
-      bg.Config(
-        desiredAccuracy: bg.Config.ACTIVITY_TYPE_OTHER_NAVIGATION,
-        distanceFilter: 10.0,
-        stopOnTerminate: false,
-        startOnBoot: true,
-        debug: false,
-        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-      ),
-    );
-    bg.BackgroundGeolocation.onLocation((pos) async {
-      shareLocation(pos.coords.latitude, pos.coords.longitude);
-    });
-    await bg.BackgroundGeolocation.start().then((c) {
-      print(c);
+    // bg.BackgroundGeolocation.ready(
+    //   bg.Config(
+    //     desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+    //     distanceFilter: 5.0,
+    //     stopOnTerminate: false,
+    //     startOnBoot: true,
+    //     debug: false,
+    //     logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+    //     activityType: bg.Config.ACTIVITY_TYPE_AUTOMOTIVE_NAVIGATION,
+    //     heartbeatInterval: 60,
+    //     stopTimeout: 5,
+    //     foregroundService: true,
+    //   ),
+    // );
+    // bg.BackgroundGeolocation.onLocation((pos) async {
+    //   shareLocation(pos.coords.latitude, pos.coords.longitude);
+    // });
+    // await bg.BackgroundGeolocation.start().then((c) {
+    //   print(c);
 
-      if (c.enabled) {
-        message('Байршил дамжуулж эхлэлээ!');
-      }
-    });
+    //   if (c.enabled) {
+    //     message('Байршил дамжуулж эхлэлээ!');
+    //   }
+    // });
   }
 
   List<Loc> noSendedLocs = [];
@@ -185,7 +186,7 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   void stopTracking() {
-    bg.BackgroundGeolocation.stop();
+    // bg.BackgroundGeolocation.stop();
     isTracking = false;
     notifyListeners();
   }

@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:pharmo_app/models/security.dart';
+import 'package:pharmo_app/services/a_services.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,7 +60,7 @@ setUrl(String endPoint) {
   return url;
 }
 
-convertData(http.Response body) {
+dynamic convertData(http.Response body) {
   final d = jsonDecode(utf8.decode(body.bodyBytes));
   return d;
 }
@@ -72,44 +75,39 @@ getApiInformation(String endPoint, http.Response response) {
   }
 }
 
-enum Api { get, post, patch, delete }
-
 Future<http.Response?> api(
   Api method,
   String endpoint, {
   Map<String, dynamic>? body,
   Map<String, String>? header,
+  bool showLog = false,
 }) async {
   try {
-    String access = await getAccessToken();
-    if (access.isEmpty) {
+    Security? security = LocalBase.security;
+    bool accessExpired =
+        (security != null && JwtDecoder.isExpired(security.access));
+    if (security == null || accessExpired) {
       message('Нэвтэрнэ үү!');
       gotoRemoveUntil(const LoginPage());
       return null;
     }
-    if (JwtDecoder.isExpired(access)) {
-      var k = await http.post(setUrl('auth/refresh/'),
-          headers: getHeader(await getRefreshToken()));
-      if (k.statusCode == 200) {
-        final data = convertData(k);
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('access_token', data['access_token']);
-        prefs.setString('refresh_token', data['refresh_token']);
-      } else {
-        message('Нэвтрэх эрх тань дууссан байна. Нэвтэрнэ үү!');
+    String refresh = security.refresh;
+    bool refreshExpired = (security != null && JwtDecoder.isExpired(refresh));
+    if (refreshExpired) {
+      bool success = await refreshed(refresh);
+      if (!success) {
+        message('Нэвтэрнэ үү!');
         gotoRemoveUntil(const LoginPage());
         return null;
       }
-      message('Таны нэвтрэх эрх дууссан байна. Нэвтэрнэ үү!');
-      gotoRemoveUntil(const LoginPage());
-      return null;
     }
+    String access = security.access;
     final Uri url = setUrl(endpoint);
     Map<String, String> headers = {
       ...header ?? {},
       'Content-Type': 'application/json; charset=UTF-8',
       'X-Pharmo-Client': '!pharmo_app?',
-      'Authorization': await getAccessToken(),
+      'Authorization': 'Bearer $access',
     };
 
     http.Response res;
@@ -123,12 +121,31 @@ Future<http.Response?> api(
       case Api.delete:
         res = await http.delete(url, headers: headers);
     }
-    getApiInformation(endpoint, res);
+    if (showLog) getApiInformation(endpoint, res);
     return res;
   } catch (e) {
     debugPrint('Error in $method request to $endpoint: $e');
     return null;
   }
+}
+
+Future<bool> refreshed(String refresh) async {
+  var b = {"refresh": refresh};
+  Uri url = setUrl('auth/refresh/');
+  final k = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'X-Pharmo-Client': '!pharmo_app?',
+    },
+    body: jsonEncode(b),
+  );
+  if (k.statusCode == 200) {
+    Map<String, dynamic> res = convertData(k);
+    await LocalBase.updateAccess(res['access']);
+    return true;
+  }
+  return false;
 }
 
 Map<String, dynamic> buildResponse(

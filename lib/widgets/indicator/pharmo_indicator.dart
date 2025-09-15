@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/utilities/colors.dart';
 
 class PharmoIndicator extends StatefulWidget {
-  const PharmoIndicator({super.key});
+  final bool withMaterial;
+  const PharmoIndicator({super.key, this.withMaterial = false});
 
   @override
   State<PharmoIndicator> createState() => _PharmoIndicatorState();
@@ -28,6 +30,20 @@ class _PharmoIndicatorState extends State<PharmoIndicator>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.withMaterial) {
+      return Material(
+        color: white,
+        child: Center(
+          child: child(),
+        ),
+      );
+    }
+    return Center(
+      child: child(),
+    );
+  }
+
+  Widget child() {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {

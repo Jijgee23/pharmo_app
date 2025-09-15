@@ -1,12 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/branch.dart';
-import 'package:pharmo_app/models/my_order.dart';
-import 'package:pharmo_app/models/my_order_detail.dart';
-import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/models/a_models.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class MyOrderProvider extends ChangeNotifier {
   List<MyOrderModel> _orders = <MyOrderModel>[];

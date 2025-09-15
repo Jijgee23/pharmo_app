@@ -16,7 +16,6 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? color;
   final bool? hasRect;
   final bool? centerTitle;
-
   const SideAppBar(
       {super.key,
       this.leadingOnTap,
@@ -96,7 +95,9 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
               decoration: BoxDecoration(
                   color: Colors.red, borderRadius: BorderRadius.circular(15)),
               child: Text(
-                basket.basket.totalCount.toString(),
+                basket.basket != null
+                    ? basket.basket!.totalCount.toString()
+                    : '0',
                 style: const TextStyle(
                     color: white, fontSize: 10, fontWeight: FontWeight.bold),
               ),

@@ -2,7 +2,7 @@ name: pharmo_app
 description: "Эмийн бөөний худалда, захиалгын систем."
 publish_to: none
 
-version: 1.1.4+72
+version: 1.2.0+75
 environment:
   sdk: '>=3.3.3 <4.0.0'
 
@@ -47,11 +47,6 @@ dependencies:
   location: ^8.0.0
   shared_preferences: ^2.5.3
   connectivity_plus: ^6.1.4
-  flutter_background_geolocation:
-    git:
-      url: https://github.com/transistorsoft/flutter_background_geolocation.git
-
-
 
 
 dev_dependencies:
@@ -60,6 +55,9 @@ dev_dependencies:
 
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.3
+  build_runner: ^2.5.4   # 🔹 downgrade хийсэн
+  hive_generator: ^2.0.0
+
 flutter_launcher_icons:
   android: true
   ios: true
@@ -67,8 +65,6 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
-
-
   assets:
     - assets/
     - assets/icons/
@@ -82,4 +78,5 @@ flutter:
       fonts:
         - asset: assets/fonts/Inter_24pt-Regular.ttf
           style: normal
-          weight: 700 
+          weight: 700
+          

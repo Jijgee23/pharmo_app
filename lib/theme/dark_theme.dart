@@ -56,7 +56,7 @@ final darkTheme = ThemeData(
     backgroundColor: Colors.grey.shade400,
     selectedItemColor: darkPrimary,
     unselectedIconTheme: IconThemeData(
-      color: darkPrimary.withOpacity(.5),
+      color: darkPrimary.withAlpha(125),
     ),
   ),
 );

@@ -8,10 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
@@ -546,7 +543,7 @@ class _ProductDetailState extends State<ProductDetail>
             decoration: BoxDecoration(
                 color: Colors.red, borderRadius: BorderRadius.circular(15)),
             child: Text(
-              basket.basket.totalCount.toString(),
+              basket == null ? '0' : basket.basket!.totalCount.toString(),
               style: const TextStyle(
                 color: white,
                 fontSize: 10,

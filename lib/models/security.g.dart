@@ -1,0 +1,71 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'security.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class SecurityAdapter extends TypeAdapter<Security> {
+  @override
+  final int typeId = 1;
+
+  @override
+  Security read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return Security(
+      id: fields[0] as int,
+      name: fields[1] as String,
+      email: fields[2] as String,
+      role: fields[3] as String,
+      supplierId: fields[4] as int?,
+      stockId: fields[5] as int?,
+      stocks: fields[6] as int,
+      customerId: fields[7] as int?,
+      companyName: fields[8] as String,
+      access: fields[9] as String,
+      refresh: fields[10] as String,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, Security obj) {
+    writer
+      ..writeByte(11)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.email)
+      ..writeByte(3)
+      ..write(obj.role)
+      ..writeByte(4)
+      ..write(obj.supplierId)
+      ..writeByte(5)
+      ..write(obj.stockId)
+      ..writeByte(6)
+      ..write(obj.stocks)
+      ..writeByte(7)
+      ..write(obj.customerId)
+      ..writeByte(8)
+      ..write(obj.companyName)
+      ..writeByte(9)
+      ..write(obj.access)
+      ..writeByte(10)
+      ..write(obj.refresh);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SecurityAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

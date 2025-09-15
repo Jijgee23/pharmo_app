@@ -1,25 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/models/branch.dart';
-import 'package:pharmo_app/models/category.dart';
-import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/models/sector.dart';
-import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/models/a_models.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/promotion_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/controllers/a_controlller.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class HomeProvider extends ChangeNotifier {
   void reset() {
@@ -67,6 +55,7 @@ class HomeProvider extends ChangeNotifier {
     logo: null,
     stocks: [],
   );
+
   setSupplier(Supplier sup) {
     picked = sup;
     notifyListeners();
@@ -129,9 +118,10 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  getProducts(int pageKey) async {
+  Future<List<Product>> getProducts(int pageKey) async {
     try {
       var url = 'products/?page=$pageKey&page_size=$pageSize';
+      print(url);
       final response = await api(Api.get, url);
       if (response!.statusCode == 200) {
         final res = convertData(response);
@@ -143,7 +133,7 @@ class HomeProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('error============= on getProduct> ${e.toString()}');
     }
-    notifyListeners();
+    return [];
   }
 
   searchProducts(String query) async {
@@ -312,23 +302,18 @@ class HomeProvider extends ChangeNotifier {
 
   // Нийлүүлэгчдийн жагсаалт авах
   Stock selected = Stock(id: -1, name: '');
+
   setStock(Stock stock) {
     selected = stock;
     notifyListeners();
   }
 
-  getSuppliers() async {
+  Future getSuppliers() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      int? id = prefs.getInt('suppID');
-      final response = await api(Api.get, 'suppliers_list/');
+      final response = await api(Api.get, 'suppliers_list/', showLog: true);
       if (response!.statusCode == 200) {
         final data = convertData(response);
         supliers = (data as List).map((sup) => Supplier.fromJson(sup)).toList();
-        Supplier? selected = supliers.firstWhere((s) => s.id == id);
-        if (selected != null) {
-          setSupplier(selected);
-        }
         notifyListeners();
       } else {
         debugPrint('Түр хүлээгээд дахин оролдоно уу!');
@@ -433,11 +418,12 @@ class HomeProvider extends ChangeNotifier {
     try {
       var body = {
         'customer_id': selectedCustomerId,
-        'basket_id': basket.basket.id,
+        'basket_id': basket.basket!.id,
         'payType': type,
         "note": (note != null) ? note : null
       };
-      final response = await api(Api.post, 'seller/order/', body: body);
+      final response =
+          await api(Api.post, 'seller/order/', body: body, showLog: true);
       if (response!.statusCode == 201) {
         final res = convertData(response);
         final orderNumber = res['orderNo'];

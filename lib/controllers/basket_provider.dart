@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/basket.dart';
-import 'package:pharmo_app/models/order_qrcode.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/views/cart/qr_code.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pharmo_app/models/a_models.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class BasketProvider extends ChangeNotifier {
   final TextEditingController qty = TextEditingController();
@@ -33,8 +31,8 @@ class BasketProvider extends ChangeNotifier {
   int _count = 0;
   int get count => _count;
   String? userrole = '';
-  late Basket _basket;
-  Basket get basket => _basket;
+  Basket? basket;
+  // Basket get basket => _basket;
   List<dynamic> _shoppingCarts = [];
   List<dynamic> get shoppingCarts => [..._shoppingCarts];
   List<QTY> qtys = [];
@@ -57,11 +55,12 @@ class BasketProvider extends ChangeNotifier {
       final resBasket = await api(Api.get, 'get_basket/');
       if (resBasket!.statusCode == 200) {
         final res = convertData(resBasket);
-        _basket = Basket.fromJson(res);
-        _count = _basket.items != null && _basket.items!.isNotEmpty
-            ? _basket.items!.length
+        basket = Basket.fromJson(res);
+        _count = basket!.items != null && basket!.items!.isNotEmpty
+            ? basket!.items!.length
             : 0;
-        _shoppingCarts = _basket.items!;
+        _shoppingCarts = basket!.items!;
+        notifyListeners();
       } else {
         return buildResponse(1, '', 'Сагсны мэдээлэл татахад алдаа гарлаа!');
       }
@@ -131,8 +130,7 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future addProduct(
-       int id, String name, int qty) async {
+  Future addProduct(int id, String name, int qty) async {
     try {
       final response = await api(Api.patch, 'user_basket/',
           body: {'product_id': id, 'qty': qty});
@@ -150,7 +148,7 @@ class BasketProvider extends ChangeNotifier {
           }
         } else {
           await getBasket();
-          message('$name сагсанд нэмэгдлээ', isSuccess: true);
+          message('$name сагсанд нэмэгдлээ', color: Colors.teal);
         }
       } else {
         message(wait);
@@ -174,8 +172,8 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket() async {
     try {
-      final response =
-          await api(Api.patch, 'clear_basket/', body: {'basket_id': basket.id});
+      final response = await api(Api.patch, 'clear_basket/',
+          body: {'basket_id': basket!.id});
       await getBasket();
       if (response!.statusCode == 200) {
         debugPrint('basket cleared');
@@ -190,7 +188,7 @@ class BasketProvider extends ChangeNotifier {
   Future<dynamic> removeBasketItem({required int itemId}) async {
     try {
       await api(Api.delete, 'user_basket/?item_id=$itemId');
-      message('Сагснаас хасагдлаа', isSuccess: true);
+      message('Сагснаас хасагдлаа');
       await getBasket();
     } catch (e) {
       message('Сагснаас бараа устгах үед алдаа гарлаа.');
@@ -202,14 +200,16 @@ class BasketProvider extends ChangeNotifier {
     required int branchId,
     required String note,
     required String deliveryType,
+    required String pt,
     required BuildContext context,
   }) async {
     try {
       var body = {
         'basket_id': basketId,
         'branch_id': branchId,
+        'pay_type': pt,
         'note': note != '' ? note : null,
-        'is_come': deliveryType == 'N' ? true : false
+        'is_come': deliveryType == 'N' ? true : false,
       };
       final response = await api(Api.post, 'pharmacy/order/', body: body);
       final res = convertData(response!);
@@ -241,7 +241,7 @@ class BasketProvider extends ChangeNotifier {
         'note': note != '' ? note : null,
         'is_come': deliveryType == 'N' ? true : false,
       };
-      final resQR = await api(Api.post, 'ci/', body: body);
+      final resQR = await api(Api.post, 'ci/', body: body, showLog: true);
       final data = convertData(resQR!);
       final status = resQR.statusCode;
       print(resQR.body);
@@ -261,6 +261,8 @@ class BasketProvider extends ChangeNotifier {
           message('Сагс хоосон байна!');
         } else if (data == 'branch not match') {
           message('Салбарын мэдээлэл буруу!');
+        } else if (data['qpay'] == "not found") {
+          message('Qpay холбоогүй.');
         }
       } else if (status == 500) {
         message('Админтай холбогдоно уу!');
@@ -278,7 +280,7 @@ class BasketProvider extends ChangeNotifier {
         if (data.contains('not paid')) {
           message('Төлбөр төлөгдөөгүй байна.');
         } else if (data.contains('paid')) {
-          message('Төлбөр амжилттай төлөгдсөн.', isSuccess: true);
+          message('Төлбөр амжилттай төлөгдсөн.');
           goto(OrderDone(orderNo: convertData(resQR)['orderNo'].toString()));
         } else {
           message('Төлбөр төлөгдөөгүй байна.');

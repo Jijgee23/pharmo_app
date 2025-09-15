@@ -8,6 +8,8 @@
         "**/Thumbs.db": true
     },
     "hide-files.files": [],
+    "cmake.sourceDirectory": "/Users/infosystems/Downloads/pharmo_app/linux",
+    "java.configuration.updateBuildConfiguration": "disabled",
     // "editor.quickSuggestions": {
     //     "comments": "off",
     //     "strings": "off",

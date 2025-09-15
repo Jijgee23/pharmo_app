@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/services/local_base.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:provider/provider.dart';
 
 class ProductSearcher extends StatelessWidget {
@@ -11,6 +11,12 @@ class ProductSearcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final security = LocalBase.security;
+
+    if (security == null) {
+      return Scaffold();
+    }
+
     return Consumer<HomeProvider>(
       builder: (context, home, child) => Row(
         children: [
@@ -23,7 +29,7 @@ class ProductSearcher extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (home.userRole == 'PA') suplierPicker(home, context),
+                  if (security.role == 'PA') suplierPicker(home, context),
                   const SizedBox(width: 10),
                   Expanded(
                       child: TextFormField(
@@ -135,6 +141,7 @@ class ProductSearcher extends StatelessWidget {
   PopupMenuItem stockBuilder(Stock e, HomeProvider home, BuildContext context) {
     final supplier = home.supliers.firstWhere((sup) => sup.stocks.contains(e));
     bool hasImage = supplier.logo != null;
+    bool selected = home.selected.id == e.id;
     return PopupMenuItem(
       onTap: () => onPickSupp(supplier, e, home, context),
       child: Row(
@@ -160,15 +167,16 @@ class ProductSearcher extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(supplier.name,
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold)),
+              Text(
+                supplier.name,
+                style: TextStyle(
+                    color: selected ? AppColors.succesColor : Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
               Text(
                 '(${e.name})',
                 style: TextStyle(
-                  color: e.name == home.picked.name
-                      ? AppColors.succesColor
-                      : black,
+                  color: selected ? AppColors.succesColor : black,
                 ),
               ),
             ],

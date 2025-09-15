@@ -29,13 +29,19 @@ class _CartInfoState extends State<CartInfo> {
           Row(
             children: [
               info(
-                  title: 'Нийт дүн',
-                  text: toPrice(basketProvider.basket.totalPrice))
+                title: 'Нийт дүн',
+                text: toPrice(
+                  basketProvider.basket != null
+                      ? basketProvider.basket!.totalPrice
+                      : 0,
+                ),
+              )
             ],
           ),
           info(
               title: 'Нийт тоо ширхэг',
-              text: '${basketProvider.basket.totalCount ?? 0}'),
+              text:
+                  '${basketProvider.basket != null ? basketProvider.basket!.totalCount : 0}'),
           InkWell(
             borderRadius: BorderRadius.circular(5),
             onTap: () => clearBasket(),
@@ -64,7 +70,7 @@ class _CartInfoState extends State<CartInfo> {
         Text(
           text,
           style: TextStyle(
-            color: black.withOpacity(.7),
+            color: black.withAlpha(25 * 7),
             fontSize: fs,
             fontWeight: FontWeight.bold,
           ),

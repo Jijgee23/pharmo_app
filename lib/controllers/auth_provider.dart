@@ -1,51 +1,25 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:http/http.dart' as http;
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/models/account.dart';
-import 'package:pharmo_app/models/supplier.dart';
-import 'package:pharmo_app/services/network_service.dart';
-import 'package:pharmo_app/services/user_service.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
+import 'package:pharmo_app/views/auth/root_page.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/main/rep_man/index.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:provider/provider.dart';
-import 'package:restart_app/restart_app.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart'
-    show Patch, ShorebirdUpdater, UpdateStatus, UpdateTrack;
+import 'package:pharmo_app/controllers/a_controlller.dart';
 // ignore: depend_on_referenced_packages
 import 'package:http_parser/http_parser.dart' as pharser;
 
 class AuthController extends ChangeNotifier {
   bool loading = false;
   bool remember = false;
-  late Map<String, dynamic> _userInfo;
-  Map<String, dynamic> get userInfo => _userInfo;
-  Map<String, String> deviceData = {};
-  Account _account = Account(uid: 0, email: '', role: '');
-  Account get account => _account;
-  setAccountInfo(Account a) {
-    _account = a;
-    print("Account set: ${_account.name}, ${_account.email}");
-    notifyListeners();
-  }
 
   setRemember(bool n) {
     remember = n;
@@ -93,12 +67,16 @@ class AuthController extends ChangeNotifier {
       String email, String password, BuildContext context) async {
     setLogging(true);
     try {
-      var responseLogin = await apiPostWithoutToken(
-          'auth/login/', {'email': email, 'password': password});
-      final decodedResponse = convertData(responseLogin!);
-      print(decodedResponse);
+      var body = {
+        'email': email,
+        'password': password,
+      };
+      var responseLogin = await apiPostWithoutToken('auth/login/', body);
+      Map<String, dynamic> decodedResponse = convertData(responseLogin!);
+      // print(decodedResponse);
       if (responseLogin.statusCode == 200) {
-        _handleSuccessfulLogin(decodedResponse, password, context);
+        // debugPrint(decodedResponse);
+        _handleSuccessfulLogin(decodedResponse, context);
       } else if (responseLogin.statusCode == 400) {
         setLogging(false);
         _handleBadRequest(decodedResponse, email, password);
@@ -119,56 +97,54 @@ class AuthController extends ChangeNotifier {
 
   // Нэвтрэх амжилттай
   Future<void> _handleSuccessfulLogin(
-      Map<String, dynamic> res, String password, BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', res['access_token']);
-    await prefs.setString('refresh_token', res['refresh_token']);
+      Map<String, dynamic> res, BuildContext context) async {
+    await LocalBase.saveModel(res);
 
-    final accessToken = prefs.getString('access_token')!;
-    print('');
-    final decodedToken = JwtDecoder.decode(accessToken);
-    _userInfo = decodedToken;
-    if (remember) {
-      Userservice.saveUserData(decodedToken, password);
-    }
+    if (remember) await LocalBase.saveRemember();
 
-    final homeProvider = context.read<HomeProvider>();
-    final basketProvider = context.read<BasketProvider>();
+    gotoRemoveUntil(RootPage());
 
-    await prefs.setString('useremail', decodedToken['email']);
-    await prefs.setInt('user_id', decodedToken['user_id']);
-    await prefs.setString('userrole', decodedToken['role']);
+    // _userInfo = decodedToken;
+    // if (remember) {
+    //   Userservice.saveUserData(decodedToken, password);
+    // }
 
-    final home = Provider.of<HomeProvider>(context, listen: false);
-    await home.getUserInfo();
-    setAccountInfo(Account.fromJson(decodedToken));
-    if (home.userRole == 'PA') {
-      if (decodedToken['stock_id'] != null) {
-        await prefs.setInt('stock_id', decodedToken['stock_id']);
-      }
-      await homeProvider.getSuppliers();
-      await homeProvider.getBranches();
-      if (decodedToken['supplier_id'] != null) {
-        await prefs.setInt('suppID', decodedToken['supplier_id']);
-        int? k = prefs.getInt('suppID');
-        home.getSuppliers();
-        Supplier sup = home.supliers.firstWhere((e) => e.id == k);
-        home.setSupplier(sup);
-      } else {
-        await home.getSuppliers();
-        Supplier sup = home.supliers[0];
-        print(sup.name);
-        home.pickSupplier(sup, sup.stocks[0], context);
-        home.setSupplier(sup);
-      }
-    } else {
-      await prefs.setString('company_name', decodedToken['company_name']);
-    }
-    await basketProvider.getBasket();
-    await basketProvider.getBasketCount;
-    _navigateBasedOnRole(_account.role);
-    debugPrint(accessToken);
-    notifyListeners();
+    // final homeProvider = context.read<HomeProvider>();
+    // final basketProvider = context.read<BasketProvider>();
+
+    // await prefs.setString('useremail', decodedToken['email']);
+    // await prefs.setInt('user_id', decodedToken['user_id']);
+    // await prefs.setString('userrole', decodedToken['role']);
+    // final home = Provider.of<HomeProvider>(context, listen: false);
+    // await home.getUserInfo();
+    // setAccountInfo(Account.fromJson(decodedToken));
+    // if (home.userRole == 'PA') {
+    //   if (decodedToken['stock_id'] != null) {
+    //     await prefs.setInt('stock_id', decodedToken['stock_id']);
+    //   }
+    //   await homeProvider.getSuppliers();
+    //   await homeProvider.getBranches();
+    //   if (decodedToken['supplier_id'] != null) {
+    //     await prefs.setInt('suppID', decodedToken['supplier_id']);
+    //     int? k = prefs.getInt('suppID');
+    //     home.getSuppliers();
+    //     Supplier sup = home.supliers.firstWhere((e) => e.id == k);
+    //     home.setSupplier(sup);
+    //   } else {
+    //     await home.getSuppliers();
+    //     Supplier sup = home.supliers[0];
+    //     print(sup.name);
+    //     home.pickSupplier(sup, sup.stocks[0], context);
+    //     home.setSupplier(sup);
+    //   }
+    // } else {
+    //   await prefs.setString('company_name', decodedToken['company_name']);
+    // }
+    // await basketProvider.getBasket();
+    // await basketProvider.getBasketCount;
+    // _navigateBasedOnRole(_account.role);
+    // debugPrint(accessToken);
+    // notifyListeners();
   }
 
   // Нэвтрэх амжилтгүй
@@ -227,18 +203,12 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  tokerRefresher() async {
-    Timer.periodic(const Duration(minutes: 20), (timer) async {
-      await refresh();
-    });
-  }
-
   // Системээс гарах
   Future<void> logout(BuildContext context) async {
     try {
       final response = await http.post(
         setUrl('auth/logout/'),
-        headers: getHeader(await getAccessToken()),
+        headers: getHeader(LocalBase.security!.access),
       );
       if (response.statusCode == 200) {
         await _completeLogout(context);
@@ -459,7 +429,6 @@ class AuthController extends ChangeNotifier {
       for (File lic in license) {
         final file = await http.MultipartFile.fromPath('license[]', lic.path,
             contentType: pharser.MediaType('image', 'jpeg'));
-        print(lic.path);
         files.add(file);
       }
       request.files.addAll(files);

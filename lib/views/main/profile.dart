@@ -1,10 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controllers/a_controlller.dart';
+import 'package:pharmo_app/models/security.dart';
+import 'package:pharmo_app/services/local_base.dart';
 import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/main/pharmacy/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/promotion_screen.dart';
@@ -13,7 +9,8 @@ import 'package:pharmo_app/views/public_uses/about_us.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/main/seller/seller_orders.dart';
 import 'package:pharmo_app/views/main/seller/seller_report.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -22,10 +19,16 @@ class Profile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, AuthController>(
       builder: (context, homeProvider, auth, child) {
-        bool isPharma = homeProvider.userRole == "PA";
-        bool isDMan = homeProvider.userRole == "D";
-        bool isRep = homeProvider.userRole == 'R';
-        bool isSeller = homeProvider.userRole == 'S' || isDMan;
+        final Security? security = LocalBase.security;
+        if (security == null) {
+          return Material(
+            child: Center(child: PharmoIndicator()),
+          );
+        }
+        bool isPharma = security.role == "PA";
+        bool isDMan = security.role == "D";
+        bool isRep = security.role == 'R';
+        bool isSeller = security.role == 'S' || isDMan;
         return Scaffold(
           body: Center(
             child: Column(
@@ -130,6 +133,12 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Security? security = LocalBase.security;
+    if (security == null) {
+      return Material(
+        child: Center(child: PharmoIndicator()),
+      );
+    }
     return Consumer<AuthController>(
       builder: (context, auth, child) => Column(
         spacing: 10,
@@ -145,36 +154,34 @@ class ProfileHeader extends StatelessWidget {
               ),
             ),
           ),
-          if (auth.account.name != null)
-            Text(
-              auth.account.name!,
-              style: TextStyle(
-                color: theme.primaryColor.withOpacity(.8),
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
-              ),
+          Text(
+            security.name,
+            style: TextStyle(
+              color: theme.primaryColor.withOpacity(.8),
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
             ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: 20,
             children: [
               Text(
-                auth.account.email,
+                security.email,
                 style: TextStyle(
                   color: grey500,
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
                 ),
               ),
-              if (auth.account.companyName != null)
-                Text(
-                  auth.account.companyName!,
-                  style: TextStyle(
-                    color: theme.primaryColor.withOpacity(.8),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
+              Text(
+                security.companyName,
+                style: TextStyle(
+                  color: theme.primaryColor.withOpacity(.8),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
                 ),
+              ),
             ],
           ),
         ],

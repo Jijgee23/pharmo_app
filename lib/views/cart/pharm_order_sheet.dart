@@ -146,8 +146,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
   }
 
   selectBranch() async {
-    await homeProvider.getBranches();
-
+    homeProvider.getBranches();
     showMenu(
       color: Colors.white,
       context: context,
@@ -168,26 +167,28 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
   }
 
   order() async {
-    await basketProvider.checkQTYs();
-    if (basketProvider.qtys.isNotEmpty) {
-      message(
-        'Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!',
-      );
-    } else {
-      createOrder();
-    }
+    // await basketProvider.checkQTYs();
+    // if (basketProvider.qtys.isNotEmpty) {
+    //   message(
+    //     'Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!',
+    //   );
+    // } else {
+    createOrder();
+    // }
   }
 
   createOrder() async {
-    await basketProvider.checkQTYs();
+    // await basketProvider.checkQTYs();
     if (deliveryType == '') {
       message('Хүргэлтийн хэлбэр сонгоно уу!');
-    } else if (deliveryType == 'D') {
+      return;
+    }
+    if (deliveryType == 'D') {
       if (selectedBranchId == -1) {
         message('Салбар сонгоно уу!');
-      } else {
-        selectPayType();
+        return;
       }
+      selectPayType();
     } else if (deliveryType == 'N') {
       selectPayType();
     }
@@ -196,23 +197,26 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
   selectPayType() async {
     if (payType == '') {
       message('Төлбөрийн хэлбэр сонгоно уу!');
-    } else if (payType == 'C') {
-      await basketProvider.createQR(
-        basketId: basketProvider.basket.id,
-        branchId: selectedBranchId,
-        note: noteController.text,
-        deliveryType: deliveryType,
-        context: context,
-      );
-    } else {
-      await basketProvider.createOrder(
-        basketId: basketProvider.basket.id,
-        branchId: selectedBranchId,
-        note: noteController.text,
-        deliveryType: deliveryType,
-        context: context,
-      );
+      return;
     }
+    if (payType == 'C') {
+      await basketProvider.createQR(
+        basketId: basketProvider.basket!.id,
+        branchId: selectedBranchId,
+        note: noteController.text,
+        deliveryType: deliveryType,
+        context: context,
+      );
+      return;
+    }
+    await basketProvider.createOrder(
+      basketId: basketProvider.basket!.id,
+      branchId: selectedBranchId,
+      note: noteController.text,
+      deliveryType: deliveryType,
+      pt: payType,
+      context: context,
+    );
   }
 }
 

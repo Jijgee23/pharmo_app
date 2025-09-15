@@ -1,36 +1,30 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/income_provider.dart';
-import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/controllers/myorder_provider.dart';
-import 'package:pharmo_app/controllers/pharms_provider.dart';
-import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/controllers/rep_provider.dart';
-import 'package:pharmo_app/controllers/report_provider.dart';
-import 'package:pharmo_app/services/notification_service.dart';
+import 'package:pharmo_app/controllers/a_controlller.dart';
+import 'package:pharmo_app/database/loc_model.dart';
+import 'package:pharmo_app/models/a_models.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/global_key.dart';
 import 'package:pharmo_app/theme/dark_theme.dart';
 import 'package:pharmo_app/theme/light_theme.dart';
-import 'package:pharmo_app/services/firebase_sevice.dart';
-import 'package:pharmo_app/views/auth/login.dart';
+import 'package:pharmo_app/views/auth/root_page.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
-import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
-import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
+
+const platform = MethodChannel('bg_location');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseApi.initFirebase();
   Notify.initializeNotifications();
   await Upgrader.clearSavedSettings();
-  await Hive.initFlutter();
   await dotenv.load(fileName: ".env");
+  await Hive.initFlutter();
+  Hive.registerAdapter(SecurityAdapter());
+  Hive.registerAdapter(LocModelAdapter());
+  await LocalBase.initLocalBase();
+
   runApp(
     MultiProvider(
       providers: [
@@ -44,6 +38,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => IncomeProvider()),
         ChangeNotifierProvider(create: (_) => PromotionProvider()),
         ChangeNotifierProvider(create: (_) => ReportProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => RepProvider()..initTracking())
       ],
       child: const MyApp(),
@@ -58,36 +53,53 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  late Box authBox;
-  bool loading = true;
-
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    openAuthBox();
+    WidgetsBinding.instance.addObserver(this);
   }
 
-  Future<void> openAuthBox() async {
-    try {
-      authBox = await Hive.openBox('auth');
-      final email = authBox.get('email');
-      final password = authBox.get('password');
-      if (email != null && password != null) {
-        final auth = context.read<AuthController>();
-        await auth.checkForUpdate().whenComplete(() async {
-          await auth.login(email, password, context);
-        });
-      }
-    } catch (e) {
-      debugPrint('Hive error: $e');
-    } finally {
-      setState(() => loading = false);
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      checkHasTrack(state);
+    } else if (state == AppLifecycleState.paused) {
+      checkHasTrack(state);
+    } else if (state == AppLifecycleState.detached) {
+      print('detached');
+      checkHasTrack(state);
+    } else if (state == AppLifecycleState.inactive) {
+      // print('inactive');
+      // checkHasTrack(state);
+    }
+  }
+
+  void checkHasTrack(AppLifecycleState state) async {
+    Security? security = LocalBase.security;
+    if (security == null || (security != null && security.role == 'PA')) {
+      return;
+    }
+    if (security.role == "S") {
+      context.read<LocationProvider>().initTracking();
+      return;
+    }
+    if (security.role == "D") {
+      context.read<LocationProvider>().startTracking();
+      return;
     }
   }
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    bool splashed = LocalBase.hasSpashed;
     return Consumer<HomeProvider>(
       builder: (context, home, child) => GetMaterialApp(
         title: 'Pharmo app',
@@ -96,17 +108,13 @@ class _MyAppState extends State<MyApp> {
         darkTheme: darkTheme,
         navigatorKey: GlobalKeys.navigatorKey,
         themeMode: home.themeMode,
-        home: loading
-            ? Scaffold(
-                backgroundColor: Colors.white,
-                body: Center(child: PharmoIndicator()))
-            : UpgradeAlert(
-                dialogStyle: UpgradeDialogStyle.material,
-                showIgnore: false,
-                showLater: false,
-                showReleaseNotes: false,
-                child: authBox.isEmpty ? SplashScreen() : LoginPage(),
-              ),
+        home: UpgradeAlert(
+          dialogStyle: UpgradeDialogStyle.material,
+          showIgnore: false,
+          showLater: false,
+          showReleaseNotes: false,
+          child: splashed == false ? SplashScreen() : RootPage(),
+        ),
       ),
     );
   }

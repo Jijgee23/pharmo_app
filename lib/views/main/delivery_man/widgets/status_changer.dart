@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/main/delivery_man/home/delivery_widget.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class StatusChanger extends StatefulWidget {
   final int delId;
@@ -72,7 +70,7 @@ class _StatusChangerState extends State<StatusChanger> {
         };
         final response = await api(Api.patch, 'delivery/order/', body: data);
         if (response!.statusCode == 200 || response.statusCode == 201) {
-          message('Төлөв өөрчлөгдлөө', isSuccess: true);
+          message('Төлөв өөрчлөгдлөө');
           await provider.getDeliveries();
         } else if (response.statusCode == 400) {
           if (convertData(response)

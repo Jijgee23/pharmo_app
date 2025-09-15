@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/models/a_models.dart';
+import 'package:pharmo_app/services/local_base.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/views/cart/cart_info.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
@@ -74,7 +75,9 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
       builder: (context, provider, _) {
         final cartDatas = provider.shoppingCarts;
         final basket = provider.basket;
-        final basketIsEmpty = (basket.totalCount == 0 || basket.items!.isEmpty);
+        final basketIsEmpty = (basket == null
+            ? true
+            : basket.totalCount == 0 || basket.items!.isEmpty);
         return DataScreen(
           pad: EdgeInsets.all(5),
           loading: loading,
@@ -88,25 +91,11 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
                 const SizedBox(height: Sizes.smallFontSize),
                 const CartInfo(),
                 ...cartDatas.map((e) => CartItem(detail: e)),
-                CustomButton(
-                  text: 'Захиалга үүсгэх',
-                  ontap: () async => await placeOrder(context),
-                ),
-                // Expanded(
-                //   child: ListView.builder(
-                //     itemCount: cartDatas.length + 1,
-                //     itemBuilder: (context, index) {
-                //       if (index == cartDatas.length && !basketIsEmpty) {
-                //         return CustomButton(
-                //           text: 'Захиалга үүсгэх',
-                //           ontap: () async => await placeOrder(context),
-                //         );
-                //       } else {
-                //         return CartItem(detail: cartDatas[index] ?? {});
-                //       }
-                //     },
-                //   ),
-                // ),
+                if (!basketIsEmpty)
+                  CustomButton(
+                    text: 'Захиалга үүсгэх',
+                    ontap: () async => await placeOrder(context),
+                  ),
                 SizedBox(height: kToolbarHeight + 50),
               ],
             ),
@@ -117,21 +106,21 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
   }
 
   placeOrder(BuildContext c) async {
+    final Security? security = LocalBase.security;
     final basket = context.read<BasketProvider>();
+    if (security == null) {
+      return;
+    }
     await basket.getBasket();
+    if (double.parse(basket.basket!.totalPrice.toString()) < 10) {
+      message('Үнийн дүн 10₮-с бага байж болохгүй!');
+      return;
+    }
     if (basket.qtys.isNotEmpty) {
       message('Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!');
-    } else {
-      if (double.parse(basket.basket.totalPrice.toString()) < 10) {
-        message('Үнийн дүн 10₮-с бага байж болохгүй!');
-      } else {
-        final home = Provider.of<HomeProvider>(context, listen: false);
-        if (home.userRole == 'PA') {
-          Get.bottomSheet(const PharmOrderSheet());
-        } else {
-          Get.bottomSheet(const SellerOrderSheet());
-        }
-      }
+      return;
     }
+    Get.bottomSheet(
+        security.role == 'PA' ? PharmOrderSheet() : SellerOrderSheet());
   }
 }

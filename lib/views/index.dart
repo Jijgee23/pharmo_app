@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/services/local_base.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
 import 'package:pharmo_app/views/main/home.dart';
+import 'package:pharmo_app/views/main/seller/seller_tracking.dart';
 import 'package:pharmo_app/views/product/product_searcher.dart';
 import 'package:pharmo_app/views/main/profile.dart';
 import 'package:pharmo_app/views/main/seller/customers.dart';
@@ -9,7 +9,8 @@ import 'package:pharmo_app/views/main/seller/add_customer.dart';
 import 'package:pharmo_app/views/main/seller/customer_searcher.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/controllers/a_controlller.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class IndexPharma extends StatefulWidget {
   const IndexPharma({super.key});
@@ -22,18 +23,39 @@ class _IndexPharmaState extends State<IndexPharma> {
   @override
   void initState() {
     super.initState();
+    inititliazeBasket();
+  }
+
+  inititliazeBasket() async {
+    final basket = context.read<BasketProvider>();
+    await basket.getBasket();
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
       builder: (context, homeProvider, _) {
-        String role = homeProvider.userRole ?? '';
+        final security = LocalBase.security;
+        if (security == null) {
+          return Scaffold();
+        }
+        String role = security.role;
         return Scaffold(
           extendBody: true,
           appBar: CustomAppBar(title: getAppbar(role, homeProvider)),
           body: getPages(role)[homeProvider.currentIndex],
           bottomNavigationBar: BottomBar(icons: getIcons(role)),
+          floatingActionButton: security.role == 'S'
+              ? FloatingActionButton(
+                  shape: CircleBorder(),
+                  onPressed: () => goto(SellerTracking()),
+                  backgroundColor: primary,
+                  child: Icon(
+                    Icons.track_changes,
+                    color: white,
+                  ),
+                )
+              : null,
         );
       },
     );
@@ -71,8 +93,10 @@ class _IndexPharmaState extends State<IndexPharma> {
   }
 
   appBarSingleText(String v) {
-    return Text(v,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
+    return Text(
+      v,
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+    );
   }
 
   List<String> getIcons(String role) {
@@ -85,14 +109,17 @@ class _IndexPharmaState extends State<IndexPharma> {
 
   List<Widget> getPages(String role) {
     if (role == 'PA') {
-      return [const Home(), const Cart(), const Profile()];
-    } else {
       return [
-        const CustomerList(),
         const Home(),
         const Cart(),
-        const Profile()
+        const Profile(),
       ];
     }
+    return [
+      const CustomerList(),
+      const Home(),
+      const Cart(),
+      const Profile(),
+    ];
   }
 }

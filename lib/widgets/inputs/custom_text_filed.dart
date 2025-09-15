@@ -40,7 +40,7 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     final sw = MediaQuery.of(context).size.width;
     final border = OutlineInputBorder(
-        borderSide: BorderSide(color: grey400, width: 1.5),
+        borderSide: BorderSide(color: grey400, width: .5),
         borderRadius: BorderRadius.circular(Sizes.mediumFontSize));
     TextStyle ts =
         TextStyle(color: grey600, fontSize: 14.0, fontWeight: FontWeight.w700);
@@ -67,7 +67,10 @@ class CustomTextField extends StatelessWidget {
           hintStyle: TextStyle(
               color: grey400, fontSize: 14.0, fontWeight: FontWeight.w700),
           border: border,
-          errorBorder: border,
+          errorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: .5),
+            borderRadius: BorderRadius.circular(Sizes.mediumFontSize),
+          ),
           enabledBorder: border,
           focusedBorder: border,
           suffixIcon: suffixIcon,

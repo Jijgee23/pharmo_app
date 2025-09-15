@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/views/main/delivery_man/home/delivery_home.dart';
 import 'package:pharmo_app/views/main/delivery_man/orders/delivery_orders.dart';
 import 'package:pharmo_app/views/main/delivery_man/profile/delivery_profile.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/controllers/a_controlller.dart';
 
 class IndexDeliveryMan extends StatefulWidget {
   const IndexDeliveryMan({super.key});
@@ -38,9 +36,7 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
         builder: (context, authController, home, _) {
           return Scaffold(
             extendBody: true,
-            appBar: DMAppBar(
-              title: getTitle(home.currentIndex),
-            ),
+            appBar: DMAppBar(title: getTitle(home.currentIndex)),
             body: _pages[home.currentIndex],
             bottomNavigationBar: BottomBar(icons: icons),
           );
@@ -70,7 +66,4 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
 
   List<String> icons = ['truck-side', 'order-history', 'user'];
   List<String> labels = ['Түгээлт', 'Бэлэн захиалгууд', 'Профайл'];
-
-  // final TextEditingController amount = TextEditingController();
-  // final TextEditingController note = TextEditingController();
 }

@@ -19,8 +19,6 @@ class CustomerList extends StatefulWidget {
 
 class _CustomerListState extends State<CustomerList>
     with SingleTickerProviderStateMixin {
-  late HomeProvider homeProvider;
-  late PharmProvider pharmProvider;
   late AnimationController controller;
   @override
   void initState() {
@@ -29,12 +27,12 @@ class _CustomerListState extends State<CustomerList>
       duration: const Duration(milliseconds: 500),
     )..repeat(reverse: true);
     super.initState();
-    homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    pharmProvider = Provider.of<PharmProvider>(context, listen: false);
     init();
   }
 
   init() {
+    final homeProvider = context.read<HomeProvider>();
+    final pharmProvider = context.read<PharmProvider>();
     WidgetsBinding.instance.addPostFrameCallback((cb) async {
       setLoading(true);
       await pharmProvider.getCustomers(1, 100, context);
@@ -42,7 +40,6 @@ class _CustomerListState extends State<CustomerList>
       await pharmProvider.getZones();
       setLoading(false);
     });
-
     setState(() => uid = homeProvider.userId);
   }
 
@@ -72,14 +69,14 @@ class _CustomerListState extends State<CustomerList>
           empty: pp.filteredCustomers.isEmpty,
           customLoading: shimmer(),
           pad: EdgeInsets.all(5.0),
-          child: _customersList(pp),
+          child: _customersList(pp, homeProvider),
         );
       },
     );
   }
 
   // Харилцагчдын жагсаалт
-  _customersList(PharmProvider pp) {
+  _customersList(PharmProvider pp, HomeProvider homeProvider) {
     return ListView.separated(
       padding: EdgeInsets.only(top: 5.0),
       separatorBuilder: (context, index) => const SizedBox(height: 10.0),
@@ -135,7 +132,7 @@ class _CustomerListState extends State<CustomerList>
               spacing: 10,
               children: [
                 InkWell(
-                  onTap: () => _onTabCustomer(c),
+                  onTap: () => _onTabCustomer(c, homeProvider),
                   child: Icon(
                     selected ? Icons.check_box : Icons.check_box_outline_blank,
                     color: selected ? Colors.green : Colors.grey,
@@ -172,7 +169,7 @@ class _CustomerListState extends State<CustomerList>
     fontWeight: FontWeight.w400,
   );
 
-  _onTabCustomer(Customer c) {
+  _onTabCustomer(Customer c, HomeProvider homeProvider) {
     if (c.id == homeProvider.selectedCustomerId) {
       homeProvider.changeSelectedCustomerId(0);
       homeProvider.changeSelectedCustomerName('');

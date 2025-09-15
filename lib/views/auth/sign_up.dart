@@ -42,9 +42,14 @@ class _SignUpFormState extends State<SignUpForm> {
                 Container(
                     decoration: BoxDecoration(
                         borderRadius: bottomRadius(),
-                        color: theme.primaryColor.withOpacity(.3),
-                        image: const DecorationImage(image: AssetImage('assets/picon.png')))),
-                const Positioned(top: 30, left: 15, child: ChevronBack())
+                        color: theme.primaryColor.withAlpha(75),
+                        image: const DecorationImage(
+                            image: AssetImage('assets/picon.png')))),
+                const Positioned(
+                  top: 30,
+                  left: 15,
+                  child: ChevronBack(),
+                )
               ],
             ),
           ),
@@ -87,7 +92,8 @@ class _SignUpFormState extends State<SignUpForm> {
                             showPasss = !showPasss;
                           });
                         },
-                        icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
+                        icon: Icon(
+                            showPasss ? Icons.visibility : Icons.visibility_off,
                             color: theme.primaryColor),
                       ),
                     ),
@@ -103,7 +109,8 @@ class _SignUpFormState extends State<SignUpForm> {
                             showPasss = !showPasss;
                           });
                         },
-                        icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
+                        icon: Icon(
+                            showPasss ? Icons.visibility : Icons.visibility_off,
                             color: theme.primaryColor),
                       ),
                     ),

@@ -1,14 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/views/product/add_basket_sheet.dart';
 import 'package:pharmo_app/views/product/product_detail_page.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 //GRID VIEW
 class ProductWidget extends StatelessWidget {
@@ -26,7 +22,8 @@ class ProductWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     double fontSize = Sizes.height * 0.0135;
     return Consumer<HomeProvider>(builder: (context, home, child) {
-      bool isNotPharm = (home.userRole != 'PA');
+      final secutity = LocalBase.security;
+      bool isNotPharm = (secutity!.role != 'PA');
       return InkWell(
         onTap: () => goto(ProductDetail(prod: item)),
         splashColor: Colors.grey,

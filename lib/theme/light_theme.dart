@@ -53,7 +53,7 @@ final lightTheme = ThemeData(
     backgroundColor: white,
     selectedItemColor: white,
     unselectedIconTheme: IconThemeData(
-      color: white.withOpacity(.5),
+      color: white..withAlpha(125),
     ),
   ),
 );

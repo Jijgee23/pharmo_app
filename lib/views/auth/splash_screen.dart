@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/adapters.dart';
+// import 'package:hive/hive.dart';
+// import 'package:hive_flutter/adapters.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -14,20 +15,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  late Box box1;
   int page = 0;
-  bool isSplashed = false;
-  @override
-  void initState() {
-    openBox();
-    super.initState();
-  }
-
-  Future<void> openBox() async {
-    WidgetsBinding.instance.addPostFrameCallback((c) async {
-      box1 = await Hive.openBox('auth');
-    });
-  }
 
   setPage(int newPage) {
     setState(() {
@@ -70,16 +58,16 @@ class _SplashScreenState extends State<SplashScreen> {
             ElevatedButton(
               onPressed: () async {
                 if (page == urls.length - 1) {
-                  await box1.put('splash', true).whenComplete(() {
-                    goto(const LoginPage());
-                  });
-                } else {
-                  setPage(page + 1);
-                  _pageController.nextPage(
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.fastLinearToSlowEaseIn,
+                  await LocalBase.saveSplashed(true).whenComplete(
+                    () => goto(LoginPage()),
                   );
+                  return;
                 }
+                setPage(page + 1);
+                _pageController.nextPage(
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.fastLinearToSlowEaseIn,
+                );
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.all(10),
@@ -128,7 +116,7 @@ class _SplashScreenState extends State<SplashScreen> {
       width: page == index ? 24 : 8,
       decoration: BoxDecoration(
         color: page == index
-            ? theme.primaryColor.withOpacity(0.7)
+            ? theme.primaryColor.withAlpha(25 * 7)
             : Colors.grey.shade700,
         borderRadius: BorderRadius.circular(4),
       ),
@@ -150,10 +138,11 @@ class _SplashScreenState extends State<SplashScreen> {
                 maxLines: 10,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: size.height * 0.028,
-                    // fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.main.withOpacity(.7)),
+                  fontSize: size.height * 0.028,
+                  // fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.main.withAlpha(25 * 7),
+                ),
               ),
             ),
           ],

@@ -1,17 +1,12 @@
-import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
-import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/services/notification_service.dart';
-import 'package:pharmo_app/services/settings.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'a_controlller.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-    as bg;
+import 'package:pharmo_app/utilities/a_utils.dart';
+// import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+//     as bg;
 
 class RepProvider extends ChangeNotifier {
   Visiting? visiting;
@@ -41,8 +36,8 @@ class RepProvider extends ChangeNotifier {
       if (note.isEmpty) {
         message('Тайлбар оруулна уу!');
       } else {
-        final response = await api(Api.post,
-             'company/visit/', body: {"note": note});
+        final response =
+            await api(Api.post, 'company/visit/', body: {"note": note});
         if (response!.statusCode == 200 || response.statusCode == 201) {
           await getActiveVisits();
           message('Уулзалт бүртгэгдлээ');
@@ -60,7 +55,7 @@ class RepProvider extends ChangeNotifier {
   Future<dynamic> getActiveVisits() async {
     try {
       setLoading(true);
-      final response = await api(Api.get,  'company/visit/');
+      final response = await api(Api.get, 'company/visit/');
       if (response!.statusCode == 200) {
         final data = convertData(response);
         final pref = await SharedPreferences.getInstance();
@@ -82,7 +77,7 @@ class RepProvider extends ChangeNotifier {
       print(note);
       final response = await api(
         Api.patch,
-         'company/visit/',
+        'company/visit/',
         body: {"visit_id": id, "note": note},
       );
       if (response!.statusCode == 200 || response.statusCode == 201) {
@@ -104,7 +99,7 @@ class RepProvider extends ChangeNotifier {
       Position loc = await Geolocator.getCurrentPosition();
       final response = await api(
         Api.patch,
-         'company/visit/',
+        'company/visit/',
         body: {
           "visit_id": id,
           "visited_on": visitedOn,
@@ -162,28 +157,28 @@ class RepProvider extends ChangeNotifier {
     if (db.get('meetingId') == null) {
       return;
     }
-    bg.BackgroundGeolocation.ready(
-      bg.Config(
-        desiredAccuracy: bg.Config.ACTIVITY_TYPE_OTHER_NAVIGATION,
-        distanceFilter: 10.0,
-        stopOnTerminate: false,
-        startOnBoot: true,
-        debug: false,
-        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-      ),
-    );
-    bg.BackgroundGeolocation.onLocation((pos) async {
-      shareLocation(pos.coords.latitude, pos.coords.longitude);
-    }, (pos) {
-      Notify.local(
-          '', 'Байршил дамжуулах чадсангүй, байршил дамжуулах дарна уу!');
-    });
-    await bg.BackgroundGeolocation.start().then((c) {
-      print(c);
-      if (c.enabled) {
-        message('Байршил дамжуулж эхлэлээ!');
-      }
-    });
+    // bg.BackgroundGeolocation.ready(
+    //   bg.Config(
+    //     desiredAccuracy: bg.Config.ACTIVITY_TYPE_OTHER_NAVIGATION,
+    //     distanceFilter: 10.0,
+    //     stopOnTerminate: false,
+    //     startOnBoot: true,
+    //     debug: false,
+    //     logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+    //   ),
+    // );
+    // bg.BackgroundGeolocation.onLocation((pos) async {
+    //   shareLocation(pos.coords.latitude, pos.coords.longitude);
+    // }, (pos) {
+    //   Notify.local(
+    //       '', 'Байршил дамжуулах чадсангүй, байршил дамжуулах дарна уу!');
+    // });
+    // await bg.BackgroundGeolocation.start().then((c) {
+    //   print(c);
+    //   if (c.enabled) {
+    //     message('Байршил дамжуулж эхлэлээ!');
+    //   }
+    // });
   }
 
   List<Loc> noSendedLocs = [];
@@ -222,7 +217,7 @@ class RepProvider extends ChangeNotifier {
   }
 
   void stopTracking() {
-    bg.BackgroundGeolocation.stop();
+    // bg.BackgroundGeolocation.stop();
     isTracking = false;
     notifyListeners();
   }
@@ -240,7 +235,7 @@ class RepProvider extends ChangeNotifier {
     try {
       final response = await api(
         Api.patch,
-         'company/visiting/',
+        'company/visiting/',
         body: {
           "visiting_id": vId,
           "back_on": outOn,
@@ -265,7 +260,7 @@ class RepProvider extends ChangeNotifier {
     try {
       final response = await api(
         Api.patch,
-         'company/visit/',
+        'company/visit/',
         body: {"visit_id": id, "left_on": leftOn},
       );
       if (response!.statusCode == 200 || response.statusCode == 201) {
@@ -283,8 +278,7 @@ class RepProvider extends ChangeNotifier {
 
   Future<dynamic> deleteVisit(int id) async {
     try {
-      final response =
-          await api(Api.delete,  'company/visit/?visit_id=$id');
+      final response = await api(Api.delete, 'company/visit/?visit_id=$id');
       if (response!.statusCode == 200 || response.statusCode == 201) {
         await getActiveVisits();
         message('Амжилттай хасагдлаа');

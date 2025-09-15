@@ -73,27 +73,26 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     );
   }
 
-  _createOrder() async {
-    // final res = await apiPost('ci/', {});
-    // print(res.body);
-    if (basketProvider.basket.totalCount == 0) {
+  Future _createOrder() async {
+    if (payType == '') {
+      message('Төлбөрийн хэлбэр сонгоно уу!');
+      return;
+    }
+
+    if (basketProvider.basket!.totalCount == 0) {
       message('Сагс хоосон байна!');
-    } else if (double.parse(basketProvider.basket.totalPrice.toString()) < 10) {
+      return;
+    }
+    if (double.parse(basketProvider.basket!.totalPrice.toString()) < 10) {
       message('Үнийн дүн 10₮-с бага байж болохгүй!');
-    } else if (homeProvider.selectedCustomerId == 0) {
+      return;
+    }
+    if (homeProvider.selectedCustomerId == 0) {
       message('Захиалагч сонгоно уу!');
       homeProvider.changeIndex(0);
       Navigator.pop(context);
-    } else {
-      await basketProvider.checkQTYs();
-      if (payType == '') {
-        message('Төлбөрийн хэлбэр сонгоно уу!');
-        // } else if (payType == 'C') {
-        //   final res = await apiPost('ci/', {});
-        //   print(res.body);
-      } else {
-        homeProvider.createSellerOrder(context, payType);
-      }
+      return;
     }
+    await homeProvider.createSellerOrder(context, payType);
   }
 }

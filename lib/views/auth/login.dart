@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/services/user_service.dart';
+import 'package:pharmo_app/controllers/a_controlller.dart';
+import 'package:pharmo_app/models/a_models.dart';
+import 'package:pharmo_app/services/local_base.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/services/firebase_sevice.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
@@ -14,7 +13,6 @@ import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
-import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,24 +25,24 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController ema = TextEditingController();
   final TextEditingController pass = TextEditingController();
   bool hover = false;
-  Map<String, dynamic>? user;
+
   init() {
     final auth = context.read<AuthController>();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) async {
-        final dbData = await Userservice.getUserData();
-        await auth.checkForUpdate().then((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final Security? security = LocalBase.security;
+      if (security == null) {
+        return;
+      }
+      await auth.checkForUpdate().whenComplete(() async {
+        final remembered = await LocalBase.getRemember();
+        if (remembered) {
           setState(() {
-            user = dbData;
-            if (user!['email'] != null && user!['password'] != null) {
-              auth.setRemember(true);
-              ema.text = user!['email'];
-              pass.text = user!['password'];
-            }
+            auth.setRemember(true);
+            ema.text = security.email;
           });
-        });
-      },
-    );
+        }
+      });
+    });
   }
 
   @override
@@ -54,138 +52,145 @@ class _LoginPageState extends State<LoginPage> {
     firebaseInit(context);
   }
 
+  final formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthController>(builder: (context, auth, child) {
       bool logging = auth.loading;
       return Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Container(
-                width: double.maxFinite,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: primary.withAlpha(75),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
+        body: Form(
+          key: formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Container(
+                  width: double.maxFinite,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: primary.withAlpha(75),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
                   ),
+                  child: Image.asset('assets/picon.png'),
                 ),
-                child: Image.asset('assets/picon.png'),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-              ),
-              child: Center(
-                child: Column(
-                  spacing: 15,
-                  children: [
-                    SizedBox(),
-                    authText('Нэвтрэх'),
-                    CustomTextField(
-                      controller: ema,
-                      autofillHints: const [AutofillHints.email],
-                      hintText: 'Имейл хаяг',
-                      validator: (v) {
-                        if (v!.isNotEmpty) {
-                          return validateEmail(v);
-                        } else {
-                          return null;
-                        }
-                      },
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    CustomTextField(
-                      autofillHints: const [AutofillHints.password],
-                      controller: pass,
-                      hintText: 'Нууц үг',
-                      obscureText: !hover,
-                      validator: validatePassword,
-                      keyboardType: TextInputType.visiblePassword,
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            hover = !hover;
-                          });
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                ),
+                child: Center(
+                  child: Column(
+                    spacing: 15,
+                    children: [
+                      SizedBox(),
+                      authText('Нэвтрэх'),
+                      CustomTextField(
+                        controller: ema,
+                        autofillHints: const [AutofillHints.email],
+                        hintText: 'Имейл хаяг',
+                        validator: (v) {
+                          if (v!.isNotEmpty) {
+                            return validateEmail(v);
+                          } else {
+                            return null;
+                          }
                         },
-                        icon: Icon(
-                            hover ? Icons.visibility_off : Icons.visibility,
-                            color: theme.primaryColor.withOpacity(.3)),
+                        keyboardType: TextInputType.emailAddress,
                       ),
-                    ),
-                    Row(
-                      spacing: 5,
-                      children: [
-                        Checkbox(
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          value: auth.remember,
-                          onChanged: (val) => auth.setRemember(!auth.remember),
+                      CustomTextField(
+                        autofillHints: const [AutofillHints.password],
+                        controller: pass,
+                        hintText: 'Нууц үг',
+                        obscureText: !hover,
+                        validator: validatePassword,
+                        keyboardType: TextInputType.visiblePassword,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              hover = !hover;
+                            });
+                          },
+                          icon: Icon(
+                              hover ? Icons.visibility_off : Icons.visibility,
+                              color: theme.primaryColor.withAlpha(75)),
                         ),
-                        Text(
-                          'Сануулах',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: theme.primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    CustomButton(
-                      text: 'Нэвтрэх',
-                      ontap: () => _handleLogin(auth),
-                      child: logging
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child:
-                                      CircularProgressIndicator(color: white),
-                                ),
-                                SizedBox(width: Sizes.width * 0.03),
-                                const Text(
-                                  'Түр хүлээнэ үү!',
-                                  style: TextStyle(color: white),
-                                )
-                              ],
-                            )
-                          : null,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomTextButton(
-                            text: 'Нууц үг сэргээх',
-                            onTap: () => goto(const ResetPassword())),
-                        CustomTextButton(
-                            text: 'Бүртгүүлэх',
-                            onTap: () => goto(const SignUpForm())),
-                      ],
-                    ),
-                    if (auth.checking)
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                      Row(
+                        spacing: 5,
                         children: [
-                          SmallText('Шинэчлэлт шалгаж байна'),
-                          SizedBox(width: Sizes.bigFontSize),
-                          CircularProgressIndicator.adaptive(),
+                          Checkbox(
+                            visualDensity: VisualDensity.compact,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            value: auth.remember,
+                            onChanged: (val) =>
+                                auth.setRemember(!auth.remember),
+                          ),
+                          Text(
+                            'Сануулах',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: theme.primaryColor,
+                            ),
+                          ),
                         ],
                       ),
-                  ],
+                      CustomButton(
+                        text: 'Нэвтрэх',
+                        ontap: () => _handleLogin(auth),
+                        child: logging
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child:
+                                        CircularProgressIndicator(color: white),
+                                  ),
+                                  SizedBox(width: Sizes.width * 0.03),
+                                  const Text(
+                                    'Түр хүлээнэ үү!',
+                                    style: TextStyle(color: white),
+                                  )
+                                ],
+                              )
+                            : null,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomTextButton(
+                              text: 'Нууц үг сэргээх',
+                              onTap: () => goto(const ResetPassword())),
+                          CustomTextButton(
+                              text: 'Бүртгүүлэх',
+                              onTap: () => goto(const SignUpForm())),
+                        ],
+                      ),
+                      if (auth.checking)
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SmallText('Шинэчлэлт шалгаж байна'),
+                            SizedBox(width: Sizes.bigFontSize),
+                            CircularProgressIndicator.adaptive(),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         bottomNavigationBar: Container(
           height: 70,
@@ -199,17 +204,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _handleLogin(AuthController auth) async {
-    if (pass.text.isNotEmpty && ema.text.isNotEmpty) {
-      await auth.login(ema.text, pass.text, context).whenComplete(() async {
-        Box localDb = await Hive.openBox('auth');
-        if (auth.remember) {
-          await localDb.put('email', ema.text);
-          await localDb.put('password', pass.text);
-        }
-      });
-    } else {
+    if (!formKey.currentState!.validate()) {
       message('Нэврэх нэр, нууц үг оруулна уу');
+      return;
     }
+    await auth.login(ema.text, pass.text, context);
   }
 }
 

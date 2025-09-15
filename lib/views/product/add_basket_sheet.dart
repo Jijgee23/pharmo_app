@@ -1,12 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
+import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class AddBasketSheet extends StatefulWidget {
   final Product product;
@@ -117,7 +113,7 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
   }
 
   Future<void> addBasket(Product item, int qty) async {
-    final basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    final basketProvider = context.read<BasketProvider>();
     await basketProvider.addProduct(item.id, item.name!, qty);
   }
 }

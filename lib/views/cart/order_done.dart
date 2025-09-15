@@ -68,17 +68,18 @@ class _OrderDoneState extends State<OrderDone> {
                         margin: const EdgeInsets.symmetric(
                             horizontal: 0, vertical: 15),
                         child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Таны захиалгы дугаар : ',
-                              ),
-                              Text(
-                                widget.orderNo,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ]),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Таны захиалгы дугаар : ',
+                            ),
+                            Text(
+                              widget.orderNo,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
                       Container(
                         width: 200,
@@ -86,7 +87,7 @@ class _OrderDoneState extends State<OrderDone> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color:theme.primaryColor),
+                            color: theme.primaryColor),
                         child: InkWell(
                           onTap: () => goHome(provider),
                           child: const Center(
