@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/rep_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -68,28 +70,28 @@ class _RepHomeState extends State<RepHome> {
     });
   }
 
-  askStart(RepProvider rep) {
-    askDialog(
-      context,
-      () async {
-        rep.start();
-        Navigator.pop(context);
-      },
-      'Уулзалтыг эхлүүлэх үү?',
-      [],
+  askStart(RepProvider rep) async {
+    bool confirmed = await confirmDialog(
+      context: context,
+      title: 'Уулзалтыг эхлэх үү?',
+      attentionText: Platform.isAndroid
+          ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
+          : null,
+      message: 'Уулзалтын үед таны байршлыг хянахыг анхаарна уу!',
     );
+    if (confirmed) rep.start();
   }
 
-  askEnd(RepProvider rep) {
-    askDialog(
-      context,
-      () async {
-        rep.endVisiting();
-        Navigator.pop(context);
-      },
-      'Уулзалтыг дуусгах уу?',
-      [],
+  askEnd(RepProvider rep) async {
+    bool confirmed = await confirmDialog(
+      context: context,
+      title: 'Уулзалтыг дуусгах уу?',
+      attentionText: Platform.isAndroid
+          ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
+          : null,
+      message: 'Уулзалтын үед таны байршлыг хянахыг анхаарна уу!',
     );
+    if (confirmed) rep.endVisiting();
   }
 
   visitBuilder(Visit visit) {

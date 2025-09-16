@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -27,9 +28,7 @@ class LocationProvider extends ChangeNotifier {
 
   void onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
-    final s = await Geolocator.getCurrentPosition();
-    latLng = LatLng(s.latitude, s.longitude);
-    notifyListeners();
+    goToMyLocation();
   }
 
   void toggleTraffic() {
@@ -49,6 +48,9 @@ class LocationProvider extends ChangeNotifier {
       return;
     }
 
+    final n = await Geolocator.getCurrentPosition();
+    if (n != null) latLng = LatLng(n.latitude, n.longitude);
+    notifyListeners();
     await _mapController!.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: latLng, zoom: 16),
@@ -72,90 +74,107 @@ class LocationProvider extends ChangeNotifier {
     }
   }
 
-  List<LocModel> offlineLocs = [];
+  // List<LocModel> offlineLocs = [];
 
-  void getFromLocationDb() async {
-    List<LocModel> list = await LocBox.getList();
-    offlineLocs = list;
-    notifyListeners();
-  }
+  // void getFromLocationDb() async {
+  //   // List<LocModel> list = await LocBox.getList();
+  //   // offlineLocs = list;
+  //   notifyListeners();
+  // }
 
   void deleteFromLocalDb(LocModel model) async {
     await LocBox.deleteModel(model);
-    getFromLocationDb();
+    // getFromLocationDb();
   }
 
   void addLocModelToLocalDb(LocModel model) async {
     await LocBox.addToList(model);
-    getFromLocationDb();
   }
 
   StreamSubscription? positionSubscription;
-  bool _isSyncingOffline = false;
 
-  void _syncOfflineLocations() async {
-    if (_isSyncingOffline) {
+  StreamSubscription<Position>? androidStream;
+  void startTracking() async {
+    if (!await Settings.checkAlwaysLocationPermission()) {
       return;
     }
-    _isSyncingOffline = true;
 
-    try {
-      var locationsToSync =
-          List<LocModel>.from(offlineLocs.where((item) => !item.success));
+    if (Platform.isAndroid) {
+      final locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+      );
+      androidStream = Geolocator.getPositionStream(
+        locationSettings: locationSettings,
+      ).listen((Position position) async {
+        sendTobacknd(
+          position.latitude,
+          position.longitude,
+        );
+      });
+    } else {
+      positionSubscription =
+          bgLocationChannel.receiveBroadcastStream().listen((event) async {
+        sendTobacknd(
+          parseDouble((event as Map)['lat']),
+          parseDouble((event)['lng']),
+        );
+      }, onError: (error) {
+        print('BG Location error: $error');
+      });
 
-      for (var item in locationsToSync) {
-        var body = {"lat": item.lat, "lng": item.lng};
-        var res = await api(Api.patch, 'seller/location/track/', body: body);
-        if (res != null && res.statusCode == 201) {
-          item.success = true;
-        }
-      }
-    } finally {
-      _isSyncingOffline = false;
+      print(positionSubscription == null);
     }
-  }
-
-  void startTracking() async {
-    positionSubscription =
-        bgLocationChannel.receiveBroadcastStream().listen((event) async {
-      if (event is Map) {
-        print('${event['lat']}. :  ${event['lng']}');
-        data.add(LatLng(event['lat'], event['lng']));
-        print(event['lat'].runtimeType);
-        double latitude = truncateToDigits(parseDouble(event['lat']), 6);
-        double longitude = truncateToDigits(parseDouble(event['lng']), 6);
-        latLng = LatLng(latitude, longitude);
-        var body = {"lat": latitude, "lng": longitude};
-        final res = await api(Api.patch, 'seller/location/track/', body: body);
-        if (res == null || res.statusCode != 201) {
-          message('Илгээгдээгүй байршил хадгалашдлаа');
-          await LocBox.addToList(
-            LocModel(lat: latitude, lng: longitude, success: false),
-          );
-        } else {
-          Notify.local('Байршил илгээсэн', '');
-        }
-        notifyListeners();
-      }
-    }, onError: (error) {
-      print('BG Location error: $error');
-    });
-
     message('Байршил илгээж эхлэлээ');
   }
 
-  void stopListening() {
-    positionSubscription?.cancel();
-    positionSubscription = null;
+  void sendTobacknd(double lat, double lng) async {
+    String url = 'seller/location/track/';
+    double latitude = truncateToDigits(lat, 6);
+    double longitude = truncateToDigits(lng, 6);
+    latLng = LatLng(latitude, longitude);
+    data.add(latLng);
+    notifyListeners();
+    var body = {"lat": latitude, "lng": longitude};
+    final res = await api(Api.patch, url, body: body);
+    if (res == null || res.statusCode != 201) {
+      message('Илгээгдээгүй байршил хадгалагдлаа');
+      addLocModelToLocalDb(
+        LocModel(lat: latitude, lng: longitude, success: false),
+      );
+    } else {
+      Notify.local('Байршил илгээсэн', '');
+      final nosended = await LocBox.getList();
+      if (nosended.isNotEmpty) {
+        for (var k in nosended) {
+          var b = {"lat": k.lat, "lng": k.lng};
+          final r = await api(Api.patch, url, body: b);
+          if (r != null && r.statusCode == 201) {
+            await LocBox.deleteModel(k);
+          }
+        }
+      }
+    }
   }
 
   Future<void> stopTracking() async {
     await LocBox.clearAll();
-    if (positionSubscription != null) {
-      await positionSubscription!.cancel();
-      positionSubscription = null;
-      notifyListeners();
+    if (Platform.isAndroid) {
+      if (androidStream != null) {
+        await androidStream!.cancel();
+        androidStream = null;
+      }
+    } else {
+      if (positionSubscription != null) {
+        await positionSubscription!.cancel();
+        positionSubscription = null;
+        data.clear();
+        notifyListeners();
+      }
     }
     message('Байршил дамжуулах дууслаа');
+    data.clear();
+    await LocBox.clearAll();
+    notifyListeners();
   }
 }

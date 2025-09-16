@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
+import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 
 class SellerTracking extends StatefulWidget {
   const SellerTracking({super.key});
@@ -10,16 +14,32 @@ class SellerTracking extends StatefulWidget {
   State<SellerTracking> createState() => _SellerTrackingState();
 }
 
-class _SellerTrackingState extends State<SellerTracking> {
+class _SellerTrackingState extends State<SellerTracking>
+    with WidgetsBindingObserver {
+  @override
   @override
   void initState() {
     super.initState();
-    initer();
+    readPermission();
+    WidgetsBinding.instance.addObserver(this);
   }
 
-  void initer() async {
-    // final provider = context.read<LocationProvider>();
-    // provider.bgState();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      readPermission();
+    }
+  }
+
+  bool locHasAlways = false;
+
+  void readPermission() async {
+    bool value = await Settings.checkAlwaysLocationPermission();
+    // if (value) return;
+    setState(() {
+      locHasAlways = value;
+    });
   }
 
   bool mapView = true;
@@ -28,164 +48,159 @@ class _SellerTrackingState extends State<SellerTracking> {
   Widget build(BuildContext context) {
     return Consumer<LocationProvider>(
       builder: (context, tracker, child) {
+        if (!locHasAlways) {
+          return Material(
+            color: white,
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 10,
+                children: [
+                  Text('Байршлыг зөвшөөрлийг идэвхижүүлнэ үү!'),
+                  CustomButton(
+                    text: 'Тохируулах',
+                    ontap: () => readPermission(),
+                  )
+                ],
+              ),
+            ),
+          );
+        }
         return Scaffold(
-          appBar: AppBar(
-            title: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    mapView = !mapView;
-                  });
+          // appBar: AppBar(
+          //   title: GestureDetector(
+          //       onTap: () {
+          //         setState(() {
+          //           mapView = !mapView;
+          //         });
+          //       },
+          //       child: Text('Байршил дамжуулах')),
+          //   actions: [
+          //     IconButton(
+          //       onPressed: () => tracker.startTracking(),
+          //       icon: Icon(Icons.refresh),
+          //     ),
+          //     IconButton(
+          //       onPressed: () => tracker.stopTracking(),
+          //       icon: Icon(Icons.cancel),
+          //     ),
+          //   ],
+          // ),
+          body: Stack(
+            children: [
+              GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: tracker.latLng,
+                  zoom: 15,
+                ),
+                onMapCreated: (controller) => tracker.onMapCreated(controller),
+                onTap: (argument) {},
+                compassEnabled: true,
+                mapToolbarEnabled: false,
+                mapType: tracker.currentMapType,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                trafficEnabled: tracker.trafficEnabled,
+                polylines: {
+                  if (tracker.data.isNotEmpty)
+                    Polyline(
+                      polylineId: const PolylineId("route"),
+                      points: List.generate(
+                        tracker.data.length,
+                        (index) => LatLng(
+                          tracker.data[index].latitude,
+                          tracker.data[index].longitude,
+                        ),
+                      ),
+                      color: Colors.red,
+                      width: 5,
+                    ),
                 },
-                child: Text('Байршил дамжуулах')),
-            actions: [
-              IconButton(
-                onPressed: () => tracker.startTracking(),
-                icon: Icon(Icons.refresh),
               ),
-              IconButton(
-                onPressed: () => tracker.stopTracking(),
-                icon: Icon(Icons.cancel),
+              Positioned(
+                top: 40,
+                left: 15,
+                child: FloatingActionButton(
+                  heroTag: 'back',
+                  mini: true,
+                  onPressed: () => Navigator.of(context).pop(),
+                  backgroundColor: Colors.white,
+                  child: const Icon(Icons.arrow_back, color: Colors.black),
+                ),
               ),
-            ],
-          ),
-          body: !mapView
-              ? ListView.builder(
-                  itemCount: tracker.offlineLocs.length,
-                  itemBuilder: (context, idx) {
-                    var item = tracker.offlineLocs[idx];
-                    return ListTile(
-                      dense: true,
-                      onTap: () => tracker.deleteFromLocalDb(item),
-                      subtitleTextStyle: TextStyle(color: black),
-                      leading:
-                          Text(idx.toString(), style: TextStyle(color: black)),
-                      title: Text(item.lat.toString(),
-                          style: TextStyle(color: black)),
-                      subtitle: Text(item.lng.toString(),
-                          style: TextStyle(color: black)),
-                      trailing: Icon(Icons.circle,
-                          color: item.success ? Colors.green : Colors.red),
-                    );
-                  },
-                )
-              : Stack(
+              Positioned(
+                bottom: 100,
+                right: 15,
+                child: Column(
                   children: [
-                    GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: tracker.latLng,
-                        zoom: 15,
-                      ),
-                      onMapCreated: (controller) =>
-                          tracker.onMapCreated(controller),
-                      onTap: (argument) {},
-                      compassEnabled: true,
-                      mapToolbarEnabled: false,
-                      mapType: tracker.currentMapType,
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                      trafficEnabled: tracker.trafficEnabled,
-                      polylines: {
-                        if (tracker.data.isNotEmpty)
-                          Polyline(
-                            polylineId: const PolylineId("route"),
-                            points: List.generate(
-                              tracker.data.length,
-                              (index) => LatLng(
-                                tracker.data[index].latitude,
-                                tracker.data[index].longitude,
-                              ),
-                            ),
-                            color: Colors.red,
-                            width: 5,
-                          ),
+                    FloatingActionButton(
+                      heroTag: 'zoomIn',
+                      mini: true,
+                      onPressed: () {
+                        tracker.mapController
+                            ?.animateCamera(CameraUpdate.zoomIn());
                       },
+                      backgroundColor: Colors.white,
+                      child: const Icon(Icons.add, color: Colors.black),
                     ),
-                    Positioned(
-                      top: 40,
-                      left: 15,
-                      child: FloatingActionButton(
-                        heroTag: 'back',
-                        mini: true,
-                        onPressed: () => Navigator.of(context).pop(),
-                        backgroundColor: Colors.white,
-                        child:
-                            const Icon(Icons.arrow_back, color: Colors.black),
-                      ),
+                    const SizedBox(height: 10),
+                    FloatingActionButton(
+                      heroTag: 'zoomOut',
+                      mini: true,
+                      onPressed: () {
+                        tracker.mapController
+                            ?.animateCamera(CameraUpdate.zoomOut());
+                      },
+                      backgroundColor: Colors.white,
+                      child: const Icon(Icons.remove, color: Colors.black),
                     ),
-                    Positioned(
-                      bottom: 100,
-                      right: 15,
-                      child: Column(
-                        children: [
-                          FloatingActionButton(
-                            heroTag: 'zoomIn',
-                            mini: true,
-                            onPressed: () {
-                              tracker.mapController
-                                  ?.animateCamera(CameraUpdate.zoomIn());
-                            },
-                            backgroundColor: Colors.white,
-                            child: const Icon(Icons.add, color: Colors.black),
-                          ),
-                          const SizedBox(height: 10),
-                          FloatingActionButton(
-                            heroTag: 'zoomOut',
-                            mini: true,
-                            onPressed: () {
-                              tracker.mapController
-                                  ?.animateCamera(CameraUpdate.zoomOut());
-                            },
-                            backgroundColor: Colors.white,
-                            child:
-                                const Icon(Icons.remove, color: Colors.black),
-                          ),
-                          const SizedBox(height: 10),
-                          FloatingActionButton(
-                            heroTag: 'myLocation',
-                            mini: true,
-                            onPressed: tracker.goToMyLocation,
-                            backgroundColor: Colors.white,
-                            child: const Icon(Icons.my_location,
-                                color: Colors.black),
-                          ),
-                          const SizedBox(height: 10),
-                          FloatingActionButton(
-                            heroTag: 'toggleTraffic',
-                            mini: true,
-                            onPressed: tracker.toggleTraffic,
-                            backgroundColor: tracker.trafficEnabled
-                                ? Colors.blue
-                                : Colors.white,
-                            child:
-                                const Icon(Icons.traffic, color: Colors.black),
-                          ),
-                          const SizedBox(height: 10),
-                          FloatingActionButton(
-                            heroTag: 'changeMapType',
-                            mini: true,
-                            onPressed: tracker.changeMapType,
-                            backgroundColor: Colors.white,
-                            child: const Icon(Icons.map, color: Colors.black),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 10),
+                    FloatingActionButton(
+                      heroTag: 'myLocation',
+                      mini: true,
+                      onPressed: tracker.goToMyLocation,
+                      backgroundColor: Colors.white,
+                      child: const Icon(Icons.my_location, color: Colors.black),
                     ),
-                    Positioned(
-                      bottom: 20,
-                      left: 15,
-                      right: 15,
-                      child: Row(
-                        spacing: 20,
-                        children: [
-                          if (tracker.positionSubscription == null)
-                            button(tracker: tracker),
-                          if (tracker.positionSubscription != null)
-                            button(tracker: tracker, isStart: false),
-                        ],
-                      ),
+                    const SizedBox(height: 10),
+                    FloatingActionButton(
+                      heroTag: 'toggleTraffic',
+                      mini: true,
+                      onPressed: tracker.toggleTraffic,
+                      backgroundColor:
+                          tracker.trafficEnabled ? Colors.blue : Colors.white,
+                      child: const Icon(Icons.traffic, color: Colors.black),
+                    ),
+                    const SizedBox(height: 10),
+                    FloatingActionButton(
+                      heroTag: 'changeMapType',
+                      mini: true,
+                      onPressed: tracker.changeMapType,
+                      backgroundColor: Colors.white,
+                      child: const Icon(Icons.map, color: Colors.black),
                     ),
                   ],
                 ),
+              ),
+              Positioned(
+                bottom: 20,
+                left: 15,
+                right: 15,
+                child: Row(
+                  spacing: 20,
+                  children: [
+                    if (tracker.positionSubscription == null &&
+                        tracker.androidStream == null)
+                      button(tracker: tracker),
+                    if (tracker.positionSubscription != null ||
+                        tracker.androidStream != null)
+                      button(tracker: tracker, isStart: false),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -194,19 +209,23 @@ class _SellerTrackingState extends State<SellerTracking> {
   Widget button({required LocationProvider tracker, bool isStart = true}) {
     return Expanded(
       child: ElevatedButton(
-        onPressed: () {
-          askDialog(
-            context,
-            () {
-              isStart ? tracker.startTracking() : tracker.stopTracking();
-              Navigator.pop(context);
-            },
-            isStart
-                ? 'Байршлыг дамжуулж эхлэх үү?'
-                : 'Байршил дамжуулалтыг дуусгах уу?',
-            [],
+        onPressed: () async {
+          bool confirmed = await confirmDialog(
+            context: context,
+            title:
+                'Байршлыг ${isStart ? ' дамжуулж  эхлэх үү' : 'дамжуулалт дуусгах уу'} ?',
+            attentionText: isStart
+                ? Platform.isAndroid
+                    ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
+                    : null
+                : null,
+            message: isStart
+                ? 'Түгээлтийн үед таны байршил хянахыг анхаарна уу!'
+                : '',
           );
-          setState(() {});
+          if (!confirmed) return;
+
+          isStart ? tracker.startTracking() : tracker.stopTracking();
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: isStart ? Colors.green : Colors.red,

@@ -1,15 +1,13 @@
-import 'dart:async';
-import 'dart:convert';
+import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:hive/hive.dart';
+import 'package:pharmo_app/database/loc_box.dart';
+import 'package:pharmo_app/database/loc_model.dart';
 import 'package:pharmo_app/models/delivery.dart';
-import 'package:pharmo_app/services/network_service.dart';
+import 'package:pharmo_app/services/local_base.dart';
 import 'package:pharmo_app/services/notification_service.dart';
 import 'package:pharmo_app/services/settings.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-// import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-//     as bg;
 import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/models/a_models.dart';
@@ -54,157 +52,155 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  // TRACKING
+  void deleteFromLocalDb(LocModel model) async {
+    await LocBox.deleteModel(model);
+    // getFromLocationDb();
+  }
 
-  Future<dynamic> startShipment(int shipmentId) async {
-    String mes = '';
-    Box db = await Hive.openBox('track');
-    try {
-      if (!await Settings.checkAlwaysLocationPermission()) {
-        return;
-      }
-      var body = {
-        "delivery_id": shipmentId,
-        "lat": currentPosition!.latitude,
-        "lng": currentPosition!.longitude
-      };
-      final res = await api(Api.patch, 'delivery/start/', body: body);
-      if (res!.statusCode == 200) {
-        await db.delete('onDeliveryId');
-        isTracking = true;
-        mes = 'Түгээлт эхлэлээ';
-        await startTracking();
-      } else {
-        isTracking = false;
-        if (res.body.contains('Delivery already started!')) {
-          mes =
-              'Түгээлт аль хэдийн эхлэсэн байна!, Байршил дамжуулах дарна уу!';
-        } else {
-          mes = wait;
+  void addLocModelToLocalDb(LocModel model) async {
+    await LocBox.addToList(model);
+  }
+
+  void sendTobackend(int id, double lat, double lng) async {
+    await getDeliveryLocation();
+    var body = {
+      "delivery_id": id,
+      "locs": [
+        {
+          "lat": lat,
+          "lng": lng,
+          "created": DateTime.now().toIso8601String(),
+        }
+      ]
+    };
+    String url = 'delivery/location/';
+    double latitude = truncateToDigits(lat, 6);
+    double longitude = truncateToDigits(lng, 6);
+    final res = await api(Api.patch, url, body: body, showLog: true);
+    if (res == null || res.statusCode != 200) {
+      message('Илгээгдээгүй байршил хадгалагдлаа');
+      addLocModelToLocalDb(
+        LocModel(
+          lat: latitude,
+          lng: longitude,
+          success: false,
+          data: DateTime.now().toIso8601String(),
+        ),
+      );
+    } else {
+      Notify.local('Байршил илгээсэн', '');
+      final nosended = await LocBox.getList();
+      if (nosended.isNotEmpty) {
+        var b = {
+          "delivery_id": id,
+          "locs": [
+            ...nosended.map(
+              (e) => {
+                "lat": e.lat,
+                "lng": e.lng,
+                "created": e.data ?? DateTime.now().toIso8601String(),
+              },
+            )
+          ]
+        };
+        final r = await api(Api.patch, url, body: b);
+        if (r != null && r.statusCode == 201) {
+          await LocBox.clearAll();
         }
       }
-    } catch (e) {
-      mes = wait;
-      return {'fail as start': e};
-    } finally {
-      await db.put('onDeliveryId', shipmentId);
-      message(mes);
     }
   }
 
-  startTracking() async {
-    Box db = await Hive.openBox('track');
-    final onDeliveryId = await db.get('onDeliveryId');
-    if (onDeliveryId == null) {
+  // TRACKING
+  StreamSubscription? positionSubscription;
+
+  StreamSubscription<Position>? androidStream;
+
+  Future<dynamic> startShipment(int shipmentId) async {
+    if (!await Settings.checkAlwaysLocationPermission()) {
       return;
     }
-    // bg.BackgroundGeolocation.ready(
-    //   bg.Config(
-    //     desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-    //     distanceFilter: 5.0,
-    //     stopOnTerminate: false,
-    //     startOnBoot: true,
-    //     debug: false,
-    //     logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-    //     activityType: bg.Config.ACTIVITY_TYPE_AUTOMOTIVE_NAVIGATION,
-    //     heartbeatInterval: 60,
-    //     stopTimeout: 5,
-    //     foregroundService: true,
-    //   ),
-    // );
-    // bg.BackgroundGeolocation.onLocation((pos) async {
-    //   shareLocation(pos.coords.latitude, pos.coords.longitude);
-    // });
-    // await bg.BackgroundGeolocation.start().then((c) {
-    //   print(c);
+    var url = 'delivery/start/';
+    currentPosition = await Geolocator.getCurrentPosition();
+    var body = {
+      "delivery_id": shipmentId,
+      "lat": currentPosition!.latitude,
+      "lng": currentPosition!.longitude
+    };
+    final res = await api(Api.patch, url, body: body, showLog: true);
+    if (res!.statusCode == 200) {
+      await LocalBase.saveDelmanTrack(shipmentId);
+    }
+    if (res != null && res.statusCode == 400) {
+      String data = convertData(res).toString();
+      if (data.contains('already started')) {
+        message('Түгээлт эхлэсэн байна!');
+      }
+    }
+    tracking();
+  }
 
-    //   if (c.enabled) {
-    //     message('Байршил дамжуулж эхлэлээ!');
-    //   }
-    // });
+  void tracking() async {
+    int shipmentId = await LocalBase.getDelmanTrackId();
+    if (shipmentId == 0) {
+      return;
+    }
+    if (Platform.isAndroid) {
+      final locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+      );
+      androidStream = Geolocator.getPositionStream(
+        locationSettings: locationSettings,
+      ).listen((Position position) async {
+        sendTobackend(
+          shipmentId,
+          position.latitude,
+          position.longitude,
+        );
+      });
+    } else {
+      positionSubscription =
+          bgLocationChannel.receiveBroadcastStream().listen((event) async {
+        sendTobackend(
+          shipmentId,
+          parseDouble((event as Map)['lat']),
+          parseDouble((event)['lng']),
+        );
+      }, onError: (error) {
+        print('BG Location error: $error');
+      });
+    }
+    if (positionSubscription != null || androidStream != null) {
+      message('Байршил илгээж эхлэлээ');
+    }
   }
 
   List<Loc> noSendedLocs = [];
 
-  shareLocation(double lat, double lng) async {
-    NMSG msg = NMSG(title: '', text: '');
-    try {
-      int? useIt;
-      Box db = await Hive.openBox('track');
-      final onDeliveryId = await db.get('onDeliveryId');
-      if (useIt == null) {
-        useIt = delivery[0].id;
-      } else {
-        useIt = onDeliveryId;
-      }
-      notifyListeners();
-      print('sharing location');
-
-      if (!await ConnectivityService.netWorkConnected()) {
-        msg = NMSG(
-            title: '📡 Сүлжээ тасарсан байна',
-            text:
-                'Интернет холболтоо шалгана уу. Байршлын дамжуулалт түр зогссон.');
-        noSendedLocs.add(
-          Loc(lat: lat, lng: lng, created: DateTime.now()),
-        );
-        notifyListeners();
-        return;
-      }
-
-      final body = {
-        "delivery_id": useIt,
-        "locs": [
-          if (noSendedLocs.isNotEmpty) ...noSendedLocs.map((l) => l.toJson(l)),
-          {
-            "lat": lat,
-            "lng": lng,
-            "created": DateTime.now().toIso8601String(),
-          }
-        ]
-      };
-      final res = await api(Api.patch, 'delivery/location/', body: body);
-      print(res!.body);
-      if (res != null && res.statusCode == 200) {
-        getDeliveryLocation();
-        msg = NMSG(
-            title: 'Байршил дамжуулж байна',
-            text:
-                'Таны байршлыг арын төлөвт дамжуулж байна. өргөрөг: $lat уртраг: $lng');
-        noSendedLocs.clear();
-        notifyListeners();
-      } else {
-        msg = NMSG(
-            title: 'Байршил дамжуулаагүй!',
-            text: 'Байршил дамжуулах дарна уу!');
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    } finally {
-      Notify.local(msg.title, msg.text);
-    }
-  }
-
   void stopTracking() {
-    // bg.BackgroundGeolocation.stop();
-    isTracking = false;
+    if (Platform.isAndroid) {
+      androidStream!.cancel();
+      androidStream = null;
+      notifyListeners();
+      return;
+    }
+    positionSubscription!.cancel();
+    positionSubscription = null;
     notifyListeners();
   }
 
   Future<dynamic> endShipment(int shipmentId) async {
     try {
-      Box db = await Hive.openBox('track');
-      final onDeliveryId = await db.get('onDeliveryId');
-      print(onDeliveryId);
       var body = {"delivery_id": shipmentId};
       final res = await api(Api.patch, 'delivery/end/', body: body);
       if (res!.statusCode == 200) {
-        Box db = await Hive.openBox('track');
-        await db.delete('onDeliveryId');
         await getDeliveries();
-        stopTracking();
+        await LocalBase.clearDelmanTrack();
+
         Notify.local(
             'Түгээлт дууслаа', 'Таны $shipmentId дугаартай түгээлт дууслаа.');
+        stopTracking();
         notifyListeners();
       } else {
         String data = res.body.toString();
@@ -220,6 +216,11 @@ class JaggerProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  // void initTracking() async {
+  //   int id = await LocalBase.getDelmanTrackId();
+  //   if (id != 0) tracking();
+  // }
 
   Future<dynamic> getDeliveries() async {
     try {

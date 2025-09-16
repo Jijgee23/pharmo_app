@@ -51,9 +51,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         if (security.role == 'PA') {
           debugPrint(security.supplierId.toString());
           print(home.selected.name);
-          var mp = await promotion.getMarkedPromotion();
-          var branches = await home.getBranches();
-          var s = await home.getSuppliers();
+          final mp = await promotion.getMarkedPromotion();
+          final branches = await home.getBranches();
+          final s = await home.getSuppliers();
           if (security.supplierId != null) {
             final sup =
                 home.supliers.firstWhere((e) => e.id == security.supplierId);

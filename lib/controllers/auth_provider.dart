@@ -7,14 +7,10 @@ import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/auth/root_page.dart';
-import 'package:pharmo_app/views/index.dart';
-import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
-import 'package:pharmo_app/views/main/rep_man/index.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/controllers/a_controlller.dart';
-// ignore: depend_on_referenced_packages
 import 'package:http_parser/http_parser.dart' as pharser;
 
 class AuthController extends ChangeNotifier {
@@ -73,9 +69,7 @@ class AuthController extends ChangeNotifier {
       };
       var responseLogin = await apiPostWithoutToken('auth/login/', body);
       Map<String, dynamic> decodedResponse = convertData(responseLogin!);
-      // print(decodedResponse);
       if (responseLogin.statusCode == 200) {
-        // debugPrint(decodedResponse);
         _handleSuccessfulLogin(decodedResponse, context);
       } else if (responseLogin.statusCode == 400) {
         setLogging(false);
@@ -99,52 +93,9 @@ class AuthController extends ChangeNotifier {
   Future<void> _handleSuccessfulLogin(
       Map<String, dynamic> res, BuildContext context) async {
     await LocalBase.saveModel(res);
-
     if (remember) await LocalBase.saveRemember();
-
     gotoRemoveUntil(RootPage());
-
-    // _userInfo = decodedToken;
-    // if (remember) {
-    //   Userservice.saveUserData(decodedToken, password);
-    // }
-
-    // final homeProvider = context.read<HomeProvider>();
-    // final basketProvider = context.read<BasketProvider>();
-
-    // await prefs.setString('useremail', decodedToken['email']);
-    // await prefs.setInt('user_id', decodedToken['user_id']);
-    // await prefs.setString('userrole', decodedToken['role']);
-    // final home = Provider.of<HomeProvider>(context, listen: false);
-    // await home.getUserInfo();
-    // setAccountInfo(Account.fromJson(decodedToken));
-    // if (home.userRole == 'PA') {
-    //   if (decodedToken['stock_id'] != null) {
-    //     await prefs.setInt('stock_id', decodedToken['stock_id']);
-    //   }
-    //   await homeProvider.getSuppliers();
-    //   await homeProvider.getBranches();
-    //   if (decodedToken['supplier_id'] != null) {
-    //     await prefs.setInt('suppID', decodedToken['supplier_id']);
-    //     int? k = prefs.getInt('suppID');
-    //     home.getSuppliers();
-    //     Supplier sup = home.supliers.firstWhere((e) => e.id == k);
-    //     home.setSupplier(sup);
-    //   } else {
-    //     await home.getSuppliers();
-    //     Supplier sup = home.supliers[0];
-    //     print(sup.name);
-    //     home.pickSupplier(sup, sup.stocks[0], context);
-    //     home.setSupplier(sup);
-    //   }
-    // } else {
-    //   await prefs.setString('company_name', decodedToken['company_name']);
-    // }
-    // await basketProvider.getBasket();
-    // await basketProvider.getBasketCount;
-    // _navigateBasedOnRole(_account.role);
-    // debugPrint(accessToken);
-    // notifyListeners();
+    await getDeviceInfo();
   }
 
   // Нэвтрэх амжилтгүй
@@ -171,24 +122,6 @@ class AuthController extends ChangeNotifier {
   }
 
   // Хэрэглэгчийн эрхээс хамаарч дэлгэц харуулах
-  void _navigateBasedOnRole(String role) async {
-    switch (role) {
-      case 'S':
-        gotoRemoveUntil(const IndexPharma());
-        break;
-      case 'PA':
-        gotoRemoveUntil(const IndexPharma());
-        break;
-      case 'D':
-        gotoRemoveUntil(const IndexDeliveryMan());
-      case 'R':
-        gotoRemoveUntil(IndexRep());
-        break;
-      default:
-        message('Веб хуудсаар хандана уу');
-    }
-    await getDeviceInfo();
-  }
 
   // Токен шинэчлэх
   Future<void> refresh() async {

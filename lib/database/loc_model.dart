@@ -12,9 +12,13 @@ class LocModel extends HiveObject {
   @HiveField(2)
   bool success;
 
+  @HiveField(3)
+  String? data;
+
   LocModel({
     required this.lat,
     required this.lng,
     required this.success,
+    this.data,
   });
 }

@@ -21,13 +21,15 @@ class LocalBase {
   static const String _refreshKey = 'refresh';
   static const String _rememberKey = 'remember';
   static const String _splashedKey = 'splashed';
+  static const String _dmTrackKey = 'delmantrack';
 
   static Future initLocalBase() async {
     localDb = await Hive.openBox(_boxKey);
     security = await getSecurity();
     hasSpashed = await hasSplashed();
     remember = await getRemember();
-    print('local base inited');
+    print(
+        'local base inited, has user: ${security != null}, splashed: $hasSpashed');
   }
 
   static Future saveModel(Map<String, dynamic> res) async {
@@ -55,6 +57,9 @@ class LocalBase {
     await localDb.put(_companyNameKey, security.companyName);
     await localDb.put(_accessKey, security.access);
     await localDb.put(_refreshKey, security.refresh);
+    if (security != null) {
+      await saveSplashed(true);
+    }
   }
 
   static Future updateAccess(String access) async {
@@ -85,7 +90,7 @@ class LocalBase {
     return result;
   }
 
-  static int sellerTrackId = -1;
+  // static int sellerTrackId = -1;
 
   static Future saveSellerTrackId() async {
     localDb = await Hive.openBox(_boxKey);
@@ -137,5 +142,28 @@ class LocalBase {
     localDb = await Hive.openBox(_boxKey);
     localDb.clear();
     await localDb.flush();
+  }
+
+  static Future saveDelmanTrack(int id) async {
+    localDb = await Hive.openBox(_boxKey);
+    localDb.put(_dmTrackKey, id);
+    await localDb.flush();
+  }
+
+  static Future<int> getDelmanTrackId() async {
+    localDb = await Hive.openBox(_boxKey);
+    int id = await localDb.get(_dmTrackKey, defaultValue: 0);
+    return id;
+  }
+
+  static Future<bool> hasDelmanTrack() async {
+    localDb = await Hive.openBox(_boxKey);
+    int trackId = await localDb.get(_dmTrackKey, defaultValue: 0);
+    return trackId != 0;
+  }
+
+  static Future clearDelmanTrack() async {
+    localDb = await Hive.openBox(_boxKey);
+    await localDb.delete(_dmTrackKey);
   }
 }

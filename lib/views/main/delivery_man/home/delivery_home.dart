@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/delivery.dart';
@@ -11,7 +12,6 @@ import 'package:pharmo_app/views/main/delivery_man/home/map_view.dart';
 import 'package:pharmo_app/views/main/delivery_man/home/orderer.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:provider/provider.dart';
@@ -40,21 +40,6 @@ class _DeliveryHomeState extends State<DeliveryHome> {
       await provider.getDeliveryLocation();
       jag.setLoading(false);
     });
-  }
-
-  startShipment(int shipmentId) async {
-    final jag = context.read<JaggerProvider>();
-    jag.setLoading(true);
-    await jag.startShipment(shipmentId);
-    if (mounted) jag.setLoading(false);
-  }
-
-  endShipment(int shipmentId) async {
-    final jag = context.read<JaggerProvider>();
-    jag.setLoading(true);
-    await jag.endShipment(shipmentId);
-    Navigator.pop(context);
-    if (mounted) jag.setLoading(false);
   }
 
   @override
@@ -144,13 +129,8 @@ class _DeliveryHomeState extends State<DeliveryHome> {
                 button(
                   title: 'Түгээлт эхлүүлэх',
                   color: primary,
-                  onTap: () => askStart(del, jagger),
+                  onTap: () => askToStart(del.id),
                 ),
-              // if (started)
-              //   const WavingAnimation(
-              //     assetPath: 'assets/stickers/truck_animation.gif',
-              //     dots: true,
-              //   ),
               if (started) Text('Түгээлт эхлэсэн: ${del.startedOn}', style: st),
             ],
           ),
@@ -159,100 +139,50 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     );
   }
 
+  askToStart(int delid) async {
+    var j = context.read<JaggerProvider>();
+    bool confirmed = await confirmDialog(
+      context: context,
+      title: 'Түгээлтийг эхлүүлэх үү?',
+      attentionText: Platform.isAndroid
+          ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
+          : null,
+      message: 'Түгээлтийн үед таны байршлыг хянахыг анхаарна уу!',
+    );
+    if (confirmed) await j.startShipment(delid);
+  }
+
   Widget endingWidget(Delivery del, JaggerProvider jagger) {
     print(del.startedOn);
-    if (del.startedOn != null) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          if (del.startedOn != null)
-            button(
-              title: 'Байршил дамжуулах',
-              color: neonBlue,
-              onTap: () => askTracking(del.id),
-            ),
-          button(
-            title: 'Түгээлт дуусгах',
-            color: neonBlue,
-            onTap: () => askEnd(del, jagger),
-          ),
-        ],
-      );
-    } else {
-      return SizedBox();
-    }
-  }
-
-  askTracking(int id) async {
-    if (!await Settings.checkAlwaysLocationPermission()) {
-      message('Байршил авах зөвшөөрөл өгнө үү!');
-      return;
-    }
-    askDialog(
-      context,
-      () {
-        context.read<JaggerProvider>().startTracking();
-        Navigator.pop(context);
-      },
-      'Хүргэлтийн үед л таний байршлийг хянахыг анхаарна уу!',
-      [],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        button(
+          title: 'Байршил дамжуулах',
+          color: neonBlue,
+          onTap: () => jagger.tracking(),
+        ),
+        button(
+          title: 'Түгээлт дуусгах',
+          color: neonBlue,
+          onTap: () => askToEnd(del, jagger),
+        ),
+      ],
     );
   }
 
-  askEnd(Delivery del, JaggerProvider jagger) {
+  askToEnd(Delivery del, JaggerProvider jagger) async {
     List<Order>? unDeliveredOrders =
         del.orders.where((t) => t.process == 'O').toList();
-    askDialog(context, () => endShipment(del.id), '', [
-      if (unDeliveredOrders.isEmpty)
-        Text(
-          'Та түгээлтийг дуусгахдаа итгэлтэй байна уу?',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      if (unDeliveredOrders.isNotEmpty)
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.bold, color: black),
-            children: [
-              TextSpan(text: 'Дараах захиалгууд хүргэгдээгүй байна:\n'),
-              ...unDeliveredOrders.map(
-                (e) => TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '# ${e.orderNo}\n',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.redAccent,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const TextSpan(
-                  text: 'Та түгээлтийг дуусгахдаа итгэлтэй байна уу?'),
-            ],
-          ),
-        ),
-    ]);
-  }
-
-  askStart(Delivery del, JaggerProvider jagger) async {
-    if (!await Settings.checkAlwaysLocationPermission()) {
-      return;
-    }
-    askDialog(
-      context,
-      () async {
-        await startShipment(del.id);
-        await jagger.getDeliveries();
-        Navigator.pop(context);
-      },
-      'Түгээлтийг эхлүүлэх үү?',
-      [Text('Хүргэлтийн үед л таний байршлийг хянахыг анхаарна уу!')],
+    var j = context.read<JaggerProvider>();
+    bool confirmed = await confirmDialog(
+      context: context,
+      title: 'Түгээлтийг үнэхээр дуусгах уу?',
+      message: unDeliveredOrders.isNotEmpty
+          ? 'Дараах захиалгууд хүргэгдээгүй байна:\n ${unDeliveredOrders.map((e) => e.orderNo)}'
+          : '',
     );
+    if (confirmed) await j.endShipment(del.id);
   }
 
   button(
@@ -269,7 +199,9 @@ class _DeliveryHomeState extends State<DeliveryHome> {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             padding: const EdgeInsets.symmetric(vertical: 10)),
-        child: Center(child: text(title, color: white)),
+        child: Center(
+          child: text(title, color: white),
+        ),
       ),
     );
   }

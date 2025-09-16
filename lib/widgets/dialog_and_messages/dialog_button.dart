@@ -2,48 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 
-askDialog(BuildContext context, Function() onYes, String title,
-    List<Widget>? children) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Dialog(
-        child: Container(
-          constraints: BoxConstraints(maxHeight: 600),
-          decoration: BoxDecoration(
-              color: white, borderRadius: BorderRadius.circular(15)),
-          padding: const EdgeInsets.all(15),
-          child: SingleChildScrollView(
-            child: Column(
-              spacing: 10,
-              children: [
-                if (title != '')
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ...children!,
-                DialogButton(
-                  title: 'Тийм',
-                  bColor: Colors.blueAccent,
-                  tColor: white,
-                  onTap: onYes,
-                ),
-                DialogButton(
-                  title: 'Үгүй',
-                  bColor: grey400,
-                  tColor: black,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    },
-  );
-}
-
 class DialogButton extends StatelessWidget {
   final String title;
   final Color? bColor;
@@ -100,4 +58,92 @@ void myDialog({required List<Widget> children, String? title}) {
     ),
     contentPadding: EdgeInsets.all(20),
   );
+}
+
+Future<bool> confirmDialog({
+  required BuildContext context,
+  String title = 'Итгэлтэй байна уу?',
+  String message = '',
+  String? attentionText,
+  Widget? content,
+}) async {
+  final result = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        backgroundColor: white,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.question_mark, size: 60, color: Colors.green.shade700),
+              const SizedBox(height: 15),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+              if (attentionText != null) SizedBox(height: 15),
+              if (attentionText != null)
+                Text(
+                  attentionText,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                ),
+              if (content != null) const SizedBox(height: 10),
+              if (content != null) content,
+              const SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey,
+                      side: BorderSide(color: Colors.grey),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text('Үгүй'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade700,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text('Тийм'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+
+  return result ?? false;
 }
