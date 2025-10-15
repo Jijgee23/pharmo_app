@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/models/a_models.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/views/main/pharmacy/promotion/promotion_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -17,7 +18,6 @@ class HomeProvider extends ChangeNotifier {
     currentIndex = 0;
     selectedCustomerName = '';
     selectedCustomerId = 0;
-    userId = 0;
     branches.clear();
     branchList.clear();
     categories.clear();
@@ -32,10 +32,6 @@ class HomeProvider extends ChangeNotifier {
   int currentIndex = 0;
   String selectedCustomerName = '';
   int selectedCustomerId = 0;
-  String? userEmail;
-  String? userRole;
-  String? userName;
-  int userId = 0;
   String? note;
   List<Branch> branchList = <Branch>[];
   late LocationPermission permission;
@@ -181,11 +177,15 @@ class HomeProvider extends ChangeNotifier {
     // List<int>? deletion
   }) async {
     try {
+      final security = await LocalBase.getSecurity();
+      if (security == null) {
+        message('Нэвтэрнэ үү');
+        return;
+      }
       var request =
           http.MultipartRequest('PATCH', setUrl('update_product_image/'));
-      request.headers['Authorization'] = await getAccessToken();
+      request.headers['Authorization'] = security.access;
       request.fields['product_id'] = id.toString();
-
       images
           .map((image) async => request.files
               .add(await http.MultipartFile.fromPath('images', image.path)))
@@ -207,9 +207,14 @@ class HomeProvider extends ChangeNotifier {
 
   deleteImages({required int id, required int imageID}) async {
     try {
+      final security = await LocalBase.getSecurity();
+      if (security == null) {
+        message('Нэвтэрнэ үү');
+        return;
+      }
       var request =
           http.MultipartRequest('PATCH', setUrl('update_product_image/'));
-      request.headers['Authorization'] = await getAccessToken();
+      request.headers['Authorization'] = security.access;
       request.fields['product_id'] = id.toString();
       request.fields['images_to_remove'] = imageID.toString();
       var res = await request.send();
@@ -342,25 +347,6 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  getUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? useremail = prefs.getString('useremail');
-    String? userrole = prefs.getString('userrole');
-    String? username = prefs.getString('username');
-    int? uid = prefs.getInt('user_id');
-    userEmail = useremail.toString();
-    userRole = userrole.toString();
-    userId = int.parse(uid.toString());
-    userName = username.toString();
-    notifyListeners();
-  }
-
-  getSelectedUser(int customerId, String customerName) {
-    selectedCustomerId = customerId;
-    selectedCustomerName = customerName;
-    notifyListeners();
-  }
-
   getCustomerBranch() async {
     try {
       final response = await api(Api.post, 'seller/customer_branch/',
@@ -403,8 +389,7 @@ class HomeProvider extends ChangeNotifier {
       if (response!.statusCode == 200) {
         AuthController().logout(context);
         message(
-          '$userEmail и-мейл хаягтай таний бүртгэл устгагдлаа',
-        );
+            '${LocalBase.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа');
       } else {
         message('Алдаа гарлаа');
       }

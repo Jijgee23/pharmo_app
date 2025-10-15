@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/delivery.dart';
 import 'package:pharmo_app/services/settings.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/views/main/delivery_man/home/delivery_items.dart';
 import 'package:pharmo_app/views/main/delivery_man/home/map_view.dart';
 import 'package:pharmo_app/views/main/delivery_man/home/orderer.dart';
@@ -30,16 +27,18 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     init();
   }
 
+  // int? batteryLevel;
   Future<void> init() async {
     final jag = context.read<JaggerProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      jag.setLoading(true);
-      final provider = context.read<JaggerProvider>();
-      await provider.getDeliveries();
-      await Settings.checkAlwaysLocationPermission();
-      await provider.getDeliveryLocation();
-      jag.setLoading(false);
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async {
+        jag.setLoading(true);
+        await jag.getDeliveries();
+        await Settings.checkAlwaysLocationPermission();
+        await jag.getDeliveryLocation();
+        jag.setLoading(false);
+      },
+    );
   }
 
   @override
@@ -47,26 +46,54 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
         final dels = jagger.delivery;
-        return DataScreen(
-          loading: jagger.loading,
-          empty: false,
-          onRefresh: () async => await init(),
-          child: SingleChildScrollView(
-            controller: jagger.scrollController,
-            physics: jagger.physics,
-            child: Column(
-              spacing: 10,
-              children: [
-                MapView(),
-                ...dels.map((del) => deliveryContaier(del, jagger)),
-                CustomTextButton(
-                    text: 'Байршил дамжуулах заавар',
-                    onTap: () => launchUrlString(
-                        'https://www.youtube.com/shorts/W2s9rTCIxTk')),
-                SizedBox(height: Sizes.height * .085),
-              ],
+        return Stack(
+          children: [
+            DataScreen(
+              loading: jagger.loading,
+              empty: false,
+              onRefresh: () async => await init(),
+              child: dels.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Хувиарлагдсан түгээлт байхгүй'),
+                        ],
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      controller: jagger.scrollController,
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          ...dels.map((del) => deliveryContaier(del, jagger)),
+                          Center(
+                            child: CustomTextButton(
+                              text: 'Байршил дамжуулах заавар',
+                              onTap: () => launchUrlString(
+                                'https://www.youtube.com/shorts/W2s9rTCIxTk',
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: Sizes.height * .085),
+                        ],
+                      ),
+                    ),
             ),
-          ),
+            Positioned(
+              bottom: 100,
+              right: 10,
+              child: FloatingActionButton(
+                onPressed: () => goto(MapView()),
+                shape: CircleBorder(),
+                child: Icon(
+                  Icons.location_on_outlined,
+                  color: white,
+                  size: 30,
+                ),
+              ),
+            )
+          ],
         );
       },
     );
@@ -97,15 +124,19 @@ class _DeliveryHomeState extends State<DeliveryHome> {
         borderRadius: border10,
         boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 3.0)],
       ),
-      child: Column(
-        spacing: 10,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          startingWidget(del, jagger),
-          Text('Захиалгууд:', style: st),
-          ...users.map((user) => OrdererOrders(user: user, del: del)),
-          DeliveryItemsWidget(items: del.items!),
-          endingWidget(del, jagger)
+          Column(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              startingWidget(del, jagger),
+              Text('Захиалгууд:', style: st),
+              ...users.map((user) => OrdererOrders(user: user, del: del)),
+              DeliveryItemsWidget(items: del.items!),
+              endingWidget(del, jagger)
+            ],
+          ),
         ],
       ),
     );
@@ -131,7 +162,11 @@ class _DeliveryHomeState extends State<DeliveryHome> {
                   color: primary,
                   onTap: () => askToStart(del.id),
                 ),
-              if (started) Text('Түгээлт эхлэсэн: ${del.startedOn}', style: st),
+              if (started)
+                Text(
+                  'Түгээлт эхлэсэн: ${del.startedOn!.substring(11, 16)}',
+                  style: st,
+                ),
             ],
           ),
         ),
@@ -144,29 +179,27 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     bool confirmed = await confirmDialog(
       context: context,
       title: 'Түгээлтийг эхлүүлэх үү?',
-      attentionText: Platform.isAndroid
-          ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
-          : null,
       message: 'Түгээлтийн үед таны байршлыг хянахыг анхаарна уу!',
     );
     if (confirmed) await j.startShipment(delid);
   }
 
   Widget endingWidget(Delivery del, JaggerProvider jagger) {
-    print(del.startedOn);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        button(
-          title: 'Байршил дамжуулах',
-          color: neonBlue,
-          onTap: () => jagger.tracking(),
-        ),
-        button(
-          title: 'Түгээлт дуусгах',
-          color: neonBlue,
-          onTap: () => askToEnd(del, jagger),
-        ),
+        if (jagger.positionSubscription == null && del.startedOn != null)
+          button(
+            title: 'Байршил дамжуулах',
+            color: neonBlue,
+            onTap: () => jagger.tracking(force: true),
+          ),
+        if (jagger.positionSubscription != null && del.startedOn != null)
+          button(
+            title: 'Түгээлт дуусгах',
+            color: neonBlue,
+            onTap: () => askToEnd(del, jagger),
+          ),
       ],
     );
   }
@@ -185,23 +218,23 @@ class _DeliveryHomeState extends State<DeliveryHome> {
     if (confirmed) await j.endShipment(del.id);
   }
 
-  button(
-      {required String title,
-      required Color color,
-      required GestureTapCallback onTap}) {
-    return SizedBox(
-      width: Sizes.width * .40,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-            backgroundColor: theme.colorScheme.onPrimary,
-            shadowColor: grey400,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.symmetric(vertical: 10)),
-        child: Center(
-          child: text(title, color: white),
+  button({
+    required String title,
+    required Color color,
+    required GestureTapCallback onTap,
+  }) {
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: theme.colorScheme.onPrimary,
+        shadowColor: grey400,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      ),
+      child: Center(
+        child: text(title, color: white),
       ),
     );
   }
@@ -209,7 +242,6 @@ class _DeliveryHomeState extends State<DeliveryHome> {
   final st = const TextStyle(
     color: black,
     fontWeight: FontWeight.bold,
-    fontSize: 16,
   );
 }
 

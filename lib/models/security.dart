@@ -61,8 +61,8 @@ class Security extends HiveObject {
       supplierId: json['supplier_id'] ?? 0,
       stockId: json['stock_id'] ?? 0,
       stocks: json['stocks'] ?? 0,
-      customerId: json['customer_id'],
-      companyName: json['company_name'],
+      customerId: json['customer_id'] ?? 0,
+      companyName: json['company_name'] ?? '',
       access: access,
       refresh: refresh,
     );

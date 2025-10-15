@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
@@ -27,23 +28,30 @@ class _UserInformationState extends State<UserInformation> {
 
   @override
   Widget build(BuildContext context) {
+    final security = LocalBase.security;
+
     return Scaffold(
       appBar: const SideAppBar(text: 'Миний бүртгэл'),
-      body: Padding(
-        padding: const EdgeInsets.all(Sizes.smallFontSize),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              children: [
-                info(title: 'Имейл хаяг:', value: home.userEmail!),
-                info(title: 'Хэрэглэгчийн төрөл:', value: getRole(home.userRole!))
-              ],
+      body: (security == null)
+          ? Text('Хуудас олдсонгүй!')
+          : Padding(
+              padding: const EdgeInsets.all(Sizes.smallFontSize),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      info(title: 'Имейл хаяг:', value: security.email),
+                      info(
+                          title: 'Хэрэглэгчийн төрөл:',
+                          value: getRole(security.role))
+                    ],
+                  ),
+                  CustomButton(
+                      text: 'Бүртгэл устгах', ontap: () => confirmDeletion())
+                ],
+              ),
             ),
-            CustomButton(text: 'Бүртгэл устгах', ontap: () => confirmDeletion())
-          ],
-        ),
-      ),
     );
   }
 
@@ -70,10 +78,13 @@ class _UserInformationState extends State<UserInformation> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+          Text(title,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
           Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.bold, color: black, fontSize: 16),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: black, fontSize: 16),
           ),
         ],
       ),

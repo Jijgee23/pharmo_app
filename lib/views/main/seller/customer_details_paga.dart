@@ -1,9 +1,7 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/customer.dart';
 import 'package:pharmo_app/controllers/pharms_provider.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
@@ -53,14 +51,13 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final home = Provider.of<HomeProvider>(context, listen: false);
     return (fetching == true)
         ? const Scaffold(body: Center(child: PharmoIndicator()))
         : Consumer<PharmProvider>(
             builder: (context, pp, child) {
               final d = pp.customerDetail;
-              bool isEditable =
-                  (d.addedById != null && d.addedById == home.userId);
+              bool isEditable = (d.addedById != null &&
+                  d.addedById == LocalBase.security!.id);
               Map<String, String> params = {
                 'Мейл': maybeNull(d.email),
                 'Регистр': maybeNull(d.rn),

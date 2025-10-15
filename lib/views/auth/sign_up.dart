@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/auth_provider.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/varlidator.dart';
-import 'package:pharmo_app/views/auth/login.dart';
+import 'package:pharmo_app/views/auth/login/auth_text.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
-class SignUpForm extends StatefulWidget {
-  const SignUpForm({super.key});
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
 
   @override
-  State<SignUpForm> createState() => _SignUpFormState();
+  State<SignUp> createState() => _SignUpState();
 }
 
-class _SignUpFormState extends State<SignUpForm> {
+class _SignUpState extends State<SignUp> {
   final TextEditingController ema = TextEditingController();
   final TextEditingController pass = TextEditingController();
   final TextEditingController phone = TextEditingController();
@@ -41,7 +41,10 @@ class _SignUpFormState extends State<SignUpForm> {
               children: [
                 Container(
                     decoration: BoxDecoration(
-                        borderRadius: bottomRadius(),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
+                        ),
                         color: theme.primaryColor.withAlpha(75),
                         image: const DecorationImage(
                             image: AssetImage('assets/picon.png')))),
@@ -57,15 +60,11 @@ class _SignUpFormState extends State<SignUpForm> {
             flex: 3,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: topBorderRadius(),
-              ),
               child: SingleChildScrollView(
                 child: Wrap(
                   runSpacing: 15,
                   children: [
-                    authText('Бүртгүүлэх'),
+                    AuthText('Бүртгүүлэх'),
                     CustomTextField(
                       controller: ema,
                       hintText: 'Имейл',

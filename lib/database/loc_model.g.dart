@@ -20,19 +20,22 @@ class LocModelAdapter extends TypeAdapter<LocModel> {
       lat: fields[0] as double,
       lng: fields[1] as double,
       success: fields[2] as bool,
+      data: fields[3] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, LocModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.lat)
       ..writeByte(1)
       ..write(obj.lng)
       ..writeByte(2)
-      ..write(obj.success);
+      ..write(obj.success)
+      ..writeByte(3)
+      ..write(obj.data);
   }
 
   @override

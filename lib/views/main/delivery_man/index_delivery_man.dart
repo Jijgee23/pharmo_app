@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:pharmo_app/views/main/delivery_man/home/delivery_home.dart';
 import 'package:pharmo_app/views/main/delivery_man/orders/delivery_orders.dart';
 import 'package:pharmo_app/views/main/delivery_man/profile/delivery_profile.dart';
@@ -15,33 +14,16 @@ class IndexDeliveryMan extends StatefulWidget {
 
 class _IndexDeliveryManState extends State<IndexDeliveryMan> {
   @override
-  void initState() {
-    super.initState();
-    Provider.of<HomeProvider>(context, listen: false).getUserInfo();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AuthController>(
-            create: (context) => AuthController())
-      ],
-      child: Consumer2<AuthController, HomeProvider>(
-        builder: (context, authController, home, _) {
-          return Scaffold(
-            extendBody: true,
-            appBar: DMAppBar(title: getTitle(home.currentIndex)),
-            body: _pages[home.currentIndex],
-            bottomNavigationBar: BottomBar(icons: icons),
-          );
-        },
-      ),
+    return Consumer<HomeProvider>(
+      builder: (context, home, _) {
+        return Scaffold(
+          extendBody: true,
+          appBar: DMAppBar(title: getTitle(home.currentIndex)),
+          body: _pages[home.currentIndex],
+          bottomNavigationBar: BottomBar(icons: icons),
+        );
+      },
     );
   }
 
@@ -65,5 +47,4 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
   ];
 
   List<String> icons = ['truck-side', 'order-history', 'user'];
-  List<String> labels = ['Түгээлт', 'Бэлэн захиалгууд', 'Профайл'];
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/models/security.dart';
@@ -22,20 +23,28 @@ class LocalBase {
   static const String _rememberKey = 'remember';
   static const String _splashedKey = 'splashed';
   static const String _dmTrackKey = 'delmantrack';
-
+  static const String _deviceToken = 'deviceToken';
   static Future initLocalBase() async {
     localDb = await Hive.openBox(_boxKey);
     security = await getSecurity();
     hasSpashed = await hasSplashed();
     remember = await getRemember();
-    print(
+    debugPrint(
         'local base inited, has user: ${security != null}, splashed: $hasSpashed');
+  }
+
+  static Future removeTokens() async {
+    localDb = await Hive.openBox(_boxKey);
+    await localDb.delete(_accessKey);
+    await localDb.delete(_refreshKey);
+    await localDb.flush();
   }
 
   static Future saveModel(Map<String, dynamic> res) async {
     localDb = await Hive.openBox(_boxKey);
-    if (localDb.isNotEmpty) {
-      await localDb.clear();
+    var r = await getSecurity();
+    if (r != null) {
+      await clearSecurity();
     }
     print(res);
     final decodedToken = JwtDecoder.decode(res['access_token']);
@@ -62,9 +71,27 @@ class LocalBase {
     }
   }
 
+  static Future clearSecurity() async {
+    localDb = await Hive.openBox(_boxKey);
+
+    await localDb.delete(_idKey);
+    await localDb.delete(_nameKey);
+    await localDb.delete(_emailKey);
+    await localDb.delete(_roleKey);
+    await localDb.delete(_supplierIdKey);
+    await localDb.delete(_stockIdKey);
+    await localDb.delete(_stocksKey);
+    await localDb.delete(_customerIdKey);
+    await localDb.delete(_companyNameKey);
+    await localDb.delete(_accessKey);
+    await localDb.delete(_refreshKey);
+    await localDb.flush();
+  }
+
   static Future updateAccess(String access) async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.put('access', access);
+    await localDb.flush();
     await initLocalBase();
   }
 
@@ -83,28 +110,30 @@ class LocalBase {
         stocks: localDb.get(_stocksKey),
         customerId: localDb.get(_customerIdKey),
         companyName: localDb.get(_companyNameKey),
-        access: localDb.get(_accessKey),
-        refresh: localDb.get(_refreshKey),
+        access: localDb.get(_accessKey, defaultValue: ''),
+        refresh: localDb.get(_refreshKey, defaultValue: ''),
       );
     }
     return result;
   }
 
-  // static int sellerTrackId = -1;
-
   static Future saveSellerTrackId() async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.delete('seller_track_id');
     await localDb.put('seller_track_id', 1);
+    await localDb.flush();
   }
 
   static Future<bool> hasSellerTrack() async {
     localDb = await Hive.openBox(_boxKey);
-    if (localDb.get('seller_track_id') == -1) {
-      return false;
-    } else {
-      return true;
-    }
+    var id = localDb.get('seller_track_id', defaultValue: 0);
+    return id != 0;
+  }
+
+  static Future removeSellerTrackId() async {
+    localDb = await Hive.openBox(_boxKey);
+    await localDb.delete('seller_track_id');
+    await localDb.flush();
   }
 
   static Future saveSplashed(bool value) async {
@@ -165,5 +194,32 @@ class LocalBase {
   static Future clearDelmanTrack() async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.delete(_dmTrackKey);
+  }
+
+  static const String lastLoggedIn = "last_logged";
+
+  static Future saveLastLoggedIn(bool isLogin) async {
+    localDb = await Hive.openBox(_boxKey);
+    await localDb.put(lastLoggedIn, isLogin ? "loggedIn" : "signedOut");
+    await localDb.flush();
+  }
+
+  static Future<bool> isLoggedIn() async {
+    localDb = await Hive.openBox(_boxKey);
+    String value = await localDb.get(lastLoggedIn, defaultValue: "signedOut");
+    if (value == "signedOut") return false;
+    return true;
+  }
+
+  static Future saveDeviceToken(String token) async {
+    localDb = await Hive.openBox(_boxKey);
+    await localDb.put(_deviceToken, token);
+    await localDb.flush();
+  }
+
+  static Future<String> getDeviceToken() async {
+    localDb = await Hive.openBox(_boxKey);
+    String res = await localDb.get(_deviceToken, defaultValue: '');
+    return res;
   }
 }

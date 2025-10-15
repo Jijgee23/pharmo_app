@@ -51,7 +51,7 @@ class _IndexPharmaState extends State<IndexPharma> {
                   onPressed: () => goto(SellerTracking()),
                   backgroundColor: primary,
                   child: Icon(
-                    Icons.track_changes,
+                    Icons.location_on_rounded,
                     color: white,
                   ),
                 )

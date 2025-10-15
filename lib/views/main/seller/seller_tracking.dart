@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/colors.dart';
@@ -68,25 +66,6 @@ class _SellerTrackingState extends State<SellerTracking>
           );
         }
         return Scaffold(
-          // appBar: AppBar(
-          //   title: GestureDetector(
-          //       onTap: () {
-          //         setState(() {
-          //           mapView = !mapView;
-          //         });
-          //       },
-          //       child: Text('Байршил дамжуулах')),
-          //   actions: [
-          //     IconButton(
-          //       onPressed: () => tracker.startTracking(),
-          //       icon: Icon(Icons.refresh),
-          //     ),
-          //     IconButton(
-          //       onPressed: () => tracker.stopTracking(),
-          //       icon: Icon(Icons.cancel),
-          //     ),
-          //   ],
-          // ),
           body: Stack(
             children: [
               GoogleMap(
@@ -113,20 +92,23 @@ class _SellerTrackingState extends State<SellerTracking>
                           tracker.data[index].longitude,
                         ),
                       ),
-                      color: Colors.red,
+                      color: Colors.green,
                       width: 5,
                     ),
                 },
               ),
               Positioned(
-                top: 40,
-                left: 15,
+                top: 50,
+                left: 25,
                 child: FloatingActionButton(
                   heroTag: 'back',
-                  mini: true,
+                  // mini: true,
                   onPressed: () => Navigator.of(context).pop(),
-                  backgroundColor: Colors.white,
-                  child: const Icon(Icons.arrow_back, color: Colors.black),
+                  backgroundColor: primary,
+                  child: const Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                  ),
                 ),
               ),
               Positioned(
@@ -136,7 +118,7 @@ class _SellerTrackingState extends State<SellerTracking>
                   children: [
                     FloatingActionButton(
                       heroTag: 'zoomIn',
-                      mini: true,
+                      elevation: 20,
                       onPressed: () {
                         tracker.mapController
                             ?.animateCamera(CameraUpdate.zoomIn());
@@ -147,7 +129,7 @@ class _SellerTrackingState extends State<SellerTracking>
                     const SizedBox(height: 10),
                     FloatingActionButton(
                       heroTag: 'zoomOut',
-                      mini: true,
+                      elevation: 20,
                       onPressed: () {
                         tracker.mapController
                             ?.animateCamera(CameraUpdate.zoomOut());
@@ -158,7 +140,7 @@ class _SellerTrackingState extends State<SellerTracking>
                     const SizedBox(height: 10),
                     FloatingActionButton(
                       heroTag: 'myLocation',
-                      mini: true,
+                      elevation: 20,
                       onPressed: tracker.goToMyLocation,
                       backgroundColor: Colors.white,
                       child: const Icon(Icons.my_location, color: Colors.black),
@@ -166,17 +148,20 @@ class _SellerTrackingState extends State<SellerTracking>
                     const SizedBox(height: 10),
                     FloatingActionButton(
                       heroTag: 'toggleTraffic',
-                      mini: true,
+                      elevation: 20,
                       onPressed: tracker.toggleTraffic,
                       backgroundColor:
                           tracker.trafficEnabled ? Colors.blue : Colors.white,
-                      child: const Icon(Icons.traffic, color: Colors.black),
+                      child: const Icon(
+                        Icons.traffic,
+                        color: Colors.black,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     FloatingActionButton(
                       heroTag: 'changeMapType',
-                      mini: true,
                       onPressed: tracker.changeMapType,
+                      elevation: 20,
                       backgroundColor: Colors.white,
                       child: const Icon(Icons.map, color: Colors.black),
                     ),
@@ -190,11 +175,9 @@ class _SellerTrackingState extends State<SellerTracking>
                 child: Row(
                   spacing: 20,
                   children: [
-                    if (tracker.positionSubscription == null &&
-                        tracker.androidStream == null)
+                    if (tracker.positionSubscription == null)
                       button(tracker: tracker),
-                    if (tracker.positionSubscription != null ||
-                        tracker.androidStream != null)
+                    if (tracker.positionSubscription != null)
                       button(tracker: tracker, isStart: false),
                   ],
                 ),
@@ -214,17 +197,11 @@ class _SellerTrackingState extends State<SellerTracking>
             context: context,
             title:
                 'Байршлыг ${isStart ? ' дамжуулж  эхлэх үү' : 'дамжуулалт дуусгах уу'} ?',
-            attentionText: isStart
-                ? Platform.isAndroid
-                    ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
-                    : null
-                : null,
             message: isStart
-                ? 'Түгээлтийн үед таны байршил хянахыг анхаарна уу!'
+                ? 'Борлуулалтын үед таны байршил хянахыг анхаарна уу!'
                 : '',
           );
           if (!confirmed) return;
-
           isStart ? tracker.startTracking() : tracker.stopTracking();
         },
         style: ElevatedButton.styleFrom(
@@ -232,6 +209,7 @@ class _SellerTrackingState extends State<SellerTracking>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
+          padding: EdgeInsets.symmetric(vertical: 15),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

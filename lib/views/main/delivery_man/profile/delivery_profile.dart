@@ -9,6 +9,7 @@ import 'package:pharmo_app/views/main/delivery_man/profile/shipment_history.dart
 import 'package:pharmo_app/views/main/profile.dart';
 import 'package:pharmo_app/views/public_uses/about_us.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
+import 'package:pharmo_app/views/public_uses/system_log.dart';
 import 'package:provider/provider.dart';
 
 class DeliveryProfile extends StatelessWidget {
@@ -29,36 +30,35 @@ class DeliveryProfile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 15),
-                          child: const Text('Бүртгэл')),
-                      // menu('Тохиргоо', Icons.settings, color: primary),
-                      // menu('Мэдэгдэл', Icons.notifications,
-                      //     color: neonBlue, page: const NotificationPage()),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 15),
+                        child: const Text('Бүртгэл'),
+                      ),
                       SideMenu(
                           title: 'Түгээлтийн түүх',
                           icon: Icons.history,
                           color: darkBlue,
                           ontap: () => goto(const ShipmentHistory())),
-                      // SideMenu(
-                      //   title: 'Түгээлтийн зарлага',
-                      //   icon: Icons.account_balance_wallet,
-                      //   color: neonBlue,
-                      //   ontap: () => goto(const ShipmentExpensePage()),
-                      // ),
                       SideMenu(
                           title: 'Төлбөрийн жагсаалт',
                           icon: Icons.money,
                           color: Colors.green,
                           ontap: () => goto(const AddPayment())),
                       SideMenu(
-                          title: 'Борлуулагчруу шилжих',
-                          icon: Icons.change_circle,
-                          color: Colors.pink,
-                          ontap: () {
-                            home.changeIndex(0);
-                            gotoRemoveUntil(const IndexPharma());
-                          }),
+                        title: 'Борлуулагчруу шилжих',
+                        icon: Icons.change_circle,
+                        color: Colors.pink,
+                        ontap: () {
+                          home.changeIndex(0);
+                          gotoRemoveUntil(const IndexPharma());
+                        },
+                      ),
+                      SideMenu(
+                        title: 'Системийн лог',
+                        icon: Icons.pending_actions_sharp,
+                        color: Colors.pink,
+                        ontap: () => goto(SystemLog()),
+                      ),
                       Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 30, vertical: 15),

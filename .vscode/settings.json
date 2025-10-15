@@ -3,11 +3,19 @@
         "**/.git": true,
         "**/.svn": true,
         "**/.hg": true,
-        "**/CVS": true,
         "**/.DS_Store": true,
-        "**/Thumbs.db": true
+        "**/Thumbs.db": true,
+        "**/CVS": true,
+        ".dart_tool": true,
+        ".idea": true,
+        ".vscode": true
     },
-    "hide-files.files": [],
+    "hide-files.files": [
+        ".dart_tool",
+        ".idea",
+        ".vscode",
+        "lib/services/user_box.dart"
+    ],
     "cmake.sourceDirectory": "/Users/infosystems/Downloads/pharmo_app/linux",
     "java.configuration.updateBuildConfiguration": "disabled",
     // "editor.quickSuggestions": {

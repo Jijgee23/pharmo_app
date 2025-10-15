@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:pharmo_app/models/a_models.dart';
 import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
-import 'package:pharmo_app/views/auth/login.dart';
+import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
+
+enum AuthState { unknown, loggedIn, notLoggedIn, expired }
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -16,10 +17,12 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
-  LoadState loadState = LoadState.loading;
-  void updateLoadState(LoadState state) {
+  AuthState state = AuthState.unknown;
+
+  void updateState(AuthState value) {
+    if (!mounted || state == value) return;
     setState(() {
-      loadState = state;
+      state = value;
     });
   }
 
@@ -30,39 +33,52 @@ class _RootPageState extends State<RootPage> {
   }
 
   void fetchUser() async {
-    updateLoadState(LoadState.loading);
     await LocalBase.initLocalBase();
-    await Future.delayed(Duration(seconds: 1)).then(
-      (value) => updateLoadState(LoadState.loaded),
-    );
+    bool isLoggedIn = await LocalBase.isLoggedIn();
+    if (!isLoggedIn) {
+      updateState(AuthState.notLoggedIn);
+      return;
+    }
+    final sec = LocalBase.security;
+    if (sec == null) {
+      updateState(AuthState.notLoggedIn);
+      return;
+    }
+    bool accessExpired = JwtDecoder.isExpired(sec.access);
+    if (!accessExpired) {
+      updateState(AuthState.loggedIn);
+      return;
+    }
+    if (accessExpired) {
+      bool refreshExpired = JwtDecoder.isExpired(sec.refresh);
+      if (refreshExpired) {
+        updateState(AuthState.expired);
+        return;
+      }
+      var r = await refreshed(sec.refresh);
+      if (r) {
+        updateState(AuthState.loggedIn);
+        return;
+      } else {
+        updateState(AuthState.expired);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    Security? security = LocalBase.security;
-    if (loadState == LoadState.loading) {
+    final security = LocalBase.security;
+    if (state == AuthState.unknown) {
       return PharmoIndicator(withMaterial: true);
     }
-    if (LocalBase.security == null) {
+    if (state == AuthState.notLoggedIn || state == AuthState.expired) {
       return LoginPage();
-    } else {
-      if (JwtDecoder.isExpired(security!.access) ||
-          JwtDecoder.isExpired(security.refresh)) {
-        return LoginPage();
-      } else {
-        if (security.role == 'D') {
-          return IndexDeliveryMan();
-        }
-        return IndexPharma();
-      }
     }
-    // if (authState == AuthState.noDetermined) {
-    //   return Material(
-    //     child: Center(
-    //       child: PharmoIndicator(),
-    //     ),
-    //   );
-    // }
-    // return LoginPage();
+    if (security == null) return LoginPage();
+
+    if (security.role == 'D') {
+      return IndexDeliveryMan();
+    }
+    return IndexPharma();
   }
 }

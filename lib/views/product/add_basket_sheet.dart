@@ -114,7 +114,7 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
 
   Future<void> addBasket(Product item, int qty) async {
     final basketProvider = context.read<BasketProvider>();
-    await basketProvider.addProduct(item.id, item.name!, qty);
+    await basketProvider.addProduct(item.id, item.name ?? 'Бараа', qty);
   }
 }
 

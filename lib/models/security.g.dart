@@ -23,7 +23,7 @@ class SecurityAdapter extends TypeAdapter<Security> {
       role: fields[3] as String,
       supplierId: fields[4] as int?,
       stockId: fields[5] as int?,
-      stocks: fields[6] as int,
+      stocks: fields[6] as int?,
       customerId: fields[7] as int?,
       companyName: fields[8] as String,
       access: fields[9] as String,

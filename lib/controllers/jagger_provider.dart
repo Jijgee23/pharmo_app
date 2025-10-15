@@ -1,16 +1,16 @@
-import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter/services.dart';
 import 'package:pharmo_app/database/loc_box.dart';
 import 'package:pharmo_app/database/loc_model.dart';
 import 'package:pharmo_app/models/delivery.dart';
-import 'package:pharmo_app/services/local_base.dart';
-import 'package:pharmo_app/services/notification_service.dart';
-import 'package:pharmo_app/services/settings.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/models/a_models.dart';
+
+const EventChannel bgLocationChannel = EventChannel('bg_location_stream');
 
 class JaggerProvider extends ChangeNotifier {
   late bool servicePermission = false;
@@ -27,15 +27,14 @@ class JaggerProvider extends ChangeNotifier {
 
   Future<dynamic> getDeliveryLocation() async {
     currentPosition = await Geolocator.getCurrentPosition();
-    final pref = await SharedPreferences.getInstance();
-    int? userId = pref.getInt('user_id');
+    final security = await LocalBase.getSecurity();
+    if (security == null) return;
     try {
-      final response =
-          await api(Api.get, 'delivery/locations/?with_routes=true');
-      final data = convertData(response!);
-      if (response.statusCode == 200) {
+      final r = await api(Api.get, 'delivery/locations/?with_routes=true');
+      if (r!.statusCode == 200) {
+        final data = convertData(r);
         final me = (data as List).firstWhere(
-            (element) => element['delman']['id'] == userId,
+            (element) => element['delman']['id'] == security.id,
             orElse: () => null);
         if (me == null) {
           return;
@@ -54,31 +53,40 @@ class JaggerProvider extends ChangeNotifier {
 
   void deleteFromLocalDb(LocModel model) async {
     await LocBox.deleteModel(model);
-    // getFromLocationDb();
   }
 
   void addLocModelToLocalDb(LocModel model) async {
     await LocBox.addToList(model);
   }
 
-  void sendTobackend(int id, double lat, double lng) async {
-    await getDeliveryLocation();
-    var body = {
-      "delivery_id": id,
-      "locs": [
-        {
-          "lat": lat,
-          "lng": lng,
-          "created": DateTime.now().toIso8601String(),
-        }
-      ]
-    };
+  Future sendTobackend(int id, double lat, double lng) async {
+    var body = locationResponse(
+      id,
+      [LocModel(lat: lat, lng: lng, success: true)],
+    );
     String url = 'delivery/location/';
     double latitude = truncateToDigits(lat, 6);
     double longitude = truncateToDigits(lng, 6);
-    final res = await api(Api.patch, url, body: body, showLog: true);
-    if (res == null || res.statusCode != 200) {
-      message('Илгээгдээгүй байршил хадгалагдлаа');
+    final res = await api(Api.patch, url, body: body);
+    if (res!.statusCode == 200 || res.statusCode == 201) {
+      await FirebaseApi.local(
+        'Байршил илгээсэн',
+        'Өрг: $latitude Урт: $longitude',
+      );
+      await getDeliveryLocation();
+      await getDeliveries();
+      if (noSendedLocs.isNotEmpty) {
+        final nosended = await LocBox.getList();
+        var b = locationResponse(id, nosended);
+        final r = await api(Api.patch, url, body: b);
+        if (r != null && r.statusCode == 200) {
+          noSendedLocs.clear();
+          notifyListeners();
+          await LocBox.clearAll();
+        }
+      }
+    } else {
+      await FirebaseApi.local('Илгээгдээгүй байршил хадгалагдлаа', '');
       addLocModelToLocalDb(
         LocModel(
           lat: latitude,
@@ -87,34 +95,26 @@ class JaggerProvider extends ChangeNotifier {
           data: DateTime.now().toIso8601String(),
         ),
       );
-    } else {
-      Notify.local('Байршил илгээсэн', '');
-      final nosended = await LocBox.getList();
-      if (nosended.isNotEmpty) {
-        var b = {
-          "delivery_id": id,
-          "locs": [
-            ...nosended.map(
-              (e) => {
-                "lat": e.lat,
-                "lng": e.lng,
-                "created": e.data ?? DateTime.now().toIso8601String(),
-              },
-            )
-          ]
-        };
-        final r = await api(Api.patch, url, body: b);
-        if (r != null && r.statusCode == 201) {
-          await LocBox.clearAll();
-        }
-      }
     }
+  }
+
+  Map<String, Object> locationResponse(int id, List<LocModel> locs) {
+    return {
+      "delivery_id": id,
+      "locs": [
+        ...locs.map(
+          (e) => {
+            "lat": e.lat,
+            "lng": e.lng,
+            "created": e.data ?? DateTime.now().toIso8601String(),
+          },
+        )
+      ]
+    };
   }
 
   // TRACKING
   StreamSubscription? positionSubscription;
-
-  StreamSubscription<Position>? androidStream;
 
   Future<dynamic> startShipment(int shipmentId) async {
     if (!await Settings.checkAlwaysLocationPermission()) {
@@ -127,66 +127,54 @@ class JaggerProvider extends ChangeNotifier {
       "lat": currentPosition!.latitude,
       "lng": currentPosition!.longitude
     };
-    final res = await api(Api.patch, url, body: body, showLog: true);
+    final res = await api(Api.patch, url, body: body);
     if (res!.statusCode == 200) {
       await LocalBase.saveDelmanTrack(shipmentId);
-    }
-    if (res != null && res.statusCode == 400) {
+      await getDeliveries();
+      tracking();
+    } else if (res != null && res.statusCode == 400) {
       String data = convertData(res).toString();
       if (data.contains('already started')) {
         message('Түгээлт эхлэсэн байна!');
       }
+    } else {
+      message('Түр хүлээнэ үү!');
     }
-    tracking();
   }
 
-  void tracking() async {
+  Future tracking({bool force = false}) async {
     int shipmentId = await LocalBase.getDelmanTrackId();
-    if (shipmentId == 0) {
+    if (shipmentId == 0 && !force) {
       return;
     }
-    if (Platform.isAndroid) {
-      final locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
+
+    try {
+      positionSubscription = bgLocationChannel.receiveBroadcastStream().listen(
+        (event) async {
+          final data = event as Map<dynamic, dynamic>;
+          await sendTobackend(
+            force ? delivery[0].id : shipmentId,
+            parseDouble(data['lat']),
+            parseDouble(data['lng']),
+          );
+        },
+        onError: (error) {
+          FirebaseApi.local('Байршил дамжуулж чадсангүй', '');
+          debugPrint('BG Location error: $error');
+        },
       );
-      androidStream = Geolocator.getPositionStream(
-        locationSettings: locationSettings,
-      ).listen((Position position) async {
-        sendTobackend(
-          shipmentId,
-          position.latitude,
-          position.longitude,
-        );
-      });
-    } else {
-      positionSubscription =
-          bgLocationChannel.receiveBroadcastStream().listen((event) async {
-        sendTobackend(
-          shipmentId,
-          parseDouble((event as Map)['lat']),
-          parseDouble((event)['lng']),
-        );
-      }, onError: (error) {
-        print('BG Location error: $error');
-      });
-    }
-    if (positionSubscription != null || androidStream != null) {
-      message('Байршил илгээж эхлэлээ');
+      notifyListeners();
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 
   List<Loc> noSendedLocs = [];
 
   void stopTracking() {
-    if (Platform.isAndroid) {
-      androidStream!.cancel();
-      androidStream = null;
-      notifyListeners();
-      return;
-    }
-    positionSubscription!.cancel();
+    positionSubscription?.cancel();
     positionSubscription = null;
+    LocalBase.clearDelmanTrack();
     notifyListeners();
   }
 
@@ -197,9 +185,10 @@ class JaggerProvider extends ChangeNotifier {
       if (res!.statusCode == 200) {
         await getDeliveries();
         await LocalBase.clearDelmanTrack();
-
-        Notify.local(
-            'Түгээлт дууслаа', 'Таны $shipmentId дугаартай түгээлт дууслаа.');
+        await FirebaseApi.local(
+          'Түгээлт дууслаа',
+          'Таны $shipmentId дугаартай түгээлт дууслаа.',
+        );
         stopTracking();
         notifyListeners();
       } else {
@@ -217,23 +206,14 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void initTracking() async {
-  //   int id = await LocalBase.getDelmanTrackId();
-  //   if (id != 0) tracking();
-  // }
-
   Future<dynamic> getDeliveries() async {
     try {
       final response = await api(Api.get, 'delivery/delman_active/');
       if (response!.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
-        final prefs = await SharedPreferences.getInstance();
         delivery = (data as List).map((d) => Delivery.fromJson(d)).toList();
         for (final d in delivery) {
           zones = d.zones;
-        }
-        if (delivery.isNotEmpty) {
-          await prefs.setInt('onDeliveryId', delivery[0].id);
         }
         notifyListeners();
       }
@@ -530,18 +510,6 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   ScrollController scrollController = ScrollController();
-  ScrollPhysics physics = AlwaysScrollableScrollPhysics();
-  double aspectRatio = 3 / 2;
-  toggleZoom() {
-    if (aspectRatio == 3 / 2) {
-      aspectRatio = 2.3 / 4;
-      physics = NeverScrollableScrollPhysics();
-    } else {
-      aspectRatio = 3 / 2;
-      physics = AlwaysScrollableScrollPhysics();
-    }
-    notifyListeners();
-  }
 
   bool loading = false;
   setLoading(bool n) {
@@ -582,13 +550,4 @@ class Loc {
       "created": loc.created.toIso8601String()
     };
   }
-}
-
-class NMSG {
-  final String title;
-  final String text;
-  NMSG({
-    required this.title,
-    required this.text,
-  });
 }

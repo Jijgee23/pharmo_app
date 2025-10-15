@@ -9,17 +9,11 @@ class MapView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final jagger = context.read<JaggerProvider>();
-    Color trafficColor = jagger.trafficEnabled ? Colors.green : Colors.grey;
-    Color aspectColor =
-        jagger.aspectRatio == 2.3 / 4 ? Colors.green : Colors.grey;
-    return AspectRatio(
-      aspectRatio: jagger.aspectRatio,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          decoration: BoxDecoration(),
-          child: Stack(
+    return Consumer<JaggerProvider>(
+      builder: (context, jagger, child) {
+        Color trafficColor = jagger.trafficEnabled ? Colors.green : Colors.grey;
+        return Scaffold(
+          body: Stack(
             children: [
               GoogleMap(
                 onMapCreated: (controller) => jagger.onMapCreated(controller),
@@ -55,25 +49,38 @@ class MapView extends StatelessWidget {
                     ),
                 },
               ),
-              mapIcon(
-                  () => jagger.toggleZoom(), Icons.fullscreen, 10, aspectColor),
-              mapIcon(() => jagger.toggleTraffic(), Icons.traffic, 55,
+              Positioned(
+                top: 0,
+                left: 20,
+                child: SafeArea(
+                  top: true,
+                  child: FloatingActionButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Icon(
+                      Icons.chevron_left,
+                      color: white,
+                      size: 30,
+                    ),
+                  ),
+                ),
+              ),
+              mapIcon(() => jagger.toggleTraffic(), Icons.traffic, 20,
                   trafficColor),
-              mapIcon(() => jagger.toggleView(), Icons.remove_red_eye, 100,
+              mapIcon(() => jagger.toggleView(), Icons.remove_red_eye, 65,
                   neonBlue),
-              mapIcon(() => jagger.zoomIn(), Icons.add, 145, black),
-              mapIcon(() => jagger.zoomOut(), Icons.remove, 190, black),
+              mapIcon(() => jagger.zoomIn(), Icons.add, 110, black),
+              mapIcon(() => jagger.zoomOut(), Icons.remove, 155, black),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   mapIcon(
       GestureTapCallback ontap, IconData icon, double fromLeft, Color iColor) {
     return Positioned(
-      bottom: 10,
+      bottom: 30,
       left: fromLeft,
       child: InkWell(
         onTap: ontap,

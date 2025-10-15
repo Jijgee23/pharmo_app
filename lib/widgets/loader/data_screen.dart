@@ -15,6 +15,7 @@ class DataScreen extends StatelessWidget {
   final Color? bg;
   final EdgeInsetsGeometry? pad;
   final Widget? customLoading;
+  final FloatingActionButtonLocation fabLoc;
 
   const DataScreen({
     super.key,
@@ -29,6 +30,7 @@ class DataScreen extends StatelessWidget {
     this.bg,
     this.pad,
     this.customLoading,
+    this.fabLoc = FloatingActionButtonLocation.endFloat,
   });
 
   @override
@@ -41,18 +43,24 @@ class DataScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: bg,
         floatingActionButton: fab,
-        floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+        floatingActionButtonLocation: fabLoc,
         appBar: appbar,
         body: AnimatedSwitcher(
           duration: duration,
-          child: loading
-              ? customLoading ?? CustomShimmer()
-              : (empty)
-                  ? customEmpty ?? noResult()
-                  : Container(
-                      padding: pad ?? EdgeInsets.all(7.5),
-                      child: child,
-                    ),
+          child: Builder(
+            builder: (context) {
+              if (loading) {
+                return customLoading ?? CustomShimmer();
+              }
+              if (empty) {
+                return customEmpty ?? noResult();
+              }
+              return Container(
+                padding: pad ?? EdgeInsets.all(7.5),
+                child: child,
+              );
+            },
+          ),
         ),
         bottomNavigationBar: navbar,
       ),

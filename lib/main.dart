@@ -1,10 +1,13 @@
-import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:pharmo_app/app_configs.dart';
 import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:pharmo_app/database/loc_model.dart';
+import 'package:pharmo_app/database/log_model.dart';
 import 'package:pharmo_app/models/a_models.dart';
 import 'package:pharmo_app/services/a_services.dart';
+import 'package:pharmo_app/services/battery_service.dart';
+import 'package:pharmo_app/services/log_service.dart';
 import 'package:pharmo_app/utilities/global_key.dart';
 import 'package:pharmo_app/theme/dark_theme.dart';
 import 'package:pharmo_app/theme/light_theme.dart';
@@ -14,43 +17,32 @@ import 'package:upgrader/upgrader.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  FirebaseApi.initFirebase();
-  Notify.initializeNotifications();
+  await FirebaseApi.initFirebase();
   await Upgrader.clearSavedSettings();
   await dotenv.load(fileName: ".env");
   await Hive.initFlutter();
   Hive.registerAdapter(SecurityAdapter());
   Hive.registerAdapter(LocModelAdapter());
-  await LocalBase.initLocalBase().whenComplete(() {
-    runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => AuthController()),
-          ChangeNotifierProvider(create: (_) => BasketProvider()),
-          ChangeNotifierProvider(create: (_) => JaggerProvider()..tracking()),
-          ChangeNotifierProvider(create: (_) => MyOrderProvider()),
-          ChangeNotifierProvider(create: (_) => HomeProvider()),
-          ChangeNotifierProvider(create: (_) => PharmProvider()),
-          ChangeNotifierProvider(create: (_) => IncomeProvider()),
-          ChangeNotifierProvider(create: (_) => PromotionProvider()),
-          ChangeNotifierProvider(create: (_) => ReportProvider()),
-          ChangeNotifierProvider(create: (_) => LocationProvider()),
-          ChangeNotifierProvider(create: (_) => RepProvider()..initTracking())
-        ],
-        child: const MyApp(),
-      ),
-    );
-  });
+  Hive.registerAdapter(LogModelAdapter());
+  await LocalBase.initLocalBase();
+  await ConnectivityService.startListennetwork();
+  await BatteryService.startListenBattery();
+  runApp(
+    MultiProvider(
+      providers: AppConfigs.providers,
+      child: Pharmo(),
+    ),
+  );
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class Pharmo extends StatefulWidget {
+  const Pharmo({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<Pharmo> createState() => _PharmoState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -60,17 +52,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      checkHasTrack(state);
-    } else if (state == AppLifecycleState.paused) {
-      checkHasTrack(state);
-    } else if (state == AppLifecycleState.detached) {
-      // print('detached');
-      checkHasTrack(state);
-    } else if (state == AppLifecycleState.inactive) {
-      // print('inactive');
-      checkHasTrack(state);
-    }
+    checkHasTrack(state);
   }
 
   void checkHasTrack(AppLifecycleState state) async {
@@ -79,33 +61,40 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       return;
     }
     if (security.role == "S") {
+      final lp = context.read<LocationProvider>();
       bool hasTrack = await LocalBase.hasSellerTrack();
+      await lifeCycleLog(state);
       if (hasTrack &&
-          Platform.isAndroid &&
-          state != AppLifecycleState.resumed) {
-        Notify.local(
-          'Pharmo',
-          'Аппаас гарсан үед байршил дамжуулалт зогсохыг анхаарна уу!',
-        );
+          (lp.positionSubscription == null ||
+              lp.positionSubscription!.isPaused)) {
+        lp.startTracking();
+        FirebaseApi.local('Борлуулалт дуусаагүй', 'Байршил дамжуулж байна');
         return;
       }
-      context.read<LocationProvider>().startTracking();
-      return;
     }
     if (security.role == "D") {
       int delmanTrackId = await LocalBase.getDelmanTrackId();
-      if (delmanTrackId != 0 &&
-          Platform.isAndroid &&
-          state != AppLifecycleState.resumed) {
-        Notify.local(
-          'Pharmo',
-          'Аппаас гарсан үед байршил дамжуулалт зогсохыг анхаарна уу!',
-        );
-        return;
-      }
-      context.read<JaggerProvider>().tracking();
-      return;
+      if (delmanTrackId == 0) return;
+      await lifeCycleLog(state);
+      final provider = context.read<JaggerProvider>();
+      bool isStopped = (provider.positionSubscription == null ||
+          provider.positionSubscription!.isPaused);
+      if (isStopped) provider.tracking();
     }
+  }
+
+  Future lifeCycleLog(AppLifecycleState state) async {
+    String desc = '';
+    switch (state) {
+      case AppLifecycleState.paused:
+        desc = LogService.closeApp;
+      case AppLifecycleState.detached:
+        desc = LogService.terminateApp;
+      default:
+        desc = "unknown";
+    }
+    if (desc == "unknown") return;
+    await LogService.createLog('lifecycle action', desc);
   }
 
   @override
@@ -122,6 +111,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         title: 'Pharmo app',
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
+        locale: Locale("en-MN"),
+        routes: AppConfigs.appRoutes,
         darkTheme: darkTheme,
         navigatorKey: GlobalKeys.navigatorKey,
         themeMode: home.themeMode,

@@ -158,7 +158,9 @@ class _DeliveryItemsWidgetState extends State<DeliveryItemsWidget>
         children: [
           Ibtn(onTap: () => additionalDelivery(jagger), icon: Icons.add),
           Text('Нэмэлт хүргэлтүүд',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              )),
           Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -166,7 +168,9 @@ class _DeliveryItemsWidgetState extends State<DeliveryItemsWidget>
                 shape: BoxShape.circle),
             child: Text(
               widget.items.length.toString(),
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],

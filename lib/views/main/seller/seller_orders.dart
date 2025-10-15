@@ -108,9 +108,13 @@ class _SellerOrdersState extends State<SellerOrders>
           appbar: SideAppBar(
             title: searchBar(),
             preferredSize: const Size.fromHeight(kToolbarHeight + 10),
-            leading: InkWell(
-              onTap: () => Navigator.pop(context),
-              child: const Icon(Icons.arrow_back, color: Colors.white),
+            leading: Container(
+              margin: EdgeInsets.only(left: 10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(50),
+                onTap: () => Navigator.pop(context),
+                child: const Icon(Icons.arrow_back, color: Colors.white),
+              ),
             ),
             centerTitle: false,
           ),

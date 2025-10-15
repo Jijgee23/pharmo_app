@@ -74,6 +74,9 @@ class CustomTextField extends StatelessWidget {
           enabledBorder: border,
           focusedBorder: border,
           suffixIcon: suffixIcon,
+          errorStyle: TextStyle(
+            color: Colors.red,
+          ),
         ),
         obscureText: obscureText ?? false,
         autovalidateMode: AutovalidateMode.onUnfocus,

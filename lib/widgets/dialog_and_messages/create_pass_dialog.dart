@@ -22,7 +22,7 @@ final TextEditingController otpController = TextEditingController();
 
 class _CreatePassDialogState extends State<CreatePassDialog> {
   bool otpSent = false;
-  setInvisible(bool n) {
+  void setInvisible(bool n) {
     setState(() {
       otpSent = n;
     });

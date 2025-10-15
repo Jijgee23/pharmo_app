@@ -1,5 +1,3 @@
-// ignore_for_file: collection_methods_unrelated_type
-
 import 'package:pharmo_app/models/products.dart';
 import 'package:pharmo_app/services/local_base.dart';
 import 'package:pharmo_app/views/public_uses/filter/filter.dart';
@@ -51,9 +49,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         if (security.role == 'PA') {
           debugPrint(security.supplierId.toString());
           print(home.selected.name);
-          final mp = await promotion.getMarkedPromotion();
-          final branches = await home.getBranches();
-          final s = await home.getSuppliers();
+          await promotion.getMarkedPromotion();
+          await home.getBranches();
+          await home.getSuppliers();
           if (security.supplierId != null) {
             final sup =
                 home.supliers.firstWhere((e) => e.id == security.supplierId);
@@ -106,13 +104,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     'ordering=-created_at'
   ];
   String selectedFilter = 'Бүгд';
-  setSelectedFilter(String n) {
+  void setSelectedFilter(String n) {
     setState(() {
       selectedFilter = n;
     });
   }
 
-  refresh() async {
+  Future<void> refresh() async {
     setLoading(true);
     final homeProvider = context.read<HomeProvider>();
     await homeProvider.clearItems();
@@ -133,7 +131,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           pad: EdgeInsets.all(5.0),
           child: Column(
             children: [
-              if (home.userRole == 'PA') filtering(Sizes.smallFontSize),
+              if (LocalBase.security != null &&
+                  LocalBase.security!.role == 'PA')
+                filtering(Sizes.smallFontSize),
               products(home),
             ],
           ),
@@ -158,7 +158,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Widget products(HomeProvider home) {
-    if (home.userRole == 'PA' && home.picked.id.toString() == '-1' ||
+    if (LocalBase.security!.role == 'PA' && home.picked.id.toString() == '-1' ||
         home.picked == null) {
       return errorWidget();
     } else {
@@ -194,7 +194,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   // Эрэлттэй, Шинэ, Хямдралтай
-  filtering(double smallFontSize) {
+  SingleChildScrollView filtering(double smallFontSize) {
     final homeProvider = context.read<HomeProvider>();
     return SingleChildScrollView(
       padding: const EdgeInsets.all(2.5),
@@ -228,7 +228,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     );
   }
 
-  filt({required String e, required IconData icon, required Function() ontap}) {
+  InkWell filt(
+      {required String e, required IconData icon, required Function() ontap}) {
     bool selected = (e == selectedFilter);
     return InkWell(
       splashColor: transperant,

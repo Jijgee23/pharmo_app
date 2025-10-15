@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:provider/provider.dart';
@@ -35,9 +36,12 @@ class MyDrawer extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: theme.cardColor,
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: [BoxShadow(color: theme.shadowColor, blurRadius: 5)]),
+                      boxShadow: [
+                        BoxShadow(color: theme.shadowColor, blurRadius: 5)
+                      ]),
                   margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -66,9 +70,9 @@ class MyDrawer extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              homeProvider.userEmail != null
+                              LocalBase.security != null
                                   ? Text(
-                                      homeProvider.userEmail!,
+                                      LocalBase.security!.email,
                                       style: theme.textTheme.bodySmall,
                                     )
                                   : const SizedBox(),
@@ -80,7 +84,9 @@ class MyDrawer extends StatelessWidget {
                         onPressed: () => homeProvider.toggleTheme(),
                         icon: Icon(
                           color: black,
-                          homeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                          homeProvider.isDarkMode
+                              ? Icons.dark_mode
+                              : Icons.light_mode,
                         ),
                       ),
                     ],

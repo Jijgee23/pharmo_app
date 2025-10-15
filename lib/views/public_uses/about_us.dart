@@ -12,8 +12,8 @@ class AboutUs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String logoUrl =
-        'https://infosystems.mn/api/uploads/white_logo_cae13554c4.png';
+    // String logoUrl =
+    //     'https://infosystems.mn/api/uploads/white_logo_cae13554c4.png';
     List<String> socialUrls = [
       'https://img.freepik.com/premium-vector/art-illustration_929495-41.jpg?semt=ais_hybrid',
       'https://img.freepik.com/premium-vector/red-youtube-logo-social-media-logo_197792-1803.jpg?semt=ais_hybrid',
@@ -30,17 +30,18 @@ class AboutUs extends StatelessWidget {
       empty: false,
       appbar: SideAppBar(text: 'Бидний тухай'),
       child: SingleChildScrollView(
+        padding: EdgeInsets.all(10),
         child: Column(
           spacing: 10,
           children: [
-            Container(
-              height: 100,
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                  color: Colors.black87,
-                  borderRadius: BorderRadius.circular(10)),
-              child: Image.network(logoUrl, fit: BoxFit.cover),
-            ),
+            // Container(
+            //   height: 100,
+            //   padding: EdgeInsets.symmetric(horizontal: 10),
+            //   decoration: BoxDecoration(
+            //       // color: Colors.black87,
+            //       borderRadius: BorderRadius.circular(10)),
+            //   child: Image.network(logoUrl, fit: BoxFit.cover),
+            // ),
             div('Үүсэл хөгжил',
                 'Манай компани 1997 оноос эхлэн Мэдээллийн технологийн салбарт програм хангамжийн чиглэлээр ажиллаж зах зээлд өөрийн гэсэн байр сууриа эзэлж, тэргүүлэгч компаниудын нэг болсон.'),
             div('Зорилт',
@@ -95,10 +96,11 @@ class AboutUs extends StatelessWidget {
     return InkWell(
       onTap: ontap ?? () {},
       child: Container(
-        padding: EdgeInsets.all(5),
+        padding: EdgeInsets.symmetric(vertical: 5),
         child: Row(
+          spacing: 10,
           children: [
-            Expanded(child: Icon(icon)),
+            Icon(icon),
             Expanded(flex: 4, child: Text(text)),
           ],
         ),
@@ -107,35 +109,30 @@ class AboutUs extends StatelessWidget {
   }
 
   div(String title, String text) {
-    return Container(
-      decoration: BoxDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            spacing: 10,
-            children: [
-              Expanded(child: Container(width: 30, color: neonBlue, height: 1)),
-              Align(
-                alignment: Alignment.center,
-                child: Text(
-                  title,
-                  textAlign: TextAlign.end,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+    var side = Expanded(child: Container(color: neonBlue, height: 1));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          spacing: 10,
+          children: [
+            side,
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                title,
+                textAlign: TextAlign.end,
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              Expanded(
-                child: Container(
-                    width: double.maxFinite, color: neonBlue, height: 1),
-              )
-            ],
-          ),
-          Text(
-            text,
-            style: TextStyle(fontSize: 16, color: grey600),
-          )
-        ],
-      ),
+            ),
+            side,
+          ],
+        ),
+        Text(
+          text,
+          style: TextStyle(color: grey600),
+        )
+      ],
     );
   }
 

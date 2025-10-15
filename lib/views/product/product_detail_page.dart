@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/products.dart';
+import 'package:pharmo_app/services/local_base.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -119,39 +120,10 @@ class _ProductDetailState extends State<ProductDetail>
       'Хямдрал дуусах хугацаа': det['discount_expiredate'].toString()
     };
 
-    // List<String> infos = [
-    //   'Барааны дуусах хугацаа',
-    //   'Ерөнхий нэршил',
-    //   'Тун хэмжээ',
-    //   'Хөнгөлөлт',
-    //   'Хэлбэр',
-    //   'Мастер савалгааны тоо',
-    //   'Олгох нөхцөл',
-    //   'Улс',
-    //   'Үйлдвэрлэгч',
-    //   'Бөөний үнэ',
-    //   'Бөөний тоо',
-    //   'Хямдрал',
-    //   'Хямдрал дуусах хугацаа'
-    // ];
-    // List<String> datas = [
-    //   det['expDate'].toString(),
-    //   det['intName'].toString(),
-    //   '',
-    //   '',
-    //   '',
-    //   det['master_box_qty'].toString(),
-    //   '',
-    //   '',
-    //   det['vndr'] != null ? det['vndr']['name'] : '',
-    //   toPrice(det['sale_price'].toString()),
-    //   det['sale_qty'].toString(),
-    //   toPrice(det['discount'].toString()),
-    //   det['discount_expiredate'].toString()
-    // ];
     return Consumer2<BasketProvider, HomeProvider>(
       builder: (context, basket, home, child) {
-        bool isNotPharma = (home.userRole != 'PA');
+        bool isNotPharma =
+            (LocalBase.security != null && LocalBase.security!.role != 'PA');
         if (fetching) {
           return const Center(child: PharmoIndicator());
         } else {
@@ -327,41 +299,42 @@ class _ProductDetailState extends State<ProductDetail>
         child: Stack(
           children: [
             Container(
-                padding: const EdgeInsets.all(Sizes.smallFontSize),
-                child: CarouselSlider(
-                  carouselController: slideController,
-                  items: pictures
-                      .map(
-                        (p) => Stack(
-                          children: [
-                            imageWidget('${dotenv.env['IMAGE_URL']}$p'),
-                            if (isNotPharma == true)
-                              Positioned(
-                                right: 3,
-                                bottom: 3,
-                                child: InkWell(
-                                  onTap: () => deleteImage(home, p),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle),
-                                    child: const Icon(Icons.delete,
-                                        color: white, size: 30),
-                                  ),
+              padding: const EdgeInsets.all(Sizes.smallFontSize),
+              child: CarouselSlider(
+                carouselController: slideController,
+                items: pictures
+                    .map(
+                      (p) => Stack(
+                        children: [
+                          imageWidget('${dotenv.env['IMAGE_URL']}$p'),
+                          if (isNotPharma == true)
+                            Positioned(
+                              right: 3,
+                              bottom: 3,
+                              child: InkWell(
+                                onTap: () => deleteImage(home, p),
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle),
+                                  child: const Icon(Icons.delete,
+                                      color: white, size: 30),
                                 ),
                               ),
-                          ],
-                        ),
-                      )
-                      .toList(),
-                  options: CarouselOptions(
-                    viewportFraction: 1,
-                    autoPlay: true,
-                    autoPlayAnimationDuration: duration,
-                    pauseAutoPlayOnTouch: true,
-                  ),
-                )),
+                            ),
+                        ],
+                      ),
+                    )
+                    .toList(),
+                options: CarouselOptions(
+                  viewportFraction: 1,
+                  autoPlay: pictures.length > 1,
+                  autoPlayAnimationDuration: duration,
+                  pauseAutoPlayOnTouch: true,
+                ),
+              ),
+            ),
           ],
         ),
       );

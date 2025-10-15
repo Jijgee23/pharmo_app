@@ -3,7 +3,6 @@ import 'loc_model.dart';
 
 class LocBox {
   static const String boxName = 'locBox';
-
   static const String hasTrack = 'track';
 
   static Future<bool> hasSellerTrack() async {

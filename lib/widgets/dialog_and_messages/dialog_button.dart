@@ -87,7 +87,6 @@ Future<bool> confirmDialog({
                 title,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -95,7 +94,7 @@ Future<bool> confirmDialog({
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16, color: Colors.black54),
+                style: const TextStyle(color: Colors.black54),
               ),
               if (attentionText != null) SizedBox(height: 15),
               if (attentionText != null)
@@ -112,29 +111,33 @@ Future<bool> confirmDialog({
               if (content != null) content,
               const SizedBox(height: 25),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                spacing: 20,
                 children: [
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.grey,
-                      side: BorderSide(color: Colors.grey),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey,
+                        side: BorderSide(color: Colors.grey),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text('Үгүй'),
                     ),
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text('Үгүй'),
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade700,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green.shade700,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text('Тийм'),
                     ),
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: Text('Тийм'),
                   ),
                 ],
               ),

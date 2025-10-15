@@ -1,23 +1,56 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:pharmo_app/app_configs.dart';
+import 'package:pharmo_app/models/a_models.dart';
 import 'package:pharmo_app/services/a_services.dart';
 import 'package:http/http.dart' as http;
+import 'package:pharmo_app/services/log_service.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
-import 'package:pharmo_app/views/auth/login.dart';
+import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
-import 'package:pharmo_app/views/auth/root_page.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/progress_dialog.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:http_parser/http_parser.dart' as pharser;
 
 class AuthController extends ChangeNotifier {
+  final formKey = GlobalKey<FormState>();
+
+  Security? security;
+
+  void udpateSecurity(Security? val) {
+    security = val;
+    notifyListeners();
+  }
+
+  void initLoginpage() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      udpateSecurity(LocalBase.security);
+      if (security == null) {
+        return;
+      }
+      await checkForUpdate();
+      final remembered = await LocalBase.getRemember();
+      if (remembered) {
+        setRemember(true);
+        fillEmail(security!.email);
+      }
+    });
+  }
+
   bool loading = false;
   bool remember = false;
+  bool hidePass = true;
 
-  setRemember(bool n) {
+  void toggleHidePass() {
+    hidePass = !hidePass;
+    notifyListeners();
+  }
+
+  void setRemember(bool n) {
     remember = n;
     notifyListeners();
   }
@@ -27,15 +60,21 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  final TextEditingController ema = TextEditingController();
+  void fillEmail(String email) {
+    ema.text = email;
+    notifyListeners();
+  }
+
+  final TextEditingController pass = TextEditingController();
+
   Future<http.Response?> apiPostWithoutToken(
       String endPoint, Object? body) async {
     http.Response? result;
     if (await isOnline()) {
-      var response = await http.post(
-        setUrl(endPoint),
-        headers: header,
-        body: jsonEncode(body),
-      );
+      var response = await http
+          .post(setUrl(endPoint), headers: header, body: jsonEncode(body))
+          .timeout(Duration(seconds: 5));
       result = response;
     } else {
       message('Интернет холболтоо шалгана уу!');
@@ -59,43 +98,52 @@ class AuthController extends ChangeNotifier {
   }
 
   // Нэвтрэх
-  Future<void> login(
-      String email, String password, BuildContext context) async {
-    setLogging(true);
+  Future<void> login() async {
+    if (!formKey.currentState!.validate()) {
+      message('Нэвтрэх нэр, нууц үг оруулна уу');
+      return;
+    }
+    showPharmoProgressDialog();
     try {
-      var body = {
-        'email': email,
-        'password': password,
-      };
+      var body = {'email': ema.text, 'password': pass.text};
       var responseLogin = await apiPostWithoutToken('auth/login/', body);
       Map<String, dynamic> decodedResponse = convertData(responseLogin!);
       if (responseLogin.statusCode == 200) {
-        _handleSuccessfulLogin(decodedResponse, context);
+        _handleSuccessfulLogin(decodedResponse);
       } else if (responseLogin.statusCode == 400) {
-        setLogging(false);
-        _handleBadRequest(decodedResponse, email, password);
-      } else if (responseLogin.statusCode == 401) {
-        setLogging(false);
+        _handleBadRequest(decodedResponse, ema.text, pass.text);
       } else {
-        setLogging(false);
-        message('Имейл эсвэл нууц үг буруу байна!');
+        message('Алдаа гарлаа, Инфосистемс-ХХК-д хандана уу!');
       }
       notifyListeners();
     } catch (e) {
-      message('Интернет холболтоо шалгана уу!');
+      if (e is TimeoutException) {
+        message('Интернет холболтоо шалгана уу!');
+      } else {
+        message(wait);
+      }
       debugPrint('error================= on login> ${e.toString()} ');
     } finally {
-      setLogging(false);
+      hidePharmoProgressDialog();
     }
   }
 
   // Нэвтрэх амжилттай
-  Future<void> _handleSuccessfulLogin(
-      Map<String, dynamic> res, BuildContext context) async {
-    await LocalBase.saveModel(res);
-    if (remember) await LocalBase.saveRemember();
-    gotoRemoveUntil(RootPage());
-    await getDeviceInfo();
+  Future<void> _handleSuccessfulLogin(Map<String, dynamic> res) async {
+    try {
+      await LocalBase.clearLocalBase();
+      await LocalBase.saveModel(res);
+      await LocalBase.initLocalBase();
+      await getDeviceInfo();
+      await LocalBase.saveLastLoggedIn(true);
+      await LogService.createLog('login', LogService.login);
+      if (remember) await LocalBase.saveRemember();
+    } catch (e) {
+      print(e);
+    }
+    final sec = LocalBase.security;
+    if (sec == null) return;
+    await goNamedOfAll('root');
   }
 
   // Нэвтрэх амжилтгүй
@@ -121,24 +169,9 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  // Хэрэглэгчийн эрхээс хамаарч дэлгэц харуулах
-
-  // Токен шинэчлэх
-  Future<void> refresh() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? rtoken = prefs.getString("refresh_token");
-    var body = {'refresh': rtoken!};
-    var response = await api(Api.post, 'auth/refresh/', body: body);
-    if (response!.statusCode == 200) {
-      String accessToken = json.decode(response.body)['access'];
-      await prefs.setString('access_token', accessToken);
-      notifyListeners();
-    }
-  }
-
-  // Системээс гарах
   Future<void> logout(BuildContext context) async {
     try {
+      await LogService.createLog('logout', LogService.logout);
       final response = await http.post(
         setUrl('auth/logout/'),
         headers: getHeader(LocalBase.security!.access),
@@ -154,11 +187,11 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  _completeLogout(BuildContext context) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('access_token');
-    prefs.remove('refresh_token');
+  Future<void> _completeLogout(BuildContext context) async {
+    await LocalBase.removeTokens();
+    await LocalBase.saveLastLoggedIn(false);
     await _disposeProviders(context);
+
     Get.offAll(() => const LoginPage());
   }
 
@@ -174,7 +207,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // Бүртгэл батлагаажуулах код авах
-  signUpGetOtp(String email, String phone) async {
+  Future signUpGetOtp(String email, String phone) async {
     try {
       final response = await apiPostWithoutToken(
         'auth/reg_otp/',
@@ -193,7 +226,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // Бүртгүүлэх
-  register(
+  Future register(
       {required String email,
       required String phone,
       required String otp,
@@ -225,7 +258,7 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  resetPassOtp(String email) async {
+  Future resetPassOtp(String email) async {
     try {
       final response = await http.post(setUrl('auth/get_otp/'),
           headers: header, body: jsonEncode({'email': email}));
@@ -240,7 +273,7 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  createPassword(String email, String otp, String newPassword,
+  Future createPassword(String email, String otp, String newPassword,
       BuildContext context) async {
     try {
       final response = await http.post(setUrl('auth/reset/'),
@@ -268,8 +301,11 @@ class AuthController extends ChangeNotifier {
   Future getDeviceInfo() async {
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, String> deviceData = {};
-    String token = await getToken();
-    print('DEVICE TOKEN =====> $token');
+    String token = await FirebaseApi.getToken();
+    if (token != '') {
+      await LocalBase.saveDeviceToken(token);
+    }
+    debugPrint("device token: $token");
     try {
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
@@ -303,8 +339,7 @@ class AuthController extends ChangeNotifier {
         'os': deviceData['os'],
         'osVersion': deviceData['osVersion']
       };
-      http.Response? response =
-          await api(Api.post, 'device_token/', body: data);
+      final response = await api(Api.post, 'device_token/', body: data);
       if (response!.statusCode == 200) {
         debugPrint('Device info sent');
       } else {
@@ -312,27 +347,6 @@ class AuthController extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('$e');
-    }
-  }
-
-  Future getToken() async {
-    try {
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      if (Platform.isIOS) {
-        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-
-        if (iosInfo.isPhysicalDevice == false) {
-          return 'SIMULATOR';
-        } else {
-          await FirebaseMessaging.instance.getAPNSToken();
-          await Future.delayed(const Duration(seconds: 2));
-          return await FirebaseMessaging.instance.getToken() ?? '';
-        }
-      } else {
-        return await FirebaseMessaging.instance.getToken() ?? '';
-      }
-    } catch (e) {
-      debugPrint(e.toString());
     }
   }
 
@@ -409,7 +423,7 @@ class AuthController extends ChangeNotifier {
   final currentTrack = UpdateTrack.stable;
   bool checking = false;
   Patch? currentPatch;
-  setChecking(bool n) {
+  void setChecking(bool n) {
     checking = n;
     notifyListeners();
   }
@@ -426,7 +440,6 @@ class AuthController extends ChangeNotifier {
         debugPrint('Шинэчлэлт шаардлагагүй');
         return;
       }
-
       if (status == UpdateStatus.outdated) {
         debugPrint('Шинэчлэлт татагдаж байна');
         await updater.update(track: currentTrack).whenComplete(() async {
@@ -457,9 +470,9 @@ class AuthController extends ChangeNotifier {
 
     if (status == UpdateStatus.outdated) {
       message('Шинэчлэлт татагдаж байна');
-      await updater.update(track: currentTrack).whenComplete(() async {
-        await restartBanner();
-      });
+      await updater.update(track: currentTrack);
+      await restartBanner();
+      return;
     }
     if (status == UpdateStatus.restartRequired) {
       message('Дахин ачаалуулах шаардлагатай');

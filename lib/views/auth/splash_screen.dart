@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/views/auth/login.dart';
+import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 

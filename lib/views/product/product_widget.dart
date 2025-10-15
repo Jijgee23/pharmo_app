@@ -158,7 +158,6 @@ class ProductWidgetListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fs = Sizes.height * .013;
-    final home = Provider.of<HomeProvider>(context, listen: false);
     return InkWell(
       onTap: () => goto(ProductDetail(prod: item)),
       child: AnimatedContainer(
@@ -201,7 +200,7 @@ class ProductWidgetListView extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (home.userRole != 'PA')
+                      if (LocalBase.security!.role != 'PA')
                         Expanded(
                             child: Text(
                           'Үлд: ${maybeNull(item.qty.toString())}',

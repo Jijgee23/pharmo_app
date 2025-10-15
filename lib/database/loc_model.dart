@@ -21,4 +21,11 @@ class LocModel extends HiveObject {
     required this.success,
     this.data,
   });
+  Map<String, dynamic> toJson(LocModel model) {
+    return {
+      "lat": model.lat,
+      "lbg": model.lng,
+      "created": model.data,
+    };
+  }
 }

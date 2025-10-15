@@ -3,7 +3,12 @@ import 'package:pharmo_app/utilities/colors.dart';
 
 class PharmoIndicator extends StatefulWidget {
   final bool withMaterial;
-  const PharmoIndicator({super.key, this.withMaterial = false});
+  final double size;
+  const PharmoIndicator({
+    super.key,
+    this.withMaterial = false,
+    this.size = 50,
+  });
 
   @override
   State<PharmoIndicator> createState() => _PharmoIndicatorState();
@@ -54,7 +59,8 @@ class _PharmoIndicatorState extends State<PharmoIndicator>
       },
       child: Image.asset(
         'assets/logo_circle.png',
-        height: 50,
+        height: widget.size,
+        width: widget.size,
       ),
     );
   }

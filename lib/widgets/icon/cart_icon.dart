@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:pharmo_app/services/local_base.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:provider/provider.dart';
 
@@ -30,7 +31,7 @@ class _CartIconState extends State<CartIcon> {
         margin: const EdgeInsets.only(right: 15),
         child: InkWell(
           onTap: () {
-            home.changeIndex(home.userRole == 'PA' ? 2 : 3);
+            home.changeIndex(LocalBase.security!.role == 'PA' ? 2 : 3);
             Navigator.pop(context);
           },
           child: badges.Badge(

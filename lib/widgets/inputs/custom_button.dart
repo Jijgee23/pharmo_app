@@ -37,15 +37,14 @@ class CustomButton extends StatelessWidget {
             side: BorderSide(
               color: borderColor ?? theme.primaryColor,
             ),
-            borderRadius: BorderRadius.circular(borderRadius ?? 50),
+            borderRadius: BorderRadius.circular(borderRadius ?? 15),
           ),
         ),
-        // Disable үед opacity бууруулах бол style-д өөрчлөлт оруулж болно
         foregroundColor: WidgetStatePropertyAll(
           enabled ? Colors.white : Colors.white.withAlpha(150),
         ),
       ),
-      onPressed: enabled ? ontap : null, // 🧠 disable logic энд
+      onPressed: enabled ? ontap : null,
       child: Center(
         child: child ??
             Text(

@@ -5,8 +5,6 @@ import 'a_controlller.dart';
 import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
-// import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
-//     as bg;
 
 class RepProvider extends ChangeNotifier {
   Visiting? visiting;
@@ -193,8 +191,10 @@ class RepProvider extends ChangeNotifier {
       final results = await Connectivity().checkConnectivity();
       if (!results.contains(ConnectivityResult.wifi) &&
           !results.contains(ConnectivityResult.mobile)) {
-        Notify.local('📡 Сүлжээ тасарсан байна',
-            'Интернет холболтоо шалгана уу. Байршлын дамжуулалт түр зогссон.');
+        await FirebaseApi.local(
+          '📡 Сүлжээ тасарсан байна',
+          'Интернет холболтоо шалгана уу. Байршлын дамжуулалт түр зогссон.',
+        );
         noSendedLocs.add(Loc(lat: lat, lng: lng, created: DateTime.now()));
         notifyListeners();
         return;
@@ -202,14 +202,17 @@ class RepProvider extends ChangeNotifier {
       final body = {"visiting_id": db.get('meetingId'), "lat": lat, "lng": lng};
       final res = await api(Api.patch, 'company/visiting/route/', body: body);
       if (res != null && res.statusCode == 200) {
-        Notify.local(
+        await FirebaseApi.local(
           'Байршил дамжуулж байна',
           'Таны байршлыг арын төлөвт дамжуулж байна. өргөрөг: $lat уртраг: $lng',
         );
         noSendedLocs.clear();
         notifyListeners();
       } else {
-        Notify.local('Байршил дамжуулаагүй!', 'Байршил дамжуулах дарна уу!');
+        await FirebaseApi.local(
+          'Байршил дамжуулаагүй!',
+          'Байршил дамжуулах дарна уу!',
+        );
       }
     } catch (e) {
       debugPrint(e.toString());

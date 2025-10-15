@@ -9,6 +9,7 @@ import 'package:pharmo_app/views/public_uses/about_us.dart';
 import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/main/seller/seller_orders.dart';
 import 'package:pharmo_app/views/main/seller/seller_report.dart';
+import 'package:pharmo_app/views/public_uses/system_log.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
 
@@ -88,10 +89,20 @@ class Profile extends StatelessWidget {
                               color: Colors.pink,
                               ontap: () => goto(Visits()),
                             ),
+                          if (isSeller)
+                            SideMenu(
+                              title: 'Системийн лог',
+                              icon: Icons.pending_actions_sharp,
+                              color: Colors.pink,
+                              ontap: () => goto(SystemLog()),
+                            ),
                           Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 30, vertical: 15),
-                              child: const Text('Ерөнхий')),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 15,
+                            ),
+                            child: const Text('Ерөнхий'),
+                          ),
                           SideMenu(
                               title: 'Нууцлалын бодлого',
                               icon: Icons.lock,
@@ -140,51 +151,55 @@ class ProfileHeader extends StatelessWidget {
       );
     }
     return Consumer<AuthController>(
-      builder: (context, auth, child) => Column(
-        spacing: 10,
-        children: [
-          const SizedBox(height: 0),
-          Container(
-            decoration: BoxDecoration(color: grey100, shape: BoxShape.circle),
-            padding: const EdgeInsets.all(5),
-            child: ClipOval(
-              child: Image.asset(
-                'assets/icons/boy.png',
-                height: Sizes.height * 0.054,
-              ),
-            ),
-          ),
-          Text(
-            security.name,
-            style: TextStyle(
-              color: theme.primaryColor.withOpacity(.8),
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 20,
-            children: [
-              Text(
-                security.email,
-                style: TextStyle(
-                  color: grey500,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
+      builder: (context, auth, child) => Container(
+        padding: EdgeInsets.all(10.0),
+        child: Column(
+          spacing: 10,
+          children: [
+            const SizedBox(height: 0),
+            Container(
+              decoration: BoxDecoration(color: grey100, shape: BoxShape.circle),
+              padding: const EdgeInsets.all(5),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/icons/boy.png',
+                  height: Sizes.height * 0.054,
                 ),
               ),
+            ),
+            if (security.name != 'null')
               Text(
-                security.companyName,
+                security.name,
                 style: TextStyle(
                   color: theme.primaryColor.withOpacity(.8),
                   fontWeight: FontWeight.w700,
-                  fontSize: 14,
+                  fontSize: 16,
                 ),
               ),
-            ],
-          ),
-        ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 20,
+              children: [
+                Text(
+                  security.email,
+                  style: TextStyle(
+                    color: grey500,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  security.companyName,
+                  style: TextStyle(
+                    color: theme.primaryColor.withOpacity(.8),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -240,7 +255,8 @@ class SideMenu extends StatelessWidget {
   }
 }
 
-menu(String title, IconData icon, {required Function() ontap, Color? color}) {
+Widget menu(String title, IconData icon,
+    {required Function() ontap, Color? color}) {
   return InkWell(
     onTap: ontap,
     child: Container(
