@@ -11,7 +11,6 @@ import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/progress_dialog.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:http_parser/http_parser.dart' as pharser;
@@ -68,8 +67,7 @@ class AuthController extends ChangeNotifier {
 
   final TextEditingController pass = TextEditingController();
 
-  Future<http.Response?> apiPostWithoutToken(
-      String endPoint, Object? body) async {
+  Future<http.Response?> apiPostWithoutToken(String endPoint, Object? body) async {
     http.Response? result;
     if (await isOnline()) {
       var response = await http
@@ -103,29 +101,32 @@ class AuthController extends ChangeNotifier {
       message('Нэвтрэх нэр, нууц үг оруулна уу');
       return;
     }
-    showPharmoProgressDialog();
-    try {
-      var body = {'email': ema.text, 'password': pass.text};
-      var responseLogin = await apiPostWithoutToken('auth/login/', body);
-      Map<String, dynamic> decodedResponse = convertData(responseLogin!);
-      if (responseLogin.statusCode == 200) {
-        _handleSuccessfulLogin(decodedResponse);
-      } else if (responseLogin.statusCode == 400) {
-        _handleBadRequest(decodedResponse, ema.text, pass.text);
-      } else {
-        message('Алдаа гарлаа, Инфосистемс-ХХК-д хандана уу!');
+    await HomeProvider.initer(() async {
+      // showPharmoProgressDialog();
+      try {
+        var body = {'email': ema.text, 'password': pass.text};
+        var responseLogin = await apiPostWithoutToken('auth/login/', body);
+        Map<String, dynamic> decodedResponse = convertData(responseLogin!);
+        if (responseLogin.statusCode == 200) {
+          _handleSuccessfulLogin(decodedResponse);
+        } else if (responseLogin.statusCode == 400) {
+          _handleBadRequest(decodedResponse, ema.text, pass.text);
+        } else {
+          message('Алдаа гарлаа, Инфосистемс-ХХК-д хандана уу!');
+        }
+        notifyListeners();
+      } catch (e) {
+        if (e is TimeoutException) {
+          message('Интернет холболтоо шалгана уу!');
+        } else {
+          message(wait);
+        }
+        debugPrint('error================= on login> ${e.toString()} ');
       }
-      notifyListeners();
-    } catch (e) {
-      if (e is TimeoutException) {
-        message('Интернет холболтоо шалгана уу!');
-      } else {
-        message(wait);
-      }
-      debugPrint('error================= on login> ${e.toString()} ');
-    } finally {
-      hidePharmoProgressDialog();
-    }
+      //  finally {
+      //   hidePharmoProgressDialog();
+      // }
+    });
   }
 
   // Нэвтрэх амжилттай
@@ -232,12 +233,7 @@ class AuthController extends ChangeNotifier {
       required String otp,
       required String password}) async {
     try {
-      var body = {
-        'email': email,
-        'phone': phone,
-        'otp': otp,
-        'password': password
-      };
+      var body = {'email': email, 'phone': phone, 'otp': otp, 'password': password};
       final response = await apiPostWithoutToken('auth/register/', body);
       final data = jsonDecode(utf8.decode(response!.bodyBytes));
       print(data);
@@ -273,13 +269,10 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future createPassword(String email, String otp, String newPassword,
-      BuildContext context) async {
+  Future createPassword(String email, String otp, String newPassword, BuildContext context) async {
     try {
       final response = await http.post(setUrl('auth/reset/'),
-          headers: header,
-          body:
-              jsonEncode({'email': email, 'otp': otp, 'new_pwd': newPassword}));
+          headers: header, body: jsonEncode({'email': email, 'otp': otp, 'new_pwd': newPassword}));
       if (response.statusCode == 200) {
         message('Нууц үг амжилттай үүслээ');
         Navigator.pop(context);
@@ -383,8 +376,7 @@ class AuthController extends ChangeNotifier {
       request.headers['Accept'] = 'application/json';
       final compressedLogo = await compressImage(logo!);
       compressedLogo != null
-          ? request.files.add(
-              await http.MultipartFile.fromPath('logo', compressedLogo.path))
+          ? request.files.add(await http.MultipartFile.fromPath('logo', compressedLogo.path))
           : null;
       request.fields['public_name'] = publicName;
       request.fields['email'] = ema;
@@ -403,12 +395,10 @@ class AuthController extends ChangeNotifier {
       print(res.statusCode);
       print(responseBody);
       if (res.statusCode == 200 || res.statusCode == 201) {
-        return buildResponse(
-            1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
+        return buildResponse(1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
       } else {
         if (responseBody.contains('already exists')) {
-          return buildResponse(
-              2, null, 'И-Мейл, РД эсвэл нэр давхардаж байна!');
+          return buildResponse(2, null, 'И-Мейл, РД эсвэл нэр давхардаж байна!');
         } else {
           return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
         }

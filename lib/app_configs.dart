@@ -5,8 +5,8 @@ import 'package:pharmo_app/views/auth/root_page.dart';
 import 'package:pharmo_app/views/auth/sign_up.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
 import 'package:pharmo_app/views/index.dart';
-import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
-import 'package:pharmo_app/views/main/seller/seller_tracking.dart';
+import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
+import 'package:pharmo_app/views/seller/seller_tracking.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'controllers/a_controlller.dart';
@@ -40,8 +40,8 @@ class AppConfigs {
   };
 }
 
-Future<T> goNamed<T>(String route, {dynamic arguments}) async {
-  final result = await Get.toNamed<T>("/$route", arguments: arguments);
+Future<T?> goNamed<T>(String route, {dynamic arguments}) async {
+  final result = await Get.toNamed<T?>("/$route", arguments: arguments);
   return result as T;
 }
 

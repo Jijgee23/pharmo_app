@@ -4,7 +4,7 @@ import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/index.dart';
-import 'package:pharmo_app/views/main/delivery_man/index_delivery_man.dart';
+import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 
 enum AuthState { unknown, loggedIn, notLoggedIn, expired }

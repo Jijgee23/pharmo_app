@@ -59,16 +59,13 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
                         maxLines: 2,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 15,
-                          letterSpacing: 1,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
                       )
                     : title,
                 leading: leading ?? const ChevronBack(),
-                actions: [
-                  if (hasBasket) basketIcon(home, basket),
-                  action ?? const SizedBox()
-                ],
+                actions: [if (hasBasket) basketIcon(home, basket), action ?? const SizedBox()],
               ),
             ),
           ),
@@ -93,14 +90,10 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
             top: 2,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-              decoration: BoxDecoration(
-                  color: Colors.red, borderRadius: BorderRadius.circular(15)),
+              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(15)),
               child: Text(
-                basket.basket != null
-                    ? basket.basket!.totalCount.toString()
-                    : '0',
-                style: const TextStyle(
-                    color: white, fontSize: 10, fontWeight: FontWeight.bold),
+                basket.basket != null ? basket.basket!.totalCount.toString() : '0',
+                style: const TextStyle(color: white, fontSize: 10, fontWeight: FontWeight.bold),
               ),
             ),
           ),

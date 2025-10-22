@@ -5,9 +5,9 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/views/main/pharmacy/my_orders/my_order_detail.dart';
-import 'package:pharmo_app/views/main/pharmacy/promotion/marked_promo_dialog.dart';
-import 'package:pharmo_app/views/main/seller/seller_order_detail.dart';
+import 'package:pharmo_app/views/pharmacy/my_orders/my_order_detail.dart';
+import 'package:pharmo_app/views/pharmacy/promotion/marked_promo_dialog.dart';
+import 'package:pharmo_app/views/seller/seller_order_detail.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:provider/provider.dart' show Consumer;
@@ -26,8 +26,7 @@ class OrderWidget extends StatelessWidget {
           children: [
             SlidableAction(
               flex: 2,
-              onPressed: (context) =>
-                  askDeletetion(context, provider, order.orderNo.toString()),
+              onPressed: (context) => askDeletetion(context, provider, order.orderNo.toString()),
               backgroundColor: Colors.transparent,
               foregroundColor: Colors.red,
               icon: Icons.delete,
@@ -55,17 +54,14 @@ class OrderWidget extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                          color: primary.withOpacity(.3),
-                          borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 10),
+                          color: primary.withOpacity(.3), borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                       child: Row(
                         children: [
                           const Icon(Icons.person, color: primary),
                           const SizedBox(width: 5),
                           Text(maybeNull(order.customer),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold))
+                              style: const TextStyle(fontWeight: FontWeight.bold))
                         ],
                       ),
                     ),
@@ -100,8 +96,7 @@ class OrderWidget extends StatelessWidget {
   }
 
   tx(String? s) {
-    return Text(maybeNull(s),
-        style: const TextStyle(fontSize: 14, color: Colors.black));
+    return Text(maybeNull(s), style: const TextStyle(fontSize: 14, color: Colors.black));
   }
 
   askDeletetion(BuildContext context, MyOrderProvider op, String name) {

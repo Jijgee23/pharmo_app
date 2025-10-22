@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controllers/home_provider.dart';
 import 'package:pharmo_app/models/products.dart';
-import 'package:pharmo_app/views/main/home.dart';
+import 'package:pharmo_app/views/home.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:provider/provider.dart';
 

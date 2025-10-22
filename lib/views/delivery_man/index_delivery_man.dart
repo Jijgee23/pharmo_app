@@ -1,0 +1,46 @@
+import 'package:pharmo_app/views/delivery_man/home/delivery_home.dart';
+import 'package:pharmo_app/views/delivery_man/orders/delivery_orders.dart';
+import 'package:pharmo_app/views/delivery_man/profile/delivery_profile.dart';
+import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
+import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
+import 'package:pharmo_app/controllers/a_controlller.dart';
+
+class IndexDeliveryMan extends StatefulWidget {
+  const IndexDeliveryMan({super.key});
+
+  @override
+  State<IndexDeliveryMan> createState() => _IndexDeliveryManState();
+}
+
+class _IndexDeliveryManState extends State<IndexDeliveryMan> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<HomeProvider>(
+      builder: (context, home, _) {
+        return Scaffold(
+          extendBody: true,
+          appBar: DMAppBar(title: getTitle(home.currentIndex)),
+          body: _pages[home.currentIndex],
+          bottomNavigationBar: BottomBar(icons: icons),
+        );
+      },
+    );
+  }
+
+  String getTitle(int n) {
+    switch (n) {
+      case 0:
+        return 'Өнөөдрийн түгээлтүүд';
+      case 1:
+        return 'Бэлэн захиалгууд';
+      case 2:
+        return 'Миний профайл';
+      default:
+        return '';
+    }
+  }
+
+  final List _pages = [const DeliveryHome(), const DeliveryOrders(), const DeliveryProfile()];
+
+  List<String> icons = ['truck-side', 'order-history', 'user'];
+}
