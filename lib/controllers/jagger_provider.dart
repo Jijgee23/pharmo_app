@@ -5,6 +5,7 @@ import 'package:pharmo_app/database/loc_box.dart';
 import 'package:pharmo_app/database/loc_model.dart';
 import 'package:pharmo_app/models/delivery.dart';
 import 'package:pharmo_app/services/a_services.dart';
+import 'package:pharmo_app/services/log_service.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
@@ -59,6 +60,8 @@ class JaggerProvider extends ChangeNotifier {
     await LocBox.addToList(model);
   }
 
+  final LogService logService = LogService();
+
   Future sendTobackend(int id, double lat, double lng) async {
     var body = locationResponse(
       id,
@@ -69,10 +72,17 @@ class JaggerProvider extends ChangeNotifier {
     double longitude = truncateToDigits(lng, 6);
     final res = await api(Api.patch, url, body: body);
     if (res!.statusCode == 200 || res.statusCode == 201) {
-      await FirebaseApi.local(
-        'Байршил илгээсэн',
-        'Өрг: $latitude Урт: $longitude',
-      );
+      final lastNotifDate = await logService.getLastNotifDate();
+      final now = DateTime.now();
+      if (lastNotifDate == null ||
+          (lastNotifDate != null &&
+              now.difference(lastNotifDate) > Duration(minutes: 3))) {
+        await FirebaseApi.local(
+          'Байршил илгээсэн',
+          'Өрг: $latitude Урт: $longitude',
+        );
+        await logService.saveLastNotif(now);
+      }
       await getDeliveryLocation();
       await getDeliveries();
       if (noSendedLocs.isNotEmpty) {
@@ -147,11 +157,19 @@ class JaggerProvider extends ChangeNotifier {
     if (shipmentId == 0 && !force) {
       return;
     }
-
+    if (force) {
+      var current = await Geolocator.getCurrentPosition();
+      sendTobackend(
+        force ? delivery[0].id : shipmentId,
+        parseDouble(current.latitude),
+        parseDouble(current.longitude),
+      );
+    }
     try {
       positionSubscription = bgLocationChannel.receiveBroadcastStream().listen(
         (event) async {
           final data = event as Map<dynamic, dynamic>;
+          debugPrint("data from native event: ${data.toString()}");
           await sendTobackend(
             force ? delivery[0].id : shipmentId,
             parseDouble(data['lat']),
@@ -169,6 +187,11 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
+  void resumeTracking() {
+    positionSubscription!.resume();
+    notifyListeners();
+  }
+
   List<Loc> noSendedLocs = [];
 
   void stopTracking() {
@@ -176,7 +199,7 @@ class JaggerProvider extends ChangeNotifier {
     positionSubscription = null;
     LocalBase.clearDelmanTrack();
     notifyListeners();
-  }
+  } 
 
   Future<dynamic> endShipment(int shipmentId) async {
     try {
@@ -230,7 +253,6 @@ class JaggerProvider extends ChangeNotifier {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         orders = (data as List).map((e) => Order.fromJson(e)).toList();
         orders.sort((a, b) => a.orderer!.name.compareTo(b.orderer!.name));
-
         notifyListeners();
       }
     } catch (e) {
@@ -474,6 +496,7 @@ class JaggerProvider extends ChangeNotifier {
   double zoomIndex = 14;
   bool trafficEnabled = false;
   Set<Marker> markers = {};
+
   zoomIn() {
     zoomIndex = zoomIndex + 1.0;
     mapController.animateCamera(CameraUpdate.zoomTo(zoomIndex));
@@ -496,17 +519,31 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  MapType mapType = MapType.terrain;
-
-  void toggleView() {
-    const mapTypes = [
-      MapType.terrain,
-      MapType.satellite,
-      MapType.hybrid,
-      MapType.normal
-    ];
-    mapType = mapTypes[(mapTypes.indexOf(mapType) + 1) % mapTypes.length];
+  LatLng latLng = LatLng(47.90771, 106.88324);
+  void updateLatLng(LatLng valeu) {
+    latLng = valeu;
     notifyListeners();
+  }
+
+  MapType mapType = MapType.terrain;
+  Future<void> goToMyLocation() async {
+    if (mapController == null) {
+      return;
+    }
+
+    final n = await Geolocator.getCurrentPosition();
+    if (n != null) latLng = LatLng(n.latitude, n.longitude);
+    notifyListeners();
+    await mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: latLng,
+          zoom: 16,
+          bearing: 0,
+          tilt: 150,
+        ),
+      ),
+    );
   }
 
   ScrollController scrollController = ScrollController();

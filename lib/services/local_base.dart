@@ -24,6 +24,7 @@ class LocalBase {
   static const String _splashedKey = 'splashed';
   static const String _dmTrackKey = 'delmantrack';
   static const String _deviceToken = 'deviceToken';
+
   static Future initLocalBase() async {
     localDb = await Hive.openBox(_boxKey);
     security = await getSecurity();

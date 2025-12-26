@@ -111,7 +111,8 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                   .whereType<Widget>(),
               Divider(color: grey500),
               t('', 'Бараанууд'),
-              if (order.products != null && order.products!.isEmpty) const Text('Бараа байхгүй'),
+              if (order.products != null && order.products!.isEmpty)
+                const Text('Бараа байхгүй'),
               if (order.products != null && order.products!.isNotEmpty)
                 ...order.products!.map(
                   (item) => ListTile(
@@ -163,7 +164,9 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
           ),
         ),
         Text(
-          (value != null && value.isNotEmpty && value != 'null') ? value : '---',
+          (value != null && value.isNotEmpty && value != 'null')
+              ? value
+              : '---',
           style: TextStyle(
             color: Colors.black,
             fontSize: Sizes.mediumFontSize,
@@ -248,8 +251,8 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
       message('Тоо ширхэг 0 байж болохгүй!');
     } else {
       int qty = int.parse(qtyController.text);
-      dynamic res =
-          await p.changeItemQty(context: context, oId: oid, itemId: item['productId'], qty: qty);
+      dynamic res = await p.changeItemQty(
+          context: context, oId: oid, itemId: item['productId'], qty: qty);
       print('update qty: ${res['errorType']}');
       message(res['message']);
       Get.back();
@@ -261,7 +264,8 @@ class EditSellerOrder extends StatefulWidget {
   final String note;
   final String pt;
   final int oId;
-  const EditSellerOrder({super.key, required this.note, required this.pt, required this.oId});
+  const EditSellerOrder(
+      {super.key, required this.note, required this.pt, required this.oId});
 
   @override
   State<EditSellerOrder> createState() => _EditSellerOrderState();
@@ -302,7 +306,8 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Захиалгын мэдээлэл засах', style: TextStyle(fontSize: 12)),
+                Text('Захиалгын мэдээлэл засах',
+                    style: TextStyle(fontSize: 12)),
                 PopSheet()
               ],
             ),
@@ -330,7 +335,8 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
             CustomButton(
               text: 'Хадгалах',
               ontap: () {
-                final pharmProvider = Provider.of<PharmProvider>(context, listen: false);
+                final pharmProvider =
+                    Provider.of<PharmProvider>(context, listen: false);
                 pharmProvider
                     .editSellerOrder(nc.text, payType, widget.oId, context)
                     .then((e) => Navigator.pop(context));
@@ -352,10 +358,16 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
 
 Widget myRow(String tit, String? v) {
   if (v != null || v == '' || v == 'null') {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text('$tit:', style: const TextStyle(color: Colors.black87, fontSize: Sizes.mediumFontSize)),
-      Text(v!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: Sizes.mediumFontSize))
-    ]);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '$tit:',
+          style: const TextStyle(color: Colors.black87),
+        ),
+        Text(v!)
+      ],
+    );
   } else {
     return const SizedBox();
   }

@@ -1,5 +1,4 @@
 import 'package:pharmo_app/controllers/a_controlller.dart';
-import 'package:pharmo_app/utilities/a_utils.dart';
 
 class LoginHeaderImage extends StatelessWidget {
   const LoginHeaderImage({
@@ -14,7 +13,12 @@ class LoginHeaderImage extends StatelessWidget {
         width: double.maxFinite,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: primary.withAlpha(75),
+          gradient: LinearGradient(
+            colors: [
+              Colors.purple.withAlpha(50),
+              Colors.pink.withAlpha(80),
+            ],
+          ),
           borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(30),
             bottomRight: Radius.circular(30),

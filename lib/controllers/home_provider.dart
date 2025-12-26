@@ -66,7 +66,8 @@ class HomeProvider extends ChangeNotifier {
   void refresh(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
-        final promotion = Provider.of<PromotionProvider>(context, listen: false);
+        final promotion =
+            Provider.of<PromotionProvider>(context, listen: false);
         clearItems();
         setPageKey(1);
         fetchProducts();
@@ -121,7 +122,9 @@ class HomeProvider extends ChangeNotifier {
       final response = await api(Api.get, url);
       if (response!.statusCode == 200) {
         final res = convertData(response);
-        final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        final prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         return prods;
       }
     } catch (e) {
@@ -133,11 +136,14 @@ class HomeProvider extends ChangeNotifier {
   searchProducts(String query) async {
     try {
       if (query.isNotEmpty) {
-        final response = await api(Api.get, 'products/search/?k=$queryType&v=$query');
+        final response =
+            await api(Api.get, 'products/search/?k=$queryType&v=$query');
         if (response!.statusCode == 200) {
           clearItems();
           final res = convertData(response);
-          final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+          final prods = (res['results'] as List)
+              .map((data) => Product.fromJson(data))
+              .toList();
           return prods;
         }
       }
@@ -153,7 +159,9 @@ class HomeProvider extends ChangeNotifier {
       final response = await api(Api.get, 'products/?$filter');
       if (response!.statusCode == 200) {
         final res = convertData(response);
-        final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        final prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         clearItems();
         fetchedItems.addAll(prods);
         return prods;
@@ -175,12 +183,13 @@ class HomeProvider extends ChangeNotifier {
         message('Нэвтэрнэ үү');
         return;
       }
-      var request = http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      var request =
+          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
       request.headers['Authorization'] = security.access;
       request.fields['product_id'] = id.toString();
       images
-          .map((image) async =>
-              request.files.add(await http.MultipartFile.fromPath('images', image.path)))
+          .map((image) async => request.files
+              .add(await http.MultipartFile.fromPath('images', image.path)))
           .toList();
       var res = await request.send();
       print(res.statusCode);
@@ -204,7 +213,8 @@ class HomeProvider extends ChangeNotifier {
         message('Нэвтэрнэ үү');
         return;
       }
-      var request = http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      var request =
+          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
       request.headers['Authorization'] = security.access;
       request.fields['product_id'] = id.toString();
       request.fields['images_to_remove'] = imageID.toString();
@@ -247,10 +257,15 @@ class HomeProvider extends ChangeNotifier {
       final response = await api(Api.get, 'product/filters/');
       if (response!.statusCode == 200) {
         Map res = convertData(response);
-        categories = (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
+        categories =
+            (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
 
-        mnfrs = (res['mnfrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
-        vndrs = (res['vndrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
+        mnfrs = (res['mnfrs'] as List)
+            .map((e) => Manufacturer.fromJson(e))
+            .toList();
+        vndrs = (res['vndrs'] as List)
+            .map((e) => Manufacturer.fromJson(e))
+            .toList();
         notifyListeners();
       }
     } catch (e) {
@@ -261,12 +276,13 @@ class HomeProvider extends ChangeNotifier {
 // Бараа ангиллаар шүүх
   filter(String type, int filters, int page, int pageSize) async {
     try {
-      final response =
-          await api(Api.get, 'products/?$type=[$filters]&page=$page&page_size=$pageSize');
+      final response = await api(
+          Api.get, 'products/?$type=[$filters]&page=$page&page_size=$pageSize');
       if (response!.statusCode == 200) {
         Map res = convertData(response);
-        List<Product> prods =
-            (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         return prods;
       }
     } catch (e) {
@@ -276,12 +292,13 @@ class HomeProvider extends ChangeNotifier {
 
   filterCate(int id, int page, int pageSize) async {
     try {
-      final response =
-          await api(Api.get, 'products/?category=[$id]&page=$page&page_size=$pageSize');
+      final response = await api(
+          Api.get, 'products/?category=[$id]&page=$page&page_size=$pageSize');
       if (response!.statusCode == 200) {
         Map<String, dynamic> res = convertData(response);
-        List<Product> prods =
-            (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         return prods;
       }
     } catch (e) {
@@ -333,8 +350,8 @@ class HomeProvider extends ChangeNotifier {
 
   getCustomerBranch() async {
     try {
-      final response =
-          await api(Api.post, 'seller/customer_branch/', body: {'customerId': selectedCustomerId});
+      final response = await api(Api.post, 'seller/customer_branch/',
+          body: {'customerId': selectedCustomerId});
       branchList.clear();
       if (response!.statusCode == 200) {
         List<dynamic> res = convertData(response);
@@ -350,8 +367,10 @@ class HomeProvider extends ChangeNotifier {
 
   Future getPosition() async {
     _currentLocation = await _getCurrentLocation();
-    currentLatitude = double.parse(_currentLocation!.latitude.toStringAsFixed(6));
-    currentLongitude = double.parse(_currentLocation!.longitude.toStringAsFixed(6));
+    currentLatitude =
+        double.parse(_currentLocation!.latitude.toStringAsFixed(6));
+    currentLongitude =
+        double.parse(_currentLocation!.longitude.toStringAsFixed(6));
   }
 
   Future<Position> _getCurrentLocation() async {
@@ -366,10 +385,12 @@ class HomeProvider extends ChangeNotifier {
 
   deactiveUser(String password, BuildContext context) async {
     try {
-      final response = await api(Api.patch, 'auth/delete_user_account/', body: {'pwd': password});
+      final response = await api(Api.patch, 'auth/delete_user_account/',
+          body: {'pwd': password});
       if (response!.statusCode == 200) {
         AuthController().logout(context);
-        message('${LocalBase.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа');
+        message(
+            '${LocalBase.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа');
       } else {
         message('Алдаа гарлаа');
       }
@@ -387,7 +408,8 @@ class HomeProvider extends ChangeNotifier {
         'payType': type,
         "note": (note != null) ? note : null
       };
-      final response = await api(Api.post, 'seller/order/', body: body, showLog: true);
+      final response =
+          await api(Api.post, 'seller/order/', body: body, showLog: true);
       if (response!.statusCode == 201) {
         final res = convertData(response);
         final orderNumber = res['orderNo'];
@@ -448,6 +470,14 @@ class HomeProvider extends ChangeNotifier {
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
+  }
+
+  bool loading = false;
+  void setLoading(bool value) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loading = value;
+      notifyListeners();
+    });
   }
 
   static Future initer(Future<void> Function() fetch) async {

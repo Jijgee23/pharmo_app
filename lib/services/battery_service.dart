@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:pharmo_app/services/firebase_sevice.dart';
 import 'package:pharmo_app/services/local_base.dart';
+import 'package:pharmo_app/services/log_service.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
 
 class BatteryService {
@@ -54,9 +54,13 @@ class BatteryService {
           debugPrint('🔋 Battery: $currentLevel% | State: $state');
 
           /// OPTIONAL: send warning when battery too low
-          if (currentLevel <= 15 &&
+          if (currentLevel <= 20 &&
               (await LocalBase.hasDelmanTrack() ||
                   await LocalBase.hasSellerTrack())) {
+            await LogService().createLog(
+              'tracking log',
+              'Таны төхөөрөмжийн баттерей $currentLevel% байна.',
+            );
             await api(Api.post, 'doc/log/mobile_activity', body: {});
             await FirebaseApi.local(
               'Баттерей сул байна',

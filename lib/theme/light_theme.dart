@@ -42,7 +42,7 @@ final lightTheme = ThemeData(
     side: const BorderSide(color: primary, width: 1),
     fillColor: const WidgetStatePropertyAll(Colors.transparent),
   ),
-  fontFamily: 'Inter',
+  fontFamily: 'Sf-Pro-Text',
   textTheme: const TextTheme(
     bodyLarge: TextStyle(color: Colors.black),
     bodyMedium: TextStyle(color: Colors.black),

@@ -21,33 +21,37 @@ class SheetContainer extends StatelessWidget {
             topRight: Radius.circular(30),
           ),
         ),
-        child: Column(
-          spacing: 15,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: Container(
-                height: 4,
-                width: 50,
-                decoration: BoxDecoration(
-                    color: Colors.grey, borderRadius: BorderRadius.circular(3)),
-              ),
-            ),
-            if (title != null)
+        child: SafeArea(
+          child: Column(
+            spacing: 20,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Align(
                 alignment: Alignment.center,
-                child: Text(
-                  title!,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                child: Container(
+                  height: 4,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
                 ),
               ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 15,
-              children: children,
-            )
-          ],
+              if (title != null)
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    title!,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 15,
+                children: children,
+              )
+            ],
+          ),
         ),
       ),
     );

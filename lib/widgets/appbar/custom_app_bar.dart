@@ -37,60 +37,54 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             security.role == 'PA');
         return PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: ClipRRect(
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
-            child: AppBar(
-              centerTitle: true,
-              title: title,
-              elevation: 0,
-              leading: leading ?? lead(homeprovider, auth),
-              actions: actions ??
-                  [
-                    if (isSupSelected && hasBasket != false)
-                      InkWell(
-                        onTap: () => homeprovider
-                            .changeIndex(getBasketIndex(security.role)),
-                        child: Stack(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(right: 10),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.shopping_cart,
-                                  size: 24,
-                                  color: Colors.white,
-                                ),
+          child: AppBar(
+            centerTitle: true,
+            title: title,
+            elevation: 0,
+            leading: leading ?? lead(homeprovider, auth),
+            actions: actions ??
+                [
+                  if (isSupSelected && hasBasket != false)
+                    InkWell(
+                      onTap: () => homeprovider
+                          .changeIndex(getBasketIndex(security.role)),
+                      child: Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(right: 10),
+                            child: const Center(
+                              child: Icon(
+                                Icons.shopping_cart,
+                                size: 24,
+                                color: Colors.white,
                               ),
                             ),
-                            Positioned(
-                              right: 2,
-                              top: 2,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 5, vertical: 2.5),
-                                decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(15)),
-                                child: Text(
-                                  basketProvider.basket == null
-                                      ? '0'
-                                      : basketProvider.basket!.totalCount
-                                          .toString(),
-                                  style: const TextStyle(
-                                      color: white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold),
-                                ),
+                          ),
+                          Positioned(
+                            right: 2,
+                            top: 2,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 2.5),
+                              decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Text(
+                                basketProvider.basket == null
+                                    ? '0'
+                                    : basketProvider.basket!.totalCount
+                                        .toString(),
+                                style: const TextStyle(
+                                    color: white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                  ],
-            ),
+                    ),
+                ],
           ),
         );
       },

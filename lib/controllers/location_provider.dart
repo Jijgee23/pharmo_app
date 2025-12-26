@@ -16,11 +16,9 @@ double truncateToDigits(double value, int digits) {
 class LocationProvider extends ChangeNotifier {
   GoogleMapController? _mapController;
   bool _trafficEnabled = false;
-  MapType _currentMapType = MapType.terrain;
 
   GoogleMapController? get mapController => _mapController;
   bool get trafficEnabled => _trafficEnabled;
-  MapType get currentMapType => _currentMapType;
 
   void onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
@@ -29,12 +27,6 @@ class LocationProvider extends ChangeNotifier {
 
   void toggleTraffic() {
     _trafficEnabled = !_trafficEnabled;
-    notifyListeners();
-  }
-
-  void changeMapType() {
-    _currentMapType =
-        MapType.values[(_currentMapType.index + 1) % MapType.values.length];
     notifyListeners();
   }
 
@@ -99,6 +91,9 @@ class LocationProvider extends ChangeNotifier {
         },
       );
       if (p!.statusCode == 200 || p.statusCode == 201) {
+        debugPrint(
+          "sended lat: ${truncateToDigits(r.latitude, 6)}, lng: ${truncateToDigits(r.longitude, 6)}",
+        );
         await LocalBase.saveSellerTrackId();
         positionSubscription =
             bgLocationChannel.receiveBroadcastStream().listen(
@@ -137,6 +132,7 @@ class LocationProvider extends ChangeNotifier {
 
     final res = await api(Api.post, url, body: body);
     if (res != null && (res.statusCode == 200 || res.statusCode == 201)) {
+      debugPrint("sended lat: $latitude, lng: $longitude");
       await FirebaseApi.local(
         'Байршил илгээсэн',
         'Өрг: $latitude Урт: $longitude',

@@ -6,7 +6,9 @@ import 'package:pharmo_app/services/local_base.dart';
 import 'package:pharmo_app/services/log_service.dart';
 
 bool hasInternet(ConnectivityResult r) =>
-    r == ConnectivityResult.mobile || r == ConnectivityResult.wifi;
+    r == ConnectivityResult.mobile ||
+    r == ConnectivityResult.wifi ||
+    r == ConnectivityResult.ethernet;
 
 Future<bool> isOnline() async {
   final results = await Connectivity().checkConnectivity();
@@ -50,9 +52,13 @@ class ConnectivityService {
 
     _subscription = _connectivity.onConnectivityChanged.listen(
       (results) async {
+        for (var r in results) {
+          print("result: $r");
+        }
         bool connected = (results.contains(ConnectivityResult.mobile) ||
-            results.contains(ConnectivityResult.wifi));
-
+            results.contains(ConnectivityResult.wifi) ||
+            results.contains(ConnectivityResult.ethernet));
+        final logService = LogService();
         debugPrint("connect: $connected");
         if (!connected && await LocalBase.hasDelmanTrack() ||
             await LocalBase.hasSellerTrack()) {
@@ -60,13 +66,13 @@ class ConnectivityService {
             'Интернет тасарсан',
             'Интернет холболт тасарлаа. Холболтоо шалгана уу.',
           );
-          await LogService.saveModel(
+          await logService.saveModel(
             LogModel(logType: 'disconnected', desc: LogService.disconnected),
           );
         }
         if (connected && await LocalBase.hasDelmanTrack() ||
             await LocalBase.hasSellerTrack()) {
-          await LogService.createLog('connection', LogService.connected);
+          await logService.createLog('connection', LogService.connected);
         }
         final isConnected = results.any(hasInternet);
         if (_lastConnectionStatus != null &&

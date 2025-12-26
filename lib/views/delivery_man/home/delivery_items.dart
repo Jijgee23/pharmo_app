@@ -49,79 +49,87 @@ class _DeliveryItemsWidgetState extends State<DeliveryItemsWidget>
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: setExpanded,
-      child: AnimatedSize(
-        duration: Duration(milliseconds: 300),
-        child: Container(
-          decoration: BoxDecoration(
-              color: neonBlue.withAlpha(50),
-              borderRadius: BorderRadius.circular(10)),
-          padding: EdgeInsets.all(10),
-          width: double.maxFinite,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              header(),
-              if (expanded) ...[
-                SizedBox(height: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      widget.items.map((item) => itemBuilder(item)).toList(),
-                )
-              ]
-            ],
+    return Card(
+      color: neonBlue.withAlpha(50),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.grey.shade500),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: setExpanded,
+        child: AnimatedSize(
+          duration: Duration(milliseconds: 300),
+          child: Container(
+            padding: EdgeInsets.all(14.5),
+            width: double.maxFinite,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                header(),
+                if (expanded) ...[
+                  SizedBox(height: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:
+                        widget.items.map((item) => itemBuilder(item)).toList(),
+                  )
+                ]
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Container itemBuilder(DeliveryItem item) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      width: double.maxFinite,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: neonBlue.withAlpha(150),
-      ),
-      padding: EdgeInsets.all(10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.note,
-                style: TextStyle(
-                    color: white, fontSize: 14, fontWeight: FontWeight.bold),
-              ),
-              Row(
-                children: [
-                  Text(
-                    item.visitedOn.toString().substring(0, 10),
-                    style: TextStyle(
-                      color: white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
+  Widget itemBuilder(DeliveryItem item) {
+    return Card(
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10),
+        width: double.maxFinite,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: neonBlue.withAlpha(150),
+        ),
+        padding: EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.note,
+                  style: TextStyle(
+                      color: white, fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      item.visitedOn.toString().substring(0, 10),
+                      style: TextStyle(
+                        color: white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w300,
+                      ),
                     ),
-                  ),
-                  Text(
-                    item.visitedOn.toString().substring(10, 19),
-                    style: TextStyle(
-                      color: white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
+                    Text(
+                      item.visitedOn.toString().substring(10, 19),
+                      style: TextStyle(
+                        color: white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w300,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Ibtn(onTap: () => editItem(item), icon: Icons.edit)
-        ],
+                  ],
+                ),
+              ],
+            ),
+            Ibtn(onTap: () => editItem(item), icon: Icons.edit)
+          ],
+        ),
       ),
     );
   }
@@ -153,19 +161,22 @@ class _DeliveryItemsWidgetState extends State<DeliveryItemsWidget>
     return Align(
       alignment: Alignment.center,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 10,
         children: [
           Ibtn(onTap: () => additionalDelivery(jagger), icon: Icons.add),
-          Text('Нэмэлт хүргэлтүүд',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              )),
+          Text(
+            'Нэмэлт хүргэлтүүд',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
-                border: Border.all(color: white, width: 3),
-                shape: BoxShape.circle),
+              border: Border.all(color: white, width: 3),
+              shape: BoxShape.circle,
+            ),
             child: Text(
               widget.items.length.toString(),
               style: TextStyle(

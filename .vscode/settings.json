@@ -1,26 +1,30 @@
 {
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "**/CVS": true,
-        ".dart_tool": true,
-        ".idea": true,
-        ".vscode": true
-    },
-    "hide-files.files": [
-        ".dart_tool",
-        ".idea",
-        ".vscode",
-        "lib/services/user_box.dart"
-    ],
-    "cmake.sourceDirectory": "/Users/infosystems/Downloads/pharmo_app/linux",
-    "java.configuration.updateBuildConfiguration": "disabled",
-    // "editor.quickSuggestions": {
-    //     "comments": "off",
-    //     "strings": "off",
-    //     "other": "off"
-    // }
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/flutter/ephemeral": true,
+    "**/Flutter/ephemeral": true,
+    "**/.symlinks": true,
+    "**/.plugin_symlinks": true,
+    "**/CVS": true,
+    ".dart_tool": true,
+    ".idea": true,
+    ".vscode": true
+  },
+  "hide-files.files": [
+    ".dart_tool",
+    ".idea",
+    ".vscode",
+    "lib/services/user_box.dart"
+  ],
+  "cmake.sourceDirectory": "/Users/infosystems/Downloads/pharmo_app/linux",
+  "java.configuration.updateBuildConfiguration": "disabled"
+  // "editor.quickSuggestions": {
+  //     "comments": "off",
+  //     "strings": "off",
+  //     "other": "off"
+  // }
 }

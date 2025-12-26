@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/loader/custom_shimmer.dart';
 
 class DataScreen extends StatelessWidget {
@@ -56,7 +55,7 @@ class DataScreen extends StatelessWidget {
                 return customEmpty ?? noResult();
               }
               return Container(
-                padding: pad ?? EdgeInsets.all(7.5),
+                padding: EdgeInsets.all(10.0),
                 child: child,
               );
             },
@@ -69,9 +68,16 @@ class DataScreen extends StatelessWidget {
 
   Center noResult() {
     return Center(
-      child: Image.asset(
-        'assets/icons/not-found.png',
-        width: Sizes.width * 0.3,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 10,
+        children: [
+          Image.asset(
+            'assets/icons/not-found.png',
+            width: 100,
+          ),
+          Text('Үр дүн олдсонгүй')
+        ],
       ),
     );
   }

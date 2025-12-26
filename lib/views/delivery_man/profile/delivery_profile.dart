@@ -30,7 +30,8 @@ class DeliveryProfile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 15),
                         child: const Text('Бүртгэл'),
                       ),
                       SideMenu(
@@ -59,7 +60,8 @@ class DeliveryProfile extends StatelessWidget {
                         ontap: () => goto(SystemLog()),
                       ),
                       Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 15),
                           child: const Text('Ерөнхий')),
                       SideMenu(
                           title: 'Нууцлалын бодлого',
@@ -71,11 +73,6 @@ class DeliveryProfile extends StatelessWidget {
                           icon: Icons.house,
                           color: Colors.purple,
                           ontap: () => goto(const AboutUs())),
-                      SideMenu(
-                          title: 'Шинэчлэлт шалгах',
-                          icon: Icons.update,
-                          color: Colors.green,
-                          ontap: () async => await auth.getUpdateMessage()),
                       SideMenu(
                         title: 'Системээс гарах',
                         icon: Icons.logout,

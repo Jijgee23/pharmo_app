@@ -24,7 +24,8 @@ class DeliveryWidget extends StatefulWidget {
   State<DeliveryWidget> createState() => _DeliveryWidgetState();
 }
 
-class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProviderStateMixin {
+class _DeliveryWidgetState extends State<DeliveryWidget>
+    with SingleTickerProviderStateMixin {
   String selected = 'e';
   String pType = 'E';
   setSelected(String s, String p) {
@@ -68,20 +69,25 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
 
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) => InkWell(
-        onTap: () => goto(DeliveryDetail(order: widget.order, delId: widget.delId)),
+        onTap: () =>
+            goto(DeliveryDetail(order: widget.order, delId: widget.delId)),
         onLongPress: () => Get.bottomSheet(StatusChanger(
-            delId: widget.delId, orderId: widget.order.id, status: widget.order.process)),
+            delId: widget.delId,
+            orderId: widget.order.id,
+            status: widget.order.process)),
         child: AnimatedContainer(
           curve: Curves.slowMiddle,
           duration: const Duration(milliseconds: 300),
           padding: padding10,
-          margin: EdgeInsets.only(right: 7.5),
-          width: Sizes.width * .88,
+          width: Sizes.width * .8,
           decoration: BoxDecoration(
-              color: getOrderProcessColor(widget.order.process), borderRadius: border10),
+            color: getOrderProcessColor(widget.order.process),
+            borderRadius: border10,
+          ),
           child: Column(
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -101,13 +107,15 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
               ),
               Column(
                 children: expandedFields
-                    .map((v) => infoRow(v, expandedValues[expandedFields.indexOf(v)],
+                    .map((v) => infoRow(
+                        v, expandedValues[expandedFields.indexOf(v)],
                         color1: white, color2: white))
                     .toList(),
               ),
               Align(
                   alignment: Alignment.centerRight,
-                  child: Text('Дэлгэрэнгүй >', style: const TextStyle(color: white))),
+                  child: Text('Дэлгэрэнгүй >',
+                      style: const TextStyle(color: white))),
             ],
           ),
         ),
@@ -169,7 +177,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
     );
   }
 
-  registerPayment(JaggerProvider jagger, String type, String amount, String customerId) async {
+  registerPayment(JaggerProvider jagger, String type, String amount,
+      String customerId) async {
     if (amount.isEmpty) {
       message('Дүн оруулна уу!');
     } else if (type == 'E') {
@@ -213,7 +222,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.shopping_bag, color: Colors.blueAccent, size: 30), // Product icon
+          const Icon(Icons.shopping_bag,
+              color: Colors.blueAccent, size: 30), // Product icon
           const SizedBox(height: 5),
           Text(
             '${item.itemName} (${item.itemQty})',
@@ -247,7 +257,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> with SingleTickerProvid
     );
   }
 
-  Widget colored(String text, IconData icon, Color color, {MainAxisAlignment? main}) {
+  Widget colored(String text, IconData icon, Color color,
+      {MainAxisAlignment? main}) {
     return Expanded(
       child: Row(
         mainAxisAlignment: main ?? MainAxisAlignment.start,

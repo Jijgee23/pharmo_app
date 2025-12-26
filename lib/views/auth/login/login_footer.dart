@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
 
 class LoginFooter extends StatelessWidget {
   const LoginFooter({super.key});
@@ -9,7 +8,12 @@ class LoginFooter extends StatelessWidget {
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        color: primary.withAlpha(60),
+        gradient: LinearGradient(
+          colors: [
+            Colors.pink.withAlpha(80),
+            Colors.purple.withAlpha(50),
+          ],
+        ),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),

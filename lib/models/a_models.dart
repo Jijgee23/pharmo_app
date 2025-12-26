@@ -1,4 +1,3 @@
-export './account.dart';
 export './basket.dart';
 export './branch.dart';
 export './delman.dart';
@@ -8,7 +7,6 @@ export './marked_promo.dart';
 export './income.dart';
 export './my_order.dart';
 export './my_order_detail.dart';
-export './order_list.dart';
 export './order_qrcode.dart';
 export './payment.dart';
 export './products.dart';

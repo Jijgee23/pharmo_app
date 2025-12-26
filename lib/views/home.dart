@@ -128,7 +128,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           loading: loading,
           empty: home.fetchedItems.isEmpty,
           customLoading: shimmer(),
-          pad: EdgeInsets.all(5.0),
           child: Column(
             children: [
               if (LocalBase.security != null &&

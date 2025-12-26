@@ -12,7 +12,8 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isPortrait = (MediaQuery.of(context).orientation == Orientation.portrait);
+    bool isPortrait =
+        (MediaQuery.of(context).orientation == Orientation.portrait);
     double height = Sizes.height;
     return Consumer<HomeProvider>(builder: (context, home, child) {
       return AnimatedContainer(
@@ -29,7 +30,8 @@ class BottomBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: icons
                 .map(
-                  (icon) => BottomBarItem(icon: icon, index: icons.indexOf(icon)),
+                  (icon) =>
+                      BottomBarItem(icon: icon, index: icons.indexOf(icon)),
                 )
                 .toList(),
           ),
@@ -75,7 +77,7 @@ class BottomBarItem extends StatelessWidget {
                       color: theme.primaryColor.withOpacity(selected ? 1 : .6),
                       borderRadius: BorderRadius.circular(5)),
                   height: 5,
-                  width: selected ? 30 : 5,
+                  width: selected ? 25 : 10,
                 )
               ],
             ),

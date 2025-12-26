@@ -10,8 +10,8 @@ import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/controllers/a_controlller.dart';
 import 'package:http_parser/http_parser.dart' as pharser;
 
@@ -31,7 +31,7 @@ class AuthController extends ChangeNotifier {
       if (security == null) {
         return;
       }
-      await checkForUpdate();
+
       final remembered = await LocalBase.getRemember();
       if (remembered) {
         setRemember(true);
@@ -67,7 +67,8 @@ class AuthController extends ChangeNotifier {
 
   final TextEditingController pass = TextEditingController();
 
-  Future<http.Response?> apiPostWithoutToken(String endPoint, Object? body) async {
+  Future<http.Response?> apiPostWithoutToken(
+      String endPoint, Object? body) async {
     http.Response? result;
     if (await isOnline()) {
       var response = await http
@@ -137,7 +138,7 @@ class AuthController extends ChangeNotifier {
       await LocalBase.initLocalBase();
       await getDeviceInfo();
       await LocalBase.saveLastLoggedIn(true);
-      await LogService.createLog('login', LogService.login);
+      await LogService().createLog('login', LogService.login);
       if (remember) await LocalBase.saveRemember();
     } catch (e) {
       print(e);
@@ -171,8 +172,30 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> logout(BuildContext context) async {
+    final security = LocalBase.security;
+    if (security != null && security.role != 'PA') {
+      if (security.role == 'D') {
+        int delmanTrackId = await LocalBase.getDelmanTrackId();
+        if (delmanTrackId != 0) {
+          bool confirmed = await confirmDialog(
+            context: context,
+            title:
+                'Дуусгаагүй түгээлтийн байршид дамжуулалт зогсоогоод системээс гарах уу?',
+          );
+          if (confirmed) {
+            context.read<JaggerProvider>().stopTracking();
+          }
+          if (!confirmed) {
+            return;
+          }
+        }
+      }
+      // if (security.role == "S") {
+      //   bool hasTrack = await LocalBase.hasSellerTrack();
+      // }
+    }
     try {
-      await LogService.createLog('logout', LogService.logout);
+      await LogService().createLog('logout', LogService.logout);
       final response = await http.post(
         setUrl('auth/logout/'),
         headers: getHeader(LocalBase.security!.access),
@@ -233,7 +256,12 @@ class AuthController extends ChangeNotifier {
       required String otp,
       required String password}) async {
     try {
-      var body = {'email': email, 'phone': phone, 'otp': otp, 'password': password};
+      var body = {
+        'email': email,
+        'phone': phone,
+        'otp': otp,
+        'password': password
+      };
       final response = await apiPostWithoutToken('auth/register/', body);
       final data = jsonDecode(utf8.decode(response!.bodyBytes));
       print(data);
@@ -269,10 +297,13 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future createPassword(String email, String otp, String newPassword, BuildContext context) async {
+  Future createPassword(String email, String otp, String newPassword,
+      BuildContext context) async {
     try {
       final response = await http.post(setUrl('auth/reset/'),
-          headers: header, body: jsonEncode({'email': email, 'otp': otp, 'new_pwd': newPassword}));
+          headers: header,
+          body:
+              jsonEncode({'email': email, 'otp': otp, 'new_pwd': newPassword}));
       if (response.statusCode == 200) {
         message('Нууц үг амжилттай үүслээ');
         Navigator.pop(context);
@@ -376,7 +407,8 @@ class AuthController extends ChangeNotifier {
       request.headers['Accept'] = 'application/json';
       final compressedLogo = await compressImage(logo!);
       compressedLogo != null
-          ? request.files.add(await http.MultipartFile.fromPath('logo', compressedLogo.path))
+          ? request.files.add(
+              await http.MultipartFile.fromPath('logo', compressedLogo.path))
           : null;
       request.fields['public_name'] = publicName;
       request.fields['email'] = ema;
@@ -395,10 +427,12 @@ class AuthController extends ChangeNotifier {
       print(res.statusCode);
       print(responseBody);
       if (res.statusCode == 200 || res.statusCode == 201) {
-        return buildResponse(1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
+        return buildResponse(
+            1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
       } else {
         if (responseBody.contains('already exists')) {
-          return buildResponse(2, null, 'И-Мейл, РД эсвэл нэр давхардаж байна!');
+          return buildResponse(
+              2, null, 'И-Мейл, РД эсвэл нэр давхардаж байна!');
         } else {
           return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
         }
@@ -406,114 +440,5 @@ class AuthController extends ChangeNotifier {
     } catch (e) {
       return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
     }
-  }
-
-  ShorebirdUpdater updater = ShorebirdUpdater();
-
-  final currentTrack = UpdateTrack.stable;
-  bool checking = false;
-  Patch? currentPatch;
-  void setChecking(bool n) {
-    checking = n;
-    notifyListeners();
-  }
-
-  Future<void> checkForUpdate() async {
-    setChecking(true);
-    try {
-      final status = await updater.checkForUpdate(track: currentTrack);
-      if (status == UpdateStatus.unavailable) {
-        debugPrint('Шинэчлэлт байхгүй');
-        return;
-      }
-      if (status == UpdateStatus.upToDate) {
-        debugPrint('Шинэчлэлт шаардлагагүй');
-        return;
-      }
-      if (status == UpdateStatus.outdated) {
-        debugPrint('Шинэчлэлт татагдаж байна');
-        await updater.update(track: currentTrack).whenComplete(() async {
-          await restartBanner();
-        });
-      }
-      if (status == UpdateStatus.restartRequired) {
-        debugPrint('Дахин ачаалуулах');
-        await restartBanner();
-      }
-    } catch (error) {
-      debugPrint('Error checking for update: $error');
-    } finally {
-      setChecking(false);
-    }
-  }
-
-  Future<void> getUpdateMessage() async {
-    final status = await updater.checkForUpdate(track: currentTrack);
-    if (status == UpdateStatus.unavailable) {
-      message('Шинэчлэлт байхгүй');
-      return;
-    }
-    if (status == UpdateStatus.upToDate) {
-      message('Шинэчлэлт шаардлагагүй');
-      return;
-    }
-
-    if (status == UpdateStatus.outdated) {
-      message('Шинэчлэлт татагдаж байна');
-      await updater.update(track: currentTrack);
-      await restartBanner();
-      return;
-    }
-    if (status == UpdateStatus.restartRequired) {
-      message('Дахин ачаалуулах шаардлагатай');
-      await restartBanner();
-    }
-  }
-
-  Future<void> restartBanner() async {
-    return Get.dialog(
-      Material(
-        color: Colors.transparent,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            margin: const EdgeInsets.symmetric(horizontal: 30),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Шинэчлэлт татагдлаа!',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Дахин ачаалах шаардлагатай!',
-                    style: TextStyle(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  CustomButton(
-                    text: 'Дахин ачаалуулах',
-                    ontap: () {
-                      Restart.restartApp(
-                        notificationTitle: 'Шинэчлэлт татагдлаа',
-                        notificationBody: 'Энд дарж нээнэ үү!',
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

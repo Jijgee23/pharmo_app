@@ -1,4 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/controllers/a_controlller.dart';
@@ -18,8 +19,8 @@ class _SellerTrackingState extends State<SellerTracking>
   @override
   void initState() {
     super.initState();
-    readPermission();
     WidgetsBinding.instance.addObserver(this);
+    readPermission();
   }
 
   @override
@@ -35,8 +36,10 @@ class _SellerTrackingState extends State<SellerTracking>
   void readPermission() async {
     bool value = await Settings.checkAlwaysLocationPermission();
     // if (value) return;
-    setState(() {
-      locHasAlways = value;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        locHasAlways = value;
+      });
     });
   }
 
@@ -58,7 +61,7 @@ class _SellerTrackingState extends State<SellerTracking>
                   Text('Байршлыг зөвшөөрлийг идэвхижүүлнэ үү!'),
                   CustomButton(
                     text: 'Тохируулах',
-                    ontap: () => readPermission(),
+                    ontap: () => openAppSettings(),
                   )
                 ],
               ),
@@ -72,14 +75,16 @@ class _SellerTrackingState extends State<SellerTracking>
                 initialCameraPosition: CameraPosition(
                   target: tracker.latLng,
                   zoom: 15,
+                  bearing: 0,
+                  tilt: 150,
                 ),
                 onMapCreated: (controller) => tracker.onMapCreated(controller),
                 onTap: (argument) {},
                 compassEnabled: true,
                 mapToolbarEnabled: false,
-                mapType: tracker.currentMapType,
+                mapType: MapType.terrain,
                 myLocationEnabled: true,
-                myLocationButtonEnabled: true,
+                myLocationButtonEnabled: false,
                 trafficEnabled: tracker.trafficEnabled,
                 polylines: {
                   if (tracker.data.isNotEmpty)
@@ -98,88 +103,103 @@ class _SellerTrackingState extends State<SellerTracking>
                 },
               ),
               Positioned(
-                top: 50,
+                top: 0,
                 left: 25,
-                child: FloatingActionButton(
-                  heroTag: 'back',
-                  // mini: true,
-                  onPressed: () => Navigator.of(context).pop(),
-                  backgroundColor: primary,
-                  child: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
+                child: SafeArea(
+                  child: Row(
+                    spacing: 20,
+                    children: [
+                      FloatingActionButton(
+                        heroTag: 'back',
+                        // mini: true,
+                        onPressed: () => Navigator.of(context).pop(),
+                        backgroundColor: white,
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.black,
+                        ),
+                      ),
+                      if (tracker.positionSubscription != null)
+                        FloatingActionButton.extended(
+                          heroTag: 'hasTrack',
+                          // mini: true,
+                          onPressed: () {},
+                          backgroundColor: Colors.teal,
+                          label: Text(
+                            'Байршил дамжуулж байна...',
+                            style: TextStyle(color: white),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
               Positioned(
                 bottom: 100,
                 right: 15,
-                child: Column(
-                  children: [
-                    FloatingActionButton(
-                      heroTag: 'zoomIn',
-                      elevation: 20,
-                      onPressed: () {
-                        tracker.mapController
-                            ?.animateCamera(CameraUpdate.zoomIn());
-                      },
-                      backgroundColor: Colors.white,
-                      child: const Icon(Icons.add, color: Colors.black),
-                    ),
-                    const SizedBox(height: 10),
-                    FloatingActionButton(
-                      heroTag: 'zoomOut',
-                      elevation: 20,
-                      onPressed: () {
-                        tracker.mapController
-                            ?.animateCamera(CameraUpdate.zoomOut());
-                      },
-                      backgroundColor: Colors.white,
-                      child: const Icon(Icons.remove, color: Colors.black),
-                    ),
-                    const SizedBox(height: 10),
-                    FloatingActionButton(
-                      heroTag: 'myLocation',
-                      elevation: 20,
-                      onPressed: tracker.goToMyLocation,
-                      backgroundColor: Colors.white,
-                      child: const Icon(Icons.my_location, color: Colors.black),
-                    ),
-                    const SizedBox(height: 10),
-                    FloatingActionButton(
-                      heroTag: 'toggleTraffic',
-                      elevation: 20,
-                      onPressed: tracker.toggleTraffic,
-                      backgroundColor:
-                          tracker.trafficEnabled ? Colors.blue : Colors.white,
-                      child: const Icon(
-                        Icons.traffic,
-                        color: Colors.black,
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      FloatingActionButton(
+                        heroTag: 'zoomIn',
+                        elevation: 20,
+                        onPressed: () {
+                          tracker.mapController
+                              ?.animateCamera(CameraUpdate.zoomIn());
+                        },
+                        backgroundColor: Colors.white,
+                        child: const Icon(Icons.add, color: Colors.black),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    FloatingActionButton(
-                      heroTag: 'changeMapType',
-                      onPressed: tracker.changeMapType,
-                      elevation: 20,
-                      backgroundColor: Colors.white,
-                      child: const Icon(Icons.map, color: Colors.black),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      FloatingActionButton(
+                        heroTag: 'zoomOut',
+                        elevation: 20,
+                        onPressed: () {
+                          tracker.mapController
+                              ?.animateCamera(CameraUpdate.zoomOut());
+                        },
+                        backgroundColor: Colors.white,
+                        child: const Icon(Icons.remove, color: Colors.black),
+                      ),
+                      const SizedBox(height: 10),
+                      FloatingActionButton(
+                        heroTag: 'myLocation',
+                        elevation: 20,
+                        onPressed: tracker.goToMyLocation,
+                        backgroundColor: Colors.white,
+                        child:
+                            const Icon(Icons.my_location, color: Colors.black),
+                      ),
+                      const SizedBox(height: 10),
+                      FloatingActionButton(
+                        heroTag: 'toggleTraffic',
+                        elevation: 20,
+                        onPressed: tracker.toggleTraffic,
+                        backgroundColor:
+                            tracker.trafficEnabled ? Colors.blue : Colors.white,
+                        child: const Icon(
+                          Icons.traffic,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Positioned(
                 bottom: 20,
                 left: 15,
                 right: 15,
-                child: Row(
-                  spacing: 20,
-                  children: [
-                    if (tracker.positionSubscription == null)
-                      button(tracker: tracker),
-                    if (tracker.positionSubscription != null)
-                      button(tracker: tracker, isStart: false),
-                  ],
+                child: SafeArea(
+                  child: Row(
+                    spacing: 20,
+                    children: [
+                      if (tracker.positionSubscription == null)
+                        button(tracker: tracker),
+                      if (tracker.positionSubscription != null)
+                        button(tracker: tracker, isStart: false),
+                    ],
+                  ),
                 ),
               ),
             ],

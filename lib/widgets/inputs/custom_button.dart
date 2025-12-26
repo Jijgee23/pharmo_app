@@ -21,28 +21,20 @@ class CustomButton extends StatelessWidget {
     this.padding,
     this.child,
     this.borderRadius,
-    this.enabled = true, // 🆕 default true
+    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: WidgetStatePropertyAll(getColor()),
-        padding: WidgetStatePropertyAll(
-          padding ?? EdgeInsets.symmetric(vertical: Sizes.height * 0.015),
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius ?? 10),
         ),
-        shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(
-            side: BorderSide(
-              color: borderColor ?? theme.primaryColor,
-            ),
-            borderRadius: BorderRadius.circular(borderRadius ?? 15),
-          ),
-        ),
-        foregroundColor: WidgetStatePropertyAll(
-          enabled ? Colors.white : Colors.white.withAlpha(150),
-        ),
+        padding: padding ?? EdgeInsets.symmetric(vertical: 12),
+        foregroundColor: enabled ? Colors.white : Colors.white.withAlpha(150),
+        backgroundColor: getColor(),
       ),
       onPressed: enabled ? ontap : null,
       child: Center(

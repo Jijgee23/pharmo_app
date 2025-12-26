@@ -44,13 +44,18 @@ class Profile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 15),
                               child: const Text('Бүртгэл')),
                           if (isSeller || isPharma)
                             SideMenu(
-                              title: isPharma ? 'Захиалгууд' : 'Борлуулалтын захиалгууд',
+                              title: isPharma
+                                  ? 'Захиалгууд'
+                                  : 'Борлуулалтын захиалгууд',
                               icon: Icons.lock_clock,
-                              ontap: () => goto(isPharma ? const MyOrder() : const SellerOrders()),
+                              ontap: () => goto(isPharma
+                                  ? const MyOrder()
+                                  : const SellerOrders()),
                               color: Colors.amber,
                             ),
                           if (isSeller)
@@ -108,11 +113,6 @@ class Profile extends StatelessWidget {
                               icon: Icons.house,
                               color: Colors.purple,
                               ontap: () => goto(const AboutUs())),
-                          SideMenu(
-                              title: 'Шинэчлэлт шалгах',
-                              icon: Icons.update,
-                              color: Colors.green,
-                              ontap: () async => await auth.getUpdateMessage()),
                           SideMenu(
                             title: 'Системээс гарах',
                             icon: Icons.logout,
@@ -207,7 +207,11 @@ class SideMenu extends StatelessWidget {
   final Function() ontap;
 
   const SideMenu(
-      {super.key, required this.title, required this.icon, this.color, required this.ontap});
+      {super.key,
+      required this.title,
+      required this.icon,
+      this.color,
+      required this.ontap});
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +250,8 @@ class SideMenu extends StatelessWidget {
   }
 }
 
-Widget menu(String title, IconData icon, {required Function() ontap, Color? color}) {
+Widget menu(String title, IconData icon,
+    {required Function() ontap, Color? color}) {
   return InkWell(
     onTap: ontap,
     child: Container(
@@ -325,7 +330,8 @@ void logout(BuildContext context) {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => context.read<AuthController>().logout(context),
+                    onPressed: () =>
+                        context.read<AuthController>().logout(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
                       foregroundColor: Colors.white,

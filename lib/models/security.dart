@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'security.g.dart';
 
-@HiveType(typeId: 1) // typeId нь давтагдашгүй байх ёстой
+@HiveType(typeId: 3) // typeId нь давтагдашгүй байх ёстой
 class Security extends HiveObject {
   @HiveField(0)
   final int id;

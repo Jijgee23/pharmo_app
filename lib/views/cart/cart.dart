@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:pharmo_app/controllers/basket_provider.dart';
 import 'package:pharmo_app/models/a_models.dart';
 import 'package:pharmo_app/services/local_base.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/views/cart/cart_info.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/cart/seller_order_sheet.dart';
@@ -79,23 +78,21 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
             ? true
             : basket.totalCount == 0 || basket.items!.isEmpty);
         return DataScreen(
-          pad: EdgeInsets.all(5),
           loading: loading,
           empty: basketIsEmpty,
           customLoading: shimmer(),
           onRefresh: () => init(),
           customEmpty: const Center(child: EmptyBasket()),
           child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
             child: Column(
               children: [
-                const SizedBox(height: Sizes.smallFontSize),
                 const CartInfo(),
                 ...cartDatas.map((e) => CartItem(detail: e)),
-                if (!basketIsEmpty)
-                  CustomButton(
-                    text: 'Захиалга үүсгэх',
-                    ontap: () async => await placeOrder(context),
-                  ),
+                CustomButton(
+                  text: 'Захиалга үүсгэх',
+                  ontap: () async => await placeOrder(context),
+                ),
                 SizedBox(height: kToolbarHeight + 50),
               ],
             ),

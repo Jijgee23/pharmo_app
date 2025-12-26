@@ -42,7 +42,7 @@ final darkTheme = ThemeData(
     side: const BorderSide(color: darkPrimary, width: 1),
     fillColor: const WidgetStatePropertyAll(Colors.transparent),
   ),
-  fontFamily: 'Inter',
+  fontFamily: 'Sf-Pro-Text',
   splashColor: transperant,
   highlightColor: transperant,
   textTheme: const TextTheme(

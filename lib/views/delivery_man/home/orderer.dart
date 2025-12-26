@@ -4,7 +4,7 @@ import 'package:pharmo_app/controllers/jagger_provider.dart';
 import 'package:pharmo_app/models/delivery.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/views/delivery_man/home/delivery_home.dart';
+import 'package:pharmo_app/views/delivery_man/home/deliveries.dart';
 import 'package:pharmo_app/views/delivery_man/home/delivery_widget.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -37,28 +37,36 @@ class _OrdererOrdersState extends State<OrdererOrders> {
   TextEditingController amountCr = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => setState(() => expanded = !expanded),
-      child: AnimatedSize(
-        duration: duration,
-        child: Container(
-          padding: const EdgeInsets.all(7.5),
-          decoration: BoxDecoration(
-            color: primary.withAlpha(100),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              header(),
-              if (expanded)
-                AspectRatio(
-                  aspectRatio: 3.5 / 2,
-                  child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal, child: Row(children: orders().toList())),
-                ),
-              if (!widget.user!.id.contains('p')) addPay(context),
-            ],
+    return Card(
+      color: primary.withAlpha(50),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.grey.shade500),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () => setState(() => expanded = !expanded),
+        child: AnimatedSize(
+          duration: duration,
+          child: Container(
+            padding: const EdgeInsets.all(14.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 15,
+              children: [
+                header(),
+                if (expanded)
+                  AspectRatio(
+                    aspectRatio: 3 / 2,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(children: orders().toList()),
+                    ),
+                  ),
+                if (!widget.user!.id.contains('p')) addPay(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -71,7 +79,8 @@ class _OrdererOrdersState extends State<OrdererOrders> {
       child: Container(
         margin: const EdgeInsets.only(top: 7.5),
         padding: const EdgeInsets.symmetric(vertical: 7.5, horizontal: 15),
-        decoration: BoxDecoration(color: neonBlue, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+            color: neonBlue, borderRadius: BorderRadius.circular(10)),
         child: CustomTextButton(
           color: white,
           text: 'Төлбөр бүртгэх',
@@ -122,7 +131,10 @@ class _OrdererOrdersState extends State<OrdererOrders> {
               shape: BoxShape.circle,
             ),
             child: Text(
-                widget.del.orders.where((t) => getUser(t)!.id == widget.user!.id).length.toString(),
+                widget.del.orders
+                    .where((t) => getUser(t)!.id == widget.user!.id)
+                    .length
+                    .toString(),
                 style: TextStyle(color: black, fontWeight: FontWeight.bold))),
       ],
     );
@@ -171,7 +183,8 @@ class _OrdererOrdersState extends State<OrdererOrders> {
                 if (amountCr.text.isEmpty) {
                   message('Дүн оруулна уу!');
                 } else {
-                  registerPayment(jagger, pType, amountCr.text, user.id).then((v) {});
+                  registerPayment(jagger, pType, amountCr.text, user.id)
+                      .then((v) {});
                 }
               },
             ),
@@ -182,8 +195,8 @@ class _OrdererOrdersState extends State<OrdererOrders> {
     );
   }
 
-  Future registerPayment(
-      JaggerProvider jagger, String type, String amount, String customerId) async {
+  Future registerPayment(JaggerProvider jagger, String type, String amount,
+      String customerId) async {
     if (amount.isEmpty) {
       message('Дүн оруулна уу!');
     } else if (type == 'E') {

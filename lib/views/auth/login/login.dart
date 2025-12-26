@@ -34,8 +34,10 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 LoginHeaderImage(),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 20,
+                  ),
                   decoration: BoxDecoration(color: theme.cardColor),
                   child: Center(
                     child: Column(

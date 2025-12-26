@@ -126,10 +126,12 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
           ),
           SizedBox(width: 10),
           ElevatedButton.icon(
-            onPressed: () async => await jaggerProvider.getShipmentHistory(range: range),
+            onPressed: () async =>
+                await jaggerProvider.getShipmentHistory(range: range),
             icon: Icon(Icons.filter_list, color: Colors.white),
             label: Text('Шүүх',
-                style: TextStyle(fontSize: 16, color: white, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    fontSize: 16, color: white, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: primary,
               shape: RoundedRectangleBorder(
@@ -194,12 +196,14 @@ class ShipmentBuilder extends StatelessWidget {
         }
       },
       child: Card(
-        margin: EdgeInsets.only(bottom: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 5,
-        color: const Color.fromARGB(255, 121, 219, 222),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.grey.shade400),
+        ),
+        elevation: 0,
+        color: white,
         child: Padding(
-          padding: EdgeInsets.all(12),
+          padding: EdgeInsets.all(15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -212,14 +216,10 @@ class ShipmentBuilder extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 5),
-              Wrap(
-                spacing: 10,
-                children: [
-                  infoRow('Огноо', maybeNull(delivery.startedOn).substring(0, 10)),
-                  infoRow('Эхэлсэн', maybeNull(delivery.startedOn).substring(10, 19)),
-                  infoRow('Дууссан', maybeNull(delivery.endedOn).substring(10, 19)),
-                ],
-              ),
+              infoRow('Огноо', maybeNull(delivery.startedOn).substring(0, 10)),
+              infoRow(
+                  'Эхэлсэн', maybeNull(delivery.startedOn).substring(10, 19)),
+              infoRow('Дууссан', maybeNull(delivery.endedOn).substring(10, 19)),
               SizedBox(height: 8),
               Text(
                 'Явц: ${maybeNull('${delivery.progress}%')}',
@@ -250,13 +250,19 @@ class ShipmentBuilder extends StatelessWidget {
 
   Widget infoRow(String title, String value) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           '$title: ',
-          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey[700]),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[700],
+          ),
         ),
-        Text(value, style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(
+          value,
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
       ],
     );
   }

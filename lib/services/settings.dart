@@ -70,16 +70,16 @@ class Settings {
   }
 
   static Future<bool> checkAlwaysLocationPermission() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      permission = await Geolocator.requestPermission();
-    }
-
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return false;
+    }
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    print(permission);
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
     }
 
     if (permission == LocationPermission.always) {

@@ -3,6 +3,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/services/a_services.dart';
 import 'package:pharmo_app/utilities/a_utils.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
+import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
@@ -67,6 +68,10 @@ class _RootPageState extends State<RootPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool splashed = LocalBase.hasSpashed;
+    if (!splashed) {
+      return SplashScreen();
+    }
     final security = LocalBase.security;
     if (state == AuthState.unknown) {
       return PharmoIndicator(withMaterial: true);

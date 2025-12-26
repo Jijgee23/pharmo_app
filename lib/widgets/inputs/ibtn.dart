@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/utilities/a_utils.dart';
 
 class Ibtn extends StatelessWidget {
   final Color? color;
@@ -15,19 +15,15 @@ class Ibtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        margin: EdgeInsets.all(Sizes.width * 0.02),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: bColor ?? Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Icon(icon, color: color ?? Colors.black, size: 18),
-        ),
+    return IconButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        shape: CircleBorder(),
+        backgroundColor: bColor ?? Colors.white,
+        overlayColor: primary.withAlpha(100),
+        padding: EdgeInsets.all(2),
       ),
+      icon: Icon(icon, color: color ?? Colors.black),
     );
   }
 }

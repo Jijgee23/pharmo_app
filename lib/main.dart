@@ -12,7 +12,6 @@ import 'package:pharmo_app/utilities/global_key.dart';
 import 'package:pharmo_app/theme/dark_theme.dart';
 import 'package:pharmo_app/theme/light_theme.dart';
 import 'package:pharmo_app/views/auth/root_page.dart';
-import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:upgrader/upgrader.dart';
 
 Future<void> main() async {
@@ -27,6 +26,7 @@ Future<void> main() async {
   await LocalBase.initLocalBase();
   await ConnectivityService.startListennetwork();
   await BatteryService.startListenBattery();
+  await LogService().initialize();
   runApp(
     MultiProvider(
       providers: AppConfigs.providers,
@@ -47,6 +47,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    checkHasTrack(AppLifecycleState.resumed);
   }
 
   @override
@@ -60,6 +61,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
     if (security == null || (security != null && security.role == 'PA')) {
       return;
     }
+    print(security.role);
     if (security.role == "S") {
       final lp = context.read<LocationProvider>();
       bool hasTrack = await LocalBase.hasSellerTrack();
@@ -74,6 +76,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
     }
     if (security.role == "D") {
       int delmanTrackId = await LocalBase.getDelmanTrackId();
+      print('delman track id: $delmanTrackId');
       if (delmanTrackId == 0) return;
       await lifeCycleLog(state);
       final provider = context.read<JaggerProvider>();
@@ -94,7 +97,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
         desc = "unknown";
     }
     if (desc == "unknown") return;
-    await LogService.createLog('lifecycle action', desc);
+    // await LogService.createLog('lifecycle action', desc);
   }
 
   @override
@@ -105,7 +108,6 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    bool splashed = LocalBase.hasSpashed;
     return Consumer<HomeProvider>(
       builder: (context, home, child) => GetMaterialApp(
         title: 'Pharmo app',
@@ -121,7 +123,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
           showIgnore: false,
           showLater: false,
           showReleaseNotes: false,
-          child: splashed == false ? SplashScreen() : RootPage(),
+          child: RootPage(),
         ),
       ),
     );

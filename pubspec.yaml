@@ -3,7 +3,7 @@ description: "Эмийн бөөний худалда, захиалгын сис�
 publish_to: none
 
 
-version: 2.0.0+66
+version: 2.0.3+3
 environment:
   sdk: '>=3.3.3 <4.0.0'
 
@@ -37,7 +37,6 @@ dependencies:
   permission_handler: ^12.0.1
   get: ^4.6.6
   package_info_plus: ^8.1.1
-  shorebird_code_push: ^2.0.2
   restart_app: ^1.3.2
   upgrader: ^12.1.0
   image_picker: ^1.1.2
@@ -57,7 +56,7 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
-  build_runner: ^2.4.13  # 🔹 downgrade хийсэн
+  build_runner: ^2.4.13  
   hive_generator: ^2.0.1
 
 flutter_launcher_icons:
@@ -74,11 +73,11 @@ flutter:
     - assets/stickers/
     - assets/fonts/
     - .env
-    - shorebird.yaml
   fonts:
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter_24pt-Regular.ttf
-          style: normal
-          weight: 700
+     - family: Sf-Pro-Text
+       fonts:
+        - asset: assets/fonts/SF Pro Text/SF-Pro-Text-Regular.otf
+          weight: 300
+        - asset: assets/fonts/SF Pro Text/SF-Pro-Text-Bold.otf
+          weight: 500
           

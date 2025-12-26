@@ -480,7 +480,6 @@ class CustomerDetail {
 
   // Factory method to create a CustomerDetail instance from JSON
   factory CustomerDetail.fromJson(Map<String, dynamic> json) {
-    print('DATA TYPE: ${json['added_by_id'].runtimeType}');
     return CustomerDetail(
       id: json['id'],
       name: json['name'],

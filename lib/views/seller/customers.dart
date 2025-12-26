@@ -5,6 +5,7 @@ import 'package:pharmo_app/controllers/pharms_provider.dart';
 import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/customer_details_paga.dart';
+import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
 import 'package:provider/provider.dart';
@@ -16,31 +17,38 @@ class CustomerList extends StatefulWidget {
   State<CustomerList> createState() => _CustomerListState();
 }
 
-class _CustomerListState extends State<CustomerList> with SingleTickerProviderStateMixin {
+class _CustomerListState extends State<CustomerList>
+    with SingleTickerProviderStateMixin {
   late AnimationController controller;
   @override
   void initState() {
+    super.initState();
     controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
     )..repeat(reverse: true);
-    super.initState();
     init();
   }
 
-  void init() async {
+  Future init() async {
     final homeProvider = context.read<HomeProvider>();
-    final pharmProvider = context.read<PharmProvider>();
-    if (homeProvider.currentLatitude != null && homeProvider.currentLongitude != null ||
-        pharmProvider.filteredCustomers.isNotEmpty ||
-        pharmProvider.zones.isNotEmpty) {
-      return;
-    }
-    await HomeProvider.initer(() async {
+    try {
+      homeProvider.setLoading(true);
+      final pharmProvider = context.read<PharmProvider>();
+      if (homeProvider.currentLatitude != null &&
+              homeProvider.currentLongitude != null ||
+          pharmProvider.filteredCustomers.isNotEmpty ||
+          pharmProvider.zones.isNotEmpty) {
+        return;
+      }
       await pharmProvider.getCustomers(1, 100, context);
       await homeProvider.getPosition();
       await pharmProvider.getZones();
-    });
+    } catch (e) {
+      throw Exception(e);
+    } finally {
+      homeProvider.setLoading(false);
+    }
   }
 
   @override
@@ -55,11 +63,12 @@ class _CustomerListState extends State<CustomerList> with SingleTickerProviderSt
       builder: (_, homeProvider, pp, child) {
         return DataScreen(
           onRefresh: () async => init(),
-          loading: false,
+          loading: homeProvider.loading,
           empty: pp.filteredCustomers.isEmpty,
           customLoading: shimmer(),
-          pad: EdgeInsets.all(0.0),
-          child: _customersList(pp, homeProvider),
+          child: homeProvider.loading
+              ? PharmoIndicator()
+              : _customersList(pp, homeProvider),
         );
       },
     );
@@ -67,13 +76,14 @@ class _CustomerListState extends State<CustomerList> with SingleTickerProviderSt
 
   // Харилцагчдын жагсаалт
   _customersList(PharmProvider pp, HomeProvider homeProvider) {
-    return ListView.separated(
-      padding: EdgeInsets.all(10),
-      separatorBuilder: (context, index) => const SizedBox(height: 10.0),
-      itemCount: pp.filteredCustomers.length,
-      itemBuilder: (context, index) => _customerBuilder(
-        homeProvider,
-        pp.filteredCustomers[index],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          ...pp.filteredCustomers.map((cust) {
+            return _customerBuilder(homeProvider, cust);
+          }),
+          SizedBox(height: 100),
+        ],
       ),
     );
   }
@@ -81,11 +91,12 @@ class _CustomerListState extends State<CustomerList> with SingleTickerProviderSt
   shimmer() {
     List<int> list = List.generate(10, (index) => index);
     return SingleChildScrollView(
-      padding: EdgeInsets.all(10.0),
       physics: const BouncingScrollPhysics(),
       child: Column(
         spacing: 10,
-        children: list.map((ri) => ShimmerBox(controller: controller, height: 50)).toList(),
+        children: list
+            .map((ri) => ShimmerBox(controller: controller, height: 50))
+            .toList(),
       ),
     );
   }
@@ -93,57 +104,60 @@ class _CustomerListState extends State<CustomerList> with SingleTickerProviderSt
   // Харилцагч
   Widget _customerBuilder(HomeProvider homeProvider, Customer c) {
     bool selected = c.id == homeProvider.selectedCustomerId;
-    return InkWell(
-      onTap: () => goto(CustomerDetailsPage(customer: c)),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: 15,
-          horizontal: 12.5,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: grey300),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withAlpha(50),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              spacing: 10,
-              children: [
-                InkWell(
-                  onTap: () => _onTabCustomer(c, homeProvider),
-                  child: Icon(
-                    selected ? Icons.check_box : Icons.check_box_outline_blank,
-                    color: selected ? Colors.green : Colors.grey,
-                    size: 30,
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      color: white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: selected ? Colors.green : Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: InkWell(
+        onTap: () => goto(CustomerDetailsPage(customer: c)),
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: EdgeInsets.all(15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  spacing: 20,
                   children: [
-                    greyText(c.name!, selected ? AppColors.succesColor : black),
-                    if (c.loanBlock == true)
-                      Text('Харилцагч дээр захиалга зээлээр өгөхгүй!', style: redText),
-                    const SizedBox(width: 10),
-                    if (c.location == false) Text('Байршил тодорхойгүй', style: redText)
+                    InkWell(
+                      onTap: () => _onTabCustomer(c, homeProvider),
+                      child: Icon(
+                        selected
+                            ? Icons.check_box
+                            : Icons.check_box_outline_blank,
+                        color: selected ? Colors.green : Colors.grey,
+                        size: 30,
+                      ),
+                    ),
+                    Column(
+                      spacing: 5,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        greyText(
+                            c.name!, selected ? AppColors.succesColor : black),
+                        if (c.rn != null)
+                          greyText(
+                              c.rn!, selected ? AppColors.succesColor : black),
+                        if (c.loanBlock == true)
+                          Text('Харилцагч дээр захиалга зээлээр өгөхгүй!',
+                              style: redText),
+                        if (c.location == false)
+                          Text('Байршил тодорхойгүй', style: redText)
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: frenchGrey,
-            )
-          ],
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: frenchGrey,
+              )
+            ],
+          ),
         ),
       ),
     );

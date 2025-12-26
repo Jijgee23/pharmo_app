@@ -24,7 +24,7 @@ class LocModel extends HiveObject {
   Map<String, dynamic> toJson(LocModel model) {
     return {
       "lat": model.lat,
-      "lbg": model.lng,
+      "lng": model.lng,
       "created": model.data,
     };
   }

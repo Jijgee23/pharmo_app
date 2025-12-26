@@ -56,7 +56,8 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
         : Consumer<PharmProvider>(
             builder: (context, pp, child) {
               final d = pp.customerDetail;
-              bool isEditable = (d.addedById != null && d.addedById == LocalBase.security!.id);
+              bool isEditable = (d.addedById != null &&
+                  d.addedById == LocalBase.security!.id);
               Map<String, String> params = {
                 'Мейл': maybeNull(d.email),
                 'Регистр': maybeNull(d.rn),
@@ -79,11 +80,9 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                   actions: [
                     if (isEditable)
                       Ibtn(
-                          onTap: () => editCustomer(d, pp, params.keys.toList()), icon: Icons.edit),
-                    // if (notLocated)
-                    //   Ibtn(
-                    //       onTap: () => goto(LocationPicker(cusotmerId: d.id!)),
-                    //       icon: Icons.location_city)
+                        onTap: () => editCustomer(d, pp, params.keys.toList()),
+                        icon: Icons.edit,
+                      ),
                   ],
                 ),
                 body: Column(
@@ -93,7 +92,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                     IntrinsicHeight(
                       child: Container(
                         width: double.maxFinite,
-                        padding: EdgeInsets.all(10.0),
+                        padding: EdgeInsets.all(15.0),
                         decoration: BoxDecoration(
                           color: primary,
                           borderRadius: BorderRadius.only(
@@ -102,6 +101,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                           ),
                         ),
                         child: Column(
+                          spacing: 10,
                           children: [
                             CircleAvatar(
                               radius: Sizes.width * .07,
@@ -115,7 +115,6 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 10.0),
                             Text(
                               d.name ?? 'Харилцагчийн нэр',
                               style: const TextStyle(
@@ -132,7 +131,6 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(height: 10.0),
                             Row(
                               spacing: 10,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -146,31 +144,45 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                         ),
                       ),
                     ),
-                    contactWidget('Мэйл', [maybeNull(d.email ?? '')], Icons.email),
-                    contactWidget(
-                      'Утас',
-                      [
-                        maybeNull(d.phone ?? ''),
-                        maybeNull(d.phone2 ?? ''),
-                        maybeNull(d.phone3 ?? '')
-                      ].where((e) => e.isNotEmpty).toList(),
-                      Icons.phone,
-                    ),
-                    contactWidget(
-                      'Тайлбар',
-                      [maybeNull(d.note ?? '')],
-                      Icons.note,
-                    ),
-                    contactWidget(
-                      'Зээлийн мэдээлэл',
-                      [
-                        (d.loanLimitUse == true &&
-                                double.parse(maybeNull(d.loanLimit.toString())) >= 0.0)
-                            ? 'Зээлийн лимит: ${toPrice(d.loanLimit)}'
-                            : 'Зээлийн лимит ашиглахгүй',
-                      ],
-                      Icons.credit_card,
-                    ),
+                    SingleChildScrollView(
+                      padding: EdgeInsets.all(14.0),
+                      child: Column(
+                        spacing: 20,
+                        children: [
+                          contactWidget(
+                            'Мэйл',
+                            [maybeNull(d.email ?? '')],
+                            Icons.email,
+                          ),
+                          contactWidget(
+                            'Утас',
+                            [
+                              maybeNull(d.phone ?? ''),
+                              maybeNull(d.phone2 ?? ''),
+                              maybeNull(d.phone3 ?? '')
+                            ].where((e) => e.isNotEmpty).toList(),
+                            Icons.phone,
+                          ),
+                          contactWidget(
+                            'Тайлбар',
+                            [maybeNull(d.note ?? '')],
+                            Icons.note,
+                          ),
+                          contactWidget(
+                            'Зээлийн мэдээлэл',
+                            [
+                              (d.loanLimitUse == true &&
+                                      double.parse(maybeNull(
+                                              d.loanLimit.toString())) >=
+                                          0.0)
+                                  ? 'Зээлийн лимит: ${toPrice(d.loanLimit)}'
+                                  : 'Зээлийн лимит ашиглахгүй',
+                            ],
+                            Icons.credit_card,
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               );
@@ -180,36 +192,30 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
 
   Expanded social(MapEntry<String, IconData> e, CustomerDetail d) {
     return Expanded(
-      child: InkWell(
-        splashColor: Colors.white.withAlpha(100),
-        highlightColor: Colors.white.withAlpha(50),
-        onTap: () => handleSocial(e.key, d),
-        child: Container(
-          decoration: BoxDecoration(
-            color: primary.withAlpha(150),
-            borderRadius: BorderRadius.circular(5.0),
-            border: Border.all(
+      child: ElevatedButton(
+        onPressed: () => handleSocial(e.key, d),
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
               color: Colors.white.withAlpha(125),
             ),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-          child: Column(
-            children: [
-              Icon(
-                e.value,
+          overlayColor: Colors.white.withAlpha(100),
+          padding: const EdgeInsets.all(10),
+          backgroundColor: primary.withAlpha(150),
+        ),
+        child: Column(
+          spacing: 3,
+          children: [
+            Icon(e.value, color: Colors.white),
+            Text(
+              e.key,
+              style: const TextStyle(
                 color: Colors.white,
-                size: 24.0,
               ),
-              const SizedBox(height: 2.0),
-              Text(
-                e.key,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -259,7 +265,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
 
   Widget contactWidget(String title, List<String> vals, IconData icon) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       child: Column(
         spacing: 10.0,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,14 +360,26 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
             ontap: () {
               pp.editCustomer(
                   id: parseInt(det.id),
-                  name: name.text.isNotEmpty ? name.text : maybeNullToJson(det.name),
+                  name: name.text.isNotEmpty
+                      ? name.text
+                      : maybeNullToJson(det.name),
                   rn: rn.text.isNotEmpty ? rn.text : maybeNullToJson(det.rn),
-                  email: email.text.isNotEmpty ? email.text : maybeNullToJson(det.email),
-                  phone: phone.text.isNotEmpty ? phone.text : maybeNullToJson(det.phone),
-                  note: note.text.isNotEmpty ? note.text : maybeNullToJson(det.note),
+                  email: email.text.isNotEmpty
+                      ? email.text
+                      : maybeNullToJson(det.email),
+                  phone: phone.text.isNotEmpty
+                      ? phone.text
+                      : maybeNullToJson(det.phone),
+                  note: note.text.isNotEmpty
+                      ? note.text
+                      : maybeNullToJson(det.note),
                   context: context,
-                  phone2: phone2.text.isNotEmpty ? phone2.text : maybeNullToJson(det.phone2),
-                  phone3: phone3.text.isNotEmpty ? phone3.text : maybeNullToJson(det.phone3));
+                  phone2: phone2.text.isNotEmpty
+                      ? phone2.text
+                      : maybeNullToJson(det.phone2),
+                  phone3: phone3.text.isNotEmpty
+                      ? phone3.text
+                      : maybeNullToJson(det.phone3));
               getDetail();
               Navigator.pop(context);
             }),

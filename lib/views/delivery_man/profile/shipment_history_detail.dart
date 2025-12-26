@@ -41,18 +41,31 @@ class ShipmentHistoryDetail extends StatelessWidget {
       toPrice(order.totalPrice),
       getPayType(order.payType),
     ];
-    List<String> titles = ['Захиалагч', 'Дугаар', 'Огноо', 'Тоо ширхэг', 'Дүн', 'Төлбөрийн хэлбэр'];
-    return Container(
-      padding: const EdgeInsets.all(10),
-      width: double.maxFinite,
-      decoration: BoxDecoration(
-          border: Border.all(color: grey200), borderRadius: BorderRadius.circular(10)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          OrderStatusAnimation(process: process(order.process), status: status(order.status)),
-          ...titles.map((t) => myRow(t, data[titles.indexOf(t)])),
-        ],
+    List<String> titles = [
+      'Захиалагч',
+      'Дугаар',
+      'Огноо',
+      'Тоо ширхэг',
+      'Дүн',
+      'Төлбөрийн хэлбэр'
+    ];
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade400),
+      ),
+      elevation: 0,
+      color: white,
+      child: Container(
+        padding: EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            OrderStatusAnimation(
+                process: process(order.process), status: status(order.status)),
+            ...titles.map((t) => myRow(t, data[titles.indexOf(t)])),
+          ],
+        ),
       ),
     );
   }

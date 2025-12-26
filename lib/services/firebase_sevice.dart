@@ -46,7 +46,17 @@ class FirebaseApi {
   /// Call during app start to ensure Firebase + messaging are fully ready.
   static Future<void> initFirebase() async {
     try {
-      await _ensureFirebaseInitialized();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } on FirebaseException catch (e) {
+      if (e.code == 'duplicate-app') {
+        debugPrint('⚠️ Firebase already initialized, using existing app.');
+      } else {
+        rethrow;
+      }
+    }
+    try {
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
       await _initializeLocalNotifications();
@@ -72,7 +82,6 @@ class FirebaseApi {
   static Future<void> firebaseMessagingBackgroundHandler(
     RemoteMessage message,
   ) async {
-    await _ensureFirebaseInitialized();
     await showFlutterNotification(message);
     await _dispatchMessage(message, _backgroundMessageHandler);
   }
@@ -138,13 +147,6 @@ class FirebaseApi {
     await _dispatchMessage(
       initialMessage,
       _initialMessageHandler ?? _openedAppMessageHandler,
-    );
-  }
-
-  static Future<void> _ensureFirebaseInitialized() async {
-    if (Firebase.apps.isNotEmpty) return;
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
     );
   }
 
