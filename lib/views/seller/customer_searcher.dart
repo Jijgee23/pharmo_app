@@ -94,7 +94,7 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
         if (value.isEmpty) {
           await pp.getCustomers(1, 100, context);
         } else {
-          await pp.filtCustomers(filter, controller.text, context);
+          await pp.filtCustomers(filter, controller.text);
         }
       },
     );

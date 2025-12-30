@@ -34,7 +34,7 @@ final lightTheme = ThemeData(
     ),
     focusedBorder: InputBorder.none,
     border: InputBorder.none,
-    labelStyle: TextStyle(color: primary),
+    // labelStyle: TextStyle(color: primary),
   ),
   checkboxTheme: CheckboxThemeData(
     checkColor: WidgetStateProperty.all(primary),

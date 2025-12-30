@@ -8,11 +8,12 @@ import 'package:pharmo_app/utilities/colors.dart';
 import 'package:pharmo_app/utilities/constants.dart';
 import 'package:pharmo_app/utilities/sizes.dart';
 import 'package:pharmo_app/utilities/utils.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/views/delivery_man/widgets/choose_customer.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/widgets/inputs/ibtn.dart';
 import 'package:provider/provider.dart';
 
 class AddPayment extends StatefulWidget {
@@ -22,7 +23,8 @@ class AddPayment extends StatefulWidget {
   State<AddPayment> createState() => _AddPaymentState();
 }
 
-class _AddPaymentState extends State<AddPayment> {
+class _AddPaymentState extends State<AddPayment>
+    with SingleTickerProviderStateMixin {
   String selected = 'e';
   String pType = 'E';
   String? selectedCustomer;
@@ -36,14 +38,15 @@ class _AddPaymentState extends State<AddPayment> {
 
   String viewMode = 'Жагсаалт';
 
+  late TabController tabController;
+
   @override
   void initState() {
     super.initState();
+    tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Future.microtask(
-          () => context.read<PharmProvider>().getCustomers(1, 5, context));
-      Future.microtask(
-          () => context.read<JaggerProvider>().getCustomerPayment());
+      await context.read<PharmProvider>().getCustomers(1, 5, context);
+      await context.read<JaggerProvider>().getCustomerPayment();
     });
   }
 
@@ -54,75 +57,126 @@ class _AddPaymentState extends State<AddPayment> {
   Widget build(BuildContext context) {
     return Consumer2<JaggerProvider, PharmProvider>(
       builder: (context, jagger, pharm, child) => Scaffold(
-        appBar: const SideAppBar(text: 'Төлбөр, тооцоо бүртгэх'),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
+        appBar: AppBar(
+          backgroundColor: white,
+          foregroundColor: black,
+          leading: Ibtn(
+            onTap: () => Navigator.pop(context),
+            icon: Icons.chevron_left_sharp,
+          ),
+          title: Text(
+            'Төлбөр, тооцоо бүртгэх',
+            style: TextStyle(fontSize: 14),
+          ),
+          centerTitle: false,
+          bottom: TabBar(
+            controller: tabController,
+            dividerColor: black,
+            labelColor: primary,
+            unselectedLabelColor: black,
+            tabs: [
+              Tab(
+                child: Text('Жагсаалт'),
+              ),
+              Tab(child: Text('Бүртгэх')),
+            ],
+          ),
+        ),
+        body: Container(
+          padding: EdgeInsets.all(14.0),
+          child: TabBarView(
+            controller: tabController,
             children: [
-              const SizedBox(),
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.primaryColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.all(5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    switcher('Жагсаалт'),
-                    switcher('Бүртгэх'),
-                  ],
+              SingleChildScrollView(
+                child: Column(
+                  spacing: 14,
+                  children: jagger.payments
+                      .map((payment) => paymentBuilder(payment, jagger))
+                      .toList(),
                 ),
               ),
               Column(
-                spacing: 10,
-                children: (viewMode == 'Жагсаалт')
-                    ? [
-                        ...jagger.payments.map(
-                          (payment) => paymentBuilder(payment, jagger),
-                        )
-                      ]
-                    : [
-                        CustomTextField(
-                          controller: search,
-                          hintText: 'Харицагч хайх',
-                          onChanged: (p0) async =>
-                              await pharm.filtCustomers('name', p0!, context),
+                spacing: 15,
+                children: [
+                  Builder(builder: (context) {
+                    bool hasCustomer = customer != null;
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              Customer? value =
+                                  await goto<Customer?>(ChooseCustomer());
+                              if (value != null) {
+                                print(value.name);
+                                customer = value;
+                                setState(() {});
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: hasCustomer ? primary : white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: BorderSide(
+                                  color: hasCustomer
+                                      ? transperant
+                                      : Colors.grey.shade400,
+                                ),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                vertical: 15,
+                                horizontal: 15,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  hasCustomer
+                                      ? customer!.name!
+                                      : 'Харилцагч сонгох',
+                                  style: TextStyle(
+                                    color: hasCustomer ? white : null,
+                                  ),
+                                ),
+                                if (customer != null)
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(30),
+                                    onTap: () {
+                                      customer = null;
+                                      setState(() {});
+                                    },
+                                    child: Icon(
+                                      Icons.cancel,
+                                      color: white,
+                                      size: 26,
+                                    ),
+                                  )
+                              ],
+                            ),
+                          ),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 15,
-                          children: [
-                            if (pharm.filteredCustomers.isNotEmpty)
-                              ...pharm.filteredCustomers
-                                  .take(3)
-                                  .map((cus) => customerBuilder(cus)),
-                            if (pharm.filteredCustomers.isEmpty)
-                              const Align(
-                                  alignment: Alignment.center,
-                                  child: Text('Харилцагч олдсонгүй',
-                                      textAlign: TextAlign.center))
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            picker('Бэлнээр', 'C'),
-                            picker('Дансаар', 'T'),
-                          ],
-                        ),
-                        CustomTextField(
-                          controller: amount,
-                          hintText: 'Дүн оруулах',
-                          keyboardType: TextInputType.number,
-                        ),
-                        CustomButton(
-                            text: 'Бүртгэх', ontap: () => _register(jagger)),
                       ],
-              ),
-              const SizedBox(),
+                    );
+                  }),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      picker('Бэлнээр', 'C'),
+                      picker('Дансаар', 'T'),
+                    ],
+                  ),
+                  CustomTextField(
+                    controller: amount,
+                    hintText: 'Дүн оруулах',
+                    keyboardType: TextInputType.number,
+                  ),
+                  CustomButton(
+                    text: 'Бүртгэх',
+                    ontap: () => _register(jagger),
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -130,58 +184,28 @@ class _AddPaymentState extends State<AddPayment> {
     );
   }
 
-  Widget customerBuilder(Customer cus) {
-    bool sel = cus == customer;
-    return InkWell(
-      onTap: () => setState(() {
-        if (sel) {
-          customer = null;
-        } else {
-          customer = cus;
-        }
-      }),
-      child: AnimatedContainer(
-        duration: duration,
-        width: double.maxFinite,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: sel ? succesColor : atnessGrey),
-            color: sel ? succesColor.withOpacity(.3) : white),
-        child: Row(
-          spacing: 10,
-          children: [const Icon(Icons.person), Text(cus.name!)],
-        ),
-      ),
-    );
-  }
-
   Widget paymentBuilder(Payment payment, JaggerProvider jagger) {
-    return InkWell(
-      onTap: () => editPayment(jagger, payment),
-      child: Card(
-        margin: const EdgeInsets.symmetric(),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 4,
+    return Card(
+      color: white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: grey500),
+      ),
+      elevation: 0,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () => editPayment(jagger, payment),
         child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              colors: [
-                getPaymentColor(payment.payType).withOpacity(0.2),
-                Colors.white
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
           padding: const EdgeInsets.all(15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 7.5,
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
                 decoration: BoxDecoration(
                   color: primary.withOpacity(0.1).withBlue(50),
                   borderRadius: BorderRadius.circular(10),
@@ -190,21 +214,23 @@ class _AddPaymentState extends State<AddPayment> {
                   children: [
                     Icon(Icons.person, color: Colors.black54),
                     const SizedBox(width: 8),
-                    Text(payment.cust.name!,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      payment.cust.name!,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
               Text(
                 '${toPrice(payment.amount)} (${getPayType(payment.payType)})',
                 style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -325,6 +351,7 @@ class _AddPaymentState extends State<AddPayment> {
         pType = 'E';
         selected = 'e';
       });
+      tabController.animateTo(0);
     }
   }
 

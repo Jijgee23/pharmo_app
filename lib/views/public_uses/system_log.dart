@@ -24,7 +24,11 @@ class _SystemLogState extends State<SystemLog> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Системийн лог'),
+        title: Text(
+          'Системийн лог',
+          style: TextStyle(fontSize: 14),
+        ),
+        centerTitle: false,
       ),
       body: Consumer<LogProvider>(
         builder: (context, value, child) => ListView.builder(

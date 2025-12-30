@@ -14,12 +14,14 @@ import 'package:intl/intl.dart' as intl;
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 
-void goto(Widget widget) {
-  Get.to(
+Future<T?> goto<T>(Widget widget) async {
+  final res = await Get.to(
     widget,
     curve: Curves.fastLinearToSlowEaseIn,
     transition: Transition.rightToLeft,
   );
+
+  return res as T;
 }
 
 Future gotoRemoveUntil(Widget widget) async {

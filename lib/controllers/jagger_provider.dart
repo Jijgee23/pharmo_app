@@ -63,15 +63,22 @@ class JaggerProvider extends ChangeNotifier {
   final LogService logService = LogService();
 
   Future sendTobackend(int id, double lat, double lng) async {
-    var body = locationResponse(
-      id,
-      [LocModel(lat: lat, lng: lng, success: true)],
-    );
-    String url = 'delivery/location/';
+    var date = DateTime.now().toIso8601String();
     double latitude = truncateToDigits(lat, 6);
     double longitude = truncateToDigits(lng, 6);
+    final data =
+        LocModel(lat: latitude, lng: longitude, success: true, data: date);
+    final unSuccessData =
+        LocModel(lat: latitude, lng: longitude, success: false, data: date);
+    var body = locationResponse(id, [data]);
+    String url = 'delivery/location/';
     final res = await api(Api.patch, url, body: body);
-    if (res!.statusCode == 200 || res.statusCode == 201) {
+    if (res == null) {
+      await FirebaseApi.local('Илгээгдээгүй байршил хадгалагдлаа', '');
+      addLocModelToLocalDb(unSuccessData);
+      return;
+    }
+    if (res.statusCode == 200 || res.statusCode == 201) {
       final lastNotifDate = await logService.getLastNotifDate();
       final now = DateTime.now();
       if (lastNotifDate == null ||
@@ -97,14 +104,7 @@ class JaggerProvider extends ChangeNotifier {
       }
     } else {
       await FirebaseApi.local('Илгээгдээгүй байршил хадгалагдлаа', '');
-      addLocModelToLocalDb(
-        LocModel(
-          lat: latitude,
-          lng: longitude,
-          success: false,
-          data: DateTime.now().toIso8601String(),
-        ),
-      );
+      addLocModelToLocalDb(unSuccessData);
     }
   }
 
@@ -199,7 +199,7 @@ class JaggerProvider extends ChangeNotifier {
     positionSubscription = null;
     LocalBase.clearDelmanTrack();
     notifyListeners();
-  } 
+  }
 
   Future<dynamic> endShipment(int shipmentId) async {
     try {

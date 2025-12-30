@@ -4,6 +4,7 @@ import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/auth/root_page.dart';
 import 'package:pharmo_app/views/auth/sign_up.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
+import 'package:pharmo_app/views/delivery_man/widgets/choose_customer.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/seller/seller_tracking.dart';
@@ -37,6 +38,7 @@ class AppConfigs {
     "/index_delivery": (_) => IndexDeliveryMan(),
     "/cart": (_) => Cart(),
     "/seller_track": (_) => SellerTracking(),
+    "/chooseCustomer": (_) => ChooseCustomer(),
   };
 }
 
@@ -48,3 +50,8 @@ Future<T?> goNamed<T>(String route, {dynamic arguments}) async {
 Future goNamedOfAll<T>(String route, {dynamic arguments}) async {
   await Get.offAndToNamed("/$route", arguments: arguments);
 }
+
+// Future<T?> goto<T>(String route, {dynamic arguments}) async {
+//   final result = await Get.toNamed<T?>("/$route", arguments: arguments);
+//   return result as T;
+// }

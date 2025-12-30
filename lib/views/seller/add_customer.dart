@@ -70,67 +70,70 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
             topRight: Radius.circular(20),
           ),
         ),
-        child: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Wrap(
-              runSpacing: Sizes.smallFontSize,
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    height: 4,
-                    width: 50,
-                    decoration: BoxDecoration(
+        child: SafeArea(
+          child: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Wrap(
+                runSpacing: Sizes.smallFontSize,
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      height: 4,
+                      width: 50,
+                      decoration: BoxDecoration(
                         color: Colors.grey,
-                        borderRadius: BorderRadius.circular(3)),
-                  ),
-                ),
-                const Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Харилцагч бүртгэх',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: black,
-                        fontSize: 16),
-                  ),
-                ),
-                input('Нэр', name, null),
-                input('Регистрийн дугаар', rn, null),
-                input('И-Мейл', email, null),
-                input('Утас', phone,
-                    const TextInputType.numberWithOptions(signed: true)),
-                const Text('Заавал биш',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black54)),
-                input('Нэмэлт тайлбар ', note, null),
-                const Text('Харилцагчийг бүсийг сонгоно уу!',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black54)),
-                if (pp.zones.isNotEmpty)
-                  if (pp.zones.isNotEmpty)
-                    SizedBox(
-                      height: 50, // эсвэл тохирох өндөр өгнө
-                      child: SingleChildScrollView(
-                        scrollDirection:
-                            Axis.horizontal, // Хэвтээ гүйлгэлт болгох
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
-                          spacing: 10,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            ...pp.zones.map((z) => zoneBuilder(z, pp)),
-                          ],
-                        ),
+                        borderRadius: BorderRadius.circular(3),
                       ),
                     ),
-                CustomButton(
-                  text: 'Бүртгэх',
-                  ontap: () async => await _registerCustomer(pp, home),
-                ),
-              ],
+                  ),
+                  const Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Харилцагч бүртгэх',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: black,
+                          fontSize: 16),
+                    ),
+                  ),
+                  input('Нэр', name, null),
+                  input('Регистрийн дугаар', rn, null),
+                  input('И-Мейл', email, null),
+                  input('Утас', phone,
+                      const TextInputType.numberWithOptions(signed: true)),
+                  const Text('Заавал биш',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black54)),
+                  input('Нэмэлт тайлбар ', note, null),
+                  const Text('Харилцагчийг бүсийг сонгоно уу!',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black54)),
+                  if (pp.zones.isNotEmpty)
+                    if (pp.zones.isNotEmpty)
+                      SizedBox(
+                        height: 50, // эсвэл тохирох өндөр өгнө
+                        child: SingleChildScrollView(
+                          scrollDirection:
+                              Axis.horizontal, // Хэвтээ гүйлгэлт болгох
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                            spacing: 10,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              ...pp.zones.map((z) => zoneBuilder(z, pp)),
+                            ],
+                          ),
+                        ),
+                      ),
+                  CustomButton(
+                    text: 'Бүртгэх',
+                    ontap: () async => await _registerCustomer(pp, home),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -11,7 +11,7 @@ class PharmProvider extends ChangeNotifier {
   getCustomers(int page, int size, BuildContext c) async {
     try {
       final response =
-          await api(Api.get, 'seller/customer/?page=$page&page_size=$size');
+          await api(Api.get, 'seller/customer/?page=$page&page_size=$size/');
       if (response!.statusCode == 200) {
         Map data = convertData(response);
         filteredCustomers.clear();
@@ -25,6 +25,24 @@ class PharmProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  filtCustomers(String type, String v) async {
+    try {
+      final response =
+          await api(Api.get, 'seller/customer/${getEndPoint(type, v)}');
+      if (response!.statusCode == 200) {
+        Map data = convertData(response);
+        filteredCustomers.clear();
+        List<dynamic> pharms = data['results'];
+        filteredCustomers = pharms.map((p) => Customer.fromJson(p)).toList();
+      } else {
+        message('Алдаа гарлаа');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    notifyListeners();
   }
 
   Future<Map<String, dynamic>> getCustomerDetail(int custId) async {
@@ -74,24 +92,6 @@ class PharmProvider extends ChangeNotifier {
     } else {
       return '?rn=$v';
     }
-  }
-
-  filtCustomers(String type, String v, BuildContext c) async {
-    try {
-      final response =
-          await api(Api.get, 'seller/customer/${getEndPoint(type, v)}');
-      if (response!.statusCode == 200) {
-        Map data = convertData(response);
-        filteredCustomers.clear();
-        List<dynamic> pharms = data['results'];
-        filteredCustomers = pharms.map((p) => Customer.fromJson(p)).toList();
-      } else {
-        message('Алдаа гарлаа');
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-    notifyListeners();
   }
 
   editSellerOrder(String note, String pt, int orderId, BuildContext c) async {
