@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/marked_promo_dialog.dart';
 
 class DialogBtn extends StatelessWidget {

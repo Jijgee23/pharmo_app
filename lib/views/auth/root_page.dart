@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:pharmo_app/services/a_services.dart';
-import 'package:pharmo_app/utilities/a_utils.dart';
+import 'package:pharmo_app/application/services/a_services.dart';
+import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/utilities/api.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
+import 'package:pharmo_app/views/rep_man/index.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 
 enum AuthState { unknown, loggedIn, notLoggedIn, expired }
@@ -83,6 +85,9 @@ class _RootPageState extends State<RootPage> {
 
     if (security.role == 'D') {
       return IndexDeliveryMan();
+    }
+    if (security.role == "R") {
+      return IndexRep();
     }
     return IndexPharma();
   }

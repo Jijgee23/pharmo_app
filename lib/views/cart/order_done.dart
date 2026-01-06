@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controller/providers/basket_provider.dart';
+import 'package:pharmo_app/controller/providers/home_provider.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:provider/provider.dart';
 

@@ -1,7 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
 
 class ResponsiveDropdownButton extends StatefulWidget {
   final String initText;

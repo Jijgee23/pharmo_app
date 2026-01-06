@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 
 class ReportWidget extends StatelessWidget {

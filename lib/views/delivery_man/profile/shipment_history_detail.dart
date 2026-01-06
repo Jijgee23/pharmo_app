@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/delivery.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controller/models/delivery.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/seller_order_detail.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/loader/order_status.dart';

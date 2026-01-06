@@ -10,22 +10,24 @@ import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/seller/seller_tracking.dart';
 import 'package:provider/single_child_widget.dart';
 
-import 'controllers/a_controlller.dart';
+import 'controller/providers/a_controlller.dart';
 
 class AppConfigs {
   static List<SingleChildWidget> providers = [
     ChangeNotifierProvider(create: (_) => AuthController()),
     ChangeNotifierProvider(create: (_) => BasketProvider()),
-    ChangeNotifierProvider(create: (_) => JaggerProvider()..tracking()),
+    ChangeNotifierProvider(
+        create: (_) => JaggerProvider()
+          ..initJagger()
+          ..tracking()),
     ChangeNotifierProvider(create: (_) => MyOrderProvider()),
     ChangeNotifierProvider(create: (_) => HomeProvider()),
     ChangeNotifierProvider(create: (_) => PharmProvider()),
     ChangeNotifierProvider(create: (_) => IncomeProvider()),
     ChangeNotifierProvider(create: (_) => PromotionProvider()),
     ChangeNotifierProvider(create: (_) => ReportProvider()),
-    ChangeNotifierProvider(create: (_) => LocationProvider()),
     ChangeNotifierProvider(create: (_) => RepProvider()..initTracking()),
-    ChangeNotifierProvider(create: (_) => LogProvider())
+    ChangeNotifierProvider(create: (_) => LogProvider()),
   ];
 
   static Map<String, Widget Function(BuildContext)> appRoutes = {

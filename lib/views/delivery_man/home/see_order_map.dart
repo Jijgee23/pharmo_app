@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/models/delivery.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controller/models/delivery.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/constants.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 
 class SeeOrderMap extends StatefulWidget {

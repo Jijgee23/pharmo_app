@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pharmo_app/controllers/pharms_provider.dart';
-import 'package:pharmo_app/models/my_order.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controller/providers/pharms_provider.dart';
+import 'package:pharmo_app/controller/models/my_order.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/views/product/add_basket_sheet.dart';
+import 'package:pharmo_app/views/public/product/add_basket_sheet.dart';
 import 'package:pharmo_app/widgets/inputs/ibtn.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +21,15 @@ class SellerOrderDetail extends StatefulWidget {
   State<SellerOrderDetail> createState() => _SellerOrderDetailState();
 }
 
-class _SellerOrderDetailState extends State<SellerOrderDetail> {
+class _SellerOrderDetailState extends State<SellerOrderDetail>
+    with SingleTickerProviderStateMixin {
+  late TabController controller;
+  @override
+  void initState() {
+    super.initState();
+    controller = TabController(length: 2, vsync: this);
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<MyOrderModel>(
@@ -32,12 +38,29 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
         return DataScreen(
           loading: stream.connectionState == ConnectionState.waiting,
           empty: !stream.hasData,
-          bg: primary,
           pad: EdgeInsets.all(0),
-          appbar: SideAppBar(
-            text: maybeNull(stream.data?.orderNo.toString()),
-            hasRect: false,
-            action: Ibtn(
+          appbar: AppBar(
+            centerTitle: false,
+            title: Text(
+              maybeNull(stream.data?.orderNo.toString()),
+              style: TextStyle(fontSize: 14),
+            ),
+            bottom: TabBar(
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white70,
+              indicatorColor: Colors.teal,
+              indicatorSize: TabBarIndicatorSize.tab,
+              controller: controller,
+              tabs: [
+                Tab(text: 'Ерөнхий'),
+                Tab(text: 'Бараа'),
+              ],
+              overlayColor: WidgetStatePropertyAll(
+                Colors.purple.withAlpha(50),
+              ),
+            ),
+            actions: [
+              Ibtn(
                 onTap: () {
                   final order = stream.data!;
                   Get.bottomSheet(
@@ -48,7 +71,9 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
                     ),
                   );
                 },
-                icon: Icons.edit),
+                icon: Icons.edit,
+              ),
+            ],
           ),
           child: information(stream),
         );
@@ -79,71 +104,82 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> {
         'Нийлүүлэгч': order.supplier,
         'Хаяг': order.address,
       };
-      return Container(
-        height: double.maxFinite,
-        width: double.maxFinite,
-        padding: const EdgeInsets.all(15.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      return TabBarView(
+        controller: controller,
+        children: [
+          Container(
+            height: double.maxFinite,
+            width: double.maxFinite,
+            padding: const EdgeInsets.all(15.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                spacing: 15,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  t('Огноо', order.createdOn.toString().substring(0, 10)),
-                  t(
-                    'Цаг/мин',
-                    order.createdOn.toString().substring(10, 16),
-                    cxs: CrossAxisAlignment.end,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      t('Огноо', order.createdOn.toString().substring(0, 10)),
+                      t(
+                        'Цаг/мин',
+                        order.createdOn.toString().substring(10, 16),
+                        cxs: CrossAxisAlignment.end,
+                      ),
+                    ],
                   ),
+                  ...params.entries
+                      .map((e) => dataBuilder(e.key, e.value?.toString()))
+                      .whereType<Widget>(),
                 ],
               ),
-              ...params.entries
-                  .map((e) => dataBuilder(e.key, e.value?.toString()))
-                  .whereType<Widget>(),
-              Divider(color: grey500),
-              t('', 'Бараанууд'),
-              if (order.products != null && order.products!.isEmpty)
-                const Text('Бараа байхгүй'),
-              if (order.products != null && order.products!.isNotEmpty)
-                ...order.products!.map(
-                  (item) => ListTile(
-                    onTap: () => changeQty(order.id, item),
-                    tileColor: Colors.grey.withAlpha(20),
-                    dense: true,
-                    title: Text(
-                      '${item['itemName']} x ${item['itemQty']}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
+            ),
+          ),
+          SingleChildScrollView(
+            child: Column(
+              spacing: 10,
+              children: [
+                if (order.products != null && order.products!.isNotEmpty)
+                  ...order.products!.map(
+                    (item) => ListTile(
+                      onTap: () => changeQty(order.id, item),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(color: Colors.grey.shade500),
                       ),
-                    ),
-                    subtitle: Text(
-                      'Анх захиалсан: ${item['iQty']}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
+                      dense: true,
+                      title: Text(
+                        '${item['itemName']} x ${item['itemQty']}',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    trailing: Text(
-                      toPrice(item['itemTotalPrice']),
-                      style: TextStyle(
-                        color: Colors.redAccent,
+                      subtitle: Text(
+                        'Анх захиалсан: ${item['iQty']}',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      trailing: Text(
+                        toPrice(item['itemTotalPrice']),
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          )
+        ],
       );
     }
   }

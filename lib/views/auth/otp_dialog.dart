@@ -1,11 +1,7 @@
-// ignore_for_file: use_build_context_synchronously
 
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/utilities/varlidator.dart';
+import 'package:pharmo_app/application/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:provider/provider.dart';
-
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
 class OtpDialog extends StatefulWidget {
   final String email;
   final String otp;

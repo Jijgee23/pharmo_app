@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:pharmo_app/models/delivery.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controller/providers/jagger_provider.dart';
+import 'package:pharmo_app/controller/models/delivery.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/constants.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/delivery_man/home/delivery_detail.dart';
 import 'package:pharmo_app/views/delivery_man/widgets/status_changer.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';

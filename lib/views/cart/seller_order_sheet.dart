@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
+import 'package:pharmo_app/controller/models/customer.dart';
+import 'package:pharmo_app/controller/providers/basket_provider.dart';
+import 'package:pharmo_app/controller/providers/home_provider.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
+import 'package:pharmo_app/views/delivery_man/widgets/choose_customer.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -40,36 +44,87 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContainer(
-      children: [
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: Text('Төлбөрийн хэлбэр сонгоно уу : '),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ...payTypes.map((p) => MyChip(
-                title: p,
-                v: payS[payTypes.indexOf(p)],
-                selected: (payS[payTypes.indexOf(p)] == payType),
-                ontap: () => setPayType(payS[payTypes.indexOf(p)]))),
-          ],
-        ),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text('Заавал биш:')],
-        ),
-        CustomTextField(
-          controller: noteController,
-          hintText: 'Тайлбар',
-          onChanged: (v) => homeProvider.setNote(v!),
-        ),
-        CustomButton(
-          text: 'Захиалах',
-          ontap: () => _createOrder(),
-        ),
-      ],
+    return Consumer<HomeProvider>(
+      builder: (context, home, child) => SheetContainer(
+        children: [
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Төлбөрийн хэлбэр сонгоно уу : '),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ...payTypes.map((p) => MyChip(
+                  title: p,
+                  v: payS[payTypes.indexOf(p)],
+                  selected: (payS[payTypes.indexOf(p)] == payType),
+                  ontap: () => setPayType(payS[payTypes.indexOf(p)]))),
+            ],
+          ),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [Text('Заавал биш:')],
+          ),
+          Builder(builder: (context) {
+            bool hasCustomer = home.customer != null;
+            return ElevatedButton(
+              onPressed: () async {
+                Customer? value = await goto<Customer?>(ChooseCustomer());
+                if (value != null) {
+                  home.setCustomer(value);
+                  setState(() {});
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: hasCustomer ? primary : white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(
+                    color: hasCustomer ? transperant : Colors.grey.shade400,
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  vertical: 15,
+                  horizontal: 15,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    hasCustomer ? home.customer!.name! : 'Захиалагч сонгох',
+                    style: TextStyle(
+                      color: hasCustomer ? white : null,
+                    ),
+                  ),
+                  if (home.customer != null)
+                    InkWell(
+                      borderRadius: BorderRadius.circular(30),
+                      onTap: () {
+                        home.setCustomer(null);
+                        setState(() {});
+                      },
+                      child: Icon(
+                        Icons.cancel,
+                        color: white,
+                        size: 26,
+                      ),
+                    )
+                ],
+              ),
+            );
+          }),
+          CustomTextField(
+            controller: noteController,
+            hintText: 'Тайлбар',
+            onChanged: (v) => homeProvider.setNote(v!),
+          ),
+          CustomButton(
+            text: 'Захиалах',
+            ontap: () => _createOrder(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -87,10 +142,8 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
       message('Үнийн дүн 10₮-с бага байж болохгүй!');
       return;
     }
-    if (homeProvider.selectedCustomerId == 0) {
+    if (context.read<HomeProvider>().customer == null) {
       message('Захиалагч сонгоно уу!');
-      homeProvider.changeIndex(0);
-      Navigator.pop(context);
       return;
     }
     await homeProvider.createSellerOrder(context, payType);

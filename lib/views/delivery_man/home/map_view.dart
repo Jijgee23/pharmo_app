@@ -1,11 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/controllers/jagger_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
 
-class MapView extends StatelessWidget {
+class MapView extends StatefulWidget {
   const MapView({super.key});
 
+  @override
+  State<MapView> createState() => _MapViewState();
+}
+
+class _MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return Consumer<JaggerProvider>(
@@ -15,46 +19,32 @@ class MapView extends StatelessWidget {
             children: [
               GoogleMap(
                 onMapCreated: (controller) => jagger.onMapCreated(controller),
-                markers: jagger.markers,
+                markers: {...jagger.orderMarkers, ...jagger.markers},
                 trafficEnabled: jagger.trafficEnabled,
                 mapType: jagger.mapType,
                 compassEnabled: true,
                 mapToolbarEnabled: true,
                 myLocationEnabled: true,
+                buildingsEnabled: false,
                 myLocationButtonEnabled: false,
                 initialCameraPosition: CameraPosition(
-                  bearing: 0,
-                  tilt: 150,
+                  bearing: jagger.bearing,
+                  tilt: jagger.tilt,
                   target: jagger.currentPosition != null
                       ? LatLng(jagger.currentPosition!.latitude,
                           jagger.currentPosition!.longitude)
                       : const LatLng(47.918873, 106.917572),
                   zoom: jagger.zoomIndex,
                 ),
-                polylines: {
-                  if (jagger.routeCoords.isNotEmpty)
-                    Polyline(
-                      polylineId: PolylineId("route"),
-                      points: jagger.routeCoords,
-                      color: Colors.indigo,
-                      width: 5,
-                    ),
-                  if (jagger.noSendedLocs.isNotEmpty)
-                    Polyline(
-                      polylineId: PolylineId("route"),
-                      points: <LatLng>[
-                        ...jagger.noSendedLocs.map((d) => LatLng(d.lat, d.lng))
-                      ],
-                      color: Colors.redAccent,
-                      width: 5,
-                    ),
-                },
+                tiltGesturesEnabled: true,
+                polylines: jagger.polylines,
               ),
               Positioned(
                 bottom: 20,
                 right: 15,
                 child: SafeArea(
                   child: Column(
+                    spacing: 10,
                     children: [
                       FloatingActionButton(
                         heroTag: 'zoomInD',
@@ -67,7 +57,6 @@ class MapView extends StatelessWidget {
                         backgroundColor: Colors.white,
                         child: const Icon(Icons.add, color: Colors.black),
                       ),
-                      const SizedBox(height: 10),
                       FloatingActionButton(
                         heroTag: 'zoomOutD',
                         elevation: 20,
@@ -78,16 +67,16 @@ class MapView extends StatelessWidget {
                         backgroundColor: Colors.white,
                         child: const Icon(Icons.remove, color: Colors.black),
                       ),
-                      const SizedBox(height: 10),
                       FloatingActionButton(
                         heroTag: 'myLocationD',
                         elevation: 20,
                         onPressed: jagger.goToMyLocation,
                         backgroundColor: Colors.white,
-                        child:
-                            const Icon(Icons.my_location, color: Colors.black),
+                        child: const Icon(
+                          Icons.my_location,
+                          color: Colors.black,
+                        ),
                       ),
-                      const SizedBox(height: 10),
                       FloatingActionButton(
                         heroTag: 'toggleTrafficD',
                         elevation: 20,
@@ -103,22 +92,27 @@ class MapView extends StatelessWidget {
                   ),
                 ),
               ),
-              if (jagger.positionSubscription != null &&
-                  !jagger.positionSubscription!.isPaused)
+              if (jagger.subscription != null && !jagger.subscription!.isPaused)
                 Positioned(
                   top: 0,
-                  right: 20,
+                  right: 0,
                   child: SafeArea(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 30,
+                    child: SizedBox(
+                      width: context.width,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FloatingActionButton.extended(
+                            heroTag: 'hasTrack2',
+                            onPressed: () {},
+                            backgroundColor: Colors.teal,
+                            label: Text(
+                              'Байршил дамжуулж байна...',
+                              style: TextStyle(color: white),
+                            ),
+                          ),
+                        ],
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.amber,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text('Байршил дамжуулж байна'),
                     ),
                   ),
                 ),

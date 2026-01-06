@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/controllers/rep_provider.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:provider/provider.dart';
-
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
 class SeeMap extends StatefulWidget {
   const SeeMap({super.key});
 

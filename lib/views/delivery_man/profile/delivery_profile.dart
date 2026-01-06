@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/auth_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controller/providers/auth_provider.dart';
+import 'package:pharmo_app/controller/providers/home_provider.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/delivery_man/widgets/add_payment.dart';
 import 'package:pharmo_app/views/delivery_man/profile/shipment_history.dart';
 import 'package:pharmo_app/views/profile.dart';
-import 'package:pharmo_app/views/public_uses/about_us.dart';
-import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
-import 'package:pharmo_app/views/public_uses/system_log.dart';
+import 'package:pharmo_app/views/public/about_us.dart';
+import 'package:pharmo_app/views/public/privacy_policy/privacy_policy.dart';
+import 'package:pharmo_app/views/public/system_log.dart';
 import 'package:provider/provider.dart';
 
 class DeliveryProfile extends StatelessWidget {

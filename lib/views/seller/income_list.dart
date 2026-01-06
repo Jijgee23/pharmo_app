@@ -1,15 +1,11 @@
-// ignore_for_file: use_build_context_synchronously, unnecessary_null_comparison
-
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/income_provider.dart';
-import 'package:pharmo_app/models/income.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/controller/models/income.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/constants.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
 
 class IncomeList extends StatefulWidget {
   const IncomeList({super.key});
@@ -69,12 +65,14 @@ class _IncomeListState extends State<IncomeList> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      button(title: 'Цуцлах', ontap: () => Navigator.pop(context)),
+                      button(
+                          title: 'Цуцлах', ontap: () => Navigator.pop(context)),
                       button(
                         title: 'Бүртгэх',
                         ontap: () {
                           Future(() {
-                            incomeProvider.recordIncome(noteController.text, amuontController.text);
+                            incomeProvider.recordIncome(
+                                noteController.text, amuontController.text);
                           }).whenComplete(() {
                             incomeProvider.getIncomeList();
                             Navigator.pop(context);
@@ -145,16 +143,18 @@ class _IncomeListState extends State<IncomeList> {
                           onPressed: () {
                             _selectDate(context);
                           },
-                          child:
-                              Text(date1, style: TextStyle(color: Theme.of(context).primaryColor)),
+                          child: Text(date1,
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor)),
                         ),
                         const Icon(Icons.arrow_right_alt),
                         TextButton(
                           onPressed: () {
                             _selectDate2(context);
                           },
-                          child:
-                              Text(date2, style: TextStyle(color: Theme.of(context).primaryColor)),
+                          child: Text(date2,
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor)),
                         ),
                         OutlinedButton(
                           onPressed: () {
@@ -165,8 +165,8 @@ class _IncomeListState extends State<IncomeList> {
                             }
                           },
                           style: ButtonStyle(
-                              backgroundColor:
-                                  WidgetStatePropertyAll(Theme.of(context).primaryColor)),
+                              backgroundColor: WidgetStatePropertyAll(
+                                  Theme.of(context).primaryColor)),
                           child: const Text(
                             'Шүүх',
                             style: TextStyle(color: Colors.white),
@@ -186,7 +186,8 @@ class _IncomeListState extends State<IncomeList> {
                                         ontap: () {
                                           setState(() {
                                             noteController.text = i.note!;
-                                            amuontController.text = i.amount.toString();
+                                            amuontController.text =
+                                                i.amount.toString();
                                           });
                                           editDialog(context, income, i.id);
                                         },
@@ -211,8 +212,8 @@ class _IncomeListState extends State<IncomeList> {
           return Dialog(
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              decoration:
-                  BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(30)),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -236,12 +237,15 @@ class _IncomeListState extends State<IncomeList> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        button(title: 'Цуцлах', ontap: () => Navigator.pop(context)),
+                        button(
+                            title: 'Цуцлах',
+                            ontap: () => Navigator.pop(context)),
                         button(
                             title: 'Засах',
                             ontap: () {
                               Future(() {
-                                income.updateIncome(id, noteController.text, amuontController.text);
+                                income.updateIncome(id, noteController.text,
+                                    amuontController.text);
                               }).whenComplete(() {
                                 income.getIncomeList();
                                 noteController.clear();
@@ -354,7 +358,8 @@ class _IncomeWidgetState extends State<IncomeWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(widget.income.note.toString(),
-                    style: const TextStyle(fontSize: 16, color: AppColors.secondary)),
+                    style: const TextStyle(
+                        fontSize: 16, color: AppColors.secondary)),
                 Icon(
                   expanded
                       ? Icons.arrow_drop_up_rounded // Icon changes on toggle
@@ -372,17 +377,26 @@ class _IncomeWidgetState extends State<IncomeWidget> {
                   ? Column(
                       key: const ValueKey(1),
                       children: [
-                        row(title: 'Огноо', value: widget.income.createdOn.toString()),
-                        row(title: 'Нийлүүлэгч', value: widget.income.supplier.toString()),
-                        row(title: 'Харилцагч', value: widget.income.customer.toString()),
-                        row(title: 'Хүргэлт', value: widget.income.delman.toString()),
+                        row(
+                            title: 'Огноо',
+                            value: widget.income.createdOn.toString()),
+                        row(
+                            title: 'Нийлүүлэгч',
+                            value: widget.income.supplier.toString()),
+                        row(
+                            title: 'Харилцагч',
+                            value: widget.income.customer.toString()),
+                        row(
+                            title: 'Хүргэлт',
+                            value: widget.income.delman.toString()),
                       ],
                     )
                   : const SizedBox(key: ValueKey(0)),
             ),
             InkWell(
               onTap: widget.ontap,
-              child: Text('Засах', style: TextStyle(color: Theme.of(context).primaryColor)),
+              child: Text('Засах',
+                  style: TextStyle(color: Theme.of(context).primaryColor)),
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-import 'package:pharmo_app/controllers/a_controlller.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
 
 class LoginHeaderImage extends StatelessWidget {
   const LoginHeaderImage({

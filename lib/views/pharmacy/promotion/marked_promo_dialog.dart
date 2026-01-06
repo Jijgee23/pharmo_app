@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/marked_promo.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controller/models/marked_promo.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/constants.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/buying_promo_dialog.dart';
 
 class MakredPromoOnDialog extends StatelessWidget {

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/jagger_provider.dart';
+import 'package:pharmo_app/application/utilities/api.dart';
+import 'package:pharmo_app/controller/providers/jagger_provider.dart';
 import 'package:pharmo_app/views/delivery_man/home/delivery_widget.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
-import 'package:pharmo_app/utilities/a_utils.dart';
+import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 class StatusChanger extends StatefulWidget {
   final int delId;

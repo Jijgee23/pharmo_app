@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/constants.dart';
+import 'package:pharmo_app/application/utilities/constants.dart';
 import 'package:pharmo_app/widgets/loader/custom_shimmer.dart';
 
 class DataScreen extends StatelessWidget {

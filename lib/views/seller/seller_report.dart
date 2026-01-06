@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/report_provider.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controller/providers/report_provider.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/report_widget.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:provider/provider.dart';
 
@@ -54,8 +55,10 @@ class _SellerReportState extends State<SellerReportPage> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              dateSelector(date: rp.currentDate, handle: () => _showCalendar(report)),
-              dateSelector(date: rp.currentDate2, handle: () => _showCalendar2(report)),
+              dateSelector(
+                  date: rp.currentDate, handle: () => _showCalendar(report)),
+              dateSelector(
+                  date: rp.currentDate2, handle: () => _showCalendar2(report)),
             ],
           ),
         ),
@@ -69,13 +72,22 @@ class _SellerReportState extends State<SellerReportPage> {
                 Column(
                   children: [
                     Row(children: [
-                      ...titles.map((t) => text(t: t, color: colors[titles.indexOf(t)])),
+                      ...titles.map(
+                          (t) => text(t: t, color: colors[titles.indexOf(t)])),
                     ]),
-                    if ((data != {}))
-                      ...data.map((r) => ReportWidget(
-                          date: maybeNull(r[query].toString()),
-                          total: maybeNull(r['total'].toString()),
-                          count: maybeNull(r['count'].toString())))
+                    Builder(builder: (context) {
+                      if (data != {}) {
+                        Column(
+                          children: [
+                            ...data.map((r) => ReportWidget(
+                                date: maybeNull(r[query].toString()),
+                                total: maybeNull(r['total'].toString()),
+                                count: maybeNull(r['count'].toString())))
+                          ],
+                        );
+                      }
+                      return NoResult();
+                    })
                   ],
                 )
               ],
@@ -97,7 +109,8 @@ class _SellerReportState extends State<SellerReportPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ...dateTypes.map((d) => typeWidget(d, queries[dateTypes.indexOf(d)], rp)),
+          ...dateTypes
+              .map((d) => typeWidget(d, queries[dateTypes.indexOf(d)], rp)),
         ],
       ),
     );

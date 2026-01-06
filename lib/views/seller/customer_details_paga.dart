@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/models/customer.dart';
-import 'package:pharmo_app/controllers/pharms_provider.dart';
-import 'package:pharmo_app/services/a_services.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/controller/models/customer.dart';
+import 'package:pharmo_app/controller/providers/pharms_provider.dart';
+import 'package:pharmo_app/application/services/a_services.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/customer_location_picker.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
 
 class CustomDropdown<T> extends StatelessWidget {
   final List<T> items;
@@ -37,7 +37,7 @@ class CustomDropdown<T> extends StatelessWidget {
               );
             }).toList(),
             value: value,
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            padding: EdgeInsets.symmetric(horizontal: 15),
             onChanged: onChanged,
             style: filterStyle(),
             alignment: Alignment.center,

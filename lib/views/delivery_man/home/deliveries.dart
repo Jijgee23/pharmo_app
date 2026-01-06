@@ -1,8 +1,8 @@
-import 'package:pharmo_app/controllers/a_controlller.dart';
-import 'package:pharmo_app/models/delivery.dart';
-import 'package:pharmo_app/services/settings.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/models/delivery.dart';
+import 'package:pharmo_app/application/services/settings.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/views/delivery_man/home/delivery_items.dart';
 import 'package:pharmo_app/views/delivery_man/home/orderer.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/marked_promo_dialog.dart';
@@ -32,7 +32,7 @@ class _DeliveriesState extends State<Deliveries> {
         jag.setLoading(true);
         await jag.getDeliveries();
         await Settings.checkAlwaysLocationPermission();
-        await jag.getDeliveryLocation();
+        // await jag.getDeliveryLocation();
         jag.setLoading(false);
       },
     );
@@ -161,7 +161,7 @@ class _DeliveriesState extends State<Deliveries> {
     return Column(
       spacing: 10,
       children: [
-        if (jagger.positionSubscription == null && del.startedOn != null)
+        if (jagger.subscription == null && del.startedOn != null)
           Text(
             'Байршил дамжуулалт зогссон байна, байршил дамжуулах дарна уу!',
             style: TextStyle(color: Colors.red),
@@ -171,7 +171,7 @@ class _DeliveriesState extends State<Deliveries> {
           crossAxisAlignment: CrossAxisAlignment.end,
           spacing: 10,
           children: [
-            if (jagger.positionSubscription == null && del.startedOn != null)
+            if (jagger.subscription == null && del.startedOn != null)
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +180,7 @@ class _DeliveriesState extends State<Deliveries> {
                     button(
                       title: 'Байршил дамжуулах',
                       color: neonBlue,
-                      onTap: () => jagger.tracking(force: true),
+                      onTap: () => jagger.tracking(),
                     ),
                   ],
                 ),

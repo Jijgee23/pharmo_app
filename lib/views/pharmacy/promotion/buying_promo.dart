@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/models/marked_promo.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/controller/providers/promotion_provider.dart';
+import 'package:pharmo_app/controller/models/marked_promo.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/constants.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';

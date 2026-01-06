@@ -1,17 +1,17 @@
-import 'package:pharmo_app/controllers/a_controlller.dart';
-import 'package:pharmo_app/models/security.dart';
-import 'package:pharmo_app/services/local_base.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/database/security.dart';
+import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/pharmacy/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/promotion_screen.dart';
 import 'package:pharmo_app/views/rep_man/visits.dart';
-import 'package:pharmo_app/views/public_uses/about_us.dart';
-import 'package:pharmo_app/views/public_uses/privacy_policy/privacy_policy.dart';
+import 'package:pharmo_app/views/public/about_us.dart';
+import 'package:pharmo_app/views/public/privacy_policy/privacy_policy.dart';
 import 'package:pharmo_app/views/seller/seller_orders.dart';
 import 'package:pharmo_app/views/seller/seller_report.dart';
-import 'package:pharmo_app/views/public_uses/system_log.dart';
+import 'package:pharmo_app/views/public/system_log.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
-import 'package:pharmo_app/utilities/a_utils.dart';
+import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});

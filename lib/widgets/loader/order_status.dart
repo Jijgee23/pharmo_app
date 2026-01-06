@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 
 class OrderStatusAnimation extends StatelessWidget {
   final String process;

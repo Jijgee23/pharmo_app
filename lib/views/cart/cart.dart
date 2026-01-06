@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/models/a_models.dart';
-import 'package:pharmo_app/services/local_base.dart';
+import 'package:pharmo_app/controller/providers/basket_provider.dart';
+import 'package:pharmo_app/controller/models/a_models.dart';
+import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/views/cart/cart_info.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/cart/seller_order_sheet.dart';
@@ -79,24 +79,28 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
             : basket.totalCount == 0 || basket.items!.isEmpty);
         return DataScreen(
           loading: loading,
-          empty: basketIsEmpty,
+          empty: false,
           customLoading: shimmer(),
           onRefresh: () => init(),
-          customEmpty: const Center(child: EmptyBasket()),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              children: [
-                const CartInfo(),
-                ...cartDatas.map((e) => CartItem(detail: e)),
-                CustomButton(
-                  text: 'Захиалга үүсгэх',
-                  ontap: () async => await placeOrder(context),
-                ),
-                SizedBox(height: kToolbarHeight + 50),
-              ],
-            ),
-          ),
+          child: Builder(builder: (context) {
+            if (basketIsEmpty) {
+              return Center(child: EmptyBasket());
+            }
+            return SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                children: [
+                  const CartInfo(),
+                  ...cartDatas.map((e) => CartItem(detail: e)),
+                  CustomButton(
+                    text: 'Захиалга үүсгэх',
+                    ontap: () async => await placeOrder(context),
+                  ),
+                  SizedBox(height: kToolbarHeight + 50),
+                ],
+              ),
+            );
+          }),
         );
       },
     );

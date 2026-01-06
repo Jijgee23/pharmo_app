@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/rep_provider.dart';
-import 'package:pharmo_app/utilities/utils.dart';
+import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/rep_man/home.dart';
 import 'package:pharmo_app/views/profile.dart';
 import 'package:pharmo_app/views/rep_man/see_map.dart';
@@ -11,7 +8,7 @@ import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/inputs/ibtn.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
 
 class IndexRep extends StatefulWidget {
   const IndexRep({super.key});
@@ -42,7 +39,10 @@ class _IndexRepState extends State<IndexRep> {
             title: appBarSingleText('Миний профайл'),
             hasBasket: false,
             actions: [
-              Ibtn(onTap: () => goto(SeeMap()), icon: Icons.location_on, color: Colors.indigo)
+              Ibtn(
+                  onTap: () => goto(SeeMap()),
+                  icon: Icons.location_on,
+                  color: Colors.indigo)
             ],
           ),
           body: pages[homeProvider.currentIndex],
@@ -73,7 +73,8 @@ class _IndexRepState extends State<IndexRep> {
   }
 
   appBarSingleText(String v) {
-    return Text(v, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
+    return Text(v,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
   }
 
   List<String> icons = ['category', 'user'];

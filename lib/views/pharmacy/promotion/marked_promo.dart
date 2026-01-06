@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/models/marked_promo.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/constants.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/controller/providers/home_provider.dart';
+import 'package:pharmo_app/controller/providers/promotion_provider.dart';
+import 'package:pharmo_app/controller/models/marked_promo.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/constants.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../models/sector.dart';
+import '../../../controller/models/sector.dart';
 
 // ignore: must_be_immutable
 class MarkedPromoWidget extends StatefulWidget {

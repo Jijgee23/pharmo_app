@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/basket_provider.dart';
-import 'package:pharmo_app/controllers/home_provider.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/controller/providers/basket_provider.dart';
+import 'package:pharmo_app/controller/providers/home_provider.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';

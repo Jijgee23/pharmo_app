@@ -1,15 +1,12 @@
 import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/rep_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/inputs/ibtn.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
-import 'package:provider/provider.dart';
 
 class RepHome extends StatefulWidget {
   const RepHome({super.key});

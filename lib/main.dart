@@ -1,16 +1,15 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/app_configs.dart';
-import 'package:pharmo_app/controllers/a_controlller.dart';
-import 'package:pharmo_app/database/loc_model.dart';
-import 'package:pharmo_app/database/log_model.dart';
-import 'package:pharmo_app/models/a_models.dart';
-import 'package:pharmo_app/services/a_services.dart';
-import 'package:pharmo_app/services/battery_service.dart';
-import 'package:pharmo_app/services/log_service.dart';
-import 'package:pharmo_app/utilities/global_key.dart';
-import 'package:pharmo_app/theme/dark_theme.dart';
-import 'package:pharmo_app/theme/light_theme.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/database/log_model.dart';
+import 'package:pharmo_app/controller/models/a_models.dart';
+import 'package:pharmo_app/application/services/a_services.dart';
+import 'package:pharmo_app/application/services/log_service.dart';
+import 'package:pharmo_app/controller/database/track_data.dart';
+import 'package:pharmo_app/application/utilities/global_key.dart';
+import 'package:pharmo_app/application/theme/dark_theme.dart';
+import 'package:pharmo_app/application/theme/light_theme.dart';
 import 'package:pharmo_app/views/auth/root_page.dart';
 import 'package:upgrader/upgrader.dart';
 
@@ -21,16 +20,20 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
   await Hive.initFlutter();
   Hive.registerAdapter(SecurityAdapter());
-  Hive.registerAdapter(LocModelAdapter());
   Hive.registerAdapter(LogModelAdapter());
+  Hive.registerAdapter(TrackDataAdapter());
   await LocalBase.initLocalBase();
-  await ConnectivityService.startListennetwork();
-  await BatteryService.startListenBattery();
   await LogService().initialize();
   runApp(
-    MultiProvider(
-      providers: AppConfigs.providers,
-      child: Pharmo(),
+    UpgradeAlert(
+      dialogStyle: UpgradeDialogStyle.material,
+      showIgnore: false,
+      showLater: true,
+      showReleaseNotes: false,
+      child: MultiProvider(
+        providers: AppConfigs.providers,
+        child: Pharmo(),
+      ),
     ),
   );
 }
@@ -47,57 +50,28 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    checkHasTrack(AppLifecycleState.resumed);
+    resumeWhenHasTrack(AppLifecycleState.resumed);
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
-    checkHasTrack(state);
+    if (state == AppLifecycleState.resumed) {
+      resumeWhenHasTrack(state);
+    }
   }
 
-  void checkHasTrack(AppLifecycleState state) async {
+  void resumeWhenHasTrack(AppLifecycleState state) async {
     Security? security = LocalBase.security;
     if (security == null || (security != null && security.role == 'PA')) {
       return;
     }
-    print(security.role);
-    if (security.role == "S") {
-      final lp = context.read<LocationProvider>();
-      bool hasTrack = await LocalBase.hasSellerTrack();
-      await lifeCycleLog(state);
-      if (hasTrack &&
-          (lp.positionSubscription == null ||
-              lp.positionSubscription!.isPaused)) {
-        lp.startTracking();
-        FirebaseApi.local('Борлуулалт дуусаагүй', 'Байршил дамжуулж байна');
-        return;
-      }
+    bool hasSellerTrack = await LocalBase.hasSellerTrack();
+    bool delmanTrackId = await LocalBase.hasDelmanTrack();
+    if (delmanTrackId || hasSellerTrack) {
+      final tracker = context.read<JaggerProvider>();
+      await tracker.tracking(force: true);
     }
-    if (security.role == "D") {
-      int delmanTrackId = await LocalBase.getDelmanTrackId();
-      print('delman track id: $delmanTrackId');
-      if (delmanTrackId == 0) return;
-      await lifeCycleLog(state);
-      final provider = context.read<JaggerProvider>();
-      bool isStopped = (provider.positionSubscription == null ||
-          provider.positionSubscription!.isPaused);
-      if (isStopped) provider.tracking();
-    }
-  }
-
-  Future lifeCycleLog(AppLifecycleState state) async {
-    String desc = '';
-    switch (state) {
-      case AppLifecycleState.paused:
-        desc = LogService.closeApp;
-      case AppLifecycleState.detached:
-        desc = LogService.terminateApp;
-      default:
-        desc = "unknown";
-    }
-    if (desc == "unknown") return;
-    // await LogService.createLog('lifecycle action', desc);
   }
 
   @override
@@ -118,13 +92,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
         darkTheme: darkTheme,
         navigatorKey: GlobalKeys.navigatorKey,
         themeMode: home.themeMode,
-        home: UpgradeAlert(
-          dialogStyle: UpgradeDialogStyle.material,
-          showIgnore: false,
-          showLater: false,
-          showReleaseNotes: false,
-          child: RootPage(),
-        ),
+        home: RootPage(),
       ),
     );
   }

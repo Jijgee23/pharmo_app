@@ -1,5 +1,5 @@
-import 'package:pharmo_app/controllers/a_controlller.dart';
-import 'package:pharmo_app/utilities/a_utils.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 class ChooseCustomer extends StatefulWidget {
   const ChooseCustomer({super.key});

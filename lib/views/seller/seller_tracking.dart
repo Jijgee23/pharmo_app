@@ -1,8 +1,8 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pharmo_app/services/a_services.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/controllers/a_controlller.dart';
+import 'package:pharmo_app/application/services/a_services.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 
@@ -47,7 +47,7 @@ class _SellerTrackingState extends State<SellerTracking>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LocationProvider>(
+    return Consumer<JaggerProvider>(
       builder: (context, tracker, child) {
         if (!locHasAlways) {
           return Material(
@@ -86,21 +86,7 @@ class _SellerTrackingState extends State<SellerTracking>
                 myLocationEnabled: true,
                 myLocationButtonEnabled: false,
                 trafficEnabled: tracker.trafficEnabled,
-                polylines: {
-                  if (tracker.data.isNotEmpty)
-                    Polyline(
-                      polylineId: const PolylineId("route"),
-                      points: List.generate(
-                        tracker.data.length,
-                        (index) => LatLng(
-                          tracker.data[index].latitude,
-                          tracker.data[index].longitude,
-                        ),
-                      ),
-                      color: Colors.green,
-                      width: 5,
-                    ),
-                },
+                polylines: tracker.polylines,
               ),
               Positioned(
                 top: 0,
@@ -119,10 +105,9 @@ class _SellerTrackingState extends State<SellerTracking>
                           color: Colors.black,
                         ),
                       ),
-                      if (tracker.positionSubscription != null)
+                      if (tracker.subscription != null)
                         FloatingActionButton.extended(
                           heroTag: 'hasTrack',
-                          // mini: true,
                           onPressed: () {},
                           backgroundColor: Colors.teal,
                           label: Text(
@@ -144,8 +129,9 @@ class _SellerTrackingState extends State<SellerTracking>
                         heroTag: 'zoomIn',
                         elevation: 20,
                         onPressed: () {
-                          tracker.mapController
-                              ?.animateCamera(CameraUpdate.zoomIn());
+                          tracker.mapController.animateCamera(
+                            CameraUpdate.zoomIn(),
+                          );
                         },
                         backgroundColor: Colors.white,
                         child: const Icon(Icons.add, color: Colors.black),
@@ -155,8 +141,9 @@ class _SellerTrackingState extends State<SellerTracking>
                         heroTag: 'zoomOut',
                         elevation: 20,
                         onPressed: () {
-                          tracker.mapController
-                              ?.animateCamera(CameraUpdate.zoomOut());
+                          tracker.mapController.animateCamera(
+                            CameraUpdate.zoomOut(),
+                          );
                         },
                         backgroundColor: Colors.white,
                         child: const Icon(Icons.remove, color: Colors.black),
@@ -194,9 +181,9 @@ class _SellerTrackingState extends State<SellerTracking>
                   child: Row(
                     spacing: 20,
                     children: [
-                      if (tracker.positionSubscription == null)
+                      if (tracker.subscription == null)
                         button(tracker: tracker),
-                      if (tracker.positionSubscription != null)
+                      if (tracker.subscription != null)
                         button(tracker: tracker, isStart: false),
                     ],
                   ),
@@ -209,7 +196,7 @@ class _SellerTrackingState extends State<SellerTracking>
     );
   }
 
-  Widget button({required LocationProvider tracker, bool isStart = true}) {
+  Widget button({required JaggerProvider tracker, bool isStart = true}) {
     return Expanded(
       child: ElevatedButton(
         onPressed: () async {
@@ -222,7 +209,7 @@ class _SellerTrackingState extends State<SellerTracking>
                 : '',
           );
           if (!confirmed) return;
-          isStart ? tracker.startTracking() : tracker.stopTracking();
+          isStart ? tracker.tracking() : tracker.stopTracking();
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: isStart ? Colors.green : Colors.red,

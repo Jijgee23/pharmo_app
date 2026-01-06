@@ -1,16 +1,16 @@
-import 'package:pharmo_app/services/local_base.dart';
+import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
 import 'package:pharmo_app/views/home.dart';
 import 'package:pharmo_app/views/seller/seller_tracking.dart';
-import 'package:pharmo_app/views/product/product_searcher.dart';
+import 'package:pharmo_app/views/public/product/product_searcher.dart';
 import 'package:pharmo_app/views/profile.dart';
 import 'package:pharmo_app/views/seller/customers.dart';
 import 'package:pharmo_app/views/seller/add_customer.dart';
 import 'package:pharmo_app/views/seller/customer_searcher.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
-import 'package:pharmo_app/controllers/a_controlller.dart';
-import 'package:pharmo_app/utilities/a_utils.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 class IndexPharma extends StatefulWidget {
   const IndexPharma({super.key});
@@ -45,17 +45,18 @@ class _IndexPharmaState extends State<IndexPharma> {
           appBar: CustomAppBar(title: getAppbar(role, homeProvider)),
           body: getPages(role)[homeProvider.currentIndex],
           bottomNavigationBar: BottomBar(icons: getIcons(role)),
-          floatingActionButton: security.role == 'S'
-              ? FloatingActionButton(
-                  shape: CircleBorder(),
-                  onPressed: () => goto(SellerTracking()),
-                  backgroundColor: primary,
-                  child: Icon(
-                    Icons.location_on_rounded,
-                    color: white,
-                  ),
-                )
-              : null,
+          floatingActionButton:
+              (security.role == 'S' && homeProvider.currentIndex == 0)
+                  ? FloatingActionButton(
+                      shape: CircleBorder(),
+                      onPressed: () => goto(SellerTracking()),
+                      backgroundColor: primary,
+                      child: Icon(
+                        Icons.location_on_rounded,
+                        color: white,
+                      ),
+                    )
+                  : null,
         );
       },
     );

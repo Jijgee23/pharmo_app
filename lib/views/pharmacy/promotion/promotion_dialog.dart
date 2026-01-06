@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controllers/promotion_provider.dart';
-import 'package:pharmo_app/utilities/colors.dart';
-import 'package:pharmo_app/utilities/sizes.dart';
+import 'package:pharmo_app/controller/providers/promotion_provider.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/buying_promo_dialog.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/marked_promo_dialog.dart';
 import 'package:provider/provider.dart';
