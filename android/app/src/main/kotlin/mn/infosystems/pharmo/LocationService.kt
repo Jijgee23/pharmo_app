@@ -11,6 +11,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -52,11 +54,19 @@ class LocationService : Service(), LocationListener {
 
   override fun onLocationChanged(location: Location) {
     val previousLocation = lastBroadcastLocation
-    if (previousLocation != null && location.distanceTo(previousLocation) < LOCATION_MIN_DISTANCE_M) {
-      return
-    }
-    lastBroadcastLocation = Location(location)
-    eventSink?.success(mapOf("lat" to location.latitude, "lng" to location.longitude))
+    val currentTime = System.currentTimeMillis()
+    val lastUpdateTime = previousLocation?.time ?: 0L
+    val movedEnough = previousLocation == null || location.distanceTo(previousLocation) >= LOCATION_MIN_DISTANCE_M
+
+    val timePassedEnough = (currentTime - lastUpdateTime) >= LOCATION_INTERVAL_MS
+      if (movedEnough || timePassedEnough) {
+          lastBroadcastLocation = Location(location)
+
+          // Нэмэлт: Нарийвчлалыг шалгах (iOS-той адилаар)
+          if (location.accuracy <= 20) { // 20 метрээс дээш байвал хаях
+              eventSink?.success(mapOf("lat" to location.latitude, "lng" to location.longitude))
+          }
+      }
   }
 
   override fun onProviderEnabled(provider: String) {}
@@ -112,6 +122,7 @@ class LocationService : Service(), LocationListener {
     }
   }
 
+
   private fun ensureNotificationChannel() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
     val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -135,8 +146,9 @@ class LocationService : Service(), LocationListener {
             .setContentText(
                     "Таны байршлыг хүргэлтийн явцыг шинэчлэх, ирэх цагийг тооцоолоход ашигладаг."
             )
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentIntent(pendingIntent)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setLargeIcon(BitmapFactory.decodeResource(resources,R.mipmap.ic_launcher))
+            // .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -146,7 +158,7 @@ class LocationService : Service(), LocationListener {
   companion object {
     private const val CHANNEL_ID = "pharmo_bg_location"
     private const val NOTIFICATION_ID = 0x444
-    private const val LOCATION_INTERVAL_MS = 5_000L
+    private const val LOCATION_INTERVAL_MS = 30_000L
     private const val LOCATION_MIN_DISTANCE_M = 10f
 
     @Volatile private var eventSink: EventChannel.EventSink? = null

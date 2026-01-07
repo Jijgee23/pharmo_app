@@ -92,6 +92,44 @@ class _MapViewState extends State<MapView> {
                   ),
                 ),
               ),
+              // if (jagger.timer.isActive && jagger.delivery.isNotEmpty)
+              //   Positioned(
+              //   bottom: 20,
+              //   left: 20,
+              //   child: Card(
+              //     elevation: 3,
+              //     color: white,
+              //     shape: RoundedRectangleBorder(
+              //       side: BorderSide(color: Colors.grey),
+              //       borderRadius: BorderRadius.circular(10),
+              //     ),
+              //     child: Builder(builder: (context) {
+              //       final diff = DateTime.now().difference(
+              //         DateTime.parse(jagger.delivery[0].startedOn ?? ''),
+              //       );
+
+              //       final hh = diff.inHours.toString().padLeft(2, '0');
+              //       final mm =
+              //           (diff.inMinutes % 60).toString().padLeft(2, '0');
+              //       final ss =
+              //           (diff.inSeconds % 60).toString().padLeft(2, '0');
+
+              //       return Container(
+              //         padding: EdgeInsets.all(10),
+              //         child: Column(
+              //           spacing: 10,
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Text('Хугацаа: $hh:$mm:$ss'),
+              //             Text(
+              //               'Нийт зам: ${truncateToDigits(calculateTotalDistanceKm(jagger.trackDatas), 1)} км',
+              //             ),
+              //           ],
+              //         ),
+              //       );
+              //     }),
+              //   ),
+              // ),
               if (jagger.subscription != null && !jagger.subscription!.isPaused)
                 Positioned(
                   top: 0,

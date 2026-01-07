@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:pharmo_app/application/services/battery_service.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:pharmo_app/application/services/log_service.dart';
@@ -30,6 +31,10 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Stream<AppEvent> get mergedEvents => _eventController.stream;
 
   JaggerProvider() {
+    timer = Timer.periodic(Duration(seconds: 1), (v) {
+      now = DateTime.now();
+      notifyListeners();
+    });
     _setupStreams();
   }
 
@@ -152,9 +157,16 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             date: DateTime.now(),
           ),
         );
-        await LocalBase.saveDelmanTrack(shipmentId);
-        await getDeliveries();
-        await tracking();
+        await LocalBase.saveDelmanTrack(shipmentId).whenComplete(() async {
+          final trackId = await LocalBase.getDelmanTrackId();
+          if (trackId == 0) {
+            message('Түгээлт олдсонгүй!');
+            return;
+          }
+          await getDeliveries();
+          await clearTrackData();
+          await tracking();
+        });
       } else if (res != null && res.statusCode == 400) {
         String data = convertData(res).toString();
         if (data.contains('already started')) {
@@ -171,18 +183,20 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
   }
 
-  Future tracking({bool force = false}) async {
+  Future tracking() async {
     await getTrackBox();
     final user = LocalBase.security;
     if (user == null) return;
     bool isSeller = user.role == "S";
+    bool hasDelmanTrack = await LocalBase.hasDelmanTrack();
+    bool hasSellerTrack = await LocalBase.hasSellerTrack();
+    if (isSeller && !hasSellerTrack) {
+      return;
+    }
+    if (!isSeller && !hasDelmanTrack) {
+      return;
+    }
     int shipmentId = await LocalBase.getDelmanTrackId();
-    if (!await LocalBase.hasDelmanTrack() && !force) {
-      return;
-    }
-    if (!await LocalBase.hasDelmanTrack() && !force) {
-      return;
-    }
     try {
       subscription = mergedEvents.listen(
         (event) async {
@@ -226,6 +240,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
           }
         },
       );
+      if (subscription != null) {
+        await BatteryService.startListenBattery();
+      }
+      timer = Timer.periodic(Duration(seconds: 1), (v) {
+        now = DateTime.now();
+        notifyListeners();
+      });
       print("subscription started :${subscription != null}");
       notifyListeners();
     } catch (e) {
@@ -238,10 +259,14 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     notifyListeners();
   }
 
+  late Timer timer;
+  DateTime now = DateTime.now();
+
   void stopTracking() async {
-    if (subscription == null) return;
+    // if (subscription == null) return;
     subscription!.cancel();
     subscription = null;
+    notifyListeners();
     await LocalBase.clearDelmanTrack();
     await LocalBase.removeSellerTrackId();
     await clearTrackData();
@@ -250,10 +275,12 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     polylines.clear();
     orderMarkers.clear();
     markers.clear();
+    mergedEvents == null;
     notifyListeners();
   }
 
   Future sendTobackend(bool isSeller, int id, double lat, double lng) async {
+    // String n_title, n_body = '';
     double latitude = truncateToDigits(lat, 6);
     double longitude = truncateToDigits(lng, 6);
     final now = DateTime.now();
@@ -267,7 +294,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
 
     Future notifyUnsend() async {
-      await FirebaseApi.local('Илгээгдээгүй байршил хадгалагдлаа', '');
       await addPointToBox(locatioData(false));
     }
 
@@ -283,6 +309,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       }
       await addPointToBox(locatioData(true));
       await getDeliveries();
+      await getDeliveryLocation();
       await syncOffineTracks();
     }
 
@@ -292,13 +319,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     final res = await api(apiMethod, trackUrl, body: body);
     final sended =
         res != null && (res.statusCode == 200 || res.statusCode == 201);
-    print(res!.body);
+    // print(res!.body);
     print('sended: $sended');
     if (sended) {
       await handleSuccessSent();
       return;
     }
-    notifyUnsend();
+    await notifyUnsend();
   }
 
   Future syncOffineTracks() async {
@@ -344,6 +371,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             .map((r) => LatLng(parseDouble(r['lat']), parseDouble(r['lng'])))
             .toList();
         notifyListeners();
+        updatePolylines();
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -392,6 +420,15 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       Polyline(
         polylineId:
             PolylineId('sended_${DateTime.now().millisecondsSinceEpoch}'),
+        points:
+            routeCoords.map((e) => LatLng(e.latitude, e.longitude)).toList(),
+        color: Colors.blue,
+        width: 5,
+        zIndex: 10,
+      ),
+      Polyline(
+        polylineId:
+            PolylineId('sended_${DateTime.now().millisecondsSinceEpoch}'),
         points: trackDatas
             .where((e) => e.sended)
             .map((e) => LatLng(e.latitude, e.longitude))
@@ -422,20 +459,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     await getTrackBox();
     updatePolylines();
     _updateBearing(newLoc);
-    if (mapController == null) {
-      return;
-    }
-    if (followUser) {
-      mapController.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: newLoc,
-            zoom: 17,
-            tilt: 45,
-          ),
-        ),
-      );
-    }
   }
 
   Future getTrackBox() async {
@@ -595,7 +618,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     notifyListeners();
   }
 
-  Future<dynamic> addOrdersToDelivery(List<int> ords) async {
+  Future addOrdersToDelivery(List<int> ords) async {
     try {
       if (ords.isEmpty) {
         message('Захиалга сонгоно уу!');
@@ -604,15 +627,12 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
       print('Orders being sent: $ords');
       final body = {"order_ids": ords.map((id) => id.toString()).toList()};
-
-      final response =
-          await api(Api.patch, 'delivery/add_to_delivery/', body: body);
-
+      final url = 'delivery/add_to_delivery/';
+      final response = await api(Api.patch, url, body: body);
       if (response == null) {
         message('Сервертэй холбогдож чадсангүй!');
         return;
       }
-
       print(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
         await getOrders();
@@ -941,4 +961,31 @@ double calculateBearing(LatLng last, LatLng current) {
     current.latitude,
     current.longitude,
   );
+}
+
+double calculateTotalDistanceKm(List<TrackData> points) {
+  if (points.length < 2) return 0;
+
+  double totalMeters = 0;
+
+  for (int i = 0; i < points.length - 1; i++) {
+    totalMeters += Geolocator.distanceBetween(
+      points[i].latitude,
+      points[i].longitude,
+      points[i + 1].latitude,
+      points[i + 1].longitude,
+    );
+  }
+
+  return totalMeters / 1000;
+}
+
+bool success(Response<dynamic>? response) {
+  if (response == null) {
+    return false;
+  }
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    return true;
+  }
+  return false;
 }

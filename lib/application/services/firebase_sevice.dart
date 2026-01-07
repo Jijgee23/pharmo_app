@@ -36,7 +36,8 @@ class FirebaseApi {
       _androidChannel.id,
       _androidChannel.name,
       channelDescription: _androidChannel.description,
-      icon: '@drawable/ic_notification_white',
+      icon: '@drawable/ic_pharmo',
+      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
       priority: Priority.high,
       playSound: true,
     ),
@@ -179,7 +180,7 @@ class FirebaseApi {
     if (_isLocalNotificationsInitialized) return;
 
     const androidSettings =
-        AndroidInitializationSettings('@drawable/ic_notification_white');
+        AndroidInitializationSettings('@drawable/ic_pharmo');
     const iosSettings = DarwinInitializationSettings(
       requestBadgePermission: true,
       requestSoundPermission: true,

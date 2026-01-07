@@ -38,6 +38,8 @@ getApiInformation(String endPoint, http.Response response) {
   }
 }
 
+// final client = HttpClient(context: SecurityContext(withTrustedRoots: true));
+
 Future<http.Response?> api(
   Api method,
   String endpoint, {

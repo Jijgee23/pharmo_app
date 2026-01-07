@@ -66,12 +66,11 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
     if (security == null || (security != null && security.role == 'PA')) {
       return;
     }
-    bool hasSellerTrack = await LocalBase.hasSellerTrack();
-    bool delmanTrackId = await LocalBase.hasDelmanTrack();
-    if (delmanTrackId || hasSellerTrack) {
-      final tracker = context.read<JaggerProvider>();
-      await tracker.tracking(force: true);
-    }
+    Future.microtask(
+      () async {
+        return await context.read<JaggerProvider>().tracking();
+      },
+    );
   }
 
   @override

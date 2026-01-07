@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/utilities/api.dart';
 import 'package:pharmo_app/controller/providers/jagger_provider.dart';
 import 'package:pharmo_app/views/delivery_man/home/delivery_widget.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/utilities/api.dart';
 import 'package:pharmo_app/controller/providers/myorder_provider.dart';
 import 'package:pharmo_app/controller/models/my_order.dart';
 import 'package:pharmo_app/controller/models/my_order_detail.dart';

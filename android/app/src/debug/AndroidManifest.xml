@@ -58,9 +58,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <meta-data
+         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_launcher"/>
+            android:resource="@drawable/ic_pharmo"/>
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA0hFR0VJcj140Z5aXu1pfrQpxbVfmL6DI"/>
