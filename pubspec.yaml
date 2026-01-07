@@ -3,7 +3,7 @@ description: "Эмийн бөөний худалда, захиалгын сис�
 publish_to: none
 
 
-version: 2.0.4+4
+version: 2.0.4+67
 environment:
   sdk: '>=3.3.3 <4.0.0'
 

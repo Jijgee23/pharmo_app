@@ -85,20 +85,15 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   void _setupStreams() {
-    bgLocationChannel.receiveBroadcastStream().listen(
-          (dynamic location) => _eventController.add(
-            LocationEvent(location),
-          ),
+    locationSubscription = bgLocationChannel.receiveBroadcastStream().listen(
+          (dynamic location) => _eventController.add(LocationEvent(location)),
         );
-    Connectivity().onConnectivityChanged.listen(
-          (List<ConnectivityResult> status) => _eventController.add(
-            NetworkEvent(status),
-          ),
+    connectivitySubscription = Connectivity().onConnectivityChanged.listen(
+          (List<ConnectivityResult> status) =>
+              _eventController.add(NetworkEvent(status)),
         );
-    Battery().onBatteryStateChanged.listen(
-          (BatteryState state) => _eventController.add(
-            BatteryEvent(state),
-          ),
+    batterySubscription = Battery().onBatteryStateChanged.listen(
+          (BatteryState state) => _eventController.add(BatteryEvent(state)),
         );
     AppLifecycleListener(
       onPause: () => _eventController.add(
@@ -120,6 +115,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   // TRACKING
   StreamSubscription? subscription;
+  StreamSubscription? locationSubscription;
+  StreamSubscription? connectivitySubscription;
+  StreamSubscription? batterySubscription;
   late final Box<TrackData> trackBox;
   late bool servicePermission = false;
   late LocationPermission permission;
@@ -133,6 +131,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   List<Payment> payments = [];
   final LogService logService = LogService();
   final Battery battery = Battery();
+
   Future<void> startShipment(int shipmentId) async {
     setLoading(true);
     try {
@@ -263,9 +262,16 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   DateTime now = DateTime.now();
 
   void stopTracking() async {
-    // if (subscription == null) return;
     subscription!.cancel();
     subscription = null;
+    await locationSubscription?.cancel();
+    locationSubscription = null;
+
+    await connectivitySubscription?.cancel();
+    connectivitySubscription = null;
+
+    await batterySubscription?.cancel();
+    batterySubscription = null;
     notifyListeners();
     await LocalBase.clearDelmanTrack();
     await LocalBase.removeSellerTrackId();
@@ -275,7 +281,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     polylines.clear();
     orderMarkers.clear();
     markers.clear();
-    mergedEvents == null;
     notifyListeners();
   }
 
@@ -417,15 +422,15 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   void updatePolylines() {
     polylines = {
-      Polyline(
-        polylineId:
-            PolylineId('sended_${DateTime.now().millisecondsSinceEpoch}'),
-        points:
-            routeCoords.map((e) => LatLng(e.latitude, e.longitude)).toList(),
-        color: Colors.blue,
-        width: 5,
-        zIndex: 10,
-      ),
+      // Polyline(
+      //   polylineId:
+      //       PolylineId('sended_${DateTime.now().millisecondsSinceEpoch}'),
+      //   points:
+      //       routeCoords.map((e) => LatLng(e.latitude, e.longitude)).toList(),
+      //   color: Colors.blue,
+      //   width: 5,
+      //   zIndex: 10,
+      // ),
       Polyline(
         polylineId:
             PolylineId('sended_${DateTime.now().millisecondsSinceEpoch}'),
@@ -889,6 +894,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     final n = await Geolocator.getCurrentPosition();
     if (n != null) latLng = LatLng(n.latitude, n.longitude);
     notifyListeners();
+    if (mapController == null) return;
     await mapController.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: latLng, zoom: 16, bearing: bearing, tilt: tilt),
