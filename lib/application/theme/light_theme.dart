@@ -12,25 +12,43 @@ final lightTheme = ThemeData(
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
     primary: primary,
-    onPrimary: darkPrimary,
+    onPrimary: white,
     secondary: secondary,
     onSecondary: black,
-    error: failedColor,
-    onError: failedColor,
-    surface: darkPrimary,
-    onSurface: white,
+    error: Colors.red,
+    onError: Colors.red,
+    surface: white,
+    onSurface: black,
   ),
-  appBarTheme: const AppBarTheme(
-    backgroundColor: primary,
-    surfaceTintColor: primary,
-    iconTheme: IconThemeData(
-      color: white,
-      applyTextScaling: true,
+  cardTheme: CardThemeData(
+    color: white,
+    elevation: 0,
+    shadowColor: Colors.grey.shade300,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+      side: BorderSide(color: Colors.grey.shade300),
     ),
   ),
+  appBarTheme: AppBarTheme(
+    backgroundColor: white,
+    surfaceTintColor: white,
+    // scrolledUnderElevation: 1,
+    shadowColor: grey100,
+
+    iconTheme: IconThemeData(
+      color: black,
+      applyTextScaling: true,
+    ),
+    elevation: 1,
+    foregroundColor: black,
+    actionsIconTheme: IconThemeData(
+      color: black,
+    ),
+  ),
+
   inputDecorationTheme: const InputDecorationTheme(
     hintStyle: TextStyle(
-      color: primary,
+      color: black,
     ),
     focusedBorder: InputBorder.none,
     border: InputBorder.none,

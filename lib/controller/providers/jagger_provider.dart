@@ -85,14 +85,17 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   void _setupStreams() {
-    locationSubscription = bgLocationChannel.receiveBroadcastStream().listen(
+    // locationSubscription =
+    bgLocationChannel.receiveBroadcastStream().listen(
           (dynamic location) => _eventController.add(LocationEvent(location)),
         );
-    connectivitySubscription = Connectivity().onConnectivityChanged.listen(
+    // connectivitySubscription =
+    Connectivity().onConnectivityChanged.listen(
           (List<ConnectivityResult> status) =>
               _eventController.add(NetworkEvent(status)),
         );
-    batterySubscription = Battery().onBatteryStateChanged.listen(
+    // batterySubscription =
+    Battery().onBatteryStateChanged.listen(
           (BatteryState state) => _eventController.add(BatteryEvent(state)),
         );
     AppLifecycleListener(
@@ -408,7 +411,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         ...locs.map(
           (e) => {
             "lat": truncateToDigits(e.latitude, 6),
-            "lng": truncateToDigits(e.latitude, 6),
+            "lng": truncateToDigits(e.longitude, 6),
             "created": e.date.toIso8601String(),
           },
         )
@@ -641,6 +644,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       print(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
         await getOrders();
+        HomeProvider home =
+            Provider.of<HomeProvider>(Get.context!, listen: false);
+        home.changeIndex(0);
         message('Амжилттай нэмэгдлээ');
       } else {
         message('Захиалгуудыг түгээлтэд нэмэхэд алдаа гарлаа!');

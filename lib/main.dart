@@ -88,7 +88,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
         theme: lightTheme,
         locale: Locale("en-MN"),
         routes: AppConfigs.appRoutes,
-        darkTheme: darkTheme,
+        darkTheme: lightTheme,
         navigatorKey: GlobalKeys.navigatorKey,
         themeMode: home.themeMode,
         home: RootPage(),

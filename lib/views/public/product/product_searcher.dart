@@ -19,48 +19,61 @@ class ProductSearcher extends StatelessWidget {
 
     return Consumer<HomeProvider>(
       builder: (context, home, child) => Row(
+        // spacing: ,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          if (security.role == 'PA') suplierPicker(home, context),
+          if (security.role == 'PA') const SizedBox(width: 10),
           Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              decoration: BoxDecoration(
-                  color: white, borderRadius: BorderRadius.circular(30)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (security.role == 'PA') suplierPicker(home, context),
-                  const SizedBox(width: 10),
-                  Expanded(
-                      child: TextFormField(
-                    cursorHeight: Sizes.smallFontSize + 2,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w500),
-                    decoration: InputDecoration(
-                      hintText: '${home.searchType} хайх',
-                      hintStyle: const TextStyle(
-                          fontSize: Sizes.mediumFontSize - 2,
-                          color: Colors.black),
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    ),
-                    onChanged: (v) => _onfieldChanged(v, home),
-                    onFieldSubmitted: (v) => _onFieldSubmitted(v, home),
-                  )),
-                  InkWell(
-                      onTap: () => _changeSearchType(home, context),
-                      child: const Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: black,
-                      )),
-                  const SizedBox(width: 5),
-                  viewMode(home)
-                ],
+            child: TextFormField(
+              cursorHeight: Sizes.smallFontSize + 2,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
+              decoration: InputDecoration(
+                hintText: '${home.searchType} хайх',
+                hintStyle: const TextStyle(
+                  fontSize: Sizes.mediumFontSize - 2,
+                  color: Colors.black,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: const BorderSide(
+                    color: Colors.transparent,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: const BorderSide(
+                    color: Colors.transparent,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: const BorderSide(
+                    color: Colors.transparent,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                filled: true,
+                fillColor: card,
+                suffixIcon: InkWell(
+                  borderRadius: BorderRadius.circular(30),
+                  onTap: () => _changeSearchType(home, context),
+                  child: Icon(Icons.arrow_drop_down),
+                ),
+                // border: InputBorder.none,
+                // focusedBorder: InputBorder.none,
+                // enabledBorder: InputBorder.none,
+              ),
+              onChanged: (v) => _onfieldChanged(v, home),
+              onFieldSubmitted: (v) => _onFieldSubmitted(v, home),
             ),
           ),
+          SizedBox(width: 10),
+          viewMode(home)
         ],
       ),
     );
@@ -198,29 +211,57 @@ class ProductSearcher extends StatelessWidget {
     return IntrinsicWidth(
       child: InkWell(
         onTap: () => _onPickSupplier(context, home),
-        child: Column(
-          children: [
-            Text(
-              '${home.picked.name} :',
-              style: const TextStyle(
-                fontSize: Sizes.mediumFontSize - 3,
-                color: AppColors.succesColor,
-                fontWeight: FontWeight.bold,
+        borderRadius: BorderRadius.circular(30),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 17),
+          decoration: BoxDecoration(
+            color: card,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Row(
+            children: [
+              Text(
+                '${home.picked.name} ',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.succesColor,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ],
+              Icon(
+                Icons.arrow_drop_down,
+                size: 14,
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget viewMode(HomeProvider home) {
-    return InkWell(
-      onTap: () => home.switchView(),
-      child: Icon(
-        home.isList ? Icons.grid_view : Icons.list_sharp,
-        color: black,
+    return IconButton.filledTonal(
+      color: white,
+      onPressed: () => home.switchView(),
+      style: IconButton.styleFrom(
+        shape: CircleBorder(),
+        padding: EdgeInsets.all(12),
+        backgroundColor: Colors.grey.shade200,
+      ),
+      icon: Center(
+        child: Icon(
+          home.isList ? Icons.grid_view : Icons.list_sharp,
+          color: primary,
+        ),
       ),
     );
+
+    // IconButton(
+    //   onPressed: () => home.switchView(),
+    //   icon: Icon(
+    //     home.isList ? Icons.grid_view : Icons.list_sharp,
+    //     color: black,
+    //   ),
+    // );
   }
 }

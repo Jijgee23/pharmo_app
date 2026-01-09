@@ -19,7 +19,7 @@ class NoResult extends StatelessWidget {
             style: TextStyle(
               fontSize: Sizes.mediumFontSize,
               fontWeight: FontWeight.bold,
-              color: theme.primaryColor
+              color: theme.colorScheme.error,
             ),
           ),
           SizedBox(height: Sizes.bigFontSize),

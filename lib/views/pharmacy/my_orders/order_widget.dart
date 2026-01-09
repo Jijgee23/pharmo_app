@@ -34,13 +34,16 @@ class OrderWidget extends StatelessWidget {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                        color: primary.withOpacity(.3), borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        color: primary.withOpacity(.3),
+                        borderRadius: BorderRadius.circular(10)),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     child: Row(
                       children: [
                         const Icon(Icons.home, color: primary),
                         const SizedBox(width: 5),
-                        Text(order.supplier!, style: const TextStyle(fontWeight: FontWeight.bold))
+                        Text(order.supplier!,
+                            style: const TextStyle(fontWeight: FontWeight.bold))
                       ],
                     ),
                   ),
@@ -62,7 +65,8 @@ class OrderWidget extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  (order.process == 'Бэлэн болсон' || order.process == 'Түгээлтэнд гарсан')
+                  (order.process == 'Бэлэн болсон' ||
+                          order.process == 'Түгээлтэнд гарсан')
                       ? acceptButton(order, context)
                       : const SizedBox(),
                 ],

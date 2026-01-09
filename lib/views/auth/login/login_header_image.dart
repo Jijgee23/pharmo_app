@@ -1,3 +1,4 @@
+import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
 
 class LoginHeaderImage extends StatelessWidget {
@@ -15,8 +16,8 @@ class LoginHeaderImage extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.purple.withAlpha(50),
-              Colors.pink.withAlpha(80),
+              primary.withAlpha(50),
+              darkPrimary.withAlpha(80),
             ],
           ),
           borderRadius: const BorderRadius.only(

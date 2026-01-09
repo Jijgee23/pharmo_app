@@ -108,14 +108,6 @@ class _SellerOrdersState extends State<SellerOrders>
           appbar: SideAppBar(
             title: searchBar(),
             preferredSize: const Size.fromHeight(kToolbarHeight + 10),
-            leading: Container(
-              margin: EdgeInsets.only(left: 10),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(50),
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
-              ),
-            ),
             centerTitle: false,
           ),
           customLoading: shimmer(),
@@ -163,15 +155,8 @@ class _SellerOrdersState extends State<SellerOrders>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: primary.withAlpha(50),
         borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Center(
         child: Row(

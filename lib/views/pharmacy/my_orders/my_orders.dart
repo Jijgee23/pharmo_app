@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controller/providers/myorder_provider.dart';
 import 'package:pharmo_app/controller/models/branch.dart';
 import 'package:pharmo_app/controller/models/supplier.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/views/pharmacy/my_orders/custom_drop.dart';
 import 'package:pharmo_app/views/pharmacy/my_orders/order_widget.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
@@ -45,8 +44,7 @@ class _MyOrderState extends State<MyOrder> {
               SliverAppBar(
                 pinned: true,
                 floating: false,
-                backgroundColor: white,
-                surfaceTintColor: white,
+                leading: SizedBox(),
                 flexibleSpace: FlexibleSpaceBar(title: filterRow()),
               ),
             ],

@@ -22,13 +22,20 @@ class _AddCustomerState extends State<AddCustomer> {
   @override
   Widget build(BuildContext context) {
     return Consumer<PharmProvider>(
-      builder: (context, pharm, child) => InkWell(
-        onTap: () => registerCustomer(pharm),
-        child: Container(
-          height: 40,
-          width: 40,
-          decoration: const BoxDecoration(color: white, shape: BoxShape.circle),
-          child: Center(child: Icon(Icons.add, color: theme.primaryColor)),
+      builder: (context, pharm, child) => IconButton.filledTonal(
+        color: white,
+        onPressed: () => registerCustomer(pharm),
+        style: IconButton.styleFrom(
+          shape: CircleBorder(),
+          padding: EdgeInsets.all(15),
+          // minimumSize: Size(60, 40),
+          backgroundColor: Colors.grey.shade200,
+        ),
+        icon: Center(
+          child: Icon(
+            Icons.add,
+            color: primary,
+          ),
         ),
       ),
     );

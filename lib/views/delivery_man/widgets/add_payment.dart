@@ -281,7 +281,7 @@ class _AddPaymentState extends State<AddPayment>
         builder: (context, setModalState) {
           return SheetContainer(children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 10,
               children: [
                 picker2('Бэлнээр', 'C', setModalState),
                 picker2('Дансаар', 'T', setModalState)
@@ -357,38 +357,30 @@ class _AddPaymentState extends State<AddPayment>
 
   Widget picker2(String n, String v, Function(void Function()) setModalState) {
     bool sel = (selected == n);
-    return InkWell(
-      onTap: () => setModalState(() {
-        selected = n;
-        pType = v;
-      }),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: sel ? 22 : 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: sel ? succesColor.withOpacity(.4) : Colors.white,
-          border: Border.all(
-            color: sel ? succesColor : Colors.grey.shade300,
-            width: sel ? 2 : 1,
+    return Expanded(
+      child: InkWell(
+        onTap: () => setModalState(() {
+          selected = n;
+          pType = v;
+        }),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: sel ? primary : white,
+            border: Border.all(color: sel ? primary : grey400),
           ),
-          boxShadow: sel
-              ? [
-                  BoxShadow(
-                    color: succesColor.withOpacity(0.4),
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  )
-                ]
-              : [],
-        ),
-        child: Text(
-          n,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
+          child: Center(
+            child: Text(
+              n,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: sel ? Colors.white : Colors.black,
+              ),
+            ),
           ),
         ),
       ),

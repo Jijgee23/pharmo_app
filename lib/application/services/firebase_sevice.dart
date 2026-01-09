@@ -210,25 +210,24 @@ class FirebaseApi {
   }
 
   static Future<String> getToken() async {
-    String result = '';
+    String token = '';
     try {
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      if (Platform.isIOS) {
-        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-        if (iosInfo.isPhysicalDevice) {
-          await FirebaseMessaging.instance.getAPNSToken();
-          await Future.delayed(const Duration(seconds: 2));
-          final token = await FirebaseMessaging.instance.getToken();
-          if (token != null) {
-            result = token;
-          }
-        }
+      if (Platform.isAndroid) {
+        token = await FirebaseMessaging.instance.getToken() ?? '';
       } else {
-        result = await FirebaseMessaging.instance.getToken() ?? '';
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        if (iosInfo.isPhysicalDevice == false) {
+          return 'SIMULATOR';
+        }
+        await FirebaseMessaging.instance.getAPNSToken();
+        await Future.delayed(const Duration(milliseconds: 500));
+        token = await FirebaseMessaging.instance.getToken() ?? '';
       }
+      debugPrint('📌 FCM TOKEN: $token');
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('ERROR GETTING FCM TOKEN: $e');
     }
-    return result;
+    return token;
   }
 }

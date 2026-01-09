@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/controller/providers/report_provider.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/seller/report_widget.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:provider/provider.dart';
+
+class Reportfilter {
+  String title;
+  String query;
+  Reportfilter({required this.title, required this.query});
+}
 
 class SellerReportPage extends StatefulWidget {
   const SellerReportPage({super.key});
@@ -20,29 +26,26 @@ class _SellerReportState extends State<SellerReportPage> {
   @override
   initState() {
     report = Provider.of<ReportProvider>(context, listen: false);
-    report.getReports(query);
+    report.getReports(selectedFilter.query);
     super.initState();
   }
 
   List<String> titles = ['Огноо', 'Дүн', 'Тоо ширхэг'];
 
-  List<String> dateTypes = ['Өдрөөр', 'Сараар', 'Улирлаар', 'Жилээр'];
+  List<Reportfilter> filters = [
+    Reportfilter(title: 'Өдрөөр', query: 'day'),
+    Reportfilter(title: 'Сараар', query: 'month'),
+    Reportfilter(title: 'Улирлаар', query: 'quarter'),
+    Reportfilter(title: 'Жилээр', query: 'year'),
+  ];
 
-  String selectedType = 'Өдрөөр';
-  String query = 'day';
-  setType(String n, String q) {
-    setState(() {
-      selectedType = n;
-      query = q;
-    });
-  }
-
-  List<String> queries = ['day', 'month', 'quarter', 'year'];
+  late Reportfilter selectedFilter = filters.first;
 
   Duration duration = const Duration(milliseconds: 500);
+
   List<Color> colors = [
     theme.primaryColor,
-    theme.colorScheme.onPrimary,
+    theme.colorScheme.onError,
     theme.colorScheme.secondary
   ];
 
@@ -51,15 +54,15 @@ class _SellerReportState extends State<SellerReportPage> {
     return Consumer<ReportProvider>(builder: (context, rp, child) {
       dynamic data = rp.report;
       return Scaffold(
-        appBar: SideAppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              dateSelector(
-                  date: rp.currentDate, handle: () => _showCalendar(report)),
-              dateSelector(
-                  date: rp.currentDate2, handle: () => _showCalendar2(report)),
-            ],
+        appBar: AppBar(
+          centerTitle: false,
+          title: Text(
+            'Борлуулагчийн тайлан',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: black,
+            ),
           ),
         ),
         body: Container(
@@ -67,20 +70,86 @@ class _SellerReportState extends State<SellerReportPage> {
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 10,
               children: [
-                typeSelector(rp),
+                Row(
+                  spacing: 10,
+                  children: [
+                    dateSelector(
+                        date: rp.currentDate,
+                        handle: () => _showCalendar(report)),
+                    dateSelector(
+                        date: rp.currentDate2,
+                        handle: () => _showCalendar2(report)),
+                  ],
+                ),
+                Card(
+                  elevation: 0,
+                  color: white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(Sizes.smallFontSize),
+                    side: BorderSide(color: Colors.grey, width: 2),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: DropdownButton<Reportfilter>(
+                      value: selectedFilter,
+                      underline: const SizedBox(),
+                      hint: const Text('Филтер сонгох'),
+                      isExpanded: true,
+                      style: TextStyle(
+                        fontSize: Sizes.mediumFontSize,
+                        color: theme.primaryColor,
+                      ),
+                      iconEnabledColor: Colors.black,
+                      iconDisabledColor: Colors.black,
+                      dropdownColor: white,
+                      alignment: Alignment.center,
+                      selectedItemBuilder: (context) => filters
+                          .map((filter) => Row(
+                                children: [
+                                  Text(
+                                    filter.title,
+                                    style: const TextStyle(
+                                      fontSize: Sizes.mediumFontSize,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ))
+                          .toList(),
+                      items: filters
+                          .map(
+                            (filter) => DropdownMenuItem<Reportfilter>(
+                              value: filter,
+                              child: Text(filter.title),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (val) => setState(
+                        () {
+                          selectedFilter = val!;
+                          rp.getReports(selectedFilter.query);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
                 Column(
                   children: [
-                    Row(children: [
-                      ...titles.map(
-                          (t) => text(t: t, color: colors[titles.indexOf(t)])),
-                    ]),
+                    Row(
+                      children: [
+                        ...titles.map((t) =>
+                            text(t: t, color: colors[titles.indexOf(t)])),
+                      ],
+                    ),
                     Builder(builder: (context) {
                       if (data != {}) {
-                        Column(
+                        return Column(
                           children: [
                             ...data.map((r) => ReportWidget(
-                                date: maybeNull(r[query].toString()),
+                                date: maybeNull(
+                                    r[selectedFilter.query].toString()),
                                 total: maybeNull(r['total'].toString()),
                                 count: maybeNull(r['count'].toString())))
                           ],
@@ -98,50 +167,6 @@ class _SellerReportState extends State<SellerReportPage> {
     });
   }
 
-  Widget typeSelector(ReportProvider rp) {
-    return AnimatedContainer(
-      margin: const EdgeInsets.only(bottom: Sizes.mediumFontSize),
-      decoration: BoxDecoration(
-          color: theme.primaryColor,
-          borderRadius: BorderRadius.circular(Sizes.smallFontSize * 3),
-          border: Border.all(color: Colors.black, width: 2)),
-      duration: duration,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ...dateTypes
-              .map((d) => typeWidget(d, queries[dateTypes.indexOf(d)], rp)),
-        ],
-      ),
-    );
-  }
-
-  Widget typeWidget(String title, String que, ReportProvider rp) {
-    bool selected = title == selectedType;
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () async {
-        setType(title, que);
-        await rp.getReports(query);
-      },
-      child: AnimatedContainer(
-        padding: const EdgeInsets.symmetric(
-            horizontal: Sizes.smallFontSize, vertical: Sizes.mediumFontSize),
-        decoration: BoxDecoration(
-            color: selected ? theme.colorScheme.onPrimary : theme.primaryColor,
-            borderRadius: BorderRadius.circular(Sizes.smallFontSize * 3)),
-        width: Sizes.width * (selected ? .25 : 0.2),
-        duration: duration,
-        child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: Sizes.smallFontSize + 2),
-        ),
-      ),
-    );
-  }
-
   Widget text({required String t, Color? color}) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -154,20 +179,36 @@ class _SellerReportState extends State<SellerReportPage> {
   }
 
   Widget dateSelector({required DateTime date, required Function() handle}) {
-    return InkWell(
-      onTap: handle,
-      child: Row(
-        children: [
-          const Icon(
-            Icons.edit_calendar,
-            color: Colors.white,
+    return Expanded(
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          backgroundColor: white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: Colors.grey, width: 2),
           ),
-          const SizedBox(width: Sizes.smallFontSize),
-          Text(
-            getDate(date),
-            style: const TextStyle(fontSize: Sizes.mediumFontSize),
-          ),
-        ],
+          padding: EdgeInsets.symmetric(vertical: 12),
+        ),
+        onPressed: handle,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 10,
+          children: [
+            const Icon(
+              Icons.edit_calendar,
+              color: Colors.black,
+            ),
+            const SizedBox(width: Sizes.smallFontSize),
+            Text(
+              getDate(date),
+              style: const TextStyle(
+                fontSize: Sizes.mediumFontSize,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

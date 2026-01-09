@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
+// import 'package:pharmo_app/controller/providers/home_provider.dart';
 import 'package:pharmo_app/controller/providers/pharms_provider.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
@@ -33,40 +33,26 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
   List<String> filters = ['Нэрээр', 'Утасны дугаараар', 'Регистрийн дугаараар'];
 
   final TextEditingController controller = TextEditingController();
-  TextStyle style =
-      const TextStyle(color: black, fontSize: Sizes.mediumFontSize - 2);
+  TextStyle style = const TextStyle(color: black, fontSize: 12);
   @override
   Widget build(BuildContext context) {
     return Consumer<PharmProvider>(
-      builder: (context, pp, child) => Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: controller,
-                cursorColor: Colors.black,
-                cursorHeight: Sizes.bigFontSize,
-                cursorWidth: .8,
-                style: style,
-                onChanged: (value) => _onSearch(value, pp),
-                decoration: _formStyle(),
-              ),
-            ),
-            InkWell(
-              onTap: () => _setFilter(),
-              child: Icon(Icons.arrow_drop_down, color: theme.primaryColor),
-            ),
-          ],
-        ),
+      builder: (context, pp, child) => TextFormField(
+        controller: controller,
+        cursorColor: Colors.black,
+        cursorHeight: 12,
+        cursorWidth: .8,
+        style: style,
+        onChanged: (value) => _onSearch(value, pp),
+        decoration: _formStyle(),
       ),
     );
   }
 
+//  InkWell(
+//             onTap: () => _setFilter(),
+//             child: Icon(Icons.arrow_drop_down, color: theme.primaryColor),
+//           ),
   _setFilter() {
     showMenu(
       color: Colors.white,
@@ -79,7 +65,10 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
             child: Text(
               f,
               style: const TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 12, color: black),
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: black,
+              ),
             ),
             onTap: () => setFilter(f),
           ),
@@ -102,38 +91,34 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
 
   _formStyle() {
     return InputDecoration(
-        border: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        hintText: '$selectedFilter хайх',
-        hintStyle: style);
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30),
+        borderSide: const BorderSide(
+          color: Colors.transparent,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30),
+        borderSide: const BorderSide(
+          color: Colors.transparent,
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30),
+        borderSide: const BorderSide(
+          color: Colors.transparent,
+        ),
+      ),
+      hintText: '$selectedFilter хайх',
+      hintStyle: style,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+      filled: true,
+      fillColor: card,
+      suffixIcon: InkWell(
+        borderRadius: BorderRadius.circular(30),
+        onTap: () => _setFilter(),
+        child: Icon(Icons.arrow_drop_down, color: theme.primaryColor),
+      ),
+    );
   }
-}
-
-selectedCustomer(HomeProvider home) {
-  const textStyle = TextStyle(
-      color: white,
-      fontSize: 14.0,
-      letterSpacing: 0.3,
-      fontWeight: FontWeight.bold);
-  return home.selectedCustomerId == 0
-      ? const Text('Харилцагч сонгоно уу!', style: textStyle)
-      : TextButton(
-          onPressed: () => home.changeIndex(0),
-          child: RichText(
-            text: TextSpan(
-              text: 'Сонгосон харилцагч: ',
-              style: textStyle,
-              children: [
-                TextSpan(
-                  text: home.selectedCustomerName,
-                  style: const TextStyle(
-                    color: white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
 }

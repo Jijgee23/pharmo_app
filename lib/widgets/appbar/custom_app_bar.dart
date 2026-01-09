@@ -4,7 +4,6 @@ import 'package:pharmo_app/controller/providers/basket_provider.dart';
 import 'package:pharmo_app/controller/providers/home_provider.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:provider/provider.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -32,19 +31,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Consumer3<HomeProvider, BasketProvider, AuthController>(
       builder: (_, homeprovider, basketProvider, auth, child) {
         final security = LocalBase.security;
-        bool isSupSelected = (security != null &&
-            security.supplierId != null &&
-            security.role == 'PA');
+        if (security == null) {
+          return PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: AppBar(),
+          );
+        }
         return PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: AppBar(
-            centerTitle: true,
+            centerTitle: false,
             title: title,
-            elevation: 0,
-            leading: leading ?? lead(homeprovider, auth),
+            leading: null,
             actions: actions ??
                 [
-                  if (isSupSelected && hasBasket != false)
+                  if (hasBasket != false)
                     InkWell(
                       onTap: () => homeprovider
                           .changeIndex(getBasketIndex(security.role)),
@@ -53,11 +54,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                           Container(
                             margin: const EdgeInsets.only(right: 10),
                             child: const Center(
-                              child: Icon(
-                                Icons.shopping_cart,
-                                size: 24,
-                                color: Colors.white,
-                              ),
+                              child: Icon(Icons.shopping_cart),
                             ),
                           ),
                           Positioned(
@@ -75,9 +72,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     : basketProvider.basket!.totalCount
                                         .toString(),
                                 style: const TextStyle(
-                                    color: white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold),
+                                  color: white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -89,32 +87,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         );
       },
     );
-  }
-
-  InkWell lead(HomeProvider homeprovider, AuthController auth) {
-    return InkWell(
-      onTap: () =>
-          homeprovider.changeIndex(getProfileIndex(LocalBase.security!.role)),
-      child: Container(
-        decoration: const BoxDecoration(color: white, shape: BoxShape.circle),
-        margin: const EdgeInsets.only(left: 10),
-        child: Center(
-          child: Text(
-            getLetter().substring(0, 1),
-            style: TextStyle(
-              color: theme.primaryColor,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  String getLetter() {
-    // return 'A';
-    return LocalBase.security != null ? LocalBase.security!.name : '';
   }
 
   getBasketIndex(String role) {

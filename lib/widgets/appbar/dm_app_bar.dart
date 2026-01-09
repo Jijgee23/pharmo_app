@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/controller/providers/basket_provider.dart';
-import 'package:pharmo_app/application/utilities/constants.dart';
 import 'package:provider/provider.dart';
 
 class DMAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -29,10 +29,14 @@ class DMAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: AppBar(
-          centerTitle: true,
+          centerTitle: false,
           title: Text(
             title,
-            style: Constants.headerTextStyle,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: black,
+            ),
           ),
           actions: actions,
         ),

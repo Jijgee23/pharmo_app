@@ -1,10 +1,11 @@
-import 'package:pharmo_app/views/delivery_man/home/deliveries.dart';
 import 'package:pharmo_app/views/delivery_man/home/map_view.dart';
 import 'package:pharmo_app/views/delivery_man/orders/delivery_orders.dart';
 import 'package:pharmo_app/views/delivery_man/profile/delivery_profile.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
+
+import '../../application/services/a_services.dart';
 
 class IndexDeliveryMan extends StatefulWidget {
   const IndexDeliveryMan({super.key});
@@ -14,6 +15,15 @@ class IndexDeliveryMan extends StatefulWidget {
 }
 
 class _IndexDeliveryManState extends State<IndexDeliveryMan> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void init() async {
+    await Settings.checkAlwaysLocationPermission();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
@@ -35,8 +45,6 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
         return 'Өнөөдрийн түгээлтүүд';
       case 2:
         return 'Бэлэн захиалгууд';
-      case 3:
-        return 'Миний профайл';
       default:
         return '';
     }
@@ -44,10 +52,11 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
 
   final List _pages = [
     const MapView(),
-    const Deliveries(),
+    // const Deliveries(),
     const DeliveryOrders(),
     const DeliveryProfile()
   ];
 
-  List<String> icons = ['marker', 'truck-check', 'box-check', 'user'];
+  List<String> icons = ['marker', 'box-check', 'user'];
 }
+// 'truck-check',

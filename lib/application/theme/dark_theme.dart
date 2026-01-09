@@ -21,6 +21,7 @@ final darkTheme = ThemeData(
   appBarTheme: const AppBarTheme(
     backgroundColor: darkPrimary,
     surfaceTintColor: darkPrimary,
+    foregroundColor: white,
     iconTheme: IconThemeData(
       color: white,
       applyTextScaling: true,
@@ -42,6 +43,7 @@ final darkTheme = ThemeData(
     side: const BorderSide(color: darkPrimary, width: 1),
     fillColor: const WidgetStatePropertyAll(Colors.transparent),
   ),
+
   fontFamily: 'Sf-Pro-Text',
   splashColor: transperant,
   highlightColor: transperant,

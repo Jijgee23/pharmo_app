@@ -17,8 +17,8 @@ class HomeProvider extends ChangeNotifier {
     searchType = 'Нэрээр';
     query = '';
     currentIndex = 0;
-    selectedCustomerName = '';
-    selectedCustomerId = 0;
+    // selectedCustomerName = '';
+    // selectedCustomerId = 0;
     branches.clear();
     branchList.clear();
     categories.clear();
@@ -31,8 +31,8 @@ class HomeProvider extends ChangeNotifier {
   bool isList = false;
   String query = '';
   int currentIndex = 0;
-  String selectedCustomerName = '';
-  int selectedCustomerId = 0;
+  // String selectedCustomerName = '';
+  // int selectedCustomerId = 0;
   String? note;
   List<Branch> branchList = <Branch>[];
   late LocationPermission permission;
@@ -351,7 +351,7 @@ class HomeProvider extends ChangeNotifier {
   getCustomerBranch() async {
     try {
       final response = await api(Api.post, 'seller/customer_branch/',
-          body: {'customerId': selectedCustomerId});
+          body: {'customerId': customer!.id});
       branchList.clear();
       if (response!.statusCode == 200) {
         List<dynamic> res = convertData(response);
@@ -447,18 +447,16 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  changeIndex(int index) {
+  changeIndex(int index) async {
+    final user = LocalBase.security;
+    if (user != null && user.role == "D") {
+      if (index == 0) {
+        JaggerProvider jagger =
+            Provider.of<JaggerProvider>(Get.context!, listen: false);
+        await jagger.getDeliveries();
+      }
+    }
     currentIndex = index;
-    notifyListeners();
-  }
-
-  changeSelectedCustomerId(int customerId) {
-    selectedCustomerId = customerId;
-    notifyListeners();
-  }
-
-  changeSelectedCustomerName(String customerName) {
-    selectedCustomerName = customerName;
     notifyListeners();
   }
 

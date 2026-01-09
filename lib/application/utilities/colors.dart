@@ -15,8 +15,8 @@ class AppColors {
 }
 
 const darkPrimary = Color(0XFF38b0f5);
-const primary = Color(0XFF7966FF);
-const secondary = Color(0xFFDE3163);
+const primary = Colors.teal; // Color(0XFF7966FF);
+const secondary = Color.fromARGB(255, 143, 31, 163); // Color(0xFFDE3163);
 const white = Color(0XFFFFFFFF);
 const black = Color(0XFF000000);
 const background = Color.fromARGB(255, 232, 246, 255);

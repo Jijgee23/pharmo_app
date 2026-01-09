@@ -76,9 +76,9 @@ class _IndexPharmaState extends State<IndexPharma> {
       switch (homeProvider.currentIndex) {
         case 0:
           return const Row(
+            spacing: 10,
             children: [
-              Expanded(flex: 8, child: CustomerSearcher()),
-              SizedBox(width: 10),
+              Expanded(flex: 6, child: CustomerSearcher()),
               Expanded(child: AddCustomer()),
             ],
           );
@@ -88,7 +88,7 @@ class _IndexPharmaState extends State<IndexPharma> {
           return appBarSingleText('Миний профайл');
 
         default:
-          return selectedCustomer(homeProvider);
+          return appBarSingleText('Сагс');
       }
     }
   }
@@ -96,7 +96,7 @@ class _IndexPharmaState extends State<IndexPharma> {
   appBarSingleText(String v) {
     return Text(
       v,
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
     );
   }
 

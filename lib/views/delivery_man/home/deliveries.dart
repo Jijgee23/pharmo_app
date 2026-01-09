@@ -1,8 +1,7 @@
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/application/services/settings.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
+// import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/views/delivery_man/home/delivery_items.dart';
 import 'package:pharmo_app/views/delivery_man/home/orderer.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/marked_promo_dialog.dart';
@@ -31,8 +30,6 @@ class _DeliveriesState extends State<Deliveries> {
       (_) async {
         jag.setLoading(true);
         await jag.getDeliveries();
-        await Settings.checkAlwaysLocationPermission();
-        // await jag.getDeliveryLocation();
         jag.setLoading(false);
       },
     );
@@ -46,6 +43,16 @@ class _DeliveriesState extends State<Deliveries> {
         return Stack(
           children: [
             DataScreen(
+              appbar: AppBar(
+                title: Text(
+                  'Идэвхитэй түгээлтүүд',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                centerTitle: false,
+              ),
               loading: jagger.loading,
               empty: false,
               onRefresh: () async => await init(),
@@ -140,6 +147,40 @@ class _DeliveriesState extends State<Deliveries> {
                   'Түгээлт эхлэсэн: ${del.startedOn!.substring(11, 16)}',
                   style: st,
                 ),
+              if (jagger.subscription == null && del.startedOn != null)
+                Text(
+                  'Байршил дамжуулалт зогссон байна, байршил дамжуулах дарна уу!',
+                  style: TextStyle(color: Colors.red),
+                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                spacing: 10,
+                children: [
+                  if (jagger.subscription == null && del.startedOn != null)
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 10,
+                        children: [
+                          button(
+                            title: 'Байршил дамжуулах',
+                            color: neonBlue,
+                            onTap: () => jagger.tracking(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (del.startedOn != null)
+                    Expanded(
+                      child: button(
+                        title: 'Түгээлт дуусгах',
+                        color: neonBlue,
+                        onTap: () => askToEnd(del, jagger),
+                      ),
+                    )
+                ],
+              ),
             ],
           ),
         ),
@@ -160,42 +201,7 @@ class _DeliveriesState extends State<Deliveries> {
   Widget endingWidget(Delivery del, JaggerProvider jagger) {
     return Column(
       spacing: 10,
-      children: [
-        if (jagger.subscription == null && del.startedOn != null)
-          Text(
-            'Байршил дамжуулалт зогссон байна, байршил дамжуулах дарна уу!',
-            style: TextStyle(color: Colors.red),
-          ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          spacing: 10,
-          children: [
-            if (jagger.subscription == null && del.startedOn != null)
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 10,
-                  children: [
-                    button(
-                      title: 'Байршил дамжуулах',
-                      color: neonBlue,
-                      onTap: () => jagger.tracking(),
-                    ),
-                  ],
-                ),
-              ),
-            if (del.startedOn != null)
-              Expanded(
-                child: button(
-                  title: 'Түгээлт дуусгах',
-                  color: neonBlue,
-                  onTap: () => askToEnd(del, jagger),
-                ),
-              )
-          ],
-        ),
-      ],
+      children: [],
     );
   }
 
@@ -221,7 +227,7 @@ class _DeliveriesState extends State<Deliveries> {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
-        backgroundColor: theme.colorScheme.onPrimary,
+        backgroundColor: primary,
         shadowColor: grey400,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),

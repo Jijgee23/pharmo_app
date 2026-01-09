@@ -1,6 +1,7 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/views/delivery_man/home/deliveries.dart';
 
 class MapView extends StatefulWidget {
   const MapView({super.key});
@@ -92,44 +93,6 @@ class _MapViewState extends State<MapView> {
                   ),
                 ),
               ),
-              // if (jagger.timer.isActive && jagger.delivery.isNotEmpty)
-              //   Positioned(
-              //   bottom: 20,
-              //   left: 20,
-              //   child: Card(
-              //     elevation: 3,
-              //     color: white,
-              //     shape: RoundedRectangleBorder(
-              //       side: BorderSide(color: Colors.grey),
-              //       borderRadius: BorderRadius.circular(10),
-              //     ),
-              //     child: Builder(builder: (context) {
-              //       final diff = DateTime.now().difference(
-              //         DateTime.parse(jagger.delivery[0].startedOn ?? ''),
-              //       );
-
-              //       final hh = diff.inHours.toString().padLeft(2, '0');
-              //       final mm =
-              //           (diff.inMinutes % 60).toString().padLeft(2, '0');
-              //       final ss =
-              //           (diff.inSeconds % 60).toString().padLeft(2, '0');
-
-              //       return Container(
-              //         padding: EdgeInsets.all(10),
-              //         child: Column(
-              //           spacing: 10,
-              //           crossAxisAlignment: CrossAxisAlignment.start,
-              //           children: [
-              //             Text('Хугацаа: $hh:$mm:$ss'),
-              //             Text(
-              //               'Нийт зам: ${truncateToDigits(calculateTotalDistanceKm(jagger.trackDatas), 1)} км',
-              //             ),
-              //           ],
-              //         ),
-              //       );
-              //     }),
-              //   ),
-              // ),
               if (jagger.subscription != null && !jagger.subscription!.isPaused)
                 Positioned(
                   top: 0,
@@ -154,6 +117,65 @@ class _MapViewState extends State<MapView> {
                     ),
                   ),
                 ),
+              // if (jagger.delivery.isNotEmpty)
+              Positioned(
+                bottom: 20,
+                left: 20,
+                child: SafeArea(
+                  child: SizedBox(
+                    width: context.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        FloatingActionButton.extended(
+                          elevation: 10,
+                          heroTag: 'trackingDelivery',
+                          onPressed: () => goto(Deliveries()),
+                          backgroundColor: Colors.white,
+                          label: Column(
+                            children: [
+                              Row(
+                                spacing: 10,
+                                children: [
+                                  Text(
+                                    'Идэвхитэй түгээлтүүд',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  Icon(
+                                    Icons.shopping_bag,
+                                    color: Colors.black,
+                                  ),
+                                ],
+                              ),
+                              if (jagger.delivery.isNotEmpty &&
+                                  jagger.delivery[0].startedOn != null)
+                                Row(
+                                  spacing: 10,
+                                  children: [
+                                    Text(
+                                      '${jagger.delivery[0].startedOn!.substring(11, 16)}-с эхэлсэн',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Нийт: ${truncateToDigits(calculateTotalDistanceKm(jagger.trackDatas), 1)} км',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );

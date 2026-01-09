@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/controller/providers/basket_provider.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
-import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
 class CartInfo extends StatefulWidget {
@@ -22,40 +21,46 @@ class _CartInfoState extends State<CartInfo> {
       await basketProvider.getBasket();
     }
 
-    return Ctnr(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              info(
-                title: 'Нийт дүн',
-                text: toPrice(
-                  basketProvider.basket != null
-                      ? basketProvider.basket!.totalPrice
-                      : 0,
-                ),
-              )
-            ],
-          ),
-          info(
-              title: 'Нийт тоо ширхэг',
-              text:
-                  '${basketProvider.basket != null ? basketProvider.basket!.totalCount : 0}'),
-          InkWell(
-            borderRadius: BorderRadius.circular(5),
-            onTap: () => clearBasket(),
-            child: const Icon(Icons.delete, color: Colors.red, size: 30),
-          ),
-        ],
+    return Card(
+      color: white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: Colors.grey.shade500, width: 1),
+      ),
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                info(
+                  title: 'Нийт дүн',
+                  text: toPrice(
+                    basketProvider.basket != null
+                        ? basketProvider.basket!.totalPrice
+                        : 0,
+                  ),
+                )
+              ],
+            ),
+            info(
+                title: 'Нийт тоо ширхэг',
+                text:
+                    '${basketProvider.basket != null ? basketProvider.basket!.totalCount : 0}'),
+            InkWell(
+              borderRadius: BorderRadius.circular(5),
+              onTap: () => clearBasket(),
+              child: const Icon(Icons.delete, color: Colors.red, size: 30),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget info({required String title, required String text}) {
-    final height = MediaQuery.of(context).size.height;
-    final fs = height * .013;
-    // theme
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -63,7 +68,6 @@ class _CartInfoState extends State<CartInfo> {
           title,
           style: TextStyle(
             color: black,
-            fontSize: fs,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -71,7 +75,6 @@ class _CartInfoState extends State<CartInfo> {
           text,
           style: TextStyle(
             color: black.withAlpha(25 * 7),
-            fontSize: fs,
             fontWeight: FontWeight.bold,
           ),
         )

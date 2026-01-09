@@ -45,16 +45,12 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
             child: AppBar(
-              backgroundColor: color,
-              surfaceTintColor: color,
-              centerTitle: centerTitle ?? false,
-              elevation: 0,
+              centerTitle: false,
               title: (text != null)
                   ? Text(
                       text!,
                       maxLines: 2,
                       style: const TextStyle(
-                        color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),

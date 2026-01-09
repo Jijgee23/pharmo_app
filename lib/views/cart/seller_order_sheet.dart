@@ -83,6 +83,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
                     color: hasCustomer ? transperant : Colors.grey.shade400,
                   ),
                 ),
+                elevation: 0,
                 padding: EdgeInsets.symmetric(
                   vertical: 15,
                   horizontal: 15,

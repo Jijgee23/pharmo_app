@@ -9,7 +9,6 @@ import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/ui_help/container.dart';
 import 'package:provider/provider.dart';
 
 class CartItem extends StatefulWidget {
@@ -60,30 +59,39 @@ class _CartItemState extends State<CartItem> {
               ),
             ],
           ),
-          child: Ctnr(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.detail['product_name'].toString(),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: fs * 1.2,
-                          fontWeight: FontWeight.bold,
+          child: Card(
+            color: white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: Colors.grey.shade500, width: 1),
+            ),
+            elevation: 0,
+            child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          widget.detail['product_name'].toString(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: fs * 1.2,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    _buildQuantityEditor(fs)
-                  ],
-                ),
-                const SizedBox(height: 8),
-                _productInformation(fs),
-              ],
+                      _buildQuantityEditor(fs),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  _productInformation(fs),
+                ],
+              ),
             ),
           ),
         );
@@ -91,47 +99,72 @@ class _CartItemState extends State<CartItem> {
     );
   }
 
+  ButtonStyle bstyle(bool isCircle) {
+    return ElevatedButton.styleFrom(
+      padding: EdgeInsets.zero,
+      minimumSize: isCircle ? Size(32, 32) : Size(60, 32),
+      shape: isCircle
+          ? CircleBorder(
+              side: BorderSide(color: Colors.grey.shade400, width: 1),
+            )
+          : RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: Colors.grey.shade400, width: 1),
+            ),
+      elevation: 0,
+      backgroundColor: Colors.white,
+    );
+  }
+
   Widget _buildQuantityEditor(double fontSize) {
     final basket = context.read<BasketProvider>();
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 242, 243, 252),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          _iconButton(
-            icon: Icons.remove,
-            onTap: () {
-              changeBasketItem(widget.detail['product_id'],
-                  parseInt(widget.detail['qty']) - 1);
-            },
+    return Row(
+      children: [
+        IconButton(
+          style: bstyle(true),
+          color: Colors.red,
+          icon: Icon(
+            Icons.remove,
+            color: black,
           ),
-          SizedBox(
-            width: 40,
-            child: InkWell(
-              onTap: () => Get.bottomSheet(ChangeQtyPad(
+          onPressed: () {
+            changeBasketItem(widget.detail['product_id'],
+                parseInt(widget.detail['qty']) - 1);
+          },
+        ),
+        SizedBox(
+          child: ElevatedButton(
+            onPressed: () => Get.bottomSheet(
+              ChangeQtyPad(
                 onSubmit: () => _changeQTy(basket.qty.text),
                 initValue: widget.detail['qty'].toString(),
-              )),
-              child: Text(
-                widget.detail['qty'].toString(),
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+            style: bstyle(false),
+            child: Text(
+              widget.detail['qty'].toString(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: black,
               ),
             ),
           ),
-          _iconButton(
-            icon: Icons.add,
-            onTap: () {
-              changeBasketItem(widget.detail['product_id'],
-                  parseInt(widget.detail['qty']) + 1);
-            },
+        ),
+        IconButton(
+          style: bstyle(true),
+          color: Colors.red,
+          icon: Icon(
+            Icons.add,
+            color: black,
           ),
-        ],
-      ),
+          onPressed: () {
+            changeBasketItem(widget.detail['product_id'],
+                parseInt(widget.detail['qty']) + 1);
+          },
+        ),
+      ],
     );
   }
 
@@ -161,24 +194,17 @@ class _CartItemState extends State<CartItem> {
         Text(
           'Дүн: ${toPrice(widget.detail['main_price'])}',
           style: TextStyle(
-              fontSize: fs, color: black, fontWeight: FontWeight.bold),
+              fontSize: 12, color: black, fontWeight: FontWeight.bold),
         ),
         Text(
           'Нийт: ${toPrice((widget.detail['qty'] * widget.detail['main_price']).toString())}',
           style: TextStyle(
-              fontSize: fs, color: black, fontWeight: FontWeight.bold),
+            fontSize: 12,
+            color: black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _iconButton({required IconData icon, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Icon(icon, color: black),
-      ),
     );
   }
 }

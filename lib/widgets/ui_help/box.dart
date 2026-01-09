@@ -13,7 +13,7 @@ class Box extends StatelessWidget {
       width: double.infinity,
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       padding: EdgeInsets.symmetric(
-          vertical: Sizes.height * 0.015, horizontal:  Sizes.width * 0.0025),
+          vertical: Sizes.height * 0.015, horizontal: Sizes.width * 0.0025),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(Sizes.height * 0.005),

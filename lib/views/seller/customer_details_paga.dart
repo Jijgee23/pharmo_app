@@ -69,12 +69,15 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
               return Scaffold(
                 appBar: AppBar(
                   centerTitle: false,
+                  backgroundColor: primary,
+                  foregroundColor: white,
+                  iconTheme: IconThemeData(color: white),
+                  elevation: 0,
                   title: Text(
                     'Харилцагчийн мэдээлэл',
                     style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   actions: [
@@ -101,7 +104,6 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                           ),
                         ),
                         child: Column(
-                          spacing: 10,
                           children: [
                             CircleAvatar(
                               radius: Sizes.width * .07,
@@ -123,14 +125,13 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 5.0),
                             Text(
                               d.rn ?? 'Регистрийн дугааргүй',
                               style: const TextStyle(
-                                fontSize: 16,
                                 color: Colors.white,
                               ),
                             ),
+                            SizedBox(height: 10),
                             Row(
                               spacing: 10,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

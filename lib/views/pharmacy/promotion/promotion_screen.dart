@@ -6,6 +6,7 @@ import 'package:pharmo_app/application/utilities/constants.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/buying_promo.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/marked_promo.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:pharmo_app/widgets/ui_help/box.dart';
 import 'package:pharmo_app/widgets/ui_help/default_box.dart';
 import 'package:pharmo_app/widgets/icon/custom_icon.dart';
@@ -45,105 +46,105 @@ class _PromotionWidgetState extends State<PromotionWidget> {
     return Consumer<PromotionProvider>(
       builder: (_, provider, child) {
         final promos = provider.promotions;
-        return Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          body: DefaultBox(
-            title: 'Урамшуулалууд',
-            child: Column(
-              children: [
-                Box(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Wrap(
-                      direction: Axis.horizontal,
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 25,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: DropdownButton(
-                              dropdownColor: Colors.white,
-                              isExpanded: false,
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              underline: const SizedBox(),
-                              value: selectedPromoType,
-                              icon: const Icon(Icons.arrow_drop_down),
-                              items: promoTypes.map((e) {
-                                return DropdownMenuItem(
-                                    value: e,
-                                    child: Text(
-                                      e,
-                                      style: const TextStyle(color: Colors.black, fontSize: 12),
-                                    ));
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedPromoType = value!;
-                                });
-                                provider.filterPromotion(
-                                    'promo_type', (promoTypes.indexOf(value!) + 1).toString());
-                              }),
-                        ),
-                        GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                hasGift = !hasGift;
-                                provider.filterPromotion('has_gift', hasGift.toString());
-                              });
-                            },
-                            child:
-                                CustomIcon(name: hasGift ? 'gitf_filled.png' : 'gift_empty.png')),
-                        GestureDetector(
-                          onTap: () {
-                            //  _selectDate(context, provider);
-                            _datePicker(context);
-                            debugPrint(start.toString().substring(0, 10));
-                          },
-                          child: Column(
-                            children: [
-                              Text(
-                                start.toString().substring(0, 10),
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              Text(
-                                end.toString().substring(0, 10),
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ),
-                        InkWell(
-                            borderRadius: BorderRadius.circular(10),
-                            splashColor: Colors.blue.shade100,
-                            onTap: provider.getPromotion,
-                            child: const CustomIcon(name: 'list.png')),
-                      ],
+        return DefaultBox(
+          title: 'Урамшуулалууд',
+          child: Column(
+            children: [
+              SingleChildScrollView(
+                padding: EdgeInsets.all(15),
+                scrollDirection: Axis.horizontal,
+                child: Wrap(
+                  direction: Axis.horizontal,
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 25,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: DropdownButton(
+                          dropdownColor: Colors.white,
+                          isExpanded: false,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          underline: const SizedBox(),
+                          value: selectedPromoType,
+                          icon: const Icon(Icons.arrow_drop_down),
+                          items: promoTypes.map((e) {
+                            return DropdownMenuItem(
+                                value: e,
+                                child: Text(
+                                  e,
+                                  style: const TextStyle(
+                                      color: Colors.black, fontSize: 12),
+                                ));
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedPromoType = value!;
+                            });
+                            provider.filterPromotion('promo_type',
+                                (promoTypes.indexOf(value!) + 1).toString());
+                          }),
                     ),
-                  ),
+                    GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            hasGift = !hasGift;
+                            provider.filterPromotion(
+                                'has_gift', hasGift.toString());
+                          });
+                        },
+                        child: CustomIcon(
+                            name: hasGift
+                                ? 'gitf_filled.png'
+                                : 'gift_empty.png')),
+                    GestureDetector(
+                      onTap: () {
+                        //  _selectDate(context, provider);
+                        _datePicker(context);
+                        debugPrint(start.toString().substring(0, 10));
+                      },
+                      child: Column(
+                        children: [
+                          Text(
+                            start.toString().substring(0, 10),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          Text(
+                            end.toString().substring(0, 10),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        splashColor: Colors.blue.shade100,
+                        onTap: provider.getPromotion,
+                        child: const CustomIcon(name: 'list.png')),
+                  ],
                 ),
-                (promos.isNotEmpty)
-                    ? Expanded(
-                        child: Box(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: promos
-                                  .map(
-                                    (p) => promo(
-                                      promo: promos[promos.indexOf(p)],
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
+              ),
+              (promos.isNotEmpty)
+                  ? Expanded(
+                      child: Box(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: promos
+                                .map(
+                                  (p) => promo(
+                                    promo: promos[promos.indexOf(p)],
+                                  ),
+                                )
+                                .toList(),
                           ),
                         ),
-                      )
-                    : Container()
-              ],
-            ),
+                      ),
+                    )
+                  : NoResult(),
+            ],
           ),
         );
       },
@@ -237,7 +238,8 @@ class _PromotionWidgetState extends State<PromotionWidget> {
             child: child!,
           );
         },
-        initialDateRange: DateTimeRange(start: DateTime.now(), end: DateTime.now()));
+        initialDateRange:
+            DateTimeRange(start: DateTime.now(), end: DateTime.now()));
     if (result != null && result.start != start) {
       setState(() {
         start = result.start;

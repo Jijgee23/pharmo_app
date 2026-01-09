@@ -24,6 +24,7 @@ class ReportProvider extends ChangeNotifier {
         print(convertData(response).runtimeType);
         List<dynamic> data = convertData(response);
         setReport(data);
+        notifyListeners();
       } else {
         report.clear();
         notifyListeners();

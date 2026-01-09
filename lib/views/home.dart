@@ -196,7 +196,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   SingleChildScrollView filtering(double smallFontSize) {
     final homeProvider = context.read<HomeProvider>();
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(2.5),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
       scrollDirection: Axis.horizontal,
       child: Wrap(
         spacing: 10,
@@ -239,10 +239,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         decoration: BoxDecoration(
           color: selected ? theme.primaryColor.withOpacity(.5) : Colors.white,
           borderRadius: BorderRadius.circular(Sizes.smallFontSize),
+          border: Border.all(
+            color: selected ? white : grey300,
+          ),
         ),
         padding: EdgeInsets.symmetric(
-            vertical: 5,
-            horizontal: selected ? Sizes.bigFontSize : Sizes.smallFontSize),
+          vertical: 7.5,
+          horizontal: selected ? 20 : 10,
+        ),
         child: Center(
           child: Text(
             e,

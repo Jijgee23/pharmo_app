@@ -103,12 +103,12 @@ class _CustomerListState extends State<CustomerList>
 
   // Харилцагч
   Widget _customerBuilder(HomeProvider homeProvider, Customer c) {
-    bool selected = c.id == homeProvider.selectedCustomerId;
+    // bool selected = c.id == homeProvider.selectedCustomerId;
     return Card(
       color: white,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: selected ? Colors.green : Colors.grey.shade400),
+        side: BorderSide(color: Colors.grey.shade400),
         borderRadius: BorderRadius.circular(10),
       ),
       child: InkWell(
@@ -123,25 +123,22 @@ class _CustomerListState extends State<CustomerList>
                 child: Row(
                   spacing: 20,
                   children: [
-                    InkWell(
-                      onTap: () => _onTabCustomer(c, homeProvider),
-                      child: Icon(
-                        selected
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                        color: selected ? Colors.green : Colors.grey,
-                        size: 30,
-                      ),
-                    ),
+                    // InkWell(
+                    //   onTap: () => _onTabCustomer(c, homeProvider),
+                    //   child: Icon(
+                    //     selected
+                    //         ? Icons.check_box
+                    //         : Icons.check_box_outline_blank,
+                    //     color: selected ? Colors.green : Colors.grey,
+                    //     size: 30,
+                    //   ),
+                    // ),
                     Column(
                       spacing: 5,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        greyText(
-                            c.name!, selected ? AppColors.succesColor : black),
-                        if (c.rn != null)
-                          greyText(
-                              c.rn!, selected ? AppColors.succesColor : black),
+                        greyText(c.name!, black),
+                        if (c.rn != null) greyText(c.rn!, black),
                         if (c.loanBlock == true)
                           Text('Харилцагч дээр захиалга зээлээр өгөхгүй!',
                               style: redText),
@@ -168,16 +165,6 @@ class _CustomerListState extends State<CustomerList>
     fontSize: 12,
     fontWeight: FontWeight.w400,
   );
-
-  void _onTabCustomer(Customer c, HomeProvider homeProvider) {
-    if (c.id == homeProvider.selectedCustomerId) {
-      homeProvider.changeSelectedCustomerId(0);
-      homeProvider.changeSelectedCustomerName('');
-    } else {
-      homeProvider.changeSelectedCustomerId(c.id!);
-      homeProvider.changeSelectedCustomerName(c.name!);
-    }
-  }
 
   Text greyText(String t, Color? color) {
     return Text(

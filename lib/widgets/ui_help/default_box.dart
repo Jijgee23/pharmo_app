@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 
 class DefaultBox extends StatelessWidget {
   final String title;
@@ -12,14 +11,17 @@ class DefaultBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: SideAppBar(
+      appBar: AppBar(
         title: Text(
           title,
           maxLines: 2,
           style: const TextStyle(
-              color: Colors.white, fontSize: 15, letterSpacing: 1),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        action: action,
+        centerTitle: false,
+        actions: [if (action != null) action!],
       ),
       body: child,
     );
