@@ -101,23 +101,12 @@ class _IndexPharmaState extends State<IndexPharma> {
   }
 
   List<String> getIcons(String role) {
-    if (role == 'PA') {
-      return ['category', 'cart', 'user'];
-    } else {
-      return ['users', 'category', 'cart', 'user'];
-    }
+    return [if (role != 'PA') 'users', 'category', 'cart', 'user'];
   }
 
   List<Widget> getPages(String role) {
-    if (role == 'PA') {
-      return [
-        const Home(),
-        const Cart(),
-        const Profile(),
-      ];
-    }
     return [
-      const CustomerList(),
+      if (role != 'PA') const CustomerList(),
       const Home(),
       const Cart(),
       const Profile(),

@@ -146,9 +146,10 @@ class _ProductDetailState extends State<ProductDetail>
                           child: SelectableText(
                             '#${widget.prod.barcode.toString()}',
                             style: const TextStyle(
-                                color: black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700),
+                              color: black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       div,

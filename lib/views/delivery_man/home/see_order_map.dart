@@ -58,24 +58,27 @@ class _SeeOrderMapState extends State<SeeOrderMap> {
             zoomGesturesEnabled: true,
             markers: markers,
             initialCameraPosition: CameraPosition(
-                zoom: 12,
-                target: LatLng(parseDouble(widget.order!.orderer!.lat),
-                    parseDouble(widget.order!.orderer!.lng))),
+              zoom: 12,
+              target: LatLng(
+                parseDouble(widget.order!.orderer!.lat),
+                parseDouble(widget.order!.orderer!.lng),
+              ),
+            ),
           ),
           Positioned(
-              bottom: 20,
-              left: 40,
-              child: InkWell(
-                onTap: () => _toggleTraffic(),
-                child: AnimatedContainer(
-                  duration: duration,
-                  padding: EdgeInsets.all(15),
-                  decoration:
-                      BoxDecoration(color: white, shape: BoxShape.circle),
-                  child: Icon(Icons.traffic_outlined,
-                      color: trafficEnabled ? Colors.green : Colors.red),
-                ),
-              ))
+            bottom: 20,
+            left: 40,
+            child: InkWell(
+              onTap: () => _toggleTraffic(),
+              child: AnimatedContainer(
+                duration: duration,
+                padding: EdgeInsets.all(15),
+                decoration: BoxDecoration(color: white, shape: BoxShape.circle),
+                child: Icon(Icons.traffic_outlined,
+                    color: trafficEnabled ? Colors.green : Colors.red),
+              ),
+            ),
+          )
         ],
       ),
     );

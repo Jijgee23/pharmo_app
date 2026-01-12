@@ -46,8 +46,6 @@ class _SellerOrderDetailState extends State<SellerOrderDetail>
               style: TextStyle(fontSize: 14),
             ),
             bottom: TabBar(
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
               indicatorColor: Colors.teal,
               indicatorSize: TabBarIndicatorSize.tab,
               controller: controller,

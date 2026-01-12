@@ -173,13 +173,15 @@ class _SellerOrdersState extends State<SellerOrders>
                 keyboardType: selectedType,
                 onChanged: (value) {
                   final orderProvider = context.read<MyOrderProvider>();
-                  WidgetsBinding.instance.addPostFrameCallback((cb) async {
-                    if (value.isEmpty) {
-                      await orderProvider.getSellerOrders();
-                    } else {
-                      await orderProvider.filterOrder(filter, search.text);
-                    }
-                  });
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (cb) async {
+                      if (value.isEmpty) {
+                        await orderProvider.getSellerOrders();
+                      } else {
+                        await orderProvider.filterOrder(filter, search.text);
+                      }
+                    },
+                  );
                 },
                 style: const TextStyle(fontSize: 14),
                 decoration: InputDecoration(

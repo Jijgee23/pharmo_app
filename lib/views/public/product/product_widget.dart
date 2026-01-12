@@ -76,9 +76,9 @@ class ProductWidget extends StatelessWidget {
                             Text(
                               'Үлд: ${maybeNull(item.qty.toString())}',
                               style: TextStyle(
-                                  color: theme.colorScheme.onPrimary,
-                                  fontSize: Sizes.smallFontSize,
-                                  fontWeight: FontWeight.bold),
+                                fontSize: Sizes.smallFontSize,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           InkWell(
                             highlightColor: Colors.grey,
@@ -86,14 +86,14 @@ class ProductWidget extends StatelessWidget {
                             onTap: () =>
                                 Get.bottomSheet(AddBasketSheet(product: item)),
                             child: Container(
-                                padding: const EdgeInsets.all(3),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        color: theme.primaryColor, width: 1.5),
-                                    borderRadius: BorderRadius.circular(5)),
-                                child:
-                                    Icon(Icons.add, color: theme.primaryColor)),
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: theme.primaryColor, width: 1.5),
+                                  borderRadius: BorderRadius.circular(5)),
+                              child: Icon(Icons.add, color: theme.primaryColor),
+                            ),
                           ),
                         ],
                       ),

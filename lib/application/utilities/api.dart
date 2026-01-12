@@ -73,12 +73,24 @@ Future<http.Response?> api(
         return r;
       }
       message('Нэвтэрнэ үү!');
+
       gotoRemoveUntil(const LoginPage());
       return null;
     }
     String access = security.access;
     var res = await responser(method, endpoint, access, body, header);
+
     if (showLog && res != null) getApiInformation(endpoint, res);
+    print(res!.statusCode);
+    if (res != null) {
+      if (res.statusCode == 401) {
+        message('Өөр төхөөрөмжөөс нэвтэрсэн байна. Дахин нэвтэрнэ үү!');
+        await LocalBase.clearSecurity();
+        Get.context!.read<AuthController>().logout(Get.context!);
+        return null;
+      }
+      print(convertData(res));
+    }
     return res;
   } catch (e) {
     debugPrint('Error in $method request to $endpoint: $e');

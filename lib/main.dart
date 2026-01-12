@@ -8,7 +8,6 @@ import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:pharmo_app/application/services/log_service.dart';
 import 'package:pharmo_app/controller/database/track_data.dart';
 import 'package:pharmo_app/application/utilities/global_key.dart';
-import 'package:pharmo_app/application/theme/dark_theme.dart';
 import 'package:pharmo_app/application/theme/light_theme.dart';
 import 'package:pharmo_app/views/auth/root_page.dart';
 import 'package:upgrader/upgrader.dart';
