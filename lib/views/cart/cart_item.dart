@@ -1,15 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/controller/providers/basket_provider.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/progress_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 
@@ -17,11 +11,12 @@ class CartItem extends StatefulWidget {
   final Map<String, dynamic> detail;
   final String type;
   final bool hasCover;
-  const CartItem(
-      {super.key,
-      required this.detail,
-      this.type = "cart",
-      this.hasCover = true});
+  const CartItem({
+    super.key,
+    required this.detail,
+    this.type = "cart",
+    this.hasCover = true,
+  });
 
   @override
   State<CartItem> createState() => _CartItemState();
@@ -34,17 +29,13 @@ class _CartItemState extends State<CartItem> {
   }
 
   Future changeBasketItem(int itemId, double qty) async {
-    print('changeBasketItem called with qty: $qty');
     try {
       LoadingService.show();
-
       final basket = context.read<BasketProvider>();
       await basket.addProduct(itemId, widget.detail['name'], qty);
-
-      // showDialog(context: context, builder: builder)
-      // await showPharmoProgressDialog();
     } catch (e) {
       messageError('Алдаа гарлаа: $e');
+      throw Exception(e);
     } finally {
       LoadingService.hide();
     }
@@ -379,20 +370,35 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
 
 class LoadingService {
   static OverlayEntry? _entry;
+  static Future<T> run<T>(Future<T> Function() runner) async {
+    show();
+    try {
+      return await runner();
+    } catch (e) {
+      rethrow;
+    } finally {
+      hide();
+    }
+  }
 
   static void show() {
     if (_entry != null) return;
-
+    final state = GlobalKeys.navigatorKey.currentState;
+    if (state == null) return;
     _entry = OverlayEntry(
       builder: (_) => Stack(
         children: const [
           ModalBarrier(dismissible: false, color: Colors.black38),
-          Center(child: CircularProgressIndicator()),
+          Center(
+            child: CircularProgressIndicator.adaptive(),
+          ),
         ],
       ),
     );
 
-    GlobalKeys.navigatorKey.currentState!.overlay!.insert(_entry!);
+    if (state.overlay == null) return;
+
+    state.overlay!.insert(_entry!);
   }
 
   static void hide() {

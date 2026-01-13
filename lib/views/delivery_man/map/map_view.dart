@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/services/settings.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/views/delivery_man/active_delivery/deliveries.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 
@@ -17,22 +18,26 @@ class _MapViewState extends State<MapView> {
   @override
   void initState() {
     super.initState();
-    init();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async => await init(),
+    );
   }
 
   Future<void> init() async {
     final jag = context.read<JaggerProvider>();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) async {
-        jag.setLoading(true);
+    try {
+      LoadingService.run(() async {
         if (jag.permission != LocationPermission.always) {
           final value = await Geolocator.checkPermission();
           jag.setPermission(value);
         }
         await jag.getCurrentLocation();
-        jag.setLoading(false);
-      },
-    );
+      });
+    } catch (e) {
+      throw Exception(e);
+    } finally {
+      LoadingService.hide();
+    }
   }
 
   @override

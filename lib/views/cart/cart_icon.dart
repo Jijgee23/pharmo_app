@@ -31,7 +31,9 @@ class CartIcon extends StatelessWidget {
                     color: Colors.red, borderRadius: BorderRadius.circular(15)),
                 child: Text(
                   basket.basket != null
-                      ? basket.basket!.totalCount.toString()
+                      ? (basket.basket!.totalCount > 99)
+                          ? '+99'
+                          : basket.basket!.totalCount.toString()
                       : '0',
                   style: const TextStyle(
                     color: white,

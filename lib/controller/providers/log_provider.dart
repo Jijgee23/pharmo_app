@@ -6,8 +6,9 @@ class LogProvider extends ChangeNotifier {
   Future getLogs() async {
     var r = await api(Api.get, 'mobile_activity_log/');
     if (r != null && r.statusCode == 200) {
-      var data = convertData(r);
-      logs = (data as List).map((e) => Log.fromJson(e)).toList();
+      Map<String, dynamic> data = convertData(r);
+      print(data);
+      logs = (data['results'] as List).map((e) => Log.fromJson(e)).toList();
       notifyListeners();
     }
   }

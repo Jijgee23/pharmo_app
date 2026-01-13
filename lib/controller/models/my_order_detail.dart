@@ -1,11 +1,13 @@
+import 'package:pharmo_app/application/utilities/a_utils.dart';
+
 class MyOrderDetailModel {
   int itemId;
   String? itemName;
-  String? itemPrice;
-  String? itemTotalPrice;
-  int? itemQty;
-  int? rQty;
-  int? iQty;
+  double itemPrice;
+  double itemTotalPrice;
+  double itemQty;
+  double rQty;
+  double iQty;
   int? product;
 
   MyOrderDetailModel(
@@ -22,11 +24,11 @@ class MyOrderDetailModel {
   MyOrderDetailModel.fromJson(Map<String, dynamic> json)
       : itemId = json['itemId'],
         itemName = json['itemName'],
-        itemPrice = json['itemPrice'].toString(),
-        itemTotalPrice = json['itemTotalPrice'].toString(),
-        itemQty = json['itemQty'],
-        rQty = json['rQty'],
-        iQty = json['iQty'],
+        itemPrice = parseDouble(json['itemPrice']),
+        itemTotalPrice = parseDouble(json['itemTotalPrice']),
+        itemQty = parseDouble(json['itemQty']),
+        rQty = parseDouble(json['rQty']),
+        iQty = parseDouble(json['iQty']),
         product = json['product'];
 
   Map<String, dynamic> toJson() {

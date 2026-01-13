@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
@@ -190,7 +191,7 @@ class MyOrderProvider extends ChangeNotifier {
   Future<dynamic> filterOrders(
       String selectedFilter, String selectedItem) async {
     try {
-      dynamic res;
+      Response? res;
       if (selectedFilter == '0') {
         res = await api(Api.get, 'pharmacy/orders/?process=$selectedItem');
       } else if (selectedFilter == '1') {
@@ -204,6 +205,7 @@ class MyOrderProvider extends ChangeNotifier {
       } else {
         res = await api(Api.get, 'pharmacy/orders/');
       }
+      if (res == null) return;
       if (res.statusCode == 200) {
         _orders.clear();
         final response = convertData(res);

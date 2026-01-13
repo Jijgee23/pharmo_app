@@ -70,7 +70,9 @@ class _FilteredProductsState extends State<FilteredProducts> {
         body: Center(
           child: Builder(builder: (context) {
             if (products.isEmpty) {
-              return NoResult();
+              return Column(
+                children: [NoResult()],
+              );
             }
             return Container(
               padding: const EdgeInsets.only(right: 10, left: 10),

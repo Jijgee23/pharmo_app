@@ -105,7 +105,7 @@ class Order {
   User? customer;
   User? orderer;
   double totalPrice;
-  int totalCount;
+  double totalCount;
   String status;
   String process;
   User? seller;
@@ -143,8 +143,8 @@ class Order {
             json['customer'] != null ? User.fromJson(json['customer']) : null,
         orderer:
             json['orderer'] != null ? User.fromJson(json['orderer']) : null,
-        totalPrice: json['totalPrice']?.toDouble() ?? 0.0,
-        totalCount: json['totalCount'] ?? 0,
+        totalPrice: parseDouble(json['totalPrice']),
+        totalCount: parseDouble(json['totalCount']),
         status: json['status'] ?? '',
         process: json['process'] ?? '',
         seller: json['seller'] != null ? User.fromJson(json['seller']) : null,
@@ -207,7 +207,7 @@ class User {
 class Item {
   int id;
   String itemName;
-  int itemQty;
+  double itemQty;
   double itemPrice;
   double itemTotalPrice;
   int productId;
@@ -226,8 +226,8 @@ class Item {
       id: json['id'],
       itemName: json['itemName'],
       itemQty: json['itemQty'],
-      itemPrice: json['itemPrice'].toDouble(),
-      itemTotalPrice: json['itemTotalPrice'].toDouble(),
+      itemPrice: parseDouble(json['itemPrice']),
+      itemTotalPrice: parseDouble(json['itemTotalPrice']),
       productId: json['product_id'],
     );
   }

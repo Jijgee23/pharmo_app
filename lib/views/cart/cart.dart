@@ -109,8 +109,8 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
                       ),
                       if (!basketIsEmpty)
                         Positioned(
-                          bottom: 0,
-                          right: 0,
+                          bottom: 10,
+                          right: 10,
                           width: 250,
                           height: 50,
                           child: SafeArea(
@@ -148,16 +148,15 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
 
   placeOrder(BuildContext c) async {
     final Security? security = LocalBase.security;
-    final basket = context.read<BasketProvider>();
     if (security == null) {
       return;
     }
+    final basket = context.read<BasketProvider>();
     await basket.getBasket();
     if (double.parse(basket.basket!.totalPrice.toString()) < 10) {
       messageWarning('Үнийн дүн 10₮-с бага байж болохгүй!');
       return;
     }
-
     Get.bottomSheet(
       security.role == 'PA' ? PharmOrderSheet() : SellerOrderSheet(),
     );

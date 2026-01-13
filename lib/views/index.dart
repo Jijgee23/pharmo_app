@@ -1,5 +1,6 @@
 import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
+import 'package:pharmo_app/views/cart/cart_icon.dart';
 import 'package:pharmo_app/views/home.dart';
 import 'package:pharmo_app/views/seller/track/seller_tracking.dart';
 import 'package:pharmo_app/views/public/product/product_searcher.dart';
@@ -71,7 +72,10 @@ class _IndexPharmaState extends State<IndexPharma> {
         }
         String role = security.role;
         return Scaffold(
-          appBar: CustomAppBar(title: getAppbar(role, homeProvider)),
+          appBar: CustomAppBar(
+            title: getAppbar(role, homeProvider),
+            actions: [CartIcon()],
+          ),
           body: getPages(role)[homeProvider.currentIndex],
           bottomNavigationBar: BottomBar(icons: getIcons(role)),
           floatingActionButton:

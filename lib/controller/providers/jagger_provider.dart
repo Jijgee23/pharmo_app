@@ -320,7 +320,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       }
       await addPointToBox(locatioData(true));
       await getDeliveries();
-      await getDeliveryLocation();
+      // await getDeliveryLocation();
       await syncOffineTracks();
     }
 
@@ -364,32 +364,32 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
   }
 
-  Future<dynamic> getDeliveryLocation() async {
-    currentPosition = await Geolocator.getCurrentPosition();
-    final security = await LocalBase.getSecurity();
-    if (security == null) return;
-    try {
-      final r = await api(Api.get, 'delivery/locations/?with_routes=true');
-      if (r!.statusCode == 200) {
-        final data = convertData(r);
-        final me = (data as List).firstWhere(
-            (element) => element['delman']['id'] == security.id,
-            orElse: () => null);
-        if (me == null) {
-          return;
-        }
-        routeCoords = (me['routes'] as List)
-            .map((r) => LatLng(parseDouble(r['lat']), parseDouble(r['lng'])))
-            .toList();
-        notifyListeners();
-        updatePolylines();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    } finally {
-      notifyListeners();
-    }
-  }
+  // Future<dynamic> getDeliveryLocation() async {
+  //   currentPosition = await Geolocator.getCurrentPosition();
+  //   final security = await LocalBase.getSecurity();
+  //   if (security == null) return;
+  //   try {
+  //     final r = await api(Api.get, 'delivery/locations/?with_routes=true');
+  //     if (r!.statusCode == 200) {
+  //       final data = convertData(r);
+  //       final me = (data as List).firstWhere(
+  //           (element) => element['delman']['id'] == security.id,
+  //           orElse: () => null);
+  //       if (me == null) {
+  //         return;
+  //       }
+  //       routeCoords = (me['routes'] as List)
+  //           .map((r) => LatLng(parseDouble(r['lat']), parseDouble(r['lng'])))
+  //           .toList();
+  //       notifyListeners();
+  //       updatePolylines();
+  //     }
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //   } finally {
+  //     notifyListeners();
+  //   }
+  // }
 
   Map<String, Object> locationResponse(int id, List<TrackData> locs) {
     final user = LocalBase.security;
@@ -800,6 +800,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       final res = await api(Api.get, 'customer_payment/');
       if (res!.statusCode == 200) {
         final data = convertData(res);
+        print(data);
         payments =
             (data as List).map((payment) => Payment.fromJson(payment)).toList();
         notifyListeners();
@@ -824,7 +825,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       if (response!.statusCode == 200 || response.statusCode == 201) {
         messageComplete('Амжилттай бүртгэлээ');
         await getDeliveries();
-        await getDeliveryLocation();
+        // await getDeliveryLocation();
       } else {
         messageWarning('Бүртгэл амжилтгүй');
       }

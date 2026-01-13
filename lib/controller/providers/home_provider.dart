@@ -458,8 +458,7 @@ class HomeProvider extends ChangeNotifier {
     final user = LocalBase.security;
     if (user != null && user.role == "D") {
       if (index == 0) {
-        JaggerProvider jagger =
-            Provider.of<JaggerProvider>(Get.context!, listen: false);
+        final jagger = Get.context!.read<JaggerProvider>();
         await jagger.getDeliveries();
       }
     }

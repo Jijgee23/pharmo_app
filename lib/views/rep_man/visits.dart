@@ -15,7 +15,6 @@ class _VisitsState extends State<Visits> {
   Widget build(BuildContext context) {
     return DataScreen(
       appbar: CustomAppBar(
-        hasBasket: false,
         leading: ChevronBack(),
       ),
       loading: false,

@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/controller/providers/basket_provider.dart';
 import 'package:pharmo_app/controller/providers/home_provider.dart';
 import 'package:pharmo_app/controller/models/products.dart';
@@ -12,9 +13,9 @@ import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:pharmo_app/widgets/ui_help/def_input_container.dart';
 import 'package:provider/provider.dart';
 
@@ -56,7 +57,9 @@ class _ProductDetailState extends State<ProductDetail>
         setState(() {});
       }
     });
-    getProductDetail();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async => await getProductDetail(),
+    );
   }
 
   @override
@@ -65,23 +68,26 @@ class _ProductDetailState extends State<ProductDetail>
     super.dispose();
   }
 
-  getProductDetail() async {
-    setFetching(true);
+  Future getProductDetail() async {
     try {
+      LoadingService.show();
       final response = await api(Api.get, 'products/${widget.prod.id}/');
-      if (response!.statusCode == 200) {
-        Map<String, dynamic> data = convertData(response);
+      if (response == null) {
+        messageError('Сертертэй холбоглож чадсангүй, түр хүлээнэ үү!');
+        LoadingService.hide();
+        return;
+      }
+      if (response.statusCode == 200) {
+        final data = convertData(response);
         print(data);
-        setState(() {
-          det = data;
-        });
-      } else {
-        debugPrint(response.statusCode.toString());
+        setState(() => det = data);
       }
     } catch (e) {
-      //
+      print(e);
+      throw Exception(e);
+    } finally {
+      LoadingService.hide();
     }
-    setFetching(false);
   }
 
   splitURL(String url) {
@@ -122,17 +128,19 @@ class _ProductDetailState extends State<ProductDetail>
 
     return Consumer2<BasketProvider, HomeProvider>(
       builder: (context, basket, home, child) {
-        bool isNotPharma =
-            (LocalBase.security != null && LocalBase.security!.role != 'PA');
-        if (fetching) {
-          return const Center(child: PharmoIndicator());
-        } else {
-          return Scaffold(
-            body: NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) {
-                return [imageBar(context, basket, home, isNotPharma)];
-              },
-              body: Container(
+        final hasUser = LocalBase.security != null;
+        bool isNotPharma = (hasUser && LocalBase.security!.role != 'PA');
+
+        return Scaffold(
+          body: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [imageBar(context, basket, home, isNotPharma)];
+            },
+            body: Builder(builder: (context) {
+              if (det == {}) {
+                return NoResult();
+              }
+              return Container(
                 color: Colors.grey.shade100,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: SingleChildScrollView(
@@ -160,11 +168,15 @@ class _ProductDetailState extends State<ProductDetail>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             DefInputContainer(
-                                ontap: () => chooseImageSource(),
-                                width: Sizes.width * 0.35,
-                                child: const Text('Зураг нэмэх',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600))),
+                              ontap: () => chooseImageSource(),
+                              width: Sizes.width * 0.35,
+                              child: const Text(
+                                'Зураг нэмэх',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                             if (images.isNotEmpty)
                               DefInputContainer(
                                   ontap: () => sendImage(home),
@@ -244,10 +256,10 @@ class _ProductDetailState extends State<ProductDetail>
                     ],
                   ),
                 ),
-              ),
-            ),
-          );
-        }
+              );
+            }),
+          ),
+        );
       },
     );
   }
@@ -259,15 +271,17 @@ class _ProductDetailState extends State<ProductDetail>
       expandedHeight: context.width * 0.6,
       backgroundColor: white,
       actions: [addIcon(basket), basketIcon(basket)],
-      flexibleSpace: FlexibleSpaceBar(
-        background: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(15),
-            bottomRight: Radius.circular(15),
-          ),
-          child: imageViewer(home, isNotPharma),
-        ),
-      ),
+      flexibleSpace: (det != {})
+          ? FlexibleSpaceBar(
+              background: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15),
+                ),
+                child: imageViewer(home, isNotPharma),
+              ),
+            )
+          : null,
     );
   }
 
@@ -565,25 +579,30 @@ class _ProductDetailState extends State<ProductDetail>
   }
 
   void addBasket() async {
-    try {
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
-      if (initQTY == 'Тоо ширхэг' || initQTY.isEmpty || initQTY == '') {
-        message('Тоон утга оруулна уу!');
-      } else if (int.parse(initQTY) <= 0) {
-        message('0 ба түүгээс бага байж болохгүй!');
-      } else {
-        await basketProvider
-            .addProduct(widget.prod.id, widget.prod.name!, parseDouble(initQTY))
-            .then(
-              (v) => Navigator.pop(context),
-            );
-      }
-    } catch (e) {
-      print(e);
-      message(wait);
+    if (initQTY == 'Тоо ширхэг' || initQTY.isEmpty || initQTY == '') {
+      message('Тоон утга оруулна уу!');
+      return;
     }
-    Navigator.pop(context);
+    if (parseDouble(initQTY) <= 0) {
+      message('0 ба түүгээс бага байж болохгүй!');
+      return;
+    }
+    try {
+      Navigator.pop(context);
+      LoadingService.show();
+      final basket = context.read<BasketProvider>();
+      await basket.addProduct(
+        widget.prod.id,
+        widget.prod.name!,
+        parseDouble(initQTY),
+      );
+    } catch (e) {
+      message(wait);
+      throw Exception(e);
+    } finally {
+      LoadingService.hide();
+      Navigator.pop(context);
+    }
   }
 }
 

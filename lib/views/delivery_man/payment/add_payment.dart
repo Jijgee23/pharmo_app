@@ -14,6 +14,7 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/inputs/ibtn.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:provider/provider.dart';
 
 class AddPayment extends StatefulWidget {
@@ -45,7 +46,6 @@ class _AddPaymentState extends State<AddPayment>
     super.initState();
     tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<PharmProvider>().getCustomers(1, 5, context);
       await context.read<JaggerProvider>().getCustomerPayment();
     });
   }
@@ -87,14 +87,27 @@ class _AddPaymentState extends State<AddPayment>
           child: TabBarView(
             controller: tabController,
             children: [
-              SingleChildScrollView(
-                child: Column(
-                  spacing: 14,
-                  children: jagger.payments
-                      .map((payment) => paymentBuilder(payment, jagger))
-                      .toList(),
-                ),
-              ),
+              jagger.payments.isEmpty
+                  ? Center(
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          NoResult(),
+                          CustomButton(
+                            text: 'Бүртгэх',
+                            ontap: () => tabController.animateTo(1),
+                          )
+                        ],
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      child: Column(
+                        spacing: 14,
+                        children: jagger.payments
+                            .map((payment) => paymentBuilder(payment, jagger))
+                            .toList(),
+                      ),
+                    ),
               Column(
                 spacing: 15,
                 children: [

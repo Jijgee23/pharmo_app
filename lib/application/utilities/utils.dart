@@ -25,15 +25,18 @@ Future gotoRemoveUntil(Widget widget) async {
 
 double parseDouble(dynamic value) {
   if (value == null) {
-    return 0.0;
-  } else if (value is int) {
+    return 0;
+  }
+  if (value is int) {
     return value.toDouble();
-  } else if (value is String) {
+  }
+  if (value is String) {
     return double.parse(value);
   }
-  {
+  if (value is double) {
     return value;
   }
+  return value;
 }
 
 int parseInt(dynamic value) {

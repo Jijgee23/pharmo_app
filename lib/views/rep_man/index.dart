@@ -37,12 +37,12 @@ class _IndexRepState extends State<IndexRep> {
           extendBody: true,
           appBar: CustomAppBar(
             title: appBarSingleText('Миний профайл'),
-            hasBasket: false,
             actions: [
               Ibtn(
-                  onTap: () => goto(SeeMap()),
-                  icon: Icons.location_on,
-                  color: Colors.indigo)
+                onTap: () => goto(SeeMap()),
+                icon: Icons.location_on,
+                color: Colors.indigo,
+              )
             ],
           ),
           body: pages[homeProvider.currentIndex],

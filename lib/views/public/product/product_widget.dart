@@ -34,13 +34,13 @@ class ProductWidget extends StatelessWidget {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
-                    borderRadius:
-                        BorderRadius.circular(Sizes.smallFontSize - 2),
-                    color: Colors.white,
-                    border: Border.all(
-                      color: const Color.fromARGB(255, 207, 206, 206),
-                      width: 1,
-                    )),
+                  borderRadius: BorderRadius.circular(Sizes.smallFontSize - 2),
+                  color: Colors.white,
+                  border: Border.all(
+                    color: const Color.fromARGB(255, 207, 206, 206),
+                    width: 1,
+                  ),
+                ),
                 margin: const EdgeInsets.all(Sizes.smallFontSize / 3),
                 padding: const EdgeInsets.all(Sizes.smallFontSize / 2),
                 child: InkWell(
@@ -194,7 +194,7 @@ class ProductWidgetListView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          toPrice(item.price!),
+                          toPrice(item.price),
                           softWrap: true,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controller/providers/home_provider.dart';
 import 'package:pharmo_app/controller/providers/pharms_provider.dart';
+import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/views/seller/customer/customer_tile.dart';
 import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,7 @@ class _CustomerListState extends State<CustomerList>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     )..repeat(reverse: true);
-    init(false);
+    Future.microtask(() => init(false));
   }
 
   @override
@@ -32,24 +33,33 @@ class _CustomerListState extends State<CustomerList>
     super.dispose();
   }
 
-  Future init(bool force) async {
+  void init(bool force) async {
     final homeProvider = context.read<HomeProvider>();
-    try {
-      homeProvider.setLoading(true);
-      final pharmProvider = context.read<PharmProvider>();
-      if (homeProvider.currentLatitude != null &&
-              homeProvider.currentLongitude != null ||
-          pharmProvider.filteredCustomers.isNotEmpty ||
-          pharmProvider.zones.isNotEmpty && !force) {
-        return;
-      }
+    final pharmProvider = context.read<PharmProvider>();
+    Future fetch() async {
       await pharmProvider.getCustomers(1, 100, context);
       await homeProvider.getPosition();
       await pharmProvider.getZones();
+    }
+
+    try {
+      LoadingService.show();
+      if (!force) {
+        if (pharmProvider.filteredCustomers.isNotEmpty) {
+          LoadingService.hide();
+          return;
+        }
+        if (pharmProvider.zones.isNotEmpty) {
+          LoadingService.hide();
+          return;
+        }
+        await fetch();
+      }
     } catch (e) {
+      print(e);
       throw Exception(e);
     } finally {
-      homeProvider.setLoading(false);
+      LoadingService.hide();
     }
   }
 
@@ -59,7 +69,7 @@ class _CustomerListState extends State<CustomerList>
       builder: (_, homeProvider, pp, child) {
         return SafeArea(
           child: RefreshIndicator(
-            onRefresh: () async => await init(true),
+            onRefresh: () async => init(true),
             child: customersList(pp, homeProvider),
           ),
         );

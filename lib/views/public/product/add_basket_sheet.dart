@@ -1,5 +1,6 @@
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
 import 'package:pharmo_app/controller/models/products.dart';
+import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
@@ -99,13 +100,20 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
           CustomButton(
             text: 'Сагсанд нэмэх',
             ontap: () async {
+              if (qty.text.isEmpty) {
+                messageWarning('Тоо ширхэг оруулна уу!');
+                return;
+              }
+
+              if (parseDouble(qty.text) == 0) {
+                messageWarning('Тоо ширхэг 0 байж болохгүй!');
+                return;
+              }
+
               if (qty.text.isNotEmpty && parseDouble(qty.text) > 0) {
                 Navigator.pop(context);
                 await addBasket(widget.product, parseDouble(qty.text));
-              } else if (qty.text.isEmpty) {
-                messageWarning('Тоо ширхэг оруулна уу!');
-              } else {
-                messageWarning('Тоо ширхэг 0 байж болохгүй!');
+                return;
               }
             },
           ),
@@ -115,11 +123,15 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
   }
 
   Future<void> addBasket(Product item, double qty) async {
-    final home = context.read<HomeProvider>();
-    home.setLoading(true);
-    final basketProvider = context.read<BasketProvider>();
-    await basketProvider.addProduct(item.id, item.name ?? 'Бараа', qty);
-    home.setLoading(false);
+    try {
+      LoadingService.show();
+      final basketProvider = context.read<BasketProvider>();
+      await basketProvider.addProduct(item.id, item.name ?? 'Бараа', qty);
+    } catch (e) {
+      throw Exception(e);
+    } finally {
+      LoadingService.hide();
+    }
   }
 }
 

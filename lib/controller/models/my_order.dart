@@ -1,8 +1,10 @@
+import 'package:pharmo_app/application/utilities/utils.dart';
+
 class MyOrderModel {
   int id;
   int? orderNo;
-  double? totalPrice;
-  int? totalCount;
+  double totalPrice;
+  double totalCount;
   String? status;
   String? process;
   String? payType;
@@ -32,8 +34,8 @@ class MyOrderModel {
   MyOrderModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         orderNo = json['orderNo'],
-        totalPrice = json['totalPrice'],
-        totalCount = json['totalCount'],
+        totalPrice = parseDouble(json['totalPrice']),
+        totalCount = parseDouble(json['totalCount']),
         status = json['status'],
         process = json['process'],
         payType = json['payType'],
