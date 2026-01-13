@@ -624,6 +624,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       final response = await api(Api.get, 'delivery/allocation/');
       if (response!.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
+        print(data);
         orders = (data as List).map((e) => Order.fromJson(e)).toList();
         orders.sort((a, b) => a.orderer!.name.compareTo(b.orderer!.name));
         notifyListeners();

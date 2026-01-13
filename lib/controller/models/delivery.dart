@@ -225,7 +225,7 @@ class Item {
     return Item(
       id: json['id'],
       itemName: json['itemName'],
-      itemQty: json['itemQty'],
+      itemQty: parseDouble(json['itemQty']),
       itemPrice: parseDouble(json['itemPrice']),
       itemTotalPrice: parseDouble(json['itemTotalPrice']),
       productId: json['product_id'],
