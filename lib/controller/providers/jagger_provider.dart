@@ -123,7 +123,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   StreamSubscription? batterySubscription;
   late final Box<TrackData> trackBox;
   late bool servicePermission = false;
-  late LocationPermission permission;
+  LocationPermission? permission;
   Position? currentPosition;
   List<Delivery> delivery = [];
   List<Zone> zones = [];
@@ -134,6 +134,10 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   List<Payment> payments = [];
   final LogService logService = LogService();
   final Battery battery = Battery();
+  void setPermission(LocationPermission p) {
+    permission = p;
+    notifyListeners();
+  }
 
   Future<void> startShipment(int shipmentId) async {
     setLoading(true);
@@ -269,12 +273,11 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     subscription = null;
     await locationSubscription?.cancel();
     locationSubscription = null;
-
     await connectivitySubscription?.cancel();
     connectivitySubscription = null;
-
     await batterySubscription?.cancel();
     batterySubscription = null;
+    await BatteryService.stopListenBattery();
     notifyListeners();
     await LocalBase.clearDelmanTrack();
     await LocalBase.removeSellerTrackId();
@@ -518,7 +521,12 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     try {
       var body = {"delivery_id": shipmentId};
       final res = await api(Api.patch, 'delivery/end/', body: body);
-      if (res!.statusCode == 200) {
+      if (res == null) {
+        messageError('Сервертэй холбогдож чадсангүй!');
+        return;
+      }
+
+      if (res.statusCode == 200) {
         await getDeliveries();
         await LocalBase.clearDelmanTrack();
         await FirebaseApi.local(
@@ -964,6 +972,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   @override
   void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {}
+
+  Future<void> getCurrentLocation() async {
+    print('Getting current location...');
+    await Settings.checkAlwaysLocationPermission();
+    currentPosition = await Geolocator.getCurrentPosition();
+    notifyListeners();
+  }
 }
 
 double calculateBearing(LatLng last, LatLng current) {

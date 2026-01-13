@@ -1,11 +1,9 @@
-import 'package:pharmo_app/views/delivery_man/home/map_view.dart';
-import 'package:pharmo_app/views/delivery_man/orders/delivery_orders.dart';
+import 'package:pharmo_app/views/delivery_man/map/map_view.dart';
+import 'package:pharmo_app/views/delivery_man/ready_orders/ready_orders.dart';
 import 'package:pharmo_app/views/delivery_man/profile/delivery_profile.dart';
 import 'package:pharmo_app/widgets/appbar/dm_app_bar.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
-
-import '../../application/services/a_services.dart';
 
 class IndexDeliveryMan extends StatefulWidget {
   const IndexDeliveryMan({super.key});
@@ -18,10 +16,6 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
   @override
   void initState() {
     super.initState();
-  }
-
-  void init() async {
-    await Settings.checkAlwaysLocationPermission();
   }
 
   @override
@@ -50,13 +44,7 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
     }
   }
 
-  final List _pages = [
-    const MapView(),
-    // const Deliveries(),
-    const DeliveryOrders(),
-    const DeliveryProfile()
-  ];
+  final List _pages = [MapView(), ReadyOrders(), DeliveryProfile()];
 
   List<String> icons = ['marker', 'box-check', 'user'];
 }
-// 'truck-check',

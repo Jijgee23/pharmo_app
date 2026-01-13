@@ -76,37 +76,43 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
         final basketIsEmpty = (basket == null
             ? true
             : basket.totalCount == 0 || basket.items!.isEmpty);
-        return Scaffold(
-          body: RefreshIndicator(
-            onRefresh: () => init(),
-            child: Container(
-              padding: EdgeInsets.all(10),
-              height: double.maxFinite,
-              child: Builder(
-                builder: (context) {
-                  if (loading) {
-                    return shimmer();
-                  }
-                  if (basketIsEmpty) {
-                    return Center(child: EmptyBasket());
-                  }
-                  return Stack(
+        return RefreshIndicator(
+          onRefresh: () => init(),
+          child: Container(
+            padding: EdgeInsets.all(5),
+            height: double.maxFinite,
+            child: Builder(
+              builder: (context) {
+                if (loading) {
+                  return shimmer();
+                }
+                if (basketIsEmpty) {
+                  return Center(child: EmptyBasket());
+                }
+                return SafeArea(
+                  child: Stack(
                     children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Column(
-                          children: [
-                            const CartInfo(),
-                            ...cartDatas.map((e) => CartItem(detail: e)),
-                          ],
-                        ),
+                      Column(
+                        children: [
+                          CartInfo(),
+                          Expanded(
+                            child: ListView.builder(
+                              itemBuilder: (context, index) {
+                                final e = cartDatas[index];
+                                return CartItem(detail: e);
+                              },
+                              itemCount: cartDatas.length,
+                              shrinkWrap: true,
+                            ),
+                          ),
+                        ],
                       ),
                       if (!basketIsEmpty)
                         Positioned(
                           bottom: 0,
                           right: 0,
                           width: 250,
-                          height: 120,
+                          height: 50,
                           child: SafeArea(
                             child: CustomButton(
                               text: 'Захиалга үүсгэх',
@@ -130,9 +136,9 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
                           ),
                         ),
                     ],
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
         );
@@ -151,11 +157,9 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
       messageWarning('Үнийн дүн 10₮-с бага байж болохгүй!');
       return;
     }
-    if (basket.qtys.isNotEmpty) {
-      messageWarning('Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!');
-      return;
-    }
+
     Get.bottomSheet(
-        security.role == 'PA' ? PharmOrderSheet() : SellerOrderSheet());
+      security.role == 'PA' ? PharmOrderSheet() : SellerOrderSheet(),
+    );
   }
 }

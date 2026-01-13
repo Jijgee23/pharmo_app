@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/app_configs.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/application/services/log_service.dart';
@@ -19,24 +18,14 @@ import 'package:http_parser/http_parser.dart' as pharser;
 class AuthController extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
 
-  Security? security;
-
-  void udpateSecurity(Security? val) {
-    security = val;
-    notifyListeners();
-  }
-
   void initLoginpage() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      udpateSecurity(LocalBase.security);
-      if (security == null) {
-        return;
-      }
-
+      final security = LocalBase.security;
+      if (security == null) return;
       final remembered = await LocalBase.getRemember();
       if (remembered) {
         setRemember(true);
-        fillEmail(security!.email);
+        fillEmail(security.email);
       }
     });
   }
@@ -142,20 +131,20 @@ class AuthController extends ChangeNotifier {
         messageWarning('Веб хуудсаар хандана уу!');
         return;
       }
-      print("user role: ${res['role']}");
       await LocalBase.clearLocalBase();
       await LocalBase.saveModel(res);
       await LocalBase.initLocalBase();
       await getDeviceInfo();
       await LocalBase.saveLastLoggedIn(true);
       await LogService().createLog('login', LogService.login);
-      if (remember) await LocalBase.saveRemember();
+      await LocalBase.saveRemember();
+      final sec = LocalBase.security;
+      if (sec == null) return;
+      setLogging(false);
+      await goNamedOfAll('root');
     } catch (e) {
       print(e);
     }
-    final sec = LocalBase.security;
-    if (sec == null) return;
-    await goNamedOfAll('root');
   }
 
   // Нэвтрэх амжилтгүй

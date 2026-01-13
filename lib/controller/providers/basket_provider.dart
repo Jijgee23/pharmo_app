@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/views/cart/qr_code.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 
@@ -14,6 +13,12 @@ class BasketProvider extends ChangeNotifier {
   }
 
   void write(String n) {
+    if (n == '.' && qty.text.contains('.')) return;
+    if (n == '.' && qty.text.isEmpty) {
+      qty.text = '0.';
+      notifyListeners();
+      return;
+    }
     qty.text = qty.text + n;
     notifyListeners();
   }
@@ -30,20 +35,12 @@ class BasketProvider extends ChangeNotifier {
 
   int _count = 0;
   int get count => _count;
-  String? userrole = '';
   Basket? basket;
-  // Basket get basket => _basket;
   List<dynamic> _shoppingCarts = [];
   List<dynamic> get shoppingCarts => [..._shoppingCarts];
-  List<QTY> qtys = [];
 
   late OrderQRCode _qrCode;
   OrderQRCode get qrCode => _qrCode;
-  getUser() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userRole = prefs.getString('userrole');
-    userrole = userRole;
-  }
 
   void increment() {
     _count++;
@@ -52,26 +49,33 @@ class BasketProvider extends ChangeNotifier {
 
   Future getBasket() async {
     try {
-      final resBasket = await api(Api.get, 'user_basket/');
-      if (resBasket!.statusCode == 200) {
-        final res = convertData(resBasket);
-        print("basket info=> $res");
-        basket = Basket.fromJson(res);
+      final r = await api(Api.get, 'user_basket/');
+      if (r == null) {
+        basket = null;
+        notifyListeners();
+        return;
+      }
+      if (r.statusCode == 200) {
+        final res = convertData(r);
+        basket = Basket.fromJson(res as Map<String, dynamic>);
         _count = basket!.items != null && basket!.items!.isNotEmpty
             ? basket!.items!.length
             : 0;
         _shoppingCarts = basket!.items!;
         notifyListeners();
       } else {
-        return buildResponse(1, '', 'Сагсны мэдээлэл татахад алдаа гарлаа!');
+        basket = null;
+        notifyListeners();
       }
-      notifyListeners();
     } catch (e) {
-      //
+      print('e at get basket: $e');
+      basket = null;
+      notifyListeners();
+      throw Exception(e);
     }
   }
 
-  Future addProduct(int id, String name, int qty) async {
+  Future addProduct(int id, String name, double qty) async {
     try {
       final response = await api(
         Api.patch,
@@ -80,17 +84,16 @@ class BasketProvider extends ChangeNotifier {
       );
       if (response == null) return;
       if (response.statusCode == 200) {
+        print(response.body);
         if (convertData(response).toString().contains('available_qty')) {
           final result = convertData(response)['available_qty'];
           if (result == null) {
             messageWarning('Үлдэгдэл хүрэлцэхгүй байна.');
             return;
           }
-          if (result.runtimeType == int) {
-            messageWarning(
-                'Үлдэгдэл хүрэлцэхгүй байна. Боломжит үлдэглэл ${convertData(response)['available_qty'] ?? 0}');
-            return;
-          }
+          messageWarning(
+            'Үлдэгдэл хүрэлцэхгүй байна. Боломжит үлдэглэл ${convertData(response)['available_qty'] ?? 0}',
+          );
         } else {
           await getBasket();
           messageComplete('$name сагсанд нэмэгдлээ');
@@ -102,17 +105,6 @@ class BasketProvider extends ChangeNotifier {
       debugPrint('Stack Trace: $stackTrace');
       return messageError(wait);
     }
-  }
-
-  Future<String?> get getBasketCount async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? basketCount = prefs.getString("basket_count");
-      return basketCount;
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-    return '0';
   }
 
   Future<dynamic> clearBasket() async {
@@ -241,19 +233,8 @@ class BasketProvider extends ChangeNotifier {
   void reset() {
     qty.clear();
     _count = 0;
-    userrole = '';
+    basket = null;
     shoppingCarts.clear();
-  }
-}
-
-class QTY {
-  String id;
-  bool val;
-  QTY(this.id, this.val);
-  factory QTY.fromJson(Map<String, dynamic> json) {
-    return QTY(
-      json['id'],
-      json['val'],
-    );
+    notifyListeners();
   }
 }

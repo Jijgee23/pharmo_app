@@ -2,8 +2,8 @@ import 'package:pharmo_app/controller/providers/a_controlller.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 // import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/views/delivery_man/home/delivery_items.dart';
-import 'package:pharmo_app/views/delivery_man/home/orderer.dart';
+import 'package:pharmo_app/views/delivery_man/active_delivery/delivery_items.dart';
+import 'package:pharmo_app/views/delivery_man/active_delivery/orderer.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
@@ -115,7 +115,6 @@ class _DeliveriesState extends State<Deliveries> {
             ...users.map((user) => OrdererOrders(user: user, del: del)),
             Text('Нэмэлт хүргэлтүүд:', style: st),
             DeliveryItemsWidget(items: del.items!),
-            endingWidget(del, jagger)
           ],
         ),
       ],
@@ -198,13 +197,6 @@ class _DeliveriesState extends State<Deliveries> {
     if (confirmed) await j.startShipment(delid);
   }
 
-  Widget endingWidget(Delivery del, JaggerProvider jagger) {
-    return Column(
-      spacing: 10,
-      children: [],
-    );
-  }
-
   askToEnd(Delivery del, JaggerProvider jagger) async {
     List<Order>? unDeliveredOrders =
         del.orders.where((t) => t.process == 'O').toList();
@@ -222,7 +214,7 @@ class _DeliveriesState extends State<Deliveries> {
   button({
     required String title,
     required Color color,
-    required GestureTapCallback onTap,
+    required Function() onTap,
   }) {
     return ElevatedButton(
       onPressed: onTap,

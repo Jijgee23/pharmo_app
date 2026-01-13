@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controller/providers/jagger_provider.dart';
-import 'package:pharmo_app/views/delivery_man/home/delivery_widget.dart';
+import 'package:pharmo_app/views/delivery_man/active_delivery/delivery_widget.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';

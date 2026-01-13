@@ -10,19 +10,25 @@ import 'package:pharmo_app/controller/database/track_data.dart';
 import 'package:pharmo_app/application/utilities/global_key.dart';
 import 'package:pharmo_app/application/theme/light_theme.dart';
 import 'package:pharmo_app/views/auth/root_page.dart';
+import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:upgrader/upgrader.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FirebaseApi.initFirebase();
-  await Upgrader.clearSavedSettings();
-  await dotenv.load(fileName: ".env");
-  await Hive.initFlutter();
-  Hive.registerAdapter(SecurityAdapter());
-  Hive.registerAdapter(LogModelAdapter());
-  Hive.registerAdapter(TrackDataAdapter());
-  await LocalBase.initLocalBase();
-  await LogService().initialize();
+  try {
+    await FirebaseApi.initFirebase();
+    await Upgrader.clearSavedSettings();
+    await dotenv.load(fileName: ".env");
+    await Hive.initFlutter();
+    Hive.registerAdapter(SecurityAdapter());
+    Hive.registerAdapter(LogModelAdapter());
+    Hive.registerAdapter(TrackDataAdapter());
+    await LocalBase.initLocalBase();
+    await LogService().initialize();
+  } catch (error) {
+    debugPrint('Error during initialization: $error');
+    throw Exception('Initialization failed: $error');
+  }
   runApp(
     UpgradeAlert(
       dialogStyle: UpgradeDialogStyle.material,
@@ -80,6 +86,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    bool splashed = LocalBase.hasSpashed;
     return Consumer<HomeProvider>(
       builder: (context, home, child) => GetMaterialApp(
         title: 'Pharmo app',
@@ -90,7 +97,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
         darkTheme: lightTheme,
         navigatorKey: GlobalKeys.navigatorKey,
         themeMode: home.themeMode,
-        home: RootPage(),
+        home: splashed ? RootPage() : SplashScreen(),
       ),
     );
   }

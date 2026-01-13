@@ -89,9 +89,18 @@ class LocalBase {
     await localDb.flush();
   }
 
-  static Future updateAccess(String access) async {
+  static Future updateAccess(String access, {String? refresh}) async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.put('access', access);
+    if (refresh != null) await localDb.put('refresh', refresh);
+    await localDb.flush();
+    await initLocalBase();
+  }
+
+  static Future updateStock(int supplierId, int stockId) async {
+    localDb = await Hive.openBox(_boxKey);
+    await localDb.put(_supplierIdKey, supplierId);
+    await localDb.put(_stockIdKey, stockId);
     await localDb.flush();
     await initLocalBase();
   }

@@ -12,14 +12,14 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 
-class DeliveryOrders extends StatefulWidget {
-  const DeliveryOrders({super.key});
+class ReadyOrders extends StatefulWidget {
+  const ReadyOrders({super.key});
 
   @override
-  State<DeliveryOrders> createState() => _DeliveryOrdersState();
+  State<ReadyOrders> createState() => _ReadyOrdersState();
 }
 
-class _DeliveryOrdersState extends State<DeliveryOrders> {
+class _ReadyOrdersState extends State<ReadyOrders> {
   List<int> selecteds = [];
   int delman = -1;
   String me = 'Өөрийн';

@@ -69,6 +69,9 @@ Future<http.Response?> api(
           gotoRemoveUntil(const LoginPage());
           return null;
         }
+        if (r != null) {
+          print('status code: ${r.statusCode}');
+        }
         if (showLog && r != null) getApiInformation(endpoint, r);
         return r;
       }
@@ -79,17 +82,14 @@ Future<http.Response?> api(
     }
     String access = security.access;
     var res = await responser(method, endpoint, access, body, header);
-
-    // if (showLog && res != null) getApiInformation(endpoint, res);
-    // print(res!.statusCode);
     if (res != null) {
+      print('status code: ${res.statusCode}');
       if (res.statusCode == 401) {
         messageWarning('Өөр төхөөрөмжөөс нэвтэрсэн байна. Дахин нэвтэрнэ үү!');
         await LocalBase.clearSecurity();
         Get.context!.read<AuthController>().logout(Get.context!);
         return null;
       }
-      print(convertData(res));
     }
     return res;
   } catch (e) {
@@ -138,18 +138,24 @@ Future<http.Response?> responser(
 Future<bool> refreshed(String refresh) async {
   var b = {"refresh": refresh};
   Uri url = setUrl('auth/refresh/');
-  final k = await http.post(
-    url,
-    headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'X-Pharmo-Client': '!pharmo_app?',
-    },
-    body: jsonEncode(b),
-  );
-  if (k.statusCode == 200) {
-    Map<String, dynamic> res = convertData(k);
-    await LocalBase.updateAccess(res['access']);
-    return true;
+  try {
+    final k = await http
+        .post(
+          url,
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'X-Pharmo-Client': '!pharmo_app?',
+          },
+          body: jsonEncode(b),
+        )
+        .timeout(const Duration(seconds: 10));
+    if (k.statusCode == 200) {
+      Map<String, dynamic> res = convertData(k);
+      await LocalBase.updateAccess(res['access']);
+      return true;
+    }
+  } catch (e) {
+    throw Exception('Error refreshing token: $e');
   }
   return false;
 }

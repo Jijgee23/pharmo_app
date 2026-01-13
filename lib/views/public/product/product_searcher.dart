@@ -200,7 +200,11 @@ class ProductSearcher extends StatelessWidget {
   }
 
   onPickSupp(
-      Supplier e, Stock stock, HomeProvider home, BuildContext context) async {
+    Supplier e,
+    Stock stock,
+    HomeProvider home,
+    BuildContext context,
+  ) async {
     await home.pickSupplier(e, stock, context);
     home.clearItems();
     home.setPageKey(1);

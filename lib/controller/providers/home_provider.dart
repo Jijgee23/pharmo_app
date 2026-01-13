@@ -5,7 +5,6 @@ import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/promotion_dialog.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/progress_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
@@ -17,8 +16,6 @@ class HomeProvider extends ChangeNotifier {
     searchType = 'Нэрээр';
     query = '';
     currentIndex = 0;
-    // selectedCustomerName = '';
-    // selectedCustomerId = 0;
     branches.clear();
     branchList.clear();
     categories.clear();
@@ -31,8 +28,6 @@ class HomeProvider extends ChangeNotifier {
   bool isList = false;
   String query = '';
   int currentIndex = 0;
-  // String selectedCustomerName = '';
-  // int selectedCustomerId = 0;
   String? note;
   List<Branch> branchList = <Branch>[];
   late LocationPermission permission;
@@ -122,6 +117,7 @@ class HomeProvider extends ChangeNotifier {
       final response = await api(Api.get, url);
       if (response!.statusCode == 200) {
         final res = convertData(response);
+        print(res);
         final prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
@@ -172,10 +168,9 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  uploadImage({
+  Future uploadImage({
     required int id,
     required List<File> images,
-    // List<int>? deletion
   }) async {
     try {
       final security = await LocalBase.getSecurity();
@@ -331,14 +326,22 @@ class HomeProvider extends ChangeNotifier {
 
   // Нийлүүлэгч сонгох
   pickSupplier(Supplier sup, Stock stock, BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final response = await api(Api.patch, 'select_supplier/',
-        body: {'supplier_id': sup.id, 'stock_id': stock.id});
-    if (response!.statusCode == 200) {
+    var body = {'supplier_id': sup.id, 'stock_id': stock.id};
+    final response = await api(Api.patch, 'select_supplier/', body: body);
+    if (response == null) {
+      messageWarning('Сервертэй холбогдож чадсангүй!');
+      return;
+    }
+    if (response.statusCode == 200) {
       setStock(stock);
       setSupplier(sup);
       Map<String, dynamic> res = jsonDecode(response.body);
-      await prefs.setString('access_token', res['access_token']);
+      await LocalBase.updateAccess(
+        res['access_token'],
+        refresh: res['refresh_token'],
+      );
+      await LocalBase.updateStock(sup.id, stock.id);
+      await LocalBase.initLocalBase();
       final promotion = context.read<PromotionProvider>();
       final basket = context.read<BasketProvider>();
       await promotion.getMarkedPromotion();
@@ -348,20 +351,24 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  getCustomerBranch() async {
+  Future getCustomerBranch() async {
     try {
-      final response = await api(Api.post, 'seller/customer_branch/',
-          body: {'customerId': customer!.id});
-      branchList.clear();
-      if (response!.statusCode == 200) {
-        List<dynamic> res = convertData(response);
-        for (int i = 0; i < res.length; i++) {
-          branchList.add(Branch.fromJson(res[i]));
-        }
+      if (customer == null) return;
+      final res = await api(
+        Api.post,
+        'seller/customer_branch/',
+        body: {'customerId': customer!.id},
+      );
+      if (res == null) return;
+
+      if (res.statusCode == 200) {
+        branchList =
+            (convertData(res) as List).map((j) => Branch.fromJson(j)).toList();
         notifyListeners();
       }
     } catch (e) {
       debugPrint(e.toString());
+      throw Exception('Салбарын мэдээлэл авахад алдаа гарлаа');
     }
   }
 
@@ -483,21 +490,5 @@ class HomeProvider extends ChangeNotifier {
       loading = value;
       notifyListeners();
     });
-  }
-
-  static Future initer(Future<void> Function() fetch) async {
-    WidgetsBinding.instance.addPostFrameCallback(
-      (db) async {
-        showPharmoProgressDialog();
-        try {
-          await fetch();
-        } catch (e) {
-          await Future.delayed(Duration(seconds: 1));
-          debugPrint(e.toString());
-        } finally {
-          hidePharmoProgressDialog();
-        }
-      },
-    );
   }
 }

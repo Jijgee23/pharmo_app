@@ -3,11 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/controller/providers/basket_provider.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/progress_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:provider/provider.dart';
 
@@ -27,17 +29,25 @@ class CartItem extends StatefulWidget {
 
 class _CartItemState extends State<CartItem> {
   Future<void> removeBasketItem() async {
-    await context
-        .read<BasketProvider>()
-        .removeBasketItem(itemId: widget.detail['id']);
+    final basket = context.read<BasketProvider>();
+    await basket.removeBasketItem(itemId: widget.detail['id']);
   }
 
-  Future<void> changeBasketItem(int itemId, int qty) async {
-    await context.read<BasketProvider>().addProduct(
-          itemId,
-          widget.detail['product_name'],
-          qty,
-        );
+  Future changeBasketItem(int itemId, double qty) async {
+    print('changeBasketItem called with qty: $qty');
+    try {
+      LoadingService.show();
+
+      final basket = context.read<BasketProvider>();
+      await basket.addProduct(itemId, widget.detail['name'], qty);
+
+      // showDialog(context: context, builder: builder)
+      // await showPharmoProgressDialog();
+    } catch (e) {
+      messageError('Алдаа гарлаа: $e');
+    } finally {
+      LoadingService.hide();
+    }
   }
 
   @override
@@ -78,7 +88,7 @@ class _CartItemState extends State<CartItem> {
                     children: [
                       Flexible(
                         child: Text(
-                          widget.detail['product_name'].toString(),
+                          widget.detail['name'].toString(),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -129,9 +139,9 @@ class _CartItemState extends State<CartItem> {
             Icons.remove,
             color: black,
           ),
-          onPressed: () {
-            changeBasketItem(widget.detail['product_id'],
-                parseInt(widget.detail['qty']) - 1);
+          onPressed: () async {
+            await changeBasketItem(widget.detail['product_id'],
+                (parseDouble(widget.detail['qty'])) - 1);
           },
         ),
         SizedBox(
@@ -171,22 +181,20 @@ class _CartItemState extends State<CartItem> {
   }
 
   _changeQTy(String v) async {
-    final basket = context.read<BasketProvider>();
     if (v.isNotEmpty) {
-      if (int.parse(v) == 0) {
+      if (parseDouble(v) == 0) {
         messageWarning('0 байж болохгүй!');
-      } else {
-        if (widget.detail['qty'] != int.parse(v)) {
-          await changeBasketItem(widget.detail['product_id'], int.parse(v));
-        } else {
-          messageWarning('Тоон утга өөрчлөгдөөгүй!');
-        }
+        return;
       }
+      if (widget.detail['qty'] != parseDouble(v)) {
+        Navigator.pop(context);
+        await changeBasketItem(widget.detail['product_id'], parseDouble(v));
+        return;
+      }
+      messageWarning('Тоон утга өөрчлөгдөөгүй!');
     } else {
       messageWarning('Тоон утга оруулна уу!');
     }
-    Navigator.pop(context);
-    await basket.getBasket();
   }
 
   Widget _productInformation(double fs) {
@@ -194,12 +202,12 @@ class _CartItemState extends State<CartItem> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Дүн: ${toPrice(widget.detail['main_price'])}',
+          'Дүн: ${toPrice(widget.detail['price'].toString())} ₮',
           style: TextStyle(
               fontSize: 12, color: black, fontWeight: FontWeight.bold),
         ),
         Text(
-          'Нийт: ${toPrice((widget.detail['qty'] * widget.detail['main_price']).toString())}',
+          'Нийт: ${toPrice((widget.detail['qty'] * widget.detail['price']).toString())}',
           style: TextStyle(
             fontSize: 12,
             color: black,
@@ -249,8 +257,9 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
               child: Text(
                 widget.title!,
                 style: TextStyle(
-                    fontSize: Sizes.mediumFontSize,
-                    fontWeight: FontWeight.w700),
+                  fontSize: Sizes.mediumFontSize,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           Container(
@@ -268,14 +277,18 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
           ),
           const SizedBox(height: 20),
           AspectRatio(
-            aspectRatio: 16 / 9,
+            aspectRatio: 16 / 12,
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 1.5),
-              itemCount: 12,
+                crossAxisCount: 4,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1.5,
+              ),
+              itemCount: 13,
               itemBuilder: (context, index) {
+                if (index == 12) {
+                  return _buildComma();
+                }
                 if (index < 9) {
                   return _buildNumberButton((index + 1).toString());
                 } else if (index == 9) {
@@ -319,6 +332,21 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
     );
   }
 
+  Widget _buildComma() {
+    return _btn(
+      onTap: () => basketProvider.write('.'),
+      color: failedColor,
+      child: Text(
+        '.',
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSubmitButton() {
     return _btn(
       onTap: widget.onSubmit,
@@ -346,5 +374,29 @@ class _ChangeQtyPadState extends State<ChangeQtyPad> {
         ),
       ),
     );
+  }
+}
+
+class LoadingService {
+  static OverlayEntry? _entry;
+
+  static void show() {
+    if (_entry != null) return;
+
+    _entry = OverlayEntry(
+      builder: (_) => Stack(
+        children: const [
+          ModalBarrier(dismissible: false, color: Colors.black38),
+          Center(child: CircularProgressIndicator()),
+        ],
+      ),
+    );
+
+    GlobalKeys.navigatorKey.currentState!.overlay!.insert(_entry!);
+  }
+
+  static void hide() {
+    _entry?.remove();
+    _entry = null;
   }
 }

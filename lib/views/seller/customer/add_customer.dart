@@ -6,7 +6,6 @@ import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/application/utilities/constants.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/views/seller/customers.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:provider/provider.dart';
@@ -98,18 +97,29 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
                           fontSize: 16),
                     ),
                   ),
-                  input('Нэр', name, null),
-                  input('Регистрийн дугаар', rn, null),
-                  input('И-Мейл', email, null),
-                  input('Утас', phone,
-                      const TextInputType.numberWithOptions(signed: true)),
-                  const Text('Заавал биш',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black54)),
-                  input('Нэмэлт тайлбар ', note, null),
-                  const Text('Харилцагчийг бүсийг сонгоно уу!',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.black54)),
+                  Input(hint: 'Нэр', contr: name, key: null),
+                  Input(hint: 'Регистрийн дугаар', contr: rn, key: null),
+                  Input(hint: 'И-Мейл', contr: email, key: null),
+                  Input(
+                    hint: 'Утас',
+                    contr: phone,
+                    keyType: TextInputType.numberWithOptions(signed: true),
+                  ),
+                  const Text(
+                    'Заавал биш',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  Input(hint: 'Нэмэлт тайлбар ', contr: note, key: null),
+                  const Text(
+                    'Харилцагчийг бүсийг сонгоно уу!',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
                   if (pp.zones.isNotEmpty)
                     if (pp.zones.isNotEmpty)
                       SizedBox(
@@ -201,5 +211,51 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
     phone3.clear();
     note.clear();
     Navigator.pop(context);
+  }
+}
+
+class Input extends StatelessWidget {
+  final TextEditingController contr;
+  final String hint;
+  final TextInputType keyType;
+  const Input({
+    super.key,
+    required this.contr,
+    required this.hint,
+    this.keyType = TextInputType.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: card,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: contr,
+              cursorColor: Colors.black,
+              cursorHeight: 20,
+              style: const TextStyle(fontSize: 12.0),
+              cursorWidth: .8,
+              keyboardType: keyType,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                hintText: hint,
+                hintStyle: const TextStyle(
+                  color: Colors.black38,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

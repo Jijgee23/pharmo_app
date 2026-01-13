@@ -250,7 +250,7 @@ class PharmProvider extends ChangeNotifier {
   Future getZones() async {
     try {
       final response = await api(Api.get, 'seller/get_delivery_zones/');
-      print(response!.body);
+      if (response == null) return;
       if (response.statusCode == 200) {
         final data = convertData(response);
         zones = (data as List).map((z) => Zone.fromJson(z)).toList();

@@ -574,7 +574,7 @@ class _ProductDetailState extends State<ProductDetail>
         message('0 ба түүгээс бага байж болохгүй!');
       } else {
         await basketProvider
-            .addProduct(widget.prod.id, widget.prod.name!, int.parse(initQTY))
+            .addProduct(widget.prod.id, widget.prod.name!, parseDouble(initQTY))
             .then(
               (v) => Navigator.pop(context),
             );

@@ -4,23 +4,23 @@ import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 
 /// Shows a centered loading dialog with a fixed 50px diameter indicator.
-Future<T?> showPharmoProgressDialog<T>({
-  bool barrierDismissible = false,
-  Color barrierColor = const Color(0x33000000),
-}) {
-  return Get.dialog<T>(
-    const PharmoProgressDialog(),
-    barrierDismissible: barrierDismissible,
-    barrierColor: barrierColor,
-  );
-}
+// Future<T?> showPharmoProgressDialog<T>({
+//   bool barrierDismissible = false,
+//   Color barrierColor = const Color(0x33000000),
+// }) {
+//   return Get.dialog<T>(
+//     const PharmoProgressDialog(),
+//     barrierDismissible: barrierDismissible,
+//     barrierColor: barrierColor,
+//   );
+// }
 
-/// Dismisses the progress dialog if it is currently visible.
-void hidePharmoProgressDialog() {
-  if (Get.isDialogOpen ?? false) {
-    Get.back();
-  }
-}
+// /// Dismisses the progress dialog if it is currently visible.
+// void hidePharmoProgressDialog() {
+//   if (Get.isDialogOpen ?? false) {
+//     Get.back();
+//   }
+// }
 
 class PharmoProgressDialog extends StatelessWidget {
   const PharmoProgressDialog({super.key});

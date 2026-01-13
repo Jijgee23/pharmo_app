@@ -19,15 +19,14 @@ class _OrderDoneState extends State<OrderDone> {
   @override
   void initState() {
     Future.delayed(const Duration(seconds: 3), () {
-      goHome(Provider.of<BasketProvider>(context, listen: false));
+      goHome(context.read<BasketProvider>());
     });
     super.initState();
   }
 
   goHome(BasketProvider provider) async {
-    final HomeProvider homeProvider =
-        Provider.of<HomeProvider>(context, listen: false);
-    await homeProvider.changeIndex(0);
+    final home = context.read<HomeProvider>();
+    await home.changeIndex(0);
     await provider.clearBasket();
     await provider.getBasket();
     gotoRemoveUntil(const IndexPharma());
@@ -62,7 +61,9 @@ class _OrderDoneState extends State<OrderDone> {
                       const Text(
                         'Таны захиалга амжилттай үүслээ.',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
                       ),
                       Container(
                         margin: const EdgeInsets.symmetric(
@@ -70,13 +71,12 @@ class _OrderDoneState extends State<OrderDone> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'Таны захиалгы дугаар : ',
-                            ),
+                            const Text('Таны захиалгы дугаар : '),
                             Text(
                               widget.orderNo,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),

@@ -5,7 +5,7 @@ import 'package:pharmo_app/controller/models/my_order.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
-import 'package:pharmo_app/views/seller/customers.dart';
+import 'package:pharmo_app/views/seller/customer/add_customer.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/views/public/product/add_basket_sheet.dart';
@@ -266,7 +266,11 @@ class _SellerOrderDetailState extends State<SellerOrderDetail>
                 ),
               ),
             ),
-            input('Тоо ширхэг оруулна уу', qtyController, TextInputType.number),
+            Input(
+              hint: 'Тоо ширхэг оруулна уу',
+              contr: qtyController,
+              keyType: TextInputType.number,
+            ),
             CustomButton(
               text: 'Хадгалах',
               ontap: () => _changeQty(oid, item),
@@ -345,7 +349,7 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
                 PopSheet()
               ],
             ),
-            input('Нэмэлт тайлбар', nc, null),
+            Input(hint: 'Нэмэлт тайлбар', contr: nc),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

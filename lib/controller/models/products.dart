@@ -1,13 +1,15 @@
+import 'package:pharmo_app/application/utilities/a_utils.dart';
+
 class Product {
   int id;
   String? expDate;
   String? discountExpireddate;
   String? name;
-  int? qty;
-  double? price;
+  double qty;
+  double price;
   int? itemnameId;
   String? barcode;
-  String? salePrice;
+  double salePrice;
   int? saleQty;
   double? discount;
   bool inStock;
@@ -53,10 +55,10 @@ class Product {
         expDate = json['expDate'].toString(),
         discountExpireddate = json['discount_expireddate'].toString(),
         name = json['name'],
-        price = json['price'],
+        price = parseDouble(json['price']),
         itemnameId = json['itemname_id'],
         barcode = json['barcode'],
-        salePrice = json['sale_price'],
+        salePrice = parseDouble(json['sale_price']),
         saleQty = json['sale_qty'],
         discount = json['discount'],
         inStock = json['in_stock'],
@@ -70,7 +72,7 @@ class Product {
         vndr = json['vndr'],
         images = json['images'],
         image = json['image'],
-        qty = json['qty'],
+        qty = parseDouble(json['qty']),
         category = json['category'];
 
   Map<String, dynamic> toJson() {

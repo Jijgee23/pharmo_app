@@ -1,12 +1,12 @@
 import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
 import 'package:pharmo_app/views/home.dart';
-import 'package:pharmo_app/views/seller/seller_tracking.dart';
+import 'package:pharmo_app/views/seller/track/seller_tracking.dart';
 import 'package:pharmo_app/views/public/product/product_searcher.dart';
 import 'package:pharmo_app/views/profile.dart';
-import 'package:pharmo_app/views/seller/customers.dart';
-import 'package:pharmo_app/views/seller/add_customer.dart';
-import 'package:pharmo_app/views/seller/customer_searcher.dart';
+import 'package:pharmo_app/views/seller/customer/customers.dart';
+import 'package:pharmo_app/views/seller/customer/add_customer.dart';
+import 'package:pharmo_app/views/seller/customer/customer_searcher.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
@@ -27,8 +27,38 @@ class _IndexPharmaState extends State<IndexPharma> {
   }
 
   inititliazeBasket() async {
+    final security = LocalBase.security;
+    if (security == null) return;
     final basket = context.read<BasketProvider>();
+    final home = context.read<HomeProvider>();
+    final promotion = context.read<PromotionProvider>();
     await basket.getBasket();
+    if (security.role == 'PA') {
+      print(home.selected.name);
+      await promotion.getMarkedPromotion();
+      await home.getBranches();
+      await home.getSuppliers();
+      if (security.supplierId != null) {
+        final sup =
+            home.supliers.firstWhere((e) => e.id == security.supplierId);
+        home.setSupplier(sup);
+        final findedSup =
+            home.supliers.firstWhere((sup) => sup.id == security.supplierId);
+        final findedStock = findedSup.stocks
+            .firstWhere((stock) => stock.id == security.stockId);
+        home.setSupplier(findedSup);
+        home.setStock(findedStock);
+      } else {
+        final sup = home.supliers[0];
+        print(sup.name);
+        home.pickSupplier(sup, sup.stocks[0], context);
+        home.setSupplier(sup);
+        home.setStock(sup.stocks[0]);
+      }
+      if (promotion.markedPromotions.isNotEmpty) {
+        home.showMarkedPromos();
+      }
+    }
   }
 
   @override
@@ -41,7 +71,6 @@ class _IndexPharmaState extends State<IndexPharma> {
         }
         String role = security.role;
         return Scaffold(
-          extendBody: true,
           appBar: CustomAppBar(title: getAppbar(role, homeProvider)),
           body: getPages(role)[homeProvider.currentIndex],
           bottomNavigationBar: BottomBar(icons: getIcons(role)),

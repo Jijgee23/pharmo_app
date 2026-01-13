@@ -7,7 +7,7 @@ import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/pharmacy/my_orders/my_order_detail.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/marked_promo_dialog.dart';
-import 'package:pharmo_app/views/seller/seller_order_detail.dart';
+import 'package:pharmo_app/views/seller/order/seller_order_detail.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:pharmo_app/widgets/ui_help/col.dart';
 import 'package:provider/provider.dart' show Consumer;

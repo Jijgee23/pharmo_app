@@ -40,39 +40,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   initPublic() {
     final home = context.read<HomeProvider>();
     final basket = context.read<BasketProvider>();
-    final promotion = context.read<PromotionProvider>();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async {
         setLoading(true);
         final security = LocalBase.security;
         if (security == null) return;
-        if (security.role == 'PA') {
-          debugPrint(security.supplierId.toString());
-          print(home.selected.name);
-          await promotion.getMarkedPromotion();
-          await home.getBranches();
-          await home.getSuppliers();
-          if (security.supplierId != null) {
-            final sup =
-                home.supliers.firstWhere((e) => e.id == security.supplierId);
-            home.setSupplier(sup);
-            final findedSup = home.supliers
-                .firstWhere((sup) => sup.id == security.supplierId);
-            final findedStock = findedSup.stocks
-                .firstWhere((stock) => stock.id == security.stockId);
-            home.setSupplier(findedSup);
-            home.setStock(findedStock);
-          } else {
-            final sup = home.supliers[0];
-            print(sup.name);
-            home.pickSupplier(sup, sup.stocks[0], context);
-            home.setSupplier(sup);
-            home.setStock(sup.stocks[0]);
-          }
-          if (promotion.markedPromotions.isNotEmpty) {
-            home.showMarkedPromos();
-          }
-        }
+
         _scrollController.addListener(() {
           if (_scrollController.position.pixels ==
               _scrollController.position.maxScrollExtent) {
@@ -81,8 +54,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         });
         home.clearItems();
         home.setPageKey(1);
-        home.fetchProducts();
-        basket.getBasket();
+        await home.fetchProducts();
+        await basket.getBasket();
         if (mounted) setLoading(false);
       },
     );

@@ -4,10 +4,10 @@ import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/auth/root_page.dart';
 import 'package:pharmo_app/views/auth/sign_up.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
-import 'package:pharmo_app/views/delivery_man/widgets/choose_customer.dart';
+import 'package:pharmo_app/views/seller/customer/choose_customer.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
-import 'package:pharmo_app/views/seller/seller_tracking.dart';
+import 'package:pharmo_app/views/seller/track/seller_tracking.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'controller/providers/a_controlller.dart';

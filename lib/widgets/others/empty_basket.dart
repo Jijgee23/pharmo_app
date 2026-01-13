@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 
 class EmptyBasket extends StatelessWidget {
-  const EmptyBasket({
-    super.key,
-  });
+  const EmptyBasket({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 10,
       children: [
-        const SizedBox(height: 10),
         Text(
           "Сагс хоосон байна",
           style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
         ),
-        const SizedBox(height: 10),
         Image.asset(
           'assets/empty.png',
           fit: BoxFit.contain,

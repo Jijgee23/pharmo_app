@@ -3,7 +3,7 @@ import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/controller/providers/report_provider.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
-import 'package:pharmo_app/views/seller/report_widget.dart';
+import 'package:pharmo_app/views/seller/report/report_widget.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:provider/provider.dart';

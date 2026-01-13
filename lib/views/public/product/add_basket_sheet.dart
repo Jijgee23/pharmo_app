@@ -69,7 +69,9 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
             autofocus: true,
             textAlign: TextAlign.end,
             controller: qty,
-            keyboardType: TextInputType.number,
+            keyboardType: TextInputType.numberWithOptions(
+              decimal: true,
+            ),
             style: TextStyle(
               color: Colors.grey.shade500,
               fontWeight: FontWeight.w600,
@@ -97,9 +99,9 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
           CustomButton(
             text: 'Сагсанд нэмэх',
             ontap: () async {
-              if (qty.text.isNotEmpty && int.parse(qty.text) > 0) {
-                await addBasket(widget.product, int.parse(qty.text))
-                    .then((e) => Navigator.pop(context));
+              if (qty.text.isNotEmpty && parseDouble(qty.text) > 0) {
+                Navigator.pop(context);
+                await addBasket(widget.product, parseDouble(qty.text));
               } else if (qty.text.isEmpty) {
                 messageWarning('Тоо ширхэг оруулна уу!');
               } else {
@@ -112,9 +114,12 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
     );
   }
 
-  Future<void> addBasket(Product item, int qty) async {
+  Future<void> addBasket(Product item, double qty) async {
+    final home = context.read<HomeProvider>();
+    home.setLoading(true);
     final basketProvider = context.read<BasketProvider>();
     await basketProvider.addProduct(item.id, item.name ?? 'Бараа', qty);
+    home.setLoading(false);
   }
 }
 

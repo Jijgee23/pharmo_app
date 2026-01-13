@@ -5,7 +5,7 @@ import 'package:pharmo_app/controller/models/customer.dart';
 import 'package:pharmo_app/controller/providers/basket_provider.dart';
 import 'package:pharmo_app/controller/providers/home_provider.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
-import 'package:pharmo_app/views/delivery_man/widgets/choose_customer.dart';
+import 'package:pharmo_app/views/seller/customer/choose_customer.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';

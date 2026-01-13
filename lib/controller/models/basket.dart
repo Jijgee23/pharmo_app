@@ -4,8 +4,8 @@ class Basket {
   int id;
   String? name;
   String? payType;
-  String? totalPrice;
-  int? totalCount;
+  double totalPrice;
+  double totalCount;
   int? extra;
   int? branch;
   Map<String, dynamic>? supplier;
@@ -23,16 +23,19 @@ class Basket {
     this.items,
   );
 
-  Basket.fromJson(Map<String, dynamic> json)
-      : id = parseInt(json['id']),
-        name = json['name'],
-        payType = json['payType'],
-        totalPrice = json['totalPrice'],
-        totalCount = parseInt(json['totalCount']),
-        extra = parseInt(json['extra']),
-        branch = parseInt(json['branch']),
-        supplier = json['supplier'],
-        items = json['items'];
+  factory Basket.fromJson(Map<String, dynamic> json) {
+    return Basket(
+      parseInt(json['id']),
+      json['name'],
+      json['payType'],
+      parseDouble(json['totalPrice']),
+      parseDouble(json['totalCount']),
+      parseInt(json['extra']),
+      parseInt(json['branch']),
+      json['supplier'],
+      json['items'] as List<dynamic>?,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {

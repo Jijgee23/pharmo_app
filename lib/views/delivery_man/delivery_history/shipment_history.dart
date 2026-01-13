@@ -3,7 +3,7 @@ import 'package:pharmo_app/controller/providers/jagger_provider.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
-import 'package:pharmo_app/views/delivery_man/profile/shipment_history_detail.dart';
+import 'package:pharmo_app/views/delivery_man/delivery_history/shipment_history_detail.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
