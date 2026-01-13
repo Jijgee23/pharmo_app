@@ -181,7 +181,7 @@ class _OrdererOrdersState extends State<OrdererOrders> {
               text: 'Хадгалах',
               ontap: () {
                 if (amountCr.text.isEmpty) {
-                  message('Дүн оруулна уу!');
+                  messageWarning('Дүн оруулна уу!');
                 } else {
                   registerPayment(jagger, pType, amountCr.text, user.id)
                       .then((v) {});
@@ -198,9 +198,9 @@ class _OrdererOrdersState extends State<OrdererOrders> {
   Future registerPayment(JaggerProvider jagger, String type, String amount,
       String customerId) async {
     if (amount.isEmpty) {
-      message('Дүн оруулна уу!');
+      messageWarning('Дүн оруулна уу!');
     } else if (type == 'E') {
-      message('Төлбөрийн хэлбэр сонгоно уу!');
+      messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
     } else {
       await jagger.addCustomerPayment(type, amount, customerId);
       setSelected('E', 'e');

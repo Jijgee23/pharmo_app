@@ -33,9 +33,11 @@ class _CartItemState extends State<CartItem> {
   }
 
   Future<void> changeBasketItem(int itemId, int qty) async {
-    await context
-        .read<BasketProvider>()
-        .addProduct(itemId, widget.detail['product_name'], qty);
+    await context.read<BasketProvider>().addProduct(
+          itemId,
+          widget.detail['product_name'],
+          qty,
+        );
   }
 
   @override
@@ -172,16 +174,16 @@ class _CartItemState extends State<CartItem> {
     final basket = context.read<BasketProvider>();
     if (v.isNotEmpty) {
       if (int.parse(v) == 0) {
-        message('0 байж болохгүй!');
+        messageWarning('0 байж болохгүй!');
       } else {
         if (widget.detail['qty'] != int.parse(v)) {
           await changeBasketItem(widget.detail['product_id'], int.parse(v));
         } else {
-          message('Тоон утга өөрчлөгдөөгүй!');
+          messageWarning('Тоон утга өөрчлөгдөөгүй!');
         }
       }
     } else {
-      message('Тоон утга оруулна уу!');
+      messageWarning('Тоон утга оруулна уу!');
     }
     Navigator.pop(context);
     await basket.getBasket();

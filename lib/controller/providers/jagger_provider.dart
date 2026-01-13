@@ -162,7 +162,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         await LocalBase.saveDelmanTrack(shipmentId).whenComplete(() async {
           final trackId = await LocalBase.getDelmanTrackId();
           if (trackId == 0) {
-            message('Түгээлт олдсонгүй!');
+            messageWarning('Түгээлт олдсонгүй!');
             return;
           }
           await getDeliveries();
@@ -172,13 +172,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       } else if (res != null && res.statusCode == 400) {
         String data = convertData(res).toString();
         if (data.contains('already started')) {
-          message('Түгээлт эхлэсэн байна!');
+          messageWarning('Түгээлт эхлэсэн байна!');
         }
       } else {
-        message('Түр хүлээнэ үү!');
+        messageWarning('Түр хүлээнэ үү!');
       }
     } catch (e) {
-      message('Түр хүлээнэ үү!');
+      messageWarning('Түр хүлээнэ үү!');
       print(e);
     } finally {
       setLoading(false);
@@ -531,9 +531,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       } else {
         String data = res.body.toString();
         if (data.contains('UB!')) {
-          message('Таний байршил Улаанбаатарт биш байна');
+          messageWarning('Таний байршил Улаанбаатарт биш байна');
         } else {
-          message('Түгээлт дуусгахад алдаа гарлаа.');
+          messageWarning('Түгээлт дуусгахад алдаа гарлаа.');
         }
       }
     } catch (e) {
@@ -629,7 +629,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Future addOrdersToDelivery(List<int> ords) async {
     try {
       if (ords.isEmpty) {
-        message('Захиалга сонгоно уу!');
+        messageWarning('Захиалга сонгоно уу!');
         return;
       }
 
@@ -638,7 +638,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       final url = 'delivery/add_to_delivery/';
       final response = await api(Api.patch, url, body: body);
       if (response == null) {
-        message('Сервертэй холбогдож чадсангүй!');
+        messageWarning('Сервертэй холбогдож чадсангүй!');
         return;
       }
       print(response.body);
@@ -647,13 +647,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         HomeProvider home =
             Provider.of<HomeProvider>(Get.context!, listen: false);
         home.changeIndex(0);
-        message('Амжилттай нэмэгдлээ');
+        messageComplete('Амжилттай нэмэгдлээ');
       } else {
-        message('Захиалгуудыг түгээлтэд нэмэхэд алдаа гарлаа!');
+        messageWarning('Захиалгуудыг түгээлтэд нэмэхэд алдаа гарлаа!');
       }
     } catch (e) {
       debugPrint('API Error: $e');
-      message('Сервертэй холбогдоход алдаа гарлаа!');
+      messageWarning('Сервертэй холбогдоход алдаа гарлаа!');
     }
     notifyListeners();
   }
@@ -661,7 +661,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Future<dynamic> passOrdersToDelman(List<int> ords, int delId) async {
     try {
       if (ords.isEmpty) {
-        message('Захиалга сонгоно уу!');
+        messageWarning('Захиалга сонгоно уу!');
         return;
       }
       print('delivery man id: $delId');
@@ -672,22 +672,22 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       final response = await api(Api.patch, 'delivery/pass_drops/', body: body);
 
       if (response == null) {
-        message('Сервертэй холбогдож чадсангүй!');
+        messageWarning('Сервертэй холбогдож чадсангүй!');
         return;
       }
 
       print(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
         await getOrders();
-        message('Амжилттай нэмэгдлээ');
+        messageWarning('Амжилттай нэмэгдлээ');
       } else {
         print(ords.length);
-        message(
+        messageWarning(
             '${ords.length == 1 ? 'Захиалгыг' : 'Захиалгуудыг'} дамжуулахад алдаа гарлаа!');
       }
     } catch (e) {
       debugPrint('API Error: $e');
-      message('Сервертэй холбогдоход алдаа гарлаа!');
+      messageError('Сервертэй холбогдоход алдаа гарлаа!');
     }
     notifyListeners();
   }
@@ -752,13 +752,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       };
       final res = await api(Api.post, 'customer_payment/', body: data);
       if (res!.statusCode == 201) {
-        message('Амжилттай бүртгэлээ');
+        messageComplete('Амжилттай бүртгэлээ');
         await getCustomerPayment();
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
-      message(wait);
+      messageWarning(wait);
       debugPrint(e.toString());
     }
   }
@@ -776,13 +776,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       final res = await api(Api.patch, 'customer_payment/', body: data);
       if (res!.statusCode == 200) {
         getCustomerPayment();
-        message('Амжилттай хадгаллаа');
+        messageComplete('Амжилттай хадгаллаа');
         await getCustomerPayment();
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
-      message(wait);
+      messageWarning(wait);
       debugPrint(e.toString());
     }
   }
@@ -796,7 +796,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             (data as List).map((payment) => Payment.fromJson(payment)).toList();
         notifyListeners();
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -814,14 +814,14 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       };
       final response = await api(Api.post, 'delivery/addition/', body: data);
       if (response!.statusCode == 200 || response.statusCode == 201) {
-        message('Амжилттай бүртгэлээ');
+        messageComplete('Амжилттай бүртгэлээ');
         await getDeliveries();
         await getDeliveryLocation();
       } else {
-        message('Бүртгэл амжилтгүй');
+        messageWarning('Бүртгэл амжилтгүй');
       }
     } catch (e) {
-      message(wait);
+      messageWarning(wait);
     }
   }
 
@@ -830,13 +830,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       final data = {"note": note, 'item_id': id};
       final response = await api(Api.patch, 'delivery/addition/', body: data);
       if (response!.statusCode == 200 || response.statusCode == 201) {
-        message('Амжилттай хадгаллаа');
+        messageComplete('Амжилттай хадгаллаа');
         await getDeliveries();
       } else {
-        message('Aмжилтгүй');
+        messageWarning('Aмжилтгүй');
       }
     } catch (e) {
-      message(wait);
+      messageWarning(wait);
     }
   }
 
@@ -845,11 +845,11 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     try {
       final res = await api(Api.post, 'order_payment/', body: data);
       if (res!.statusCode == 200 || res.statusCode == 201) {
-        message('Амжилттай хадгалагдлаа');
+        messageComplete('Амжилттай хадгалагдлаа');
         await getDeliveries();
         notifyListeners();
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());

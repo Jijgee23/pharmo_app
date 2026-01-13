@@ -23,7 +23,6 @@ class AppConfigs {
     ChangeNotifierProvider(create: (_) => MyOrderProvider()),
     ChangeNotifierProvider(create: (_) => HomeProvider()),
     ChangeNotifierProvider(create: (_) => PharmProvider()),
-    ChangeNotifierProvider(create: (_) => IncomeProvider()),
     ChangeNotifierProvider(create: (_) => PromotionProvider()),
     ChangeNotifierProvider(create: (_) => ReportProvider()),
     ChangeNotifierProvider(create: (_) => RepProvider()..initTracking()),
@@ -52,8 +51,3 @@ Future<T?> goNamed<T>(String route, {dynamic arguments}) async {
 Future goNamedOfAll<T>(String route, {dynamic arguments}) async {
   await Get.offAndToNamed("/$route", arguments: arguments);
 }
-
-// Future<T?> goto<T>(String route, {dynamic arguments}) async {
-//   final result = await Get.toNamed<T?>("/$route", arguments: arguments);
-//   return result as T;
-// }

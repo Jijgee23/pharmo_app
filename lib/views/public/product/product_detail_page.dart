@@ -382,17 +382,17 @@ class _ProductDetailState extends State<ProductDetail>
         File imageFile = File(pickedFile.path);
         File i = await compressImage(imageFile);
         if (images.length > 5) {
-          message('5 хүртэлт зураг оруулах боломжтой');
+          messageWarning('5 хүртэлт зураг оруулах боломжтой');
         } else {
           setState(() {
             images.add(i);
           });
         }
       } else {
-        message("Зураг сонгоно уу!");
+        messageWarning("Зураг сонгоно уу!");
       }
     } catch (e) {
-      message("Зураг сонгох үед алдаа гарлаа! ${e.toString()}");
+      messageWarning("Зураг сонгох үед алдаа гарлаа! ${e.toString()}");
     }
   }
 

@@ -19,7 +19,7 @@ class PharmProvider extends ChangeNotifier {
         filteredCustomers = pharms.map((p) => Customer.fromJson(p)).toList();
         notifyListeners();
       } else {
-        message('Алдаа гарлаа');
+        messageWarning('Алдаа гарлаа');
       }
       notifyListeners();
     } catch (e) {
@@ -37,7 +37,7 @@ class PharmProvider extends ChangeNotifier {
         List<dynamic> pharms = data['results'];
         filteredCustomers = pharms.map((p) => Customer.fromJson(p)).toList();
       } else {
-        message('Алдаа гарлаа');
+        messageWarning('Алдаа гарлаа');
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -54,7 +54,7 @@ class PharmProvider extends ChangeNotifier {
         result = data;
         customerDetail = CustomerDetail.fromJson(data);
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -73,9 +73,9 @@ class PharmProvider extends ChangeNotifier {
             "lng": home.currentLongitude,
           });
       if (response!.statusCode == 200) {
-        message('Амжилттай');
+        messageComplete('Амжилттай');
       } else {
-        message('Алдаа гарлаа');
+        messageWarning('Алдаа гарлаа');
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -99,10 +99,10 @@ class PharmProvider extends ChangeNotifier {
       final response = await api(Api.patch, 'seller/order/$orderId/',
           body: {"note": note, "payType": pt});
       if (response!.statusCode == 200) {
-        message('Амжилттай засагдлаа');
+        messageComplete('Амжилттай засагдлаа');
         notifyListeners();
       } else {
-        message('Алдаа гарлаа');
+        messageWarning('Алдаа гарлаа');
       }
       notifyListeners();
     } catch (e) {
@@ -123,7 +123,7 @@ class PharmProvider extends ChangeNotifier {
         result = MyOrderModel.fromJson(convertData(response));
       }
     } catch (e) {
-      message('Серверийн алдаа');
+      messageError('Серверийн алдаа');
       debugPrint(e.toString());
     }
     yield result!;
@@ -135,29 +135,21 @@ class PharmProvider extends ChangeNotifier {
       required int qty,
       required BuildContext context}) async {
     try {
-      final basketProvider =
-          Provider.of<BasketProvider>(context, listen: false);
-      dynamic check = await basketProvider.checkItemQty(itemId, qty);
-      if (check['errorType'] == 0) {
-        message('Бараа дууссан');
-      } else if (check['errorType'] == 1) {
-        final response = await api(Api.patch, 'seller/order/$oId/update_item/',
-            body: {"itemId": itemId, "qty": qty});
-        if (response!.statusCode == 200) {
-          return buildResponse(1, response, 'Амжилттай өөрлөгдлөө');
-        } else if (response.statusCode == 400) {
-          if (checker(convertData(response), 'order') == true) {
-            return buildResponse(4, null, 'Тухайн захиалгыг засах боломжгүй!');
-          } else if (checker(convertData(response), 'itemId') == true) {
-            return buildResponse(4, null, 'Бараа олдсонгүй!');
-          } else {
-            return buildResponse(2, null, 'Алдаа гарлаа');
-          }
+      final response = await api(
+        Api.patch,
+        'seller/order/$oId/update_item/',
+        body: {"itemId": itemId, "qty": qty},
+      );
+      if (response!.statusCode == 200) {
+        return buildResponse(1, response, 'Амжилттай өөрлөгдлөө');
+      } else if (response.statusCode == 400) {
+        if (checker(convertData(response), 'order') == true) {
+          return buildResponse(4, null, 'Тухайн захиалгыг засах боломжгүй!');
+        } else if (checker(convertData(response), 'itemId') == true) {
+          return buildResponse(4, null, 'Бараа олдсонгүй!');
         } else {
           return buildResponse(2, null, 'Алдаа гарлаа');
         }
-      } else if (check['errorType'] == 2) {
-        return buildResponse(3, null, 'Барааны үлдэгдэл хүрэлцэхгүй байна.');
       } else {
         return buildResponse(2, null, 'Алдаа гарлаа');
       }
@@ -182,17 +174,17 @@ class PharmProvider extends ChangeNotifier {
       };
       await Provider.of<HomeProvider>(context, listen: false).getPosition();
       if (selectedZone.id == -1) {
-        message('Бүс сонгоно уу!');
+        messageWarning('Бүс сонгоно уу!');
       } else {
         var response = await api(Api.post, 'seller/customer/', body: body);
         if (response!.statusCode == 201) {
-          message('Амжилттай бүртгэгдлээ.');
+          messageComplete('Амжилттай бүртгэгдлээ.');
         } else {
           final data = convertData(response);
           if (data['error'] == 'name_exists!') {
-            message('Нэр бүртгэлтэй байна!');
+            messageWarning('Нэр бүртгэлтэй байна!');
           } else {
-            message('Алдаа гарлаа!');
+            messageWarning('Алдаа гарлаа!');
           }
         }
       }
@@ -229,28 +221,15 @@ class PharmProvider extends ChangeNotifier {
       await Provider.of<HomeProvider>(context, listen: false).getPosition();
       final response = await api(Api.patch, 'seller/customer/$id/', body: body);
       if (response!.statusCode == 200) {
-        message('Амжилттай засагдлаа.');
+        messageComplete('Амжилттай засагдлаа.');
       } else {
         final data = convertData(response);
         if (data['error'] == 'name_exists!') {
-          message('Нэр бүртгэлтэй байна!');
+          messageWarning('Нэр бүртгэлтэй байна!');
         } else {
-          message('Алдаа гарлаа!');
+          messageWarning('Алдаа гарлаа!');
         }
       }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  Future getCustomerFavs(dynamic customerId) async {
-    try {
-      final response = await api(Api.post, 'seller/customer_favs/', body: {
-        "customer_id": customerId,
-      });
-      if (response!.statusCode == 201) {
-        // final data = jsonDecode(utf8.decode(response.bodyBytes));
-      } else {}
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -275,7 +254,6 @@ class PharmProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = convertData(response);
         zones = (data as List).map((z) => Zone.fromJson(z)).toList();
-        // final data = jsonDecode(utf8.decode(response.bodyBytes));
         notifyListeners();
       } else {}
     } catch (e) {

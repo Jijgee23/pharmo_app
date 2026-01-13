@@ -56,7 +56,7 @@ Future<http.Response?> api(
       if (!refreshExpired) {
         bool success = await refreshed(security.refresh);
         if (!success) {
-          message('Нэвтэрнэ үү!');
+          messageWarning('Нэвтэрнэ үү!');
           gotoRemoveUntil(const LoginPage());
           return null;
         }
@@ -65,14 +65,14 @@ Future<http.Response?> api(
         String access = s.access;
         var r = await responser(method, endpoint, access, body, header);
         if (r == null) {
-          message('Нэвтэрнэ үү!');
+          messageWarning('Нэвтэрнэ үү!');
           gotoRemoveUntil(const LoginPage());
           return null;
         }
         if (showLog && r != null) getApiInformation(endpoint, r);
         return r;
       }
-      message('Нэвтэрнэ үү!');
+      messageWarning('Нэвтэрнэ үү!');
 
       gotoRemoveUntil(const LoginPage());
       return null;
@@ -80,11 +80,11 @@ Future<http.Response?> api(
     String access = security.access;
     var res = await responser(method, endpoint, access, body, header);
 
-    if (showLog && res != null) getApiInformation(endpoint, res);
-    print(res!.statusCode);
+    // if (showLog && res != null) getApiInformation(endpoint, res);
+    // print(res!.statusCode);
     if (res != null) {
       if (res.statusCode == 401) {
-        message('Өөр төхөөрөмжөөс нэвтэрсэн байна. Дахин нэвтэрнэ үү!');
+        messageWarning('Өөр төхөөрөмжөөс нэвтэрсэн байна. Дахин нэвтэрнэ үү!');
         await LocalBase.clearSecurity();
         Get.context!.read<AuthController>().logout(Get.context!);
         return null;

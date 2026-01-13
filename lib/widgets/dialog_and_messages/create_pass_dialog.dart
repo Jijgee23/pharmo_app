@@ -51,9 +51,8 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
             CustomButton(
               text: 'Батлагаажуулах код авах',
               ontap: () async {
-                dynamic res = await auth.resetPassOtp(widget.email);
-                setInvisible(true);
-                message(res['message']);
+                bool res = await auth.resetPassOtp(widget.email);
+                if (res) setInvisible(true);
               },
             ),
           if (otpSent)
@@ -93,16 +92,16 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                     password2 == password) {
                   dynamic cp =
                       await auth.createPassword(email, otp, password, context);
-                  message(cp['message']);
+                  messageComplete(cp['message']);
                   if (cp['errorType'] == 1) {
                     Navigator.pop(context);
                   }
                 } else if (password2 != password) {
-                  message('Нууц үг таарахгүй байна!');
+                  messageWarning('Нууц үг таарахгүй байна!');
                 } else if (otp.isEmpty ||
                     password2.isEmpty ||
                     password.isEmpty) {
-                  message('Талбаруудыг бөглөнө үү!');
+                  messageWarning('Талбаруудыг бөглөнө үү!');
                 }
               },
             ),

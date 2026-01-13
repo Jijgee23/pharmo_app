@@ -180,12 +180,12 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
   createOrder() async {
     // await basketProvider.checkQTYs();
     if (deliveryType == '') {
-      message('Хүргэлтийн хэлбэр сонгоно уу!');
+      messageWarning('Хүргэлтийн хэлбэр сонгоно уу!');
       return;
     }
     if (deliveryType == 'D') {
       if (selectedBranchId == -1) {
-        message('Салбар сонгоно уу!');
+        messageWarning('Салбар сонгоно уу!');
         return;
       }
       selectPayType();
@@ -196,7 +196,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
 
   selectPayType() async {
     if (payType == '') {
-      message('Төлбөрийн хэлбэр сонгоно уу!');
+      messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
       return;
     }
     if (payType == 'C') {

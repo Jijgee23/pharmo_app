@@ -56,7 +56,7 @@ class Settings {
                   if (success) {
                     Get.back(canPop: true);
                   } else {
-                    message('⚠️ Тохиргоо нээгдэхэд алдаа гарлаа');
+                    messageWarning('⚠️ Тохиргоо нээгдэхэд алдаа гарлаа');
                   }
                 },
               )

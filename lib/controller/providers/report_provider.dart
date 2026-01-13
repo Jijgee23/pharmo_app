@@ -32,7 +32,7 @@ class ReportProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint(e.toString());
-      message(wait);
+      messageError(wait);
     }
     notifyListeners();
   }

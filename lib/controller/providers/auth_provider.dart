@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/app_configs.dart';
 import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
@@ -69,18 +70,25 @@ class AuthController extends ChangeNotifier {
 
   Future<http.Response?> apiPostWithoutToken(
       String endPoint, Object? body) async {
-    final connected = await isOnline();
-    if (connected) {
-      var response = await http
-          .post(
-            setUrl(endPoint),
-            headers: header,
-            body: jsonEncode(body),
-          )
-          .timeout(Duration(seconds: 5));
-      return response;
+    try {
+      final connected = await isOnline();
+      if (connected) {
+        var response = await http
+            .post(
+              setUrl(endPoint),
+              headers: header,
+              body: jsonEncode(body),
+            )
+            .timeout(Duration(seconds: 5));
+        return response;
+      }
+      messageWarning('Интернет холболтоо шалгана уу!');
+    } catch (e) {
+      if (e is TimeoutException) {
+        messageError('Түр хүлээнэ үү!');
+        return null;
+      }
     }
-    message('Интернет холболтоо шалгана уу!');
     return null;
   }
 
@@ -102,7 +110,7 @@ class AuthController extends ChangeNotifier {
   // Нэвтрэх
   Future<void> login() async {
     if (!formKey.currentState!.validate()) {
-      message('Нэвтрэх нэр, нууц үг оруулна уу');
+      ToastService.show('Нэвтрэх нэр, нууц үг оруулна уу');
       return;
     }
     setLogging(true);
@@ -113,17 +121,13 @@ class AuthController extends ChangeNotifier {
       if (responseLogin.statusCode == 200) {
         _handleSuccessfulLogin(decodedResponse);
       } else if (responseLogin.statusCode == 400) {
-        _handleBadRequest(decodedResponse, ema.text, pass.text);
+        _handleBadRequest(decodedResponse);
       } else {
-        message('Алдаа гарлаа, Инфосистемс-ХХК-д хандана уу!');
+        messageWarning('Алдаа гарлаа, Инфосистемс-ХХК-д хандана уу!');
       }
       notifyListeners();
     } catch (e) {
-      if (e is TimeoutException) {
-        message('Интернет холболтоо шалгана уу!');
-      } else {
-        message(wait);
-      }
+      messageError(wait);
       debugPrint('error================= on login> ${e.toString()} ');
     } finally {
       setLogging(false);
@@ -133,6 +137,12 @@ class AuthController extends ChangeNotifier {
   // Нэвтрэх амжилттай
   Future<void> _handleSuccessfulLogin(Map<String, dynamic> res) async {
     try {
+      final decodedToken = JwtDecoder.decode(res['access_token']);
+      if (decodedToken['role'] == 'A') {
+        messageWarning('Веб хуудсаар хандана уу!');
+        return;
+      }
+      print("user role: ${res['role']}");
       await LocalBase.clearLocalBase();
       await LocalBase.saveModel(res);
       await LocalBase.initLocalBase();
@@ -149,23 +159,20 @@ class AuthController extends ChangeNotifier {
   }
 
   // Нэвтрэх амжилтгүй
-  void _handleBadRequest(Map<String, dynamic> res, String email, String pass) {
+  void _handleBadRequest(Map<String, dynamic> res) {
     if (checker(res, 'noCmp')) {
-      goto(CompleteRegistration(
-        ema: email,
-        pass: pass,
-      ));
+      goto(CompleteRegistration(ema: ema.text, pass: pass.text));
     }
     if (checker(res, 'no_password')) {
-      Get.bottomSheet(CreatePassDialog(email: email));
+      Get.bottomSheet(CreatePassDialog(email: ema.text));
     } else if (checker(res, 'noLic') || checker(res, 'noLoc')) {
-      message('Веб хуудсаар хандан бүртгэл гүйцээнэ үү!');
+      messageWarning('Веб хуудсаар хандан бүртгэл гүйцээнэ үү!');
     } else if (checker(res, 'noRev')) {
-      message('Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!');
+      messageWarning('Бүртгэлийн мэдээллийг хянаж байна, түр хүлээнэ үү!');
     } else if (checker(res, 'password')) {
-      message('${res['password']}');
+      messageWarning('${res['password']}');
     } else if (checker(res, 'email')) {
-      message('Имейл хаяг бүртгэлгүй байна!');
+      messageWarning('Имейл хаяг бүртгэлгүй байна!');
     } else if (checker(res, 'password_blocked')) {
       goto(const ResetPassword());
     }
@@ -185,9 +192,7 @@ class AuthController extends ChangeNotifier {
           if (confirmed) {
             context.read<JaggerProvider>().stopTracking();
           }
-          if (!confirmed) {
-            return;
-          }
+          return;
         }
       }
       // if (security.role == "S") {
@@ -282,18 +287,21 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future resetPassOtp(String email) async {
+  Future<bool> resetPassOtp(String email) async {
     try {
       final response = await http.post(setUrl('auth/get_otp/'),
           headers: header, body: jsonEncode({'email': email}));
       print(response.statusCode);
       if (response.statusCode == 200) {
-        return buildResponse(1, null, 'Батлагаажуулах код илгээлээ');
+        messageComplete('Батлагаажуулах код илгээлээ');
+        return true;
       } else {
-        return buildResponse(2, null, 'И-Мейл хаяг бүртгэлтгүй байна');
+        messageWarning('И-Мейл хаяг бүртгэлтгүй байна');
+        return false;
       }
     } catch (e) {
-      return buildResponse(3, null, 'Түр хүлээгээд дахин оролдоно уу!');
+      messageError('Түр хүлээгээд дахин оролдоно уу!');
+      return false;
     }
   }
 
@@ -305,20 +313,20 @@ class AuthController extends ChangeNotifier {
           body:
               jsonEncode({'email': email, 'otp': otp, 'new_pwd': newPassword}));
       if (response.statusCode == 200) {
-        message('Нууц үг амжилттай үүслээ');
+        messageComplete('Нууц үг амжилттай үүслээ');
         Navigator.pop(context);
       } else {
         final data = convertData(response);
         if (data.toString().contains('Баталгаажуулах')) {
-          message('Баталгаажуулах код буруу байна!');
+          messageWarning('Баталгаажуулах код буруу байна!');
         } else if (data.toString().contains('new_pwd')) {
-          message('Нууц үг шаардлага хангахгүй байна!');
+          messageWarning('Нууц үг шаардлага хангахгүй байна!');
         } else {
-          message(wait);
+          messageWarning(wait);
         }
       }
     } catch (e) {
-      return message(wait);
+      return messageError(wait);
     }
   }
 

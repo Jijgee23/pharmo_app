@@ -7,8 +7,9 @@ import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/application/utilities/constants.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
+import 'package:pharmo_app/views/cart/cart_icon.dart';
 import 'package:pharmo_app/views/public/filter/filtered_products.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
 class FilterPage extends StatefulWidget {
@@ -21,14 +22,12 @@ class FilterPage extends StatefulWidget {
 class _FilterPageState extends State<FilterPage> {
   int selectedIdx = 0;
   int selectId = -1;
-  late HomeProvider homeProvider;
   bool isExpanded = false;
 
   @override
   void initState() {
     super.initState();
-    homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    homeProvider.getFilters();
+    context.read<HomeProvider>().getFilters();
   }
 
   @override
@@ -38,63 +37,73 @@ class _FilterPageState extends State<FilterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(() async {
-        homeProvider.refresh(context);
-      }),
-      child: DefaultTabController(
-        length: 3,
-        child: Consumer<HomeProvider>(
-          builder: (context, homeProvider, child) {
-            List<String?> filterList = [
-              (homeProvider.categories.isNotEmpty) ? 'Ангилал' : '',
-              (homeProvider.mnfrs.isNotEmpty) ? 'Нийлүүлэгч' : '',
-              (homeProvider.vndrs.isNotEmpty) ? 'Үйлдвэрлэгч' : '',
-            ];
-            List<dynamic> views = [_categories(), _mnfrs(), _vndrs()];
-
-            return Scaffold(
-              appBar: const SideAppBar(text: 'Ангилал', hasBasket: true),
-              body: Column(
-                children: [
-                  TabBar(
-                      indicatorColor: Colors.blue,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerHeight: 0,
-                      tabs: filterList
-                          .map(
-                            (fil) => Tab(
-                              child: Text(
-                                fil!,
-                                style: const TextStyle(
-                                    color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
+    return DefaultTabController(
+      length: 3,
+      child: Consumer<HomeProvider>(
+        builder: (context, home, child) {
+          List<String?> filterList = [
+            (home.categories.isNotEmpty) ? 'Ангилал' : '',
+            (home.mnfrs.isNotEmpty) ? 'Нийлүүлэгч' : '',
+            (home.vndrs.isNotEmpty) ? 'Үйлдвэрлэгч' : '',
+          ];
+          List<dynamic> views = [_categories(home), _mnfrs(home), _vndrs(home)];
+          return Scaffold(
+            appBar: AppBar(
+              leading: ChevronBack(),
+              title: Text(
+                'Ангилал',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              actions: [CartIcon()],
+              bottom: TabBar(
+                  indicatorColor: primary,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerHeight: 0,
+                  tabs: filterList
+                      .map(
+                        (fil) => Tab(
+                          child: Text(
+                            fil!,
+                            style: TextStyle(
+                              color: primary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                             ),
-                          )
-                          .toList()),
-                  Expanded(
-                    child: TabBarView(children: [
-                      ...views.map(
-                        (v) => SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
-                          child: Column(
-                            children: v,
                           ),
                         ),
+                      )
+                      .toList()),
+            ),
+            body: TabBarView(
+              children: [
+                ...views.map(
+                  (v) => RefreshIndicator(
+                    onRefresh: () => Future.sync(
+                      () async {
+                        home.refresh(context);
+                      },
+                    ),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Sizes.smallFontSize,
                       ),
-                    ]),
+                      child: Column(children: v),
+                    ),
                   ),
-                ],
-              ),
-            );
-          },
-        ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  List<Widget> _categories() {
-    final cats = homeProvider.categories;
+  List<Widget> _categories(HomeProvider home) {
+    final cats = home.categories;
     return [
       ...cats.map(
         (cat) => CategoryItem(cat: cat),
@@ -102,42 +111,46 @@ class _FilterPageState extends State<FilterPage> {
     ];
   }
 
-  _mnfrs() {
-    final mnfrs = homeProvider.mnfrs;
+  _mnfrs(HomeProvider home) {
+    final mnfrs = home.mnfrs;
     return [
       ...mnfrs.map(
         (m) => item(
-            text: homeProvider.mnfrs[mnfrs.indexOf(m)].name,
+            text: home.mnfrs[mnfrs.indexOf(m)].name,
             type: 'mnfr',
-            title: homeProvider.mnfrs[mnfrs.indexOf(m)].name,
-            filterKey: homeProvider.mnfrs[mnfrs.indexOf(m)].id),
+            title: home.mnfrs[mnfrs.indexOf(m)].name,
+            filterKey: home.mnfrs[mnfrs.indexOf(m)].id),
       ),
     ];
   }
 
-  _vndrs() {
-    final vndrs = homeProvider.vndrs;
+  _vndrs(HomeProvider home) {
+    final vndrs = home.vndrs;
     return [
       ...vndrs.map(
         (v) => item(
-          text: homeProvider.vndrs[vndrs.indexOf(v)].name,
+          text: home.vndrs[vndrs.indexOf(v)].name,
           type: 'vndr',
-          title: homeProvider.vndrs[vndrs.indexOf(v)].name,
-          filterKey: homeProvider.vndrs[vndrs.indexOf(v)].id,
+          title: home.vndrs[vndrs.indexOf(v)].name,
+          filterKey: home.vndrs[vndrs.indexOf(v)].id,
         ),
       ),
     ];
   }
 
   Widget item(
-      {required String text, required String type, required String title, required int filterKey}) {
+      {required String text,
+      required String type,
+      required String title,
+      required int filterKey}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Align(
         alignment: Alignment.centerLeft,
         child: GestureDetector(
           child: categoryText(text, black),
-          onTap: () => goto(FilteredProducts(type: type, title: title, filterKey: filterKey)),
+          onTap: () => goto(
+              FilteredProducts(type: type, title: title, filterKey: filterKey)),
         ),
       ),
     );
@@ -169,7 +182,9 @@ class _CategoryItemState extends State<CategoryItem> {
               children: [
                 categoryText(
                   widget.cat.name,
-                  isExpanded ? AppColors.secondary : theme.colorScheme.onSecondary,
+                  isExpanded
+                      ? AppColors.secondary
+                      : theme.colorScheme.onSecondary,
                 ),
                 const SizedBox(width: Sizes.mediumFontSize),
                 widget.cat.children!.isNotEmpty
@@ -177,7 +192,9 @@ class _CategoryItemState extends State<CategoryItem> {
                         isExpanded
                             ? Icons.keyboard_arrow_down_outlined
                             : Icons.chevron_right_rounded,
-                        color: isExpanded ? AppColors.secondary : theme.colorScheme.onSecondary,
+                        color: isExpanded
+                            ? AppColors.secondary
+                            : theme.colorScheme.onSecondary,
                         size: 20,
                       )
                     : const SizedBox()
@@ -201,7 +218,8 @@ class _CategoryItemState extends State<CategoryItem> {
     if (widget.cat.children!.isNotEmpty) {
       setState(() => isExpanded = !isExpanded);
     } else {
-      goto(FilteredProducts(type: 'cat', title: widget.cat.name, filterKey: widget.cat.id));
+      goto(FilteredProducts(
+          type: 'cat', title: widget.cat.name, filterKey: widget.cat.id));
     }
   }
 }

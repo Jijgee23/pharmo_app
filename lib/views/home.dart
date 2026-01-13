@@ -162,7 +162,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       return errorWidget();
     } else {
       if (home.isList) {
-        return Expanded(
+        return Flexible(
           child: ListView.builder(
             itemCount: home.fetchedItems.length,
             controller: _scrollController,
@@ -198,63 +198,55 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
       scrollDirection: Axis.horizontal,
-      child: Wrap(
+      child: Row(
         spacing: 10,
         children: [
+          filt(e: 'Ангилал', ontap: () => goto(const FilterPage())),
           filt(
-              e: 'Ангилал',
-              icon: Icons.list,
-              ontap: () => goto(const FilterPage())),
-          filt(
-              e: 'Бүгд',
-              icon: Icons.list,
-              ontap: () {
-                setSelectedFilter('Бүгд');
-                homeProvider.setPageKey(1);
-                homeProvider.fetchProducts();
-              }),
+            e: 'Бүгд',
+            ontap: () {
+              setSelectedFilter('Бүгд');
+              homeProvider.setPageKey(1);
+              homeProvider.fetchProducts();
+            },
+          ),
           ...filterNames.map(
             (e) => filt(
-                e: e,
-                icon: icons[filterNames.indexOf(e)],
-                ontap: () {
-                  setSelectedFilter(e);
-                  homeProvider.filterProducts(filterss[filterNames.indexOf(e)]);
-                }),
+              e: e,
+              ontap: () {
+                setSelectedFilter(e);
+                homeProvider.filterProducts(
+                  filterss[filterNames.indexOf(e)],
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  InkWell filt(
-      {required String e, required IconData icon, required Function() ontap}) {
+  Widget filt({
+    required String e,
+    required Function() ontap,
+  }) {
     bool selected = (e == selectedFilter);
-    return InkWell(
-      splashColor: transperant,
-      highlightColor: transperant,
-      onTap: ontap,
-      child: AnimatedContainer(
-        duration: duration,
-        decoration: BoxDecoration(
-          color: selected ? theme.primaryColor.withOpacity(.5) : Colors.white,
-          borderRadius: BorderRadius.circular(Sizes.smallFontSize),
-          border: Border.all(
-            color: selected ? white : grey300,
-          ),
+    final side = selected ? BorderSide.none : BorderSide(color: grey400);
+    return ElevatedButton(
+      onPressed: ontap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: selected ? primary : white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: side,
         ),
-        padding: EdgeInsets.symmetric(
-          vertical: 7.5,
-          horizontal: selected ? 20 : 10,
-        ),
-        child: Center(
-          child: Text(
-            e,
-            style: const TextStyle(
-              fontSize: Sizes.smallFontSize + 2,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+      ),
+      child: Text(
+        e,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: selected ? white : black,
         ),
       ),
     );
@@ -276,14 +268,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 class Products extends StatelessWidget {
   final ScrollController controller;
   final List<Product> products;
-  const Products({super.key, required this.controller, required this.products});
-
+  const Products({
+    super.key,
+    required this.controller,
+    required this.products,
+  });
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
       controller: controller,
       gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
       itemCount: products.length,
       itemBuilder: (context, idx) {
         Product product = products[idx];

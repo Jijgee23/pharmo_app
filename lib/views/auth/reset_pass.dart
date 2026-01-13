@@ -37,7 +37,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                 // const Text('Бүртгэлтэй и-мейл хаягаа оруулна уу?'),
                 // Constants.boxV10,
                 CustomTextField(
-                    controller: email, validator: (p0) => validateEmail(p0), hintText: 'И-мейл'),
+                    controller: email,
+                    validator: (p0) => validateEmail(p0),
+                    hintText: 'И-мейл'),
                 Constants.boxV10,
                 (!boolean)
                     ? CustomButton(
@@ -51,9 +53,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                                 boolean = true;
                               });
                             }
-                            message(sent['message']);
+                            messageComplete(sent['message']);
                           } else {
-                            message('Бүртгэлтэй и-мейл хаягаа оруулна уу!');
+                            messageWarning(
+                                'Бүртгэлтэй и-мейл хаягаа оруулна уу!');
                           }
                         },
                       )
@@ -101,9 +104,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                             text: 'Хадгалах',
                             ontap: () {
                               if (password.text == confirmPassword.text) {
-                                auth.createPassword(email.text, opt, password.text, context);
+                                auth.createPassword(
+                                    email.text, opt, password.text, context);
                               } else {
-                                message('Нууц үг таарахгүй байна');
+                                messageWarning('Нууц үг таарахгүй байна');
                               }
                             },
                           )

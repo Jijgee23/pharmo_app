@@ -206,7 +206,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     final home = Provider.of<HomeProvider>(context, listen: false);
 
     if (rd.text.isEmpty || name.text.isEmpty || publicName.text.isEmpty) {
-      message('Талбарууд бөглөнө үү');
+      messageWarning('Талбарууд бөглөнө үү');
       return;
     }
     // if (image == null) {
@@ -214,19 +214,19 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     //   return;
     // }
     if (selectedType == "Чиглэл") {
-      message('Байгууллагын чиглэлээ сонгоно уу!');
+      messageWarning('Байгууллагын чиглэлээ сонгоно уу!');
       return;
     }
     if (publicName.text.isEmpty) {
-      message('Байгууллагын чиглэлээ сонгоно уу!');
+      messageWarning('Байгууллагын чиглэлээ сонгоно уу!');
       return;
     }
     if (logo == null) {
-      message('Лого хавсаргана уу!');
+      messageWarning('Лого хавсаргана уу!');
       return;
     }
     if (licenses.isEmpty) {
-      message('Тусгай зөвшөөрөл хавсаргана уу!');
+      messageWarning('Тусгай зөвшөөрөл хавсаргана уу!');
       return;
     }
     dynamic res = await auth.completeRegistration(
@@ -241,7 +241,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
       lng: picked ? home.currentLongitude : null,
       logo: logo,
     );
-    message(res['message']);
+    messageWarning(res['message']);
     if (res['errorType'] == 1) {
       Navigator.pop(context);
     }

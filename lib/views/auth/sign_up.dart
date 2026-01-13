@@ -146,9 +146,9 @@ class _SignUpState extends State<SignUp> {
       if (keyK == 1) {
         setOtpSent(true);
       }
-      message(res['message']);
+      messageComplete(res['message']);
     } else {
-      message('Бүртгэлийг талбарууд гүйцээнэ үү!');
+      messageWarning('Бүртгэлийг талбарууд гүйцээнэ үү!');
     }
   }
 
@@ -160,13 +160,13 @@ class _SignUpState extends State<SignUp> {
         otp: otp.text,
         password: pass.text,
       );
-      message(res['message']);
+      messageComplete(res['message']);
       print(res['errorType']);
       if (res['errorType'] == 1) {
         Navigator.pop(context);
       }
     } else {
-      message('Нууц үг таарахгүй байна!');
+      messageWarning('Нууц үг таарахгүй байна!');
     }
   }
 }

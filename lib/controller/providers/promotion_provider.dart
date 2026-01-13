@@ -153,10 +153,10 @@ class PromotionProvider extends ChangeNotifier {
     try {
       final response = await api(Api.patch, 'marked_promos/$id/', body: {});
       if (response!.statusCode == 200) {
-        message('Амжилттай');
+        messageComplete('Амжилттай');
         getMarkedPromotion();
       } else {
-        message('Амжилтгүй');
+        messageWarning('Амжилтгүй');
       }
     } catch (e) {
       debugPrint('ERROR AT HIDE PROMO: ${e.toString()}');
@@ -178,7 +178,7 @@ class PromotionProvider extends ChangeNotifier {
         qrData = QrData.fromJson(data);
         setQr(true);
       } else if (response.statusCode == 400) {
-        message('Урамшууллын хугацаа дууссан');
+        messageWarning('Урамшууллын хугацаа дууссан');
       } else {}
     } catch (e) {
       debugPrint('ERROR AT ORDER PROMO: ${e.toString()}');
@@ -191,10 +191,10 @@ class PromotionProvider extends ChangeNotifier {
     final data = convertData(response!);
     if (response.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));
-      message('Төлбөр төлөгдсөн байна');
+      messageComplete('Төлбөр төлөгдсөн байна');
       return true;
     } else {
-      message('Төлбөр төлөгдөөгүй байна');
+      messageWarning('Төлбөр төлөгдөөгүй байна');
     }
   }
 }

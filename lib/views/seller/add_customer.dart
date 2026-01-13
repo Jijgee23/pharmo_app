@@ -22,21 +22,13 @@ class _AddCustomerState extends State<AddCustomer> {
   @override
   Widget build(BuildContext context) {
     return Consumer<PharmProvider>(
-      builder: (context, pharm, child) => IconButton.filledTonal(
-        color: white,
+      builder: (context, pharm, child) => IconButton(
         onPressed: () => registerCustomer(pharm),
-        style: IconButton.styleFrom(
+        style: ElevatedButton.styleFrom(
           shape: CircleBorder(),
-          padding: EdgeInsets.all(15),
-          // minimumSize: Size(60, 40),
           backgroundColor: Colors.grey.shade200,
         ),
-        icon: Center(
-          child: Icon(
-            Icons.add,
-            color: primary,
-          ),
-        ),
+        icon: Icon(Icons.add, color: primary),
       ),
     );
   }
@@ -179,7 +171,7 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
         rn.text.isEmpty ||
         email.text.isEmpty ||
         phone.text.isEmpty) {
-      message('Бүртгэл гүйцээнээ үү!');
+      messageWarning('Бүртгэл гүйцээнээ үү!');
     } else {
       await pp
           .registerCustomer(

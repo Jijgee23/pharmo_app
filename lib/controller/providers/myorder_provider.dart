@@ -36,9 +36,9 @@ class MyOrderProvider extends ChangeNotifier {
     try {
       final res = await api(Api.delete, 'seller/order/$orderId/');
       if (res!.statusCode == 204) {
-        message('Захиалга устлаа');
+        messageComplete('Захиалга устлаа');
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -157,7 +157,7 @@ class MyOrderProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      message('Өгөгдөл татаж чадсангүй!');
+      messageWarning('Өгөгдөл татаж чадсангүй!');
     }
   }
 

@@ -148,11 +148,11 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
     }
     await basket.getBasket();
     if (double.parse(basket.basket!.totalPrice.toString()) < 10) {
-      message('Үнийн дүн 10₮-с бага байж болохгүй!');
+      messageWarning('Үнийн дүн 10₮-с бага байж болохгүй!');
       return;
     }
     if (basket.qtys.isNotEmpty) {
-      message('Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!');
+      messageWarning('Үлдэгдэл хүрэлцэхгүй барааны тоог өөрчилнө үү!');
       return;
     }
     Get.bottomSheet(

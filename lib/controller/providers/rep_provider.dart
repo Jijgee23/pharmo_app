@@ -32,15 +32,15 @@ class RepProvider extends ChangeNotifier {
   Future<dynamic> addVisit(String note) async {
     try {
       if (note.isEmpty) {
-        message('Тайлбар оруулна уу!');
+        messageWarning('Тайлбар оруулна уу!');
       } else {
         final response =
             await api(Api.post, 'company/visit/', body: {"note": note});
         if (response!.statusCode == 200 || response.statusCode == 201) {
           await getActiveVisits();
-          message('Уулзалт бүртгэгдлээ');
+          messageComplete('Уулзалт бүртгэгдлээ');
         } else {
-          message('Уулзалт бүртгэхэд алдаа гарлаа!');
+          messageWarning('Уулзалт бүртгэхэд алдаа гарлаа!');
         }
       }
     } catch (e) {
@@ -80,9 +80,9 @@ class RepProvider extends ChangeNotifier {
       );
       if (response!.statusCode == 200 || response.statusCode == 201) {
         await getActiveVisits();
-        message('Амжилттай засагдлаа');
+        messageComplete('Амжилттай засагдлаа');
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -107,9 +107,9 @@ class RepProvider extends ChangeNotifier {
       );
       if (response!.statusCode == 200 || response.statusCode == 201) {
         await getActiveVisits();
-        message('Уулзалтын байршил илгээлээ');
+        messageComplete('Уулзалтын байршил илгээлээ');
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -139,11 +139,11 @@ class RepProvider extends ChangeNotifier {
         isTracking = true;
         await db.delete('meetingId');
         await getActiveVisits();
-        message('Уулзалтанд гарлаа');
+        messageComplete('Уулзалтанд гарлаа');
         await db.put('meetingId', visiting!.id);
         startTracking();
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -185,7 +185,7 @@ class RepProvider extends ChangeNotifier {
     Box db = await Hive.openBox('meeting');
     try {
       if (db.get('meetingId') == null) {
-        message('Уулзалт олдсонгүй');
+        messageWarning('Уулзалт олдсонгүй');
         return;
       }
       final results = await Connectivity().checkConnectivity();
@@ -248,7 +248,7 @@ class RepProvider extends ChangeNotifier {
       );
       if (response!.statusCode == 200 || response.statusCode == 201) {
         await getActiveVisits();
-        message('Уулзалт дууслаа');
+        messageComplete('Уулзалт дууслаа');
         stopTracking();
       }
     } catch (e) {
@@ -268,9 +268,9 @@ class RepProvider extends ChangeNotifier {
       );
       if (response!.statusCode == 200 || response.statusCode == 201) {
         await getActiveVisits();
-        message('Уулзалтыг дуусгалаа');
+        messageComplete('Уулзалтыг дуусгалаа');
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -284,9 +284,9 @@ class RepProvider extends ChangeNotifier {
       final response = await api(Api.delete, 'company/visit/?visit_id=$id');
       if (response!.statusCode == 200 || response.statusCode == 201) {
         await getActiveVisits();
-        message('Амжилттай хасагдлаа');
+        messageComplete('Амжилттай хасагдлаа');
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());

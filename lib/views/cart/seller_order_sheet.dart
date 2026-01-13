@@ -131,20 +131,20 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
 
   Future _createOrder() async {
     if (payType == '') {
-      message('Төлбөрийн хэлбэр сонгоно уу!');
+      messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
       return;
     }
 
     if (basketProvider.basket!.totalCount == 0) {
-      message('Сагс хоосон байна!');
+      messageWarning('Сагс хоосон байна!');
       return;
     }
     if (double.parse(basketProvider.basket!.totalPrice.toString()) < 10) {
-      message('Үнийн дүн 10₮-с бага байж болохгүй!');
+      messageWarning('Үнийн дүн 10₮-с бага байж болохгүй!');
       return;
     }
     if (context.read<HomeProvider>().customer == null) {
-      message('Захиалагч сонгоно уу!');
+      messageWarning('Захиалагч сонгоно уу!');
       return;
     }
     await homeProvider.createSellerOrder(context, payType);

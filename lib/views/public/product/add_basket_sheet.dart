@@ -101,9 +101,9 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
                 await addBasket(widget.product, int.parse(qty.text))
                     .then((e) => Navigator.pop(context));
               } else if (qty.text.isEmpty) {
-                message('Тоо ширхэг оруулна уу!');
+                messageWarning('Тоо ширхэг оруулна уу!');
               } else {
-                message('Тоо ширхэг 0 байж болохгүй!');
+                messageWarning('Тоо ширхэг 0 байж болохгүй!');
               }
             },
           ),

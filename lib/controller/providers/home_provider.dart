@@ -180,7 +180,7 @@ class HomeProvider extends ChangeNotifier {
     try {
       final security = await LocalBase.getSecurity();
       if (security == null) {
-        message('Нэвтэрнэ үү');
+        messageWarning('Нэвтэрнэ үү');
         return;
       }
       var request =
@@ -198,7 +198,7 @@ class HomeProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
       } else {
-        message(wait);
+        messageWarning(wait);
         return buildResponse(1, null, wait);
       }
     } catch (e) {
@@ -210,7 +210,7 @@ class HomeProvider extends ChangeNotifier {
     try {
       final security = await LocalBase.getSecurity();
       if (security == null) {
-        message('Нэвтэрнэ үү');
+        messageWarning('Нэвтэрнэ үү');
         return;
       }
       var request =
@@ -225,7 +225,7 @@ class HomeProvider extends ChangeNotifier {
       if (res.statusCode == 200) {
         return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
       } else {
-        message(wait);
+        messageWarning(wait);
         return buildResponse(1, null, wait);
       }
     } catch (e) {
@@ -389,10 +389,10 @@ class HomeProvider extends ChangeNotifier {
           body: {'pwd': password});
       if (response!.statusCode == 200) {
         AuthController().logout(context);
-        message(
+        messageWarning(
             '${LocalBase.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа');
       } else {
-        message('Алдаа гарлаа');
+        messageWarning('Алдаа гарлаа');
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -425,10 +425,10 @@ class HomeProvider extends ChangeNotifier {
         note = null;
         notifyListeners();
       } else {
-        message('Алдаа гарлаа');
+        messageWarning('Алдаа гарлаа');
       }
     } catch (e) {
-      message('Захиалга үүсгэхэд алдаа гарлаа.');
+      messageWarning('Захиалга үүсгэхэд алдаа гарлаа.');
     }
   }
 

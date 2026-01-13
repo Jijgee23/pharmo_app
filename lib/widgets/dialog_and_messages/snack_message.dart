@@ -1,175 +1,141 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-
-// Future message(
-//   String message, {
-//   bool success = false,
-//   IconData icon = Icons.info,
-//   Color color = black,
-// }) async {
-//   Get.showSnackbar(
-//     GetSnackBar(
-//       snackPosition: SnackPosition.TOP,
-//       duration: const Duration(milliseconds: 2500),
-//       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-//       borderRadius: 16,
-//       backgroundColor: Colors.transparent,
-//       snackStyle: SnackStyle.FLOATING,
-//       forwardAnimationCurve: Curves.easeOutBack,
-//       reverseAnimationCurve: Curves.easeInBack,
-//       messageText: Container(
-//         decoration: BoxDecoration(
-//           gradient: LinearGradient(
-//             colors: [color.withAlpha(25 * 9), color.withAlpha(25 * 7)],
-//             begin: Alignment.topLeft,
-//             end: Alignment.bottomRight,
-//           ),
-//           borderRadius: BorderRadius.circular(16),
-//           boxShadow: [
-//             BoxShadow(
-//               color: color.withAlpha(100),
-//               blurRadius: 10,
-//               offset: const Offset(0, 4),
-//             ),
-//           ],
-//         ),
-//         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-//         child: Row(
-//           mainAxisAlignment: MainAxisAlignment.start,
-//           children: [
-//             Icon(icon, color: Colors.white, size: 24),
-//             const SizedBox(width: 10),
-//             Expanded(
-//               child: Text(
-//                 message,
-//                 style: const TextStyle(
-//                   color: Colors.white,
-//                   fontSize: 15,
-//                   fontWeight: FontWeight.w500,
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     ),
-//   );
-// }
+import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 String? _lastMessage;
 
-Future message(
-  String aMessage, {
-  int delay = 2500,
-  bool isDismissible = true,
-  VoidCallback? onTap,
-  IconData? customIcon,
-  List<Widget>? actions,
-  bool enableHapticFeedback = true,
-  Duration? animationDuration,
-  Color? color,
-}) async {
+enum MessageType { warning, complete, error, none }
+
+void message(String aMessage) {
   if (_lastMessage == aMessage) return;
   _lastMessage = aMessage;
   Future.delayed(const Duration(milliseconds: 3000), () {
     _lastMessage = null;
   });
 
-  // Color backgroundColor = Colors.black;
-  IconData iconData = customIcon ?? Icons.check_circle;
+  ToastService.show(aMessage, type: MessageType.none);
+}
 
-  // switch (type) {
-  //   case AlertType.error:
-  //     backgroundColor = Colors.red.shade300;
-  //     iconData = customIcon ?? Icons.error;
-  //     if (enableHapticFeedback) {
-  //       await HapticFeedback.heavyImpact();
-  //     }
-  //     break;
-  //   case AlertType.warning:
-  //     backgroundColor = Colors.deepOrange.shade900;
-  //     iconData = customIcon ?? Icons.warning;
-  //     if (enableHapticFeedback) {
-  //       await HapticFeedback.mediumImpact();
-  //     }
-  //     break;
-  //   case AlertType.complete:
-  //     backgroundColor = Colors.green;
-  //     iconData = customIcon ?? Icons.check;
-  //     if (enableHapticFeedback) {
-  //       await HapticFeedback.lightImpact();
-  //     }
-  //     break;
-  //   default:
-  //     backgroundColor = Colors.black;
-  //     iconData = customIcon ?? Icons.check_circle;
-  // }
+void messageError(String aMessage) {
+  if (_lastMessage == aMessage) return;
+  _lastMessage = aMessage;
+  Future.delayed(const Duration(milliseconds: 3000), () {
+    _lastMessage = null;
+  });
 
-  Get.showSnackbar(
-    GetSnackBar(
-      snackPosition: SnackPosition.TOP,
-      duration: Duration(milliseconds: delay),
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      borderRadius: 16,
-      backgroundColor: color ?? black,
-      snackStyle: SnackStyle.FLOATING,
-      isDismissible: isDismissible,
-      forwardAnimationCurve: Curves.easeOutBack,
-      reverseAnimationCurve: Curves.easeInBack,
-      animationDuration: animationDuration ?? const Duration(milliseconds: 300),
-      onTap: onTap != null ? (_) => onTap() : null,
-      mainButton: actions != null && actions.isNotEmpty
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: actions,
-            )
-          : null,
-      messageText: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              color ?? black.withAlpha(25 * 9),
-              color ?? black.withAlpha(25 * 7)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: color ?? black.withAlpha(100),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              iconData,
-              color: Colors.white,
-              size: 24,
-              // semanticLabel: type?.toString() ?? 'message',
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                aMessage,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 4,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+  ToastService.show(aMessage, type: MessageType.error);
+}
+
+void messageComplete(String aMessage) {
+  if (_lastMessage == aMessage) return;
+  _lastMessage = aMessage;
+  Future.delayed(const Duration(milliseconds: 3000), () {
+    _lastMessage = null;
+  });
+
+  ToastService.show(aMessage, type: MessageType.complete);
+}
+
+void messageWarning(String aMessage) {
+  if (_lastMessage == aMessage) return;
+  _lastMessage = aMessage;
+  Future.delayed(const Duration(milliseconds: 3000), () {
+    _lastMessage = null;
+  });
+
+  ToastService.show(aMessage, type: MessageType.warning);
+}
+
+class ToastService {
+  static OverlayEntry? _overlayEntry;
+
+  static void show(
+    String message, {
+    Duration duration = const Duration(seconds: 2),
+    MessageType type = MessageType.none,
+  }) async {
+    if (_overlayEntry != null) return;
+
+    final overlay = GlobalKeys.navigatorKey.currentState?.overlay;
+    if (overlay == null) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (_) => _ToastWidget(message: message, type: type),
+    );
+
+    overlay.insert(_overlayEntry!);
+
+    await Future.delayed(duration, () {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    });
+  }
+}
+
+class _ToastWidget extends StatelessWidget {
+  final String message;
+  final MessageType type;
+  const _ToastWidget({required this.message, this.type = MessageType.none});
+
+  @override
+  Widget build(BuildContext context) {
+    Color backgroundColor = Colors.black;
+    IconData iconData = Icons.check;
+    switch (type) {
+      case MessageType.error:
+        backgroundColor = Colors.red.shade300;
+        iconData = Icons.error;
+        break;
+      case MessageType.warning:
+        backgroundColor = Colors.deepOrange.shade900;
+        iconData = Icons.warning;
+        break;
+      case MessageType.complete:
+        backgroundColor = Colors.teal;
+        iconData = Icons.check;
+
+        break;
+      default:
+        backgroundColor = Colors.black;
+        iconData = Icons.check_circle;
+    }
+    return Positioned(
+      top: 20,
+      left: 24,
+      right: 24,
+      child: SafeArea(
+        child: Material(
+          color: transperant,
+          child: AnimatedOpacity(
+            opacity: 1,
+            duration: const Duration(milliseconds: 300),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(iconData, color: white),
+                  Expanded(
+                    child: Text(
+                      message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }

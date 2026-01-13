@@ -143,7 +143,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget>
               text: 'Хадгалах',
               ontap: () {
                 if (amountCr.text.isEmpty) {
-                  message('Дүн оруулна уу!');
+                  messageWarning('Дүн оруулна уу!');
                 } else {
                   registerPayment(jagger, pType, amountCr.text, customerId);
                 }
@@ -180,9 +180,9 @@ class _DeliveryWidgetState extends State<DeliveryWidget>
   registerPayment(JaggerProvider jagger, String type, String amount,
       String customerId) async {
     if (amount.isEmpty) {
-      message('Дүн оруулна уу!');
+      messageWarning('Дүн оруулна уу!');
     } else if (type == 'E') {
-      message('Төлбөрийн хэлбэр сонгоно уу!');
+      messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
     } else {
       await jagger.addCustomerPayment(type, amount, customerId);
       setSelected('E', 'e');
@@ -312,7 +312,7 @@ getOrderProcess(String status) {
     case "Түгээлтэнд гарсан":
       return "O";
     default:
-      message('Төлөв сонгоно уу!');
+      messageWarning('Төлөв сонгоно уу!');
   }
 }
 

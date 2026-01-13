@@ -50,11 +50,12 @@ class BasketProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  getBasket() async {
+  Future getBasket() async {
     try {
-      final resBasket = await api(Api.get, 'get_basket/');
+      final resBasket = await api(Api.get, 'user_basket/');
       if (resBasket!.statusCode == 200) {
         final res = convertData(resBasket);
+        print("basket info=> $res");
         basket = Basket.fromJson(res);
         _count = basket!.items != null && basket!.items!.isNotEmpty
             ? basket!.items!.length
@@ -70,93 +71,36 @@ class BasketProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> checkQTYs() async {
-    try {
-      Map<String, int?> bodyStr = {};
-      if (_shoppingCarts.isNotEmpty) {
-        for (int i = 0; i < _shoppingCarts.length; i++) {
-          if (shoppingCarts[i]["product_itemname_id"] != null &&
-              shoppingCarts[i]["product_itemname_id"] > 0) {
-            bodyStr['${shoppingCarts[i]["product_itemname_id"]}'] =
-                shoppingCarts[i]["qty"];
-          } else {
-            bodyStr['${shoppingCarts[i]["product_id"]}'] =
-                shoppingCarts[i]["qty"];
-          }
-        }
-        final response =
-            await api(Api.patch, 'check_qty/', body: {"data": bodyStr});
-        if (response!.statusCode == 200) {
-          Map res = convertData(response);
-          qtys.clear();
-          res.forEach((k, v) {
-            if (v == false) {
-              qtys.add(QTY(k, v));
-            }
-          });
-          if (qtys.isNotEmpty) {
-            return buildResponse(
-                0, null, 'Барааны үлдэгдэл хүрэлцэхгүй байна!');
-          } else {
-            return buildResponse(1, res, '');
-          }
-        }
-      }
-    } catch (e) {
-      return buildResponse(2, null, 'Барааны үлдэгдэл шалгахад алдаа гарлаа.');
-    }
-  }
-
-  checkItemQty(int id, int qty) async {
-    try {
-      final response = await api(Api.patch, 'check_qty/', body: {
-        "data": {'$id': qty}
-      });
-      if (response!.statusCode == 200) {
-        Map<String, dynamic> res = convertData(response);
-        if (res['$id'] == null) {
-          return buildResponse(0, res, null);
-        } else if (res['$id'] == true) {
-          return buildResponse(1, res, null);
-        } else {
-          return buildResponse(2, res, null);
-        }
-      } else {
-        return buildResponse(3, null, null);
-      }
-    } catch (e) {
-      print('checkITEMqty: $e');
-      return buildResponse(4, null, null);
-    }
-  }
-
   Future addProduct(int id, String name, int qty) async {
     try {
-      final response = await api(Api.patch, 'user_basket/',
-          body: {'product_id': id, 'qty': qty});
+      final response = await api(
+        Api.patch,
+        'user_basket/',
+        body: {'product_id': id, 'qty': qty},
+      );
       if (response == null) return;
       if (response.statusCode == 200) {
         if (convertData(response).toString().contains('available_qty')) {
           final result = convertData(response)['available_qty'];
           if (result == null) {
-            message('Үлдэгдэл хүрэлцэхгүй байна.');
+            messageWarning('Үлдэгдэл хүрэлцэхгүй байна.');
             return;
           }
           if (result.runtimeType == int) {
-            message(
+            messageWarning(
                 'Үлдэгдэл хүрэлцэхгүй байна. Боломжит үлдэглэл ${convertData(response)['available_qty'] ?? 0}');
             return;
           }
         } else {
           await getBasket();
-          message('$name сагсанд нэмэгдлээ', color: Colors.teal);
+          messageComplete('$name сагсанд нэмэгдлээ');
         }
       } else {
-        message(wait);
+        messageWarning(wait);
       }
     } catch (e, stackTrace) {
       debugPrint('Stack Trace: $stackTrace');
-      return message(wait);
+      return messageError(wait);
     }
   }
 
@@ -189,10 +133,10 @@ class BasketProvider extends ChangeNotifier {
   Future<dynamic> removeBasketItem({required int itemId}) async {
     try {
       await api(Api.delete, 'user_basket/?item_id=$itemId');
-      message('Сагснаас хасагдлаа');
+      messageComplete('Сагснаас хасагдлаа');
       await getBasket();
     } catch (e) {
-      message('Сагснаас бараа устгах үед алдаа гарлаа.');
+      messageWarning('Сагснаас бараа устгах үед алдаа гарлаа.');
     }
   }
 
@@ -221,9 +165,9 @@ class BasketProvider extends ChangeNotifier {
         }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
         return res['orderNo'];
       } else if (response.statusCode == 400) {
-        message('Сагс хоосон байна!');
+        messageWarning('Сагс хоосон байна!');
       } else {
-        message(res);
+        messageError(res);
       }
     } catch (e) {
       //
@@ -251,22 +195,22 @@ class BasketProvider extends ChangeNotifier {
         goto(const QRCode());
       } else if (status == 404) {
         if (data == 'qpay') {
-          message('Нийлүүлэгч Qpay холбоогүй.');
+          messageWarning('Нийлүүлэгч Qpay холбоогүй.');
         }
       } else if (status == 400) {
         if (data == 'bad qpay') {
-          message('Нийлүүлэгчийн Qpay тохиргоо алдаатай!');
+          messageWarning('Нийлүүлэгчийн Qpay тохиргоо алдаатай!');
         } else if (data == 'min') {
-          message('Төлбөрийн дүн 10₮-с дээш байх');
+          messageWarning('Төлбөрийн дүн 10₮-с дээш байх');
         } else if (data == 'empty') {
-          message('Сагс хоосон байна!');
+          messageWarning('Сагс хоосон байна!');
         } else if (data == 'branch not match') {
-          message('Салбарын мэдээлэл буруу!');
+          messageWarning('Салбарын мэдээлэл буруу!');
         } else if (data['qpay'] == "not found") {
-          message('Qpay холбоогүй.');
+          messageWarning('Qpay холбоогүй.');
         }
       } else if (status == 500) {
-        message('Админтай холбогдоно уу!');
+        messageWarning('Админтай холбогдоно уу!');
       }
     } catch (e) {
       debugPrint('ERROR AT CREATE QR: $e');
@@ -279,15 +223,15 @@ class BasketProvider extends ChangeNotifier {
       if (resQR!.statusCode == 200) {
         final data = convertData(resQR).toString();
         if (data.contains('not paid')) {
-          message('Төлбөр төлөгдөөгүй байна.');
+          messageWarning('Төлбөр төлөгдөөгүй байна.');
         } else if (data.contains('paid')) {
-          message('Төлбөр амжилттай төлөгдсөн.');
+          messageComplete('Төлбөр амжилттай төлөгдсөн.');
           goto(OrderDone(orderNo: convertData(resQR)['orderNo'].toString()));
         } else {
-          message('Төлбөр төлөгдөөгүй байна.');
+          messageWarning('Төлбөр төлөгдөөгүй байна.');
         }
       } else if (resQR.statusCode == 404) {
-        message('Нэхэмжлэх үүсээгүй.');
+        messageWarning('Нэхэмжлэх үүсээгүй.');
       }
     } catch (e) {
       return {'errorType': 3, 'data': e, 'message': e};

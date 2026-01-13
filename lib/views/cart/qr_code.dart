@@ -98,7 +98,7 @@ class _QRCodeState extends State<QRCode> {
           await launchUrl(Uri.parse(el['link']),
               mode: LaunchMode.externalApplication);
         } else {
-          message(el['description'] + ' апп олдсонгүй.');
+          messageWarning(el['description'] + ' апп олдсонгүй.');
         }
       },
       child: Container(

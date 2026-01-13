@@ -226,7 +226,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
     switch (key) {
       case 'Мейл':
         if (d.email == null || d.email!.isEmpty) {
-          message('Мэйл хаяг байхгүй байна');
+          messageWarning('Мэйл хаяг байхгүй байна');
           return;
         }
         final Uri emailLaunchUri = Uri(
@@ -244,7 +244,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
         break;
       case 'Утас':
         if (d.phone == null || d.phone!.isEmpty) {
-          message('Утасны дугаар байхгүй байна');
+          messageWarning('Утасны дугаар байхгүй байна');
           return;
         }
         callPhoneNumber(d.phone ?? '');

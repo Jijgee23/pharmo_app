@@ -19,6 +19,9 @@ class LogService {
   }
 
   Future createLog(String logType, String desc) async {
+    final user = LocalBase.security;
+    if (user == null) return;
+    if (user.role == 'PA') return;
     final String deviceToken = await LocalBase.getDeviceToken();
     var r = await api(
       Api.post,

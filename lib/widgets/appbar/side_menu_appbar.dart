@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controller/providers/basket_provider.dart';
 import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/application/services/local_base.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/views/cart/cart_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:provider/provider.dart';
 
@@ -57,47 +56,12 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
                     )
                   : title,
               leading: leading ?? const ChevronBack(),
-              actions: [
-                if (hasBasket) basketIcon(home, basket),
-                action ?? const SizedBox()
-              ],
+              actions: [if (hasBasket) CartIcon(), action ?? const SizedBox()],
               bottom: bottom,
             ),
           ),
         );
       },
-    );
-  }
-
-  Widget basketIcon(HomeProvider home, BasketProvider basket) {
-    return InkWell(
-      onTap: () => home.changeIndex(LocalBase.security!.role == 'PA' ? 1 : 2),
-      child: Stack(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(right: 10),
-            child: const Center(
-              child: Icon(Icons.shopping_cart, size: 24, color: Colors.white),
-            ),
-          ),
-          Positioned(
-            right: 2,
-            top: 2,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-              decoration: BoxDecoration(
-                  color: Colors.red, borderRadius: BorderRadius.circular(15)),
-              child: Text(
-                basket.basket != null
-                    ? basket.basket!.totalCount.toString()
-                    : '0',
-                style: const TextStyle(
-                    color: white, fontSize: 10, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
