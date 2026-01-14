@@ -21,12 +21,6 @@ class Cart extends StatefulWidget {
 
 class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
   late AnimationController controller;
-  bool loading = false;
-  setLoading(bool n) {
-    setState(() {
-      loading = n;
-    });
-  }
 
   @override
   void initState() {
@@ -35,15 +29,15 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 500),
     )..repeat(reverse: true);
-    init();
+    WidgetsBinding.instance.addPostFrameCallback((cb) async {
+      init();
+    });
   }
 
   Future<void> init() async {
-    final basket = context.read<BasketProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((cb) async {
-      setLoading(true);
+    LoadingService.run(() async {
+      final basket = context.read<BasketProvider>();
       await basket.getBasket();
-      setLoading(false);
     });
   }
 
@@ -83,9 +77,6 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
             height: double.maxFinite,
             child: Builder(
               builder: (context) {
-                if (loading) {
-                  return shimmer();
-                }
                 if (basketIsEmpty) {
                   return Center(child: EmptyBasket());
                 }

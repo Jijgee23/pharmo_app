@@ -3,7 +3,9 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
 
-abstract class AppEvent {}
+abstract class AppEvent {
+  // dynamic get props => [];
+}
 
 class LocationEvent extends AppEvent {
   final Map<Object?, Object?> location;

@@ -38,15 +38,8 @@ getApiInformation(String endPoint, http.Response response) {
   }
 }
 
-// final client = HttpClient(context: SecurityContext(withTrustedRoots: true));
-
-Future<http.Response?> api(
-  Api method,
-  String endpoint, {
-  Map<String, dynamic>? body,
-  Map<String, String>? header,
-  bool showLog = false,
-}) async {
+Future<http.Response?> api(Api method, String endpoint,
+    {Map<String, dynamic>? body, Map<String, String>? header}) async {
   try {
     Security? security = LocalBase.security;
     if (security == null) return null;
@@ -72,7 +65,7 @@ Future<http.Response?> api(
         if (r != null) {
           print('status code: ${r.statusCode}');
         }
-        if (showLog && r != null) getApiInformation(endpoint, r);
+        // if (showLog && r != null) getApiInformation(endpoint, r);
         return r;
       }
       messageWarning('Нэвтэрнэ үү!');
@@ -107,16 +100,14 @@ Future<http.Response?> responser(
 ) async {
   final Uri url = setUrl(endpoint);
   print(url);
-  // if (body != null) print(jsonEncode(body));
+
   Map<String, String> headers = {
     ...header ?? {},
     'Content-Type': 'application/json; charset=UTF-8',
     'X-Pharmo-Client': '!pharmo_app?',
     'Authorization': 'Bearer $access',
   };
-  if (access != null) {
-    // print(access);
-  }
+  if (access != null) {}
   http.Response res;
   switch (method) {
     case Api.get:

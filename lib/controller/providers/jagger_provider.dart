@@ -31,10 +31,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Stream<AppEvent> get mergedEvents => _eventController.stream;
 
   JaggerProvider() {
-    timer = Timer.periodic(Duration(seconds: 1), (v) {
-      now = DateTime.now();
-      notifyListeners();
-    });
     _setupStreams();
   }
 
@@ -85,16 +81,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   void _setupStreams() {
-    // locationSubscription =
     bgLocationChannel.receiveBroadcastStream().listen(
           (dynamic location) => _eventController.add(LocationEvent(location)),
         );
-    // connectivitySubscription =
     Connectivity().onConnectivityChanged.listen(
           (List<ConnectivityResult> status) =>
               _eventController.add(NetworkEvent(status)),
         );
-    // batterySubscription =
     Battery().onBatteryStateChanged.listen(
           (BatteryState state) => _eventController.add(BatteryEvent(state)),
         );
@@ -118,9 +111,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   // TRACKING
   StreamSubscription? subscription;
-  StreamSubscription? locationSubscription;
-  StreamSubscription? connectivitySubscription;
-  StreamSubscription? batterySubscription;
   late final Box<TrackData> trackBox;
   late bool servicePermission = false;
   LocationPermission? permission;
@@ -156,7 +146,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       final res = await api(Api.patch, url, body: body);
       if (res == null) return;
       if (res.statusCode == 200) {
-        addPointToBox(
+        await clearTrackData();
+        await addPointToBox(
           TrackData(
             latitude: currentPosition!.latitude,
             longitude: currentPosition!.longitude,
@@ -269,16 +260,11 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   DateTime now = DateTime.now();
 
   void stopTracking() async {
-    subscription!.cancel();
+    if (subscription == null) return;
+    await subscription!.cancel();
     subscription = null;
-    await locationSubscription?.cancel();
-    locationSubscription = null;
-    await connectivitySubscription?.cancel();
-    connectivitySubscription = null;
-    await batterySubscription?.cancel();
-    batterySubscription = null;
-    await BatteryService.stopListenBattery();
     notifyListeners();
+    await BatteryService.stopListenBattery();
     await LocalBase.clearDelmanTrack();
     await LocalBase.removeSellerTrackId();
     await clearTrackData();
@@ -291,7 +277,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   Future sendTobackend(bool isSeller, int id, double lat, double lng) async {
-    // String n_title, n_body = '';
     double latitude = truncateToDigits(lat, 6);
     double longitude = truncateToDigits(lng, 6);
     final now = DateTime.now();
@@ -364,33 +349,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
   }
 
-  // Future<dynamic> getDeliveryLocation() async {
-  //   currentPosition = await Geolocator.getCurrentPosition();
-  //   final security = await LocalBase.getSecurity();
-  //   if (security == null) return;
-  //   try {
-  //     final r = await api(Api.get, 'delivery/locations/?with_routes=true');
-  //     if (r!.statusCode == 200) {
-  //       final data = convertData(r);
-  //       final me = (data as List).firstWhere(
-  //           (element) => element['delman']['id'] == security.id,
-  //           orElse: () => null);
-  //       if (me == null) {
-  //         return;
-  //       }
-  //       routeCoords = (me['routes'] as List)
-  //           .map((r) => LatLng(parseDouble(r['lat']), parseDouble(r['lng'])))
-  //           .toList();
-  //       notifyListeners();
-  //       updatePolylines();
-  //     }
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //   } finally {
-  //     notifyListeners();
-  //   }
-  // }
-
   Map<String, Object> locationResponse(int id, List<TrackData> locs) {
     final user = LocalBase.security;
     if (user == null) return {};
@@ -428,15 +386,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   void updatePolylines() {
     polylines = {
-      // Polyline(
-      //   polylineId:
-      //       PolylineId('sended_${DateTime.now().millisecondsSinceEpoch}'),
-      //   points:
-      //       routeCoords.map((e) => LatLng(e.latitude, e.longitude)).toList(),
-      //   color: Colors.blue,
-      //   width: 5,
-      //   zIndex: 10,
-      // ),
       Polyline(
         polylineId:
             PolylineId('sended_${DateTime.now().millisecondsSinceEpoch}'),
@@ -619,101 +568,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     notifyListeners();
   }
 
-  Future<dynamic> getOrders() async {
-    try {
-      final response = await api(Api.get, 'delivery/allocation/');
-      if (response!.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
-        print(data);
-        orders = (data as List).map((e) => Order.fromJson(e)).toList();
-        orders.sort((a, b) => a.orderer!.name.compareTo(b.orderer!.name));
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-    notifyListeners();
-  }
-
-  Future addOrdersToDelivery(List<int> ords) async {
-    try {
-      if (ords.isEmpty) {
-        messageWarning('Захиалга сонгоно уу!');
-        return;
-      }
-
-      print('Orders being sent: $ords');
-      final body = {"order_ids": ords.map((id) => id.toString()).toList()};
-      final url = 'delivery/add_to_delivery/';
-      final response = await api(Api.patch, url, body: body);
-      if (response == null) {
-        messageWarning('Сервертэй холбогдож чадсангүй!');
-        return;
-      }
-      print(response.body);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        await getOrders();
-        HomeProvider home =
-            Provider.of<HomeProvider>(Get.context!, listen: false);
-        home.changeIndex(0);
-        messageComplete('Амжилттай нэмэгдлээ');
-      } else {
-        messageWarning('Захиалгуудыг түгээлтэд нэмэхэд алдаа гарлаа!');
-      }
-    } catch (e) {
-      debugPrint('API Error: $e');
-      messageWarning('Сервертэй холбогдоход алдаа гарлаа!');
-    }
-    notifyListeners();
-  }
-
-  Future<dynamic> passOrdersToDelman(List<int> ords, int delId) async {
-    try {
-      if (ords.isEmpty) {
-        messageWarning('Захиалга сонгоно уу!');
-        return;
-      }
-      print('delivery man id: $delId');
-
-      print('Orders being sent: $ords');
-      final body = {"order_ids": ords, "delman_id": delId};
-
-      final response = await api(Api.patch, 'delivery/pass_drops/', body: body);
-
-      if (response == null) {
-        messageWarning('Сервертэй холбогдож чадсангүй!');
-        return;
-      }
-
-      print(response.body);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        await getOrders();
-        messageWarning('Амжилттай нэмэгдлээ');
-      } else {
-        print(ords.length);
-        messageWarning(
-            '${ords.length == 1 ? 'Захиалгыг' : 'Захиалгуудыг'} дамжуулахад алдаа гарлаа!');
-      }
-    } catch (e) {
-      debugPrint('API Error: $e');
-      messageError('Сервертэй холбогдоход алдаа гарлаа!');
-    }
-    notifyListeners();
-  }
-
-  getDelmans() async {
-    try {
-      final response = await api(Api.get, 'delivery/delmans/');
-      if (response!.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
-        delmans = (data as List).map((del) => Delman.fromJson(del)).toList();
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
   Future<dynamic> getDeliveryDetail(int id) async {
     try {
       final response =
@@ -725,31 +579,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       debugPrint(e.toString());
     }
     notifyListeners();
-  }
-
-  getShipmentHistory({DateTimeRange? range}) async {
-    try {
-      String url;
-
-      if (range != null) {
-        String date1 = range.start.toString().substring(0, 10);
-        String date2 = range.end.toString().substring(0, 10);
-        url = 'delivery/history/?start=$date1&end=$date2';
-      } else {
-        url = "delivery/history/";
-      }
-      final res = await api(Api.get, url);
-      print(res!.body);
-      if (res.statusCode == 200) {
-        final data = convertData(res);
-        print(data);
-        List<dynamic> ships = data['results'];
-        history = (ships).map((e) => Delivery.fromJson(e)).toList();
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint('Алдаа гарлаа: ${e.toString()}');
-    }
   }
 
   addCustomerPayment(String type, String amount, String customerId) async {
@@ -977,7 +806,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   Future<void> getCurrentLocation() async {
     print('Getting current location...');
-    await Settings.checkAlwaysLocationPermission();
+    // await Settings.checkAlwaysLocationPermission();
     currentPosition = await Geolocator.getCurrentPosition();
     notifyListeners();
   }
@@ -1018,3 +847,29 @@ bool success(Response<dynamic>? response) {
   }
   return false;
 }
+ // Future<dynamic> getDeliveryLocation() async {
+  //   currentPosition = await Geolocator.getCurrentPosition();
+  //   final security = await LocalBase.getSecurity();
+  //   if (security == null) return;
+  //   try {
+  //     final r = await api(Api.get, 'delivery/locations/?with_routes=true');
+  //     if (r!.statusCode == 200) {
+  //       final data = convertData(r);
+  //       final me = (data as List).firstWhere(
+  //           (element) => element['delman']['id'] == security.id,
+  //           orElse: () => null);
+  //       if (me == null) {
+  //         return;
+  //       }
+  //       routeCoords = (me['routes'] as List)
+  //           .map((r) => LatLng(parseDouble(r['lat']), parseDouble(r['lng'])))
+  //           .toList();
+  //       notifyListeners();
+  //       updatePolylines();
+  //     }
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //   } finally {
+  //     notifyListeners();
+  //   }
+  // }

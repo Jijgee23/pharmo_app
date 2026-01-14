@@ -18,3 +18,4 @@ export 'package:flutter/material.dart';
 export 'dart:async';
 export 'dart:convert';
 export 'log_provider.dart';
+export 'driver_provider.dart';

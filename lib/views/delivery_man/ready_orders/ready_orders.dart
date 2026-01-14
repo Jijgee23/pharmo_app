@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-
-import 'package:pharmo_app/controller/providers/jagger_provider.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/controller/models/delman.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
@@ -27,17 +24,18 @@ class _ReadyOrdersState extends State<ReadyOrders> {
   @override
   void initState() {
     super.initState();
-    fetch();
+    WidgetsBinding.instance.addPostFrameCallback((_) async => await fetch());
   }
 
   fetch() async {
-    final jag = context.read<JaggerProvider>();
-    jag.setLoading(true);
-    await jag.getOrders();
-    await jag.getDelmans();
-    if (mounted) {
-      jag.setLoading(false);
-    }
+    // jag.setLoading(true);
+    LoadingService.run(() async {
+      final jag = context.read<DriverProvider>();
+      await jag.getOrders();
+    });
+    // if (mounted) {
+    //   jag.setLoading(false);
+    // }
   }
 
   void onTapOrder(Order order) {
@@ -56,10 +54,10 @@ class _ReadyOrdersState extends State<ReadyOrders> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<JaggerProvider>(
+    return Consumer<DriverProvider>(
       builder: (context, jagger, child) => DataScreen(
         onRefresh: () => jagger.getOrders(),
-        loading: jagger.loading,
+        loading: false,
         pad: EdgeInsets.all(14.0),
         empty: jagger.orders.isEmpty,
         child: Stack(
@@ -68,7 +66,6 @@ class _ReadyOrdersState extends State<ReadyOrders> {
               itemCount: jagger.orders.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) => _orderWidget(
-                jagger,
                 jagger.orders[index],
               ),
             ),
@@ -105,7 +102,7 @@ class _ReadyOrdersState extends State<ReadyOrders> {
     );
   }
 
-  Widget _orderWidget(JaggerProvider jagger, Order ord) {
+  Widget _orderWidget(Order ord) {
     bool selected = selecteds.contains(ord.id);
     return GestureDetector(
       onTap: () => onTapOrder(ord),
@@ -166,7 +163,7 @@ class _ReadyOrdersState extends State<ReadyOrders> {
     );
   }
 
-  void addSheet(JaggerProvider jagger) {
+  void addSheet(DriverProvider driver) {
     Get.bottomSheet(
       StatefulBuilder(
         builder: (context, setModalState) => SheetContainer(
@@ -183,7 +180,7 @@ class _ReadyOrdersState extends State<ReadyOrders> {
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: jagger.delmans
+                children: driver.delmans
                     .map((dm) => _delmanWidget(dm, setModalState))
                     .toList(),
               ),
@@ -191,12 +188,12 @@ class _ReadyOrdersState extends State<ReadyOrders> {
               text: 'Хадгалах',
               ontap: () {
                 if (me == 'Өөрийн') {
-                  jagger.addOrdersToDelivery(selecteds);
+                  driver.addOrdersToDelivery(selecteds);
                 } else {
                   if (delman == -1) {
                     message('Түгээгч сонгоно уу!');
                   } else {
-                    jagger.passOrdersToDelman(selecteds, delman);
+                    driver.passOrdersToDelman(selecteds, delman);
                   }
                 }
                 Navigator.pop(context);

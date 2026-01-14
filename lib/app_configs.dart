@@ -1,7 +1,7 @@
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
-import 'package:pharmo_app/views/auth/root_page.dart';
+import 'package:pharmo_app/views/auth/root/root_page.dart';
 import 'package:pharmo_app/views/auth/sign_up.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
 import 'package:pharmo_app/views/seller/customer/choose_customer.dart';
@@ -27,6 +27,7 @@ class AppConfigs {
     ChangeNotifierProvider(create: (_) => ReportProvider()),
     ChangeNotifierProvider(create: (_) => RepProvider()..initTracking()),
     ChangeNotifierProvider(create: (_) => LogProvider()),
+    ChangeNotifierProvider(create: (_) => DriverProvider()),
   ];
 
   static Map<String, Widget Function(BuildContext)> appRoutes = {

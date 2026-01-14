@@ -25,19 +25,13 @@ class _MapViewState extends State<MapView> {
 
   Future<void> init() async {
     final jag = context.read<JaggerProvider>();
-    try {
-      LoadingService.run(() async {
-        if (jag.permission != LocationPermission.always) {
-          final value = await Geolocator.checkPermission();
-          jag.setPermission(value);
-        }
-        await jag.getCurrentLocation();
-      });
-    } catch (e) {
-      throw Exception(e);
-    } finally {
-      LoadingService.hide();
-    }
+    LoadingService.run(() async {
+      if (jag.permission != LocationPermission.always) {
+        final value = await Geolocator.checkPermission();
+        jag.setPermission(value);
+      }
+      await jag.getCurrentLocation();
+    });
   }
 
   @override
@@ -224,13 +218,13 @@ class _MapViewState extends State<MapView> {
                                       fontSize: 12,
                                     ),
                                   ),
-                                  Text(
-                                    'Нийт: ${truncateToDigits(calculateTotalDistanceKm(jagger.trackDatas), 1)} км',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                    ),
-                                  ),
+                                  // Text(
+                                  //   'Нийт: ${truncateToDigits(calculateTotalDistanceKm(jagger.trackDatas), 1)} км',
+                                  //   style: TextStyle(
+                                  //     color: Colors.black,
+                                  //     fontSize: 12,
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                           ],

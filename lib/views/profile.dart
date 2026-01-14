@@ -79,7 +79,9 @@ class Profile extends StatelessWidget {
                               color: Colors.pink,
                               ontap: () {
                                 homeProvider.changeIndex(0);
-                                gotoRemoveUntil(const IndexDeliveryMan());
+                                if (homeProvider.currentIndex == 0) {
+                                  gotoRemoveUntil(const IndexDeliveryMan());
+                                }
                               },
                             ),
                           if (isRep)

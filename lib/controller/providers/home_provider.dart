@@ -311,7 +311,7 @@ class HomeProvider extends ChangeNotifier {
 
   Future getSuppliers() async {
     try {
-      final response = await api(Api.get, 'suppliers_list/', showLog: true);
+      final response = await api(Api.get, 'suppliers_list/');
       if (response!.statusCode == 200) {
         final data = convertData(response);
         supliers = (data as List).map((sup) => Supplier.fromJson(sup)).toList();
@@ -421,8 +421,7 @@ class HomeProvider extends ChangeNotifier {
         'payType': type,
         "note": (note != null) ? note : null
       };
-      final response =
-          await api(Api.post, 'seller/order/', body: body, showLog: true);
+      final response = await api(Api.post, 'seller/order/', body: body);
       if (response!.statusCode == 201) {
         final res = convertData(response);
         final orderNumber = res['orderNo'];
@@ -455,13 +454,6 @@ class HomeProvider extends ChangeNotifier {
   }
 
   changeIndex(int index) async {
-    final user = LocalBase.security;
-    if (user != null && user.role == "D") {
-      if (index == 0) {
-        final jagger = Get.context!.read<JaggerProvider>();
-        await jagger.getDeliveries();
-      }
-    }
     currentIndex = index;
     notifyListeners();
   }
@@ -485,9 +477,11 @@ class HomeProvider extends ChangeNotifier {
 
   bool loading = false;
   void setLoading(bool value) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      loading = value;
-      notifyListeners();
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        loading = value;
+        notifyListeners();
+      },
+    );
   }
 }

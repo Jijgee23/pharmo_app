@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/jagger_provider.dart';
+import 'package:pharmo_app/controller/providers/a_controlller.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
+import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/views/delivery_man/delivery_history/shipment_history_detail.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/loader/data_screen.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/widgets/others/no_result.dart';
 
 class ShipmentHistory extends StatefulWidget {
   const ShipmentHistory({super.key});
@@ -17,23 +16,16 @@ class ShipmentHistory extends StatefulWidget {
 }
 
 class _ShipmentHistoryState extends State<ShipmentHistory> {
-  bool fetching = false;
-
-  setFetching(bool n) {
-    setState(() {
-      fetching = n;
-    });
-  }
-
-  late JaggerProvider jaggerProvider;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setFetching(true);
-      jaggerProvider = Provider.of<JaggerProvider>(context, listen: false);
-      jaggerProvider.getShipmentHistory();
-      setFetching(false);
+    WidgetsBinding.instance.addPostFrameCallback((_) => init());
+  }
+
+  void init() {
+    LoadingService.run(() async {
+      final driver = context.read<DriverProvider>();
+      await driver.getShipmentHistory();
     });
   }
 
@@ -44,37 +36,38 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<JaggerProvider>(
+    return Consumer<DriverProvider>(
       builder: (_, provider, child) {
-        return DataScreen(
-          appbar: const SideAppBar(text: 'Түгээлтийн түүх'),
-          loading: fetching,
-          empty: false,
-          child: Column(
-            children: [
-              searchBar(),
-              Expanded(
-                child: provider.history.isEmpty
-                    ? Center(child: Text('Түүх олдсонгүй!'))
-                    : ListView.builder(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        itemCount: provider.history.length,
-                        itemBuilder: (context, index) {
-                          return ShipmentBuilder(
-                            delivery: provider.history[index],
-                            idx: index,
-                          );
-                        },
-                      ),
-              ),
-            ],
+        return Scaffold(
+          appBar: const SideAppBar(text: 'Түгээлтийн түүх'),
+          body: Container(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              children: [
+                searchBar(provider),
+                Expanded(
+                  child: provider.history.isEmpty
+                      ? Center(child: Column(children: [NoResult()]))
+                      : ListView.builder(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          itemCount: provider.history.length,
+                          itemBuilder: (context, index) {
+                            return ShipmentBuilder(
+                              delivery: provider.history[index],
+                              idx: index,
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  Widget searchBar() {
+  Widget searchBar(DriverProvider driver) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
       child: Row(
@@ -127,7 +120,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
           SizedBox(width: 10),
           ElevatedButton.icon(
             onPressed: () async =>
-                await jaggerProvider.getShipmentHistory(range: range),
+                await driver.getShipmentHistory(range: range),
             icon: Icon(Icons.filter_list, color: Colors.white),
             label: Text('Шүүх',
                 style: TextStyle(

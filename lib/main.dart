@@ -9,7 +9,7 @@ import 'package:pharmo_app/application/services/log_service.dart';
 import 'package:pharmo_app/controller/database/track_data.dart';
 import 'package:pharmo_app/application/utilities/global_key.dart';
 import 'package:pharmo_app/application/theme/light_theme.dart';
-import 'package:pharmo_app/views/auth/root_page.dart';
+import 'package:pharmo_app/views/auth/root/root_page.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:upgrader/upgrader.dart';
 
@@ -29,6 +29,7 @@ Future<void> main() async {
     debugPrint('Error during initialization: $error');
     throw Exception('Initialization failed: $error');
   }
+  final pharmo = Pharmo();
   runApp(
     UpgradeAlert(
       dialogStyle: UpgradeDialogStyle.material,
@@ -37,7 +38,7 @@ Future<void> main() async {
       showReleaseNotes: false,
       child: MultiProvider(
         providers: AppConfigs.providers,
-        child: Pharmo(),
+        child: pharmo,
       ),
     ),
   );

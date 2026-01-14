@@ -178,7 +178,7 @@ class BasketProvider extends ChangeNotifier {
         'note': note != '' ? note : null,
         'is_come': deliveryType == 'N' ? true : false,
       };
-      final resQR = await api(Api.post, 'ci/', body: body, showLog: true);
+      final resQR = await api(Api.post, 'ci/', body: body);
       final data = convertData(resQR!);
       final status = resQR.statusCode;
       print(resQR.body);

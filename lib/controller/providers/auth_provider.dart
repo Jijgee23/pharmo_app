@@ -209,8 +209,7 @@ class AuthController extends ChangeNotifier {
     await LocalBase.removeTokens();
     await LocalBase.saveLastLoggedIn(false);
     await _disposeProviders(context);
-
-    Get.offAll(() => const LoginPage());
+    gotoRemoveUntil(LoginPage());
   }
 
   Future<void> _disposeProviders(BuildContext context) async {
@@ -294,8 +293,12 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future createPassword(String email, String otp, String newPassword,
-      BuildContext context) async {
+  Future createPassword(
+    String email,
+    String otp,
+    String newPassword,
+    BuildContext context,
+  ) async {
     try {
       final response = await http.post(setUrl('auth/reset/'),
           headers: header,
