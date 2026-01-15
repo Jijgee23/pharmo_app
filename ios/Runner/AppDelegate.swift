@@ -130,7 +130,6 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
   private func updateAndBroadcast(location: CLLocation, time: Date) {
     lastLocation = location
     lastSentTime = time
-
     let locationData: [String: Any] = [
       "lat": location.coordinate.latitude,
       "lng": location.coordinate.longitude,
