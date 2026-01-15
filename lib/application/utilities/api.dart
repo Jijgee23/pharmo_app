@@ -1,11 +1,8 @@
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:pharmo_app/app_configs.dart';
 import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
-import 'package:pharmo_app/application/utilities/enums.dart';
-import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/controller/database/security.dart';
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
