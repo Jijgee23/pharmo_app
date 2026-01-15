@@ -285,6 +285,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       throw Exception(e);
     }
   }
+  //s
 
   Future sendTobackend(bool isSeller, int id, double lat, double lng) async {
     double latitude = truncateToDigits(lat, 6);
