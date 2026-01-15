@@ -303,8 +303,11 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         await FirebaseApi.local('Байршил илгээсэн', text);
         await logService.saveLastNotif(now);
       }
+      if (!isSeller) {
+        await getDeliveries();
+      }
       await addPointToBox(locatioData(true));
-      await getDeliveries();
+
       // await getDeliveryLocation();
       await syncOffineTracks();
     }
@@ -716,8 +719,10 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    goToMyLocation();
     notifyListeners();
+    if (mapController != null) {
+      goToMyLocation();
+    }
   }
 
   void toggleTraffic() {

@@ -66,8 +66,9 @@ class _MapViewState extends State<MapView> {
                   ),
                   CustomButton(
                     text: 'Шалгах',
-                    ontap: () async => Settings.checkAlwaysLocationPermission()
-                        .whenComplete(() => init()),
+                    ontap: () async =>
+                        await Settings.checkAlwaysLocationPermission()
+                            .whenComplete(() => init()),
                   )
                 ],
               ),

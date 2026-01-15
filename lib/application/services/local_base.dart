@@ -137,6 +137,7 @@ class LocalBase {
   static Future<bool> hasSellerTrack() async {
     localDb = await Hive.openBox(_boxKey);
     var id = localDb.get('seller_track_id', defaultValue: 0);
+    print("seller track id: $id");
     return id != 0;
   }
 

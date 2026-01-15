@@ -13,6 +13,9 @@ class LocationStreamHandler(private val activity: Activity) : EventChannel.Strea
     private var eventSink: EventChannel.EventSink? = null
     private var isSubscribed = false
     override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+        // if(!hasBackgroundPermission()){
+        //     requestBackgroundPermission();
+        // }
         eventSink = events
         isSubscribed = true
         LocationService.setEventSink(events)
