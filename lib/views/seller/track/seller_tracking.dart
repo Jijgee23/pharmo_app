@@ -263,6 +263,7 @@ class _SellerTrackingState extends State<SellerTracking>
 
   Future startTrack(JaggerProvider jagger) async {
     print('starting seller track');
+    await jagger.clearTrackData();
     await LocalBase.saveSellerTrackId();
     final bool sellerTID = await LocalBase.hasSellerTrack();
     if (sellerTID) {
