@@ -97,6 +97,12 @@ class LocalBase {
     await initLocalBase();
   }
 
+  static Future getAccess() async {
+    localDb = await Hive.openBox(_boxKey);
+    final access = await localDb.get('access', defaultValue: 'empty');
+    return access;
+  }
+
   static Future updateStock(int supplierId, int stockId) async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.put(_supplierIdKey, supplierId);

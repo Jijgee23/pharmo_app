@@ -1,6 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
+import 'package:pharmo_app/application/services/log_service.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/controller/providers/a_controlller.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
@@ -265,6 +266,10 @@ class _SellerTrackingState extends State<SellerTracking>
     await LocalBase.saveSellerTrackId();
     final bool sellerTID = await LocalBase.hasSellerTrack();
     if (sellerTID) {
+      await LogService().createLog(
+        'Борлуулалт эхлэх',
+        DateTime.now().toIso8601String(),
+      );
       await jagger.tracking();
     }
   }
@@ -275,6 +280,6 @@ class _SellerTrackingState extends State<SellerTracking>
     if (hasTrack) {
       return;
     }
-    tracker.stopTracking();
+    await tracker.stopTracking();
   }
 }

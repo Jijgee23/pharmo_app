@@ -1,7 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:pharmo_app/app_configs.dart';
 import 'package:pharmo_app/application/services/local_base.dart';
+import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/application/utilities/enums.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/controller/database/security.dart';
@@ -40,6 +42,11 @@ getApiInformation(String endPoint, http.Response response) {
 
 Future<http.Response?> api(Api method, String endpoint,
     {Map<String, dynamic>? body, Map<String, String>? header}) async {
+  void onError() {
+    messageWarning('Хандах эрх дууссан эсвэл өөр төхөөрөмжөөс нэвтэрсэн!');
+    gotoRemoveUntil(const LoginPage());
+  }
+
   try {
     Security? security = LocalBase.security;
     if (security == null) return null;
@@ -47,10 +54,9 @@ Future<http.Response?> api(Api method, String endpoint,
     if (accessExpired) {
       bool refreshExpired = JwtDecoder.isExpired(security.refresh);
       if (!refreshExpired) {
-        bool success = await refreshed(security.refresh);
+        bool success = await refreshed();
         if (!success) {
-          messageWarning('Нэвтэрнэ үү!');
-          gotoRemoveUntil(const LoginPage());
+          onError();
           return null;
         }
         var s = await LocalBase.getSecurity();
@@ -58,8 +64,7 @@ Future<http.Response?> api(Api method, String endpoint,
         String access = s.access;
         var r = await responser(method, endpoint, access, body, header);
         if (r == null) {
-          messageWarning('Нэвтэрнэ үү!');
-          gotoRemoveUntil(const LoginPage());
+          onError();
           return null;
         }
         if (r != null) {
@@ -68,9 +73,7 @@ Future<http.Response?> api(Api method, String endpoint,
         // if (showLog && r != null) getApiInformation(endpoint, r);
         return r;
       }
-      messageWarning('Нэвтэрнэ үү!');
-
-      gotoRemoveUntil(const LoginPage());
+      onError();
       return null;
     }
     String access = security.access;
@@ -78,9 +81,7 @@ Future<http.Response?> api(Api method, String endpoint,
     if (res != null) {
       print('status code: ${res.statusCode}');
       if (res.statusCode == 401) {
-        messageWarning('Өөр төхөөрөмжөөс нэвтэрсэн байна. Дахин нэвтэрнэ үү!');
-        await LocalBase.clearSecurity();
-        Get.context!.read<AuthController>().logout(Get.context!);
+        onError();
         return null;
       }
     }
@@ -89,6 +90,15 @@ Future<http.Response?> api(Api method, String endpoint,
     debugPrint('Error in $method request to $endpoint: $e');
     return null;
   }
+}
+
+bool apiSucceess(http.Response? res) {
+  if (res == null) return false;
+  final code = res.statusCode;
+  if (code == 200 || code == 201) {
+    return true;
+  }
+  return false;
 }
 
 Future<http.Response?> responser(
@@ -107,7 +117,7 @@ Future<http.Response?> responser(
     'X-Pharmo-Client': '!pharmo_app?',
     'Authorization': 'Bearer $access',
   };
-  if (access != null) {}
+
   http.Response res;
   switch (method) {
     case Api.get:
@@ -126,8 +136,11 @@ Future<http.Response?> responser(
   return res;
 }
 
-Future<bool> refreshed(String refresh) async {
-  var b = {"refresh": refresh};
+Future<bool> refreshed() async {
+  final user = LocalBase.security;
+  if (user == null) return false;
+  final oldAccess = user.access;
+  var b = {"refresh": user.refresh};
   Uri url = setUrl('auth/refresh/');
   try {
     final k = await http
@@ -140,9 +153,13 @@ Future<bool> refreshed(String refresh) async {
           body: jsonEncode(b),
         )
         .timeout(const Duration(seconds: 10));
-    if (k.statusCode == 200) {
+    if (apiSucceess(k)) {
       Map<String, dynamic> res = convertData(k);
+      print('token refreshed: ${res['access'] != oldAccess}');
       await LocalBase.updateAccess(res['access']);
+      final newAccess = await LocalBase.getAccess();
+      print('oldAccess: $oldAccess');
+      print('newAccess: $newAccess');
       return true;
     }
   } catch (e) {

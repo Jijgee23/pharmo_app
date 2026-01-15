@@ -165,7 +165,12 @@ class _MapViewState extends State<MapView> {
                       children: [
                         FloatingActionButton.extended(
                           heroTag: 'hasTrack2',
-                          onPressed: () {},
+                          onPressed: () async {
+                            // await jagger.updateDatasToSended();
+
+                            final refresh = await refreshed();
+                            print(refresh);
+                          },
                           backgroundColor: Colors.teal,
                           label: Text(
                             'Байршил дамжуулж байна...',

@@ -259,21 +259,31 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   late Timer timer;
   DateTime now = DateTime.now();
 
-  void stopTracking() async {
-    if (subscription == null) return;
-    await subscription!.cancel();
-    subscription = null;
-    notifyListeners();
-    await BatteryService.stopListenBattery();
-    await LocalBase.clearDelmanTrack();
-    await LocalBase.removeSellerTrackId();
-    await clearTrackData();
-    await getTrackBox();
-    routeCoords.clear();
-    polylines.clear();
-    orderMarkers.clear();
-    markers.clear();
-    notifyListeners();
+  Future stopTracking() async {
+    try {
+      if (subscription == null) return;
+      await subscription!.cancel();
+      subscription = null;
+      notifyListeners();
+      final hasDelmanTrack = await LocalBase.getDelmanTrackId();
+      await LogService().createLog(
+        '${(hasDelmanTrack == 0) ? 'Боруулалт' : 'Түгээлт'} дууссан',
+        DateTime.now().toIso8601String(),
+      );
+      await BatteryService.stopListenBattery();
+      await LocalBase.clearDelmanTrack();
+      await LocalBase.removeSellerTrackId();
+      await clearTrackData();
+      await getTrackBox();
+      routeCoords.clear();
+      polylines.clear();
+      orderMarkers.clear();
+      markers.clear();
+      notifyListeners();
+    } catch (e) {
+      print(e);
+      throw Exception(e);
+    }
   }
 
   Future sendTobackend(bool isSeller, int id, double lat, double lng) async {
@@ -307,8 +317,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         await getDeliveries();
       }
       await addPointToBox(locatioData(true));
-
-      // await getDeliveryLocation();
       await syncOffineTracks();
     }
 
@@ -316,11 +324,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     final apiMethod = isSeller ? Api.post : Api.patch;
     var body = locationResponse(id, [locatioData(true)]);
     final res = await api(apiMethod, trackUrl, body: body);
-    final sended =
-        res != null && (res.statusCode == 200 || res.statusCode == 201);
-    // print(res!.body);
-    print('sended: $sended');
-    if (sended) {
+    if (apiSucceess(res)) {
       await handleSuccessSent();
       return;
     }
@@ -346,9 +350,10 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       var b = locationResponse(await LocalBase.getDelmanTrackId(), unsended);
       print('syncync offline data: $b');
       final r = await api(apiMethod, trackUrl, body: b);
-      if (r != null && r.statusCode == 200) {
+      if (apiSucceess(r)) {
         await updateDatasToSended();
       }
+      if (r != null) print('send to BE res.body: ${convertData(r)}');
     }
   }
 
@@ -478,15 +483,14 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         return;
       }
 
-      if (res.statusCode == 200) {
+      if (apiSucceess(res)) {
         await getDeliveries();
         await LocalBase.clearDelmanTrack();
         await FirebaseApi.local(
           'Түгээлт дууслаа',
           'Таны $shipmentId дугаартай түгээлт дууслаа.',
         );
-        await logService.createLog('end_shipment', 'Түгээлт дуусгасан');
-        stopTracking();
+        await stopTracking();
         notifyListeners();
       } else {
         String data = res.body.toString();
@@ -506,8 +510,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Future<dynamic> getDeliveries() async {
     try {
       final response = await api(Api.get, 'delivery/delman_active/');
-      if (response!.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (apiSucceess(response)) {
+        final data = jsonDecode(utf8.decode(response!.bodyBytes));
         delivery = (data as List).map((d) => Delivery.fromJson(d)).toList();
         if (delivery.isNotEmpty) {
           final currentdelivery = delivery[0];
@@ -810,10 +814,22 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {}
 
   Future<void> getCurrentLocation() async {
-    print('Getting current location...');
-    // await Settings.checkAlwaysLocationPermission();
-    currentPosition = await Geolocator.getCurrentPosition();
-    notifyListeners();
+    try {
+      print('Getting current location...');
+      // await Settings.checkAlwaysLocationPermission();
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+      final newLoc = await Geolocator.getCurrentPosition().timeout(
+        Duration(seconds: 1),
+      );
+      if (newLoc != null) {
+        currentPosition = newLoc;
+        notifyListeners();
+      }
+    } catch (e) {
+      print(e);
+      throw Exception(e);
+    }
   }
 }
 
@@ -843,15 +859,7 @@ double calculateTotalDistanceKm(List<TrackData> points) {
   return totalMeters / 1000;
 }
 
-bool success(Response<dynamic>? response) {
-  if (response == null) {
-    return false;
-  }
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    return true;
-  }
-  return false;
-}
+
  // Future<dynamic> getDeliveryLocation() async {
   //   currentPosition = await Geolocator.getCurrentPosition();
   //   final security = await LocalBase.getSecurity();

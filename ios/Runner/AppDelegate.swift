@@ -59,73 +59,86 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
   func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink)
     -> FlutterError?
   {
+    self.eventSink = events
+
+    // Delegate-ийг заавал энд дахин тохируулна
+    locationManager.delegate = self
+
     locationManager.requestAlwaysAuthorization()
-    locationManager.requestLocation()
     locationManager.showsBackgroundLocationIndicator = true
     locationManager.startUpdatingLocation()
-    self.eventSink = events
+
     return nil
   }
 
   func onCancel(withArguments arguments: Any?) -> FlutterError? {
-    self.eventSink = nil
     locationManager.stopUpdatingLocation()
+
+    // 2. Delegate-ийг салгах (Чухал: Ингэснээр дахин байршил ирэхгүй)
+    locationManager.delegate = nil
+
+    // 3. Өгөгдөл дамжуулах сувгийг хаах
+    self.eventSink = nil
+
+    // 4. Түр хадгалсан байршлуудыг цэвэрлэх
+    self.lastLocation = nil
+    self.lastSentTime = nil
+
+    print("iOS: Location tracking fully stopped.")
     return nil
   }
 
   // CLLocationManagerDelegate
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    guard let sink = eventSink else {
+      locationManager.stopUpdatingLocation()
+      return
+    }
+
     guard let newLocation = locations.last else { return }
     let now = Date()
 
-    // 1. Нарийвчлал шалгах (20 метрээс дээш байвал хаяна)
-    guard newLocation.horizontalAccuracy > 0 && newLocation.horizontalAccuracy <= 20 else {
+    // 2. Нарийвчлалын шүүлтүүр (Kotlin дээр 50 байгаа тул ижилсүүлэв)
+    // iOS-д accuracy > 50 бол ихэвчлэн маш тодорхойгүй байдаг
+    guard newLocation.horizontalAccuracy > 0 && newLocation.horizontalAccuracy <= 50 else {
       return
     }
 
-    // 2. Эхний байршил эсвэл сүүлийн байршил байхгүй бол шууд дамжуулна
-    guard let last = lastLocation else {
-      lastLocation = newLocation
-      lastSentTime = now
-      sendLocationToFlutter(newLocation, time: now)
+    // 3. Өмнөх байршил байгаа эсэхийг шалгах (Kotlin: val isFirstLocation = previous == null)
+    guard let last = lastLocation, let lastTime = lastSentTime else {
+      // Эхний байршил бол шууд илгээнэ
+      updateAndBroadcast(location: newLocation, time: now)
       return
     }
 
-    // 3. Зайны шалгалт (Сүүлийн илгээсэн байршлаас хөдөлсөн зай)
+    // 4. Шалгуурууд (Kotlin-той ижил логик)
     let distance = newLocation.distance(from: last)
+    let timeInterval = now.timeIntervalSince(lastTime)
 
-    // A. 10 метрээс их хөдөлсөн бол: Шууд дамжуулна
-    if distance >= minDistance {
-      // Зай 10м ба түүнээс дээш бол шууд илгээнэ. Хугацааны хязгаарлалт үйлчлэхгүй.
-      lastLocation = newLocation
-      lastSentTime = now
-      sendLocationToFlutter(newLocation, time: now)
-      return
-    }
+    let movedEnough = distance >= 10.0  // 10 метр хөдөлсөн үү
+    let timeEnough = timeInterval >= 30.0  // 30 секунд өнгөрсөн үү
 
-    // B. 10 метрээс бага хөдөлсөн бол: Хугацааны шалгалт хийнэ
-    // (distance < minDistance)
-    if let lastTime = lastSentTime, now.timeIntervalSince(lastTime) >= minUpdateInterval {
-      // 10м-ээс бага боловч, сүүлийн илгээлтээс 30 секунд өнгөрсөн бол илгээнэ.
-      lastLocation = newLocation
-      lastSentTime = now
-      sendLocationToFlutter(newLocation, time: now)
-      return
+    // Аль нэг нөхцөл биелсэн бол Flutter-лүү дамжуулна
+    if movedEnough || timeEnough {
+      updateAndBroadcast(location: newLocation, time: now)
     }
 
     // Бусад тохиолдолд (10м-ээс бага хөдөлж, 30с өнгөрөөгүй бол) юу ч хийхгүй.
   }
 
   // Туслах функц (кодыг цэгцлэх үүднээс)
-  private func sendLocationToFlutter(_ location: CLLocation, time: Date) {
-    if let sink = eventSink {
-      sink([
-        "lat": location.coordinate.latitude,
-        "lng": location.coordinate.longitude,
-        "accuracy": location.horizontalAccuracy,
-        "timestamp": time.timeIntervalSince1970,
-      ])
-    }
+  private func updateAndBroadcast(location: CLLocation, time: Date) {
+    lastLocation = location
+    lastSentTime = time
+
+    let locationData: [String: Any] = [
+      "lat": location.coordinate.latitude,
+      "lng": location.coordinate.longitude,
+      "acc": location.horizontalAccuracy,  // "accuracy" байсныг Kotlin-той ижил "acc" болгов
+      "timestamp": time.timeIntervalSince1970,
+    ]
+
+    eventSink?(locationData)
   }
 
   func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

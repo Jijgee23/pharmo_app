@@ -165,7 +165,7 @@ class _DeliveriesState extends State<Deliveries> {
                           button(
                             title: 'Байршил дамжуулах',
                             color: neonBlue,
-                            onTap: () => jagger.tracking(),
+                            onTap: () async => await jagger.tracking(),
                           ),
                         ],
                       ),

@@ -170,23 +170,17 @@ class AuthController extends ChangeNotifier {
   Future<void> logout(BuildContext context) async {
     final security = LocalBase.security;
     if (security != null && security.role != 'PA') {
-      if (security.role == 'D') {
-        int delmanTrackId = await LocalBase.getDelmanTrackId();
-        if (delmanTrackId != 0) {
-          bool confirmed = await confirmDialog(
-            context: context,
-            title:
-                'Дуусгаагүй түгээлтийн байршид дамжуулалт зогсоогоод системээс гарах уу?',
-          );
-          if (confirmed) {
-            context.read<JaggerProvider>().stopTracking();
-          }
-          return;
+      final hasTrack =
+          await LocalBase.hasDelmanTrack() || await LocalBase.hasSellerTrack();
+      if (hasTrack) {
+        bool confirmed = await confirmDialog(
+          context: context,
+          title: 'Байршил дамжуулалт зогсоогоод системээс гарах уу?',
+        );
+        if (confirmed) {
+          context.read<JaggerProvider>().stopTracking();
         }
       }
-      // if (security.role == "S") {
-      //   bool hasTrack = await LocalBase.hasSellerTrack();
-      // }
     }
     try {
       await LogService().createLog('logout', LogService.logout);
@@ -209,7 +203,7 @@ class AuthController extends ChangeNotifier {
     await LocalBase.removeTokens();
     await LocalBase.saveLastLoggedIn(false);
     await _disposeProviders(context);
-    gotoRemoveUntil(LoginPage());
+    await gotoRemoveUntil(LoginPage());
   }
 
   Future<void> _disposeProviders(BuildContext context) async {

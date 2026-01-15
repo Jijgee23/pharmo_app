@@ -19,6 +19,10 @@ class LogService {
   }
 
   Future createLog(String logType, String desc) async {
+    if (!await isOnline()) {
+      await saveModel(LogModel(logType: logType, desc: desc));
+      return;
+    }
     final user = LocalBase.security;
     if (user == null) return;
     if (user.role == 'PA') return;
@@ -51,9 +55,9 @@ class LogService {
           deleteModel(log);
         }
       }
-    } else {
-      saveModel(LogModel(logType: logType, desc: desc));
+      return;
     }
+    await saveModel(LogModel(logType: logType, desc: desc));
   }
 
   Future<void> saveModel(LogModel log) async {

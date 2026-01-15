@@ -57,7 +57,7 @@ class _RootPageState extends State<RootPage> {
         updateState(AuthState.expired);
         return;
       }
-      var r = await refreshed(sec.refresh);
+      var r = await refreshed();
       if (r) {
         updateState(AuthState.loggedIn);
         return;

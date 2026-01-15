@@ -20,7 +20,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    context.read<AuthController>().initLoginpage();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthController>().initLoginpage();
+    });
   }
 
   @override
