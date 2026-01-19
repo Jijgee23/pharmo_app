@@ -29,11 +29,11 @@ class _MyOrderDetailState extends State<MyOrderDetail>
   Future getDetails() async {
     LoadingService.run(
       () async {
-        final res =
+        final r =
             await api(Api.get, 'pharmacy/orders/${widget.order.id}/items/');
-        if (res == null) return;
-        final data = convertData(res);
-        if (res.statusCode == 200) {
+        if (r == null) return;
+        final data = convertData(r);
+        if (r.statusCode == 200) {
           products = (data as List)
               .map((e) => MyOrderDetailModel.fromJson(e))
               .toList();

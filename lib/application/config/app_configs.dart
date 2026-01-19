@@ -1,7 +1,9 @@
+import 'package:pharmo_app/application/event/life_cycle_provider.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/views/auth/root/root_page.dart';
+import 'package:pharmo_app/views/auth/root/root_provider.dart';
 import 'package:pharmo_app/views/auth/sign_up.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
 import 'package:pharmo_app/views/seller/customer/choose_customer.dart';
@@ -14,18 +16,17 @@ import '../../controller/a_controlller.dart';
 
 class AppConfigs {
   static List<SingleChildWidget> providers = [
+    ChangeNotifierProvider(create: (_) => RootProvider()),
+    ChangeNotifierProvider(create: (_) => LifeCycleProvider()),
     ChangeNotifierProvider(create: (_) => AuthController()),
     ChangeNotifierProvider(create: (_) => BasketProvider()),
-    ChangeNotifierProvider(
-        create: (_) => JaggerProvider()
-          ..initJagger()
-          ..tracking()),
+    ChangeNotifierProvider(create: (_) => JaggerProvider()..initJagger()),
     ChangeNotifierProvider(create: (_) => MyOrderProvider()),
     ChangeNotifierProvider(create: (_) => HomeProvider()),
     ChangeNotifierProvider(create: (_) => PharmProvider()),
     ChangeNotifierProvider(create: (_) => PromotionProvider()),
     ChangeNotifierProvider(create: (_) => ReportProvider()),
-    ChangeNotifierProvider(create: (_) => RepProvider()..initTracking()),
+    ChangeNotifierProvider(create: (_) => RepProvider()),
     ChangeNotifierProvider(create: (_) => LogProvider()),
     ChangeNotifierProvider(create: (_) => DriverProvider()),
   ];

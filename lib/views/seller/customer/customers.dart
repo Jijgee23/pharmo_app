@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/controller/providers/pharms_provider.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/views/seller/customer/customer_tile.dart';
 import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
-import 'package:provider/provider.dart';
 
 class CustomerList extends StatefulWidget {
   const CustomerList({super.key});
@@ -34,11 +31,9 @@ class _CustomerListState extends State<CustomerList>
   }
 
   void init(bool force) async {
-    // final homeProvider = context.read<HomeProvider>();
     final pharmProvider = context.read<PharmProvider>();
     Future fetch() async {
       await pharmProvider.getCustomers(1, 100, context);
-      // await homeProvider.getPosition();
       await pharmProvider.getZones();
     }
 

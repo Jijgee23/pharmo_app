@@ -5,6 +5,7 @@ import 'package:pharmo_app/views/auth/login/auth_text.dart';
 import 'package:pharmo_app/views/auth/login/forget_and_signup.dart';
 import 'package:pharmo_app/views/auth/login/login_footer.dart';
 import 'package:pharmo_app/views/auth/login/login_header_image.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
@@ -25,6 +26,8 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+  final formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthController>(
@@ -35,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
               return PharmoIndicator();
             }
             return Form(
-              key: auth.formKey,
+              key: formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -107,9 +110,14 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           CustomButton(
-                            text: 'Нэвтрэх',
-                            ontap: auth.login,
-                          ),
+                              text: 'Нэвтрэх',
+                              ontap: () async {
+                                if (!formKey.currentState!.validate()) {
+                                  message('Нэвтрэх нэр, нууц үг оруулна уу');
+                                  return;
+                                }
+                                await auth.login();
+                              }),
                           ForgetAndSignup(),
                         ],
                       ),

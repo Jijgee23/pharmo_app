@@ -34,9 +34,9 @@ class RepProvider extends ChangeNotifier {
       if (note.isEmpty) {
         messageWarning('Тайлбар оруулна уу!');
       } else {
-        final response =
-            await api(Api.post, 'company/visit/', body: {"note": note});
-        if (response!.statusCode == 200 || response.statusCode == 201) {
+        final r = await api(Api.post, 'company/visit/', body: {"note": note});
+        if (r == null) return;
+        if (r.statusCode == 200 || r.statusCode == 201) {
           await getActiveVisits();
           messageComplete('Уулзалт бүртгэгдлээ');
         } else {
@@ -53,9 +53,10 @@ class RepProvider extends ChangeNotifier {
   Future<dynamic> getActiveVisits() async {
     try {
       setLoading(true);
-      final response = await api(Api.get, 'company/visit/');
-      if (response!.statusCode == 200) {
-        final data = convertData(response);
+      final r = await api(Api.get, 'company/visit/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
         final pref = await SharedPreferences.getInstance();
         visiting = Visiting.fromJson(data);
         print("visiting id: ${visiting!.id}");
@@ -73,12 +74,12 @@ class RepProvider extends ChangeNotifier {
   Future<dynamic> editVisit(int id, String note) async {
     try {
       print(note);
-      final response = await api(
+      final r = await api(
         Api.patch,
         'company/visit/',
         body: {"visit_id": id, "note": note},
       );
-      if (response!.statusCode == 200 || response.statusCode == 201) {
+      if (r!.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Амжилттай засагдлаа');
       } else {
@@ -95,7 +96,7 @@ class RepProvider extends ChangeNotifier {
     String visitedOn = DateTime.now().toString().substring(0, 19);
     try {
       Position loc = await Geolocator.getCurrentPosition();
-      final response = await api(
+      final r = await api(
         Api.patch,
         'company/visit/',
         body: {
@@ -105,7 +106,7 @@ class RepProvider extends ChangeNotifier {
           "lng": loc.longitude
         },
       );
-      if (response!.statusCode == 200 || response.statusCode == 201) {
+      if (r!.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Уулзалтын байршил илгээлээ');
       } else {
@@ -134,8 +135,9 @@ class RepProvider extends ChangeNotifier {
         "lat": currentPosition!.latitude,
         "lng": currentPosition!.longitude
       };
-      final response = await api(Api.patch, 'company/visiting/', body: body);
-      if (response!.statusCode == 200 || response.statusCode == 201) {
+      final r = await api(Api.patch, 'company/visiting/', body: body);
+      if (r == null) return;
+      if (r.statusCode == 200 || r.statusCode == 201) {
         isTracking = true;
         await db.delete('meetingId');
         await getActiveVisits();
@@ -200,8 +202,9 @@ class RepProvider extends ChangeNotifier {
         return;
       }
       final body = {"visiting_id": db.get('meetingId'), "lat": lat, "lng": lng};
-      final res = await api(Api.patch, 'company/visiting/route/', body: body);
-      if (res != null && res.statusCode == 200) {
+      final r = await api(Api.patch, 'company/visiting/route/', body: body);
+      if (r == null) return;
+      if (r != null && r.statusCode == 200) {
         await FirebaseApi.local(
           'Байршил дамжуулж байна',
           'Таны байршлыг арын төлөвт дамжуулж байна. өргөрөг: $lat уртраг: $lng',
@@ -236,7 +239,7 @@ class RepProvider extends ChangeNotifier {
     int? vId = pref.getInt('visitId');
     Position newPosition = await Geolocator.getCurrentPosition();
     try {
-      final response = await api(
+      final r = await api(
         Api.patch,
         'company/visiting/',
         body: {
@@ -246,7 +249,7 @@ class RepProvider extends ChangeNotifier {
           "lng": newPosition.longitude
         },
       );
-      if (response!.statusCode == 200 || response.statusCode == 201) {
+      if (r!.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Уулзалт дууслаа');
         stopTracking();
@@ -261,12 +264,12 @@ class RepProvider extends ChangeNotifier {
   Future<dynamic> leftVisit(int id) async {
     String leftOn = DateTime.now().toString().substring(0, 19);
     try {
-      final response = await api(
+      final r = await api(
         Api.patch,
         'company/visit/',
         body: {"visit_id": id, "left_on": leftOn},
       );
-      if (response!.statusCode == 200 || response.statusCode == 201) {
+      if (r!.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Уулзалтыг дуусгалаа');
       } else {
@@ -281,8 +284,9 @@ class RepProvider extends ChangeNotifier {
 
   Future<dynamic> deleteVisit(int id) async {
     try {
-      final response = await api(Api.delete, 'company/visit/?visit_id=$id');
-      if (response!.statusCode == 200 || response.statusCode == 201) {
+      final r = await api(Api.delete, 'company/visit/?visit_id=$id');
+      if (r == null) return;
+      if (r.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Амжилттай хасагдлаа');
       } else {

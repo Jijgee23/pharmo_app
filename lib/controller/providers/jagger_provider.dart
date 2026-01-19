@@ -112,9 +112,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         "lat": currentPosition!.latitude,
         "lng": currentPosition!.longitude
       };
-      final res = await api(Api.patch, url, body: body);
-      if (res == null) return;
-      if (res.statusCode == 200) {
+      final r = await api(Api.patch, url, body: body);
+      if (r == null) return;
+      if (r.statusCode == 200) {
         await clearTrackData();
         await addPointToBox(
           TrackData(
@@ -133,8 +133,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
           await clearTrackData();
           await tracking();
         });
-      } else if (res != null && res.statusCode == 400) {
-        String data = convertData(res).toString();
+      } else if (r != null && r.statusCode == 400) {
+        String data = convertData(r).toString();
         if (data.contains('already started')) {
           messageWarning('Түгээлт эхлэсэн байна!');
         }
@@ -171,10 +171,10 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             final lng = parseDouble(event.location['lng']);
             await sendTobackend(lat, lng);
           } else if (event is NetworkEvent) {
-            final results = event.results;
-            bool isMobile = results.contains(ConnectivityResult.mobile);
-            bool isWifi = results.contains(ConnectivityResult.wifi);
-            bool isEthernet = results.contains(ConnectivityResult.ethernet);
+            final rults = event.results;
+            bool isMobile = rults.contains(ConnectivityResult.mobile);
+            bool isWifi = rults.contains(ConnectivityResult.wifi);
+            bool isEthernet = rults.contains(ConnectivityResult.ethernet);
             if (isMobile || isWifi || isEthernet) {
               await logService.createLog(
                 'Mobile',
@@ -219,7 +219,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
   }
 
-  void resumeTracking() {
+  void rumeTracking() {
     subscription!.resume();
     notifyListeners();
   }
@@ -296,10 +296,10 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         LocalBase.security != null && LocalBase.security!.role == 'S';
     final trackUrl = isSeller ? 'seller/location/' : 'delivery/location/';
     final apiMethod = isSeller ? Api.post : Api.patch;
-    var body = locationResponse(
-        await LocalBase.getDelmanTrackId(), [locatioData(true)]);
-    final res = await api(apiMethod, trackUrl, body: body);
-    if (apiSucceess(res)) {
+    var body =
+        locationr(await LocalBase.getDelmanTrackId(), [locatioData(true)]);
+    final r = await api(apiMethod, trackUrl, body: body);
+    if (apiSucceess(r)) {
       await handleSuccessSent();
       if (!isSeller) {
         await getDeliveries();
@@ -325,7 +325,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         print('no offline tracks');
         return;
       }
-      var b = locationResponse(await LocalBase.getDelmanTrackId(), unsended);
+      var b = locationr(await LocalBase.getDelmanTrackId(), unsended);
       print('syncync offline data: $b');
       final r = await api(apiMethod, trackUrl, body: b);
       if (apiSucceess(r)) {
@@ -334,7 +334,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
   }
 
-  Map<String, Object> locationResponse(int id, List<TrackData> locs) {
+  Map<String, Object> locationr(int id, List<TrackData> locs) {
     final user = LocalBase.security;
     if (user == null) return {};
     bool isSeller = user.role == "S";
@@ -454,13 +454,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Future<dynamic> endShipment(int shipmentId) async {
     try {
       var body = {"delivery_id": shipmentId};
-      final res = await api(Api.patch, 'delivery/end/', body: body);
-      if (res == null) {
+      final r = await api(Api.patch, 'delivery/end/', body: body);
+      if (r == null) {
         messageError('Сервертэй холбогдож чадсангүй!');
         return;
       }
 
-      if (res.statusCode == 200) {
+      if (r.statusCode == 200) {
         await getDeliveries();
         await LocalBase.clearDelmanTrack();
         await FirebaseApi.local(
@@ -471,7 +471,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         stopTracking();
         notifyListeners();
       } else {
-        String data = res.body.toString();
+        String data = r.body.toString();
         if (data.contains('UB!')) {
           messageWarning('Таний байршил Улаанбаатарт биш байна');
         } else {
@@ -487,9 +487,10 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   Future<dynamic> getDeliveries() async {
     try {
-      final response = await api(Api.get, 'delivery/delman_active/');
-      if (response!.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
+      final r = await api(Api.get, 'delivery/delman_active/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(r.bodyBytes));
         delivery = (data as List).map((d) => Delivery.fromJson(d)).toList();
         if (delivery.isNotEmpty) {
           final currentdelivery = delivery[0];
@@ -555,11 +556,11 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   Future<dynamic> getDeliveryDetail(int id) async {
     try {
-      final response =
-          await api(Api.get, 'delivery/order_detail/?order_id=$id');
-      final data = jsonDecode(utf8.decode(response!.bodyBytes));
+      final r = await api(Api.get, 'delivery/order_detail/?order_id=$id');
+      if (r == null) return;
+      final data = jsonDecode(utf8.decode(r.bodyBytes));
       print(data);
-      if (response.statusCode == 200) {}
+      if (r.statusCode == 200) {}
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -573,8 +574,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         "pay_type": type,
         "amount": amount
       };
-      final res = await api(Api.post, 'customer_payment/', body: data);
-      if (res!.statusCode == 201) {
+      final r = await api(Api.post, 'customer_payment/', body: data);
+      if (r == null) return;
+      if (r.statusCode == 201) {
         messageComplete('Амжилттай бүртгэлээ');
         await getCustomerPayment();
       } else {
@@ -596,8 +598,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         "pay_type": payType,
         "amount": amount
       };
-      final res = await api(Api.patch, 'customer_payment/', body: data);
-      if (res!.statusCode == 200) {
+      final r = await api(Api.patch, 'customer_payment/', body: data);
+      if (r == null) return;
+      if (r.statusCode == 200) {
         getCustomerPayment();
         messageComplete('Амжилттай хадгаллаа');
         await getCustomerPayment();
@@ -612,9 +615,10 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   getCustomerPayment() async {
     try {
-      final res = await api(Api.get, 'customer_payment/');
-      if (res!.statusCode == 200) {
-        final data = convertData(res);
+      final r = await api(Api.get, 'customer_payment/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
         print(data);
         payments =
             (data as List).map((payment) => Payment.fromJson(payment)).toList();
@@ -636,8 +640,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         "lat": currentPosition!.latitude,
         "lng": currentPosition!.longitude
       };
-      final response = await api(Api.post, 'delivery/addition/', body: data);
-      if (response!.statusCode == 200 || response.statusCode == 201) {
+      final r = await api(Api.post, 'delivery/addition/', body: data);
+      if (r == null) return;
+      if (r.statusCode == 200 || r.statusCode == 201) {
         messageComplete('Амжилттай бүртгэлээ');
         await getDeliveries();
         // await getDeliveryLocation();
@@ -652,8 +657,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   editAdditionalDelivery(int id, String note) async {
     try {
       final data = {"note": note, 'item_id': id};
-      final response = await api(Api.patch, 'delivery/addition/', body: data);
-      if (response!.statusCode == 200 || response.statusCode == 201) {
+      final r = await api(Api.patch, 'delivery/addition/', body: data);
+      if (r == null) return;
+      if (r.statusCode == 200 || r.statusCode == 201) {
         messageComplete('Амжилттай хадгаллаа');
         await getDeliveries();
       } else {
@@ -667,8 +673,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   addPaymentToDeliveryOrder(int orderId, String payType, String value) async {
     final data = {"order_id": orderId, "pay_type": payType, "amount": value};
     try {
-      final res = await api(Api.post, 'order_payment/', body: data);
-      if (res!.statusCode == 200 || res.statusCode == 201) {
+      final r = await api(Api.post, 'order_payment/', body: data);
+      if (r == null) return;
+      if (r.statusCode == 200 || r.statusCode == 201) {
         messageComplete('Амжилттай хадгалагдлаа');
         await getDeliveries();
         notifyListeners();
@@ -767,13 +774,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   Future<BitmapDescriptor> readIcon() async {
-    final result = await BitmapDescriptor.asset(
+    final rult = await BitmapDescriptor.asset(
       ImageConfiguration.empty,
       'assets/car.png',
       width: 30,
       height: 30,
     );
-    return result;
+    return rult;
   }
 
   @override
@@ -867,11 +874,11 @@ double calculateTotalDistanceKm(List<TrackData> points) {
   return totalMeters / 1000;
 }
 
-bool success(Response<dynamic>? response) {
-  if (response == null) {
+bool success(Response<dynamic>? r) {
+  if (r == null) {
     return false;
   }
-  if (response.statusCode == 200 || response.statusCode == 201) {
+  if (r.statusCode == 200 || r.statusCode == 201) {
     return true;
   }
   return false;

@@ -22,9 +22,10 @@ class DriverProvider extends ChangeNotifier {
 
   Future<dynamic> getOrders() async {
     try {
-      final response = await api(Api.get, 'delivery/allocation/');
-      if (response!.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
+      final r = await api(Api.get, 'delivery/allocation/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(r.bodyBytes));
         print(data);
         orders = (data as List).map((e) => Order.fromJson(e)).toList();
         orders.sort((a, b) => a.orderer!.name.compareTo(b.orderer!.name));
@@ -46,13 +47,12 @@ class DriverProvider extends ChangeNotifier {
       print('Orders being sent: $ords');
       final body = {"order_ids": ords.map((id) => id.toString()).toList()};
       final url = 'delivery/add_to_delivery/';
-      final response = await api(Api.patch, url, body: body);
-      if (response == null) {
+      final r = await api(Api.patch, url, body: body);
+      if (r == null) {
         messageWarning('Сервертэй холбогдож чадсангүй!');
         return;
       }
-      print(response.body);
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (r.statusCode == 200 || r.statusCode == 201) {
         await getOrders();
         HomeProvider home =
             Provider.of<HomeProvider>(Get.context!, listen: false);
@@ -79,15 +79,14 @@ class DriverProvider extends ChangeNotifier {
       print('Orders being sent: $ords');
       final body = {"order_ids": ords, "delman_id": delId};
 
-      final response = await api(Api.patch, 'delivery/pass_drops/', body: body);
+      final r = await api(Api.patch, 'delivery/pass_drops/', body: body);
 
-      if (response == null) {
+      if (r == null) {
         messageWarning('Сервертэй холбогдож чадсангүй!');
         return;
       }
 
-      print(response.body);
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (r.statusCode == 200 || r.statusCode == 201) {
         await getOrders();
         messageWarning('Амжилттай нэмэгдлээ');
       } else {
@@ -104,9 +103,10 @@ class DriverProvider extends ChangeNotifier {
 
   getDelmans() async {
     try {
-      final response = await api(Api.get, 'delivery/delmans/');
-      if (response!.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
+      final r = await api(Api.get, 'delivery/delmans/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(r.bodyBytes));
         delmans = (data as List).map((del) => Delman.fromJson(del)).toList();
         notifyListeners();
       }
@@ -126,10 +126,10 @@ class DriverProvider extends ChangeNotifier {
       } else {
         url = "delivery/history/";
       }
-      final res = await api(Api.get, url);
-      print(res!.body);
-      if (res.statusCode == 200) {
-        final data = convertData(res);
+      final r = await api(Api.get, url);
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
         print(data);
         List<dynamic> ships = data['results'];
         history = (ships).map((e) => Delivery.fromJson(e)).toList();

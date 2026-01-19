@@ -58,9 +58,13 @@ class SheetContainer extends StatelessWidget {
   }
 }
 
-void mySheet({String? title, required List<Widget> children}) {
+void mySheet(
+    {String? title,
+    required List<Widget> children,
+    bool isDismissible = false}) {
   Get.bottomSheet(
     SheetContainer(title: title, children: children),
     isScrollControlled: true,
+    isDismissible: isDismissible,
   );
 }

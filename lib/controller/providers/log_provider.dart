@@ -5,6 +5,7 @@ class LogProvider extends ChangeNotifier {
   List<Log> logs = <Log>[];
   Future getLogs() async {
     var r = await api(Api.get, 'mobile_activity_log/');
+    if (r == null) return;
     if (r != null && r.statusCode == 200) {
       Map<String, dynamic> data = convertData(r);
       print(data);

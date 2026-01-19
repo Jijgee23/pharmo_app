@@ -23,13 +23,13 @@ class ReportProvider extends ChangeNotifier {
     String e =
         'seller/report/?by=$query&year=${currentDate.year}&month=${currentDate.month}&year2=${currentDate2.year}&month2=${currentDate2.month}';
     try {
-      final response = await api(Api.get, e);
-      if (response == null) return;
-      print(response.statusCode);
-      print(response.body);
-      if (response.statusCode == 200) {
-        print(convertData(response).runtimeType);
-        List<dynamic> data = convertData(response);
+      final r = await api(Api.get, e);
+      if (r == null) return;
+      print(r.statusCode);
+      print(r.body);
+      if (r.statusCode == 200) {
+        print(convertData(r).runtimeType);
+        List<dynamic> data = convertData(r);
         setReport(data);
         notifyListeners();
       } else {

@@ -21,10 +21,11 @@ class PharmProvider extends ChangeNotifier {
   /// харилцагч
   getCustomers(int page, int size, BuildContext c) async {
     try {
-      final response =
+      final r =
           await api(Api.get, 'seller/customer/?page=$page&page_size=$size/');
-      if (response!.statusCode == 200) {
-        Map data = convertData(response);
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        Map data = convertData(r);
         filteredCustomers.clear();
         List<dynamic> pharms = data['results'];
         filteredCustomers = pharms.map((p) => Customer.fromJson(p)).toList();
@@ -40,15 +41,13 @@ class PharmProvider extends ChangeNotifier {
 
   filtCustomers(String type, String v) async {
     try {
-      final response =
-          await api(Api.get, 'seller/customer/${getEndPoint(type, v)}');
-      if (response!.statusCode == 200) {
-        Map data = convertData(response);
+      final r = await api(Api.get, 'seller/customer/${getEndPoint(type, v)}');
+      if (r == null) return;
+      if (apiSucceess(r)) {
+        Map data = convertData(r);
         filteredCustomers.clear();
         List<dynamic> pharms = data['results'];
         filteredCustomers = pharms.map((p) => Customer.fromJson(p)).toList();
-      } else {
-        messageWarning('Алдаа гарлаа');
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -59,34 +58,35 @@ class PharmProvider extends ChangeNotifier {
   Future<Map<String, dynamic>> getCustomerDetail(int custId) async {
     Map<String, dynamic> result = {};
     try {
-      final response = await api(Api.get, 'seller/customer/$custId');
-      if (response!.statusCode == 200) {
-        dynamic data = convertData(response);
+      final r = await api(Api.get, 'seller/customer/$custId');
+      if (r == null) return result;
+      if (apiSucceess(r)) {
+        dynamic data = convertData(r);
         result = data;
         customerDetail = CustomerDetail.fromJson(data);
-      } else {
-        messageWarning(wait);
+        notifyListeners();
       }
     } catch (e) {
       debugPrint(e.toString());
     }
-    notifyListeners();
     return result;
   }
 
   sendCustomerLocation(int custId, BuildContext c) async {
     try {
       final home = Provider.of<HomeProvider>(c, listen: false);
-      final response = await api(
-          Api.patch, 'seller/customer/$custId/update_location/',
-          body: {
-            "lat": home.currentLatitude,
-            "lng": home.currentLongitude,
-          });
-      if (response!.statusCode == 200) {
+      final r = await api(
+        Api.patch,
+        'seller/customer/$custId/update_location/',
+        body: {
+          "lat": home.currentLatitude,
+          "lng": home.currentLongitude,
+        },
+      );
+      if (apiSucceess(r)) {
         messageComplete('Амжилттай');
       } else {
-        messageWarning('Алдаа гарлаа');
+        messageWarning('Түр хүлээгээд дахин оролдоно уу!');
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -105,13 +105,14 @@ class PharmProvider extends ChangeNotifier {
 
   editSellerOrder(String note, String pt, int orderId, BuildContext c) async {
     try {
-      final response = await api(Api.patch, 'seller/order/$orderId/',
-          body: {"note": note, "payType": pt});
-      if (response!.statusCode == 200) {
+      final u = 'seller/order/$orderId/';
+      final b = {"note": note, "payType": pt};
+      final r = await api(Api.patch, u, body: b);
+      if (r == null) return;
+      if (apiSucceess(r)) {
         messageComplete('Амжилттай засагдлаа');
-        notifyListeners();
       } else {
-        messageWarning('Алдаа гарлаа');
+        messageWarning('Түр хүлээнэ үү!');
       }
       notifyListeners();
     } catch (e) {
@@ -126,13 +127,14 @@ class PharmProvider extends ChangeNotifier {
   Stream<MyOrderModel>? getSellerOrderDetail(int oId) async* {
     MyOrderModel? result;
     try {
-      final response = await api(Api.get, 'seller/order/$oId/');
-      if (response!.statusCode == 200 && response.body != null) {
-        result = MyOrderModel.fromJson(convertData(response));
+      final u = 'seller/order/$oId/';
+      final r = await api(Api.get, u);
+      if (r == null) return;
+      if (apiSucceess(r)) {
+        result = MyOrderModel.fromJson(convertData(r));
       }
     } catch (e) {
       messageError('Серверийн алдаа');
-      debugPrint(e.toString());
     }
     yield result!;
   }
@@ -143,17 +145,18 @@ class PharmProvider extends ChangeNotifier {
       required int qty,
       required BuildContext context}) async {
     try {
-      final response = await api(
+      final r = await api(
         Api.patch,
         'seller/order/$oId/update_item/',
         body: {"itemId": itemId, "qty": qty},
       );
-      if (response!.statusCode == 200) {
-        return buildResponse(1, response, 'Амжилттай өөрлөгдлөө');
-      } else if (response.statusCode == 400) {
-        if (checker(convertData(response), 'order') == true) {
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        return buildResponse(1, r, 'Амжилттай өөрлөгдлөө');
+      } else if (r.statusCode == 400) {
+        if (checker(convertData(r), 'order') == true) {
           return buildResponse(4, null, 'Тухайн захиалгыг засах боломжгүй!');
-        } else if (checker(convertData(response), 'itemId') == true) {
+        } else if (checker(convertData(r), 'itemId') == true) {
           return buildResponse(4, null, 'Бараа олдсонгүй!');
         } else {
           return buildResponse(2, null, 'Алдаа гарлаа');
@@ -184,19 +187,20 @@ class PharmProvider extends ChangeNotifier {
       if (selectedZone.id == -1) {
         messageWarning('Бүс сонгоно уу!');
       } else {
-        var response = await api(Api.post, 'seller/customer/', body: body);
-        if (response!.statusCode == 201) {
+        var r = await api(Api.post, 'seller/customer/', body: body);
+        if (r == null) return;
+        if (apiSucceess(r)) {
           messageComplete('Амжилттай бүртгэгдлээ.');
+          return;
+        }
+        if (r == null) return;
+        final data = convertData(r);
+        if (data['error'] == 'name_exists!') {
+          messageWarning('Нэр бүртгэлтэй байна!');
         } else {
-          final data = convertData(response);
-          if (data['error'] == 'name_exists!') {
-            messageWarning('Нэр бүртгэлтэй байна!');
-          } else {
-            messageWarning('Алдаа гарлаа!');
-          }
+          messageWarning('Алдаа гарлаа!');
         }
       }
-      notifyListeners();
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -227,11 +231,12 @@ class PharmProvider extends ChangeNotifier {
         "lng": lng
       };
       await Provider.of<HomeProvider>(context, listen: false).getPosition();
-      final response = await api(Api.patch, 'seller/customer/$id/', body: body);
-      if (response!.statusCode == 200) {
+      final r = await api(Api.patch, 'seller/customer/$id/', body: body);
+      if (r == null) return;
+      if (r.statusCode == 200) {
         messageComplete('Амжилттай засагдлаа.');
       } else {
-        final data = convertData(response);
+        final data = convertData(r);
         if (data['error'] == 'name_exists!') {
           messageWarning('Нэр бүртгэлтэй байна!');
         } else {
@@ -253,16 +258,12 @@ class PharmProvider extends ChangeNotifier {
   }
 
   Future getZones() async {
-    try {
-      final response = await api(Api.get, 'seller/get_delivery_zones/');
-      if (response == null) return;
-      if (response.statusCode == 200) {
-        final data = convertData(response);
-        zones = (data as List).map((z) => Zone.fromJson(z)).toList();
-        notifyListeners();
-      } else {}
-    } catch (e) {
-      debugPrint(e.toString());
+    final url = 'seller/get_delivery_zones/';
+    final r = await api(Api.get, url);
+    if (r == null) return;
+    if (r != null && apiSucceess(r)) {
+      zones = (convertData(r) as List).map((z) => Zone.fromJson(z)).toList();
+      notifyListeners();
     }
   }
 }

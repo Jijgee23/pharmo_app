@@ -2,11 +2,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/auth/root/root_page.dart';
-import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:upgrader/upgrader.dart';
 import 'application/application.dart';
 
 final pharmo = Pharmo();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -32,7 +32,7 @@ Future<void> main() async {
       showReleaseNotes: false,
       child: MultiProvider(
         providers: AppConfigs.providers,
-        child: pharmo,
+        child: Pharmo(),
       ),
     ),
   );
@@ -81,7 +81,6 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    bool splashed = LocalBase.hasSpashed;
     return Consumer<HomeProvider>(
       builder: (context, home, child) => GetMaterialApp(
         title: 'Pharmo app',
@@ -92,7 +91,7 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
         darkTheme: lightTheme,
         navigatorKey: GlobalKeys.navigatorKey,
         themeMode: home.themeMode,
-        home: splashed ? RootPage() : SplashScreen(),
+        home: RootPage(),
       ),
     );
   }

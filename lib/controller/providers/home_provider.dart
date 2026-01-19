@@ -124,9 +124,10 @@ class HomeProvider extends ChangeNotifier {
     try {
       var url = 'products/?page=$pageKey&page_size=$pageSize';
       print(url);
-      final response = await api(Api.get, url);
-      if (response!.statusCode == 200) {
-        final res = convertData(response);
+      final r = await api(Api.get, url);
+      if (r == null) return [];
+      if (r.statusCode == 200) {
+        final res = convertData(r);
         print(res);
         final prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
@@ -142,11 +143,11 @@ class HomeProvider extends ChangeNotifier {
   searchProducts(String query) async {
     try {
       if (query.isNotEmpty) {
-        final response =
-            await api(Api.get, 'products/search/?k=$queryType&v=$query');
-        if (response!.statusCode == 200) {
+        final r = await api(Api.get, 'products/search/?k=$queryType&v=$query');
+        if (r == null) return;
+        if (r.statusCode == 200) {
           clearItems();
-          final res = convertData(response);
+          final res = convertData(r);
           final prods = (res['results'] as List)
               .map((data) => Product.fromJson(data))
               .toList();
@@ -162,9 +163,10 @@ class HomeProvider extends ChangeNotifier {
   // хямдралтай, эрэлттэй, шинэ бараа
   filterProducts(String filter) async {
     try {
-      final response = await api(Api.get, 'products/?$filter');
-      if (response!.statusCode == 200) {
-        final res = convertData(response);
+      final r = await api(Api.get, 'products/?$filter');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final res = convertData(r);
         final prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
@@ -198,8 +200,8 @@ class HomeProvider extends ChangeNotifier {
           .toList();
       var res = await request.send();
       print(res.statusCode);
-      String responseBody = await res.stream.bytesToString();
-      print(responseBody);
+      String rBody = await res.stream.bytesToString();
+      print(rBody);
       if (res.statusCode == 200) {
         return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
       } else {
@@ -223,11 +225,11 @@ class HomeProvider extends ChangeNotifier {
       request.headers['Authorization'] = security.access;
       request.fields['product_id'] = id.toString();
       request.fields['images_to_remove'] = imageID.toString();
-      var res = await request.send();
-      print(res.statusCode);
-      String responseBody = await res.stream.bytesToString();
-      print(responseBody);
-      if (res.statusCode == 200) {
+      var r = await request.send();
+      if (r == null) return;
+
+      // String rBody = await r.stream.bytesToString();
+      if (r.statusCode == 200) {
         return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
       } else {
         messageWarning(wait);
@@ -240,9 +242,10 @@ class HomeProvider extends ChangeNotifier {
 
   Future getBranches() async {
     try {
-      final response = await api(Api.get, 'branch/');
-      if (response!.statusCode == 200) {
-        List<dynamic> res = convertData(response);
+      final r = await api(Api.get, 'branch/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        List<dynamic> res = convertData(r);
         branches = (res).map((data) => Sector.fromJson(data)).toList();
       }
       notifyListeners();
@@ -259,9 +262,10 @@ class HomeProvider extends ChangeNotifier {
   // Ангилалийн жагсаалт авах
   getFilters() async {
     try {
-      final response = await api(Api.get, 'product/filters/');
-      if (response!.statusCode == 200) {
-        Map res = convertData(response);
+      final r = await api(Api.get, 'product/filters/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        Map res = convertData(r);
         categories =
             (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
 
@@ -281,10 +285,10 @@ class HomeProvider extends ChangeNotifier {
 // Бараа ангиллаар шүүх
   filter(String type, int filters, int page, int pageSize) async {
     try {
-      final response = await api(
+      final r = await api(
           Api.get, 'products/?$type=[$filters]&page=$page&page_size=$pageSize');
-      if (response!.statusCode == 200) {
-        Map res = convertData(response);
+      if (r!.statusCode == 200) {
+        Map res = convertData(r);
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
@@ -297,10 +301,10 @@ class HomeProvider extends ChangeNotifier {
 
   filterCate(int id, int page, int pageSize) async {
     try {
-      final response = await api(
+      final r = await api(
           Api.get, 'products/?category=[$id]&page=$page&page_size=$pageSize');
-      if (response!.statusCode == 200) {
-        Map<String, dynamic> res = convertData(response);
+      if (r!.statusCode == 200) {
+        Map<String, dynamic> res = convertData(r);
         List<Product> prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();
@@ -321,9 +325,10 @@ class HomeProvider extends ChangeNotifier {
 
   Future getSuppliers() async {
     try {
-      final response = await api(Api.get, 'suppliers_list/');
-      if (response!.statusCode == 200) {
-        final data = convertData(response);
+      final r = await api(Api.get, 'suppliers_list/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
         supliers = (data as List).map((sup) => Supplier.fromJson(sup)).toList();
         notifyListeners();
       } else {
@@ -337,15 +342,15 @@ class HomeProvider extends ChangeNotifier {
   // Нийлүүлэгч сонгох
   pickSupplier(Supplier sup, Stock stock, BuildContext context) async {
     var body = {'supplier_id': sup.id, 'stock_id': stock.id};
-    final response = await api(Api.patch, 'select_supplier/', body: body);
-    if (response == null) {
+    final r = await api(Api.patch, 'select_supplier/', body: body);
+    if (r == null) {
       messageWarning('Сервертэй холбогдож чадсангүй!');
       return;
     }
-    if (response.statusCode == 200) {
+    if (r.statusCode == 200) {
       setStock(stock);
       setSupplier(sup);
-      Map<String, dynamic> res = jsonDecode(response.body);
+      Map<String, dynamic> res = jsonDecode(r.body);
       await LocalBase.updateAccess(
         res['access_token'],
         refresh: res['refresh_token'],
@@ -402,10 +407,11 @@ class HomeProvider extends ChangeNotifier {
 
   deactiveUser(String password, BuildContext context) async {
     try {
-      final response = await api(Api.patch, 'auth/delete_user_account/',
+      final r = await api(Api.patch, 'auth/delete_user_account/',
           body: {'pwd': password});
-      if (response!.statusCode == 200) {
-        AuthController().logout();
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        AuthController().logout(context);
         messageWarning(
             '${LocalBase.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа');
       } else {
@@ -431,9 +437,10 @@ class HomeProvider extends ChangeNotifier {
         'payType': type,
         "note": (note != null) ? note : null
       };
-      final response = await api(Api.post, 'seller/order/', body: body);
-      if (response!.statusCode == 201) {
-        final res = convertData(response);
+      final r = await api(Api.post, 'seller/order/', body: body);
+      if (r == null) return;
+      if (r.statusCode == 201) {
+        final res = convertData(r);
         final orderNumber = res['orderNo'];
         goto(OrderDone(orderNo: orderNumber.toString()));
         await basket.clearBasket();

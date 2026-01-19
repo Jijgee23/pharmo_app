@@ -71,14 +71,14 @@ class _ProductDetailState extends State<ProductDetail>
   Future getProductDetail() async {
     try {
       LoadingService.show();
-      final response = await api(Api.get, 'products/${widget.prod.id}/');
-      if (response == null) {
+      final r = await api(Api.get, 'products/${widget.prod.id}/');
+      if (r == null) {
         messageError('Сертертэй холбоглож чадсангүй, түр хүлээнэ үү!');
         LoadingService.hide();
         return;
       }
-      if (response.statusCode == 200) {
-        final data = convertData(response);
+      if (r.statusCode == 200) {
+        final data = convertData(r);
         print(data);
         setState(() => det = data);
       }

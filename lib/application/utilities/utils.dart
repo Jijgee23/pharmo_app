@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:image/image.dart' as img;
+import 'package:pharmo_app/controller/a_controlller.dart';
+import 'package:pharmo_app/views/auth/root/root_provider.dart';
 
 Future<T?> goto<T>(Widget widget) async {
   final res = await Get.to(
@@ -21,6 +23,17 @@ Future gotoRemoveUntil(Widget widget) async {
     curve: Curves.fastLinearToSlowEaseIn,
     transition: Transition.rightToLeft,
   );
+}
+
+Future gotoRootPage() async {
+  final rooter = Get.context!.read<RootProvider>();
+  await rooter.readUser().then((val) async {
+    await Get.offAllNamed(
+      '/root',
+      // curve: Curves.fastLinearToSlowEaseIn,
+      // transition: Transition.rightToLeft,
+    );
+  });
 }
 
 double parseDouble(dynamic value) {

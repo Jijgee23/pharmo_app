@@ -5,55 +5,25 @@ import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/application/services/network_service.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
-getHeader(String? token) {
-  Map<String, String> headers = {
-    'Content-Type': 'application/json; charset=UTF-8',
-    'X-Pharmo-Client': '!pharmo_app?',
-    if (token != null) 'Authorization': token,
-  };
-  return headers;
-}
-
-setUrl(String endPoint) {
-  Uri url = Uri.parse('${dotenv.env['SERVER_URL']}$endPoint');
-  return url;
-}
-
-dynamic convertData(http.Response body) {
-  final d = jsonDecode(utf8.decode(body.bodyBytes));
-  return d;
-}
-
-getApiInformation(String endPoint, http.Response response) {
+Future<http.Response?> api(
+  Api method,
+  String endpoint, {
+  Map<String, dynamic>? body,
+  Map<String, String>? header,
+}) async {
   try {
-    print('<===$endPoint===>');
-    print('<===${response.statusCode}===>');
-    print('<===${response.body}===>');
-  } catch (e) {
-    debugPrint('ERROR at $endPoint : $e');
-  }
-}
-
-Future<http.Response?> api(Api method, String endpoint,
-    {Map<String, dynamic>? body, Map<String, String>? header}) async {
-  void onError() async {
-    messageWarning('Хандах эрх дууссан эсвэл өөр төхөөрөмжөөс нэвтэрсэн!');
-    await gotoRemoveUntil(const LoginPage());
-  }
-
-  try {
-    Security? security = LocalBase.security;
+    final security = LocalBase.security;
     if (security == null) return null;
-    bool accessExpired = JwtDecoder.isExpired(security.access);
-    if (accessExpired) {
+    final access = security.access;
+    if (JwtDecoder.isExpired(access)) {
       bool refreshExpired = JwtDecoder.isExpired(security.refresh);
       if (!refreshExpired) {
         bool success = await refreshed();
         if (!success) {
-          onError();
+          await showLogoutDialog(Get.context!,
+              'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!');
           return null;
         }
         var s = await LocalBase.getSecurity();
@@ -61,24 +31,26 @@ Future<http.Response?> api(Api method, String endpoint,
         String access = s.access;
         var r = await responser(method, endpoint, access, body, header);
         if (r == null) {
-          onError();
+          await showLogoutDialog(Get.context!,
+              'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!');
           return null;
         }
         if (r != null) {
           print('status code: ${r.statusCode}');
         }
-        // if (showLog && r != null) getApiInformation(endpoint, r);
+
         return r;
       }
-      onError();
+      await showLogoutDialog(Get.context!,
+          'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!');
       return null;
     }
-    String access = security.access;
     var res = await responser(method, endpoint, access, body, header);
     if (res != null) {
       print('status code: ${res.statusCode}');
       if (res.statusCode == 401) {
-        onError();
+        await showLogoutDialog(
+            Get.context!, 'Өөр төхөөрөмжөөс нэвтэрсэн байна! \n Нэвтэрнэ үү!');
         return null;
       }
     }
@@ -89,8 +61,64 @@ Future<http.Response?> api(Api method, String endpoint,
   }
 }
 
+Future showLogoutDialog(BuildContext context, String reason) async {
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (context) {
+      return Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 0,
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(30),
+            child: Column(
+              spacing: 20,
+              children: [
+                Icon(
+                  Icons.warning_amber,
+                  color: Colors.red,
+                  size: 30,
+                ),
+                Text(
+                  reason,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => context.read<AuthController>().logout(
+                            context,
+                            withoutRequest: true,
+                          ),
+                      child: Text('Нэвтрэх'),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 bool apiSucceess(http.Response? res) {
-  if (res == null) return false;
+  if (res == null) {
+    messageError('Сервертэй холбогдож чадсангүй!');
+    return false;
+  }
+
   final code = res.statusCode;
   if (code == 200 || code == 201) {
     return true;
@@ -134,6 +162,7 @@ Future<http.Response?> responser(
 }
 
 Future<bool> refreshed() async {
+  print('refreshing');
   final user = LocalBase.security;
   if (user == null) return false;
   final oldAccess = user.access;
@@ -187,4 +216,33 @@ Future<http.Response?> apiPostWithoutToken(
     }
   }
   return null;
+}
+
+getHeader(String? token) {
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+    'X-Pharmo-Client': '!pharmo_app?',
+    if (token != null) 'Authorization': token,
+  };
+  return headers;
+}
+
+setUrl(String endPoint) {
+  Uri url = Uri.parse('${dotenv.env['SERVER_URL']}$endPoint');
+  return url;
+}
+
+dynamic convertData(http.Response body) {
+  final d = jsonDecode(utf8.decode(body.bodyBytes));
+  return d;
+}
+
+getApiInformation(String endPoint, http.Response response) {
+  try {
+    print('<===$endPoint===>');
+    print('<===${response.statusCode}===>');
+    print('<===${response.body}===>');
+  } catch (e) {
+    debugPrint('ERROR at $endPoint : $e');
+  }
 }

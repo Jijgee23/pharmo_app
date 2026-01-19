@@ -88,9 +88,10 @@ class PromotionProvider extends ChangeNotifier {
 
   getPromotion() async {
     try {
-      final response = await api(Api.get, 'get_promos/');
-      if (response!.statusCode == 200) {
-        final res = convertData(response);
+      final r = await api(Api.get, 'get_promos/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final res = convertData(r);
         print(res);
         promotions.clear();
         List<dynamic> promos = res['results'];
@@ -104,9 +105,9 @@ class PromotionProvider extends ChangeNotifier {
 
   getDetail(int promoId) async {
     try {
-      final response = await api(Api.get, 'get_promos/$promoId/');
-      if (response!.statusCode == 200) {
-        Map<String, dynamic> p = convertData(response);
+      final r = await api(Api.get, 'get_promos/$promoId/');
+      if (r!.statusCode == 200) {
+        Map<String, dynamic> p = convertData(r);
         MarkedPromo mp = MarkedPromo.fromJson(p);
         setMarkedPromo(mp);
         notifyListeners();
@@ -120,12 +121,13 @@ class PromotionProvider extends ChangeNotifier {
   getMarkedPromotion() async {
     try {
       markedPromotions.clear();
-      final response = await api(Api.get, 'marked_promos/');
-      if (response!.statusCode == 200) {
-        final res = convertData(response);
+      final r = await api(Api.get, 'marked_promos/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final res = convertData(r);
         markedPromotions =
             (res as List).map((data) => MarkedPromo.fromJson(data)).toList();
-      } else if (response.statusCode == 204) {
+      } else if (r.statusCode == 204) {
         markedPromotions.clear();
       }
     } catch (e) {
@@ -136,9 +138,10 @@ class PromotionProvider extends ChangeNotifier {
 
   filterPromotion(String type, String value) async {
     try {
-      final response = await api(Api.get, 'get_promos/?$type=$value');
-      if (response!.statusCode == 200) {
-        final res = convertData(response);
+      final r = await api(Api.get, 'get_promos/?$type=$value');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final res = convertData(r);
         List<dynamic> pro = res['results'];
         promotions.clear();
         promotions = (pro).map((data) => Promotion.fromJson(data)).toList();
@@ -151,8 +154,9 @@ class PromotionProvider extends ChangeNotifier {
 
   hidePromo(int id, BuildContext context) async {
     try {
-      final response = await api(Api.patch, 'marked_promos/$id/', body: {});
-      if (response!.statusCode == 200) {
+      final r = await api(Api.patch, 'marked_promos/$id/', body: {});
+      if (r == null) return;
+      if (r.statusCode == 200) {
         messageComplete('Амжилттай');
         getMarkedPromotion();
       } else {
@@ -172,12 +176,13 @@ class PromotionProvider extends ChangeNotifier {
         "branchId": (delivery == false) ? branchId : null,
         "note": note,
       };
-      final response = await api(Api.post, 'pharmacy/promo_order/', body: body);
-      var data = convertData(response!);
-      if (response.statusCode == 200) {
+      final r = await api(Api.post, 'pharmacy/promo_order/', body: body);
+      if (r == null) return;
+      var data = convertData(r);
+      if (r.statusCode == 200) {
         qrData = QrData.fromJson(data);
         setQr(true);
-      } else if (response.statusCode == 400) {
+      } else if (r.statusCode == 400) {
         messageWarning('Урамшууллын хугацаа дууссан');
       } else {}
     } catch (e) {
@@ -186,10 +191,11 @@ class PromotionProvider extends ChangeNotifier {
   }
 
   checkPayment(BuildContext context) async {
-    final response = await api(Api.patch, 'pharmacy/promo_order/cp/',
+    final r = await api(Api.patch, 'pharmacy/promo_order/cp/',
         body: {"invoiceId": qrData.invoiceId});
-    final data = convertData(response!);
-    if (response.statusCode == 200) {
+    if (r == null) return;
+    final data = convertData(r);
+    if (r.statusCode == 200) {
       goto(OrderDone(orderNo: data['orderNo'].toString()));
       messageComplete('Төлбөр төлөгдсөн байна');
       return true;

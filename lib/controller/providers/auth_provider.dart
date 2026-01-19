@@ -4,7 +4,6 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/application/config/app_configs.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/application/services/track_service.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
@@ -14,7 +13,6 @@ import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:http_parser/http_parser.dart' as pharser;
 
 class AuthController extends ChangeNotifier {
-  final formKey = GlobalKey<FormState>();
   void initLoginpage() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final security = LocalBase.security;
@@ -22,12 +20,11 @@ class AuthController extends ChangeNotifier {
       final remembered = await LocalBase.getRemember();
       if (remembered) {
         setRemember(true);
-        // fillEmail(security.email);
-        // final idendAndPass = await LocalBase.readIdentifierAndPassword();
-        // final email = idendAndPass['identifier'];
-        // final pass = idendAndPass['password'];
-        // fillEmail(email ?? '');
-        // fillPassword(pass ?? '');
+        final idendAndPass = await LocalBase.readIdentifierAndPassword();
+        final email = idendAndPass['identifier'];
+        final pass = idendAndPass['password'];
+        fillEmail(email ?? '');
+        fillPassword(pass ?? '');
       }
     });
   }
@@ -73,10 +70,6 @@ class AuthController extends ChangeNotifier {
 
   // Нэвтрэх
   Future<void> login() async {
-    if (!formKey.currentState!.validate()) {
-      ToastService.show('Нэвтрэх нэр, нууц үг оруулна уу');
-      return;
-    }
     setLogging(true);
     try {
       var body = {'email': ema.text, 'password': pass.text};
@@ -109,7 +102,7 @@ class AuthController extends ChangeNotifier {
         messageWarning('Веб хуудсаар хандана уу!');
         return;
       }
-      await LocalBase.clearLocalBase();
+      await LocalBase.clearSecurity();
       await LocalBase.saveModel(res);
       await LocalBase.initLocalBase();
       await getDeviceInfo();
@@ -122,7 +115,8 @@ class AuthController extends ChangeNotifier {
       final sec = LocalBase.security;
       if (sec == null) return;
       setLogging(false);
-      await goNamedOfAll('root');
+      await gotoRootPage();
+      //  goNamedOfAll('root');
     } catch (e) {
       print(e);
     }
@@ -148,68 +142,31 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  final trackService = TrackService();
-  Future<void> logout() async {
-    // final security = LocalBase.security;
-    // if (security != null && security.role != 'PA') {
-    //   final hasTrack =
-    //       await LocalBase.hasDelmanTrack() || await LocalBase.hasSellerTrack();
-    //   if (hasTrack) {
-    //     bool confirmed = await confirmDialog(
-    //       context: context,
-    //       title: 'Байршил дамжуулалт зогсоогоод системээс гарах уу?',
-    //     );
-    //     if (confirmed) {
-    //       context.read<JaggerProvider>().stopTracking();
-    //     }
-    // }
-    // }
+  Future<void> logout(BuildContext context,
+      {bool withoutRequest = false}) async {
     try {
-      await LogService().createLog('logout', LogService.logout);
+      if (!withoutRequest) {
+        await LogService().createLog('logout', LogService.logout);
+        await api(Api.post, 'auth/logout/');
+      }
       await LocalBase.removeTokens();
+      await LocalBase.clearSecurity();
       await LocalBase.saveLastLoggedIn(false);
-      // final context = GlobalKeys.navigatorKey.currentContext;
-      // if (context != null) {
-      //   context.read<HomeProvider>().reset();
-      //   context.read<BasketProvider>().reset();
-      //   context.read<DriverProvider>().reset();
-      //   context.read<JaggerProvider>().reset();
-      //   context.read<LogProvider>().reset();
-      //   context.read<MyOrderProvider>().reset();
-      //   context.read<PharmProvider>().reset();
-      //   context.read<PromotionProvider>().reset();
-      //   context.read<ReportProvider>().reset();
-      // }
+      context.read<HomeProvider>().reset();
+      context.read<BasketProvider>().reset();
+      context.read<DriverProvider>().reset();
+      context.read<JaggerProvider>().reset();
+      context.read<LogProvider>().reset();
+      context.read<MyOrderProvider>().reset();
+      context.read<PharmProvider>().reset();
+      context.read<PromotionProvider>().reset();
+      context.read<ReportProvider>().reset();
       await goNamedOfAll('login');
     } catch (e) {
       print(e);
       throw Exception(e);
     }
-    // try {
-    //   // final response = await http.post(
-    //   //   setUrl('auth/logout/'),
-    //   //   headers: getHeader(LocalBase.security!.access),
-    //   // );
-    //   // if (response.statusCode == 200) {
-    //   //   await _completeLogout(context);
-    //   // } else {
-    //   //   await _completeLogout(context);
-    //   // }
-    //   notifyListeners();
-    // } catch (e) {
-    //   debugPrint('ERROR LOGOUT ${e.toString()}');
-    // }
   }
-
-  // Future<void> _completeLogout(BuildContext context) async {}
-
-  // disposeProviders(BuildContext context) {
-  //   try {
-  //     debugPrint('Providers disposed');
-  //   } catch (e) {
-  //     debugPrint('Error disposing providers: ${e.toString()}');
-  //   }
-  // }
 
   // Бүртгэл батлагаажуулах код авах
   Future signUpGetOtp(String email, String phone) async {
@@ -356,8 +313,9 @@ class AuthController extends ChangeNotifier {
         'os': deviceData['os'],
         'osVersion': deviceData['osVersion']
       };
-      final response = await api(Api.post, 'device_token/', body: data);
-      if (response!.statusCode == 200) {
+      final r = await api(Api.post, 'device_token/', body: data);
+      if (r == null) return;
+      if (r.statusCode == 200) {
         debugPrint('Device info sent');
       } else {
         debugPrint('Device info not sent');

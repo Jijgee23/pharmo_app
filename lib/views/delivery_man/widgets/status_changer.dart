@@ -22,7 +22,12 @@ class StatusChanger extends StatefulWidget {
 }
 
 class _StatusChangerState extends State<StatusChanger> {
-  List<String> statuses = ['Хүргэгдсэн', 'Хаалттай', 'Буцаагдсан', 'Түгээлтэнд гарсан'];
+  List<String> statuses = [
+    'Хүргэгдсэн',
+    'Хаалттай',
+    'Буцаагдсан',
+    'Түгээлтэнд гарсан'
+  ];
 
   setStatus() {}
   String selected = '';
@@ -63,12 +68,13 @@ class _StatusChangerState extends State<StatusChanger> {
           "order_id": widget.orderId,
           "process": getOrderProcess(status)
         };
-        final response = await api(Api.patch, 'delivery/order/', body: data);
-        if (response!.statusCode == 200 || response.statusCode == 201) {
+        final r = await api(Api.patch, 'delivery/order/', body: data);
+        if (r == null) return;
+        if (r.statusCode == 200 || r.statusCode == 201) {
           message('Төлөв өөрчлөгдлөө');
           await provider.getDeliveries();
-        } else if (response.statusCode == 400) {
-          if (convertData(response).toString().contains('Delivery not started!')) {
+        } else if (r.statusCode == 400) {
+          if (convertData(r).toString().contains('Delivery not started!')) {
             message('Түгээлт эхлээгүй!');
           } else {
             message('Амжилтгүй!');
@@ -88,7 +94,8 @@ class _StatusChangerState extends State<StatusChanger> {
           spacing: 15,
           children: [
             SizedBox(width: 20),
-            Text(status, style: TextStyle(color: sel ? white : black, fontSize: 16)),
+            Text(status,
+                style: TextStyle(color: sel ? white : black, fontSize: 16)),
           ],
         ),
       ),

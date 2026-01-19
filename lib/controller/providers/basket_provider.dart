@@ -109,10 +109,11 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> clearBasket() async {
     try {
-      final response = await api(Api.patch, 'clear_basket/',
+      final r = await api(Api.patch, 'clear_basket/',
           body: {'basket_id': basket!.id});
+      if (r == null) return;
       await getBasket();
-      if (response!.statusCode == 200) {
+      if (r.statusCode == 200) {
         debugPrint('basket cleared');
         await getBasket();
         notifyListeners();
@@ -124,7 +125,8 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> removeBasketItem({required int itemId}) async {
     try {
-      await api(Api.delete, 'user_basket/?item_id=$itemId');
+      final r = await api(Api.delete, 'user_basket/?item_id=$itemId');
+      if (r == null) return;
       messageComplete('Сагснаас хасагдлаа');
       await getBasket();
     } catch (e) {
@@ -148,15 +150,15 @@ class BasketProvider extends ChangeNotifier {
         'note': note != '' ? note : null,
         'is_come': deliveryType == 'N' ? true : false,
       };
-      final response = await api(Api.post, 'pharmacy/order/', body: body);
-      final res = convertData(response!);
-      print(res);
-      if (response.statusCode == 200) {
+      final r = await api(Api.post, 'pharmacy/order/', body: body);
+      if (r == null) return;
+      final res = convertData(r);
+      if (r.statusCode == 200) {
         Future(() async {
           await clearBasket();
         }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
         return res['orderNo'];
-      } else if (response.statusCode == 400) {
+      } else if (r.statusCode == 400) {
         messageWarning('Сагс хоосон байна!');
       } else {
         messageError(res);
@@ -178,10 +180,11 @@ class BasketProvider extends ChangeNotifier {
         'note': note != '' ? note : null,
         'is_come': deliveryType == 'N' ? true : false,
       };
-      final resQR = await api(Api.post, 'ci/', body: body);
-      final data = convertData(resQR!);
-      final status = resQR.statusCode;
-      print(resQR.body);
+      final r = await api(Api.post, 'ci/', body: body);
+      if (r == null) return;
+      final data = convertData(r);
+      final status = r.statusCode;
+      print(r.body);
       if (status == 200) {
         _qrCode = OrderQRCode.fromJson(data);
         goto(const QRCode());
@@ -211,18 +214,19 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> checkPayment() async {
     try {
-      final resQR = await api(Api.post, 'cp/', body: {"invId": _qrCode.invId});
-      if (resQR!.statusCode == 200) {
-        final data = convertData(resQR).toString();
+      final r = await api(Api.post, 'cp/', body: {"invId": _qrCode.invId});
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r).toString();
         if (data.contains('not paid')) {
           messageWarning('Төлбөр төлөгдөөгүй байна.');
         } else if (data.contains('paid')) {
           messageComplete('Төлбөр амжилттай төлөгдсөн.');
-          goto(OrderDone(orderNo: convertData(resQR)['orderNo'].toString()));
+          goto(OrderDone(orderNo: convertData(r)['orderNo'].toString()));
         } else {
           messageWarning('Төлбөр төлөгдөөгүй байна.');
         }
-      } else if (resQR.statusCode == 404) {
+      } else if (r.statusCode == 404) {
         messageWarning('Нэхэмжлэх үүсээгүй.');
       }
     } catch (e) {

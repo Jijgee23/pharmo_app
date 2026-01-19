@@ -105,18 +105,18 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
     }
 
     // 3. Өмнөх байршил байгаа эсэхийг шалгах (Kotlin: val isFirstLocation = previous == null)
-    guard let last = lastLocation, let lastTime = lastSentTime else {
+    guard let last: CLLocation = lastLocation, let lastTime: Date = lastSentTime else {
       // Эхний байршил бол шууд илгээнэ
       updateAndBroadcast(location: newLocation, time: now)
       return
     }
 
     // 4. Шалгуурууд (Kotlin-той ижил логик)
-    let distance = newLocation.distance(from: last)
-    let timeInterval = now.timeIntervalSince(lastTime)
+    let distance: CLLocationDistance = newLocation.distance(from: last)
+    let timeInterval: TimeInterval = now.timeIntervalSince(lastTime)
 
-    let movedEnough = distance >= 10.0  // 10 метр хөдөлсөн үү
-    let timeEnough = timeInterval >= 30.0  // 30 секунд өнгөрсөн үү
+    let movedEnough: Bool = distance >= 10.0  // 10 метр хөдөлсөн үү
+    let timeEnough: Bool = timeInterval >= 30.0  // 30 секунд өнгөрсөн үү
 
     // Аль нэг нөхцөл биелсэн бол Flutter-лүү дамжуулна
     if movedEnough || timeEnough {

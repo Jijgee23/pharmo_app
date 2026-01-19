@@ -331,7 +331,8 @@ void logout(BuildContext context) {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => context.read<AuthController>().logout(),
+                    onPressed: () =>
+                        context.read<AuthController>().logout(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
                       foregroundColor: Colors.white,

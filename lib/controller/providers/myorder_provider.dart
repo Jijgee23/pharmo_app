@@ -28,28 +28,30 @@ class MyOrderProvider extends ChangeNotifier {
 
   late MyOrderDetailModel fetchedDetail;
   Future<List<SellerOrderModel>> getSellerOrders() async {
-    List<SellerOrderModel> result = [];
+    List<SellerOrderModel> rult = [];
     try {
-      final res = await api(Api.get, 'seller/order/');
-      if (res!.statusCode == 200) {
-        final response = convertData(res);
-        List<dynamic> ords = response['results'];
+      final r = await api(Api.get, 'seller/order/');
+      if (r == null) return rult;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
+        List<dynamic> ords = data['results'];
         sellerOrders.clear();
         sellerOrders =
             (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
-        result = sellerOrders;
+        rult = sellerOrders;
         notifyListeners();
       }
     } catch (e) {
       debugPrint(e.toString());
     }
-    return result;
+    return rult;
   }
 
   deleteSellerOrders({required int orderId}) async {
     try {
-      final res = await api(Api.delete, 'seller/order/$orderId/');
-      if (res!.statusCode == 204) {
+      final r = await api(Api.delete, 'seller/order/$orderId/');
+      if (r == null) return;
+      if (r.statusCode == 204) {
         messageComplete('Захиалга устлаа');
       } else {
         messageWarning(wait);
@@ -63,10 +65,11 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future filterOrder(String type, String query) async {
     try {
-      final res = await api(Api.get, 'seller/order/?$type=$query');
-      if (res!.statusCode == 200) {
-        final response = convertData(res);
-        List<dynamic> ords = response['results'];
+      final r = await api(Api.get, 'seller/order/?$type=$query');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
+        List<dynamic> ords = data['results'];
         sellerOrders.clear();
         sellerOrders =
             (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
@@ -79,11 +82,12 @@ class MyOrderProvider extends ChangeNotifier {
 
   getSellerOrdersByDateRanged(String startDate, String endDate) async {
     try {
-      final res =
+      final r =
           await api(Api.get, 'seller/order/?start=$startDate&end=$endDate');
-      if (res!.statusCode == 200) {
-        final response = convertData(res);
-        List<dynamic> ords = response['results'];
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
+        List<dynamic> ords = data['results'];
         sellerOrders.clear();
         sellerOrders =
             (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
@@ -96,10 +100,11 @@ class MyOrderProvider extends ChangeNotifier {
 
   getSellerOrdersByDateSingle(String date) async {
     try {
-      final res = await api(Api.get, 'seller/order/?start=$date');
-      if (res!.statusCode == 200) {
-        final response = convertData(res);
-        List<dynamic> ords = response['results'];
+      final r = await api(Api.get, 'seller/order/?start=$date');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
+        List<dynamic> ords = data['results'];
         sellerOrders.clear();
         sellerOrders =
             (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
@@ -112,16 +117,17 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> getMyorders() async {
     try {
-      final res = await api(Api.get, 'pharmacy/orders/');
-      if (res!.statusCode == 200) {
+      final r = await api(Api.get, 'pharmacy/orders/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
         _orders.clear();
-        final response = convertData(res);
-        List<dynamic> ords = response['orders'];
+        final data = convertData(r);
+        List<dynamic> ords = data['orders'];
         _orders = (ords).map((data) => MyOrderModel.fromJson(data)).toList();
         notifyListeners();
         return {
           'errorType': 1,
-          'data': response,
+          'data': r,
           'message': 'Захиалгуудыг амжилттай авчирлаа.'
         };
       } else {
@@ -139,11 +145,12 @@ class MyOrderProvider extends ChangeNotifier {
 
   getMyorderDetail(int orderId) async {
     try {
-      final res = await api(Api.get, 'pharmacy/orders/$orderId/items/');
-      if (res!.statusCode == 200) {
+      final r = await api(Api.get, 'pharmacy/orders/$orderId/items/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
         _orderDetails.clear();
-        final response = convertData(res);
-        List<dynamic> dtls = response;
+        final data = convertData(r);
+        List<dynamic> dtls = data;
         _orderDetails =
             (dtls).map((data) => MyOrderDetailModel.fromJson(data)).toList();
         notifyListeners();
@@ -162,10 +169,11 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> getSuppliers() async {
     try {
-      final response = await api(Api.get, 'suppliers_list/');
-      if (response!.statusCode == 200) {
-        final res = convertData(response);
-        suppliers = (res as List).map((k) => Supplier.fromJson(k)).toList();
+      final r = await api(Api.get, 'suppliers_list/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
+        suppliers = (data as List).map((k) => Supplier.fromJson(k)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -175,56 +183,46 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future<dynamic> getBranches() async {
     try {
-      final response = await api(Api.get, 'branch/');
-      if (response!.statusCode == 200) {
-        final res = convertData(response);
-        branches = (res as List).map((r) => Branch.fromJson(r)).toList();
+      final r = await api(Api.get, 'branch/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
+        branches = (data as List).map((r) => Branch.fromJson(r)).toList();
         notifyListeners();
-        // return {
-        //   'errorType': 1,
-        //   'data': res,
-        //   'message': 'Нийлүүлэгчидийг амжилттай авчирлаа.'
-        // };
       }
-      // else {
-      //   return {
-      //     'errorType': 2,
-      //     'data': null,
-      //     'message': 'Нийлүүлэгчидийг авчрахад алдаа гарлаа.'
-      //   };
-      // }
     } catch (e) {
-      // return {'errorType': 3, 'data': e, 'message': e};
+      // return {'errorType': 3, 'data': e, 'message': e};\
+      throw Exception(e);
     }
   }
 
   Future<dynamic> filterOrders(
       String selectedFilter, String selectedItem) async {
     try {
-      Response? res;
+      Response? r;
       if (selectedFilter == '0') {
-        res = await api(Api.get, 'pharmacy/orders/?process=$selectedItem');
+        r = await api(Api.get, 'pharmacy/orders/?process=$selectedItem');
       } else if (selectedFilter == '1') {
-        res = await api(Api.get, 'pharmacy/orders/?status=$selectedItem');
+        r = await api(Api.get, 'pharmacy/orders/?status=$selectedItem');
       } else if (selectedFilter == '2') {
-        res = await api(Api.get, 'pharmacy/orders/?payType=$selectedItem');
+        r = await api(Api.get, 'pharmacy/orders/?payType=$selectedItem');
       } else if (selectedFilter == '3') {
-        res = await api(Api.get, 'pharmacy/orders/?address=$selectedItem');
+        r = await api(Api.get, 'pharmacy/orders/?addrs=$selectedItem');
       } else if (selectedFilter == '4') {
-        res = await api(Api.get, 'pharmacy/orders/?supplier=$selectedItem');
+        r = await api(Api.get, 'pharmacy/orders/?supplier=$selectedItem');
       } else {
-        res = await api(Api.get, 'pharmacy/orders/');
+        r = await api(Api.get, 'pharmacy/orders/');
       }
-      if (res == null) return;
-      if (res.statusCode == 200) {
+      if (r == null) return;
+      if (r.statusCode == 200) {
         _orders.clear();
-        final response = convertData(res);
-        List<dynamic> ords = response['orders'];
+        final data = convertData(r);
+        List<dynamic> ords = data['orders'];
         _orders = (ords).map((data) => MyOrderModel.fromJson(data)).toList();
         notifyListeners();
         return {
           'errorType': 1,
-          'data': response,
+          'data': data,
           'message': 'Захиалгуудыг амжилттай авчирлаа.'
         };
       } else {
@@ -242,13 +240,13 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future confirmOrder(int orderId) async {
     try {
-      final res =
+      final r =
           await api(Api.patch, 'pharmacy/accept_order/', body: {"id": orderId});
-      switch (res!.statusCode) {
+      if (r == null) return;
+      switch (r.statusCode) {
         case 200:
           await getMyorders();
-          return buildResponse(
-              1, null, 'Таны захиалга амжилттай баталгаажлаа.');
+          return buildResponse(1, null, 'Таны захиалга амжилттай баталгаажлаа.');
 
         case 400:
           return buildResponse(2, null, 'Захиалгын түгээлт эхлээгүй');
@@ -321,17 +319,17 @@ class SellerOrderModel {
 
 class OrderBranch {
   int id;
-  String? address;
+  String? addrs;
   String name;
-  OrderBranch(this.id, this.address, this.name);
+  OrderBranch(this.id, this.addrs, this.name);
   OrderBranch.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        address = json['address'],
+        addrs = json['addrs'],
         name = json['name'];
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'address': address,
+      'addrs': addrs,
       'name': name,
     };
   }

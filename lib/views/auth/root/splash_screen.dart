@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:hive/hive.dart';
-// import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/application/utilities/utils.dart';
 
@@ -59,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
               onPressed: () async {
                 if (page == urls.length - 1) {
                   await LocalBase.saveSplashed(true).whenComplete(
-                    () => goto(LoginPage()),
+                    () => gotoRootPage(),
                   );
                   return;
                 }
@@ -139,7 +136,6 @@ class _SplashScreenState extends State<SplashScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: size.height * 0.028,
-                  // fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.bold,
                   color: AppColors.main.withAlpha(25 * 7),
                 ),

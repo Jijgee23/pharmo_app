@@ -36,6 +36,7 @@ class LocalBase {
     security = await getSecurity();
     hasSpashed = await hasSplashed();
     remember = await getRemember();
+
     debugPrint(
         'local base inited, has user: ${security != null}, splashed: $hasSpashed');
   }
@@ -93,6 +94,7 @@ class LocalBase {
     await localDb.delete(_accessKey);
     await localDb.delete(_refreshKey);
     await localDb.flush();
+    await initLocalBase();
   }
 
   static Future updateAccess(String access, {String? refresh}) async {
@@ -153,18 +155,9 @@ class LocalBase {
     return id != 0;
   }
 
-  static int delmanTrackId = 0;
-  static bool sellerTracking = false;
-
-  static Future loadTrack() async {
-    delmanTrackId = await getDelmanTrackId();
-    sellerTracking = await hasSellerTrack();
-  }
-
   static Future removeSellerTrackId() async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.delete('seller_track_id');
-    await loadTrack();
   }
 
   static Future saveSplashed(bool value) async {
@@ -208,27 +201,23 @@ class LocalBase {
     localDb = await Hive.openBox(_boxKey);
     localDb.put(_dmTrackKey, id);
     await localDb.flush();
-    await loadTrack();
   }
 
   static Future<int> getDelmanTrackId() async {
     localDb = await Hive.openBox(_boxKey);
     int id = await localDb.get(_dmTrackKey, defaultValue: 0);
-    await loadTrack();
     return id;
   }
 
   static Future<bool> hasDelmanTrack() async {
     localDb = await Hive.openBox(_boxKey);
     int trackId = await localDb.get(_dmTrackKey, defaultValue: 0);
-    await loadTrack();
     return trackId != 0;
   }
 
   static Future clearDelmanTrack() async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.delete(_dmTrackKey);
-    await loadTrack();
   }
 
   static const String lastLoggedIn = "last_logged";

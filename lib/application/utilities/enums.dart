@@ -1,4 +1,4 @@
-enum AuthState { loggedIn, noDetermined, notLoggedIn }
+// enum AuthState { loggedIn, noDetermined, notLoggedIn }
 
 enum LoadState { loading, loaded, error }
 
