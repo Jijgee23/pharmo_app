@@ -119,7 +119,7 @@ class _LocationPickerState extends State<LocationPicker> {
                   right: 20,
                   child: SafeArea(
                     child: FloatingActionButton(
-                      heroTag: 'myLocationPL',
+                      heroTag: 'cusotmerLocationGOTO',
                       elevation: 20,
                       onPressed: goToMyLocation,
                       backgroundColor: Colors.white,

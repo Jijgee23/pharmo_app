@@ -83,6 +83,7 @@ class _IndexPharmaState extends State<IndexPharma> {
           floatingActionButton:
               (security.role == 'S' && homeProvider.currentIndex == 0)
                   ? FloatingActionButton(
+                      heroTag: 'sellerTRACKING',
                       shape: CircleBorder(),
                       onPressed: () => goto(SellerTracking()),
                       backgroundColor: primary,

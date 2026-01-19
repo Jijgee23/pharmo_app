@@ -52,9 +52,9 @@ class _IndexDeliveryManState extends State<IndexDeliveryMan> {
 
   String getTitle(int n) {
     switch (n) {
-      case 2:
+      case 1:
         return 'Өнөөдрийн түгээлтүүд';
-      case 3:
+      case 2:
         return 'Миний профайл';
       default:
         return '';

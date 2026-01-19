@@ -104,7 +104,7 @@ class _MapViewState extends State<MapView> {
                   spacing: 10,
                   children: [
                     FloatingActionButton(
-                      heroTag: 'zoomInD',
+                      heroTag: 'zoomInDMANMAP',
                       elevation: 20,
                       onPressed: () {
                         jagger.mapController.animateCamera(
@@ -115,7 +115,7 @@ class _MapViewState extends State<MapView> {
                       child: const Icon(Icons.add, color: Colors.black),
                     ),
                     FloatingActionButton(
-                      heroTag: 'zoomOutD',
+                      heroTag: 'zoomOutDMANMAP',
                       elevation: 20,
                       onPressed: () {
                         jagger.mapController
@@ -125,7 +125,7 @@ class _MapViewState extends State<MapView> {
                       child: const Icon(Icons.remove, color: Colors.black),
                     ),
                     FloatingActionButton(
-                      heroTag: 'myLocationD',
+                      heroTag: 'myLocationDMANMAP',
                       elevation: 20,
                       onPressed: jagger.goToMyLocation,
                       backgroundColor: Colors.white,
@@ -135,7 +135,7 @@ class _MapViewState extends State<MapView> {
                       ),
                     ),
                     FloatingActionButton(
-                      heroTag: 'toggleTrafficD',
+                      heroTag: 'toggleTrafficDMANMAP',
                       elevation: 20,
                       onPressed: jagger.toggleTraffic,
                       backgroundColor:
@@ -160,7 +160,7 @@ class _MapViewState extends State<MapView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         FloatingActionButton.extended(
-                          heroTag: 'hasTrack2',
+                          heroTag: 'hasTrack2DMANMAPjk',
                           onPressed: () async {
                             // await jagger.updateDatasToSended();
 
@@ -190,7 +190,7 @@ class _MapViewState extends State<MapView> {
                     children: [
                       FloatingActionButton.extended(
                         elevation: 10,
-                        heroTag: 'trackingDelivery',
+                        heroTag: 'trackingDeliveries',
                         onPressed: () => goto(Deliveries()),
                         backgroundColor: Colors.white,
                         label: Column(

@@ -31,6 +31,7 @@ class _IndexRepState extends State<IndexRep> {
       builder: (context, homeProvider, _) {
         return Scaffold(
           floatingActionButton: FloatingActionButton(
+            heroTag: 'indexVISITER',
             onPressed: () => addVisit(),
             child: Icon(Icons.add, color: Colors.white),
           ),
