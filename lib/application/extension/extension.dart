@@ -1,4 +1,4 @@
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 
 extension ContextX on BuildContext {
   Size get size => MediaQuery.of(this).size;

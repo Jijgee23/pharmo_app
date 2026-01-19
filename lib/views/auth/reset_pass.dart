@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:otp_text_field_v2/otp_field_v2.dart';
 import 'package:pharmo_app/controller/providers/auth_provider.dart';
-import 'package:pharmo_app/application/utilities/constants.dart';
 import 'package:pharmo_app/application/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -30,41 +29,31 @@ class _ResetPasswordState extends State<ResetPassword> {
         appBar: const SideAppBar(text: 'Нууц үг сэргээх'),
         body: Center(
           child: Container(
-            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
               children: [
-                // const Text('Бүртгэлтэй и-мейл хаягаа оруулна уу?'),
-                // Constants.boxV10,
                 CustomTextField(
-                    controller: email,
-                    validator: (p0) => validateEmail(p0),
-                    hintText: 'И-мейл'),
-                Constants.boxV10,
+                  controller: email,
+                  validator: (p0) => validateEmail(p0),
+                  hintText: 'И-мейл',
+                ),
                 (!boolean)
                     ? CustomButton(
                         text: 'Баталгаажуулах код авах',
                         ontap: () async {
-                          dynamic sent = await auth.resetPassOtp(email.text);
-                          print(sent['errorType']);
-                          if (email.text.isNotEmpty) {
-                            if (sent['errorType'] == 1) {
-                              setState(() {
-                                boolean = true;
-                              });
-                            }
-                            messageComplete(sent['message']);
-                          } else {
-                            messageWarning(
-                                'Бүртгэлтэй и-мейл хаягаа оруулна уу!');
-                          }
+                          final sent = await auth.resetPassOtp(email.text);
+                          if (!sent) return;
+                          boolean = true;
+                          setState(() {});
                         },
                       )
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 10,
                         children: [
                           const Text('Баталгаажуулах нууц үгээ оруулна уу!'),
-                          Constants.boxV10,
                           OTPTextFieldV2(
                               controller: otpController,
                               length: 6,
@@ -81,9 +70,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                   opt = pin;
                                 });
                               }),
-                          Constants.boxV10,
                           const Text('Шинэ нууц үгээ оруулна уу!'),
-                          Constants.boxV10,
                           CustomTextField(
                             controller: password,
                             hintText: 'Нууц үг',
@@ -91,7 +78,6 @@ class _ResetPasswordState extends State<ResetPassword> {
                             keyboardType: TextInputType.visiblePassword,
                             validator: validatePassword,
                           ),
-                          const SizedBox(height: 15),
                           CustomTextField(
                             controller: confirmPassword,
                             hintText: 'Нууц үг давтах',
@@ -99,7 +85,6 @@ class _ResetPasswordState extends State<ResetPassword> {
                             keyboardType: TextInputType.visiblePassword,
                             validator: validatePassword,
                           ),
-                          Constants.boxV10,
                           CustomButton(
                             text: 'Хадгалах',
                             ontap: () {

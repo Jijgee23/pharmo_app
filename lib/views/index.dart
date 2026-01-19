@@ -10,7 +10,7 @@ import 'package:pharmo_app/views/seller/customer/add_customer.dart';
 import 'package:pharmo_app/views/seller/customer/customer_searcher.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 class IndexPharma extends StatefulWidget {
@@ -24,10 +24,12 @@ class _IndexPharmaState extends State<IndexPharma> {
   @override
   void initState() {
     super.initState();
-    inititliazeBasket();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async => await inititliazeBasket(),
+    );
   }
 
-  inititliazeBasket() async {
+  Future inititliazeBasket() async {
     final security = LocalBase.security;
     if (security == null) return;
     final basket = context.read<BasketProvider>();

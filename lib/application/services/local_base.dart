@@ -4,6 +4,12 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controller/database/security.dart';
 
 class LocalBase {
+  static final LocalBase _instance = LocalBase._internal();
+  LocalBase._internal();
+  factory LocalBase() {
+    return _instance;
+  }
+
   static Box localDb = Hive.box('local');
   static Security? security;
   static bool hasSpashed = false;
@@ -147,10 +153,18 @@ class LocalBase {
     return id != 0;
   }
 
+  static int delmanTrackId = 0;
+  static bool sellerTracking = false;
+
+  static Future loadTrack() async {
+    delmanTrackId = await getDelmanTrackId();
+    sellerTracking = await hasSellerTrack();
+  }
+
   static Future removeSellerTrackId() async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.delete('seller_track_id');
-    await localDb.flush();
+    await loadTrack();
   }
 
   static Future saveSplashed(bool value) async {
@@ -194,23 +208,27 @@ class LocalBase {
     localDb = await Hive.openBox(_boxKey);
     localDb.put(_dmTrackKey, id);
     await localDb.flush();
+    await loadTrack();
   }
 
   static Future<int> getDelmanTrackId() async {
     localDb = await Hive.openBox(_boxKey);
     int id = await localDb.get(_dmTrackKey, defaultValue: 0);
+    await loadTrack();
     return id;
   }
 
   static Future<bool> hasDelmanTrack() async {
     localDb = await Hive.openBox(_boxKey);
     int trackId = await localDb.get(_dmTrackKey, defaultValue: 0);
+    await loadTrack();
     return trackId != 0;
   }
 
   static Future clearDelmanTrack() async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.delete(_dmTrackKey);
+    await loadTrack();
   }
 
   static const String lastLoggedIn = "last_logged";
@@ -238,5 +256,18 @@ class LocalBase {
     localDb = await Hive.openBox(_boxKey);
     String res = await localDb.get(_deviceToken, defaultValue: '');
     return res;
+  }
+
+  static Future saveIdentifierAndPassword(String email, String password) async {
+    await initLocalBase();
+    await localDb.put('identifier', email);
+    await localDb.put('password', password);
+  }
+
+  static Future<Map<String, String>> readIdentifierAndPassword() async {
+    await initLocalBase();
+    final identifier = await localDb.get('identifier', defaultValue: '');
+    final password = await localDb.get('password', defaultValue: '');
+    return {"identifier": identifier, "password": password};
   }
 }

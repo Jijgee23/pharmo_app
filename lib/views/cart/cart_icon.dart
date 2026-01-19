@@ -1,6 +1,6 @@
 import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 
 class CartIcon extends StatelessWidget {
   const CartIcon({super.key});

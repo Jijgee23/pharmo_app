@@ -7,3 +7,4 @@ export 'sizes.dart';
 export 'utils.dart';
 export 'varlidator.dart';
 export 'api.dart';
+export 'functions.dart';

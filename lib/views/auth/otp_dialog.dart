@@ -1,7 +1,7 @@
-
 import 'package:pharmo_app/application/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
+
 class OtpDialog extends StatefulWidget {
   final String email;
   final String otp;
@@ -68,22 +68,23 @@ class _OtpDialogState extends State<OtpDialog> {
               ),
               const SizedBox(height: 16),
               CustomButton(
-                  text: 'Баталгаажуулах',
-                  ontap: () {
-                    authController
-                        .register(
-                            email: emailController.text,
-                            phone: phoneController.text,
-                            otp: otpController.text,
-                            password: passwordController.text)
-                        .whenComplete(() {
-                      passwordConfirmController.clear();
-                      passwordController.clear();
-                      phoneController.clear();
-                      otpController.clear();
-                    });
-                    Navigator.pop(context);
-                  }),
+                text: 'Баталгаажуулах',
+                ontap: () {
+                  authController
+                      .register(
+                          email: emailController.text,
+                          phone: phoneController.text,
+                          otp: otpController.text,
+                          password: passwordController.text)
+                      .whenComplete(() {
+                    passwordConfirmController.clear();
+                    passwordController.clear();
+                    phoneController.clear();
+                    otpController.clear();
+                  });
+                  Navigator.pop(context);
+                },
+              ),
             ],
           ),
         ),

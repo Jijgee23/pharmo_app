@@ -3,7 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 
 class LocationSelector extends StatefulWidget {
   const LocationSelector({super.key});

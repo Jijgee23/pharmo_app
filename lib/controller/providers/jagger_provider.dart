@@ -1,29 +1,21 @@
 import 'dart:ui';
-
 import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
-import 'package:pharmo_app/application/services/battery_service.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
-import 'package:pharmo_app/application/services/log_service.dart';
-import 'package:pharmo_app/controller/database/track_data.dart';
 import 'package:pharmo_app/application/event/app_event.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
 import 'dart:math';
 
-double truncateToDigits(double value, int digits) {
-  num mod = pow(10.0, digits);
-  return ((value * mod).round().toDouble() / mod);
-}
-
 const EventChannel bgLocationChannel = EventChannel('bg_location_stream');
+// const MethodChannel nativeSettingsChannel =
+//     MethodChannel('mn.infosystems.pharmo/methods');
 
 class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   final StreamController<AppEvent> _eventController =
@@ -35,49 +27,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAccessibilityFeatures() {}
-
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _eventController.add(LifeCycleEvent(state));
-  }
-
-  @override
-  void didChangeLocales(List<Locale>? locales) {}
-
-  @override
-  void didChangeMetrics() {}
-
-  @override
-  void didChangePlatformBrightness() {}
-
-  @override
-  void didChangeTextScaleFactor() {}
-
-  @override
-  void didHaveMemoryPressure() {}
-
-  @override
-  Future<bool> didPopRoute() async => false;
-
-  @override
-  Future<bool> didPushRoute(String route) async => false;
-
-  @override
-  Future<bool> didPushRouteInformation(
-          RouteInformation routeInformation) async =>
-      false;
-
-  @override
-  Future<AppExitResponse> didRequestAppExit() async {
-    return AppExitResponse.exit;
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-    _eventController.close();
   }
 
   void _setupStreams() {
@@ -117,16 +68,34 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Position? currentPosition;
   List<Delivery> delivery = [];
   List<Zone> zones = [];
-  List<Order> orders = [];
   List<LatLng> routeCoords = [];
-  List<Delman> delmans = [];
-  List<Delivery> history = <Delivery>[];
   List<Payment> payments = [];
   final LogService logService = LogService();
   final Battery battery = Battery();
-  void setPermission(LocationPermission p) {
-    permission = p;
+  Future loadPermission() async {
+    if (permission != null && permission == LocationPermission.always) {
+      return;
+    }
+    final value = await Geolocator.checkPermission();
+    permission = value;
     notifyListeners();
+  }
+
+  bool permissionGranted() {
+    if (permission == LocationPermission.always) {
+      return true;
+    }
+    if (permission == LocationPermission.whileInUse) {
+      return true;
+    }
+    return false;
+  }
+
+  bool permissionGrantedForTracking() {
+    if (permission == LocationPermission.always) {
+      return true;
+    }
+    return false;
   }
 
   Future<void> startShipment(int shipmentId) async {
@@ -181,7 +150,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   Future tracking() async {
-    await getTrackBox();
     final user = LocalBase.security;
     if (user == null) return;
     bool isSeller = user.role == "S";
@@ -193,7 +161,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     if (!isSeller && !hasDelmanTrack) {
       return;
     }
-    int shipmentId = await LocalBase.getDelmanTrackId();
+    await getTrackBox();
     try {
       subscription = mergedEvents.listen(
         (event) async {
@@ -201,7 +169,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             print("location changed: ${event.location}");
             final lat = parseDouble(event.location['lat']);
             final lng = parseDouble(event.location['lng']);
-            await sendTobackend(isSeller, shipmentId, lat, lng);
+            await sendTobackend(lat, lng);
           } else if (event is NetworkEvent) {
             final results = event.results;
             bool isMobile = results.contains(ConnectivityResult.mobile);
@@ -213,7 +181,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
                 'Түгээлтийн явцад холболт сэргэсэн (${DateTime.now().toIso8601String()})',
               );
               await getTrackBox();
-              syncOffineTracks();
+              await syncOffineTracks();
             } else {
               await FirebaseApi.local(
                 'Интернет тасарсан',
@@ -261,20 +229,26 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   Future stopTracking() async {
     try {
-      if (subscription == null) return;
-      await subscription!.cancel();
-      subscription = null;
-      notifyListeners();
-      final hasDelmanTrack = await LocalBase.getDelmanTrackId();
-      await LogService().createLog(
-        '${(hasDelmanTrack == 0) ? 'Боруулалт' : 'Түгээлт'} дууссан',
-        DateTime.now().toIso8601String(),
-      );
       await BatteryService.stopListenBattery();
       await LocalBase.clearDelmanTrack();
       await LocalBase.removeSellerTrackId();
       await clearTrackData();
       await getTrackBox();
+      if (subscription == null) return;
+      print('stoping track');
+      await subscription!.cancel();
+      if (subscription != null && subscription!.isPaused) {
+        return;
+      }
+      subscription = null;
+      notifyListeners();
+      print('subsciption null: ${subscription == null}');
+      final hasDelmanTrack = await LocalBase.getDelmanTrackId();
+      await LogService().createLog(
+        '${(hasDelmanTrack == 0) ? 'Боруулалт' : 'Түгээлт'} дууссан',
+        DateTime.now().toIso8601String(),
+      );
+
       routeCoords.clear();
       polylines.clear();
       orderMarkers.clear();
@@ -286,7 +260,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
   }
 
-  Future sendTobackend(bool isSeller, int id, double lat, double lng) async {
+  Future sendTobackend(double lat, double lng) async {
     double latitude = truncateToDigits(lat, 6);
     double longitude = truncateToDigits(lng, 6);
     final now = DateTime.now();
@@ -313,23 +287,23 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         await FirebaseApi.local('Байршил илгээсэн', text);
         await logService.saveLastNotif(now);
       }
-      if (!isSeller) {
-        await getDeliveries();
-      }
+
       await addPointToBox(locatioData(true));
       await syncOffineTracks();
     }
 
+    final isSeller =
+        LocalBase.security != null && LocalBase.security!.role == 'S';
     final trackUrl = isSeller ? 'seller/location/' : 'delivery/location/';
     final apiMethod = isSeller ? Api.post : Api.patch;
-    var body = locationResponse(id, [locatioData(true)]);
+    var body = locationResponse(
+        await LocalBase.getDelmanTrackId(), [locatioData(true)]);
     final res = await api(apiMethod, trackUrl, body: body);
-    final sended =
-        res != null && (res.statusCode == 200 || res.statusCode == 201);
-    // print(res!.body);
-    print('sended: $sended');
-    if (sended) {
+    if (apiSucceess(res)) {
       await handleSuccessSent();
+      if (!isSeller) {
+        await getDeliveries();
+      }
       return;
     }
     await notifyUnsend();
@@ -354,7 +328,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       var b = locationResponse(await LocalBase.getDelmanTrackId(), unsended);
       print('syncync offline data: $b');
       final r = await api(apiMethod, trackUrl, body: b);
-      if (r != null && r.statusCode == 200) {
+      if (apiSucceess(r)) {
         await updateDatasToSended();
       }
     }
@@ -777,14 +751,16 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     });
   }
 
-  reset() {
+  Future reset() async {
     routeCoords.clear();
+    if (subscription != null) {
+      subscription!.cancel();
+      subscription = null;
+      notifyListeners();
+    }
+    zones.clear();
     currentPosition = null;
     delivery.clear();
-    zones.clear();
-    orders.clear();
-    delmans.clear();
-    history.clear();
     payments.clear();
     delivery.clear();
     notifyListeners();
@@ -816,6 +792,46 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   @override
   void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {}
+  @override
+  void didChangeAccessibilityFeatures() {}
+
+  @override
+  void didChangeLocales(List<Locale>? locales) {}
+
+  @override
+  void didChangeMetrics() {}
+
+  @override
+  void didChangePlatformBrightness() {}
+
+  @override
+  void didChangeTextScaleFactor() {}
+
+  @override
+  void didHaveMemoryPressure() {}
+
+  @override
+  Future<bool> didPopRoute() async => false;
+
+  @override
+  Future<bool> didPushRoute(String route) async => false;
+
+  @override
+  Future<bool> didPushRouteInformation(
+          RouteInformation routeInformation) async =>
+      false;
+
+  @override
+  Future<AppExitResponse> didRequestAppExit() async {
+    return AppExitResponse.exit;
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+    _eventController.close();
+  }
 
   Future<void> getCurrentLocation() async {
     print('Getting current location...');
@@ -860,6 +876,31 @@ bool success(Response<dynamic>? response) {
   }
   return false;
 }
+
+double truncateToDigits(double value, int digits) {
+  num mod = pow(10.0, digits);
+  return ((value * mod).round().toDouble() / mod);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  // Future<dynamic> getDeliveryLocation() async {
   //   currentPosition = await Geolocator.getCurrentPosition();
   //   final security = await LocalBase.getSecurity();

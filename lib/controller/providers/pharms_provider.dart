@@ -1,11 +1,22 @@
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 class PharmProvider extends ChangeNotifier {
   List<Customer> filteredCustomers = <Customer>[];
+  List<SellerOrder> orderDets = <SellerOrder>[];
+  CustomerDetail customerDetail = CustomerDetail();
+  List<Zone> zones = [];
+  Zone selectedZone = Zone(id: -1, name: 'Бүс сонгох');
+  void reset() {
+    filteredCustomers.clear();
+    orderDets.clear();
+    customerDetail = CustomerDetail();
+    zones.clear();
+    selectedZone = Zone(id: -1, name: 'Бүс сонгох');
+    notifyListeners();
+  }
 
   /// харилцагч
   getCustomers(int page, int size, BuildContext c) async {
@@ -82,8 +93,6 @@ class PharmProvider extends ChangeNotifier {
     }
   }
 
-  CustomerDetail customerDetail = CustomerDetail();
-
   getEndPoint(String type, String v) {
     if (type == 'name') {
       return '?name__icontains=$v';
@@ -110,7 +119,6 @@ class PharmProvider extends ChangeNotifier {
     }
   }
 
-  List<SellerOrder> orderDets = <SellerOrder>[];
   clearOrderDets() {
     orderDets.clear();
   }
@@ -234,9 +242,6 @@ class PharmProvider extends ChangeNotifier {
       debugPrint(e.toString());
     }
   }
-
-  List<Zone> zones = [];
-  Zone selectedZone = Zone(id: -1, name: 'Бүс сонгох');
 
   void setZone(Zone zone) {
     if (selectedZone != zone) {

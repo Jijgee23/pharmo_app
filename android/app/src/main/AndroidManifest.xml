@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-    <!-- <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/> -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -24,6 +23,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />  
 
+    <!-- <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/> -->
 
     <application
         tools:replace="android:label"
@@ -65,7 +65,7 @@
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA0hFR0VJcj140Z5aXu1pfrQpxbVfmL6DI"/>
-
+        <!-- <description android:string="@strings/location_disclosure" /> -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

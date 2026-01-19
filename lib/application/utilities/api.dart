@@ -2,17 +2,17 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/application/services/local_base.dart';
+import 'package:pharmo_app/application/services/network_service.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
-import 'package:pharmo_app/controller/database/security.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
-getHeader(String token) {
+getHeader(String? token) {
   Map<String, String> headers = {
     'Content-Type': 'application/json; charset=UTF-8',
     'X-Pharmo-Client': '!pharmo_app?',
-    'Authorization': token,
+    if (token != null) 'Authorization': token,
   };
   return headers;
 }
@@ -39,9 +39,9 @@ getApiInformation(String endPoint, http.Response response) {
 
 Future<http.Response?> api(Api method, String endpoint,
     {Map<String, dynamic>? body, Map<String, String>? header}) async {
-  void onError() {
+  void onError() async {
     messageWarning('Хандах эрх дууссан эсвэл өөр төхөөрөмжөөс нэвтэрсэн!');
-    gotoRemoveUntil(const LoginPage());
+    await gotoRemoveUntil(const LoginPage());
   }
 
   try {
@@ -138,18 +138,9 @@ Future<bool> refreshed() async {
   if (user == null) return false;
   final oldAccess = user.access;
   var b = {"refresh": user.refresh};
-  Uri url = setUrl('auth/refresh/');
   try {
-    final k = await http
-        .post(
-          url,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8',
-            'X-Pharmo-Client': '!pharmo_app?',
-          },
-          body: jsonEncode(b),
-        )
-        .timeout(const Duration(seconds: 10));
+    final k = await apiPostWithoutToken('auth/refresh/', b);
+    if (k == null) return false;
     if (apiSucceess(k)) {
       Map<String, dynamic> res = convertData(k);
       print('token refreshed: ${res['access'] != oldAccess}');
@@ -172,4 +163,28 @@ Map<String, dynamic> buildResponse(
     'data': data,
     'message': message,
   };
+}
+
+Future<http.Response?> apiPostWithoutToken(
+    String endPoint, Object? body) async {
+  try {
+    final connected = await isOnline();
+    if (connected) {
+      var response = await http
+          .post(
+            setUrl(endPoint),
+            headers: getHeader(null),
+            body: jsonEncode(body),
+          )
+          .timeout(Duration(seconds: 5));
+      return response;
+    }
+    messageWarning('Интернет холболтоо шалгана уу!');
+  } catch (e) {
+    if (e is TimeoutException) {
+      messageError('Түр хүлээнэ үү!');
+      return null;
+    }
+  }
+  return null;
 }

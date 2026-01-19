@@ -1,5 +1,4 @@
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
-import 'package:pharmo_app/controller/models/products.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';

@@ -17,7 +17,7 @@ class PromotionProvider extends ChangeNotifier {
   bool isCash = true;
   bool orderStarted = false;
   bool delivery = false;
-  dis() {
+  void reset() {
     setDelivery(false);
     setBank(false);
     setHasnote(false);

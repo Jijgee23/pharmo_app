@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
+// import 'package:pharmo_app/application/utilities/sizes.dart';
 
 class AppColors {
   static const secondary = Color(0xFFDE3163);
@@ -38,6 +38,6 @@ const transperant = Colors.transparent;
 const darkBlue = Color(0XFF0A1931);
 const neonBlue = Color(0XFF00AEEF);
 const softGrey = Color(0XFFfafafa);
-final horizontalPadding = EdgeInsets.symmetric(
-  horizontal: Sizes.width * 0.02,
-);
+// final horizontalPadding = EdgeInsets.symmetric(
+//   horizontal: Sizes.width * 0.02,
+// );

@@ -12,6 +12,13 @@ class ReportProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void reset() {
+    currentDate = DateTime.now();
+    currentDate2 = DateTime.now();
+    report.clear();
+    notifyListeners();
+  }
+
   Future getReports(String query) async {
     String e =
         'seller/report/?by=$query&year=${currentDate.year}&month=${currentDate.month}&year2=${currentDate2.year}&month2=${currentDate2.month}';

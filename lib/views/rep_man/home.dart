@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';

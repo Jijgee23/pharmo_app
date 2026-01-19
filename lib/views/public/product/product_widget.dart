@@ -1,6 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
-import 'package:pharmo_app/controller/models/products.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:pharmo_app/views/public/product/add_basket_sheet.dart';
 import 'package:pharmo_app/views/public/product/product_detail_page.dart';

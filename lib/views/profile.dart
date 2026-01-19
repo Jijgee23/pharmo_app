@@ -1,5 +1,4 @@
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
-import 'package:pharmo_app/controller/database/security.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
 import 'package:pharmo_app/views/pharmacy/my_orders/my_orders.dart';
@@ -332,8 +331,7 @@ void logout(BuildContext context) {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () =>
-                        context.read<AuthController>().logout(context),
+                    onPressed: () => context.read<AuthController>().logout(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.redAccent,
                       foregroundColor: Colors.white,

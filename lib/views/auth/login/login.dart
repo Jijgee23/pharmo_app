@@ -1,4 +1,4 @@
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/application/utilities/varlidator.dart';
 import 'package:pharmo_app/views/auth/login/auth_text.dart';
@@ -82,26 +82,29 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                           ),
-                          Row(
-                            spacing: 5,
-                            children: [
-                              Checkbox(
-                                visualDensity: VisualDensity.compact,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                                value: auth.remember,
-                                onChanged: (val) =>
-                                    auth.setRemember(!auth.remember),
-                              ),
-                              Text(
-                                'Сануулах',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.primaryColor,
+                          GestureDetector(
+                            onTap: () => auth.setRemember(!auth.remember),
+                            child: Row(
+                              spacing: 5,
+                              children: [
+                                Checkbox(
+                                  visualDensity: VisualDensity.compact,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  value: auth.remember,
+                                  onChanged: (val) =>
+                                      auth.setRemember(!auth.remember),
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  'Сануулах',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           CustomButton(
                             text: 'Нэвтрэх',

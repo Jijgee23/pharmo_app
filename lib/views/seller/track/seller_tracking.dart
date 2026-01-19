@@ -1,9 +1,8 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
-import 'package:pharmo_app/application/services/log_service.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -18,19 +17,15 @@ class _SellerTrackingState extends State<SellerTracking>
     with WidgetsBindingObserver {
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async => await init());
   }
 
   Future<void> init() async {
-    final jag = context.read<JaggerProvider>();
     LoadingService.run(() async {
-      if (jag.permission != LocationPermission.always) {
-        final value = await Geolocator.checkPermission();
-        jag.setPermission(value);
-      }
-      await jag.getCurrentLocation();
+      final jag = context.read<JaggerProvider>();
+      await jag.loadPermission();
     });
   }
 
@@ -38,8 +33,14 @@ class _SellerTrackingState extends State<SellerTracking>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      init();
+      WidgetsBinding.instance.addPostFrameCallback((_) async => await init());
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
   }
 
   @override
@@ -51,7 +52,6 @@ class _SellerTrackingState extends State<SellerTracking>
             jagger.permission == LocationPermission.deniedForever;
         bool unableToDetermine = jagger.permission != null &&
             jagger.permission == LocationPermission.unableToDetermine;
-
         return Scaffold(
           body: Builder(builder: (context) {
             if (deniedOrNotGranted || unableToDetermine) {
@@ -77,9 +77,18 @@ class _SellerTrackingState extends State<SellerTracking>
                       ),
                       CustomButton(
                         text: 'Шалгах',
-                        ontap: () async =>
-                            await Settings.checkAlwaysLocationPermission()
-                                .whenComplete(() => init()),
+                        ontap: () async {
+                          // bgLocationChannel.receiveBroadcastStream().listen(
+                          //       (e) => print(e),
+                          //     );
+
+                          // final granted = await nativeSettingsChannel
+                          //     .invokeMethod('requestLocationPermissions');
+
+                          // if (!granted) return;
+                          await Settings.checkAlwaysLocationPermission()
+                              .whenComplete(() => init());
+                        },
                       )
                     ],
                   ),
@@ -122,10 +131,15 @@ class _SellerTrackingState extends State<SellerTracking>
                             color: Colors.black,
                           ),
                         ),
-                        if (jagger.subscription != null)
+                        if (jagger.subscription != null &&
+                            !jagger.subscription!.isPaused)
                           FloatingActionButton.extended(
                             heroTag: 'hasTrackST',
-                            onPressed: () {},
+                            onPressed: () async {
+                              await jagger.updateDatasToSended();
+                              // await nativeSettingsChannel
+                              //     .invokeMethod('requestLocationPermissions');
+                            },
                             backgroundColor: Colors.teal,
                             label: Text(
                               'Байршил дамжуулж байна...',
@@ -218,6 +232,10 @@ class _SellerTrackingState extends State<SellerTracking>
     return Expanded(
       child: ElevatedButton(
         onPressed: () async {
+          if (tracker.permission != LocationPermission.always) {
+            final r = await confirmDialog(context: context);
+            if (!r) return;
+          }
           bool confirmed = await confirmDialog(
             context: context,
             title:
@@ -277,7 +295,7 @@ class _SellerTrackingState extends State<SellerTracking>
 
   Future stopTrcack(JaggerProvider tracker) async {
     await LocalBase.removeSellerTrackId();
-    final bool hasTrack = await LocalBase.hasSellerTrack();
+    final hasTrack = await LocalBase.hasSellerTrack();
     if (hasTrack) {
       return;
     }

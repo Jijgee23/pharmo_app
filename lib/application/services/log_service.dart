@@ -1,6 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
-import 'package:pharmo_app/controller/database/log_model.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 
 import '../utilities/a_utils.dart';

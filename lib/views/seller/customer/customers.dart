@@ -34,11 +34,11 @@ class _CustomerListState extends State<CustomerList>
   }
 
   void init(bool force) async {
-    final homeProvider = context.read<HomeProvider>();
+    // final homeProvider = context.read<HomeProvider>();
     final pharmProvider = context.read<PharmProvider>();
     Future fetch() async {
       await pharmProvider.getCustomers(1, 100, context);
-      await homeProvider.getPosition();
+      // await homeProvider.getPosition();
       await pharmProvider.getZones();
     }
 
@@ -77,7 +77,7 @@ class _CustomerListState extends State<CustomerList>
     );
   }
 
-  ListView customersList(PharmProvider pp, HomeProvider homeProvider) {
+  Widget customersList(PharmProvider pp, HomeProvider homeProvider) {
     return ListView.builder(
       padding: EdgeInsets.all(5),
       itemCount: pp.filteredCustomers.length,

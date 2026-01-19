@@ -2,7 +2,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/services/settings.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/views/delivery_man/active_delivery/deliveries.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
@@ -26,11 +26,7 @@ class _MapViewState extends State<MapView> {
   Future<void> init() async {
     final jag = context.read<JaggerProvider>();
     LoadingService.run(() async {
-      if (jag.permission != LocationPermission.always) {
-        final value = await Geolocator.checkPermission();
-        jag.setPermission(value);
-      }
-      await jag.getCurrentLocation();
+      await jag.loadPermission();
     });
   }
 

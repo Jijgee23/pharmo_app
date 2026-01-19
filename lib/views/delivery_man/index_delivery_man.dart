@@ -4,7 +4,7 @@ import 'package:pharmo_app/views/delivery_man/ready_orders/ready_orders.dart';
 import 'package:pharmo_app/views/delivery_man/profile/delivery_profile.dart';
 import 'package:pharmo_app/views/profile.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 
 class IndexDeliveryMan extends StatefulWidget {
   const IndexDeliveryMan({super.key});

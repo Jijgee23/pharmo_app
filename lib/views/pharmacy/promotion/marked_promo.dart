@@ -34,9 +34,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
   @override
   void dispose() {
     super.dispose();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      promotionProvider.dis();
+      promotionProvider.reset();
       note.dispose();
     });
   }

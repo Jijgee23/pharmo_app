@@ -45,7 +45,7 @@ dependencies:
   image: ^4.5.2
   local_auth: ^2.3.0
   location: ^8.0.0
-  shared_preferences: ^2.5.3
+  # shared_preferences: ^2.5.3
   connectivity_plus: ^7.0.0
   battery_plus: ^7.0.0
 

@@ -31,10 +31,12 @@ class _RootPageState extends State<RootPage> {
   @override
   void initState() {
     super.initState();
-    fetchUser();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await fetchUser();
+    });
   }
 
-  void fetchUser() async {
+  Future fetchUser() async {
     await LocalBase.initLocalBase();
     bool isLoggedIn = await LocalBase.isLoggedIn();
     if (!isLoggedIn) {

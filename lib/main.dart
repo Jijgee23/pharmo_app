@@ -1,18 +1,12 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:pharmo_app/app_configs.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
-import 'package:pharmo_app/controller/database/log_model.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
-import 'package:pharmo_app/application/services/a_services.dart';
-import 'package:pharmo_app/application/services/log_service.dart';
-import 'package:pharmo_app/controller/database/track_data.dart';
-import 'package:pharmo_app/application/utilities/global_key.dart';
-import 'package:pharmo_app/application/theme/light_theme.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/auth/root/root_page.dart';
 import 'package:pharmo_app/views/auth/splash_screen.dart';
 import 'package:upgrader/upgrader.dart';
+import 'application/application.dart';
 
+final pharmo = Pharmo();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -29,7 +23,7 @@ Future<void> main() async {
     debugPrint('Error during initialization: $error');
     throw Exception('Initialization failed: $error');
   }
-  final pharmo = Pharmo();
+
   runApp(
     UpgradeAlert(
       dialogStyle: UpgradeDialogStyle.material,

@@ -33,13 +33,56 @@ class LocationStreamHandler(private val activity: Activity) : EventChannel.Strea
         eventSink = null
     }
 
-    fun handlePermissionResult(requestCode: Int, grantResults: IntArray) {
-        when (requestCode) {
-            REQUEST_CODE_FOREGROUND -> handleForegroundPermissionResult(grantResults)
-            REQUEST_CODE_BACKGROUND -> handleBackgroundPermissionResult(grantResults)
+    fun checkAndRequestFullLocationPermissions() {
+        when {
+            // 1. Foreground зөвшөөрөл байхгүй бол (Fine эсвэл Coarse)
+            !hasForegroundPermission() -> {
+                requestForegroundPermission()
+            }
+
+            // 2. Foreground байна, гэвч Background хэрэгтэй бөгөөд байхгүй бол
+            needsBackgroundPermission() && !hasBackgroundPermission() -> {
+                // Энд хэрэглэгчид тайлбар өгөх Dialog харуулбал зүгээр байдаг (заавал биш)
+                requestBackgroundPermission()
+            }
+
+            // 3. Бүх зөвшөөрөл OK бол шууд Service-ээ эхлүүлнэ
+            else -> {
+                startService()
+            }
         }
     }
+    // LocationStreamHandler.kt доторх үр дүн боловсруулах хэсэг
 
+    fun handlePermissionResult(requestCode: Int, grantResults: IntArray) {
+        val isGranted =
+                grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+
+        when (requestCode) {
+            REQUEST_CODE_FOREGROUND -> {
+                if (isGranted) {
+                    // Foreground авчихлаа, одоо шууд дараагийнхыг нь асууна
+                    if (needsBackgroundPermission()) {
+                        requestBackgroundPermission()
+                    } else {
+                        startService()
+                    }
+                } else {
+                    permissionDenied("Байршил тогтоогч хаагдсан")
+                }
+            }
+            REQUEST_CODE_BACKGROUND -> {
+                if (isGranted) {
+                    startService()
+                } else {
+                    // Хэрэглэгч Settings рүү ороод "Allow all the time" сонгоогүй бол
+                    permissionDenied(
+                            "Байршил арын төлөвт зөвшөөрнө үү. 'Allow all the time'-ийг сонгоно уу."
+                    )
+                }
+            }
+        }
+    }
     private fun handleForegroundPermissionResult(grantResults: IntArray) {
         val granted =
                 grantResults.isNotEmpty() &&

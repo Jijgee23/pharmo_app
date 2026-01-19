@@ -13,6 +13,19 @@ class MyOrderProvider extends ChangeNotifier {
 
   List<MyOrderDetailModel> _orderDetails = <MyOrderDetailModel>[];
   List<MyOrderDetailModel> get orderDetails => _orderDetails;
+  List<Supplier> suppliers = [];
+  List<Branch> branches = [];
+
+  void reset() {
+    sellerOrders.clear();
+    filteredsellerOrders.clear();
+    orderDetails.clear();
+    orders.clear();
+    suppliers.clear();
+    branches.clear();
+    notifyListeners();
+  }
+
   late MyOrderDetailModel fetchedDetail;
   Future<List<SellerOrderModel>> getSellerOrders() async {
     List<SellerOrderModel> result = [];
@@ -147,8 +160,6 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  List<Supplier> suppliers = [];
-
   Future<dynamic> getSuppliers() async {
     try {
       final response = await api(Api.get, 'suppliers_list/');
@@ -162,7 +173,6 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  List<Branch> branches = [];
   Future<dynamic> getBranches() async {
     try {
       final response = await api(Api.get, 'branch/');

@@ -1,13 +1,12 @@
 import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/views/pharmacy/promotion/promotion_dialog.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -20,6 +19,17 @@ class HomeProvider extends ChangeNotifier {
     branchList.clear();
     categories.clear();
     supliers.clear();
+    mnfrs.clear();
+    vndrs.clear();
+    branches.clear();
+    fetchedItems.clear();
+    picked = Supplier(
+      id: 1,
+      name: 'Нийлүүлэгч сонгох',
+      logo: null,
+      stocks: [],
+    );
+    notifyListeners();
   }
 
   List<String> stype = ['Нэрээр', 'Баркодоор'];
@@ -395,7 +405,7 @@ class HomeProvider extends ChangeNotifier {
       final response = await api(Api.patch, 'auth/delete_user_account/',
           body: {'pwd': password});
       if (response!.statusCode == 200) {
-        AuthController().logout(context);
+        AuthController().logout();
         messageWarning(
             '${LocalBase.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа');
       } else {

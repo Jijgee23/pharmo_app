@@ -1,4 +1,4 @@
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 class LogProvider extends ChangeNotifier {
@@ -11,6 +11,11 @@ class LogProvider extends ChangeNotifier {
       logs = (data['results'] as List).map((e) => Log.fromJson(e)).toList();
       notifyListeners();
     }
+  }
+
+  void reset() {
+    logs.clear();
+    notifyListeners();
   }
 }
 

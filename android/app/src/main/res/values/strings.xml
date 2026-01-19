@@ -1,4 +1,4 @@
 <resources>
-    <string name="permission_location_rationale">Энэ апп таны байршлыг авах шаардлагатай.</string>
+    <string name="location_disclosure">Pharmo апп нь түгээлтийн замыг бүртгэхийн тулд апп хаагдсан эсвэл ашиглаагүй үед ч байршлын өгөгдлийг цуглуулдаг.</string>
     <string name="default_notification_channel_id">location_channel</string>
 </resources>

@@ -1,23 +1,20 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:pharmo_app/app_configs.dart';
+import 'package:pharmo_app/application/config/app_configs.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/application/services/log_service.dart';
+import 'package:pharmo_app/application/services/track_service.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
-import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:http_parser/http_parser.dart' as pharser;
 
 class AuthController extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
-
   void initLoginpage() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final security = LocalBase.security;
@@ -25,7 +22,12 @@ class AuthController extends ChangeNotifier {
       final remembered = await LocalBase.getRemember();
       if (remembered) {
         setRemember(true);
-        fillEmail(security.email);
+        // fillEmail(security.email);
+        // final idendAndPass = await LocalBase.readIdentifierAndPassword();
+        // final email = idendAndPass['identifier'];
+        // final pass = idendAndPass['password'];
+        // fillEmail(email ?? '');
+        // fillPassword(pass ?? '');
       }
     });
   }
@@ -55,45 +57,18 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void fillPassword(String value) {
+    pass.text = value;
+    notifyListeners();
+  }
+
   final TextEditingController pass = TextEditingController();
-
-  Future<http.Response?> apiPostWithoutToken(
-      String endPoint, Object? body) async {
-    try {
-      final connected = await isOnline();
-      if (connected) {
-        var response = await http
-            .post(
-              setUrl(endPoint),
-              headers: header,
-              body: jsonEncode(body),
-            )
-            .timeout(Duration(seconds: 5));
-        return response;
-      }
-      messageWarning('Интернет холболтоо шалгана уу!');
-    } catch (e) {
-      if (e is TimeoutException) {
-        messageError('Түр хүлээнэ үү!');
-        return null;
-      }
-    }
-    return null;
-  }
-
-  Map<String, String> get header {
-    return {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'X-Pharmo-Client': '!pharmo_app?',
-    };
-  }
 
   bool checker(Map response, String key) {
     if (response.containsKey(key)) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   // Нэвтрэх
@@ -109,14 +84,17 @@ class AuthController extends ChangeNotifier {
       Map<String, dynamic> decodedResponse = convertData(responseLogin!);
       if (responseLogin.statusCode == 200) {
         _handleSuccessfulLogin(decodedResponse);
+        setLogging(false);
       } else if (responseLogin.statusCode == 400) {
         _handleBadRequest(decodedResponse);
+        setLogging(false);
       } else {
         messageWarning('Алдаа гарлаа, Инфосистемс-ХХК-д хандана уу!');
+        setLogging(false);
       }
-      notifyListeners();
     } catch (e) {
       messageError(wait);
+      setLogging(false);
       debugPrint('error================= on login> ${e.toString()} ');
     } finally {
       setLogging(false);
@@ -137,7 +115,10 @@ class AuthController extends ChangeNotifier {
       await getDeviceInfo();
       await LocalBase.saveLastLoggedIn(true);
       await LogService().createLog('login', LogService.login);
-      await LocalBase.saveRemember();
+      if (remember) {
+        await LocalBase.saveRemember();
+        await LocalBase.saveIdentifierAndPassword(ema.text, pass.text);
+      }
       final sec = LocalBase.security;
       if (sec == null) return;
       setLogging(false);
@@ -167,55 +148,68 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> logout(BuildContext context) async {
-    final security = LocalBase.security;
-    if (security != null && security.role != 'PA') {
-      final hasTrack =
-          await LocalBase.hasDelmanTrack() || await LocalBase.hasSellerTrack();
-      if (hasTrack) {
-        bool confirmed = await confirmDialog(
-          context: context,
-          title: 'Байршил дамжуулалт зогсоогоод системээс гарах уу?',
-        );
-        if (confirmed) {
-          context.read<JaggerProvider>().stopTracking();
-        }
-      }
-    }
+  final trackService = TrackService();
+  Future<void> logout() async {
+    // final security = LocalBase.security;
+    // if (security != null && security.role != 'PA') {
+    //   final hasTrack =
+    //       await LocalBase.hasDelmanTrack() || await LocalBase.hasSellerTrack();
+    //   if (hasTrack) {
+    //     bool confirmed = await confirmDialog(
+    //       context: context,
+    //       title: 'Байршил дамжуулалт зогсоогоод системээс гарах уу?',
+    //     );
+    //     if (confirmed) {
+    //       context.read<JaggerProvider>().stopTracking();
+    //     }
+    // }
+    // }
     try {
       await LogService().createLog('logout', LogService.logout);
-      final response = await http.post(
-        setUrl('auth/logout/'),
-        headers: getHeader(LocalBase.security!.access),
-      );
-      if (response.statusCode == 200) {
-        await _completeLogout(context);
-      } else {
-        await _completeLogout(context);
-      }
-      notifyListeners();
+      await LocalBase.removeTokens();
+      await LocalBase.saveLastLoggedIn(false);
+      // final context = GlobalKeys.navigatorKey.currentContext;
+      // if (context != null) {
+      //   context.read<HomeProvider>().reset();
+      //   context.read<BasketProvider>().reset();
+      //   context.read<DriverProvider>().reset();
+      //   context.read<JaggerProvider>().reset();
+      //   context.read<LogProvider>().reset();
+      //   context.read<MyOrderProvider>().reset();
+      //   context.read<PharmProvider>().reset();
+      //   context.read<PromotionProvider>().reset();
+      //   context.read<ReportProvider>().reset();
+      // }
+      await goNamedOfAll('login');
     } catch (e) {
-      debugPrint('ERROR LOGOUT ${e.toString()}');
+      print(e);
+      throw Exception(e);
     }
+    // try {
+    //   // final response = await http.post(
+    //   //   setUrl('auth/logout/'),
+    //   //   headers: getHeader(LocalBase.security!.access),
+    //   // );
+    //   // if (response.statusCode == 200) {
+    //   //   await _completeLogout(context);
+    //   // } else {
+    //   //   await _completeLogout(context);
+    //   // }
+    //   notifyListeners();
+    // } catch (e) {
+    //   debugPrint('ERROR LOGOUT ${e.toString()}');
+    // }
   }
 
-  Future<void> _completeLogout(BuildContext context) async {
-    await LocalBase.removeTokens();
-    await LocalBase.saveLastLoggedIn(false);
-    await _disposeProviders(context);
-    await gotoRemoveUntil(LoginPage());
-  }
+  // Future<void> _completeLogout(BuildContext context) async {}
 
-  Future<void> _disposeProviders(BuildContext context) async {
-    try {
-      Provider.of<BasketProvider>(context, listen: false).reset();
-      Provider.of<HomeProvider>(context, listen: false).reset();
-      Provider.of<JaggerProvider>(context, listen: false).reset();
-      debugPrint('Providers disposed');
-    } catch (e) {
-      debugPrint('Error disposing providers: ${e.toString()}');
-    }
-  }
+  // disposeProviders(BuildContext context) {
+  //   try {
+  //     debugPrint('Providers disposed');
+  //   } catch (e) {
+  //     debugPrint('Error disposing providers: ${e.toString()}');
+  //   }
+  // }
 
   // Бүртгэл батлагаажуулах код авах
   Future signUpGetOtp(String email, String phone) async {
@@ -271,17 +265,23 @@ class AuthController extends ChangeNotifier {
 
   Future<bool> resetPassOtp(String email) async {
     try {
-      final response = await http.post(setUrl('auth/get_otp/'),
-          headers: header, body: jsonEncode({'email': email}));
-      print(response.statusCode);
+      final response = await apiPostWithoutToken(
+        'auth/get_otp/',
+        {'email': email},
+      );
+      if (response == null) return false;
       if (response.statusCode == 200) {
         messageComplete('Батлагаажуулах код илгээлээ');
         return true;
-      } else {
-        messageWarning('И-Мейл хаяг бүртгэлтгүй байна');
+      }
+      print("body: ${convertData(response)}");
+      messageWarning('И-Мейл хаяг бүртгэлтгүй байна');
+      return false;
+    } catch (e) {
+      if (e is TimeoutException) {
+        messageError('Интернет холболтоо шалгана уу!');
         return false;
       }
-    } catch (e) {
       messageError('Түр хүлээгээд дахин оролдоно уу!');
       return false;
     }
@@ -294,10 +294,9 @@ class AuthController extends ChangeNotifier {
     BuildContext context,
   ) async {
     try {
-      final response = await http.post(setUrl('auth/reset/'),
-          headers: header,
-          body:
-              jsonEncode({'email': email, 'otp': otp, 'new_pwd': newPassword}));
+      final b = {'email': email, 'otp': otp, 'new_pwd': newPassword};
+      final response = await apiPostWithoutToken('auth/reset/', b);
+      if (response == null) return;
       if (response.statusCode == 200) {
         messageComplete('Нууц үг амжилттай үүслээ');
         Navigator.pop(context);

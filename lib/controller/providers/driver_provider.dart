@@ -1,8 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
 class DriverProvider extends ChangeNotifier {
@@ -12,6 +11,14 @@ class DriverProvider extends ChangeNotifier {
   List<Order> orders = [];
   List<Delman> delmans = [];
   List<Delivery> history = <Delivery>[];
+
+  void reset() {
+    zones.clear();
+    orders.clear();
+    delmans.clear();
+    history.clear();
+    notifyListeners();
+  }
 
   Future<dynamic> getOrders() async {
     try {

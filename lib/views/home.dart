@@ -1,10 +1,9 @@
-import 'package:pharmo_app/controller/models/products.dart';
 import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/views/public/filter/filter.dart';
 import 'package:pharmo_app/views/public/product/product_widget.dart';
 import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
-import 'package:pharmo_app/controller/providers/a_controlller.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/utilities/a_utils.dart';
 
 class Home extends StatefulWidget {
