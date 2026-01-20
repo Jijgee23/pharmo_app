@@ -41,9 +41,13 @@ class BatteryService {
     // subscribe to battery state changes
     _subscription = _battery.onBatteryStateChanged.listen(
       (BatteryState state) async {
+        final user = LocalBase.security;
+        if (user == null) return;
+        bool isSeller = user.role == "S";
         final currentLevel = await _battery.batteryLevel;
         final hasDelmanTrack = await LocalBase.hasDelmanTrack();
         final hasSellerTrack = await LocalBase.hasSellerTrack();
+        final logType = isSeller ? 'Борлуулалт' : 'Түгээлт';
 
         /// only trigger event when state or level changes
         if (_lastBatteryLevel != currentLevel || _lastBatteryState != state) {
@@ -59,7 +63,7 @@ class BatteryService {
               (hasDelmanTrack || hasSellerTrack) &&
               (state != BatteryState.charging)) {
             await LogService().createLog(
-              'tracking log',
+              logType,
               'Таны төхөөрөмжийн баттерей $currentLevel% байна.',
             );
             await FirebaseApi.local(
