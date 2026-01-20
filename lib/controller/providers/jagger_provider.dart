@@ -14,8 +14,6 @@ import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'dart:math';
 
 const EventChannel bgLocationChannel = EventChannel('bg_location_stream');
-// const MethodChannel nativeSettingsChannel =
-//     MethodChannel('mn.infosystems.pharmo/methods');
 
 class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   final StreamController<AppEvent> _eventController =
@@ -121,6 +119,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             latitude: currentPosition!.latitude,
             longitude: currentPosition!.longitude,
             date: DateTime.now(),
+            sended: true,
           ),
         );
         await LocalBase.saveDelmanTrack(shipmentId).whenComplete(() async {
@@ -165,6 +164,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     try {
       subscription = mergedEvents.listen(
         (event) async {
+          final logType = isSeller ? 'Борлуулалт' : 'Түгээлт';
           if (event is LocationEvent) {
             print("location changed: ${event.location}");
             final lat = parseDouble(event.location['lat']);
@@ -177,7 +177,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             bool isEthernet = rults.contains(ConnectivityResult.ethernet);
             if (isMobile || isWifi || isEthernet) {
               await logService.createLog(
-                'Mobile',
+                logType,
                 'Байршил дамжуулах явцад холболт сэргэсэн (${DateTime.now().toIso8601String()})',
               );
               await getTrackBox();
@@ -188,8 +188,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
                 'Интернет холболт тасарлаа. Холболтоо шалгана уу.',
               );
               await logService.createLog(
-                'Mobile',
-                'Түгээлтийн явцад холболт салсан  (${DateTime.now().toIso8601String()})',
+                logType,
+                'Байршил дамжуулах явцад холболт салсан  (${DateTime.now().toIso8601String()})',
               );
             }
           } else if (event is BatteryEvent) {
@@ -198,8 +198,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             print('Аппликейшний төлөв өөрчлөгдлөө: ${event.state}');
             if (event.state == AppLifecycleState.paused) {
               await logService.createLog(
-                'Mobile',
-                'Түгээлтийн явцад бусад апп руу шилжсэн.  (${DateTime.now().toIso8601String()})',
+                logType,
+                'Байршил дамжуулах явцад бусад апп руу шилжсэн.  (${DateTime.now().toIso8601String()})',
               );
             }
           }
@@ -217,11 +217,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     } catch (e) {
       debugPrint(e.toString());
     }
-  }
-
-  void rumeTracking() {
-    subscription!.resume();
-    notifyListeners();
   }
 
   late Timer timer;
@@ -459,6 +454,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         "delivery_id": shipmentId,
         "lat": truncateToDigits(current.latitude, 6),
         "lng": truncateToDigits(current.longitude, 6),
+        "created": DateTime.now().toIso8601String(),
       };
       final r = await api(Api.patch, 'delivery/end/', body: body);
       if (r == null) {
