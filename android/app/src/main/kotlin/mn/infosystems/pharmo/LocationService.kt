@@ -25,7 +25,7 @@ class LocationService : Service(), LocationListener {
     private lateinit var locationManager: LocationManager
     private var isUpdating = false
     private var lastBroadcastLocation: Location? = null
-
+    private val MIN_DISTANCE = 5f // 5 метр
     override fun onCreate() {
         super.onCreate()
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -37,6 +37,7 @@ class LocationService : Service(), LocationListener {
         startLocationUpdates()
         return START_STICKY
     }
+    
     private fun updateForegroundNotification() {
         val notification = buildNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -66,7 +67,7 @@ class LocationService : Service(), LocationListener {
     }
 
         val previous = lastBroadcastLocation
-        val currentTime = System.currentTimeMillis()
+        // val currentTime = System.currentTimeMillis()
 
         // Таны шалгуурууд:
         val isFirstLocation = previous == null

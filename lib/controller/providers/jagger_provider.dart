@@ -178,7 +178,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             if (isMobile || isWifi || isEthernet) {
               await logService.createLog(
                 'Mobile',
-                'Түгээлтийн явцад холболт сэргэсэн (${DateTime.now().toIso8601String()})',
+                'Байршил дамжуулах явцад холболт сэргэсэн (${DateTime.now().toIso8601String()})',
               );
               await getTrackBox();
               await syncOffineTracks();
