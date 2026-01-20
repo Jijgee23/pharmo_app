@@ -244,28 +244,16 @@ class ProductSearcher extends StatelessWidget {
   }
 
   Widget viewMode(HomeProvider home) {
-    return IconButton.filledTonal(
-      color: white,
+    return IconButton(
       onPressed: () => home.switchView(),
-      style: IconButton.styleFrom(
+      style: ElevatedButton.styleFrom(
         shape: CircleBorder(),
-        padding: EdgeInsets.all(12),
         backgroundColor: Colors.grey.shade200,
       ),
-      icon: Center(
-        child: Icon(
-          home.isList ? Icons.grid_view : Icons.list_sharp,
-          color: primary,
-        ),
+      icon: Icon(
+        home.isList ? Icons.grid_view : Icons.list_sharp,
+        color: primary,
       ),
     );
-
-    // IconButton(
-    //   onPressed: () => home.switchView(),
-    //   icon: Icon(
-    //     home.isList ? Icons.grid_view : Icons.list_sharp,
-    //     color: black,
-    //   ),
-    // );
   }
 }

@@ -79,8 +79,12 @@ class _SellerReportState extends State<SellerReportPage> {
                         date: rp.currentDate,
                         handle: () => _showCalendar(report)),
                     dateSelector(
-                        date: rp.currentDate2,
-                        handle: () => _showCalendar2(report)),
+                      date: rp.currentDate2,
+                      handle: () => _showCalendar(
+                        report,
+                        isStart: false,
+                      ),
+                    ),
                   ],
                 ),
                 Card(
@@ -213,7 +217,7 @@ class _SellerReportState extends State<SellerReportPage> {
     );
   }
 
-  void _showCalendar(ReportProvider report) async {
+  void _showCalendar(ReportProvider report, {bool isStart = true}) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: report.currentDate,
@@ -223,25 +227,7 @@ class _SellerReportState extends State<SellerReportPage> {
       cancelText: 'Буцах',
       helpText: 'Эхлэх огноо сонгоно уу?',
     );
-
-    if (pickedDate != null && pickedDate != report.currentDate) {
-      report.setCurrentDate(pickedDate);
-    }
-  }
-
-  void _showCalendar2(ReportProvider report) async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: report.currentDate2,
-      firstDate: DateTime(2024),
-      lastDate: DateTime(2030),
-      confirmText: 'Болсон',
-      cancelText: 'Буцах',
-      helpText: 'Дуусах огноо сонгоно уу?',
-    );
-
-    if (pickedDate != null && pickedDate != report.currentDate2) {
-      report.setCurrentDate2(pickedDate);
-    }
+    if (pickedDate == null) return;
+    report.setCurrentDate(pickedDate, isStart: isStart);
   }
 }

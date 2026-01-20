@@ -1,3 +1,4 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -72,19 +73,21 @@ class PharmProvider extends ChangeNotifier {
     return result;
   }
 
-  sendCustomerLocation(int custId, BuildContext c) async {
+  sendCustomerLocation(int custId, LatLng position) async {
     try {
-      final home = Provider.of<HomeProvider>(c, listen: false);
       final r = await api(
         Api.patch,
         'seller/customer/$custId/update_location/',
         body: {
-          "lat": home.currentLatitude,
-          "lng": home.currentLongitude,
+          "lat": truncateToDigits(position.latitude, 6),
+          "lng": truncateToDigits(position.longitude, 6)
         },
       );
+      if (r == null) return;
+      print(r.body);
       if (apiSucceess(r)) {
         messageComplete('Амжилттай');
+        await getCustomerDetail(custId);
       } else {
         messageWarning('Түр хүлээгээд дахин оролдоно уу!');
       }

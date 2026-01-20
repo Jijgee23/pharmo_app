@@ -1,10 +1,10 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/application/services/a_services.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 
 class SellerTracking extends StatefulWidget {
@@ -23,10 +23,12 @@ class _SellerTrackingState extends State<SellerTracking>
   }
 
   Future<void> init() async {
-    LoadingService.run(() async {
-      final jag = context.read<JaggerProvider>();
-      await jag.loadPermission();
-    });
+    await LoadingService.run(
+      () async {
+        final jag = context.read<JaggerProvider>();
+        await jag.loadPermission();
+      },
+    );
   }
 
   @override
@@ -78,14 +80,6 @@ class _SellerTrackingState extends State<SellerTracking>
                       CustomButton(
                         text: 'Шалгах',
                         ontap: () async {
-                          // bgLocationChannel.receiveBroadcastStream().listen(
-                          //       (e) => print(e),
-                          //     );
-
-                          // final granted = await nativeSettingsChannel
-                          //     .invokeMethod('requestLocationPermissions');
-
-                          // if (!granted) return;
                           await Settings.checkAlwaysLocationPermission()
                               .whenComplete(() => init());
                         },
@@ -228,14 +222,102 @@ class _SellerTrackingState extends State<SellerTracking>
     );
   }
 
+  Future startSellerTrack() async {
+    final tracker = context.read<JaggerProvider>();
+    if (tracker.permission != LocationPermission.always) {
+      await Settings.checkAlwaysLocationPermission();
+      return;
+    }
+    final current = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+      ),
+    );
+
+    if (current == null) {
+      messageWarning('Одоогийн байршил олдсонгүй!');
+      return;
+    }
+    final data = TrackData(
+      latitude: truncateToDigits(current.latitude, 6),
+      longitude: truncateToDigits(current.longitude, 6),
+      date: DateTime.now(),
+      sended: true,
+    );
+    print(current.latitude);
+    final body = {
+      "locations": [
+        {
+          "lat": data.latitude,
+          "lng": data.longitude,
+          "created": data.date.toIso8601String(),
+        }
+      ]
+    };
+    final r = await api(Api.post, 'seller/location/', body: body);
+    if (r != null && apiSucceess(r)) {
+      await tracker.clearTrackData();
+      await tracker.addPointToBox(data);
+      await LocalBase.saveSellerTrackId();
+      final bool sellerTID = await LocalBase.hasSellerTrack();
+      if (sellerTID) {
+        await LogService().createLog(
+          'Борлуулалт эхлэх',
+          DateTime.now().toIso8601String(),
+        );
+        await tracker.tracking();
+      }
+    }
+  }
+
+  Future endSellerTrack() async {
+    final tracker = context.read<JaggerProvider>();
+    if (tracker.permission != LocationPermission.always) {
+      await Settings.checkAlwaysLocationPermission();
+      return;
+    }
+    final current = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+      ),
+    );
+
+    if (current == null) {
+      messageWarning('Одоогийн байршил олдсонгүй!');
+      return;
+    }
+    final data = TrackData(
+      latitude: truncateToDigits(current.latitude, 6),
+      longitude: truncateToDigits(current.longitude, 6),
+      date: DateTime.now(),
+      sended: true,
+    );
+    final body = {
+      "locations": [
+        {
+          "lat": data.latitude,
+          "lng": data.longitude,
+          "created": data.date.toIso8601String(),
+        }
+      ]
+    };
+    final r = await api(Api.post, 'seller/location/', body: body);
+    if (r != null && apiSucceess(r)) {
+      await tracker.clearTrackData();
+      await LogService().createLog(
+        'Борлуулалт дууслаа',
+        DateTime.now().toIso8601String(),
+      );
+      await tracker.stopTracking();
+    }
+  }
+
   Widget button({required JaggerProvider tracker, bool isStart = true}) {
     return Expanded(
       child: ElevatedButton(
         onPressed: () async {
-          if (tracker.permission != LocationPermission.always) {
-            final r = await confirmDialog(context: context);
-            if (!r) return;
-          }
           bool confirmed = await confirmDialog(
             context: context,
             title:
@@ -246,10 +328,10 @@ class _SellerTrackingState extends State<SellerTracking>
           );
           if (!confirmed) return;
           if (isStart) {
-            await startTrack(tracker);
+            await startSellerTrack();
             return;
           }
-          stopTrcack(tracker);
+          await endSellerTrack();
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: isStart ? Colors.green : Colors.red,
@@ -260,45 +342,22 @@ class _SellerTrackingState extends State<SellerTracking>
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 20,
           children: [
+            Icon(
+              isStart ? Icons.gps_fixed : Icons.gps_off,
+              color: isStart ? white : Colors.white,
+            ),
             Text(
-              isStart ? 'Эхлэх' : 'Дуусгах',
+              "Борлуулалт ${isStart ? 'эхлэх' : 'дуусгах'}",
               style: TextStyle(
                 color: isStart ? white : Colors.white,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 20),
-            Icon(
-              isStart ? Icons.gps_fixed : Icons.gps_off,
-              color: isStart ? white : Colors.white,
-            ),
           ],
         ),
       ),
     );
-  }
-
-  Future startTrack(JaggerProvider jagger) async {
-    print('starting seller track');
-    await jagger.clearTrackData();
-    await LocalBase.saveSellerTrackId();
-    final bool sellerTID = await LocalBase.hasSellerTrack();
-    if (sellerTID) {
-      await LogService().createLog(
-        'Борлуулалт эхлэх',
-        DateTime.now().toIso8601String(),
-      );
-      await jagger.tracking();
-    }
-  }
-
-  Future stopTrcack(JaggerProvider tracker) async {
-    await LocalBase.removeSellerTrackId();
-    final hasTrack = await LocalBase.hasSellerTrack();
-    if (hasTrack) {
-      return;
-    }
-    await tracker.stopTracking();
   }
 }

@@ -453,7 +453,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   Future<dynamic> endShipment(int shipmentId) async {
     try {
-      var body = {"delivery_id": shipmentId};
+      final current = await Geolocator.getCurrentPosition();
+      if (current == null) return;
+      var body = {
+        "delivery_id": shipmentId,
+        "lat": truncateToDigits(current.latitude, 6),
+        "lng": truncateToDigits(current.longitude, 6),
+      };
       final r = await api(Api.patch, 'delivery/end/', body: body);
       if (r == null) {
         messageError('Сервертэй холбогдож чадсангүй!');

@@ -257,7 +257,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
         );
         break;
       case 'Байршил':
-        goto(LocationPicker(cusotmerId: widget.customer.id!));
+        goto(LocationPicker(customer: widget.customer));
         break;
       default:
         break;

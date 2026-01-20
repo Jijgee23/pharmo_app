@@ -33,31 +33,29 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 500),
     )..repeat(reverse: true);
-    initPublic();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async => await initPublic(),
+    );
   }
 
-  initPublic() {
+  Future initPublic() async {
     final home = context.read<HomeProvider>();
     final basket = context.read<BasketProvider>();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) async {
-        setLoading(true);
-        final security = LocalBase.security;
-        if (security == null) return;
+    setLoading(true);
+    final security = LocalBase.security;
+    if (security == null) return;
 
-        _scrollController.addListener(() {
-          if (_scrollController.position.pixels ==
-              _scrollController.position.maxScrollExtent) {
-            home.fetchMoreProducts();
-          }
-        });
-        home.clearItems();
-        home.setPageKey(1);
-        await home.fetchProducts();
-        await basket.getBasket();
-        if (mounted) setLoading(false);
-      },
-    );
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        home.fetchMoreProducts();
+      }
+    });
+    home.clearItems();
+    home.setPageKey(1);
+    await home.fetchProducts();
+    await basket.getBasket();
+    if (mounted) setLoading(false);
   }
 
   @override

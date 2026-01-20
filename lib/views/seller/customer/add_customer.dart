@@ -22,7 +22,7 @@ class _AddCustomerState extends State<AddCustomer> {
   Widget build(BuildContext context) {
     return Consumer<PharmProvider>(
       builder: (context, pharm, child) => IconButton(
-        onPressed: () => registerCustomer(pharm),
+        onPressed: () async => await registerCustomer(pharm),
         style: ElevatedButton.styleFrom(
           shape: CircleBorder(),
           backgroundColor: Colors.grey.shade200,
@@ -32,8 +32,8 @@ class _AddCustomerState extends State<AddCustomer> {
     );
   }
 
-  registerCustomer(PharmProvider pp) {
-    Get.bottomSheet(
+  Future registerCustomer(PharmProvider pp) async {
+    await Get.bottomSheet(
       const AddCustomerSheet(),
       isScrollControlled: true,
     );

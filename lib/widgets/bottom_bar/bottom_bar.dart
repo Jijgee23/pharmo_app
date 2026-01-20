@@ -22,7 +22,9 @@ class BottomBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           color: white,
-          boxShadow: [BoxShadow(color: Colors.grey.shade500, blurRadius: 5)],
+          boxShadow: [
+            BoxShadow(color: Colors.grey.shade500, blurRadius: 5),
+          ],
         ),
         child: Center(
           child: Row(
@@ -30,8 +32,10 @@ class BottomBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: icons
                 .map(
-                  (icon) =>
-                      BottomBarItem(icon: icon, index: icons.indexOf(icon)),
+                  (icon) => BottomBarItem(
+                    icon: icon,
+                    index: icons.indexOf(icon),
+                  ),
                 )
                 .toList(),
           ),

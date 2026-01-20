@@ -70,10 +70,10 @@ class LocationService : Service(), LocationListener {
 
         // Таны шалгуурууд:
         val isFirstLocation = previous == null
-        val movedEnough = previous?.let { location.distanceTo(it) >= 10f } ?: false
-        val timeEnough = previous?.let { (currentTime - it.time) >= 30_000L } ?: false
+        val movedEnough = previous?.let { location.distanceTo(it) >= 5f } ?: false
+        // val timeEnough = previous?.let { (currentTime - it.time) >= 30_000L } ?: false
 
-        if (isFirstLocation || movedEnough || timeEnough) {
+        if (isFirstLocation || movedEnough) {
             if (location.accuracy <= 50) {
                 broadcastLocation(location)
             }

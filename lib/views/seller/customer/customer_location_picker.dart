@@ -3,22 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pharmo_app/controller/models/customer.dart';
 import 'package:pharmo_app/controller/providers/home_provider.dart';
 import 'package:pharmo_app/controller/providers/pharms_provider.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:provider/provider.dart';
 
+const LatLng ulaanbaatar = LatLng(47.921230, 106.918556);
+
 class LocationPicker extends StatefulWidget {
-  final int cusotmerId;
-  final double? lat;
-  final double? lng;
-  const LocationPicker({
-    super.key,
-    required this.cusotmerId,
-    this.lat,
-    this.lng,
-  });
+  final Customer customer;
+  const LocationPicker({super.key, required this.customer});
 
   @override
   State<LocationPicker> createState() => _LocationPickerState();
@@ -26,21 +21,19 @@ class LocationPicker extends StatefulWidget {
 
 class _LocationPickerState extends State<LocationPicker> {
   late final GoogleMapController controller;
-  LatLng _selectedLocation = const LatLng(0.0, 0.0);
+  LatLng _selectedLocation = ulaanbaatar;
   Marker? _marker;
-  bool _isLoading = false;
-  late HomeProvider homeProvider;
 
   @override
   void initState() {
     super.initState();
-    homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    homeProvider.getPosition();
-    _getCurrentLocation();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _getCurrentLocation();
+    });
   }
 
-  // Method to get the current location
   Future<void> _getCurrentLocation() async {
+    final pharm = context.read<PharmProvider>();
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     LocationPermission permission = await Geolocator.checkPermission();
     if (!serviceEnabled) {
@@ -56,28 +49,31 @@ class _LocationPickerState extends State<LocationPicker> {
     }
 
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    LatLng currentLocation = LatLng(position.latitude, position.longitude);
-
-    setState(() {
-      _selectedLocation = currentLocation;
-      _isLoading = false;
-      _marker = Marker(
-        markerId: const MarkerId("current-location"),
-        position: currentLocation,
-        infoWindow: const InfoWindow(title: "Одоогйин байршил"),
-      );
-    });
-
-    // Move camera to current location
-    // final GoogleMapController r = await controller;
-    controller.animateCamera(CameraUpdate.newLatLng(currentLocation));
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    LatLng currentLocation = LatLng(
+      position.latitude,
+      position.longitude,
+    );
+    final custLat = pharm.customerDetail.lat;
+    final custLng = pharm.customerDetail.lng;
+    setState(
+      () {
+        _selectedLocation = (custLat != null && custLng != null)
+            ? LatLng(custLat, custLng)
+            : currentLocation;
+        _marker = Marker(
+          markerId: const MarkerId("current-location"),
+          position: _selectedLocation,
+          infoWindow: const InfoWindow(title: "Одоогийн байршил"),
+        );
+        controller.animateCamera(CameraUpdate.newLatLng(_selectedLocation));
+      },
+    );
   }
 
-  // Method to handle map tap and set new marker
   _onMapTapped(LatLng location) {
     print('lat ${location.latitude}\n lng${location.longitude}');
-    homeProvider.setSelectedLoc(LatLng(location.latitude, location.longitude));
     setState(() {
       _selectedLocation = location;
       _marker = Marker(
@@ -92,12 +88,8 @@ class _LocationPickerState extends State<LocationPicker> {
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (context, home, pp, child) => Scaffold(
-        appBar: const SideAppBar(text: 'Байршил сонгох'),
         body: Builder(
           builder: (context) {
-            if (_isLoading) {
-              return Center(child: CircularProgressIndicator());
-            }
             return Stack(
               children: <Widget>[
                 GoogleMap(
@@ -115,48 +107,44 @@ class _LocationPickerState extends State<LocationPicker> {
                   markers: _marker != null ? {_marker!} : {},
                 ),
                 Positioned(
-                  bottom: 80,
+                  bottom: 0,
                   right: 20,
                   child: SafeArea(
-                    child: FloatingActionButton(
-                      heroTag: 'cusotmerLocationGOTO',
-                      elevation: 20,
-                      onPressed: goToMyLocation,
-                      backgroundColor: Colors.white,
-                      child: const Icon(Icons.my_location, color: Colors.black),
+                    child: Column(
+                      spacing: 10,
+                      children: [
+                        FloatingActionButton(
+                          heroTag: 'cusotmerLocationGOTO',
+                          elevation: 20,
+                          onPressed: goToMyLocation,
+                          backgroundColor: Colors.white,
+                          child: const Icon(Icons.my_location,
+                              color: Colors.black),
+                        ),
+                        FloatingActionButton(
+                          heroTag: 'SaveCustomerLocation',
+                          elevation: 20,
+                          onPressed: () async => await saveCustomerLocatoin(pp),
+                          backgroundColor: Colors.white,
+                          child: const Icon(Icons.save, color: Colors.black),
+                        ),
+                      ],
                     ),
                   ),
                 ),
                 Positioned(
-                  bottom: 0,
-                  left: 0,
+                  top: 0,
+                  left: 20,
                   child: SafeArea(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      width: MediaQuery.of(context).size.width,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => saveCustomerLocatoin(pp),
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(vertical: 12.5),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                backgroundColor: primary,
-                                overlayColor: Colors.white.withAlpha(120),
-                              ),
-                              child: Text(
-                                'Хадгалах',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                    bottom: true,
+                    child: FloatingActionButton(
+                      heroTag: 'cusotmerLocationPop',
+                      elevation: 20,
+                      onPressed: () => Navigator.pop(context),
+                      backgroundColor: Colors.white,
+                      child: const Icon(
+                        Icons.chevron_left,
+                        color: Colors.black,
                       ),
                     ),
                   ),
@@ -177,6 +165,11 @@ class _LocationPickerState extends State<LocationPicker> {
     final n = await Geolocator.getCurrentPosition();
     if (n != null) _selectedLocation = LatLng(n.latitude, n.longitude);
 
+    _marker = Marker(
+      markerId: const MarkerId("current-location"),
+      position: _selectedLocation,
+      infoWindow: const InfoWindow(title: "Одоогийн байршил"),
+    );
     await controller.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
@@ -185,11 +178,22 @@ class _LocationPickerState extends State<LocationPicker> {
         ),
       ),
     );
+    setState(() {});
   }
 
   saveCustomerLocatoin(PharmProvider pharm) async {
-    await pharm.sendCustomerLocation(widget.cusotmerId, context);
+    final msg =
+        'Уртраг: ${_selectedLocation.latitude}, Өргөрөг: ${_selectedLocation.longitude}';
+    final confirmed = await confirmDialog(
+      context: context,
+      title: 'Та ${widget.customer.name}-ийн байршлыг шинэчилэх үү?',
+      message: msg,
+    );
+
+    if (!confirmed) return;
+    await pharm.sendCustomerLocation(widget.customer.id!, _selectedLocation);
+
     Navigator.pop(context);
-    await pharm.getCustomerDetail(widget.cusotmerId);
+    await pharm.getCustomerDetail(widget.customer.id!);
   }
 }

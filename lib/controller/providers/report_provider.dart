@@ -44,12 +44,25 @@ class ReportProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setCurrentDate(DateTime newDate) {
-    currentDate = newDate;
-    notifyListeners();
-  }
-
-  setCurrentDate2(DateTime newDate) {
+  setCurrentDate(DateTime newDate, {bool isStart = true}) {
+    final now = DateTime.now();
+    if (newDate.isAfter(now)) {
+      messageWarning('Огноо зөв сонгоно уу!');
+      return;
+    }
+    if (isStart) {
+      if (newDate.isAfter(currentDate2)) {
+        messageWarning('Огноо зөв сонгоно уу!');
+        return;
+      }
+      currentDate = newDate;
+      notifyListeners();
+      return;
+    }
+    if (newDate.isBefore(currentDate)) {
+      messageWarning('Огноо зөв сонгоно уу!');
+      return;
+    }
     currentDate2 = newDate;
     notifyListeners();
   }

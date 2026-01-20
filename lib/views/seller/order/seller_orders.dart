@@ -3,10 +3,9 @@ import 'package:pharmo_app/controller/providers/myorder_provider.dart';
 import 'package:pharmo_app/controller/providers/pharms_provider.dart';
 import 'package:pharmo_app/application/utilities/colors.dart';
 import 'package:pharmo_app/application/utilities/sizes.dart';
+import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/views/public/order/order_widget.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
-import 'package:pharmo_app/widgets/loader/data_screen.dart';
-import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
 import 'package:pharmo_app/widgets/text/small_text.dart';
 import 'package:provider/provider.dart';
 
@@ -21,12 +20,6 @@ class _SellerOrdersState extends State<SellerOrders>
     with SingleTickerProviderStateMixin {
   List<SellerOrderModel> orders = [];
   final TextEditingController search = TextEditingController();
-  bool loading = false;
-  setLoading(bool n) {
-    setState(() {
-      loading = n;
-    });
-  }
 
   @override
   void initState() {
@@ -35,20 +28,18 @@ class _SellerOrdersState extends State<SellerOrders>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-    init();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async => init(),
+    );
   }
 
   late AnimationController _controller;
 
-  init() {
-    final orderProvider = context.read<MyOrderProvider>();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) async {
-        setLoading(true);
-        await orderProvider.getSellerOrders();
-        if (mounted) setLoading(false);
-      },
-    );
+  Future init() async {
+    LoadingService.run(() async {
+      final orderProvider = context.read<MyOrderProvider>();
+      await orderProvider.getSellerOrders();
+    });
   }
 
   @override
@@ -102,52 +93,34 @@ class _SellerOrdersState extends State<SellerOrders>
   Widget build(BuildContext context) {
     return Consumer2<MyOrderProvider, PharmProvider>(
       builder: (_, provider, pp, child) {
-        return DataScreen(
-          pad: EdgeInsets.all(7.5),
-          onRefresh: () async => await init(),
-          appbar: SideAppBar(
+        return Scaffold(
+          appBar: SideAppBar(
             title: searchBar(),
             preferredSize: const Size.fromHeight(kToolbarHeight + 10),
             centerTitle: false,
           ),
-          customLoading: shimmer(),
-          loading: loading,
-          empty: provider.sellerOrders.isEmpty,
-          child: ListView.separated(
-            scrollDirection: Axis.vertical,
-            key: _listKey,
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            shrinkWrap: true,
-            itemCount: provider.sellerOrders.length,
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              return OrderWidget(order: provider.sellerOrders[index]);
-            },
+          body: SafeArea(
+            bottom: true,
+            child: RefreshIndicator(
+              onRefresh: () async => await init(),
+              child: ListView.separated(
+                padding: EdgeInsets.all(10),
+                scrollDirection: Axis.vertical,
+                key: _listKey,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 10),
+                shrinkWrap: true,
+                itemCount: provider.sellerOrders.length,
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  final order = provider.sellerOrders[index];
+                  return OrderWidget(order: order);
+                },
+              ),
+            ),
           ),
         );
       },
-    );
-  }
-
-  shimmer() {
-    List<int> list = List.generate(5, (index) => index);
-    return Center(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          spacing: 10,
-          children: list
-              .map((index) => Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: ShimmerBox(
-                      controller: _controller,
-                      height: 150,
-                    ),
-                  ))
-              .toList(),
-        ),
-      ),
     );
   }
 
