@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:image/image.dart' as img;
 import 'package:pharmo_app/controller/a_controlller.dart';

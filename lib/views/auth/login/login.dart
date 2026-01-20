@@ -1,6 +1,6 @@
 import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/application/utilities/varlidator.dart';
+import 'package:pharmo_app/application/size/sizes.dart';
+import 'package:pharmo_app/application/validator/varlidator.dart';
 import 'package:pharmo_app/views/auth/login/auth_text.dart';
 import 'package:pharmo_app/views/auth/login/forget_and_signup.dart';
 import 'package:pharmo_app/views/auth/login/login_footer.dart';

@@ -1,11 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
-import 'package:pharmo_app/controller/providers/basket_provider.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class CartItem extends StatefulWidget {
   final Map<String, dynamic> detail;

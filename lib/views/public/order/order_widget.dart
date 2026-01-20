@@ -1,17 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:pharmo_app/controller/providers/myorder_provider.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/constants.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/application/utilities/utils.dart';
-import 'package:pharmo_app/views/pharmacy/my_orders/my_order_detail.dart';
-import 'package:pharmo_app/views/pharmacy/promotion/marked_promo_dialog.dart';
-import 'package:pharmo_app/views/seller/order/seller_order_detail.dart';
-import 'package:pharmo_app/widgets/text/small_text.dart';
-import 'package:pharmo_app/widgets/ui_help/col.dart';
-import 'package:provider/provider.dart' show Consumer;
-import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:pharmo_app/views/ORDERER/my_orders/my_order_detail.dart';
+import 'package:pharmo_app/views/ORDERER/promotion/marked_promo_dialog.dart';
+import 'package:pharmo_app/views/SELLER/order/seller_order_detail.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class OrderWidget extends StatelessWidget {
   final SellerOrderModel order;
@@ -133,10 +124,9 @@ class OrderWidget extends StatelessWidget {
 
   btn(bool isPop, BuildContext context, MyOrderProvider op) {
     return DialogButton(
-      width: Sizes.width * 0.3,
-      color: theme.primaryColor,
-      child: SmallText(isPop ? 'Үгүй' : 'Тийм', color: white),
-      onPressed: () => isPop
+      bColor: theme.primaryColor,
+      title: isPop ? 'Үгүй' : 'Тийм',
+      onTap: () => isPop
           ? Navigator.pop(context)
           : deleteOrder(op).then(
               (e) => Navigator.pop(context),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/color/colors.dart';
 import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
 
 /// Shows a centered loading dialog with a fixed 50px diameter indicator.

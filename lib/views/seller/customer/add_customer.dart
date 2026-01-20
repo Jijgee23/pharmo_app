@@ -1,14 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/controller/providers/pharms_provider.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/constants.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class AddCustomer extends StatefulWidget {
   const AddCustomer({super.key});

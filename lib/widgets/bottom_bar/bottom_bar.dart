@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
+import 'package:pharmo_app/application/color/colors.dart';
+import 'package:pharmo_app/application/size/sizes.dart';
 import 'package:provider/provider.dart';
 import '../../controller/providers/home_provider.dart';
 

@@ -1,0 +1,68 @@
+import 'package:pharmo_app/controller/models/delivery.dart';
+import 'package:pharmo_app/views/SELLER/order/seller_order_detail.dart';
+import 'package:pharmo_app/application/application.dart';
+
+class ShipmentHistoryDetail extends StatelessWidget {
+  final Delivery delivery;
+  const ShipmentHistoryDetail({super.key, required this.delivery});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBar(),
+      body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: SingleChildScrollView(
+          child: Column(
+            spacing: 10,
+            children: [
+              const SizedBox(),
+              ...delivery.orders.map((order) => orderBuilder(order)),
+              SizedBox(height: 50)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  SideAppBar appBar() => SideAppBar(text: 'Түгээлтийн дугаар: ${delivery.id}');
+
+  orderBuilder(Order order) {
+    List<String> data = [
+      maybeNull(order.orderer!.name),
+      maybeNull(order.orderNo),
+      order.createdOn,
+      order.totalCount.toString(),
+      toPrice(order.totalPrice),
+      getPayType(order.payType),
+    ];
+    List<String> titles = [
+      'Захиалагч',
+      'Дугаар',
+      'Огноо',
+      'Тоо ширхэг',
+      'Дүн',
+      'Төлбөрийн хэлбэр'
+    ];
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade400),
+      ),
+      elevation: 0,
+      color: white,
+      child: Container(
+        padding: EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            OrderStatusAnimation(
+                process: process(order.process), status: status(order.status)),
+            ...titles.map((t) => myRow(t, data[titles.indexOf(t)])),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,16 +1,13 @@
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/application/services/local_base.dart';
-import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
-import 'package:pharmo_app/views/pharmacy/my_orders/my_orders.dart';
-import 'package:pharmo_app/views/pharmacy/promotion/promotion_screen.dart';
-import 'package:pharmo_app/views/rep_man/visits.dart';
+import 'package:pharmo_app/views/DRIVER/index_driver.dart';
+import 'package:pharmo_app/views/ORDERER/my_orders/my_orders.dart';
+import 'package:pharmo_app/views/ORDERER/promotion/promotion_screen.dart';
+import 'package:pharmo_app/views/REPMAN/visits.dart';
 import 'package:pharmo_app/views/public/about_us.dart';
 import 'package:pharmo_app/views/public/privacy_policy/privacy_policy.dart';
-import 'package:pharmo_app/views/seller/order/seller_orders.dart';
-import 'package:pharmo_app/views/seller/report/seller_report.dart';
+import 'package:pharmo_app/views/SELLER/order/seller_orders.dart';
+import 'package:pharmo_app/views/SELLER/report/seller_report.dart';
 import 'package:pharmo_app/views/public/system_log.dart';
-import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -79,7 +76,7 @@ class Profile extends StatelessWidget {
                               ontap: () {
                                 homeProvider.changeIndex(0);
                                 if (homeProvider.currentIndex == 0) {
-                                  gotoRemoveUntil(const IndexDeliveryMan());
+                                  gotoRemoveUntil(const IndexDriver());
                                 }
                               },
                             ),

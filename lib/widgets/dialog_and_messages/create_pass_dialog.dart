@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controller/providers/auth_provider.dart';
-import 'package:pharmo_app/application/utilities/varlidator.dart';
+import 'package:pharmo_app/application/validator/varlidator.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';

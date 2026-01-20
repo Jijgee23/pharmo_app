@@ -1,17 +1,11 @@
-import 'package:pharmo_app/application/services/local_base.dart';
-import 'package:pharmo_app/views/cart/cart.dart';
-import 'package:pharmo_app/views/cart/cart_icon.dart';
 import 'package:pharmo_app/views/home.dart';
-import 'package:pharmo_app/views/seller/track/seller_tracking.dart';
+import 'package:pharmo_app/views/SELLER/track/seller_tracking.dart';
 import 'package:pharmo_app/views/public/product/product_searcher.dart';
 import 'package:pharmo_app/views/profile.dart';
-import 'package:pharmo_app/views/seller/customer/customers.dart';
-import 'package:pharmo_app/views/seller/customer/add_customer.dart';
-import 'package:pharmo_app/views/seller/customer/customer_searcher.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/views/SELLER/customer/customers.dart';
+import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
+import 'package:pharmo_app/views/SELLER/customer/customer_searcher.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class IndexPharma extends StatefulWidget {
   const IndexPharma({super.key});

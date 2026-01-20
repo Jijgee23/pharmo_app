@@ -1,8 +1,5 @@
-import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class AddBasketSheet extends StatefulWidget {
   final Product product;

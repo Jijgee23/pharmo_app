@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/basket_provider.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/utils.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class CartInfo extends StatefulWidget {
   const CartInfo({super.key});

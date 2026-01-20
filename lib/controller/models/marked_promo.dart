@@ -77,31 +77,31 @@ class MarkedPromo {
   }
 }
 
-class Item {
-  int id;
-  int? qtyId;
-  String? name;
-  double? price;
-  String? barcode;
-  int? qty;
+// class Item {
+//   int id;
+//   int? qtyId;
+//   String? name;
+//   double? price;
+//   String? barcode;
+//   int? qty;
 
-  Item({
-    required this.id,
-    this.qtyId,
-    this.name,
-    this.price,
-    this.barcode,
-    this.qty,
-  });
+//   Item({
+//     required this.id,
+//     this.qtyId,
+//     this.name,
+//     this.price,
+//     this.barcode,
+//     this.qty,
+//   });
 
-  factory Item.fromJson(Map<String, dynamic> json) {
-    return Item(
-      id: json['id'],
-      qtyId: json['qtyId'],
-      name: json['name'],
-      price: json['price'],
-      barcode: json['barcode'],
-      qty: json['qty'],
-    );
-  }
-}
+//   factory Item.fromJson(Map<String, dynamic> json) {
+//     return Item(
+//       id: json['id'],
+//       qtyId: json['qtyId'],
+//       name: json['name'],
+//       price: json['price'],
+//       barcode: json['barcode'],
+//       qty: json['qty'],
+//     );
+//   }
+// }

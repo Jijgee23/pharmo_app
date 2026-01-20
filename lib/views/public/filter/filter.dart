@@ -1,16 +1,6 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/controller/models/category.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/constants.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/cart_icon.dart';
 import 'package:pharmo_app/views/public/filter/filtered_products.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class FilterPage extends StatefulWidget {
   const FilterPage({super.key});

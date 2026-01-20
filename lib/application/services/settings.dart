@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/color/colors.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 

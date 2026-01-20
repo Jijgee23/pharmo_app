@@ -1,8 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/controller/providers/basket_provider.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
-import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/views/cart/cart_info.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/cart/seller_order_sheet.dart';
@@ -11,7 +6,7 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
 import 'package:pharmo_app/widgets/others/empty_basket.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class Cart extends StatefulWidget {
   const Cart({super.key});

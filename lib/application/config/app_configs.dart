@@ -6,10 +6,10 @@ import 'package:pharmo_app/views/auth/root/root_page.dart';
 import 'package:pharmo_app/views/auth/root/root_provider.dart';
 import 'package:pharmo_app/views/auth/sign_up.dart';
 import 'package:pharmo_app/views/cart/cart.dart';
-import 'package:pharmo_app/views/seller/customer/choose_customer.dart';
+import 'package:pharmo_app/views/SELLER/customer/choose_customer.dart';
 import 'package:pharmo_app/views/index.dart';
-import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
-import 'package:pharmo_app/views/seller/track/seller_tracking.dart';
+import 'package:pharmo_app/views/DRIVER/index_driver.dart';
+import 'package:pharmo_app/views/SELLER/track/seller_tracking.dart';
 import 'package:provider/single_child_widget.dart';
 
 import '../../controller/a_controlller.dart';
@@ -38,7 +38,7 @@ class AppConfigs {
     "/reset_password": (_) => ResetPassword(),
     "/complete_registration": (_) => CompleteRegistration(ema: '', pass: ''),
     "/index_pharmo": (_) => IndexPharma(),
-    "/index_delivery": (_) => IndexDeliveryMan(),
+    "/index_delivery": (_) => IndexDriver(),
     "/cart": (_) => Cart(),
     "/seller_track": (_) => SellerTracking(),
     "/chooseCustomer": (_) => ChooseCustomer(),

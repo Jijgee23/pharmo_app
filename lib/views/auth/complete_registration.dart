@@ -1,18 +1,13 @@
-import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pharmo_app/controller/providers/auth_provider.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/widgets/inputs/ibtn.dart';
 import 'package:pharmo_app/widgets/ui_help/def_input_container.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class CompleteRegistration extends StatefulWidget {
   final String ema;

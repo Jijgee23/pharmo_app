@@ -1,9 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:pharmo_app/views/public/product/add_basket_sheet.dart';
 import 'package:pharmo_app/views/public/product/product_detail_page.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/application.dart';
 
 //GRID VIEW
 class ProductWidget extends StatelessWidget {

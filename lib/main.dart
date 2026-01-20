@@ -1,6 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/auth/root/root_page.dart';
 import 'package:upgrader/upgrader.dart';
 import 'application/application.dart';

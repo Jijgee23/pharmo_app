@@ -1,8 +1,7 @@
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
 
-enum AuthState { unknown, loggedIn, notLoggedIn, expired, notSplashed }
+
 
 class RootProvider extends ChangeNotifier {
   AuthState state = AuthState.unknown;

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class LoginFooter extends StatelessWidget {
   const LoginFooter({super.key});

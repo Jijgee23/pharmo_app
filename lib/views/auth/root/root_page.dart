@@ -1,12 +1,10 @@
-import 'package:pharmo_app/application/services/a_services.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/auth/root/root_provider.dart';
 import 'package:pharmo_app/views/auth/root/splash_screen.dart';
+import 'package:pharmo_app/views/DRIVER/index_driver.dart';
 import 'package:pharmo_app/views/index.dart';
-import 'package:pharmo_app/views/delivery_man/index_delivery_man.dart';
-import 'package:pharmo_app/views/rep_man/index.dart';
-import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
+import 'package:pharmo_app/views/REPMAN/index.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -46,7 +44,7 @@ class _RootPageState extends State<RootPage> {
       if (security == null) return LoginPage();
 
       if (security.role == 'D') {
-        return IndexDeliveryMan();
+        return IndexDriver();
       }
       if (security.role == "R") {
         return IndexRep();

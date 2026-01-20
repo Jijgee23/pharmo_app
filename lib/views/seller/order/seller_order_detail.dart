@@ -1,17 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/controller/providers/pharms_provider.dart';
-import 'package:pharmo_app/controller/models/my_order.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
-import 'package:pharmo_app/views/seller/customer/add_customer.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
+import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
 import 'package:pharmo_app/views/public/product/add_basket_sheet.dart';
-import 'package:pharmo_app/widgets/inputs/ibtn.dart';
-import 'package:pharmo_app/widgets/loader/data_screen.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class SellerOrderDetail extends StatefulWidget {
   final int oId;

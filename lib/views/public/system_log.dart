@@ -1,5 +1,4 @@
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class SystemLog extends StatefulWidget {
   const SystemLog({super.key});

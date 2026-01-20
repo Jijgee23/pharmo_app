@@ -107,7 +107,7 @@ class AuthController extends ChangeNotifier {
       await LocalBase.initLocalBase();
       await getDeviceInfo();
       await LocalBase.saveLastLoggedIn(true);
-      await LogService().createLog('login', LogService.login);
+      await LogService().createLog('Нэвтрэх', LogService.login);
       if (remember) {
         await LocalBase.saveRemember();
         await LocalBase.saveIdentifierAndPassword(ema.text, pass.text);
@@ -146,7 +146,7 @@ class AuthController extends ChangeNotifier {
       {bool withoutRequest = false}) async {
     try {
       if (!withoutRequest) {
-        await LogService().createLog('logout', LogService.logout);
+        await LogService().createLog('Системээс гарах', LogService.logout);
         await api(Api.post, 'auth/logout/');
       }
       await LocalBase.removeTokens();

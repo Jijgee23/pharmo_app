@@ -469,7 +469,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
           'Түгээлт дууслаа',
           'Таны $shipmentId дугаартай түгээлт дууслаа.',
         );
-        await logService.createLog('end_shipment', 'Түгээлт дуусгасан');
+        await logService.createLog('Түгээлт', 'Түгээлт дуусгасан');
         stopTracking();
         notifyListeners();
       } else {

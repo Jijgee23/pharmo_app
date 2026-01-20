@@ -1,22 +1,16 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/controller/models/products.dart';
 import 'package:pharmo_app/views/home.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
-import 'package:pharmo_app/widgets/others/no_result.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class FilteredProducts extends StatefulWidget {
   final String? type;
   final int filterKey;
   final String title;
-  const FilteredProducts(
-      {super.key,
-      required this.type,
-      required this.filterKey,
-      required this.title});
+  const FilteredProducts({
+    super.key,
+    required this.type,
+    required this.filterKey,
+    required this.title,
+  });
 
   @override
   State<FilteredProducts> createState() => _FilteredProductsState();

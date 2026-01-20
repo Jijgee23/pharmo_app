@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class ShimmerBox extends StatelessWidget {
   final AnimationController controller;

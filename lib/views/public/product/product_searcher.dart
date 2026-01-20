@@ -1,11 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/controller/models/supplier.dart';
-import 'package:pharmo_app/application/services/local_base.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
-import 'package:provider/provider.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:pharmo_app/application/application.dart';
 class ProductSearcher extends StatelessWidget {
   const ProductSearcher({super.key});
 

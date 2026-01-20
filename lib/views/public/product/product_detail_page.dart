@@ -1,23 +1,10 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
-import 'package:pharmo_app/controller/providers/basket_provider.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/controller/models/products.dart';
-import 'package:pharmo_app/application/services/local_base.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/views/cart/cart_item.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:pharmo_app/widgets/others/no_result.dart';
-import 'package:pharmo_app/widgets/ui_help/def_input_container.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class ProductDetail extends StatefulWidget {
   final Product prod;
@@ -134,7 +121,7 @@ class _ProductDetailState extends State<ProductDetail>
         return Scaffold(
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [imageBar(context, basket, home, isNotPharma)];
+              return [imageBar(basket, home, isNotPharma)];
             },
             body: Builder(builder: (context) {
               if (det == {}) {
@@ -264,11 +251,11 @@ class _ProductDetailState extends State<ProductDetail>
     );
   }
 
-  SliverAppBar imageBar(BuildContext context, BasketProvider basket,
-      HomeProvider home, bool isNotPharma) {
+  SliverAppBar imageBar(
+      BasketProvider basket, HomeProvider home, bool isNotPharma) {
     return SliverAppBar(
       leading: const ChevronBack(),
-      expandedHeight: context.width * 0.6,
+      expandedHeight: MediaQuery.of(context).size.width * .6,
       backgroundColor: white,
       actions: [addIcon(basket), basketIcon(basket)],
       flexibleSpace: (det != {})

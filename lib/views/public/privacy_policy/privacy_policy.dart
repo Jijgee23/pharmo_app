@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class PrivacyPolicy extends StatelessWidget {
   const PrivacyPolicy({super.key});

@@ -1,15 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/basket_provider.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/application/utilities/utils.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class QRCode extends StatefulWidget {
   const QRCode({super.key});

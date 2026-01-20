@@ -1,13 +1,6 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/controller/models/customer.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/controller/providers/pharms_provider.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 const LatLng ulaanbaatar = LatLng(47.921230, 106.918556);
 

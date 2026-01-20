@@ -1,12 +1,10 @@
-import 'package:flutter/material.dart';
+
 import 'package:otp_text_field_v2/otp_field_v2.dart';
-import 'package:pharmo_app/controller/providers/auth_provider.dart';
-import 'package:pharmo_app/application/utilities/varlidator.dart';
 import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});

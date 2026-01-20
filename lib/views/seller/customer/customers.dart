@@ -1,7 +1,5 @@
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/views/cart/cart_item.dart';
-import 'package:pharmo_app/views/seller/customer/customer_tile.dart';
-import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
+import 'package:pharmo_app/views/SELLER/customer/customer_tile.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class CustomerList extends StatefulWidget {
   const CustomerList({super.key});

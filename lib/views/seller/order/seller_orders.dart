@@ -1,13 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/myorder_provider.dart';
-import 'package:pharmo_app/controller/providers/pharms_provider.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/views/public/order/order_widget.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
-import 'package:pharmo_app/widgets/text/small_text.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class SellerOrders extends StatefulWidget {
   const SellerOrders({super.key});

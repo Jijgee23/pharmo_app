@@ -1,19 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/models/customer.dart';
-import 'package:pharmo_app/controller/providers/pharms_provider.dart';
-import 'package:pharmo_app/application/services/a_services.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/sizes.dart';
-import 'package:pharmo_app/application/utilities/utils.dart';
-import 'package:pharmo_app/views/seller/customer/customer_location_picker.dart';
-import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/inputs/ibtn.dart';
-import 'package:provider/provider.dart';
+import 'package:pharmo_app/views/SELLER/customer/customer_location_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class CustomerDetailsPage extends StatefulWidget {
   final Customer customer;

@@ -1,10 +1,9 @@
-export 'colors.dart';
-export 'constants.dart';
-export 'enums.dart';
+export '../color/colors.dart';
+export '../enum/enums.dart';
 export '../services/firebase_options.dart';
-export 'global_key.dart';
-export 'sizes.dart';
+export '../keys/global_key.dart';
+export '../size/sizes.dart';
 export 'utils.dart';
-export 'varlidator.dart';
-export 'api.dart';
-export 'functions.dart';
+export '../validator/varlidator.dart';
+export '../api/api.dart';
+export '../function/functions.dart';

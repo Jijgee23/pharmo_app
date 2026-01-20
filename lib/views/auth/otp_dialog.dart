@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/utilities/varlidator.dart';
+import 'package:pharmo_app/application/validator/varlidator.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
 

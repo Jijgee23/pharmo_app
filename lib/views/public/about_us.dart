@@ -1,19 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/application/utilities/colors.dart';
-import 'package:pharmo_app/application/utilities/utils.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
-import 'package:pharmo_app/widgets/loader/data_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class AboutUs extends StatelessWidget {
   const AboutUs({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // String logoUrl =
-    //     'https://infosystems.mn/api/uploads/white_logo_cae13554c4.png';
     List<String> socialUrls = [
       'https://img.freepik.com/premium-vector/art-illustration_929495-41.jpg?semt=ais_hybrid',
       'https://img.freepik.com/premium-vector/red-youtube-logo-social-media-logo_197792-1803.jpg?semt=ais_hybrid',
