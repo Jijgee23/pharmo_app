@@ -264,40 +264,24 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       );
     }
 
-    Future notifyUnsend() async {
-      await addPointToBox(locatioData(false));
-    }
-
-    Future handleSuccessSent() async {
-      final text = 'Өрг: $latitude Урт: $longitude';
-      final lastNotifDate = await logService.getLastNotifDate();
-      bool hasNotLastNotid = lastNotifDate == null;
-      if (hasNotLastNotid ||
-          (lastNotifDate != null &&
-              now.difference(lastNotifDate) > Duration(minutes: 3))) {
-        await FirebaseApi.local('Байршил илгээсэн', text);
-        await logService.saveLastNotif(now);
-      }
-
-      await addPointToBox(locatioData(true));
-      await syncOffineTracks();
-    }
-
     final isSeller =
         LocalBase.security != null && LocalBase.security!.role == 'S';
     final trackUrl = isSeller ? 'seller/location/' : 'delivery/location/';
     final apiMethod = isSeller ? Api.post : Api.patch;
-    var body =
-        locationr(await LocalBase.getDelmanTrackId(), [locatioData(true)]);
+    var body = locationr(
+      await LocalBase.getDelmanTrackId(),
+      [locatioData(true)],
+    );
     final r = await api(apiMethod, trackUrl, body: body);
-    if (apiSucceess(r)) {
-      await handleSuccessSent();
+    if (r != null && apiSucceess(r)) {
+      await addPointToBox(locatioData(true));
+      await syncOffineTracks();
       if (!isSeller) {
         await getDeliveries();
       }
       return;
     }
-    await notifyUnsend();
+    await addPointToBox(locatioData(false));
   }
 
   Future syncOffineTracks() async {
@@ -332,7 +316,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     if (isSeller) {
       return {
         "locations": [
-          ...locs.map((e) {
+          ...locs.toSet().map((e) {
             return {
               "lat": truncateToDigits(e.latitude, 6),
               "lng": truncateToDigits(e.longitude, 6),
@@ -345,13 +329,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     return {
       "delivery_id": id,
       "locs": [
-        ...locs.map(
-          (e) => {
-            "lat": truncateToDigits(e.latitude, 6),
-            "lng": truncateToDigits(e.longitude, 6),
-            "created": e.date.toIso8601String(),
-          },
-        )
+        ...locs.toSet().map(
+              (e) => {
+                "lat": truncateToDigits(e.latitude, 6),
+                "lng": truncateToDigits(e.longitude, 6),
+                "created": e.date.toIso8601String(),
+              },
+            )
       ]
     };
   }
@@ -981,3 +965,12 @@ double truncateToDigits(double value, int digits) {
   //     notifyListeners();
   //   }
   // }
+    // final text = 'Өрг: $latitude Урт: $longitude';
+      // final lastNotifDate = await logService.getLastNotifDate();
+      // bool hasNotLastNotid = lastNotifDate == null;
+      // if (hasNotLastNotid ||
+      //     (lastNotifDate != null &&
+      //         now.difference(lastNotifDate) > Duration(minutes: 3))) {
+      //   await FirebaseApi.local('Байршил илгээсэн', text);
+      //   await logService.saveLastNotif(now);
+      // }
