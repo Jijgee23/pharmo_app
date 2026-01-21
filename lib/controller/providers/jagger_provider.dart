@@ -6,8 +6,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'dart:math';
 import 'package:pharmo_app/controller/models/delivery.dart';
+import 'dart:math';
 
 const EventChannel bgLocationChannel = EventChannel('bg_location_stream');
 
