@@ -6,8 +6,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/controller/models/delivery.dart';
 import 'dart:math';
+import 'package:pharmo_app/controller/models/delivery.dart';
 
 const EventChannel bgLocationChannel = EventChannel('bg_location_stream');
 
@@ -828,7 +828,56 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   @override
   Future<AppExitResponse> didRequestAppExit() async {
-    return AppExitResponse.exit;
+    await showDialog(
+      barrierDismissible: false,
+      context: GlobalKeys.navigatorKey.currentContext!,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 0,
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(30),
+              child: Column(
+                spacing: 20,
+                children: [
+                  Icon(
+                    Icons.warning_amber,
+                    color: Colors.red,
+                    size: 30,
+                  ),
+                  Text(
+                    'Хаах уу, түгээлт зогсохийг анхаарна уу?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          print('ahhaa');
+                        },
+                        child: Text('Нэвтрэх'),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    throw UnimplementedError();
   }
 
   @override
