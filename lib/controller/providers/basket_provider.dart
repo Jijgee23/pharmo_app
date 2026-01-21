@@ -1,9 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/views/cart/order_done.dart';
-import 'package:pharmo_app/views/cart/qr_code.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class BasketProvider extends ChangeNotifier {
   final TextEditingController qty = TextEditingController();
@@ -49,7 +44,7 @@ class BasketProvider extends ChangeNotifier {
 
   Future getBasket() async {
     try {
-      final r = await api(Api.get, 'user_basket/');
+      final r = await api(Api.get, basketUrl);
       if (r == null) {
         basket = null;
         notifyListeners();
@@ -79,7 +74,7 @@ class BasketProvider extends ChangeNotifier {
     try {
       final response = await api(
         Api.patch,
-        'user_basket/',
+        basketUrl,
         body: {'product_id': id, 'qty': qty},
       );
       if (response == null) return;
@@ -125,7 +120,7 @@ class BasketProvider extends ChangeNotifier {
 
   Future<dynamic> removeBasketItem({required int itemId}) async {
     try {
-      final r = await api(Api.delete, 'user_basket/?item_id=$itemId');
+      final r = await api(Api.delete, '$basketUrl?item_id=$itemId');
       if (r == null) return;
       messageComplete('Сагснаас хасагдлаа');
       await getBasket();

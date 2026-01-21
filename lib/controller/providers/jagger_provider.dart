@@ -5,13 +5,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
-import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/application/services/a_services.dart';
-import 'package:pharmo_app/application/event/app_event.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'dart:math';
+import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/controller/models/delivery.dart';
 
 const EventChannel bgLocationChannel = EventChannel('bg_location_stream');
 

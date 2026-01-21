@@ -93,7 +93,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                     ],
                   ),
                 if (promo.endDate != null)
-                  Box(
+                  XBox(
                     child: Column(
                       children: [
                         box,
@@ -179,7 +179,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                       box,
                       promotionProvider.delivery
                           ? const SizedBox()
-                          : Box(
+                          : XBox(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: home.branches

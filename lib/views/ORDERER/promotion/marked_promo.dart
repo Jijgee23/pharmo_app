@@ -69,12 +69,12 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
             child: Column(
               children: [
                 (promo.desc != null)
-                    ? Box(
+                    ? XBox(
                         child: Text(promo.desc!),
                       )
                     : const SizedBox(),
                 promo.bundles != null
-                    ? Box(
+                    ? XBox(
                         child: Column(
                           children: [
                             const Text('Багц:',
@@ -103,7 +103,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                       )
                     : const SizedBox(),
                 (promo.bundlePrice != null)
-                    ? Box(
+                    ? XBox(
                         child: Column(
                           children: [
                             const Text('Багцийн үнэ:',
@@ -119,7 +119,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                       )
                     : const SizedBox(),
                 (promo.gift != null)
-                    ? Box(
+                    ? XBox(
                         child: Column(
                           children: [
                             Icon(Icons.add,
@@ -147,7 +147,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                       )
                     : const SizedBox(),
                 promo.endDate != null
-                    ? Box(
+                    ? XBox(
                         child: Column(
                           children: [
                             box,
@@ -170,7 +170,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                     ? const SizedBox()
                     : Column(
                         children: [
-                          Box(
+                          XBox(
                             child: Column(
                               children: [
                                 Row(
@@ -240,7 +240,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                           box,
                           promotionProvider.delivery
                               ? const SizedBox()
-                              : Box(
+                              : XBox(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,

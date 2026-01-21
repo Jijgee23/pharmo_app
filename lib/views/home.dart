@@ -40,7 +40,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     setLoading(true);
     final security = LocalBase.security;
     if (security == null) return;
-
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
@@ -89,36 +88,38 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PromotionProvider>(
       builder: (_, home, promotionProvider, child) {
-        return DataScreen(
-          onRefresh: () => refresh(),
-          loading: loading,
-          empty: home.fetchedItems.isEmpty,
-          customLoading: shimmer(),
-          child: Column(
-            children: [
-              if (LocalBase.security != null &&
-                  LocalBase.security!.role == 'PA')
-                filtering(Sizes.smallFontSize),
-              products(home),
-            ],
-          ),
+        return Scaffold(
+          body: Builder(builder: (context) {
+            if (loading) {
+              return shimmer();
+            }
+            return RefreshIndicator.adaptive(
+              onRefresh: () async => await refresh(),
+              child: Column(
+                children: [
+                  if (LocalBase.security != null &&
+                      LocalBase.security!.role == 'PA')
+                    filtering(Sizes.smallFontSize),
+                  products(home),
+                ],
+              ),
+            );
+          }),
         );
       },
     );
   }
 
   Widget shimmer() {
-    return Center(
-      child: GridView.builder(
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-        itemBuilder: (_, idx) {
-          return Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: ShimmerBox(controller: controller, height: 150),
-          );
-        },
-      ),
+    return GridView.builder(
+      gridDelegate:
+          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      itemBuilder: (_, idx) {
+        return Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: ShimmerBox(controller: controller, height: 150),
+        );
+      },
     );
   }
 

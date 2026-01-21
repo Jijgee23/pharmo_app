@@ -1,13 +1,9 @@
 import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/application/services/a_services.dart';
-import 'package:pharmo_app/views/cart/order_done.dart';
 import 'package:pharmo_app/views/ORDERER/promotion/promotion_dialog.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class HomeProvider extends ChangeNotifier {
   void reset() {
@@ -128,7 +124,6 @@ class HomeProvider extends ChangeNotifier {
       if (r == null) return [];
       if (r.statusCode == 200) {
         final res = convertData(r);
-        print(res);
         final prods = (res['results'] as List)
             .map((data) => Product.fromJson(data))
             .toList();

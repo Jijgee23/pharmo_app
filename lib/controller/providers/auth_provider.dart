@@ -1,16 +1,11 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:pharmo_app/application/config/app_configs.dart';
-import 'package:pharmo_app/application/services/a_services.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/views/auth/complete_registration.dart';
 import 'package:pharmo_app/views/auth/reset_pass.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/create_pass_dialog.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:http_parser/http_parser.dart' as pharser;
+import 'package:pharmo_app/application/application.dart';
 
 class AuthController extends ChangeNotifier {
   void initLoginpage() {
@@ -73,7 +68,7 @@ class AuthController extends ChangeNotifier {
     setLogging(true);
     try {
       var body = {'email': ema.text, 'password': pass.text};
-      var responseLogin = await apiPostWithoutToken('auth/login/', body);
+      var responseLogin = await apiPostWithoutToken(loginUrl, body);
       Map<String, dynamic> decodedResponse = convertData(responseLogin!);
       if (responseLogin.statusCode == 200) {
         _handleSuccessfulLogin(decodedResponse);
@@ -147,7 +142,7 @@ class AuthController extends ChangeNotifier {
     try {
       if (!withoutRequest) {
         await LogService().createLog('Системээс гарах', LogService.logout);
-        await api(Api.post, 'auth/logout/');
+        await api(Api.post, logoutUrl);
       }
       await LocalBase.removeTokens();
       await LocalBase.clearSecurity();
@@ -200,7 +195,7 @@ class AuthController extends ChangeNotifier {
         'otp': otp,
         'password': password
       };
-      final response = await apiPostWithoutToken('auth/register/', body);
+      final response = await apiPostWithoutToken(registerUrl, body);
       final data = jsonDecode(utf8.decode(response!.bodyBytes));
       print(data);
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -313,7 +308,7 @@ class AuthController extends ChangeNotifier {
         'os': deviceData['os'],
         'osVersion': deviceData['osVersion']
       };
-      final r = await api(Api.post, 'device_token/', body: data);
+      final r = await api(Api.post, deviceTokenUrl, body: data);
       if (r == null) return;
       if (r.statusCode == 200) {
         debugPrint('Device info sent');

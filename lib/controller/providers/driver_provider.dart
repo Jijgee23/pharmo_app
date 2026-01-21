@@ -1,8 +1,6 @@
 import 'package:geolocator/geolocator.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class DriverProvider extends ChangeNotifier {
   late LocationPermission permission;

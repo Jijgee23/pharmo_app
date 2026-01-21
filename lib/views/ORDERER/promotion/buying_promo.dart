@@ -26,14 +26,14 @@ class BuyinPromo extends StatelessWidget {
                         child: text('Дахиж харахгүй', color: black)),
                   ),
                   (promo.desc != null)
-                      ? Box(
+                      ? XBox(
                           child: Container(
                           width: double.infinity,
                           margin: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(promo.desc!),
                         ))
                       : const SizedBox(),
-                  Box(
+                  XBox(
                     child: Wrap(
                       alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,
@@ -63,7 +63,7 @@ class BuyinPromo extends StatelessWidget {
                           color: AppColors.secondary, size: 30)
                       : const SizedBox(),
                   (promo.gift != null)
-                      ? Box(
+                      ? XBox(
                           child: Column(
                             children: [
                               (promo.gift != null)
@@ -91,7 +91,7 @@ class BuyinPromo extends StatelessWidget {
                         )
                       : const SizedBox(),
                   promo.endDate != null
-                      ? Box(
+                      ? XBox(
                           child: Column(
                             children: [
                               const Text('Урамшуулал дуусах хугацаа:'),

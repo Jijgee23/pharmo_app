@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/application/size/sizes.dart';
 
-class Box extends StatelessWidget {
+class XBox extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? margin;
   final List<BoxShadow>? shadow;
-  const Box({super.key, required this.child, this.margin, this.shadow});
+  const XBox({super.key, required this.child, this.margin, this.shadow});
 
   @override
   Widget build(BuildContext context) {

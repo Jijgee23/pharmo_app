@@ -4,6 +4,6 @@ enum Api { get, post, patch, delete }
 
 enum AuthState { unknown, loggedIn, notLoggedIn, expired, notSplashed }
 
-enum Role { seller, driver, orderer, admin, repman }
+enum Role { noUser, seller, driver, orderer, admin, repman }
 
 enum OrderStatus { newOrder, ready, packing, payed, unpayed }

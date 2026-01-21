@@ -119,7 +119,7 @@ class _PromotionWidgetState extends State<PromotionWidget> {
               ),
               (promos.isNotEmpty)
                   ? Expanded(
-                      child: Box(
+                      child: XBox(
                         child: SingleChildScrollView(
                           child: Column(
                             children: promos

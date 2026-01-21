@@ -9,3 +9,4 @@ export 'const/const.dart';
 export 'package:pharmo_app/controller/a_controlller.dart';
 export 'package:pharmo_app/widgets/a_widgets.dart';
 export 'package:pharmo_app/views/cart/a_cart.dart';
+export './const/queries.dart';
