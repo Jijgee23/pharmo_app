@@ -1,3 +1,4 @@
+import 'package:pharmo_app/views/DRIVER/map/map_view.dart';
 import 'package:pharmo_app/views/home.dart';
 import 'package:pharmo_app/views/SELLER/track/seller_tracking.dart';
 import 'package:pharmo_app/views/public/product/product_searcher.dart';
@@ -79,7 +80,7 @@ class _IndexPharmaState extends State<IndexPharma> {
                   ? FloatingActionButton(
                       heroTag: 'sellerTRACKING',
                       shape: CircleBorder(),
-                      onPressed: () => goto(SellerTracking()),
+                      onPressed: () => goto(MapView()),
                       backgroundColor: primary,
                       child: Icon(
                         Icons.location_on_rounded,

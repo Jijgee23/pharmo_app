@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 
 class MyOrderDetailModel {
   int itemId;

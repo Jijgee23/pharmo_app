@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/application/services/network_service.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
@@ -14,6 +14,8 @@ Future<http.Response?> api(
   Map<String, String>? header,
 }) async {
   try {
+    final hasInternet = await NetworkChecker.hasInternet();
+    if (!hasInternet) return null;
     final security = LocalBase.security;
     if (security == null) return null;
     final access = security.access;
@@ -197,7 +199,7 @@ Map<String, dynamic> buildResponse(
 Future<http.Response?> apiPostWithoutToken(
     String endPoint, Object? body) async {
   try {
-    final connected = await isOnline();
+    final connected = await NetworkChecker.hasInternet();
     if (connected) {
       var response = await http
           .post(

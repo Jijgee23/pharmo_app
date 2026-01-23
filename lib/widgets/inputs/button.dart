@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/size/sizes.dart';
+import 'package:pharmo_app/application/context/size/sizes.dart';
 
 class Button extends StatelessWidget {
   final String text;

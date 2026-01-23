@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/color/colors.dart';
+import 'package:pharmo_app/application/context/color/colors.dart';
 
 class Col extends StatelessWidget {
   final String t1;

@@ -7,9 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
-import 'dart:math';
-
-const EventChannel bgLocationChannel = EventChannel('bg_location_stream');
 
 class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   final StreamController<AppEvent> _eventController =
@@ -25,25 +22,46 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     _eventController.add(LifeCycleEvent(state));
   }
 
-  void _setupStreams() {
-    bgLocationChannel.receiveBroadcastStream().listen(
-          (dynamic location) => _eventController.add(LocationEvent(location)),
+  final connectivity = Connectivity();
+
+  void _setupStreams() async {
+    // location
+    NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
+          (dynamic location) => _eventController.add(
+            LocationEvent(location),
+          ),
         );
-    Connectivity().onConnectivityChanged.listen(
-          (List<ConnectivityResult> status) =>
-              _eventController.add(NetworkEvent(status)),
-        );
-    Battery().onBatteryStateChanged.listen(
-          (BatteryState state) => _eventController.add(BatteryEvent(state)),
-        );
+    connectivity.onConnectivityChanged
+        .listen((List<ConnectivityResult> status) async {
+      _eventController.add(NetworkEvent(status));
+      bool isOnline = await NetworkChecker.hasInternet();
+      if (isOnline && isDialogOpen) {
+        _hideNetworkDialog();
+        return;
+      }
+      if (!isOnline && !isDialogOpen) {
+        _showNetworkDialog();
+      }
+    });
+    NativeChannel.batteryChannel.receiveBroadcastStream().listen(
+      (dynamic value) {
+        if (value != null && value is num) {
+          _eventController.add(BatteryEvent(value.toInt()));
+        }
+      },
+    );
     AppLifecycleListener(
       onPause: () => _eventController.add(
         LifeCycleEvent(AppLifecycleState.paused),
       ),
-      onResume: () => _eventController.add(
-        LifeCycleEvent(AppLifecycleState.resumed),
-      ),
+      onResume: () async {
+        _eventController.add(
+          LifeCycleEvent(AppLifecycleState.resumed),
+        );
+        await loadPermission();
+      },
     );
+    await initJagger();
   }
 
   Future initJagger() async {
@@ -57,8 +75,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   // TRACKING
   StreamSubscription? subscription;
   late final Box<TrackData> trackBox;
-  late bool servicePermission = false;
-  LocationPermission? permission;
+
   Position? currentPosition;
   List<Delivery> delivery = [];
   List<Zone> zones = [];
@@ -66,30 +83,18 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   List<Payment> payments = [];
   final LogService logService = LogService();
   final Battery battery = Battery();
+
+  LocationPermission? permission;
+  LocationAccuracyStatus? accuracy;
+
   Future loadPermission() async {
-    if (permission != null && permission == LocationPermission.always) {
-      return;
-    }
     final value = await Geolocator.checkPermission();
+    final newAccuracy = await Geolocator.getLocationAccuracy();
     permission = value;
+    accuracy = newAccuracy;
+    print(permission);
+    print(accuracy);
     notifyListeners();
-  }
-
-  bool permissionGranted() {
-    if (permission == LocationPermission.always) {
-      return true;
-    }
-    if (permission == LocationPermission.whileInUse) {
-      return true;
-    }
-    return false;
-  }
-
-  bool permissionGrantedForTracking() {
-    if (permission == LocationPermission.always) {
-      return true;
-    }
-    return false;
   }
 
   Future<void> startShipment(int shipmentId) async {
@@ -170,8 +175,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             final rults = event.results;
             bool isMobile = rults.contains(ConnectivityResult.mobile);
             bool isWifi = rults.contains(ConnectivityResult.wifi);
-            bool isEthernet = rults.contains(ConnectivityResult.ethernet);
-            if (isMobile || isWifi || isEthernet) {
+            if (isMobile || isWifi) {
               await logService.createLog(
                 logType,
                 'Байршил дамжуулах явцад холболт сэргэсэн (${DateTime.now().toIso8601String()})',
@@ -179,17 +183,22 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
               await getTrackBox();
               await syncOffineTracks();
             } else {
-              await FirebaseApi.local(
-                'Интернет тасарсан',
-                'Интернет холболт тасарлаа. Холболтоо шалгана уу.',
-              );
               await logService.createLog(
                 logType,
                 'Байршил дамжуулах явцад холболт салсан  (${DateTime.now().toIso8601String()})',
               );
             }
           } else if (event is BatteryEvent) {
-            print('Батерейны төлөв өөрчлөгдлөө: ${event.state}');
+            print('Батерейны түвшин 20%-с бага байна: ${event.level}');
+            await LogService().createLog(
+              logType,
+              'Таны төхөөрөмжийн баттерей ${event.level}% байна.',
+            );
+            await FirebaseApi.local(
+              'Баттерей сул байна',
+              'Таны төхөөрөмжийн баттерей ${event.level}% байна. '
+                  'Цэнэглэнэ үү, байршил дамжуулалт зогсох магадлалтай.',
+            );
           } else if (event is LifeCycleEvent) {
             print('Аппликейшний төлөв өөрчлөгдлөө: ${event.state}');
             if (event.state == AppLifecycleState.paused) {
@@ -201,9 +210,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
           }
         },
       );
-      if (subscription != null) {
-        await BatteryService.startListenBattery();
-      }
       timer = Timer.periodic(Duration(seconds: 1), (v) {
         now = DateTime.now();
         notifyListeners();
@@ -220,17 +226,16 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   Future stopTracking() async {
     try {
-      await BatteryService.stopListenBattery();
+      await syncOffineTracks();
       await LocalBase.clearDelmanTrack();
       await LocalBase.removeSellerTrackId();
       await clearTrackData();
-      await getTrackBox();
       if (subscription == null) return;
       print('stoping track');
       await subscription!.cancel();
-      if (subscription != null && subscription!.isPaused) {
-        return;
-      }
+      // if (subscription != null && subscription!.isPaused) {
+      //   return;
+      // }s
       subscription = null;
       notifyListeners();
       print('subsciption null: ${subscription == null}');
@@ -243,7 +248,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       routeCoords.clear();
       polylines.clear();
       orderMarkers.clear();
-      markers.clear();
       notifyListeners();
     } catch (e) {
       print(e);
@@ -251,10 +255,28 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
   }
 
+  DateTime? _lastUploadTime;
+
+  final int _uploadIntervalSeconds = 5;
+
   Future sendTobackend(double lat, double lng) async {
-    double latitude = truncateToDigits(lat, 6);
-    double longitude = truncateToDigits(lng, 6);
+    double latitude = truncateToSixDigits(lat);
+    double longitude = truncateToSixDigits(lng);
     final now = DateTime.now();
+
+    await getTrackBox();
+
+    if (trackDatas.isNotEmpty) {
+      TrackData last = trackDatas.last;
+      double distance = Geolocator.distanceBetween(
+        last.latitude,
+        last.longitude,
+        lat,
+        lng,
+      );
+      if (distance < 10) return;
+    }
+
     TrackData locatioData(bool sended) {
       return TrackData(
         latitude: latitude,
@@ -264,6 +286,16 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       );
     }
 
+    final hasInternet = await NetworkChecker.hasInternet();
+    if (!hasInternet) {
+      await addPointToBox(locatioData(false));
+      return;
+    }
+
+    if (_lastUploadTime != null &&
+        now.difference(_lastUploadTime!).inSeconds < _uploadIntervalSeconds) {
+      return;
+    }
     final isSeller =
         LocalBase.security != null && LocalBase.security!.role == 'S';
     final trackUrl = isSeller ? 'seller/location/' : 'delivery/location/';
@@ -274,6 +306,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     );
     final r = await api(apiMethod, trackUrl, body: body);
     if (r != null && apiSucceess(r)) {
+      _lastUploadTime = now;
       await addPointToBox(locatioData(true));
       await syncOffineTracks();
       if (!isSeller) {
@@ -318,8 +351,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         "locations": [
           ...locs.toSet().map((e) {
             return {
-              "lat": truncateToDigits(e.latitude, 6),
-              "lng": truncateToDigits(e.longitude, 6),
+              "lat": truncateToSixDigits(e.latitude),
+              "lng": truncateToSixDigits(e.longitude),
               "created": DateTime.now().toIso8601String()
             };
           })
@@ -331,8 +364,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       "locs": [
         ...locs.toSet().map(
               (e) => {
-                "lat": truncateToDigits(e.latitude, 6),
-                "lng": truncateToDigits(e.longitude, 6),
+                "lat": truncateToSixDigits(e.latitude),
+                "lng": truncateToSixDigits(e.longitude),
                 "created": e.date.toIso8601String(),
               },
             )
@@ -370,39 +403,16 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     notifyListeners();
   }
 
-  bool followUser = true;
-
   Future addPointToBox(TrackData td) async {
     if (!Hive.isBoxOpen('track_box')) return;
-    final newLoc = LatLng(td.latitude, td.longitude);
     await trackBox.add(td);
     await getTrackBox();
     updatePolylines();
-    _updateBearing(newLoc);
   }
 
   Future getTrackBox() async {
     if (!Hive.isBoxOpen('track_box')) return;
     trackDatas = trackBox.values.toList().cast<TrackData>();
-    notifyListeners();
-  }
-
-  _updateBearing(LatLng newLatLng) async {
-    if (trackDatas.isEmpty) return 0.0;
-    markers.clear();
-    final last = trackDatas.last;
-    final bear = calculateBearing(
-      LatLng(last.latitude, last.longitude),
-      newLatLng,
-    );
-    markers.add(
-      Marker(
-        markerId: MarkerId('myMarkerId'),
-        position: newLatLng,
-        icon: await readIcon(),
-        rotation: bear,
-      ),
-    );
     notifyListeners();
   }
 
@@ -432,8 +442,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       if (current == null) return;
       var body = {
         "delivery_id": shipmentId,
-        "lat": truncateToDigits(current.latitude, 6),
-        "lng": truncateToDigits(current.longitude, 6),
+        "lat": truncateToSixDigits(current.latitude),
+        "lng": truncateToSixDigits(current.longitude),
         "created": DateTime.now().toIso8601String(),
       };
       final r = await api(Api.patch, 'delivery/end/', body: body);
@@ -523,7 +533,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             }
           }
         }
-        print(markers.length);
 
         for (final d in delivery) {
           zones = d.zones;
@@ -673,7 +682,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   late GoogleMapController mapController;
   double zoomIndex = 14;
   bool trafficEnabled = false;
-  Set<Marker> markers = {};
+  // Set<Marker> markers = {};
   Set<Marker> orderMarkers = {};
 
   zoomIn() {
@@ -702,13 +711,20 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   LatLng latLng = LatLng(47.90771, 106.88324);
+
   void updateLatLng(LatLng valeu) {
     latLng = valeu;
     notifyListeners();
   }
 
   MapType mapType = MapType.terrain;
+
   Future<void> goToMyLocation() async {
+    if (permission == null ||
+        (permission != LocationPermission.always &&
+            permission != LocationPermission.whileInUse)) {
+      return;
+    }
     if (mapController == null) {
       return;
     }
@@ -718,7 +734,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     if (mapController == null) return;
     await mapController.animateCamera(
       CameraUpdate.newCameraPosition(
-        CameraPosition(target: latLng, zoom: 16, bearing: bearing, tilt: tilt),
+        CameraPosition(target: latLng, zoom: 16),
       ),
     );
   }
@@ -763,6 +779,50 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       height: 30,
     );
     return rult;
+  }
+
+  bool isDialogOpen = false;
+
+  void _showNetworkDialog() {
+    isDialogOpen = true;
+    showDialog(
+      barrierDismissible: false,
+      context: GlobalKeys.navigatorKey.currentContext!,
+      builder: (context) {
+        return PopScope(
+          canPop: false,
+          child: Dialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(30),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.wifi_off, color: Colors.red, size: 50),
+                  SizedBox(height: 20),
+                  Text(
+                    'Интернет холболт салсан',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Dialog хаах функц
+  void _hideNetworkDialog() {
+    if (isDialogOpen) {
+      Navigator.of(GlobalKeys.navigatorKey.currentContext!).pop();
+      isDialogOpen = false;
+    }
   }
 
   @override
@@ -812,55 +872,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   @override
   Future<AppExitResponse> didRequestAppExit() async {
-    await showDialog(
-      barrierDismissible: false,
-      context: GlobalKeys.navigatorKey.currentContext!,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 0,
-          child: SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(30),
-              child: Column(
-                spacing: 20,
-                children: [
-                  Icon(
-                    Icons.warning_amber,
-                    color: Colors.red,
-                    size: 30,
-                  ),
-                  Text(
-                    'Хаах уу, түгээлт зогсохийг анхаарна уу?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          print('ahhaa');
-                        },
-                        child: Text('Нэвтрэх'),
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-
     throw UnimplementedError();
   }
 
@@ -870,55 +881,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     super.dispose();
     _eventController.close();
   }
-
-  Future<void> getCurrentLocation() async {
-    print('Getting current location...');
-    // await Settings.checkAlwaysLocationPermission();
-    currentPosition = await Geolocator.getCurrentPosition();
-    notifyListeners();
-  }
 }
 
-double calculateBearing(LatLng last, LatLng current) {
-  return Geolocator.bearingBetween(
-    last.latitude,
-    last.longitude,
-    current.latitude,
-    current.longitude,
-  );
-}
-
-double calculateTotalDistanceKm(List<TrackData> points) {
-  if (points.length < 2) return 0;
-
-  double totalMeters = 0;
-
-  for (int i = 0; i < points.length - 1; i++) {
-    totalMeters += Geolocator.distanceBetween(
-      points[i].latitude,
-      points[i].longitude,
-      points[i + 1].latitude,
-      points[i + 1].longitude,
-    );
-  }
-
-  return totalMeters / 1000;
-}
-
-bool success(Response<dynamic>? r) {
-  if (r == null) {
-    return false;
-  }
-  if (r.statusCode == 200 || r.statusCode == 201) {
-    return true;
-  }
-  return false;
-}
-
-double truncateToDigits(double value, int digits) {
-  num mod = pow(10.0, digits);
-  return ((value * mod).round().toDouble() / mod);
-}
 
 
 

@@ -1,5 +1,5 @@
 import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 
 class LogProvider extends ChangeNotifier {
   List<Log> logs = <Log>[];

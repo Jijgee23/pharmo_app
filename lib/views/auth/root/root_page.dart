@@ -31,6 +31,7 @@ class _RootPageState extends State<RootPage> {
   Widget build(BuildContext context) {
     return Consumer<RootProvider>(builder: (context, rooter, child) {
       AuthState state = rooter.state;
+
       if (state == AuthState.notSplashed) {
         return SplashScreen();
       }

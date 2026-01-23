@@ -2,7 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/application/services/a_services.dart';
 
-import '../utilities/a_utils.dart';
+import '../function/utilities/a_utils.dart';
 
 class LogService {
   static final LogService _instance = LogService._internal();
@@ -18,10 +18,10 @@ class LogService {
   }
 
   Future createLog(String logType, String desc) async {
-    if (!await isOnline()) {
-      await saveModel(LogModel(logType: logType, desc: desc));
-      return;
-    }
+    // if (!await isOnline()) {
+    //   await saveModel(LogModel(logType: logType, desc: desc));
+    //   return;
+    // }
     final user = LocalBase.security;
     if (user == null) return;
     if (user.role == 'PA') return;
@@ -51,12 +51,13 @@ class LogService {
           },
         );
         if (k!.statusCode == 201 || k.statusCode == 200) {
-          deleteModel(log);
+          await deleteModel(log);
         }
       }
       return;
+    } else {
+      await saveModel(LogModel(logType: logType, desc: desc));
     }
-    await saveModel(LogModel(logType: logType, desc: desc));
   }
 
   Future<void> saveModel(LogModel log) async {

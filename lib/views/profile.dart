@@ -29,9 +29,9 @@ class Profile extends StatelessWidget {
         return Scaffold(
           body: Center(
             child: Column(
-              spacing: 15,
+              spacing: 10,
               children: [
-                const ProfileHeader(),
+                ProfileHeader(),
                 Expanded(
                   child: Container(
                     decoration: const BoxDecoration(color: softGrey),
@@ -112,6 +112,11 @@ class Profile extends StatelessWidget {
                               color: Colors.purple,
                               ontap: () => goto(const AboutUs())),
                           SideMenu(
+                              title: 'Тохиргоо',
+                              icon: Icons.settings,
+                              color: Colors.grey,
+                              ontap: () => goto(const SettingsPage())),
+                          SideMenu(
                             title: 'Системээс гарах',
                             icon: Icons.logout,
                             color: Colors.red,
@@ -145,50 +150,50 @@ class ProfileHeader extends StatelessWidget {
     }
     return Consumer<AuthController>(
       builder: (context, auth, child) => Container(
-        padding: EdgeInsets.all(10.0),
-        child: Column(
-          spacing: 10,
+        padding: EdgeInsets.all(20.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const SizedBox(height: 0),
-            Container(
-              decoration: BoxDecoration(color: grey100, shape: BoxShape.circle),
-              padding: const EdgeInsets.all(5),
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/icons/boy.png',
-                  height: Sizes.height * 0.054,
-                ),
-              ),
-            ),
-            if (security.name != 'null')
-              Text(
-                security.name,
-                style: TextStyle(
-                  color: theme.primaryColor.withOpacity(.8),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                ),
-              ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               spacing: 20,
               children: [
-                Text(
-                  security.email,
-                  style: TextStyle(
-                    color: grey500,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
+                Container(
+                  decoration:
+                      BoxDecoration(color: grey100, shape: BoxShape.circle),
+                  padding: const EdgeInsets.all(5),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/icons/boy.png',
+                      height: Sizes.height * 0.054,
+                    ),
                   ),
                 ),
-                Text(
-                  security.companyName,
-                  style: TextStyle(
-                    color: theme.primaryColor.withOpacity(.8),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
+                if (security.name != 'null')
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        security.name,
+                        style: TextStyle(
+                          color: theme.primaryColor.withOpacity(.8),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Text(
+                            "${security.email} | ${security.companyName}",
+                            style: TextStyle(
+                              color: theme.primaryColor.withOpacity(.8),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
               ],
             ),
           ],
@@ -219,7 +224,7 @@ class SideMenu extends StatelessWidget {
       highlightColor: Colors.black12,
       child: Container(
         decoration: const BoxDecoration(),
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

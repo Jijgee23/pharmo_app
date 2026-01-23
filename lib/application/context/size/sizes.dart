@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/keys/global_key.dart';
+import 'package:pharmo_app/application/context/keys/global_key.dart';
 
 class Sizes {
   static double get width {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pharmo_app/application/color/colors.dart';
+import 'package:pharmo_app/application/context/color/colors.dart';
 
 class SheetContainer extends StatelessWidget {
   final String? title;

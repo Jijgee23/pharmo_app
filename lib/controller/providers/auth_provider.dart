@@ -10,8 +10,6 @@ import 'package:pharmo_app/application/application.dart';
 class AuthController extends ChangeNotifier {
   void initLoginpage() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final security = LocalBase.security;
-      if (security == null) return;
       final remembered = await LocalBase.getRemember();
       if (remembered) {
         setRemember(true);

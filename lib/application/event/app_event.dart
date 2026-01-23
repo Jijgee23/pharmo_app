@@ -16,8 +16,8 @@ class NetworkEvent extends AppEvent {
 }
 
 class BatteryEvent extends AppEvent {
-  final BatteryState state;
-  BatteryEvent(this.state);
+  final int level;
+  BatteryEvent(this.level);
 }
 
 class BatteryLevelEvent extends AppEvent {

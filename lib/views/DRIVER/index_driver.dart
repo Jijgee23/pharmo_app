@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/color/colors.dart';
+import 'package:pharmo_app/application/context/color/colors.dart';
 import 'package:pharmo_app/views/DRIVER/map/map_view.dart';
 import 'package:pharmo_app/views/DRIVER/ready_orders/ready_orders.dart';
 import 'package:pharmo_app/views/DRIVER/profile/delivery_profile.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/color/colors.dart';
+import 'package:pharmo_app/application/context/color/colors.dart';
 
 final lightTheme = ThemeData(
   primaryColor: primary,
@@ -34,10 +34,15 @@ final lightTheme = ThemeData(
     surfaceTintColor: white,
     // scrolledUnderElevation: 1,
     shadowColor: grey100,
-
+    centerTitle: false,
     iconTheme: IconThemeData(
       color: black,
       applyTextScaling: true,
+    ),
+    titleTextStyle: TextStyle(
+      fontSize: 16,
+      color: black,
+      fontWeight: FontWeight.bold,
     ),
     elevation: 1,
     foregroundColor: black,

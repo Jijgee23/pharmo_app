@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/controller/models/a_models.dart';
-import 'package:pharmo_app/application/utilities/a_utils.dart';
+import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 
 class MyOrderProvider extends ChangeNotifier {
   List<MyOrderModel> _orders = <MyOrderModel>[];

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pharmo_app/application/color/colors.dart';
+import 'package:pharmo_app/application/context/color/colors.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/dialog_button.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
@@ -77,19 +77,27 @@ class Settings {
       return false;
     }
     LocationPermission permission = await Geolocator.checkPermission();
-
     print(permission);
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
+    final accuricy = await Geolocator.getLocationAccuracy();
+    if (permission == LocationPermission.always &&
+        accuricy == LocationAccuracyStatus.precise) {
+      return true;
+    }
+
+    if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-
-    if (permission == LocationPermission.always) {
-      return true;
-    } else {
-      await getMessage();
-      return false;
+    if (permission == LocationPermission.deniedForever) {
+      await openAppSettings();
     }
+    if (permission == LocationPermission.whileInUse) {
+      await openAppSettings();
+    }
+    if (accuricy != LocationAccuracyStatus.precise) {
+      await openAppSettings();
+    }
+    await Geolocator.requestPermission();
+    return false;
   }
 
   static Future<bool> checkWhenUseLocationPermission() async {

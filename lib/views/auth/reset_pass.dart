@@ -1,9 +1,4 @@
-
 import 'package:otp_text_field_v2/otp_field_v2.dart';
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class ResetPassword extends StatefulWidget {
@@ -51,7 +46,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 10,
                         children: [
-                          const Text('Баталгаажуулах нууц үгээ оруулна уу!'),
+                          const Text('Баталгаажуулах код оруулна уу!'),
                           OTPTextFieldV2(
                               controller: otpController,
                               length: 6,

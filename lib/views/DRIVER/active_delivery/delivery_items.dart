@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pharmo_app/controller/providers/jagger_provider.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/application/color/colors.dart';
+import 'package:pharmo_app/application/context/color/colors.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';

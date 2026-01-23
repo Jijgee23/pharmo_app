@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/utilities/utils.dart';
+import 'package:pharmo_app/application/function/utilities/utils.dart';
 import 'package:pharmo_app/views/REPMAN/home.dart';
 import 'package:pharmo_app/views/profile.dart';
 import 'package:pharmo_app/views/REPMAN/see_map.dart';

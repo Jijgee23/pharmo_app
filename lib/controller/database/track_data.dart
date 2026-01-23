@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:pharmo_app/controller/providers/jagger_provider.dart';
+import 'package:pharmo_app/application/application.dart';
 part 'track_data.g.dart';
 
 @HiveType(typeId: 1)
@@ -29,16 +29,16 @@ class TrackData extends HiveObject {
         'delivery_id': id,
         'locs': [
           {
-            'lat': truncateToDigits(latitude, 6),
-            'lng': truncateToDigits(longitude, 6),
+            'lat': truncateToSixDigits(latitude),
+            'lng': truncateToSixDigits(longitude),
             "created": date.toIso8601String(),
           }
         ]
       });
     }
     return {
-      'lat': truncateToDigits(latitude, 6),
-      'lng': truncateToDigits(longitude, 6),
+      'lat': truncateToSixDigits(latitude),
+      'lng': truncateToSixDigits(longitude),
       "created": date.toIso8601String(),
     };
   }

@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/utilities/utils.dart';
+import 'package:pharmo_app/application/function/utilities/utils.dart';
 
 class MyOrderModel {
   int id;
