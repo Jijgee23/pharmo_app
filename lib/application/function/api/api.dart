@@ -6,11 +6,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/application/services/local_base.dart';
-import 'package:pharmo_app/application/services/network_service.dart';
-import 'package:pharmo_app/application/function/utilities/a_utils.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 
 Future<http.Response?> api(
   Api method,
@@ -46,10 +41,13 @@ Future<http.Response?> api(
     }
     var res = await responser(method, endpoint, access, body, header);
     if (res != null) {
-      print('status code: ${res.statusCode}');
+      print('$endpoint, status code: ${res.statusCode}');
+      // print('track api info: ${res.body}');
       if (res.statusCode == 401) {
         await showLogoutDialog(
-            Get.context!, 'Өөр төхөөрөмжөөс нэвтэрсэн байна! \n Нэвтэрнэ үү!');
+          Get.context!,
+          'Өөр төхөөрөмжөөс нэвтэрсэн байна! \n Нэвтэрнэ үү!',
+        );
         return null;
       }
     }
@@ -58,6 +56,10 @@ Future<http.Response?> api(
     debugPrint('Error in $method request to $endpoint: $e');
     return null;
   }
+}
+
+void printGreen(String message) {
+  print('\x1B[32m$message\x1B[0m');
 }
 
 Future showLogoutDialog(BuildContext context, String reason) async {
@@ -133,7 +135,7 @@ Future<http.Response?> responser(
   Map<String, String>? header,
 ) async {
   final Uri url = setUrl(endpoint);
-  print(url);
+  // print(url);
 
   Map<String, String> headers = {
     ...header ?? {},

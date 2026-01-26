@@ -10,10 +10,21 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
     private var lastBroadcastLocation: CLLocation?
 
     // Kotlin талтай ижил тохиргооны утгууд
-    private let minDistanceChange: CLLocationDistance = 5.0  // 10 метр
+    private let minDistanceChange: CLLocationDistance = 10.0  // 10 метр
     private let minUpdateInterval: TimeInterval = 3.0  // 3 секунд
-    private let maxAllowedAccuracy: CLLocationAccuracy = 30.0  // 30 метр
-    private let minSpeedThreshold: CLLocationSpeed = 0.5  // 0.5 м/с
+    private let maxAllowedAccuracy: CLLocationAccuracy = 25.0  // 25 метр
+
+    // Speed-based distance thresholds (km/h)
+    private let highSpeedThreshold: CLLocationSpeed = 60.0  // > 60 km/h
+    private let mediumSpeedThreshold: CLLocationSpeed = 30.0  // 30-60 km/h
+    private let lowSpeedThreshold: CLLocationSpeed = 10.0  // 10-30 km/h
+
+    private let highSpeedDistance: CLLocationDistance = 200.0  // 200m at high speed
+    private let mediumSpeedDistance: CLLocationDistance = 100.0  // 100m at medium speed
+    private let normalSpeedDistance: CLLocationDistance = 50.0  // 50m at normal speed
+    private let walkingSpeedDistance: CLLocationDistance = 15.0  // 15m at walking speed
+
+    private let minTimeDeltaBetweenUpdates: TimeInterval = 5.0  // 5 seconds
 
     private let logger = OSLog(subsystem: "mn.infosystems.pharmo", category: "LocationTracking")
 
@@ -21,14 +32,10 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
-
-        // Kotlin-ий startLocationUpdates дээрх тохиргоотой ижилсүүлэв
         locationManager.distanceFilter = minDistanceChange
         locationManager.allowsBackgroundLocationUpdates = true
         locationManager.pausesLocationUpdatesAutomatically = false
         locationManager.activityType = CLActivityType.automotiveNavigation
-
-        // iOS 11+ бол Foreground индикатор харуулах
         if #available(iOS 11.0, *) {
             locationManager.showsBackgroundLocationIndicator = true
         }
@@ -39,14 +46,10 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
     {
         self.eventSink = events
         locationManager.delegate = self
-
-        // Зогсож байх үед дата ирэхийг багасгахын тулд:
-        // locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.distanceFilter = 10.0  // 10 метр тутамд нэг update өгөх
-
         locationManager.requestAlwaysAuthorization()
-        //  locationManager.startMonitoringSignificantLocationChanges()
+        locationManager.startMonitoringSignificantLocationChanges()
         locationManager.startUpdatingLocation()
+        os_log("iOS: Location tracking started", log: logger, type: .info)
         return nil
     }
 
@@ -60,20 +63,15 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
         return nil
     }
 
-    // func stopListenChanges(withArguments arguments: Any?) -> FlutterError? {
-    //     locationManager.stopUpdatingLocation()
-    //     locationManager.delegate = nil
-    //     self.eventSink = nil
-    //     self.lastBroadcastLocation = nil
-    //     os_log("iOS: Location tracking stopped", log: logger, type: .info)
-    //     return nil
-    // }
-
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let sink = eventSink, let newLocation = locations.last else { return }
 
-        // 1. Нарийвчлал шалгах
-        if newLocation.horizontalAccuracy < 0 || newLocation.horizontalAccuracy > 25.0 {
+        // 1. Accuracy validation
+        if newLocation.horizontalAccuracy < 0 || newLocation.horizontalAccuracy > maxAllowedAccuracy
+        {
+            os_log(
+                "iOS: Location rejected - poor accuracy: %f", log: logger, type: .debug,
+                newLocation.horizontalAccuracy)
             return
         }
 
@@ -82,26 +80,34 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
             return
         }
 
-        let speedKmH = newLocation.speed * 3.6  // m/s-ийг км/ц рүү шилжүүлэх
+        let speedKmH = newLocation.speed * 3.6  // Convert m/s to km/h
         let distance = newLocation.distance(from: lastPoint)
         let timeDelta = newLocation.timestamp.timeIntervalSince(lastPoint.timestamp)
 
-        // 2. Хурднаас хамаарч зайны босгыг тогтоох
-        var dynamicDistance: CLLocationDistance = 15.0  // Анхны утга: 15 метр
+        // 2. Dynamic distance threshold based on speed
+        let dynamicDistance = calculateDynamicDistance(for: speedKmH)
 
-        if speedKmH > 60 {
-            dynamicDistance = 200.0  // 60 км/ц-аас дээш бол 200 метр тутамд
-        } else if speedKmH > 30 {
-            dynamicDistance = 100.0  // 30-60 км/ц-ийн хооронд бол 100 метр тутамд
-        } else if speedKmH > 10 {
-            dynamicDistance = 50.0  // 10-30 км/ц-ийн хооронд бол 50 метр тутамд
-        } else {
-            dynamicDistance = 15.0  // Алхах эсвэл маш удаан үед 15 метр
-        }
-
-        // 3. Шүүлтүүр: Зайны босго давсан БӨГӨӨД дор хаяж 5 секунд өнгөрсөн байх
-        if distance >= dynamicDistance && timeDelta >= 5.0 {
+        // 3. Broadcast if distance threshold met and minimum time elapsed
+        if distance >= dynamicDistance && timeDelta >= minTimeDeltaBetweenUpdates {
             broadcastLocation(newLocation)
+        }
+    }
+
+    func startMonitoringForBackground() {
+        locationManager.delegate = self
+        locationManager.startMonitoringSignificantLocationChanges()
+        os_log("iOS: Background location monitoring started", log: logger, type: .info)
+    }
+
+    private func calculateDynamicDistance(for speedKmH: CLLocationSpeed) -> CLLocationDistance {
+        if speedKmH > highSpeedThreshold {
+            return highSpeedDistance
+        } else if speedKmH > mediumSpeedThreshold {
+            return mediumSpeedDistance
+        } else if speedKmH > lowSpeedThreshold {
+            return normalSpeedDistance
+        } else {
+            return walkingSpeedDistance
         }
     }
 

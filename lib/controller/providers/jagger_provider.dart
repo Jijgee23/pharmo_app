@@ -92,7 +92,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Future loadPermission() async {
     final value = await Geolocator.checkPermission();
     permission = value;
-    if(value == LocationPermission.always || value == LocationPermission.whileInUse){
+    if (value == LocationPermission.always ||
+        value == LocationPermission.whileInUse) {
       final newAccuracy = await Geolocator.getLocationAccuracy();
       accuracy = newAccuracy;
     }
@@ -151,6 +152,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     } finally {
       setLoading(false);
     }
+  }
+
+  TrackData? lastPoint;
+
+  void updateLastPoint(TrackData value) {
+    lastPoint = value;
+    notifyListeners();
   }
 
   Future tracking() async {
@@ -270,14 +278,14 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
     await getTrackBox();
 
-    if (trackDatas.isNotEmpty) {
-      TrackData last = trackDatas.last;
+    if (lastPoint != null) {
       double distance = Geolocator.distanceBetween(
-        last.latitude,
-        last.longitude,
+        lastPoint!.latitude,
+        lastPoint!.longitude,
         lat,
         lng,
       );
+      print('DISTANSE FROM LAST: $distance');
       if (distance < 10) return;
     }
 
@@ -334,11 +342,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     if (trackDatas.isNotEmpty) {
       final unsended = trackDatas.where((e) => e.sended == false).toList();
       if (unsended.isEmpty) {
-        print('no offline tracks');
         return;
       }
       var b = locationr(await LocalBase.getDelmanTrackId(), unsended);
-      print('syncync offline data: $b');
       final r = await api(apiMethod, trackUrl, body: b);
       if (apiSucceess(r)) {
         await updateDatasToSended();
@@ -410,6 +416,14 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Future addPointToBox(TrackData td) async {
     if (!Hive.isBoxOpen('track_box')) return;
     await trackBox.add(td);
+    updateLastPoint(td);
+    await getTrackBox();
+    updatePolylines();
+  }
+
+  Future deletePointFromBox(TrackData td) async {
+    if (!Hive.isBoxOpen('track_box')) return;
+    await trackBox.delete(td);
     await getTrackBox();
     updatePolylines();
   }
@@ -739,6 +753,14 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     await mapController.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: latLng, zoom: 16),
+      ),
+    );
+  }
+
+  Future gotoWithNative(LatLng value) async {
+    await mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: value, zoom: zoomIndex),
       ),
     );
   }

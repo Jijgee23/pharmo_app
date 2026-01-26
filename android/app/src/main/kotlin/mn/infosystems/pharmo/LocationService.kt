@@ -10,6 +10,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import io.flutter.plugin.common.EventChannel
 
@@ -19,11 +20,35 @@ class LocationService : Service(), LocationListener {
     private var isUpdating = false
     private var lastBroadcastLocation: Location? = null
 
-    // ================= CONFIG (iOS-той ижил) =================
-    private val MIN_TIME_BW_UPDATES = 3000L          // 3 секунд
-    private val MIN_DISTANCE_OS_FILTER = 10f         // OS-д хэлэх доод хязгаар
-    private val MAX_ALLOWED_ACCURACY = 30f           // 30 метр
-    private val MIN_SPEED_THRESHOLD = 0.5f           // 0.5 м/с
+    // ================= CONFIGURATION (synchronized with iOS) =================
+    private val minTimeBetweenUpdates = 3000L          // 3 seconds
+    private val minDistanceOsFilter = 10f              // Min distance for OS filter
+    private val maxAllowedAccuracy = 30f               // 30 meters
+    private val minDriftDistance = 20f                 // Min distance for drift check
+    
+    // Speed-based distance thresholds (km/h)
+    private val highSpeedThreshold = 60f               // > 60 km/h
+    private val mediumSpeedThreshold = 30f             // 30-60 km/h
+    private val lowSpeedThreshold = 10f                // 10-30 km/h
+    
+    private val highSpeedDistance = 200f               // 200m at high speed
+    private val mediumSpeedDistance = 100f             // 100m at medium speed
+    private val normalSpeedDistance = 50f              // 50m at normal speed
+    private val walkingSpeedDistance = 15f             // 15m at walking speed
+    private val minSpeedThreshold = 0.5f               // 0.5 m/s
+    
+    companion object {
+        private const val TAG = "LocationService"
+        private const val CHANNEL_ID = "pharmo_bg_location"
+        private const val NOTIFICATION_ID = 0x444
+        
+        @Volatile
+        private var eventSink: EventChannel.EventSink? = null
+
+        fun setEventSink(sink: EventChannel.EventSink?) {
+            eventSink = sink
+        }
+    }
 
     // ================= SERVICE LIFECYCLE =================
 
@@ -52,8 +77,11 @@ class LocationService : Service(), LocationListener {
     override fun onLocationChanged(location: Location) {
         if (eventSink == null) return
 
-        // 1️⃣ Accuracy filter
-        if (location.accuracy <= 0 || location.accuracy > MAX_ALLOWED_ACCURACY) return
+        // 1️⃣ Accuracy validation
+        if (location.accuracy <= 0 || location.accuracy > maxAllowedAccuracy) {
+            Log.d(TAG, "Location rejected - poor accuracy: ${location.accuracy}")
+            return
+        }
 
         val previous = lastBroadcastLocation
 
@@ -65,29 +93,23 @@ class LocationService : Service(), LocationListener {
 
         // 3️⃣ Time filter
         val timeDelta = location.time - previous.time
-        if (timeDelta < MIN_TIME_BW_UPDATES) return
+        if (timeDelta < minTimeBetweenUpdates) return
 
         // 4️⃣ Same coordinate guard
-        if (
-            location.latitude == previous.latitude &&
-            location.longitude == previous.longitude
-        ) return
+        if (location.latitude == previous.latitude && location.longitude == previous.longitude) {
+            return
+        }
 
         val distance = location.distanceTo(previous)
 
-        // 5️⃣ Drift filter (зогссон үед)
-        if (location.hasSpeed() && location.speed < MIN_SPEED_THRESHOLD) {
-            if (distance < 20f) return
+        // 5️⃣ Drift filter (when stationary)
+        if (location.hasSpeed() && location.speed < minSpeedThreshold) {
+            if (distance < minDriftDistance) return
         }
 
-        // 6️⃣ Speed-based dynamic distance (iOS-той 1:1)
+        // 6️⃣ Speed-based dynamic distance (synchronized with iOS)
         val speedKmH = location.speed * 3.6f
-        val dynamicDistance = when {
-            speedKmH > 60 -> 200f
-            speedKmH > 30 -> 100f
-            speedKmH > 10 -> 50f
-            else -> 15f
-        }
+        val dynamicDistance = calculateDynamicDistance(speedKmH)
 
         if (distance >= dynamicDistance) {
             broadcastLocation(location)
@@ -119,10 +141,11 @@ class LocationService : Service(), LocationListener {
 
         locationManager.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
-            MIN_TIME_BW_UPDATES,
-            MIN_DISTANCE_OS_FILTER,
+            minTimeBetweenUpdates,
+            minDistanceOsFilter,
             this
         )
+        Log.i(TAG, "Location updates started")
     }
 
     private fun stopLocationUpdates() {
@@ -130,10 +153,16 @@ class LocationService : Service(), LocationListener {
         locationManager.removeUpdates(this)
         isUpdating = false
         lastBroadcastLocation = null
+        Log.i(TAG, "Location updates stopped")
     }
 
-    override fun onProviderEnabled(provider: String) {}
-    override fun onProviderDisabled(provider: String) {}
+    override fun onProviderEnabled(provider: String) {
+        Log.d(TAG, "Provider enabled: $provider")
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        Log.d(TAG, "Provider disabled: $provider")
+    }
 
     // ================= FOREGROUND NOTIFICATION =================
 
@@ -165,18 +194,16 @@ class LocationService : Service(), LocationListener {
 
     private fun buildNotification(): Notification {
         val intent = Intent(this, MainActivity::class.java)
-        val flags =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
-
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, flags)
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Pharmo байршлыг дамжуулж байна")
-            .setContentText("Байршлыг хянаж байна…")
+            .setContentTitle("Pharmo Location Tracking")
+            .setContentText("Monitoring location updates…")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
@@ -185,17 +212,14 @@ class LocationService : Service(), LocationListener {
             .build()
     }
 
-    // ================= EVENT CHANNEL BRIDGE =================
+    // ================= SPEED-BASED DISTANCE CALCULATOR =================
 
-    companion object {
-        private const val CHANNEL_ID = "pharmo_bg_location"
-        private const val NOTIFICATION_ID = 0x444
-
-        @Volatile
-        private var eventSink: EventChannel.EventSink? = null
-
-        fun setEventSink(sink: EventChannel.EventSink?) {
-            eventSink = sink
+    private fun calculateDynamicDistance(speedKmH: Float): Float {
+        return when {
+            speedKmH > highSpeedThreshold -> highSpeedDistance
+            speedKmH > mediumSpeedThreshold -> mediumSpeedDistance
+            speedKmH > lowSpeedThreshold -> normalSpeedDistance
+            else -> walkingSpeedDistance
         }
     }
 }

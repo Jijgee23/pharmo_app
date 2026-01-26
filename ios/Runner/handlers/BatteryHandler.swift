@@ -56,7 +56,7 @@ class BatteryHandler: NSObject, FlutterStreamHandler {
 
         #if targetEnvironment(simulator)
             return
-                sink(99)
+        // sink(99)
         #else
             let level = UIDevice.current.batteryLevel
 

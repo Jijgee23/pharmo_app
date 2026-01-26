@@ -1,17 +1,17 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/SELLER/track/track_permission_page.dart';
+import 'package:pharmo_app/views/track_map/track_permission_page.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/deliveries.dart';
 
-class MapView extends StatefulWidget {
-  const MapView({super.key});
+class TrackMap extends StatefulWidget {
+  const TrackMap({super.key});
 
   @override
-  State<MapView> createState() => _MapViewState();
+  State<TrackMap> createState() => _TrackMapState();
 }
 
-class _MapViewState extends State<MapView> {
+class _TrackMapState extends State<TrackMap> {
   @override
   void initState() {
     super.initState();
@@ -298,7 +298,15 @@ class _MapViewState extends State<MapView> {
           DateTime.now().toIso8601String(),
         );
         await tracker.tracking();
+        return;
       }
+    } else {
+      final bool notInUb = convertData(r!).toString().contains('Ulaanbaatar');
+      if (notInUb) {
+        messageWarning('Байршил Улаанбаатарт биш байна');
+        return;
+      }
+      message('Түр хүлээнэ үү');
     }
   }
 
