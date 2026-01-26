@@ -10,6 +10,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import io.flutter.plugin.common.EventChannel
@@ -19,6 +20,7 @@ class LocationService : Service(), LocationListener {
     private lateinit var locationManager: LocationManager
     private var isUpdating = false
     private var lastBroadcastLocation: Location? = null
+    private var wakeLock: PowerManager.WakeLock? = null
 
     // ================= CONFIGURATION (synchronized with iOS) =================
     private val minTimeBetweenUpdates = 3000L          // 3 seconds
@@ -59,14 +61,18 @@ class LocationService : Service(), LocationListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.i(TAG, "Service started - will run in background even when app terminates")
         startForegroundServiceInternal()
+        acquireWakeLock()
         startLocationUpdates()
         return START_STICKY
     }
 
     override fun onDestroy() {
         stopLocationUpdates()
+        releaseWakeLock()
         setEventSink(null)
+        Log.i(TAG, "Service destroyed")
         super.onDestroy()
     }
 
@@ -220,6 +226,29 @@ class LocationService : Service(), LocationListener {
             speedKmH > mediumSpeedThreshold -> mediumSpeedDistance
             speedKmH > lowSpeedThreshold -> normalSpeedDistance
             else -> walkingSpeedDistance
+        }
+    }
+
+    // ================= WAKE LOCK MANAGEMENT (background persistence) =================
+
+    @SuppressLint("WakelockTimeout")
+    private fun acquireWakeLock() {
+        if (wakeLock?.isHeld == true) return
+        
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "LocationService::LocationTracking"
+        ).apply {
+            acquire()
+            Log.d(TAG, "WakeLock acquired - app will continue tracking in background")
+        }
+    }
+
+    private fun releaseWakeLock() {
+        if (wakeLock?.isHeld == true) {
+            wakeLock?.release()
+            Log.d(TAG, "WakeLock released")
         }
     }
 }
