@@ -1,4 +1,4 @@
-import 'package:pharmo_app/views/SELLER/customer/customer_details_paga.dart';
+import 'package:pharmo_app/views/SELLER/customer/customer_details_page.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class CustomerTile extends StatelessWidget {

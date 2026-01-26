@@ -33,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     return Consumer<AuthController>(
       builder: (context, auth, child) {
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           body: Builder(builder: (context) {
             if (auth.loading) {
               return PharmoIndicator();
