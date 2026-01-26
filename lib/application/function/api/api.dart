@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/application/services/local_base.dart';
 import 'package:pharmo_app/application/services/network_service.dart';
 import 'package:pharmo_app/application/function/utilities/a_utils.dart';
@@ -16,36 +21,28 @@ Future<http.Response?> api(
   try {
     final hasInternet = await NetworkChecker.hasInternet();
     if (!hasInternet) return null;
+    await LocalBase.initLocalBase();
     final security = LocalBase.security;
     if (security == null) return null;
     final access = security.access;
     if (JwtDecoder.isExpired(access)) {
       bool refreshExpired = JwtDecoder.isExpired(security.refresh);
-      if (!refreshExpired) {
-        bool success = await refreshed();
-        if (!success) {
-          await showLogoutDialog(Get.context!,
-              'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!');
-          return null;
-        }
-        var s = await LocalBase.getSecurity();
-        if (s == null) return null;
-        String access = s.access;
-        var r = await responser(method, endpoint, access, body, header);
-        if (r == null) {
-          await showLogoutDialog(Get.context!,
-              'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!');
-          return null;
-        }
-        if (r != null) {
-          print('status code: ${r.statusCode}');
-        }
-
-        return r;
+      if (refreshExpired) {
+        await showLogoutDialog(Get.context!,
+            'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!');
+        return null;
       }
-      await showLogoutDialog(Get.context!,
-          'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!');
-      return null;
+      bool success = await refreshed();
+      if (!success) {
+        await showLogoutDialog(
+          Get.context!,
+          'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!',
+        );
+        return null;
+      }
+      var s = await LocalBase.getSecurity();
+      if (s == null) return null;
+      return await api(method, endpoint, body: body, header: header);
     }
     var res = await responser(method, endpoint, access, body, header);
     if (res != null) {
@@ -165,6 +162,9 @@ Future<http.Response?> responser(
 
 Future<bool> refreshed() async {
   print('refreshing');
+  final hasInternet = await NetworkChecker.hasInternet();
+  if (hasInternet) return false;
+  await LocalBase.initLocalBase();
   final user = LocalBase.security;
   if (user == null) return false;
   final oldAccess = user.access;
@@ -247,4 +247,91 @@ getApiInformation(String endPoint, http.Response response) {
   } catch (e) {
     debugPrint('ERROR at $endPoint : $e');
   }
+}
+
+Future<String> loadVersionAppversion() async {
+  final info = await PackageInfo.fromPlatform();
+  return info.version;
+}
+
+Future<http.Response> apiMacsMn(Object o, StackTrace s) async {
+  var url = Uri.parse('${dotenv.env['MACS']}logs/pharmo_error');
+  final device = await deviceInfo();
+  var b = {
+    "error_message": o.toString(),
+    "stack_trace": s.toString(),
+    "os": device.os,
+    "os_version": device.osVersion,
+    "device_name": device.name,
+    "app_version": await loadVersionAppversion(),
+    "app_name": "Pharmo"
+  };
+  final res = await http.post(
+    url,
+    headers: {
+      "Connection": "Keep-Alive",
+      "Accept": "application/json",
+      "Content-type": "application/json",
+      "charset": "utf-8",
+      "checkcode": "46",
+    },
+    body: jsonEncode(b),
+  );
+  return res;
+}
+
+Future<Device> deviceInfo() async {
+  DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  final token = await FirebaseApi.getToken();
+  if (Platform.isIOS) {
+    IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
+    return Device(
+      brand: 'Apple',
+      name: iosInfo.name,
+      model: iosInfo.model,
+      modelVersion: iosInfo.utsname.machine,
+      os: iosInfo.systemName,
+      osVersion: iosInfo.systemVersion,
+      id: iosInfo.identifierForVendor ?? '',
+      firebaseToken: token,
+      type: "IOS",
+    );
+  }
+  AndroidDeviceInfo android = await deviceInfoPlugin.androidInfo;
+  return Device(
+    brand: android.brand,
+    name: android.name,
+    model: android.model,
+    modelVersion: android.device,
+    os: Platform.operatingSystem,
+    osVersion: Platform.operatingSystemVersion,
+    id: android.id,
+    firebaseToken: token,
+    type: "ANDROID",
+  );
+}
+
+const String contactUsMessage = 'Алдаа гарлаа, ИНФОСИСТЕМС ХХК-д хандана уу!';
+
+class Device {
+  final String brand;
+  final String name;
+  final String model;
+  final String modelVersion;
+  final String os;
+  final String osVersion;
+  final String id;
+  final String firebaseToken;
+  final String type;
+  Device({
+    required this.brand,
+    required this.name,
+    required this.model,
+    required this.modelVersion,
+    required this.os,
+    required this.osVersion,
+    required this.id,
+    required this.firebaseToken,
+    required this.type,
+  });
 }

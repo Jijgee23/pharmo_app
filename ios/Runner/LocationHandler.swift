@@ -41,16 +41,18 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
         locationManager.delegate = self
 
         // Зогсож байх үед дата ирэхийг багасгахын тулд:
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        // locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = 10.0  // 10 метр тутамд нэг update өгөх
 
         locationManager.requestAlwaysAuthorization()
+        //  locationManager.startMonitoringSignificantLocationChanges()
         locationManager.startUpdatingLocation()
         return nil
     }
 
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
         locationManager.stopUpdatingLocation()
+        locationManager.stopMonitoringSignificantLocationChanges()
         locationManager.delegate = nil
         self.eventSink = nil
         self.lastBroadcastLocation = nil

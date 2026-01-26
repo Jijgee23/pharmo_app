@@ -7,8 +7,11 @@ import 'application/application.dart';
 final pharmo = Pharmo();
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  try {
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+  };
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
     await FirebaseApi.initFirebase();
     await Upgrader.clearSavedSettings();
     await dotenv.load(fileName: ".env");
@@ -18,23 +21,23 @@ Future<void> main() async {
     Hive.registerAdapter(TrackDataAdapter());
     await LocalBase.initLocalBase();
     await LogService().initialize();
-  } catch (error) {
-    debugPrint('Error during initialization: $error');
-    throw Exception('Initialization failed: $error');
-  }
-
-  runApp(
-    UpgradeAlert(
-      dialogStyle: UpgradeDialogStyle.material,
-      showIgnore: false,
-      showLater: true,
-      showReleaseNotes: false,
-      child: MultiProvider(
-        providers: AppConfigs.providers,
-        child: Pharmo(),
+    runApp(
+      UpgradeAlert(
+        dialogStyle: UpgradeDialogStyle.material,
+        showIgnore: false,
+        showLater: true,
+        showReleaseNotes: false,
+        child: MultiProvider(
+          providers: AppConfigs.providers,
+          child: Pharmo(),
+        ),
       ),
-    ),
-  );
+    );
+  }, (error, stack) async {
+    await apiMacsMn(error, stack);
+    debugPrint("ERROR=======> ${error.toString()}");
+    debugPrint("ERROR=======> ${stack.toString()}");
+  });
 }
 
 class Pharmo extends StatefulWidget {

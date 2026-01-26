@@ -1,8 +1,6 @@
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/application/application.dart';
 
-
-
 class RootProvider extends ChangeNotifier {
   AuthState state = AuthState.unknown;
   void updateState(AuthState value) {
@@ -45,13 +43,12 @@ class RootProvider extends ChangeNotifier {
         updateState(AuthState.expired);
         return;
       }
-      var r = await refreshed();
-      if (r) {
+      var successRefreshed = await refreshed();
+      if (successRefreshed) {
         updateState(AuthState.loggedIn);
         return;
-      } else {
-        updateState(AuthState.expired);
       }
+      updateState(AuthState.expired);
     }
   }
 }

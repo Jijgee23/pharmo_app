@@ -45,11 +45,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     });
     NativeChannel.batteryChannel.receiveBroadcastStream().listen(
       (dynamic value) {
+        print(value);
         if (value != null && value is num) {
           _eventController.add(BatteryEvent(value.toInt()));
         }
       },
     );
+
     AppLifecycleListener(
       onPause: () => _eventController.add(
         LifeCycleEvent(AppLifecycleState.paused),
@@ -89,9 +91,11 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   Future loadPermission() async {
     final value = await Geolocator.checkPermission();
-    final newAccuracy = await Geolocator.getLocationAccuracy();
     permission = value;
-    accuracy = newAccuracy;
+    if(value == LocationPermission.always || value == LocationPermission.whileInUse){
+      final newAccuracy = await Geolocator.getLocationAccuracy();
+      accuracy = newAccuracy;
+    }
     print(permission);
     print(accuracy);
     notifyListeners();

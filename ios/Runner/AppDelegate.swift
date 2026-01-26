@@ -5,7 +5,7 @@ import GoogleMaps
 import UIKit
 import UserNotifications
 
-public var batteryChannalName: String = "batteyStream"
+public var batteryChannalName: String = "batteryStream"
 public var bgLocationChannerName: String = "bg_location_stream"
 public var permissionChannelName: String = "permissionChannel"
 
