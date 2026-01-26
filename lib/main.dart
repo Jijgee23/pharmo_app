@@ -98,3 +98,4 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
     );
   }
 }
+//
