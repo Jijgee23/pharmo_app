@@ -1,4 +1,3 @@
-import 'package:pharmo_app/views/track_map/track_map.dart';
 import 'package:pharmo_app/views/home.dart';
 import 'package:pharmo_app/views/public/product/product_searcher.dart';
 import 'package:pharmo_app/views/profile.dart';
@@ -6,6 +5,7 @@ import 'package:pharmo_app/views/SELLER/customer/customers.dart';
 import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
 import 'package:pharmo_app/views/SELLER/customer/customer_searcher.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/track_map/track_map.dart';
 
 class IndexPharma extends StatefulWidget {
   const IndexPharma({super.key});
