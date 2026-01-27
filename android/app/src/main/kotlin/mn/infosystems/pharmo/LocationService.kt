@@ -208,7 +208,7 @@ class LocationService : Service(), LocationListener {
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, flags)
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Pharmo Location Tracking")
+            .setContentTitle("Pharmo байршил дамжуулж байна")
             .setContentText("Monitoring location updates…")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(pendingIntent)

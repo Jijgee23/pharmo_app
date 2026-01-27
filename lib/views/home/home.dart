@@ -2,6 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/views/home/widgets/filter_chip.dart';
 import 'package:pharmo_app/views/home/widgets/modern_field.dart';
 import 'package:pharmo_app/views/home/widgets/modern_icon.dart';
+import 'package:pharmo_app/views/home/widgets/selected_filter.dart';
 import 'package:pharmo_app/views/public/filter/filter.dart';
 import 'package:pharmo_app/views/public/product/product_widget.dart';
 import 'package:pharmo_app/application/application.dart';
@@ -92,94 +93,80 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PromotionProvider>(
       builder: (_, home, promotionProvider, child) {
-        return Scaffold(
-          body: Builder(builder: (context) {
-            if (loading) {
-              return shimmer();
-            }
-            final user = LocalBase.security;
-            if (user == null) return SizedBox();
-            return SafeArea(
-              child: RefreshIndicator.adaptive(
-                onRefresh: () async => await refresh(),
-                child: Column(
-                  spacing: 5,
-                  children: [
-                    if (user.role == 'PA')
-                      Padding(
-                        key: actoinKey,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Row(
-                          spacing: 10,
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () => handleActionButton(home),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primary.shade600,
-                                  elevation: 0,
-                                  minimumSize: Size(double.maxFinite, 45),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadiusGeometry.circular(
-                                      10,
-                                    ),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      home.picked.name,
-                                      style: TextStyle(
-                                        color: white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.arrow_downward_rounded,
-                                      color: white,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: CartIcon(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    Row(
+        final user = LocalBase.security;
+        if (user == null) return SizedBox();
+        return SafeArea(
+          child: RefreshIndicator.adaptive(
+            onRefresh: () async => await refresh(),
+            child: Column(
+              spacing: 5,
+              children: [
+                if (user.role == 'PA')
+                  Padding(
+                    key: actoinKey,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
                       spacing: 10,
                       children: [
-                        ModernIcon(
-                          iconData:
-                              home.isList ? Icons.grid_view : Icons.list_sharp,
-                          onPressed: () => home.switchView(),
-                        ),
-                        ModernField(
-                          onChanged: (v) => onfieldChanged(v, home),
-                          onSubmited: (v) => onFieldSubmitted(v, home),
-                          hint: '${home.searchType} хайх',
-                          suffixIcon: IconButton(
-                            onPressed: () => setFilter(home),
-                            icon: Icon(Icons.settings),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => handleActionButton(home),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primary.shade600,
+                              elevation: 0,
+                              minimumSize: Size(double.maxFinite, 45),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(
+                                  10,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  home.picked.name,
+                                  style: TextStyle(
+                                    color: white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_downward_rounded,
+                                  color: white,
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ],
-                    ).paddingSymmetric(horizontal: 10),
-                    if (user.role == 'PA') filtering(Sizes.smallFontSize),
-                    products(home),
+                    ),
+                  ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    ModernField(
+                      onChanged: (v) => onfieldChanged(v, home),
+                      onSubmited: (v) => onFieldSubmitted(v, home),
+                      hint: '${home.searchType} хайх',
+                      suffixIcon: IconButton(
+                        onPressed: () => setFilter(home),
+                        icon: Icon(Icons.settings),
+                      ),
+                    ),
+                    ModernIcon(
+                      iconData:
+                          home.isList ? Icons.grid_view : Icons.list_sharp,
+                      onPressed: () => home.switchView(),
+                    ),
+                    // CartIcon(),
                   ],
-                ),
-              ),
-            );
-          }),
+                ).paddingSymmetric(horizontal: 10),
+                if (user.role == 'PA') filtering(Sizes.smallFontSize),
+                products(home),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -193,9 +180,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         ...home.stype.map(
           (e) {
             bool selected = e == home.searchType;
-            return ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
+            return SelectedFilter(
+              selected: selected,
+              caption: e,
+              onSelect: () {
                 home.setQueryTypeName(e);
                 int index = home.stype.indexOf(e);
                 if (index == 0) {
@@ -204,32 +192,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   home.setQueryType('barcode');
                 }
               },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: selected ? primary : Colors.grey.shade200,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: EdgeInsets.all(15),
-                minimumSize: Size(double.maxFinite, 45),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    e,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: selected ? white : black,
-                    ),
-                  ),
-                  if (selected)
-                    Icon(
-                      Icons.check_rounded,
-                      color: white,
-                    )
-                ],
-              ),
             );
           },
         )
@@ -274,40 +236,43 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget shimmer() {
-    return GridView.builder(
-      gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-      itemBuilder: (_, idx) {
-        return Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: ShimmerBox(controller: controller, height: 150),
-        );
-      },
-    );
-  }
-
   Widget products(HomeProvider home) {
-    if (LocalBase.security!.role == 'PA' && home.picked.id.toString() == '-1' ||
-        home.picked == null) {
-      return errorWidget();
-    } else {
-      if (home.isList) {
-        return Flexible(
-          child: ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 5),
-            itemCount: home.fetchedItems.length,
-            controller: _scrollController,
-            itemBuilder: (context, idx) {
-              Product product = home.fetchedItems[idx];
-              return ProductWidgetListView(item: product);
-            },
-          ),
-        );
-      } else {
-        return Expanded(
-          child: GridView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 5),
+    return Expanded(
+      child: Builder(
+        builder: (context) {
+          if (LocalBase.security!.role == 'PA' &&
+                  home.picked.id.toString() == '-1' ||
+              home.picked == null) {
+            return errorWidget();
+          }
+          if (loading) {
+            return GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+              ),
+              itemBuilder: (_, idx) {
+                return Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: ShimmerBox(controller: controller, height: 150),
+                );
+              },
+            );
+          }
+          if (home.isList) {
+            return ListView.separated(
+              shrinkWrap: true,
+              separatorBuilder: (context, idx) => SizedBox(height: 10),
+              padding: EdgeInsets.all(10),
+              itemCount: home.fetchedItems.length,
+              controller: _scrollController,
+              itemBuilder: (context, idx) {
+                Product product = home.fetchedItems[idx];
+                return ProductWidgetListView(item: product);
+              },
+            );
+          }
+          return GridView.builder(
+            padding: EdgeInsets.all(10),
             controller: _scrollController,
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -319,10 +284,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               Product product = home.fetchedItems[idx];
               return ProductWidget(item: product);
             },
-          ),
-        );
-      }
-    }
+          );
+        },
+      ),
+    );
   }
 
   // Эрэлттэй, Шинэ, Хямдралтай

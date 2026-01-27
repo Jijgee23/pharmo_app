@@ -1,3 +1,6 @@
+import 'package:pharmo_app/views/home/widgets/modern_field.dart';
+import 'package:pharmo_app/views/home/widgets/modern_icon.dart';
+import 'package:pharmo_app/views/home/widgets/selected_filter.dart';
 import 'package:pharmo_app/views/public/order/order_widget.dart';
 import 'package:pharmo_app/application/application.dart';
 
@@ -85,110 +88,89 @@ class _SellerOrdersState extends State<SellerOrders>
   Widget build(BuildContext context) {
     return Consumer2<MyOrderProvider, PharmProvider>(
       builder: (_, provider, pp, child) {
-        return Scaffold(
-          appBar: SideAppBar(
-            title: searchBar(),
-            preferredSize: const Size.fromHeight(kToolbarHeight + 10),
-            centerTitle: false,
-          ),
-          body: SafeArea(
-            bottom: true,
-            child: RefreshIndicator(
-              onRefresh: () async => await init(),
-              child: ListView.separated(
-                padding: EdgeInsets.all(10),
-                scrollDirection: Axis.vertical,
-                key: _listKey,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 10),
-                shrinkWrap: true,
-                itemCount: provider.sellerOrders.length,
-                physics: const AlwaysScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  final order = provider.sellerOrders[index];
-                  return OrderWidget(order: order);
-                },
+        return SafeArea(
+          bottom: true,
+          child: Column(
+            spacing: 10,
+            children: [
+              Row(
+                spacing: 10,
+                children: [
+                  ModernField(
+                    hint: '$selectedFilter хайх',
+                    onChanged: (v) {
+                      final orderProvider = context.read<MyOrderProvider>();
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (cb) async {
+                          if (v.isEmpty) {
+                            await orderProvider.getSellerOrders();
+                          } else {
+                            await orderProvider.filterOrder(
+                                filter, search.text);
+                          }
+                        },
+                      );
+                    },
+                    suffixIcon: IconButton(
+                      onPressed: selectType,
+                      icon: Icon(
+                        Icons.settings,
+                      ),
+                    ),
+                  ),
+                  ModernIcon(
+                    iconData: Icons.calendar_month,
+                    onPressed: showCalendar,
+                  ),
+                ],
               ),
-            ),
-          ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async => await init(),
+                  child: Builder(
+                    builder: (context) {
+                      if (provider.sellerOrders.isEmpty) {
+                        return Column(children: [NoResult()]);
+                      }
+                      return ListView.separated(
+                        padding: EdgeInsets.only(bottom: 100),
+                        scrollDirection: Axis.vertical,
+                        key: _listKey,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 10),
+                        shrinkWrap: true,
+                        itemCount: provider.sellerOrders.length,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final order = provider.sellerOrders[index];
+                          return OrderWidget(order: order);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ).paddingSymmetric(horizontal: 10),
         );
       },
     );
   }
 
-  Widget searchBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Sizes.smallFontSize),
-      decoration: BoxDecoration(
-        color: primary.withAlpha(50),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Center(
-        child: Row(
-          spacing: 10,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Icon(Icons.search, color: Colors.black54),
-            Expanded(
-              child: TextFormField(
-                controller: search,
-                cursorColor: Colors.black,
-                cursorHeight: 20,
-                cursorWidth: .8,
-                keyboardType: selectedType,
-                onChanged: (value) {
-                  final orderProvider = context.read<MyOrderProvider>();
-                  WidgetsBinding.instance.addPostFrameCallback(
-                    (cb) async {
-                      if (value.isEmpty) {
-                        await orderProvider.getSellerOrders();
-                      } else {
-                        await orderProvider.filterOrder(filter, search.text);
-                      }
-                    },
-                  );
-                },
-                style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  hintText: '$selectedFilter хайх',
-                  hintStyle: const TextStyle(color: Colors.black38),
-                ),
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                showMenu(
-                  context: context,
-                  color: white,
-                  shadowColor: Colors.grey.shade500,
-                  position: const RelativeRect.fromLTRB(100, 100, 0, 0),
-                  items: [
-                    ...filters.map(
-                      (f) => PopupMenuItem(
-                        child: SmallText(f, color: Colors.black),
-                        onTap: () => setFilter(f),
-                      ),
-                    )
-                  ],
-                );
-              },
-              child: Icon(Icons.arrow_drop_down, color: theme.primaryColor),
-            ),
-            InkWell(
-              onTap: () => showCalendar(),
-              child: Container(
-                padding: EdgeInsets.only(right: Sizes.smallFontSize),
-                child: Icon(
-                  Icons.calendar_month,
-                  color: Colors.black54,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+  void selectType() {
+    mySheet(
+      isDismissible: true,
+      spacing: 10,
+      title: 'Хайх төрөл сонгоно уу',
+      children: [
+        ...filters.map(
+          (f) => SelectedFilter(
+            selected: f == selectedFilter,
+            caption: f,
+            onSelect: () => setFilter(f),
+          ),
+        )
+      ],
     );
   }
 
@@ -250,7 +232,9 @@ class _SellerOrdersState extends State<SellerOrders>
     await orderProvider
         .filterOrder(
             !isEnd ? 'end' : 'start', selectedDate.toString().substring(0, 10))
-        .whenComplete(() => Navigator.pop(context));
+        .whenComplete(
+          () => Navigator.pop(context),
+        );
   }
 
   Widget _smallbutton(String title, Function() ontap) {

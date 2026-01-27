@@ -1,10 +1,9 @@
 import 'package:pharmo_app/views/DRIVER/index_driver.dart';
-import 'package:pharmo_app/views/ORDERER/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/ORDERER/promotion/promotion_screen.dart';
 import 'package:pharmo_app/views/REPMAN/visits.dart';
+import 'package:pharmo_app/views/home/widgets/modern_icon.dart';
 import 'package:pharmo_app/views/public/about_us.dart';
 import 'package:pharmo_app/views/public/privacy_policy/privacy_policy.dart';
-import 'package:pharmo_app/views/SELLER/order/seller_orders.dart';
 import 'package:pharmo_app/views/SELLER/report/seller_report.dart';
 import 'package:pharmo_app/views/public/system_log.dart';
 import 'package:pharmo_app/application/application.dart';
@@ -28,107 +27,116 @@ class Profile extends StatelessWidget {
         bool isSeller = security.role == 'S' || isDMan;
         return Scaffold(
           body: Center(
-            child: Column(
-              spacing: 10,
-              children: [
-                ProfileHeader(),
-                Expanded(
-                  child: Container(
-                    decoration: const BoxDecoration(color: softGrey),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
+            child: SafeArea(
+              child: Column(
+                spacing: 10,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Миний профайл',
+                        style:
+                            ContextX(context).theme.appBarTheme.titleTextStyle,
+                      ),
+                      ModernIcon(
+                        iconData: Icons.logout,
+                        onPressed: () => logout(context),
+                      ),
+                    ],
+                  ).paddingSymmetric(horizontal: 20),
+                  ProfileHeader(),
+                  Expanded(
+                    child: Container(
+                      decoration: const BoxDecoration(color: softGrey),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 30, vertical: 15),
-                              child: const Text('Бүртгэл')),
-                          if (isSeller || isPharma)
+                                horizontal: 30,
+                                vertical: 15,
+                              ),
+                              child: const Text('Бүртгэл'),
+                            ),
+                            if (isSeller)
+                              SideMenu(
+                                title: 'Тайлан',
+                                icon: Icons.report,
+                                ontap: () => goto(const SellerReportPage()),
+                                color: Colors.pink,
+                              ),
+                            if (isPharma)
+                              SideMenu(
+                                title: 'Урамшуулал',
+                                icon: Icons.local_offer,
+                                ontap: () => goto(const PromotionWidget()),
+                                color: Colors.blue,
+                              ),
+                            if (isDMan)
+                              SideMenu(
+                                title: 'Түгээгчрүү шилжих',
+                                icon: Icons.change_circle,
+                                color: Colors.pink,
+                                ontap: () {
+                                  homeProvider.changeIndex(0);
+                                  if (homeProvider.currentIndex == 0) {
+                                    gotoRemoveUntil(const IndexDriver());
+                                  }
+                                },
+                              ),
+                            if (isRep)
+                              SideMenu(
+                                title: 'Уулзалтууд',
+                                icon: Icons.meeting_room,
+                                color: Colors.pink,
+                                ontap: () => goto(Visits()),
+                              ),
+                            if (isSeller)
+                              SideMenu(
+                                title: 'Системийн лог',
+                                icon: Icons.pending_actions_sharp,
+                                color: Colors.pink,
+                                ontap: () => goto(SystemLog()),
+                              ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 30,
+                                vertical: 15,
+                              ),
+                              child: const Text('Ерөнхий'),
+                            ),
                             SideMenu(
-                              title: isPharma
-                                  ? 'Захиалгууд'
-                                  : 'Борлуулалтын захиалгууд',
-                              icon: Icons.lock_clock,
-                              ontap: () => goto(isPharma
-                                  ? const MyOrder()
-                                  : const SellerOrders()),
-                              color: Colors.amber,
-                            ),
-                          if (isSeller)
+                                title: 'Нууцлалын бодлого',
+                                icon: Icons.lock,
+                                color: Colors.blue,
+                                ontap: () => goto(const PrivacyPolicy())),
                             SideMenu(
-                              title: 'Тайлан',
-                              icon: Icons.report,
-                              ontap: () => goto(const SellerReportPage()),
-                              color: Colors.pink,
-                            ),
-                          if (isPharma)
-                            SideMenu(
-                              title: 'Урамшуулал',
-                              icon: Icons.local_offer,
-                              ontap: () => goto(const PromotionWidget()),
-                              color: Colors.blue,
-                            ),
-                          if (isDMan)
-                            SideMenu(
-                              title: 'Түгээгчрүү шилжих',
-                              icon: Icons.change_circle,
-                              color: Colors.pink,
-                              ontap: () {
-                                homeProvider.changeIndex(0);
-                                if (homeProvider.currentIndex == 0) {
-                                  gotoRemoveUntil(const IndexDriver());
-                                }
-                              },
-                            ),
-                          if (isRep)
-                            SideMenu(
-                              title: 'Уулзалтууд',
-                              icon: Icons.meeting_room,
-                              color: Colors.pink,
-                              ontap: () => goto(Visits()),
-                            ),
-                          if (isSeller)
-                            SideMenu(
-                              title: 'Системийн лог',
-                              icon: Icons.pending_actions_sharp,
-                              color: Colors.pink,
-                              ontap: () => goto(SystemLog()),
-                            ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 15,
-                            ),
-                            child: const Text('Ерөнхий'),
-                          ),
-                          SideMenu(
-                              title: 'Нууцлалын бодлого',
-                              icon: Icons.lock,
-                              color: Colors.blue,
-                              ontap: () => goto(const PrivacyPolicy())),
-                          SideMenu(
-                              title: 'Бидний тухай',
-                              icon: Icons.house,
-                              color: Colors.purple,
-                              ontap: () => goto(const AboutUs())),
-                          // SideMenu(
-                          //     title: 'Тохиргоо',
-                          //     icon: Icons.settings,
-                          //     color: Colors.grey,
-                          //     ontap: () => goto(const SettingsPage())),
-                          SideMenu(
-                            title: 'Системээс гарах',
-                            icon: Icons.logout,
-                            color: Colors.red,
-                            ontap: () => logout(context),
-                          ),
-                          const SizedBox(height: kTextTabBarHeight + 30)
-                        ],
+                                title: 'Бидний тухай',
+                                icon: Icons.house,
+                                color: Colors.purple,
+                                ontap: () => goto(const AboutUs())),
+                            // SideMenu(
+                            //     title: 'Тохиргоо',
+                            //     icon: Icons.settings,
+                            //     color: Colors.grey,
+                            //     ontap: () => goto(const SettingsPage())),
+                            // SideMenu(
+                            //   title: 'Системээс гарах',
+                            //   icon: Icons.logout,
+                            //   color: Colors.red,
+                            //   ontap: () => logout(context),
+                            // ),
+                            const SizedBox(height: kTextTabBarHeight + 30)
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

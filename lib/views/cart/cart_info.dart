@@ -13,6 +13,13 @@ class _CartInfoState extends State<CartInfo> {
     final basketProvider = Provider.of<BasketProvider>(context, listen: false);
     // theme
     void clearBasket() async {
+      final confirmed = await confirmDialog(
+        title: 'Захиалгын сагсыг хоослох уу?',
+        context: context,
+      );
+      if (!confirmed) {
+        return;
+      }
       await basketProvider.clearBasket();
       await basketProvider.getBasket();
     }

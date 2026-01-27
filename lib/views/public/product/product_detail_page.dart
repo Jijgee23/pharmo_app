@@ -265,7 +265,7 @@ class _ProductDetailState extends State<ProductDetail>
       leading: SafeArea(child: const ChevronBack()),
       expandedHeight: MediaQuery.of(context).size.width * .6,
       backgroundColor: white,
-      actions: [CartIcon(enabled: false)],
+      actions: [CartIcon.forAppBar(), SizedBox(width: 10)],
       flexibleSpace: (det != {})
           ? FlexibleSpaceBar(
               background: ClipRRect(

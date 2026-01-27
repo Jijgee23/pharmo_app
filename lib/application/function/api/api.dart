@@ -165,7 +165,7 @@ Future<http.Response?> responser(
 Future<bool> refreshed() async {
   print('refreshing');
   final hasInternet = await NetworkChecker.hasInternet();
-  if (hasInternet) return false;
+  if (!hasInternet) return false;
   await LocalBase.initLocalBase();
   final user = LocalBase.security;
   if (user == null) return false;

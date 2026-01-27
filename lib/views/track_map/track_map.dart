@@ -285,7 +285,7 @@ class _TrackMapState extends State<TrackMap> {
         }
       ]
     };
-    final r = await api(Api.post, 'seller/location/', body: body);
+    final r = await api(Api.patch, 'sales/route/', body: body);
     if (r != null && apiSucceess(r)) {
       await tracker.clearTrackData();
       await tracker.addPointToBox(data);
@@ -334,15 +334,11 @@ class _TrackMapState extends State<TrackMap> {
       sended: true,
     );
     final body = {
-      "locations": [
-        {
-          "lat": data.latitude,
-          "lng": data.longitude,
-          "created": data.date.toIso8601String(),
-        }
-      ]
+      "lat": data.latitude,
+      "lng": data.longitude,
+      "created": data.date.toIso8601String(),
     };
-    final r = await api(Api.post, 'seller/location/', body: body);
+    final r = await api(Api.patch, 'sales/route/end', body: body);
     if (r != null && apiSucceess(r)) {
       await tracker.clearTrackData();
       await LogService().createLog(

@@ -312,13 +312,13 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
     final isSeller =
         LocalBase.security != null && LocalBase.security!.role == 'S';
-    final trackUrl = isSeller ? 'seller/location/' : 'delivery/location/';
-    final apiMethod = isSeller ? Api.post : Api.patch;
+    final trackUrl = isSeller ? 'sales/route/' : 'delivery/location/';
+    // final apiMethod = isSeller ? Api.post : Api.patch;
     var body = locationr(
       await LocalBase.getDelmanTrackId(),
       [locatioData(true)],
     );
-    final r = await api(apiMethod, trackUrl, body: body);
+    final r = await api(Api.patch, trackUrl, body: body);
     if (r != null && apiSucceess(r)) {
       _lastUploadTime = now;
       await addPointToBox(locatioData(true));
@@ -339,15 +339,15 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     bool hasSellerTrack = await LocalBase.hasSellerTrack();
     if (!hasSellerTrack && !hasDelmanTrack) return;
     bool isSeller = user.role == "S";
-    final trackUrl = isSeller ? 'seller/location/' : 'delivery/location/';
-    final apiMethod = isSeller ? Api.post : Api.patch;
+    final trackUrl = isSeller ? 'sales/route/' : 'delivery/location/';
+    // final apiMethod = isSeller ? Api.post : Api.patch;
     if (trackDatas.isNotEmpty) {
       final unsended = trackDatas.where((e) => e.sended == false).toList();
       if (unsended.isEmpty) {
         return;
       }
       var b = locationr(await LocalBase.getDelmanTrackId(), unsended);
-      final r = await api(apiMethod, trackUrl, body: b);
+      final r = await api(Api.patch, trackUrl, body: b);
       if (apiSucceess(r)) {
         await updateDatasToSended();
       }

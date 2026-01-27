@@ -2,6 +2,7 @@ import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
 import 'package:pharmo_app/views/home/widgets/modern_field.dart';
 import 'package:pharmo_app/views/home/widgets/modern_icon.dart';
+import 'package:pharmo_app/views/home/widgets/selected_filter.dart';
 
 class CustomerSearcher extends StatefulWidget {
   const CustomerSearcher({super.key});
@@ -55,6 +56,7 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
               );
             },
           ),
+          // CartIcon()
         ],
       ).paddingSymmetric(horizontal: 10),
     );
@@ -68,37 +70,10 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
         ...filters.map(
           (e) {
             bool selected = e == selectedFilter;
-            return ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                setFilter(e);
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: selected ? primary : Colors.grey.shade200,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: EdgeInsets.all(15),
-                minimumSize: Size(double.maxFinite, 45),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    e,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: selected ? white : black,
-                    ),
-                  ),
-                  if (selected)
-                    Icon(
-                      Icons.check_rounded,
-                      color: white,
-                    )
-                ],
-              ),
+            return SelectedFilter(
+              selected: selected,
+              caption: e,
+              onSelect: () => setFilter(e),
             );
           },
         )

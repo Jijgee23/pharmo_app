@@ -1,4 +1,3 @@
-import 'package:pharmo_app/views/cart/cart_icon.dart';
 import 'package:pharmo_app/views/public/filter/filtered_products.dart';
 import 'package:pharmo_app/application/application.dart';
 
@@ -47,7 +46,7 @@ class _FilterPageState extends State<FilterPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              actions: [CartIcon()],
+              actions: [CartIcon.forAppBar(), SizedBox(width: 5)],
               bottom: TabBar(
                   indicatorColor: primary,
                   indicatorSize: TabBarIndicatorSize.tab,

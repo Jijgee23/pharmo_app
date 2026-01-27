@@ -16,30 +16,34 @@ class BottomBar extends StatelessWidget {
         (MediaQuery.of(context).orientation == Orientation.portrait);
     double height = Sizes.height;
     return Consumer<HomeProvider>(builder: (context, home, child) {
-      return AnimatedContainer(
-        duration: duration,
-        height: isPortrait ? height * 0.08 : height * .18,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: white,
-          boxShadow: [
-            BoxShadow(color: Colors.grey.shade500, blurRadius: 5),
-          ],
-        ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: icons
-                .map(
-                  (icon) => BottomBarItem(
-                    icon: icon,
-                    index: icons.indexOf(icon),
-                  ),
-                )
-                .toList(),
+      return Stack(
+        children: [
+          AnimatedContainer(
+            duration: duration,
+            height: isPortrait ? height * 0.08 : height * .18,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: white,
+              boxShadow: [
+                BoxShadow(color: Colors.grey.shade500, blurRadius: 5),
+              ],
+            ),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: icons
+                    .map(
+                      (icon) => BottomBarItem(
+                        icon: icon,
+                        index: icons.indexOf(icon),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
           ),
-        ),
+        ],
       );
     });
   }

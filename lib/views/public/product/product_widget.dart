@@ -158,20 +158,19 @@ class ProductWidgetListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => goto(ProductDetail(prod: item)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: theme.cardColor,
-          border: Border.all(
-            color: const Color.fromARGB(255, 207, 206, 206),
-            width: 1,
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: theme.cardColor,
+        border: Border.all(
+          color: const Color.fromARGB(255, 207, 206, 206),
+          width: 1,
         ),
-        margin: const EdgeInsets.symmetric(vertical: 2.5),
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        width: double.infinity,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      width: double.infinity,
+      child: InkWell(
+        onTap: () => goto(ProductDetail(prod: item)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -219,27 +218,20 @@ class ProductWidgetListView extends StatelessWidget {
                 ],
               ),
             ),
-            InkWell(
-              onTap: () => Get.bottomSheet(AddBasketSheet(product: item)),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: const Color.fromARGB(255, 207, 206, 206),
-                    ),
-                    borderRadius: BorderRadius.circular(15)),
-                child: Text(
-                  'Сагслах',
-                  softWrap: true,
-                  style: TextStyle(
-                    color: theme.primaryColor,
-                    fontWeight: FontWeight.w700,
-                    overflow: TextOverflow.ellipsis,
-                    fontSize: 12,
+            ElevatedButton(
+              onPressed: () => Get.bottomSheet(AddBasketSheet(product: item)),
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  side: BorderSide(
+                    color: primary,
                   ),
                 ),
+              ),
+              child: Text(
+                'Сагслах',
+                style: TextStyle(fontSize: 12),
               ),
             ),
           ],

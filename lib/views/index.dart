@@ -2,8 +2,6 @@ import 'package:pharmo_app/views/home/home.dart';
 import 'package:pharmo_app/views/order_history/order_history.dart';
 import 'package:pharmo_app/views/profile.dart';
 import 'package:pharmo_app/views/SELLER/customer/customers.dart';
-import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
-import 'package:pharmo_app/views/SELLER/customer/customer_searcher.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/track_map/track_map.dart';
 
@@ -68,89 +66,51 @@ class _IndexPharmaState extends State<IndexPharma> {
         }
         String role = security.role;
         return Scaffold(
-          appBar: ((home.currentIndex == 0) ||
-                  (role != 'PA' && home.currentIndex == 1))
-              ? null
-              : CustomAppBar(
-                  title: getAppbar(role, home),
-                  actions: [
-                    if ((role == 'S' && home.currentIndex != 3) ||
-                        (role == 'PA' && home.currentIndex != 2))
+          body: Stack(
+            children: [
+              Center(
+                child: [
+                  if (role != 'PA') const CustomerList(),
+                  const Home(),
+                  OrderHistory(),
+                  const Profile(),
+                ][home.currentIndex],
+              ),
+              Positioned(
+                bottom: 10,
+                right: 10,
+                child: SafeArea(
+                  child: Column(
+                    spacing: 10,
+                    children: [
+                      if (security.role == 'S' && home.currentIndex == 0)
+                        FloatingActionButton(
+                          heroTag: 'sellerTRACKING',
+                          shape: CircleBorder(),
+                          onPressed: () => goto(TrackMap()),
+                          backgroundColor: primary,
+                          child: Icon(
+                            Icons.location_on_rounded,
+                            color: white,
+                          ),
+                        ),
                       CartIcon(),
-                    if ((role == 'S' && home.currentIndex == 3) ||
-                        (role == 'PA' && home.currentIndex == 2))
-                      IconButton(
-                        onPressed: () => logout(context),
-                        icon: Icon(Icons.logout_rounded),
-                      ),
-                  ],
-                ),
-          body: getPages(role)[home.currentIndex],
-          bottomNavigationBar: BottomBar(icons: getIcons(role)),
-          floatingActionButton: (security.role == 'S' && home.currentIndex == 0)
-              ? FloatingActionButton(
-                  heroTag: 'sellerTRACKING',
-                  shape: CircleBorder(),
-                  onPressed: () => goto(TrackMap()),
-                  backgroundColor: primary,
-                  child: Icon(
-                    Icons.location_on_rounded,
-                    color: white,
+                    ],
                   ),
-                )
-              : null,
+                ),
+              )
+            ],
+          ),
+          bottomNavigationBar: BottomBar(
+            icons: [
+              if (role != 'PA') 'users',
+              'category',
+              'order-history',
+              'user'
+            ],
+          ),
         );
       },
     );
-  }
-
-  Widget getAppbar(String role, HomeProvider homeProvider) {
-    if (role == 'PA') {
-      switch (homeProvider.currentIndex) {
-        case 2:
-          return appBarSingleText('Миний профайл');
-        default:
-          return appBarSingleText('Сагс');
-      }
-    } else {
-      switch (homeProvider.currentIndex) {
-        case 0:
-          return const Row(
-            spacing: 10,
-            children: [
-              Expanded(flex: 6, child: CustomerSearcher()),
-              Expanded(child: AddCustomer()),
-            ],
-          );
-        case 2:
-          return appBarSingleText('Сагс');
-        case 3:
-          return appBarSingleText('Миний профайл');
-
-        default:
-          return appBarSingleText('');
-      }
-    }
-  }
-
-  appBarSingleText(String v) {
-    return Text(
-      v,
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-    );
-  }
-
-  List<String> getIcons(String role) {
-    return [if (role != 'PA') 'users', 'category', 'order-history', 'user'];
-  }
-
-  List<Widget> getPages(String role) {
-    return [
-      if (role != 'PA') const CustomerList(),
-      const Home(),
-      // const Cart(),
-      OrderHistory(),
-      const Profile(),
-    ];
   }
 }

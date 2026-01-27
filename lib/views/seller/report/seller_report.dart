@@ -1,5 +1,6 @@
 import 'package:pharmo_app/views/SELLER/report/report_widget.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/home/widgets/selected_filter.dart';
 
 class Reportfilter {
   String title;
@@ -44,26 +45,26 @@ class _SellerReportState extends State<SellerReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ReportProvider>(builder: (context, rp, child) {
-      dynamic data = rp.report;
-      return Scaffold(
-        appBar: AppBar(
-          centerTitle: false,
-          title: Text(
-            'Борлуулагчийн тайлан',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: black,
+    return Consumer<ReportProvider>(
+      builder: (context, rp, child) {
+        dynamic data = rp.report;
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: false,
+            title: Text(
+              'Борлуулагчийн тайлан',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: black,
+              ),
             ),
           ),
-        ),
-        body: Container(
-          padding: const EdgeInsets.all(Sizes.smallFontSize),
-          child: SingleChildScrollView(
+          body: Container(
+            padding: const EdgeInsets.all(Sizes.smallFontSize),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 10,
+              spacing: 5,
               children: [
                 Row(
                   spacing: 10,
@@ -80,88 +81,86 @@ class _SellerReportState extends State<SellerReportPage> {
                     ),
                   ],
                 ),
-                Card(
-                  elevation: 0,
-                  color: white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Sizes.smallFontSize),
-                    side: BorderSide(color: Colors.grey, width: 2),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: DropdownButton<Reportfilter>(
-                      value: selectedFilter,
-                      underline: const SizedBox(),
-                      hint: const Text('Филтер сонгох'),
-                      isExpanded: true,
-                      style: TextStyle(
-                        fontSize: Sizes.mediumFontSize,
-                        color: theme.primaryColor,
-                      ),
-                      iconEnabledColor: Colors.black,
-                      iconDisabledColor: Colors.black,
-                      dropdownColor: white,
-                      alignment: Alignment.center,
-                      selectedItemBuilder: (context) => filters
-                          .map((filter) => Row(
-                                children: [
-                                  Text(
-                                    filter.title,
-                                    style: const TextStyle(
-                                      fontSize: Sizes.mediumFontSize,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ))
-                          .toList(),
-                      items: filters
-                          .map(
-                            (filter) => DropdownMenuItem<Reportfilter>(
-                              value: filter,
-                              child: Text(filter.title),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (val) => setState(
-                        () {
-                          selectedFilter = val!;
-                          rp.getReports(selectedFilter.query);
+                ElevatedButton(
+                  onPressed: () {
+                    mySheet(
+                      isDismissible: true,
+                      children: filters.map(
+                        (filter) {
+                          return SelectedFilter(
+                            selected: filter.title == selectedFilter.title,
+                            caption: filter.title,
+                            onSelect: () {
+                              selectedFilter = filter;
+                              rp.getReports(selectedFilter.query);
+                              setState(() {});
+                            },
+                          );
                         },
-                      ),
+                      ).toList(),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
+                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                    side: BorderSide(
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(selectedFilter.title),
+                      Icon(Icons.arrow_drop_down_rounded)
+                    ],
                   ),
                 ),
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        ...titles.map((t) =>
-                            text(t: t, color: colors[titles.indexOf(t)])),
-                      ],
-                    ),
-                    Builder(builder: (context) {
-                      if (data != {}) {
-                        return Column(
+                Builder(
+                  builder: (context) {
+                    if (data != {}) {
+                      return Expanded(
+                        child: Column(
                           children: [
-                            ...data.map((r) => ReportWidget(
-                                date: maybeNull(
-                                    r[selectedFilter.query].toString()),
-                                total: maybeNull(r['total'].toString()),
-                                count: maybeNull(r['count'].toString())))
+                            Row(
+                              children: [
+                                ...titles.map(
+                                  (t) => text(
+                                    t: t,
+                                    color: colors[titles.indexOf(t)],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Expanded(
+                              child: ListView.builder(
+                                itemBuilder: (context, idx) {
+                                  final r = data[idx];
+                                  return ReportWidget(
+                                    date: maybeNull(
+                                        r[selectedFilter.query].toString()),
+                                    total: maybeNull(r['total'].toString()),
+                                    count: maybeNull(r['count'].toString()),
+                                  );
+                                },
+                                itemCount: (data as List).length,
+                              ),
+                            ),
                           ],
-                        );
-                      }
-                      return NoResult();
-                    })
-                  ],
+                        ),
+                      );
+                    }
+                    return NoResult();
+                  },
                 )
               ],
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget text({required String t, Color? color}) {

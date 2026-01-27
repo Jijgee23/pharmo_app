@@ -12,14 +12,18 @@ class _MyOrderState extends State<MyOrder> {
   @override
   void initState() {
     super.initState();
-    refresh();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      refresh();
+    });
   }
 
   refresh() async {
-    final order = context.read<MyOrderProvider>();
-    await order.getBranches();
-    await order.getSuppliers();
-    await order.getMyorders();
+    LoadingService.run(() async {
+      final order = context.read<MyOrderProvider>();
+      await order.getBranches();
+      await order.getSuppliers();
+      await order.getMyorders();
+    });
   }
 
   @override
@@ -27,32 +31,55 @@ class _MyOrderState extends State<MyOrder> {
     return Consumer<MyOrderProvider>(
       builder: (context, provider, _) {
         final orders = provider.orders;
-        return DataScreen(
-          empty: false,
-          loading: false,
-          onRefresh: () async => refresh(),
-          appbar: SideAppBar(text: 'Захиалгууд'),
-          child: NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              SliverAppBar(
-                pinned: true,
-                floating: false,
-                leading: SizedBox(),
-                flexibleSpace: FlexibleSpaceBar(title: filterRow()),
-              ),
+        return SafeArea(
+          child: Column(
+            spacing: 10,
+            children: [
+              filterRow(),
+              Expanded(
+                child: Builder(builder: (context) {
+                  if (orders.isEmpty) {
+                    return NoResult();
+                  }
+                  return ListView.separated(
+                    itemBuilder: (_, idx) {
+                      return OrderWidget(order: orders[idx]);
+                    },
+                    separatorBuilder: (_, idx) => SizedBox(height: 10),
+                    itemCount: orders.isNotEmpty ? orders.length : 1,
+                  );
+                }),
+              )
             ],
-            body: ListView.separated(
-              itemBuilder: (_, idx) {
-                if (orders.isEmpty) {
-                  return NoResult();
-                }
-                return OrderWidget(order: orders[idx]);
-              },
-              separatorBuilder: (_, idx) => SizedBox(height: 10),
-              itemCount: orders.isNotEmpty ? orders.length : 1,
-            ),
-          ),
+          ).paddingSymmetric(horizontal: 10),
         );
+
+        //  DataScreen(
+        //   empty: false,
+        //   loading: false,
+        //   onRefresh: () async => refresh(),
+        //   // appbar: SideAppBar(text: 'Захиалгууд'),
+        //   child: NestedScrollView(
+        //     headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        //       SliverAppBar(
+        //         pinned: true,
+        //         floating: false,
+        //         leading: SizedBox(),
+        //         flexibleSpace: FlexibleSpaceBar(title: filterRow()),
+        //       ),
+        //     ],
+        //     body: ListView.separated(
+        //       itemBuilder: (_, idx) {
+        //         if (orders.isEmpty) {
+        //           return NoResult();
+        //         }
+        //         return OrderWidget(order: orders[idx]);
+        //       },
+        //       separatorBuilder: (_, idx) => SizedBox(height: 10),
+        //       itemCount: orders.isNotEmpty ? orders.length : 1,
+        //     ),
+        //   ),
+        // );
       },
     );
   }
@@ -87,10 +114,12 @@ class _MyOrderState extends State<MyOrder> {
   Supplier supplier = Supplier(id: -1, name: 'Нийлүүлэгч сонгох', stocks: []);
   Widget filterRow() {
     final order = context.read<MyOrderProvider>();
-    return Align(
+    return Container(
+      height: 60,
       alignment: Alignment.bottomCenter,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(vertical: 5),
         child: Row(
           spacing: 10,
           mainAxisAlignment: MainAxisAlignment.start,

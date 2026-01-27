@@ -38,7 +38,12 @@ class LocalBase {
     remember = await getRemember();
 
     debugPrint(
-        'local base inited, has user: ${security != null}, splashed: $hasSpashed');
+      'local base inited, has user: ${security != null}, splashed: $hasSpashed',
+    );
+
+    if (security == null) return;
+    print(JwtDecoder.decode(security!.access));
+    print(JwtDecoder.getRemainingTime(security!.access));
   }
 
   static Future removeTokens() async {

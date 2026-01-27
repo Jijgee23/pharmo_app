@@ -56,7 +56,10 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
                     )
                   : title,
               leading: leading ?? const ChevronBack(),
-              actions: [if (hasBasket) CartIcon(), action ?? const SizedBox()],
+              actions: [
+                if (hasBasket) CartIcon.forAppBar(),
+                action ?? const SizedBox()
+              ],
               bottom: bottom,
             ),
           ),

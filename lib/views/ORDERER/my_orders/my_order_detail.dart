@@ -142,12 +142,14 @@ class _MyOrderDetailState extends State<MyOrderDetail>
                       }),
                     ),
                     Divider(color: grey500),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        t('Нийт ширхэг', order.totalCount.toString()),
-                        t('Нийт дүн', toPrice(order.totalPrice)),
-                      ],
+                    SafeArea(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          t('Нийт ширхэг', order.totalCount.toString()),
+                          t('Нийт дүн', toPrice(order.totalPrice)),
+                        ],
+                      ),
                     ),
                   ],
                 )

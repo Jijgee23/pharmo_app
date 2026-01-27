@@ -35,85 +35,87 @@ class _AddBasketSheetState extends State<AddBasketSheet> {
           color: Colors.white,
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-      child: Wrap(
-        runSpacing: 20,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(right: 10),
-                  child: Text(
-                    '${widget.product.name!} /${toPrice(widget.product.price)}/',
-                    softWrap: true,
-                    maxLines: 3,
-                    style: TextStyle(
-                      color: AppColors.secondary,
-                      fontWeight: FontWeight.w600,
-                      overflow: TextOverflow.ellipsis,
-                      fontSize: fs,
+      child: SafeArea(
+        child: Wrap(
+          runSpacing: 20,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    child: Text(
+                      '${widget.product.name!} /${toPrice(widget.product.price)}/',
+                      softWrap: true,
+                      maxLines: 3,
+                      style: TextStyle(
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.w600,
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: fs,
+                      ),
                     ),
                   ),
                 ),
+                const PopSheet()
+              ],
+            ),
+            TextFormField(
+              autofocus: true,
+              textAlign: TextAlign.end,
+              controller: qty,
+              keyboardType: TextInputType.numberWithOptions(
+                decimal: true,
               ),
-              const PopSheet()
-            ],
-          ),
-          TextFormField(
-            autofocus: true,
-            textAlign: TextAlign.end,
-            controller: qty,
-            keyboardType: TextInputType.numberWithOptions(
-              decimal: true,
-            ),
-            style: TextStyle(
-              color: Colors.grey.shade500,
-              fontWeight: FontWeight.w600,
-              fontSize: fs,
-            ),
-            decoration: InputDecoration(
-              hintText: 'Тоо ширхэг оруулна уу!',
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              hintStyle: TextStyle(
+              style: TextStyle(
                 color: Colors.grey.shade500,
                 fontWeight: FontWeight.w600,
+                fontSize: fs,
               ),
-              disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: primary.withOpacity(.5))),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: primary.withOpacity(.5))),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: primary.withOpacity(.5))),
+              decoration: InputDecoration(
+                hintText: 'Тоо ширхэг оруулна уу!',
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                hintStyle: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontWeight: FontWeight.w600,
+                ),
+                disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: primary.withOpacity(.5))),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: primary.withOpacity(.5))),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: primary.withOpacity(.5))),
+              ),
             ),
-          ),
-          CustomButton(
-            text: 'Сагсанд нэмэх',
-            ontap: () async {
-              if (qty.text.isEmpty) {
-                messageWarning('Тоо ширхэг оруулна уу!');
-                return;
-              }
+            CustomButton(
+              text: 'Сагсанд нэмэх',
+              ontap: () async {
+                if (qty.text.isEmpty) {
+                  messageWarning('Тоо ширхэг оруулна уу!');
+                  return;
+                }
 
-              if (parseDouble(qty.text) == 0) {
-                messageWarning('Тоо ширхэг 0 байж болохгүй!');
-                return;
-              }
+                if (parseDouble(qty.text) == 0) {
+                  messageWarning('Тоо ширхэг 0 байж болохгүй!');
+                  return;
+                }
 
-              if (qty.text.isNotEmpty && parseDouble(qty.text) > 0) {
-                Navigator.pop(context);
-                await addBasket(widget.product, parseDouble(qty.text));
-                return;
-              }
-            },
-          ),
-        ],
+                if (qty.text.isNotEmpty && parseDouble(qty.text) > 0) {
+                  Navigator.pop(context);
+                  await addBasket(widget.product, parseDouble(qty.text));
+                  return;
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
