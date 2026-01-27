@@ -51,7 +51,7 @@ class _OrdererOrdersState extends State<OrdererOrders> {
                     aspectRatio: 3 / 2,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Row(children: orders().toList()),
+                      child: Row(spacing: 10, children: orders().toList()),
                     ),
                   ),
                 if (!widget.user!.id.contains('p')) addPay(context),

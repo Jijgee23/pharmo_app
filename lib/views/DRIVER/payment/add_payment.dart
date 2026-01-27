@@ -1,3 +1,4 @@
+import 'package:pharmo_app/views/DRIVER/payment/payment_builder.dart';
 import 'package:pharmo_app/views/SELLER/customer/choose_customer.dart';
 import 'package:pharmo_app/application/application.dart';
 
@@ -67,7 +68,7 @@ class _AddPaymentState extends State<AddPayment>
           ),
         ),
         body: Container(
-          padding: EdgeInsets.all(14.0),
+          padding: EdgeInsets.all(5.0),
           child: TabBarView(
             controller: tabController,
             children: [
@@ -86,14 +87,19 @@ class _AddPaymentState extends State<AddPayment>
                     )
                   : SingleChildScrollView(
                       child: Column(
-                        spacing: 14,
+                        spacing: 10,
                         children: jagger.payments
-                            .map((payment) => paymentBuilder(payment, jagger))
+                            .map(
+                              (payment) => PaymentBuilder(
+                                payment: payment,
+                                handler: () => editPayment(jagger, payment),
+                              ),
+                            )
                             .toList(),
                       ),
                     ),
               Column(
-                spacing: 15,
+                spacing: 10,
                 children: [
                   Builder(builder: (context) {
                     bool hasCustomer = customer != null;
@@ -181,96 +187,12 @@ class _AddPaymentState extends State<AddPayment>
     );
   }
 
-  Widget paymentBuilder(Payment payment, JaggerProvider jagger) {
-    return Card(
-      color: white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: grey500),
-      ),
-      elevation: 0,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: () => editPayment(jagger, payment),
-        child: Container(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 7.5,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8,
-                  horizontal: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: primary.withOpacity(0.1).withBlue(50),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.person, color: Colors.black54),
-                    const SizedBox(width: 8),
-                    Text(
-                      payment.cust.name!,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                '${toPrice(payment.amount)} (${getPayType(payment.payType)})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  timeText(payment.paidOn.toString().substring(0, 10)),
-                  timeText(payment.paidOn.toString().substring(10, 19)),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Text timeText(String t) {
-    return Text(
-      t,
-      style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        color: Colors.grey.shade700,
-      ),
-    );
-  }
-
-  Color getPaymentColor(String payTime) {
-    switch (payTime) {
-      case 'C':
-        return Colors.green;
-      case 'T':
-        return Colors.blueAccent;
-      default:
-        return Colors.grey;
-    }
-  }
-
   TextEditingController ctr = TextEditingController();
 
   editPayment(JaggerProvider jagger, Payment payment) async {
     setState(() {
       ctr.text = payment.amount.toString();
     });
-
     setSelected(
         payment.payType == 'C' ? 'Бэлнээр' : 'Дансаар', payment.payType);
     Get.bottomSheet(
@@ -299,57 +221,31 @@ class _AddPaymentState extends State<AddPayment>
     );
   }
 
-  Widget switcher(String n) {
-    bool picked = n == viewMode;
-    return InkWell(
-      onTap: () => setState(() {
-        viewMode = n;
-      }),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        width: picked ? Sizes.width * .5 : Sizes.width * .38,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: picked ? Colors.green : Colors.blueGrey.shade200,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            if (picked)
-              BoxShadow(color: Colors.green.withOpacity(0.5), blurRadius: 6)
-          ],
-        ),
-        child: Center(
-          child: Text(
-            n,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: picked ? Colors.white : Colors.black54,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   _register(JaggerProvider jagger) async {
     print(pType);
     if (pType == "E") {
       message('Төлбөрийн хэлбэр сонгоно уу!');
-    } else if (amount.text.isEmpty) {
+      return;
+    }
+    if (amount.text.isEmpty) {
       message('Дүн оруулна уу!');
-    } else if (customer == null) {
+      return;
+    }
+    if (customer == null) {
       message('Харилцагч сонгоно уу!');
-    } else {
-      await jagger.addCustomerPayment(
-          pType, amount.text, customer!.id.toString());
-      amount.clear();
-      setState(() {
+      return;
+    }
+    await jagger.addCustomerPayment(
+        pType, amount.text, customer!.id.toString());
+    amount.clear();
+    setState(
+      () {
         customer = null;
         pType = 'E';
         selected = 'e';
-      });
-      tabController.animateTo(0);
-    }
+      },
+    );
+    tabController.animateTo(0);
   }
 
   Widget picker2(String n, String v, Function(void Function()) setModalState) {

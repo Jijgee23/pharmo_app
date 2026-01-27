@@ -41,9 +41,9 @@ class LocalBase {
       'local base inited, has user: ${security != null}, splashed: $hasSpashed',
     );
 
-    if (security == null) return;
-    print(JwtDecoder.decode(security!.access));
-    print(JwtDecoder.getRemainingTime(security!.access));
+    // if (security == null) return;
+    // print(JwtDecoder.decode(security!.access));
+    // print(JwtDecoder.getRemainingTime(security!.access));
   }
 
   static Future removeTokens() async {
@@ -59,9 +59,9 @@ class LocalBase {
     if (r != null) {
       await clearSecurity();
     }
-    print(res);
+    // print(res);
     final decodedToken = JwtDecoder.decode(res['access_token']);
-    print(decodedToken);
+    // print(decodedToken);
     var security = Security.fromJson(
       decodedToken,
       res['access_token'],

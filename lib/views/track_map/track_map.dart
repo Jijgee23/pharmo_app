@@ -338,7 +338,7 @@ class _TrackMapState extends State<TrackMap> {
       "lng": data.longitude,
       "created": data.date.toIso8601String(),
     };
-    final r = await api(Api.patch, 'sales/route/end', body: body);
+    final r = await api(Api.patch, 'sales/route/end/', body: body);
     if (r != null && apiSucceess(r)) {
       await tracker.clearTrackData();
       await LogService().createLog(

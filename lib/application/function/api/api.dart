@@ -37,7 +37,8 @@ Future<http.Response?> api(
       }
       var s = await LocalBase.getSecurity();
       if (s == null) return null;
-      return await api(method, endpoint, body: body, header: header);
+
+      return await responser(method, endpoint, s.access, body, header);
     }
     var res = await responser(method, endpoint, access, body, header);
     if (res != null) {
@@ -50,6 +51,11 @@ Future<http.Response?> api(
         );
         return null;
       }
+    }
+    if (res == null) {
+      messageError(
+          'Серверт холбогдож чадсангүй, Инфосистемс ХХК-д холбогдоно уу!');
+      return null;
     }
     return res;
   } catch (e) {

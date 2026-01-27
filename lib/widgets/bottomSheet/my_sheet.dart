@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pharmo_app/application/context/color/colors.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class SheetContainer extends StatelessWidget {
   final String? title;
@@ -15,17 +13,18 @@ class SheetContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        width: double.maxFinite,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        decoration: const BoxDecoration(
-          color: white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
+    return Container(
+      constraints: BoxConstraints(maxHeight: ContextX(context).heigh * .8),
+      width: double.maxFinite,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      decoration: const BoxDecoration(
+        color: white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
         ),
+      ),
+      child: SingleChildScrollView(
         child: SafeArea(
           child: Column(
             spacing: 20,

@@ -41,8 +41,10 @@ class _IndexPharmaState extends State<IndexPharma> {
             home.supliers.firstWhere((sup) => sup.id == security.supplierId);
         final findedStock = findedSup.stocks
             .firstWhere((stock) => stock.id == security.stockId);
-        home.setSupplier(findedSup);
-        home.setStock(findedStock);
+        if (findedSup != null && findedStock != null) {
+          home.setSupplier(findedSup);
+          home.setStock(findedStock);
+        }
       } else {
         final sup = home.supliers[0];
         print(sup.name);
