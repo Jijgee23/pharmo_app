@@ -1,4 +1,4 @@
-import 'package:pharmo_app/views/home.dart';
+import 'package:pharmo_app/views/home/home.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class FilteredProducts extends StatefulWidget {

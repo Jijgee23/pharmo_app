@@ -66,12 +66,19 @@ class AuthController extends ChangeNotifier {
     setLogging(true);
     try {
       var body = {'email': ema.text, 'password': pass.text};
-      var responseLogin = await apiPostWithoutToken(loginUrl, body);
-      Map<String, dynamic> decodedResponse = convertData(responseLogin!);
-      if (responseLogin.statusCode == 200) {
+      var r = await apiPostWithoutToken(loginUrl, body);
+      if (r == null) {
+        messageError(
+          'Серверт холбогдож чадсангүй, интернет холболтоо шалгана уу!',
+        );
+        setLogging(false);
+        return;
+      }
+      Map<String, dynamic> decodedResponse = convertData(r);
+      if (r.statusCode == 200) {
         _handleSuccessfulLogin(decodedResponse);
         setLogging(false);
-      } else if (responseLogin.statusCode == 400) {
+      } else if (r.statusCode == 400) {
         _handleBadRequest(decodedResponse);
         setLogging(false);
       } else {

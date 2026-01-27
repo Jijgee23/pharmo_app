@@ -1,6 +1,3 @@
-import 'package:pharmo_app/widgets/appbar/side_menu_appbar.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pharmo_app/application/application.dart';

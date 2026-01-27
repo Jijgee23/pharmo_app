@@ -23,7 +23,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   final connectivity = Connectivity();
-
+  bool isOnline = false;
   void _setupStreams() async {
     // location
     NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
@@ -34,12 +34,14 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     connectivity.onConnectivityChanged
         .listen((List<ConnectivityResult> status) async {
       _eventController.add(NetworkEvent(status));
-      bool isOnline = await NetworkChecker.hasInternet();
-      if (isOnline && isDialogOpen) {
+      bool online = await NetworkChecker.hasInternet();
+      isOnline = online;
+      notifyListeners();
+      if (online && isDialogOpen) {
         _hideNetworkDialog();
         return;
       }
-      if (!isOnline && !isDialogOpen) {
+      if (!online && !isDialogOpen) {
         _showNetworkDialog();
       }
     });

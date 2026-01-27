@@ -16,7 +16,7 @@ class CustomerTile extends StatelessWidget {
       color: white,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.grey.shade400),
+        side: BorderSide(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(10),
       ),
       child: InkWell(

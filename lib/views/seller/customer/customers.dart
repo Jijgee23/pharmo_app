@@ -1,3 +1,4 @@
+import 'package:pharmo_app/views/SELLER/customer/customer_searcher.dart';
 import 'package:pharmo_app/views/SELLER/customer/customer_tile.dart';
 import 'package:pharmo_app/application/application.dart';
 
@@ -59,11 +60,13 @@ class _CustomerListState extends State<CustomerList>
   @override
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PharmProvider>(
-      builder: (_, homeProvider, pp, child) {
+      builder: (_, home, pp, child) {
         return SafeArea(
-          child: RefreshIndicator(
-            onRefresh: () async => init(true),
-            child: customersList(pp, homeProvider),
+          child: Column(
+            children: [
+              CustomerSearcher(),
+              customersList(pp, home),
+            ],
           ),
         );
       },
@@ -71,13 +74,18 @@ class _CustomerListState extends State<CustomerList>
   }
 
   Widget customersList(PharmProvider pp, HomeProvider homeProvider) {
-    return ListView.builder(
-      padding: EdgeInsets.all(5),
-      itemCount: pp.filteredCustomers.length,
-      itemBuilder: (context, ind) {
-        final customer = pp.filteredCustomers[ind];
-        return CustomerTile(customer: customer);
-      },
+    return Expanded(
+      child: RefreshIndicator.adaptive(
+        onRefresh: () async => init(true),
+        child: ListView.builder(
+          padding: EdgeInsets.all(5),
+          itemCount: pp.filteredCustomers.length,
+          itemBuilder: (context, ind) {
+            final customer = pp.filteredCustomers[ind];
+            return CustomerTile(customer: customer);
+          },
+        ),
+      ),
     );
   }
 

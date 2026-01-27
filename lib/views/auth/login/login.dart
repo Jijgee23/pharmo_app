@@ -1,14 +1,8 @@
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/application/context/size/sizes.dart';
-import 'package:pharmo_app/application/function/validator/varlidator.dart';
 import 'package:pharmo_app/views/auth/login/auth_text.dart';
 import 'package:pharmo_app/views/auth/login/forget_and_signup.dart';
 import 'package:pharmo_app/views/auth/login/login_footer.dart';
 import 'package:pharmo_app/views/auth/login/login_header_image.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/indicator/pharmo_indicator.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

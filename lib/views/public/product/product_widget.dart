@@ -158,16 +158,17 @@ class ProductWidgetListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fs = Sizes.height * .013;
     return InkWell(
       onTap: () => goto(ProductDetail(prod: item)),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
+      child: Container(
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: theme.cardColor,
-            border: Border.all(
-                color: const Color.fromARGB(255, 207, 206, 206), width: 1)),
+          borderRadius: BorderRadius.circular(10),
+          color: theme.cardColor,
+          border: Border.all(
+            color: const Color.fromARGB(255, 207, 206, 206),
+            width: 1,
+          ),
+        ),
         margin: const EdgeInsets.symmetric(vertical: 2.5),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         width: double.infinity,
@@ -181,9 +182,10 @@ class ProductWidgetListView extends StatelessWidget {
                   Text(
                     item.name!,
                     style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: fs,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.black87,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -197,20 +199,21 @@ class ProductWidgetListView extends StatelessWidget {
                           style: TextStyle(
                             color: AppColors.secondary,
                             fontWeight: FontWeight.bold,
-                            fontSize: fs,
+                            fontSize: 12,
                           ),
                         ),
                       ),
                       if (LocalBase.security!.role != 'PA')
                         Expanded(
-                            child: Text(
-                          'Үлд: ${maybeNull(item.qty.toString())}',
-                          style: TextStyle(
-                            color: theme.colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: Sizes.smallFontSize,
+                          child: Text(
+                            'Үлд: ${maybeNull(item.qty.toString())}',
+                            style: TextStyle(
+                              color: theme.colorScheme.onPrimary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
-                        ))
+                        )
                     ],
                   ),
                 ],
@@ -234,7 +237,7 @@ class ProductWidgetListView extends StatelessWidget {
                     color: theme.primaryColor,
                     fontWeight: FontWeight.w700,
                     overflow: TextOverflow.ellipsis,
-                    fontSize: fs,
+                    fontSize: 12,
                   ),
                 ),
               ),

@@ -1,5 +1,5 @@
-import 'package:pharmo_app/views/home.dart';
-import 'package:pharmo_app/views/public/product/product_searcher.dart';
+import 'package:pharmo_app/views/home/home.dart';
+import 'package:pharmo_app/views/order_history/order_history.dart';
 import 'package:pharmo_app/views/profile.dart';
 import 'package:pharmo_app/views/SELLER/customer/customers.dart';
 import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
@@ -61,32 +61,44 @@ class _IndexPharmaState extends State<IndexPharma> {
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
-      builder: (context, homeProvider, _) {
+      builder: (context, home, _) {
         final security = LocalBase.security;
         if (security == null) {
           return Scaffold();
         }
         String role = security.role;
         return Scaffold(
-          appBar: CustomAppBar(
-            title: getAppbar(role, homeProvider),
-            actions: [CartIcon()],
-          ),
-          body: getPages(role)[homeProvider.currentIndex],
-          bottomNavigationBar: BottomBar(icons: getIcons(role)),
-          floatingActionButton:
-              (security.role == 'S' && homeProvider.currentIndex == 0)
-                  ? FloatingActionButton(
-                      heroTag: 'sellerTRACKING',
-                      shape: CircleBorder(),
-                      onPressed: () => goto(TrackMap()),
-                      backgroundColor: primary,
-                      child: Icon(
-                        Icons.location_on_rounded,
-                        color: white,
+          appBar: ((home.currentIndex == 0) ||
+                  (role != 'PA' && home.currentIndex == 1))
+              ? null
+              : CustomAppBar(
+                  title: getAppbar(role, home),
+                  actions: [
+                    if ((role == 'S' && home.currentIndex != 3) ||
+                        (role == 'PA' && home.currentIndex != 2))
+                      CartIcon(),
+                    if ((role == 'S' && home.currentIndex == 3) ||
+                        (role == 'PA' && home.currentIndex == 2))
+                      IconButton(
+                        onPressed: () => logout(context),
+                        icon: Icon(Icons.logout_rounded),
                       ),
-                    )
-                  : null,
+                  ],
+                ),
+          body: getPages(role)[home.currentIndex],
+          bottomNavigationBar: BottomBar(icons: getIcons(role)),
+          floatingActionButton: (security.role == 'S' && home.currentIndex == 0)
+              ? FloatingActionButton(
+                  heroTag: 'sellerTRACKING',
+                  shape: CircleBorder(),
+                  onPressed: () => goto(TrackMap()),
+                  backgroundColor: primary,
+                  child: Icon(
+                    Icons.location_on_rounded,
+                    color: white,
+                  ),
+                )
+              : null,
         );
       },
     );
@@ -95,8 +107,6 @@ class _IndexPharmaState extends State<IndexPharma> {
   Widget getAppbar(String role, HomeProvider homeProvider) {
     if (role == 'PA') {
       switch (homeProvider.currentIndex) {
-        case 0:
-          return const ProductSearcher();
         case 2:
           return appBarSingleText('Миний профайл');
         default:
@@ -112,13 +122,13 @@ class _IndexPharmaState extends State<IndexPharma> {
               Expanded(child: AddCustomer()),
             ],
           );
-        case 1:
-          return const ProductSearcher();
+        case 2:
+          return appBarSingleText('Сагс');
         case 3:
           return appBarSingleText('Миний профайл');
 
         default:
-          return appBarSingleText('Сагс');
+          return appBarSingleText('');
       }
     }
   }
@@ -131,14 +141,15 @@ class _IndexPharmaState extends State<IndexPharma> {
   }
 
   List<String> getIcons(String role) {
-    return [if (role != 'PA') 'users', 'category', 'cart', 'user'];
+    return [if (role != 'PA') 'users', 'category', 'order-history', 'user'];
   }
 
   List<Widget> getPages(String role) {
     return [
       if (role != 'PA') const CustomerList(),
       const Home(),
-      const Cart(),
+      // const Cart(),
+      OrderHistory(),
       const Profile(),
     ];
   }

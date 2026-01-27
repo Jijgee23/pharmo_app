@@ -1,6 +1,3 @@
-import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class PharmOrderSheet extends StatefulWidget {

@@ -1,8 +1,4 @@
 import 'package:pharmo_app/views/auth/login/auth_text.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class SignUp extends StatefulWidget {

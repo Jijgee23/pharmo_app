@@ -111,11 +111,11 @@ class Profile extends StatelessWidget {
                               icon: Icons.house,
                               color: Colors.purple,
                               ontap: () => goto(const AboutUs())),
-                          SideMenu(
-                              title: 'Тохиргоо',
-                              icon: Icons.settings,
-                              color: Colors.grey,
-                              ontap: () => goto(const SettingsPage())),
+                          // SideMenu(
+                          //     title: 'Тохиргоо',
+                          //     icon: Icons.settings,
+                          //     color: Colors.grey,
+                          //     ontap: () => goto(const SettingsPage())),
                           SideMenu(
                             title: 'Системээс гарах',
                             icon: Icons.logout,
@@ -169,31 +169,30 @@ class ProfileHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (security.name != 'null')
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        security.name,
-                        style: TextStyle(
-                          color: theme.primaryColor.withOpacity(.8),
-                          fontWeight: FontWeight.w700,
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      security.name != 'null' ? security.name : 'User',
+                      style: TextStyle(
+                        color: theme.primaryColor.withOpacity(.8),
+                        fontWeight: FontWeight.w700,
                       ),
-                      Row(
-                        spacing: 5,
-                        children: [
-                          Text(
-                            "${security.email} | ${security.companyName}",
-                            style: TextStyle(
-                              color: theme.primaryColor.withOpacity(.8),
-                              fontWeight: FontWeight.w700,
-                            ),
+                    ),
+                    Row(
+                      spacing: 5,
+                      children: [
+                        Text(
+                          "${security.email} | ${security.companyName}",
+                          style: TextStyle(
+                            color: theme.primaryColor.withOpacity(.8),
+                            fontWeight: FontWeight.w700,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
           ],

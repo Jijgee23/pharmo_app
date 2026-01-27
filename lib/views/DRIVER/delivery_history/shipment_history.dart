@@ -1,5 +1,4 @@
 import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/views/DRIVER/delivery_history/shipment_history_detail.dart';
 import 'package:pharmo_app/application/application.dart';
 

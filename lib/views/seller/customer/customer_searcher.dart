@@ -1,4 +1,7 @@
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
+import 'package:pharmo_app/views/home/widgets/modern_field.dart';
+import 'package:pharmo_app/views/home/widgets/modern_icon.dart';
 
 class CustomerSearcher extends StatefulWidget {
   const CustomerSearcher({super.key});
@@ -26,47 +29,78 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
   }
 
   List<String> filters = ['Нэрээр', 'Утасны дугаараар', 'Регистрийн дугаараар'];
-
   final TextEditingController controller = TextEditingController();
-  TextStyle style = const TextStyle(color: black, fontSize: 12);
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<PharmProvider>(
-      builder: (context, pp, child) => TextFormField(
-        controller: controller,
-        cursorColor: Colors.black,
-        cursorHeight: 12,
-        cursorWidth: .8,
-        style: style,
-        onChanged: (value) => _onSearch(value, pp),
-        decoration: _formStyle(),
-      ),
+    return Consumer2<PharmProvider, HomeProvider>(
+      builder: (context, pp, home, child) => Row(
+        spacing: 10,
+        children: [
+          ModernField(
+            controller: controller,
+            onChanged: (v) => _onSearch(v, pp),
+            hint: '$selectedFilter хайх',
+            suffixIcon: IconButton(
+              onPressed: _setFilter,
+              icon: Icon(Icons.settings),
+            ),
+          ),
+          ModernIcon(
+            iconData: Icons.add_rounded,
+            onPressed: () async {
+              await Get.bottomSheet(
+                const AddCustomerSheet(),
+                isScrollControlled: true,
+              );
+            },
+          ),
+        ],
+      ).paddingSymmetric(horizontal: 10),
     );
   }
 
-//  InkWell(
-//             onTap: () => _setFilter(),
-//             child: Icon(Icons.arrow_drop_down, color: theme.primaryColor),
-//           ),
   _setFilter() {
-    showMenu(
-      color: Colors.white,
-      context: context,
-      shadowColor: Colors.grey.shade500,
-      position: const RelativeRect.fromLTRB(100, 100, 0, 0),
-      items: [
+    mySheet(
+      isDismissible: true,
+      title: 'Хайлтын төрөл сонгоно уу?',
+      children: [
         ...filters.map(
-          (f) => PopupMenuItem(
-            child: Text(
-              f,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                color: black,
+          (e) {
+            bool selected = e == selectedFilter;
+            return ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                setFilter(e);
+              },
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: selected ? primary : Colors.grey.shade200,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: EdgeInsets.all(15),
+                minimumSize: Size(double.maxFinite, 45),
               ),
-            ),
-            onTap: () => setFilter(f),
-          ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    e,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: selected ? white : black,
+                    ),
+                  ),
+                  if (selected)
+                    Icon(
+                      Icons.check_rounded,
+                      color: white,
+                    )
+                ],
+              ),
+            );
+          },
         )
       ],
     );
@@ -81,39 +115,6 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
           await pp.filtCustomers(filter, controller.text);
         }
       },
-    );
-  }
-
-  _formStyle() {
-    return InputDecoration(
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30),
-        borderSide: const BorderSide(
-          color: Colors.transparent,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30),
-        borderSide: const BorderSide(
-          color: Colors.transparent,
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30),
-        borderSide: const BorderSide(
-          color: Colors.transparent,
-        ),
-      ),
-      hintText: '$selectedFilter хайх',
-      hintStyle: style,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-      filled: true,
-      fillColor: card,
-      suffixIcon: InkWell(
-        borderRadius: BorderRadius.circular(30),
-        onTap: () => _setFilter(),
-        child: Icon(Icons.arrow_drop_down, color: theme.primaryColor),
-      ),
     );
   }
 }

@@ -5,8 +5,13 @@ import 'package:pharmo_app/application/context/color/colors.dart';
 class SheetContainer extends StatelessWidget {
   final String? title;
   final List<Widget> children;
-
-  const SheetContainer({super.key, this.title, required this.children});
+  final double spacing;
+  const SheetContainer({
+    super.key,
+    this.title,
+    required this.children,
+    this.spacing = 20,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +52,7 @@ class SheetContainer extends StatelessWidget {
                 ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 15,
+                spacing: spacing,
                 children: children,
               )
             ],
@@ -58,12 +63,18 @@ class SheetContainer extends StatelessWidget {
   }
 }
 
-void mySheet(
-    {String? title,
-    required List<Widget> children,
-    bool isDismissible = false}) {
-  Get.bottomSheet(
-    SheetContainer(title: title, children: children),
+Future mySheet({
+  String? title,
+  required List<Widget> children,
+  bool isDismissible = false,
+  double spacing = 20,
+}) async {
+  return await Get.bottomSheet(
+    SheetContainer(
+      title: title,
+      spacing: spacing,
+      children: children,
+    ),
     isScrollControlled: true,
     isDismissible: isDismissible,
   );

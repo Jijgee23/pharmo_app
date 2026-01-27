@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/application/context/color/colors.dart';
 import 'package:pharmo_app/application/context/size/sizes.dart';
 
@@ -34,6 +35,8 @@ class CustomButton extends StatelessWidget {
         ),
         padding: padding ?? EdgeInsets.symmetric(vertical: 12),
         foregroundColor: enabled ? Colors.white : Colors.white.withAlpha(150),
+        maximumSize: Size(ContextX(context).width, 50),
+        animationDuration: Duration(milliseconds: 100),
         backgroundColor: getColor(),
       ),
       onPressed: enabled ? ontap : null,

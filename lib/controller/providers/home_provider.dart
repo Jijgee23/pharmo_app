@@ -370,7 +370,6 @@ class HomeProvider extends ChangeNotifier {
         body: {'customerId': customer!.id},
       );
       if (res == null) return;
-
       if (res.statusCode == 200) {
         branchList =
             (convertData(res) as List).map((j) => Branch.fromJson(j)).toList();
@@ -408,7 +407,8 @@ class HomeProvider extends ChangeNotifier {
       if (r.statusCode == 200) {
         AuthController().logout(context);
         messageWarning(
-            '${LocalBase.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа');
+          '${LocalBase.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа',
+        );
       } else {
         messageWarning('Алдаа гарлаа');
       }
@@ -423,7 +423,7 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  createSellerOrder(BuildContext context, String type) async {
+  Future createSellerOrder(BuildContext context, String type) async {
     final basket = Provider.of<BasketProvider>(context, listen: false);
     try {
       var body = {
@@ -434,8 +434,8 @@ class HomeProvider extends ChangeNotifier {
       };
       final r = await api(Api.post, 'seller/order/', body: body);
       if (r == null) return;
+      final res = convertData(r);
       if (r.statusCode == 201) {
-        final res = convertData(r);
         final orderNumber = res['orderNo'];
         goto(OrderDone(orderNo: orderNumber.toString()));
         await basket.clearBasket();
@@ -443,7 +443,12 @@ class HomeProvider extends ChangeNotifier {
         note = null;
         notifyListeners();
       } else {
-        messageWarning('Алдаа гарлаа');
+        if (res.toString().contains('Customer not verified')) {
+          messageWarning('Баталгаажаагүй харилцагч байна!');
+          return;
+        }
+        messageWarning('Түр хүлээнэ үү!');
+        return;
       }
     } catch (e) {
       messageWarning('Захиалга үүсгэхэд алдаа гарлаа.');

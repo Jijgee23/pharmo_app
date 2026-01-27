@@ -3,12 +3,10 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:pharmo_app/views/cart/cart_item.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class ProductDetail extends StatefulWidget {
   final Product prod;
-
   const ProductDetail({super.key, required this.prod});
 
   @override
@@ -229,15 +227,6 @@ class _ProductDetailState extends State<ProductDetail>
                             ],
                           ),
                           const SizedBox(height: Sizes.mediumFontSize),
-                          CustomButton(
-                            borderRadius:
-                                Sizes.bigFontSize + Sizes.smallFontSize,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: Sizes.mediumFontSize),
-                            text: 'Сагслах',
-                            ontap: () => showSheet(basket),
-                          ),
-                          const SizedBox(height: Sizes.mediumFontSize)
                         ],
                       ),
                     ],
@@ -246,18 +235,37 @@ class _ProductDetailState extends State<ProductDetail>
               );
             }),
           ),
+          bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: Colors.grey.shade200,
+                ),
+              ),
+            ),
+            padding: EdgeInsets.all(20),
+            child: SafeArea(
+              child: CustomButton(
+                text: 'Сагслах',
+                ontap: () => showSheet(basket),
+              ),
+            ),
+          ),
         );
       },
     );
   }
 
   SliverAppBar imageBar(
-      BasketProvider basket, HomeProvider home, bool isNotPharma) {
+    BasketProvider basket,
+    HomeProvider home,
+    bool isNotPharma,
+  ) {
     return SliverAppBar(
-      leading: const ChevronBack(),
+      leading: SafeArea(child: const ChevronBack()),
       expandedHeight: MediaQuery.of(context).size.width * .6,
       backgroundColor: white,
-      actions: [addIcon(basket), basketIcon(basket)],
+      actions: [CartIcon(enabled: false)],
       flexibleSpace: (det != {})
           ? FlexibleSpaceBar(
               background: ClipRRect(
@@ -320,8 +328,11 @@ class _ProductDetailState extends State<ProductDetail>
                                   decoration: const BoxDecoration(
                                       color: Colors.red,
                                       shape: BoxShape.circle),
-                                  child: const Icon(Icons.delete,
-                                      color: white, size: 30),
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: white,
+                                    size: 30,
+                                  ),
                                 ),
                               ),
                             ),
@@ -489,66 +500,6 @@ class _ProductDetailState extends State<ProductDetail>
           ),
         ),
       ],
-    );
-  }
-
-  Widget basketIcon(BasketProvider basket) {
-    return Stack(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.2),
-            shape: BoxShape.circle,
-          ),
-          margin: const EdgeInsets.only(right: 10),
-          child: const Center(
-            child: Icon(
-              Icons.shopping_cart,
-              size: 24,
-              color: white,
-            ),
-          ),
-        ),
-        Positioned(
-          right: 2,
-          top: 2,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-            decoration: BoxDecoration(
-                color: Colors.red, borderRadius: BorderRadius.circular(15)),
-            child: Text(
-              basket == null ? '0' : basket.basket!.totalCount.toString(),
-              style: const TextStyle(
-                color: white,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget addIcon(BasketProvider basket) {
-    return InkWell(
-      onTap: () => showSheet(basket),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.2),
-          shape: BoxShape.circle,
-        ),
-        margin: const EdgeInsets.only(right: 10),
-        child: const Center(
-          child: Icon(
-            Icons.add,
-            size: 24,
-            color: white,
-          ),
-        ),
-      ),
     );
   }
 

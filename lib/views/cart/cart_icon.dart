@@ -1,7 +1,11 @@
 import 'package:pharmo_app/application/application.dart';
 
 class CartIcon extends StatelessWidget {
-  const CartIcon({super.key});
+  final bool enabled;
+  const CartIcon({
+    super.key,
+    this.enabled = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -11,9 +15,10 @@ class CartIcon extends StatelessWidget {
           children: [
             IconButton(
               onPressed: () {
-                home.changeIndex(
-                  LocalBase.security!.role == 'PA' ? 1 : 2,
-                );
+                goto(Cart()); // if (!enabled) return;
+                // home.changeIndex(
+                //   LocalBase.security!.role == 'PA' ? 1 : 2,
+                // );
               },
               icon: Icon(Icons.shopping_cart, size: 24),
             ),

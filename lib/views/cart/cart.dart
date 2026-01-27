@@ -1,11 +1,3 @@
-import 'package:pharmo_app/views/cart/cart_info.dart';
-import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
-import 'package:pharmo_app/views/cart/seller_order_sheet.dart';
-import 'package:pharmo_app/views/cart/cart_item.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/loader/shimmer_box.dart';
-import 'package:pharmo_app/widgets/others/empty_basket.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class Cart extends StatefulWidget {
@@ -65,66 +57,71 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
         final basketIsEmpty = (basket == null
             ? true
             : basket.totalCount == 0 || basket.items!.isEmpty);
-        return RefreshIndicator(
-          onRefresh: () => init(),
-          child: Container(
-            padding: EdgeInsets.all(5),
-            height: double.maxFinite,
-            child: Builder(
-              builder: (context) {
-                if (basketIsEmpty) {
-                  return Center(child: EmptyBasket());
-                }
-                return SafeArea(
-                  child: Stack(
-                    children: [
-                      Column(
-                        children: [
-                          CartInfo(),
-                          Expanded(
-                            child: ListView.builder(
-                              itemBuilder: (context, index) {
-                                final e = cartDatas[index];
-                                return CartItem(detail: e);
-                              },
-                              itemCount: cartDatas.length,
-                              shrinkWrap: true,
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (!basketIsEmpty)
-                        Positioned(
-                          bottom: 10,
-                          right: 10,
-                          width: 250,
-                          height: 50,
-                          child: SafeArea(
-                            child: CustomButton(
-                              text: 'Захиалга үүсгэх',
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    'Захиалга үүсгэх',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Icon(Icons.shop),
-                                ],
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Миний сагс'),
+          ),
+          body: RefreshIndicator(
+            onRefresh: () => init(),
+            child: Container(
+              padding: EdgeInsets.all(5),
+              height: double.maxFinite,
+              child: Builder(
+                builder: (context) {
+                  if (basketIsEmpty) {
+                    return Center(child: EmptyBasket());
+                  }
+                  return SafeArea(
+                    child: Stack(
+                      children: [
+                        Column(
+                          children: [
+                            CartInfo(),
+                            Expanded(
+                              child: ListView.builder(
+                                itemBuilder: (context, index) {
+                                  final e = cartDatas[index];
+                                  return CartItem(detail: e);
+                                },
+                                itemCount: cartDatas.length,
+                                shrinkWrap: true,
                               ),
-                              ontap: () async => await placeOrder(context),
+                            ),
+                          ],
+                        ),
+                        if (!basketIsEmpty)
+                          Positioned(
+                            bottom: 10,
+                            right: 10,
+                            width: 250,
+                            height: 50,
+                            child: SafeArea(
+                              child: CustomButton(
+                                text: 'Захиалга үүсгэх',
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text(
+                                      'Захиалга үүсгэх',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Icon(Icons.shop),
+                                  ],
+                                ),
+                                ontap: () async => await placeOrder(context),
+                              ),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                );
-              },
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         );
