@@ -36,9 +36,9 @@ class _PharmoIndicatorState extends State<PharmoIndicator>
   @override
   Widget build(BuildContext context) {
     if (widget.withMaterial) {
-      return Material(
-        color: white,
-        child: Center(
+      return Scaffold(
+        backgroundColor: white,
+        body: Center(
           child: child(),
         ),
       );

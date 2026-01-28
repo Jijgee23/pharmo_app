@@ -29,28 +29,32 @@ class _RootPageState extends State<RootPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<RootProvider>(builder: (context, rooter, child) {
-      AuthState state = rooter.state;
+    return Consumer<RootProvider>(
+      builder: (context, rooter, child) {
+        AuthState state = rooter.state;
 
-      if (state == AuthState.notSplashed) {
-        return SplashScreen();
-      }
-      if (state == AuthState.unknown) {
-        return PharmoIndicator(withMaterial: true);
-      }
-      if (state == AuthState.notLoggedIn || state == AuthState.expired) {
-        return LoginPage();
-      }
-      final security = LocalBase.security;
-      if (security == null) return LoginPage();
+        if (state == AuthState.notSplashed) {
+          return SplashScreen();
+        }
+        if (state == AuthState.unknown) {
+          return PharmoIndicator(withMaterial: true);
+        }
+        if (state == AuthState.notLoggedIn || state == AuthState.expired) {
+          return LoginPage();
+        }
 
-      if (security.role == 'D') {
-        return IndexDriver();
-      }
-      if (security.role == "R") {
-        return IndexRep();
-      }
-      return IndexPharma();
-    });
+        final security = LocalBase.security;
+
+        if (security == null) return LoginPage();
+
+        if (security.role == 'D') {
+          return IndexDriver();
+        }
+        if (security.role == "R") {
+          return IndexRep();
+        }
+        return IndexPharma();
+      },
+    );
   }
 }

@@ -31,13 +31,12 @@ class RootProvider extends ChangeNotifier {
       return;
     }
 
-    bool expired = JwtDecoder.isExpired(sec.refresh);
-    if (expired) {
-      updateState(AuthState.expired);
-      return;
-    }
+    // bool expired = JwtDecoder.isExpired(sec.refresh);
+    // if (expired) {
+    //   updateState(AuthState.expired);
+    //   return;
+    // }
 
     updateState(AuthState.loggedIn);
-    return;
   }
 }

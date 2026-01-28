@@ -42,7 +42,6 @@ Future<void> main() async {
 
 class Pharmo extends StatefulWidget {
   const Pharmo({super.key});
-
   @override
   State<Pharmo> createState() => _PharmoState();
 }

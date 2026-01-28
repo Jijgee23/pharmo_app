@@ -7,6 +7,8 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pharmo_app/application/application.dart';
 
+final client = http.Client();
+
 Future<http.Response?> api(
   Api method,
   String endpoint, {
@@ -44,6 +46,7 @@ Future<http.Response?> api(
     if (res != null) {
       print('$endpoint, status code: ${res.statusCode}');
       // print('track api info: ${res.body}');
+
       if (res.statusCode == 401) {
         await showLogoutDialog(
           Get.context!,
@@ -59,6 +62,10 @@ Future<http.Response?> api(
     }
     return res;
   } catch (e) {
+    if (e is http.ClientException) {
+      messageError(
+          'Серверт холбогдож чадсангүй, Инфосистемс ХХК-д холбогдоно уу!');
+    }
     debugPrint('Error in $method request to $endpoint: $e');
     return null;
   }
@@ -133,7 +140,7 @@ bool apiSucceess(http.Response? res) {
   return false;
 }
 
-Future<http.Response?> responser(
+Future<http.Response> responser(
   Api method,
   String endpoint,
   String access,
@@ -141,7 +148,6 @@ Future<http.Response?> responser(
   Map<String, String>? header,
 ) async {
   final Uri url = setUrl(endpoint);
-  // print(url);
 
   Map<String, String> headers = {
     ...header ?? {},
@@ -153,13 +159,13 @@ Future<http.Response?> responser(
   http.Response res;
   switch (method) {
     case Api.get:
-      res = await http.get(url, headers: headers);
+      res = await client.get(url, headers: headers);
     case Api.post:
-      res = await http.post(url, headers: headers, body: jsonEncode(body));
+      res = await client.post(url, headers: headers, body: jsonEncode(body));
     case Api.patch:
-      res = await http.patch(url, headers: headers, body: jsonEncode(body));
+      res = await client.patch(url, headers: headers, body: jsonEncode(body));
     case Api.delete:
-      res = await http.delete(url, headers: headers);
+      res = await client.delete(url, headers: headers);
   }
   if (res != null) {
     // debugPrint(res.statusCode.toString());

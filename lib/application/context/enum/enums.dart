@@ -2,14 +2,7 @@ enum LoadState { loading, loaded, error }
 
 enum Api { get, post, patch, delete }
 
-enum AuthState {
-  unknown,
-  loggedIn,
-  notLoggedIn,
-  expired,
-  notSplashed,
-  noConnection
-}
+enum AuthState { unknown, loggedIn, notLoggedIn, expired, notSplashed }
 
 enum Role { noUser, seller, driver, orderer, admin, repman }
 
