@@ -104,6 +104,29 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     notifyListeners();
   }
 
+  bool isTracking = false;
+  void updateTracking(bool value) {
+    isTracking = value;
+    notifyListeners();
+  }
+
+  Future checkSellerTrack() async {
+    await LocalBase.initLocalBase();
+    final user = LocalBase.security;
+    if (user == null) return;
+    if (user.role == "S") {
+      final r = await api(Api.get, 'sales/route/?active=1');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
+        return updateTracking(data['count'] as int != 0);
+      }
+    }
+    if (user.role == 'D') {
+      updateTracking(await LocalBase.hasDelmanTrack());
+    }
+  }
+
   Future<void> startShipment(int shipmentId) async {
     setLoading(true);
     try {
@@ -247,9 +270,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       if (subscription == null) return;
       print('stoping track');
       await subscription!.cancel();
-      // if (subscription != null && subscription!.isPaused) {
-      //   return;
-      // }s
       subscription = null;
       notifyListeners();
       print('subsciption null: ${subscription == null}');
@@ -258,7 +278,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         '${(hasDelmanTrack == 0) ? 'Боруулалт' : 'Түгээлт'} дууссан',
         DateTime.now().toIso8601String(),
       );
-
       routeCoords.clear();
       polylines.clear();
       orderMarkers.clear();

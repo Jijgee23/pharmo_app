@@ -1,6 +1,10 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/track_map/driver_button.dart';
+import 'package:pharmo_app/views/track_map/map_buttons.dart';
+import 'package:pharmo_app/views/track_map/map_heading.dart';
+import 'package:pharmo_app/views/track_map/seller_track_button.dart';
 import 'package:pharmo_app/views/track_map/track_permission_page.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/deliveries.dart';
 
@@ -22,8 +26,10 @@ class _TrackMapState extends State<TrackMap> {
 
   Future<void> init() async {
     final jag = context.read<JaggerProvider>();
+
     LoadingService.run(() async {
       await jag.loadPermission();
+      await jag.checkSellerTrack();
     });
   }
 
@@ -66,170 +72,13 @@ class _TrackMapState extends State<TrackMap> {
                 tiltGesturesEnabled: true,
                 polylines: jagger.polylines,
               ),
-              Positioned(
-                bottom: 20,
-                right: 15,
-                child: SafeArea(
-                  child: Column(
-                    spacing: 10,
-                    children: [
-                      FloatingActionButton(
-                        heroTag: 'zoomInDMANMAP',
-                        elevation: 20,
-                        onPressed: () {
-                          jagger.mapController.animateCamera(
-                            CameraUpdate.zoomIn(),
-                          );
-                        },
-                        backgroundColor: Colors.white,
-                        child: const Icon(Icons.add, color: Colors.black),
-                      ),
-                      FloatingActionButton(
-                        heroTag: 'zoomOutDMANMAP',
-                        elevation: 20,
-                        onPressed: () {
-                          jagger.mapController.animateCamera(
-                            CameraUpdate.zoomOut(),
-                          );
-                        },
-                        backgroundColor: Colors.white,
-                        child: const Icon(Icons.remove, color: Colors.black),
-                      ),
-                      FloatingActionButton(
-                        heroTag: 'myLocationDMANMAP',
-                        elevation: 20,
-                        onPressed: jagger.goToMyLocation,
-                        backgroundColor: Colors.white,
-                        child: const Icon(
-                          Icons.my_location,
-                          color: Colors.black,
-                        ),
-                      ),
-                      FloatingActionButton(
-                        heroTag: 'toggleTrafficDMANMAP',
-                        elevation: 20,
-                        onPressed: jagger.toggleTraffic,
-                        backgroundColor:
-                            jagger.trafficEnabled ? Colors.blue : Colors.white,
-                        child: const Icon(
-                          Icons.traffic,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 0,
-                right: 20,
-                left: 20,
-                child: SafeArea(
-                  child: SizedBox(
-                    width: ContextX(context).width,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      spacing: 20,
-                      children: [
-                        if (isSeller)
-                          FloatingActionButton(
-                            heroTag: 'backST',
-                            onPressed: () => Navigator.of(context).pop(),
-                            backgroundColor: white,
-                            child: const Icon(
-                              Icons.arrow_back,
-                              color: Colors.black,
-                            ),
-                          ),
-                        if (showTracking)
-                          FloatingActionButton.extended(
-                            heroTag: 'hasTrack2DMANMAPjk',
-                            onPressed: () async {},
-                            backgroundColor: Colors.teal,
-                            label: Text(
-                              'Байршил дамжуулж байна...',
-                              style: TextStyle(color: white),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 20,
-                left: 20,
-                child: SafeArea(
-                  child: SizedBox(
-                    width: ContextX(context).width,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        FloatingActionButton.extended(
-                          elevation: 10,
-                          heroTag: 'trackingDeliveries',
-                          onPressed: () => handleTap(
-                            isSeller,
-                            isStart: isStart,
-                          ),
-                          backgroundColor: isSeller
-                              ? (isStart ? Colors.green : Colors.red)
-                              : Colors.white,
-                          label: user.role == 'D'
-                              ? Column(
-                                  children: [
-                                    Row(
-                                      spacing: 10,
-                                      children: [
-                                        Text(
-                                          'Идэвхитэй түгээлтүүд',
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                        Icon(
-                                          Icons.shopping_bag,
-                                          color: Colors.black,
-                                        ),
-                                      ],
-                                    ),
-                                    if (jagger.delivery.isNotEmpty &&
-                                        jagger.delivery[0].startedOn != null)
-                                      Row(
-                                        spacing: 10,
-                                        children: [
-                                          Text(
-                                            '${jagger.delivery[0].startedOn!.substring(11, 16)}-с эхэлсэн',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                  ],
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 20,
-                                  children: [
-                                    Icon(
-                                      isStart ? Icons.gps_fixed : Icons.gps_off,
-                                      color: white,
-                                    ),
-                                    Text(
-                                      "Борлуулалт ${isStart ? 'эхлэх' : 'дуусгах'}",
-                                      style: TextStyle(
-                                        color: white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              MapButtons(),
+              MapHeading(isSeller: isSeller, showTracking: showTracking),
+              DriverButton(),
+              SellerTrackButton(
+                onPressed: () => handleTap(isStart: isStart),
+                isStart: isStart,
+              )
             ],
           );
         }
@@ -238,23 +87,24 @@ class _TrackMapState extends State<TrackMap> {
     );
   }
 
-  void handleTap(bool isSeller, {bool isStart = true}) async {
-    if (isSeller) {
-      bool confirmed = await confirmDialog(
-        context: context,
-        title: 'Борлуулалт ${isStart ? 'эхлэх үү' : 'дуусгах уу'} ?',
-        message:
-            isStart ? 'Борлуулалтын үед таны байршил хянахыг анхаарна уу!' : '',
-      );
-      if (!confirmed) return;
-      if (isStart) {
-        await startSellerTrack();
-        return;
-      }
-      await endSellerTrack();
+  void handlerDelmanButton() {
+    goto(Deliveries());
+  }
+
+  void handleTap({bool isStart = true}) async {
+    bool confirmed = await confirmDialog(
+      context: context,
+      title: 'Борлуулалт ${isStart ? 'эхлэх үү' : 'дуусгах уу'} ?',
+      message:
+          isStart ? 'Борлуулалтын үед таны байршил хянахыг анхаарна уу!' : '',
+    );
+    if (!confirmed) return;
+    if (isStart) {
+      await startSellerTrack();
       return;
     }
-    await goto(Deliveries());
+    await endSellerTrack();
+    return;
   }
 
   Future startSellerTrack() async {
@@ -301,7 +151,7 @@ class _TrackMapState extends State<TrackMap> {
         return;
       }
     } else {
-      final bool notInUb = convertData(r!).toString().contains('Ulaanbaatar');
+      bool notInUb = convertData(r!).toString().contains('Ulaanbaatar');
       if (notInUb) {
         messageWarning('Байршил Улаанбаатарт биш байна');
         return;

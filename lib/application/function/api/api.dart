@@ -7,8 +7,6 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pharmo_app/application/application.dart';
 
-final client = http.Client();
-
 Future<http.Response?> api(
   Api method,
   String endpoint, {
@@ -44,15 +42,21 @@ Future<http.Response?> api(
     }
     var res = await responser(method, endpoint, access, body, header);
     if (res != null) {
-      print('$endpoint, status code: ${res.statusCode}');
-      // print('track api info: ${res.body}');
-
       if (res.statusCode == 401) {
-        await showLogoutDialog(
-          Get.context!,
-          'Өөр төхөөрөмжөөс нэвтэрсэн байна! \n Нэвтэрнэ үү!',
-        );
-        return null;
+        final code = convertData(res)['code'];
+        if (code == "token_not_valid") {
+          var b = await refreshed();
+          if (b) {
+            return responser(method, endpoint, access, body, header);
+          }
+        }
+        if (code == "authentication_failed") {
+          await showLogoutDialog(
+            Get.context!,
+            'Өөр төхөөрөмжөөс нэвтэрсэн байна! \n Нэвтэрнэ үү!',
+          );
+          return null;
+        }
       }
     }
     if (res == null) {
@@ -69,10 +73,6 @@ Future<http.Response?> api(
     debugPrint('Error in $method request to $endpoint: $e');
     return null;
   }
-}
-
-void printGreen(String message) {
-  print('\x1B[32m$message\x1B[0m');
 }
 
 Future showLogoutDialog(BuildContext context, String reason) async {
@@ -147,7 +147,7 @@ Future<http.Response> responser(
   Map<String, dynamic>? body,
   Map<String, String>? header,
 ) async {
-  final Uri url = setUrl(endpoint);
+  final Uri url = ApiService.buildUrl(endpoint);
 
   Map<String, String> headers = {
     ...header ?? {},
@@ -155,8 +155,8 @@ Future<http.Response> responser(
     'X-Pharmo-Client': '!pharmo_app?',
     'Authorization': 'Bearer $access',
   };
-
-  http.Response res;
+  final client = ApiService.client;
+  late http.Response res;
   switch (method) {
     case Api.get:
       res = await client.get(url, headers: headers);
@@ -165,11 +165,7 @@ Future<http.Response> responser(
     case Api.patch:
       res = await client.patch(url, headers: headers, body: jsonEncode(body));
     case Api.delete:
-      res = await client.delete(url, headers: headers);
-  }
-  if (res != null) {
-    // debugPrint(res.statusCode.toString());
-    // debugPrint(res.body.toString());
+      res = await client.delete(url, headers: headers, body: jsonEncode(body));
   }
   return res;
 }
@@ -211,20 +207,26 @@ Map<String, dynamic> buildResponse(
 }
 
 Future<http.Response?> apiPostWithoutToken(
-    String endPoint, Object? body) async {
+  String endPoint,
+  Object? body,
+) async {
   try {
+    final client = ApiService.client;
     final connected = await NetworkChecker.hasInternet();
-    if (connected) {
-      var response = await http
-          .post(
-            setUrl(endPoint),
-            headers: getHeader(null),
-            body: jsonEncode(body),
-          )
-          .timeout(Duration(seconds: 5));
-      return response;
+    if (!connected) {
+      messageWarning('Интернет холболтоо шалгана уу!');
+      return null;
     }
-    messageWarning('Интернет холболтоо шалгана уу!');
+    // var response =
+    return await client
+        .post(
+          ApiService.buildUrl(endPoint),
+          headers: ApiService.buildHeader(null),
+          body: jsonEncode(body),
+        )
+        .timeout(
+          Duration(seconds: 5),
+        );
   } catch (e) {
     if (e is TimeoutException) {
       messageError('Түр хүлээнэ үү!');
@@ -232,20 +234,6 @@ Future<http.Response?> apiPostWithoutToken(
     }
   }
   return null;
-}
-
-getHeader(String? token) {
-  Map<String, String> headers = {
-    'Content-Type': 'application/json; charset=UTF-8',
-    'X-Pharmo-Client': '!pharmo_app?',
-    if (token != null) 'Authorization': token,
-  };
-  return headers;
-}
-
-setUrl(String endPoint) {
-  Uri url = Uri.parse('${dotenv.env['SERVER_URL']}$endPoint');
-  return url;
 }
 
 dynamic convertData(http.Response body) {
@@ -269,6 +257,7 @@ Future<String> loadVersionAppversion() async {
 }
 
 Future<http.Response> apiMacsMn(Object o, StackTrace s) async {
+  final client = ApiService.client;
   var url = Uri.parse('${dotenv.env['MACS']}logs/pharmo_error');
   final device = await deviceInfo();
   var b = {
@@ -280,7 +269,7 @@ Future<http.Response> apiMacsMn(Object o, StackTrace s) async {
     "app_version": await loadVersionAppversion(),
     "app_name": "Pharmo"
   };
-  final res = await http.post(
+  final res = await client.post(
     url,
     headers: {
       "Connection": "Keep-Alive",

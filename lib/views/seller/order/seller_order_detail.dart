@@ -1,4 +1,3 @@
-import 'package:pharmo_app/views/cart/pharm_order_sheet.dart';
 import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
 import 'package:pharmo_app/views/public/product/add_basket_sheet.dart';
 import 'package:pharmo_app/application/application.dart';

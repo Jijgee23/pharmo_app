@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/ORDERER/my_orders/my_orders.dart';
 import 'package:pharmo_app/views/seller/order/seller_orders.dart';

@@ -1,4 +1,3 @@
-import 'package:pharmo_app/widgets/loader/custom_shimmer.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class DataScreen extends StatelessWidget {

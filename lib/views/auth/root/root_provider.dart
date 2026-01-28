@@ -1,4 +1,4 @@
-import 'package:jwt_decoder/jwt_decoder.dart';
+// import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class RootProvider extends ChangeNotifier {

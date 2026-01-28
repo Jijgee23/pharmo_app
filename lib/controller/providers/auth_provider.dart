@@ -340,7 +340,8 @@ class AuthController extends ChangeNotifier {
       required double? lat,
       required double? lng}) async {
     try {
-      var request = http.MultipartRequest('POST', setUrl('company/info/'));
+      var request =
+          http.MultipartRequest('POST', ApiService.buildUrl('company/info/'));
 
       String basicAuth = 'Basic ${base64Encode(utf8.encode('$ema:$pass'))}';
       if (license.isEmpty) {

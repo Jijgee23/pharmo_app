@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/application/context/color/colors.dart';
-import 'package:pharmo_app/application/context/size/sizes.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;

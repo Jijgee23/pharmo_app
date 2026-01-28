@@ -86,7 +86,6 @@ class LocalBase {
 
   static Future clearSecurity() async {
     localDb = await Hive.openBox(_boxKey);
-
     await localDb.delete(_idKey);
     await localDb.delete(_nameKey);
     await localDb.delete(_emailKey);

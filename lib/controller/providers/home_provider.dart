@@ -185,8 +185,8 @@ class HomeProvider extends ChangeNotifier {
         messageWarning('Нэвтэрнэ үү');
         return;
       }
-      var request =
-          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      var request = http.MultipartRequest(
+          'PATCH', ApiService.buildUrl('update_product_image/'));
       request.headers['Authorization'] = security.access;
       request.fields['product_id'] = id.toString();
       images
@@ -215,14 +215,13 @@ class HomeProvider extends ChangeNotifier {
         messageWarning('Нэвтэрнэ үү');
         return;
       }
-      var request =
-          http.MultipartRequest('PATCH', setUrl('update_product_image/'));
+      final uri = ApiService.buildUrl('update_product_image/');
+      var request = http.MultipartRequest('PATCH', uri);
       request.headers['Authorization'] = security.access;
       request.fields['product_id'] = id.toString();
       request.fields['images_to_remove'] = imageID.toString();
       var r = await request.send();
       if (r == null) return;
-
       // String rBody = await r.stream.bytesToString();
       if (r.statusCode == 200) {
         return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
