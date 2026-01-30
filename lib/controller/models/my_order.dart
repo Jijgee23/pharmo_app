@@ -1,6 +1,6 @@
 import 'package:pharmo_app/application/function/utilities/utils.dart';
 
-class MyOrderModel {
+class OrderModel {
   int id;
   int? orderNo;
   double totalPrice;
@@ -8,30 +8,40 @@ class MyOrderModel {
   String? status;
   String? process;
   String? payType;
-  String? address;
   String? createdOn;
-  String? supplier;
-  String? note;
   String? customer;
-  List<dynamic>? products;
+  String? supplier;
 
-  MyOrderModel(
-    this.id,
+  // MyOrderModel-д байсан талбарууд
+  String? address;
+  String? noteText; // String note
+  List<dynamic> products;
+
+  // SellerOrderModel-д байсан талбарууд
+  bool? qp;
+  String? endedOn;
+  bool? hasNote; // bool note
+
+  OrderModel({
+    required this.id,
     this.orderNo,
-    this.totalPrice,
-    this.totalCount,
+    required this.totalPrice,
+    required this.totalCount,
     this.status,
     this.process,
     this.payType,
     this.createdOn,
+    this.customer,
     this.supplier,
     this.address,
-    this.note,
-    this.customer,
-    this.products,
-  );
+    this.noteText,
+    required this.products,
+    this.qp,
+    this.endedOn,
+    this.hasNote,
+  });
 
-  MyOrderModel.fromJson(Map<String, dynamic> json)
+  OrderModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         orderNo = json['orderNo'],
         totalPrice = parseDouble(json['totalPrice']),
@@ -40,12 +50,16 @@ class MyOrderModel {
         process = json['process'],
         payType = json['payType'],
         createdOn = json['createdOn'],
+        customer = json['customer'],
         supplier = json['supplier'],
         address = json['address'],
-        note = json['note'],
+        // JSON-оос ирэхдээ 'note' нь String эсвэл bool байж болзошгүй тул шалгах
+        noteText = json['note'] is String ? json['note'] : null,
+        hasNote = json['note'] is bool ? json['note'] : null,
         products =
             json['items'] != null ? List<dynamic>.from(json['items']) : [],
-        customer = json['customer'];
+        qp = json['qp'],
+        endedOn = json['endedOn'];
 
   Map<String, dynamic> toJson() {
     return {
@@ -57,8 +71,13 @@ class MyOrderModel {
       'process': process,
       'payType': payType,
       'createdOn': createdOn,
+      'customer': customer,
       'supplier': supplier,
       'address': address,
+      'note': noteText ?? hasNote, // Аль нэгийг нь илгээнэ
+      'items': products,
+      'qp': qp,
+      'endedOn': endedOn,
     };
   }
 }

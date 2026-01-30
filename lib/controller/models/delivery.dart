@@ -4,7 +4,7 @@ class Delivery {
   int id;
   DeliveryMan delman;
   List<Zone> zones;
-  List<Order> orders;
+  List<DeliveryOrder> orders;
   String? startedOn;
   double? lat;
   double? lng;
@@ -32,7 +32,9 @@ class Delivery {
       id: json['id'],
       delman: DeliveryMan.fromJson(json['delman']),
       zones: (json['zones'] as List).map((e) => Zone.fromJson(e)).toList(),
-      orders: (json['orders'] as List).map((e) => Order.fromJson(e)).toList(),
+      orders: (json['orders'] as List)
+          .map((e) => DeliveryOrder.fromJson(e))
+          .toList(),
       items:
           (json['items'] as List).map((e) => DeliveryItem.fromJson(e)).toList(),
       startedOn: json['started_on'],
@@ -98,7 +100,7 @@ class Zone {
       };
 }
 
-class Order {
+class DeliveryOrder {
   int id;
   String orderNo;
   User? user;
@@ -113,10 +115,10 @@ class Order {
   String payType;
   Zone zone;
   String createdOn;
-  List<Item> items;
-  List<OrderPayment>? payments;
+  List<dynamic> items;
+  List<OrderPayment> payments;
 
-  Order(
+  DeliveryOrder(
       {required this.id,
       required this.orderNo,
       this.user,
@@ -132,10 +134,10 @@ class Order {
       required this.zone,
       required this.createdOn,
       required this.items,
-      this.payments});
+      required this.payments});
 
-  factory Order.fromJson(Map<String, dynamic> json) {
-    return Order(
+  factory DeliveryOrder.fromJson(Map<String, dynamic> json) {
+    return DeliveryOrder(
         id: json['id'],
         orderNo: json['orderNo'].toString(),
         user: json['user'] != null ? User.fromJson(json['user']) : null,
@@ -152,9 +154,7 @@ class Order {
         payType: json['payType'] ?? '',
         zone: Zone.fromJson(json['zone'] ?? {}),
         createdOn: json['createdOn'] ?? '',
-        items: (json['items'] as List? ?? [])
-            .map((e) => Item.fromJson(e))
-            .toList(),
+        items: (json['items'] as List? ?? []).toList(),
         payments: (json['payments'] as List? ?? [])
             .map((e) => OrderPayment.fromJson(e))
             .toList());
@@ -204,43 +204,43 @@ class User {
       };
 }
 
-class Item {
-  int id;
-  String itemName;
-  double itemQty;
-  double itemPrice;
-  double itemTotalPrice;
-  int productId;
+// class Item {
+//   int id;
+//   String itemName;
+//   double itemQty;
+//   double itemPrice;
+//   double itemTotalPrice;
+//   int productId;
 
-  Item({
-    required this.id,
-    required this.itemName,
-    required this.itemQty,
-    required this.itemPrice,
-    required this.itemTotalPrice,
-    required this.productId,
-  });
+//   Item({
+//     required this.id,
+//     required this.itemName,
+//     required this.itemQty,
+//     required this.itemPrice,
+//     required this.itemTotalPrice,
+//     required this.productId,
+//   });
 
-  factory Item.fromJson(Map<String, dynamic> json) {
-    return Item(
-      id: json['id'],
-      itemName: json['itemName'],
-      itemQty: parseDouble(json['itemQty']),
-      itemPrice: parseDouble(json['itemPrice']),
-      itemTotalPrice: parseDouble(json['itemTotalPrice']),
-      productId: json['product_id'],
-    );
-  }
+//   factory Item.fromJson(Map<String, dynamic> json) {
+//     return Item(
+//       id: json['id'],
+//       itemName: json['itemName'],
+//       itemQty: parseDouble(json['itemQty']),
+//       itemPrice: parseDouble(json['itemPrice']),
+//       itemTotalPrice: parseDouble(json['itemTotalPrice']),
+//       productId: json['product_id'],
+//     );
+//   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'itemName': itemName,
-        'itemQty': itemQty,
-        'itemPrice': itemPrice,
-        'itemTotalPrice': itemTotalPrice,
-        'product_id': productId,
-      };
-}
+//   Map<String, dynamic> toJson() => {
+//         'id': id,
+//         'itemName': itemName,
+//         'itemQty': itemQty,
+//         'itemPrice': itemPrice,
+//         'itemTotalPrice': itemTotalPrice,
+//         'product_id': productId,
+//       };
+// }
 
 class OrderPayment {
   final int orderId;

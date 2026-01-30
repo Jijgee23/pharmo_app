@@ -6,7 +6,7 @@ class DriverProvider extends ChangeNotifier {
   late LocationPermission permission;
 
   List<Zone> zones = [];
-  List<Order> orders = [];
+  List<DeliveryOrder> orders = [];
   List<Delman> delmans = [];
   List<Delivery> history = <Delivery>[];
 
@@ -25,7 +25,7 @@ class DriverProvider extends ChangeNotifier {
       if (r.statusCode == 200) {
         final data = jsonDecode(utf8.decode(r.bodyBytes));
         print(data);
-        orders = (data as List).map((e) => Order.fromJson(e)).toList();
+        orders = (data as List).map((e) => DeliveryOrder.fromJson(e)).toList();
         orders.sort((a, b) => a.orderer!.name.compareTo(b.orderer!.name));
         notifyListeners();
       }
@@ -113,17 +113,39 @@ class DriverProvider extends ChangeNotifier {
     }
   }
 
-  getShipmentHistory({DateTimeRange? range}) async {
-    try {
-      String url;
+  DateTime start = DateTime.now().subtract(Duration(days: 7));
 
-      if (range != null) {
-        String date1 = range.start.toString().substring(0, 10);
-        String date2 = range.end.toString().substring(0, 10);
-        url = 'delivery/history/?start=$date1&end=$date2';
-      } else {
-        url = "delivery/history/";
+  DateTime end = DateTime.now();
+
+  void updateDate(DateTime value, {bool isStart = true}) async {
+    if (isStart) {
+      if (value.isAfter(end)) {
+        messageWarning('Огноо зөв сонгоно уу!');
+        return;
       }
+      start = value;
+      notifyListeners();
+      await LoadingService.run(() async {
+        await getShipmentHistory();
+      });
+      return;
+    }
+    if (value.isBefore(start)) {
+      messageWarning('Огноо зөв сонгоно уу!');
+      return;
+    }
+    end = value;
+    notifyListeners();
+    await LoadingService.run(() async {
+      await getShipmentHistory();
+    });
+  }
+
+  Future getShipmentHistory() async {
+    try {
+      String date1 = start.toString().substring(0, 10);
+      String date2 = end.toString().substring(0, 10);
+      String url = 'delivery/history/?start=$date1&end=$date2';
       final r = await api(Api.get, url);
       if (r == null) return;
       if (r.statusCode == 200) {

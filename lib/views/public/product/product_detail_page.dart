@@ -506,13 +506,13 @@ class _ProductDetailState extends State<ProductDetail>
   showSheet(BasketProvider basket) {
     Get.bottomSheet(
       ChangeQtyPad(
-        title: 'Тоо ширхэг оруулна уу?',
-        onSubmit: () async {
+        onSubmit: (v) async {
           setInitQyu(basket.qty.text);
           addBasket();
         },
         initValue: '',
       ),
+      isScrollControlled: true,
     );
   }
 

@@ -16,7 +16,7 @@ Future<http.Response?> api(
   try {
     final hasInternet = await NetworkChecker.hasInternet();
     if (!hasInternet) return null;
-    await LocalBase.initLocalBase();
+    await LocalBase.initLocalBase(showLog: false);
     final security = LocalBase.security;
     if (security == null) return null;
     final access = security.access;
@@ -59,6 +59,7 @@ Future<http.Response?> api(
         }
       }
     }
+
     if (res == null) {
       messageError(
           'Серверт холбогдож чадсангүй, Инфосистемс ХХК-д холбогдоно уу!');
@@ -167,6 +168,12 @@ Future<http.Response> responser(
     case Api.delete:
       res = await client.delete(url, headers: headers, body: jsonEncode(body));
   }
+  if (res.statusCode != 201 && res.statusCode != 200) {
+    print("url: $url \n st: ${res.statusCode}");
+    print('acc: $access');
+    print("error body: ${res.body}");
+  }
+
   return res;
 }
 

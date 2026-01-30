@@ -42,17 +42,10 @@ class _AddPaymentState extends State<AddPayment>
   Widget build(BuildContext context) {
     return Consumer2<JaggerProvider, PharmProvider>(
       builder: (context, jagger, pharm, child) => Scaffold(
+        backgroundColor: grey50,
         appBar: AppBar(
-          backgroundColor: white,
-          foregroundColor: black,
-          leading: Ibtn(
-            onTap: () => Navigator.pop(context),
-            icon: Icons.chevron_left_sharp,
-          ),
-          title: Text(
-            'Төлбөр, тооцоо бүртгэх',
-            style: TextStyle(fontSize: 14),
-          ),
+          leading: ChevronBack(),
+          title: Text('Төлбөр, тооцоо бүртгэх'),
           centerTitle: false,
           bottom: TabBar(
             controller: tabController,
@@ -60,128 +53,211 @@ class _AddPaymentState extends State<AddPayment>
             labelColor: primary,
             unselectedLabelColor: black,
             tabs: [
-              Tab(
-                child: Text('Жагсаалт'),
-              ),
+              Tab(child: Text('Жагсаалт')),
               Tab(child: Text('Бүртгэх')),
             ],
           ),
         ),
-        body: Container(
-          padding: EdgeInsets.all(5.0),
-          child: TabBarView(
-            controller: tabController,
-            children: [
-              jagger.payments.isEmpty
-                  ? Center(
-                      child: Column(
-                        spacing: 10,
-                        children: [
-                          NoResult(),
-                          CustomButton(
-                            text: 'Бүртгэх',
-                            ontap: () => tabController.animateTo(1),
-                          )
-                        ],
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      child: Column(
-                        spacing: 10,
-                        children: jagger.payments
-                            .map(
-                              (payment) => PaymentBuilder(
-                                payment: payment,
-                                handler: () => editPayment(jagger, payment),
-                              ),
-                            )
-                            .toList(),
+        body: TabBarView(
+          controller: tabController,
+          children: [
+            jagger.payments.isEmpty
+                ? Center(
+                    child: Column(
+                      spacing: 10,
+                      children: [
+                        NoResult(),
+                        CustomButton(
+                          text: 'Бүртгэх',
+                          ontap: () => tabController.animateTo(1),
+                        )
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: jagger.payments.length,
+                    itemBuilder: (context, index) {
+                      final payment = jagger.payments[index];
+                      return PaymentBuilder(
+                        payment: payment,
+                        handler: () => editPayment(jagger, payment),
+                      );
+                    },
+                  ),
+            Column(
+              spacing: 16, // Зайг бага зэрэг ихэсгэвэл илүү цэмцгэр харагдана
+              children: [
+                // 1. Харилцагч сонгох хэсэг
+                Builder(builder: (context) {
+                  bool hasCustomer = customer != null;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    decoration: BoxDecoration(
+                      color: hasCustomer
+                          ? primary.withOpacity(0.05)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: hasCustomer ? primary : Colors.grey.shade300,
+                        width: hasCustomer ? 1.5 : 1,
                       ),
                     ),
-              Column(
-                spacing: 10,
-                children: [
-                  Builder(builder: (context) {
-                    bool hasCustomer = customer != null;
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              Customer? value =
-                                  await goto<Customer?>(ChooseCustomer());
-                              if (value != null) {
-                                print(value.name);
-                                customer = value;
-                                setState(() {});
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: hasCustomer ? primary : white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: BorderSide(
-                                  color: hasCustomer
-                                      ? transperant
-                                      : Colors.grey.shade400,
-                                ),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                vertical: 15,
-                                horizontal: 15,
+                    child: InkWell(
+                      onTap: () async {
+                        Customer? value =
+                            await goto<Customer?>(ChooseCustomer());
+                        if (value != null) {
+                          setState(() => customer = value);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(15),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor:
+                                  hasCustomer ? primary : Colors.grey.shade100,
+                              child: Icon(
+                                hasCustomer
+                                    ? Icons.person
+                                    : Icons.person_search,
+                                color: hasCustomer ? Colors.white : Colors.grey,
                               ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  hasCustomer
-                                      ? customer!.name!
-                                      : 'Харилцагч сонгох',
-                                  style: TextStyle(
-                                    color: hasCustomer ? white : null,
-                                  ),
-                                ),
-                                if (customer != null)
-                                  InkWell(
-                                    borderRadius: BorderRadius.circular(30),
-                                    onTap: () {
-                                      customer = null;
-                                      setState(() {});
-                                    },
-                                    child: Icon(
-                                      Icons.cancel,
-                                      color: white,
-                                      size: 26,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Харилцагч',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
                                     ),
-                                  )
-                              ],
+                                  ),
+                                  Text(
+                                    hasCustomer
+                                        ? customer!.name!
+                                        : 'Сонгох хэсэгт дарна уу',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: hasCustomer
+                                          ? primary
+                                          : Colors.grey.shade400,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            if (hasCustomer)
+                              IconButton(
+                                onPressed: () =>
+                                    setState(() => customer = null),
+                                icon: const Icon(Icons.cancel,
+                                    color: Colors.redAccent),
+                              )
+                            else
+                              const Icon(Icons.arrow_forward_ios,
+                                  size: 16, color: Colors.grey),
+                          ],
                         ),
-                      ],
-                    );
-                  }),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ),
+                    ),
+                  );
+                }),
+
+                // 2. Төлбөрийн хэлбэр (Picker)
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
                     children: [
-                      picker('Бэлнээр', 'C'),
-                      picker('Дансаар', 'T'),
+                      Expanded(
+                        child: _buildTypePicker(
+                          'Бэлнээр',
+                          'C',
+                          Icons.payments_outlined,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildTypePicker(
+                          'Дансаар',
+                          'T',
+                          Icons.account_balance_outlined,
+                        ),
+                      ),
                     ],
                   ),
-                  CustomTextField(
-                    controller: amount,
-                    hintText: 'Дүн оруулах',
-                    keyboardType: TextInputType.number,
-                  ),
-                  CustomButton(
+                ),
+
+                // 3. Дүн оруулах хэсэг
+                CustomTextField(
+                  controller: amount,
+                  hintText: 'Дүн оруулах',
+                  prefix: Icons.monetization_on_outlined,
+                  keyboardType: TextInputType.number,
+                  // Энд тоог форматлах formatter нэмж болно
+                ),
+
+                const SizedBox(height: 8),
+
+                // 4. Бүртгэх товч
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomButton(
                     text: 'Бүртгэх',
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     ontap: () => _register(jagger),
                   ),
-                ],
-              )
-            ],
-          ),
+                ),
+              ],
+            )
+          ],
+        ).paddingAll(10),
+      ),
+    );
+  }
+
+  Widget _buildTypePicker(String title, String type, IconData icon) {
+    bool isSelected = selected == type; // Таны State-д байгаа төрөл
+    return GestureDetector(
+      onTap: () => setState(() => selected = type),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2))
+                ]
+              : [],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: isSelected ? primary : Colors.grey),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? primary : Colors.grey,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -222,7 +298,6 @@ class _AddPaymentState extends State<AddPayment>
   }
 
   _register(JaggerProvider jagger) async {
-    print(pType);
     if (pType == "E") {
       message('Төлбөрийн хэлбэр сонгоно уу!');
       return;

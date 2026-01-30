@@ -14,3 +14,4 @@ export 'context/settings/settings_provider.dart';
 export 'config/native_channels/native_channel.dart';
 export 'package:pharmo_app/application/context/extension/extension.dart';
 export 'function/api/api_service.dart';
+export 'package:pharmo_app/views/home/a_home.dart';

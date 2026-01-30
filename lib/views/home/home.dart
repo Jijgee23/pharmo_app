@@ -278,6 +278,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: Sizes.isTablet() ? 3 : 2,
               childAspectRatio: .9,
+              mainAxisSpacing: 5,
+              crossAxisSpacing: 5,
             ),
             itemCount: home.fetchedItems.length,
             itemBuilder: (context, idx) {

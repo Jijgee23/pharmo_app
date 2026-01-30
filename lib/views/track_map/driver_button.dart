@@ -41,13 +41,13 @@ class DriverButton extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              if (jagger.delivery.isNotEmpty &&
-                                  jagger.delivery[0].startedOn != null)
+                              if (jagger.delivery != null &&
+                                  jagger.delivery!.startedOn != null)
                                 Row(
                                   spacing: 10,
                                   children: [
                                     Text(
-                                      '${jagger.delivery[0].startedOn!.substring(11, 16)}-с эхэлсэн',
+                                      '${jagger.delivery!.startedOn!.substring(11, 16)}-с эхэлсэн',
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 12,

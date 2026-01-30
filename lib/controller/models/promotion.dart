@@ -9,8 +9,18 @@ class Promotion {
   String? endDate;
   double? total;
   double? procent;
-  Promotion(this.id, this.name, this.description, this.isActive, this.hasGift,
-      this.promoType, this.startDate, this.endDate, this.total, this.procent);
+  Promotion(
+    this.id,
+    this.name,
+    this.description,
+    this.isActive,
+    this.hasGift,
+    this.promoType,
+    this.startDate,
+    this.endDate,
+    this.total,
+    this.procent,
+  );
   Promotion.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],

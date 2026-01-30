@@ -9,7 +9,7 @@ import UserNotifications
 @objc class AppDelegate: FlutterAppDelegate {
 
   var locationHandler: LocationHandler?
-
+  private var timer: Timer?
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -37,6 +37,19 @@ import UserNotifications
       binaryMessenger: messenger
     )
 
+    let bg = FlutterMethodChannel(name: AppConstants.bgChannel, binaryMessenger: messenger, )
+
+    bg.setMethodCallHandler({
+      (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+
+      if call.method == "startTimer" {
+        self.startPrinting()
+        result("Timer Started")
+      } else {
+        result(FlutterMethodNotImplemented)
+      }
+    })
+
     locationHandler = LocationHandler()
     bgLocationChannel.setStreamHandler(locationHandler)
 
@@ -48,5 +61,11 @@ import UserNotifications
 
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+  private func startPrinting() {
+    timer?.invalidate()  // Өмнөх таймерыг цэвэрлэх
+    timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+      print("Hello World")
+    }
   }
 }

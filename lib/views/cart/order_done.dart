@@ -12,10 +12,13 @@ class OrderDone extends StatefulWidget {
 class _OrderDoneState extends State<OrderDone> {
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 3), () {
-      goHome(context.read<BasketProvider>());
-    });
     super.initState();
+    // 3 секундын дараа автоматаар нүүр хуудас руу шилжинэ
+    // Future.delayed(const Duration(seconds: 3), () {
+    //   if (mounted) {
+    //     goHome(context.read<BasketProvider>());
+    //   }
+    // });
   }
 
   goHome(BasketProvider provider) async {
@@ -28,84 +31,119 @@ class _OrderDoneState extends State<OrderDone> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    const maxWidth = 850.0;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SizedBox(
-        width: double.infinity,
-        child: SizedBox(
-          width: screenWidth <= maxWidth ? screenWidth : maxWidth,
+      body: SafeArea(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Consumer<BasketProvider>(
             builder: (context, provider, _) {
-              return Stack(children: [
-                SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(top: 130, bottom: 25),
-                        alignment: Alignment.topCenter,
-                        child: SizedBox(
-                          width: 180,
-                          child: Image.asset('assets/stickers/verified.gif'),
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+
+                  // Баталгаажуулсан GIF эсвэл Icon
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: primary.withOpacity(0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Container(
+                      width: 160,
+                      height: 160,
+                      decoration: BoxDecoration(
+                        color: white,
+                        shape: BoxShape.circle,
+                      ),
+                      padding: EdgeInsets.all(10),
+                      child: Center(
+                        child: Image.asset(
+                          'assets/stickers/verified.gif',
+                          width: 100,
                         ),
                       ),
-                      const Text(
-                        'Таны захиалга амжилттай үүслээ.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  const Text(
+                    'Баярлалаа!',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 26,
+                      color: primary,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  const Text(
+                    'Таны захиалга амжилттай үүслээ',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Захиалгын дугаар харуулах карт
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.shade100),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Захиалгын дугаар: ',
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 14),
                         ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 0, vertical: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('Таны захиалгы дугаар : '),
-                            Text(
-                              widget.orderNo,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 200,
-                        margin: const EdgeInsets.symmetric(horizontal: 39),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: theme.primaryColor),
-                        child: InkWell(
-                          onTap: () => goHome(provider),
-                          child: const Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.home_filled,
-                                    color: AppColors.cleanWhite),
-                                SizedBox(width: 10),
-                                Text(
-                                  'Нүүр хуудас',
-                                  style: TextStyle(
-                                      color: AppColors.cleanWhite,
-                                      fontWeight: FontWeight.w600),
-                                )
-                              ],
-                            ),
+                        Text(
+                          widget.orderNo,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                            color: Colors.black,
                           ),
                         ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ]);
+
+                  const Spacer(),
+
+                  // Нүүр хуудас руу очих товч
+                  CustomButton(
+                    text: 'Нүүр хуудас руу буцах',
+                    ontap: () => goHome(provider),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Text(
+                    '3 секундын дараа автоматаар шилжинэ...',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
+              );
             },
           ),
         ),

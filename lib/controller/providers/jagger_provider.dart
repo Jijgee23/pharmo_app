@@ -81,7 +81,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   late final Box<TrackData> trackBox;
 
   Position? currentPosition;
-  List<Delivery> delivery = [];
+  // List<Delivery> delivery = [];
+  Delivery? delivery;
   List<Zone> zones = [];
   List<LatLng> routeCoords = [];
   List<Payment> payments = [];
@@ -499,7 +500,9 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
           'Таны $shipmentId дугаартай түгээлт дууслаа.',
         );
         await logService.createLog('Түгээлт', 'Түгээлт дуусгасан');
-        stopTracking();
+
+        await stopTracking();
+        delivery = null;
         notifyListeners();
       } else {
         String data = r.body.toString();
@@ -519,63 +522,66 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Future<dynamic> getDeliveries() async {
     try {
       final r = await api(Api.get, 'delivery/delman_active/');
-      if (r == null) return;
+      if (r == null) {
+        return;
+      }
       if (r.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(r.bodyBytes));
-        delivery = (data as List).map((d) => Delivery.fromJson(d)).toList();
-        if (delivery.isNotEmpty) {
-          final currentdelivery = delivery[0];
-          for (var order in currentdelivery.orders) {
-            if (order.orderer != null && order.orderer!.lat != null) {
-              orderMarkers.add(
-                Marker(
-                  markerId: MarkerId(order.orderNo),
-                  position: LatLng(
-                    parseDouble(order.orderer!.lat),
-                    parseDouble(order.orderer!.lng),
-                  ),
-                  infoWindow: InfoWindow(
-                    title: order.orderer!.name,
-                    snippet: 'Захиалагч',
-                  ),
-                  icon: await BitmapDescriptor.asset(
-                    ImageConfiguration.empty,
-                    'assets/box.png',
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-              );
-              notifyListeners();
-            }
-            if (order.customer != null && order.customer!.lat != null) {
-              orderMarkers.add(
-                Marker(
-                  markerId: MarkerId(order.orderNo),
-                  position: LatLng(
-                    parseDouble(order.customer!.lat),
-                    parseDouble(order.customer!.lng),
-                  ),
-                  infoWindow: InfoWindow(
-                    title: order.customer!.name,
-                    snippet: 'Харилцагч',
-                  ),
-                  icon: await BitmapDescriptor.asset(
-                    ImageConfiguration.empty,
-                    'assets/box.png',
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-              );
-              notifyListeners();
-            }
-          }
+        final data = jsonDecode(utf8.decode(r.bodyBytes)) as List;
+        if (data.isEmpty) {
+          delivery == null;
+          notifyListeners();
+          return;
         }
 
-        for (final d in delivery) {
-          zones = d.zones;
+        delivery = Delivery.fromJson(data[0]);
+        if (delivery == null) return;
+        for (var order in delivery!.orders) {
+          if (order.orderer != null && order.orderer!.lat != null) {
+            orderMarkers.add(
+              Marker(
+                markerId: MarkerId(order.orderNo),
+                position: LatLng(
+                  parseDouble(order.orderer!.lat),
+                  parseDouble(order.orderer!.lng),
+                ),
+                infoWindow: InfoWindow(
+                  title: order.orderer!.name,
+                  snippet: 'Захиалагч',
+                ),
+                icon: await BitmapDescriptor.asset(
+                  ImageConfiguration.empty,
+                  'assets/box.png',
+                  width: 30,
+                  height: 30,
+                ),
+              ),
+            );
+            notifyListeners();
+          }
+          if (order.customer != null && order.customer!.lat != null) {
+            orderMarkers.add(
+              Marker(
+                markerId: MarkerId(order.orderNo),
+                position: LatLng(
+                  parseDouble(order.customer!.lat),
+                  parseDouble(order.customer!.lng),
+                ),
+                infoWindow: InfoWindow(
+                  title: order.customer!.name,
+                  snippet: 'Харилцагч',
+                ),
+                icon: await BitmapDescriptor.asset(
+                  ImageConfiguration.empty,
+                  'assets/box.png',
+                  width: 30,
+                  height: 30,
+                ),
+              ),
+            );
+            notifyListeners();
+          }
         }
+        zones = delivery!.zones;
         notifyListeners();
       }
     } catch (e) {
@@ -661,21 +667,26 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
   }
 
-  registerAdditionalDelivery(String note) async {
+  Future registerAdditionalDelivery(String note) async {
     try {
       await Settings.checkWhenUseLocationPermission();
+      final loc = await Geolocator.getCurrentPosition();
+      if (loc == null) {
+        messageWarning('Байршил тодорхойлж чадсангүй!');
+        return;
+      }
       final data = {
         "note": note,
         "visited_on": DateTime.now().toString(),
-        "lat": currentPosition!.latitude,
-        "lng": currentPosition!.longitude
+        "lat": loc.latitude,
+        "lng": loc.longitude
       };
       final r = await api(Api.post, 'delivery/addition/', body: data);
+      print(r!.statusCode);
       if (r == null) return;
       if (r.statusCode == 200 || r.statusCode == 201) {
         messageComplete('Амжилттай бүртгэлээ');
         await getDeliveries();
-        // await getDeliveryLocation();
       } else {
         messageWarning('Бүртгэл амжилтгүй');
       }
@@ -812,9 +823,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
     zones.clear();
     currentPosition = null;
-    delivery.clear();
+    delivery = null;
     payments.clear();
-    delivery.clear();
     notifyListeners();
   }
 

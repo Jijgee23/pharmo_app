@@ -31,15 +31,17 @@ class LocalBase {
   static const String _dmTrackKey = 'delmantrack';
   static const String _deviceToken = 'deviceToken';
 
-  static Future initLocalBase() async {
+  static Future initLocalBase({bool showLog = true}) async {
     localDb = await Hive.openBox(_boxKey);
     security = await getSecurity();
     hasSpashed = await hasSplashed();
     remember = await getRemember();
 
-    debugPrint(
-      'local base inited, has user: ${security != null}, splashed: $hasSpashed',
-    );
+    if (showLog) {
+      debugPrint(
+        'local base inited, has user: ${security != null}, splashed: $hasSpashed',
+      );
+    }
 
     // if (security == null) return;
     // print(JwtDecoder.decode(security!.access));

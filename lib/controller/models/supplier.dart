@@ -29,6 +29,9 @@ class Stock {
   final String name;
   Stock({required this.id, required this.name});
   factory Stock.fromJson(Map<String, dynamic> json) {
-    return Stock(id: parseInt(json['id']), name: json['name']);
+    return Stock(
+      id: parseInt(json['id']),
+      name: json['name'],
+    );
   }
 }

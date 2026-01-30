@@ -30,7 +30,7 @@ class _StatusChangerState extends State<StatusChanger> {
   void initState() {
     super.initState();
     setState(() {
-      selected = process(widget.status);
+      selected = status(widget.status);
     });
   }
 
@@ -64,7 +64,10 @@ class _StatusChangerState extends State<StatusChanger> {
           "process": getOrderProcess(status)
         };
         final r = await api(Api.patch, 'delivery/order/', body: data);
+
         if (r == null) return;
+        print(r.statusCode);
+        print(r.body);
         if (r.statusCode == 200 || r.statusCode == 201) {
           message('Төлөв өөрчлөгдлөө');
           await provider.getDeliveries();
@@ -82,15 +85,21 @@ class _StatusChangerState extends State<StatusChanger> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         decoration: BoxDecoration(
-            color: sel ? succesColor : transperant,
-            border: Border.all(color: sel ? transperant : frenchGrey),
-            borderRadius: BorderRadius.circular(15)),
+          color: sel ? succesColor : transperant,
+          border: Border.all(color: sel ? transperant : frenchGrey),
+          borderRadius: BorderRadius.circular(15),
+        ),
         child: Row(
           spacing: 15,
           children: [
             SizedBox(width: 20),
-            Text(status,
-                style: TextStyle(color: sel ? white : black, fontSize: 16)),
+            Text(
+              status,
+              style: TextStyle(
+                color: sel ? white : black,
+                fontSize: 16,
+              ),
+            ),
           ],
         ),
       ),

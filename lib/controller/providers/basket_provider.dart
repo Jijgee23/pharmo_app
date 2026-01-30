@@ -19,7 +19,6 @@ class BasketProvider extends ChangeNotifier {
   }
 
   void clear() {
-    print(qty.text.length);
     if (qty.text.isEmpty || qty.text == '') {
       qty.text = '1';
     } else {

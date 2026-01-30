@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/views/auth/root/root_page.dart';
@@ -5,6 +6,16 @@ import 'package:upgrader/upgrader.dart';
 import 'application/application.dart';
 
 final pharmo = Pharmo();
+const platform = MethodChannel('bg_channel');
+
+Future<void> startNativeTimer() async {
+  try {
+    print('calling native timer on flutter');
+    await platform.invokeMethod('startTimer');
+  } on PlatformException catch (e) {
+    print("Алдаа гарлаа: '${e.message}'.");
+  }
+}
 
 Future<void> main() async {
   FlutterError.onError = (details) {
@@ -21,6 +32,7 @@ Future<void> main() async {
     Hive.registerAdapter(TrackDataAdapter());
     await LocalBase.initLocalBase();
     await LogService().initialize();
+    // await startNativeTimer();
     runApp(
       UpgradeAlert(
         dialogStyle: UpgradeDialogStyle.material,
@@ -87,8 +99,10 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
         title: 'Pharmo app',
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
-        locale: Locale("en-MN"),
+        locale: Locale('mn', 'MN'),
         routes: AppConfigs.appRoutes,
+        supportedLocales: AppConfigs.locales,
+        localizationsDelegates: AppConfigs.localizations,
         darkTheme: lightTheme,
         navigatorKey: GlobalKeys.navigatorKey,
         themeMode: home.themeMode,

@@ -1,6 +1,6 @@
 import 'package:pharmo_app/views/home/home.dart';
 import 'package:pharmo_app/views/order_history/order_history.dart';
-import 'package:pharmo_app/views/profile.dart';
+import 'package:pharmo_app/views/profile/profile.dart';
 import 'package:pharmo_app/views/SELLER/customer/customers.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/track_map/track_map.dart';

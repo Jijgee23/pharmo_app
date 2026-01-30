@@ -6,29 +6,29 @@ import 'package:pharmo_app/controller/models/a_models.dart';
 import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 
 class MyOrderProvider extends ChangeNotifier {
-  List<MyOrderModel> _orders = <MyOrderModel>[];
-  List<SellerOrderModel> sellerOrders = <SellerOrderModel>[];
-  List<SellerOrderModel> filteredsellerOrders = <SellerOrderModel>[];
-  List<MyOrderModel> get orders => _orders;
+  List<OrderModel> _orders = <OrderModel>[];
+  List<OrderModel> sellerOrders = <OrderModel>[];
+  List<OrderModel> filteredsellerOrders = <OrderModel>[];
+  List<OrderModel> get orders => _orders;
 
-  List<MyOrderDetailModel> _orderDetails = <MyOrderDetailModel>[];
-  List<MyOrderDetailModel> get orderDetails => _orderDetails;
+  // List<MyOrderDetailModel> _orderDetails = <MyOrderDetailModel>[];
+  // List<MyOrderDetailModel> get orderDetails => _orderDetails;
   List<Supplier> suppliers = [];
   List<Branch> branches = [];
 
   void reset() {
     sellerOrders.clear();
     filteredsellerOrders.clear();
-    orderDetails.clear();
+    // orderDetails.clear();
     orders.clear();
     suppliers.clear();
     branches.clear();
     notifyListeners();
   }
 
-  late MyOrderDetailModel fetchedDetail;
-  Future<List<SellerOrderModel>> getSellerOrders() async {
-    List<SellerOrderModel> rult = [];
+  // late MyOrderDetailModel fetchedDetail;
+  Future<List<OrderModel>> getSellerOrders() async {
+    List<OrderModel> rult = [];
     try {
       final r = await api(Api.get, 'seller/order/');
       if (r == null) return rult;
@@ -36,8 +36,7 @@ class MyOrderProvider extends ChangeNotifier {
         final data = convertData(r);
         List<dynamic> ords = data['results'];
         sellerOrders.clear();
-        sellerOrders =
-            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        sellerOrders = (ords).map((data) => OrderModel.fromJson(data)).toList();
         rult = sellerOrders;
         notifyListeners();
       }
@@ -71,8 +70,7 @@ class MyOrderProvider extends ChangeNotifier {
         final data = convertData(r);
         List<dynamic> ords = data['results'];
         sellerOrders.clear();
-        sellerOrders =
-            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        sellerOrders = (ords).map((data) => OrderModel.fromJson(data)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -89,8 +87,7 @@ class MyOrderProvider extends ChangeNotifier {
         final data = convertData(r);
         List<dynamic> ords = data['results'];
         sellerOrders.clear();
-        sellerOrders =
-            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        sellerOrders = (ords).map((data) => OrderModel.fromJson(data)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -106,8 +103,7 @@ class MyOrderProvider extends ChangeNotifier {
         final data = convertData(r);
         List<dynamic> ords = data['results'];
         sellerOrders.clear();
-        sellerOrders =
-            (ords).map((data) => SellerOrderModel.fromJson(data)).toList();
+        sellerOrders = (ords).map((data) => OrderModel.fromJson(data)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -123,7 +119,7 @@ class MyOrderProvider extends ChangeNotifier {
         _orders.clear();
         final data = convertData(r);
         List<dynamic> ords = data['orders'];
-        _orders = (ords).map((data) => MyOrderModel.fromJson(data)).toList();
+        _orders = (ords).map((data) => OrderModel.fromJson(data)).toList();
         notifyListeners();
         return {
           'errorType': 1,
@@ -143,29 +139,29 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  getMyorderDetail(int orderId) async {
-    try {
-      final r = await api(Api.get, 'pharmacy/orders/$orderId/items/');
-      if (r == null) return;
-      if (r.statusCode == 200) {
-        _orderDetails.clear();
-        final data = convertData(r);
-        List<dynamic> dtls = data;
-        _orderDetails =
-            (dtls).map((data) => MyOrderDetailModel.fromJson(data)).toList();
-        notifyListeners();
-      } else {
-        notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'
-        };
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
+  // getMyorderDetail(int orderId) async {
+  //   try {
+  //     final r = await api(Api.get, 'pharmacy/orders/$orderId/items/');
+  //     if (r == null) return;
+  //     if (r.statusCode == 200) {
+  //       // _orderDetails.clear();
+  //       final data = convertData(r);
+  //       List<dynamic> dtls = data;
+  //       // _orderDetails =
+  //       //     (dtls).map((data) => MyOrderDetailModel.fromJson(data)).toList();
+  //       notifyListeners();
+  //     } else {
+  //       notifyListeners();
+  //       return {
+  //         'errorType': 2,
+  //         'data': null,
+  //         'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'
+  //       };
+  //     }
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //   }
+  // }
 
   Future<dynamic> getSuppliers() async {
     try {
@@ -218,7 +214,7 @@ class MyOrderProvider extends ChangeNotifier {
         _orders.clear();
         final data = convertData(r);
         List<dynamic> ords = data['orders'];
-        _orders = (ords).map((data) => MyOrderModel.fromJson(data)).toList();
+        _orders = (ords).map((data) => OrderModel.fromJson(data)).toList();
         notifyListeners();
         return {
           'errorType': 1,
@@ -246,7 +242,8 @@ class MyOrderProvider extends ChangeNotifier {
       switch (r.statusCode) {
         case 200:
           await getMyorders();
-          return buildResponse(1, null, 'Таны захиалга амжилттай баталгаажлаа.');
+          return buildResponse(
+              1, null, 'Таны захиалга амжилттай баталгаажлаа.');
 
         case 400:
           return buildResponse(2, null, 'Захиалгын түгээлт эхлээгүй');
@@ -256,81 +253,5 @@ class MyOrderProvider extends ChangeNotifier {
     } catch (e) {
       return buildResponse(4, null, 'Түр хүлээгээд дахин оролдно уу!');
     }
-  }
-}
-
-class SellerOrderModel {
-  int id;
-  int? orderNo;
-  double totalPrice;
-  double totalCount;
-  String? status;
-  String? process;
-  String? payType;
-  bool? qp;
-  String? createdOn;
-  String? endedOn;
-  bool? note;
-  String? customer;
-
-  SellerOrderModel(
-    this.id,
-    this.orderNo,
-    this.totalPrice,
-    this.totalCount,
-    this.status,
-    this.process,
-    this.payType,
-    this.qp,
-    this.createdOn,
-    this.endedOn,
-    this.note,
-    this.customer,
-  );
-
-  SellerOrderModel.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        orderNo = json['orderNo'],
-        totalPrice = parseDouble(json['totalPrice']),
-        totalCount = parseDouble(json['totalCount']),
-        status = json['status'],
-        process = json['process'],
-        payType = json['payType'],
-        qp = json['qp'],
-        customer = json['customer'],
-        createdOn = json['createdOn'],
-        endedOn = json['endedOn'];
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'orderNo': orderNo,
-      'totalPrice': totalPrice,
-      'totalCount': totalCount,
-      'status': status,
-      'process': process,
-      'payType': payType,
-      'customer': customer,
-      'qp': qp,
-      'createdOn': createdOn,
-      'endedOn': endedOn,
-    };
-  }
-}
-
-class OrderBranch {
-  int id;
-  String? addrs;
-  String name;
-  OrderBranch(this.id, this.addrs, this.name);
-  OrderBranch.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        addrs = json['addrs'],
-        name = json['name'];
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'addrs': addrs,
-      'name': name,
-    };
   }
 }

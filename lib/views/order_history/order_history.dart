@@ -1,6 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/ORDERER/my_orders/my_orders.dart';
-import 'package:pharmo_app/views/seller/order/seller_orders.dart';
+import 'package:pharmo_app/views/order_history/pharm_order_history/pharmo_order_history.dart';
+import 'package:pharmo_app/views/order_history/seller_order_history/seller_orders.dart';
 
 class OrderHistory extends StatefulWidget {
   const OrderHistory({super.key});
@@ -19,8 +19,8 @@ class _OrderHistoryState extends State<OrderHistory> {
       );
     }
     if (user.role == 'PA') {
-      return MyOrder();
+      return PharmOrderHistory();
     }
-    return SellerOrders();
+    return SellerOrderHistory();
   }
 }

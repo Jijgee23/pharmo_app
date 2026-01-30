@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/views/auth/complete_registration.dart';
-import 'package:pharmo_app/views/auth/reset_pass.dart';
+import 'package:pharmo_app/views/auth/auth_operations/complete_registration.dart';
+import 'package:pharmo_app/views/auth/auth_operations/reset_pass.dart';
 import 'package:http_parser/http_parser.dart' as pharser;
 import 'package:pharmo_app/application/application.dart';
 

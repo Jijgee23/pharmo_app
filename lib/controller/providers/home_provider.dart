@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/views/ORDERER/promotion/promotion_dialog.dart';
+import 'package:pharmo_app/views/promotion/promotion_dialog.dart';
 import 'package:http/http.dart' as http;
 import 'package:pharmo_app/application/application.dart';
 

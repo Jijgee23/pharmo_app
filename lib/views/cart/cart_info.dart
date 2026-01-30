@@ -10,52 +10,79 @@ class CartInfo extends StatefulWidget {
 class _CartInfoState extends State<CartInfo> {
   @override
   Widget build(BuildContext context) {
-    final basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    // theme
+    // Дата өөрчлөгдөх бүрт UI шинэчлэгдэхийн тулд listen: true (Default) ашиглана
+    final basketProvider = Provider.of<BasketProvider>(context);
+    final basket = basketProvider.basket;
+
     void clearBasket() async {
       final confirmed = await confirmDialog(
         title: 'Захиалгын сагсыг хоослох уу?',
         context: context,
       );
-      if (!confirmed) {
-        return;
+      if (confirmed) {
+        await basketProvider.clearBasket();
+        await basketProvider.getBasket();
       }
-      await basketProvider.clearBasket();
-      await basketProvider.getBasket();
     }
 
-    return Card(
-      color: white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: Colors.grey.shade500, width: 1),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(
+                0, -4), // Дээшээ сүүдэр өгөх (Bottom bar шиг харагдана)
+          ),
+        ],
       ),
-      elevation: 0,
       child: Padding(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                info(
-                  title: 'Нийт дүн',
-                  text: toPrice(
-                    basketProvider.basket != null
-                        ? basketProvider.basket!.totalPrice
-                        : 0,
-                  ),
-                )
-              ],
+            // 1. Нийт дүн
+            _buildInfoItem(
+              title: 'Нийт дүн',
+              text: toPrice(basket?.totalPrice ?? 0),
+              isHighlight: true,
             ),
-            info(
-                title: 'Нийт тоо ширхэг',
-                text:
-                    '${basketProvider.basket != null ? basketProvider.basket!.totalCount : 0}'),
-            InkWell(
-              borderRadius: BorderRadius.circular(5),
-              onTap: () => clearBasket(),
-              child: const Icon(Icons.delete, color: Colors.red, size: 30),
+
+            // Зааглагч зураас
+            Container(
+              height: 30,
+              width: 1,
+              margin: const EdgeInsets.symmetric(horizontal: 15),
+              color: Colors.grey.shade200,
+            ),
+
+            // 2. Нийт тоо
+            _buildInfoItem(
+              title: 'Тоо ширхэг',
+              text: '${basket?.totalCount ?? 0} ш',
+              isHighlight: false,
+            ),
+
+            const Spacer(),
+
+            // 3. Устгах товч (Бүдэг улаан дэвсгэртэй)
+            Material(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                onTap: clearBasket,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  child: const Icon(
+                    Icons.delete_sweep_rounded,
+                    color: Colors.red,
+                    size: 26,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -63,24 +90,32 @@ class _CartInfoState extends State<CartInfo> {
     );
   }
 
-  Widget info({required String title, required String text}) {
+  Widget _buildInfoItem({
+    required String title,
+    required String text,
+    required bool isHighlight,
+  }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: TextStyle(
-            color: black,
-            fontWeight: FontWeight.bold,
+            color: Colors.grey.shade600,
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
           ),
         ),
+        const SizedBox(height: 4),
         Text(
           text,
           style: TextStyle(
-            color: black.withAlpha(25 * 7),
-            fontWeight: FontWeight.bold,
+            color: isHighlight ? primary : Colors.black87,
+            fontSize: isHighlight ? 17 : 15,
+            fontWeight: FontWeight.w800,
           ),
-        )
+        ),
       ],
     );
   }

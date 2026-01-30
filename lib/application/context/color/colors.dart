@@ -23,6 +23,7 @@ const succesColor = Color.fromARGB(255, 6, 211, 74);
 const failedColor = Color.fromARGB(255, 241, 124, 14);
 const darkBackground = Color.fromARGB(255, 65, 78, 85);
 const lightBackground = Color.fromARGB(255, 202, 227, 243);
+final grey50 = Colors.grey.shade50;
 final grey100 = Colors.grey.shade100;
 final grey200 = Colors.grey.shade200;
 final grey300 = Colors.grey.shade300;

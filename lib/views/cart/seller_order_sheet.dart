@@ -2,9 +2,7 @@ import 'package:pharmo_app/views/SELLER/customer/choose_customer.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class SellerOrderSheet extends StatefulWidget {
-  const SellerOrderSheet({
-    super.key,
-  });
+  const SellerOrderSheet({super.key});
 
   @override
   State<SellerOrderSheet> createState() => _SellerOrderSheetState();
@@ -14,106 +12,205 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
   late HomeProvider homeProvider;
   late BasketProvider basketProvider;
   final noteController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     homeProvider = Provider.of<HomeProvider>(context, listen: false);
     basketProvider = Provider.of<BasketProvider>(context, listen: false);
+    // Хэрэв өмнө нь тэмдэглэл байсан бол сэргээх
+    noteController.text = homeProvider.note ?? '';
   }
 
   String payType = '';
-  setPayType(String v) {
-    setState(() {
-      payType = v;
-    });
-  }
-
-  List<String> payTypes = ['Бэлнээр', 'Дансаар', 'Зээлээр'];
-  List<String> payS = ['C', 'T', 'L'];
+  final List<Map<String, String>> payMethods = [
+    {'title': 'Бэлнээр', 'v': 'C', 'icon': '💰'},
+    {'title': 'Дансаар', 'v': 'T', 'icon': '💳'},
+    {'title': 'Зээлээр', 'v': 'L', 'icon': '📝'},
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<HomeProvider>(
-      builder: (context, home, child) => SheetContainer(
-        children: [
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text('Төлбөрийн хэлбэр сонгоно уу : '),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Consumer<HomeProvider>(
+        builder: (context, home, child) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Handle Bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Захиалга баталгаажуулах',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 24),
+
+            // 2. Төлбөрийн хэлбэр
+            _buildLabel('Төлбөрийн хэлбэр'),
+            const SizedBox(height: 12),
+            Row(
+              children: payMethods
+                  .map((p) => Expanded(
+                        child: _payTypeChip(p['title']!, p['v']!, p['icon']!),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 24),
+
+            // 3. Захиалагч сонгох
+            _buildLabel('Захиалагч сонгох'),
+            const SizedBox(height: 12),
+            _customerSelector(home),
+            const SizedBox(height: 24),
+
+            // 4. Тайлбар хэсэг
+            _buildLabel('Нэмэлт тайлбар (заавал биш)'),
+            const SizedBox(height: 12),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: TextField(
+                controller: noteController,
+                maxLines: 2,
+                onChanged: (v) => homeProvider.setNote(v),
+                decoration: const InputDecoration(
+                  hintText: 'Энд тайлбар бичиж болно...',
+                  contentPadding: EdgeInsets.all(16),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // 5. Захиалах товч
+            CustomButton(
+              text: 'Захиалга үүсгэх',
+              ontap: () => _createOrder(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: Colors.grey.shade600,
+      ),
+    );
+  }
+
+  Widget _payTypeChip(String title, String v, String icon) {
+    bool isSelected = (payType == v);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: InkWell(
+        onTap: () => setState(() => payType = v),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? primary.withOpacity(0.05) : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? primary : Colors.grey.shade300,
+              width: isSelected ? 1.5 : 1,
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
             children: [
-              ...payTypes.map((p) => MyChip(
-                  title: p,
-                  v: payS[payTypes.indexOf(p)],
-                  selected: (payS[payTypes.indexOf(p)] == payType),
-                  ontap: () => setPayType(payS[payTypes.indexOf(p)]))),
+              Text(icon, style: const TextStyle(fontSize: 20)),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? primary : Colors.black87,
+                ),
+              ),
             ],
           ),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text('Заавал биш:')],
+        ),
+      ),
+    );
+  }
+
+  Widget _customerSelector(HomeProvider home) {
+    bool hasCustomer = home.customer != null;
+    return InkWell(
+      onTap: () async {
+        Customer? value = await goto<Customer?>(const ChooseCustomer());
+        if (value != null) {
+          home.setCustomer(value);
+          setState(() {});
+        }
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: hasCustomer ? primary.withOpacity(0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: hasCustomer ? primary : Colors.grey.shade300,
           ),
-          Builder(builder: (context) {
-            bool hasCustomer = home.customer != null;
-            return ElevatedButton(
-              onPressed: () async {
-                Customer? value = await goto<Customer?>(ChooseCustomer());
-                if (value != null) {
-                  home.setCustomer(value);
+        ),
+        child: Row(
+          children: [
+            Icon(
+              hasCustomer
+                  ? Icons.person_rounded
+                  : Icons.person_add_alt_1_rounded,
+              color: hasCustomer ? primary : Colors.grey,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                hasCustomer ? home.customer!.name! : 'Захиалагч сонгох',
+                style: TextStyle(
+                  fontWeight: hasCustomer ? FontWeight.bold : FontWeight.w500,
+                  color: hasCustomer ? primary : Colors.grey.shade600,
+                ),
+              ),
+            ),
+            if (hasCustomer)
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () {
+                  home.setCustomer(null);
                   setState(() {});
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: hasCustomer ? primary : white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(
-                    color: hasCustomer ? transperant : Colors.grey.shade400,
-                  ),
-                ),
-                elevation: 0,
-                padding: EdgeInsets.symmetric(
-                  vertical: 15,
-                  horizontal: 15,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    hasCustomer ? home.customer!.name! : 'Захиалагч сонгох',
-                    style: TextStyle(
-                      color: hasCustomer ? white : null,
-                    ),
-                  ),
-                  if (home.customer != null)
-                    InkWell(
-                      borderRadius: BorderRadius.circular(30),
-                      onTap: () {
-                        home.setCustomer(null);
-                        setState(() {});
-                      },
-                      child: Icon(
-                        Icons.cancel,
-                        color: white,
-                        size: 26,
-                      ),
-                    )
-                ],
-              ),
-            );
-          }),
-          CustomTextField(
-            controller: noteController,
-            hintText: 'Тайлбар',
-            onChanged: (v) => homeProvider.setNote(v!),
-          ),
-          CustomButton(
-            text: 'Захиалах',
-            ontap: () => _createOrder(),
-          ),
-        ],
+                },
+                icon: const Icon(Icons.close_rounded,
+                    size: 20, color: Colors.red),
+              )
+            else
+              const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
@@ -123,19 +220,21 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
       messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
       return;
     }
-
-    if (basketProvider.basket!.totalCount == 0) {
+    if ((basketProvider.basket?.totalCount ?? 0) == 0) {
       messageWarning('Сагс хоосон байна!');
       return;
     }
-    if (double.parse(basketProvider.basket!.totalPrice.toString()) < 10) {
-      messageWarning('Үнийн дүн 10₮-с бага байж болохгүй!');
-      return;
-    }
-    if (context.read<HomeProvider>().customer == null) {
+    if (homeProvider.customer == null) {
       messageWarning('Захиалагч сонгоно уу!');
       return;
     }
-    await homeProvider.createSellerOrder(context, payType);
+
+    // Ачааллаж буйг харуулах
+    LoadingService.show();
+    try {
+      await homeProvider.createSellerOrder(context, payType);
+    } finally {
+      LoadingService.hide();
+    }
   }
 }

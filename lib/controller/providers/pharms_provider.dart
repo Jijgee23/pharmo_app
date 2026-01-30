@@ -1,4 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
@@ -127,14 +128,16 @@ class PharmProvider extends ChangeNotifier {
     orderDets.clear();
   }
 
-  Stream<MyOrderModel>? getSellerOrderDetail(int oId) async* {
-    MyOrderModel? result;
+  Stream<OrderModel>? getSellerOrderDetail(int oId) async* {
+    OrderModel? result;
     try {
-      final u = 'seller/order/$oId/';
+      final user = LocalBase.security;
+
+      final u = user!.role == 'S' ? 'seller/order/$oId/' : '';
       final r = await api(Api.get, u);
       if (r == null) return;
       if (apiSucceess(r)) {
-        result = MyOrderModel.fromJson(convertData(r));
+        result = OrderModel.fromJson(convertData(r));
       }
     } catch (e) {
       messageError('Серверийн алдаа');

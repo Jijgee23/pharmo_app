@@ -1,6 +1,6 @@
 import 'package:pharmo_app/application/function/utilities/utils.dart';
 import 'package:pharmo_app/views/REPMAN/home.dart';
-import 'package:pharmo_app/views/profile.dart';
+import 'package:pharmo_app/views/profile/profile.dart';
 import 'package:pharmo_app/views/REPMAN/see_map.dart';
 import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
 import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';

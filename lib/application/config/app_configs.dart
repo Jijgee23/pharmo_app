@@ -1,14 +1,15 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/auth/complete_registration.dart';
+import 'package:pharmo_app/views/auth/auth_operations/complete_registration.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
-import 'package:pharmo_app/views/auth/reset_pass.dart';
+import 'package:pharmo_app/views/auth/auth_operations/reset_pass.dart';
 import 'package:pharmo_app/views/auth/root/root_page.dart';
 import 'package:pharmo_app/views/auth/root/root_provider.dart';
-import 'package:pharmo_app/views/auth/sign_up.dart';
+import 'package:pharmo_app/views/auth/auth_operations/sign_up.dart';
 import 'package:pharmo_app/views/SELLER/customer/choose_customer.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/DRIVER/index_driver.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class AppConfigs {
   static List<SingleChildWidget> providers = [
@@ -27,6 +28,16 @@ class AppConfigs {
     ChangeNotifierProvider(create: (_) => SettingsProvider()),
   ];
 
+  static List<LocalizationsDelegate<dynamic>> localizations = [
+    // FlutterQuillLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ];
+  static List<Locale> locales = [
+    Locale('en', 'US'),
+    Locale('mn', 'MN'),
+  ];
   static Map<String, Widget Function(BuildContext)> appRoutes = {
     "/root": (_) => RootPage(),
     "/login": (_) => LoginPage(),

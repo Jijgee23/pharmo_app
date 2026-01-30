@@ -102,6 +102,17 @@
 			path = helper;
 			sourceTree = "<group>";
 		};
+		84BD8C992F2A0B8D007673CB /* background_manager */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = background_manager;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +187,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				84BD8C992F2A0B8D007673CB /* background_manager */,
 				848EDDCB2F27180500167450 /* helper */,
 				848EDDC92F27172D00167450 /* handlers */,
 				84BB87952F0F61D600861122 /* Runner.entitlements */,
@@ -247,6 +259,7 @@
 			fileSystemSynchronizedGroups = (
 				848EDDC92F27172D00167450 /* handlers */,
 				848EDDCB2F27180500167450 /* helper */,
+				84BD8C992F2A0B8D007673CB /* background_manager */,
 			);
 			name = Runner;
 			productName = Runner;

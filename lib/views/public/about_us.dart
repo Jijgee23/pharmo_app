@@ -8,152 +8,255 @@ class AboutUs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> socialUrls = [
-      'https://img.freepik.com/premium-vector/art-illustration_929495-41.jpg?semt=ais_hybrid',
-      'https://img.freepik.com/premium-vector/red-youtube-logo-social-media-logo_197792-1803.jpg?semt=ais_hybrid',
-      'https://static.vecteezy.com/system/resources/previews/006/057/998/non_2x/twitter-logo-on-transparent-background-free-vector.jpg',
-    ];
-    List<String> urls = [
-      'https://www.facebook.com/infosystems.mn',
-      'https://www.youtube.com/',
-      'https://x.com/'
+    // Сошиал холбоосууд
+    final List<Map<String, String>> socials = [
+      // {
+      //   'url': 'https://www.facebook.com/infosystems.mn',
+      //   'icon':
+      //       'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_2023.png/600px-Facebook_Logo_2023.png',
+      // },
+      {
+        'url': 'https://www.youtube.com/',
+        'icon':
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/1024px-YouTube_full-color_icon_%282017%29.svg.png',
+      },
+      {
+        'url': 'https://x.com/',
+        'icon':
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/X_logo_2023.svg/600px-X_logo_2023.svg.png',
+      },
     ];
 
     return DataScreen(
       loading: false,
       empty: false,
-      appbar: SideAppBar(text: 'Бидний тухай'),
+      appbar: const SideAppBar(text: 'Бидний тухай'),
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          spacing: 10,
           children: [
-            // Container(
-            //   height: 100,
-            //   padding: EdgeInsets.symmetric(horizontal: 10),
-            //   decoration: BoxDecoration(
-            //       // color: Colors.black87,
-            //       borderRadius: BorderRadius.circular(10)),
-            //   child: Image.network(logoUrl, fit: BoxFit.cover),
-            // ),
-            div('Үүсэл хөгжил',
-                'Манай компани 1997 оноос эхлэн Мэдээллийн технологийн салбарт програм хангамжийн чиглэлээр ажиллаж зах зээлд өөрийн гэсэн байр сууриа эзэлж, тэргүүлэгч компаниудын нэг болсон.'),
-            div('Зорилт',
-                'Цаашид Монголын мэдээллийн технологи хөгжиж, өдөр тутмын хэрэглээ болохын хирээр програм хангамжийн хэрэгцээ нэмэгдэх нь зайлшгүй юм. Ийм учраас бид үйл ажиллагааны хүрээгээ өргөтгөн, хэрэглэгчиддээ чанартай, олон улсын түвшинд хүрсэн бүтээгдэхүүнээр хангахын тулд дараах зорилтуудыг дэвшүүлэн ажиллах байна.'),
-            contact(Icons.call, '70116399, 70126399, 91916549',
-                ontap: () => makePhoneCall('70116399')),
-            contact(
-              Icons.location_city,
-              'Улаанбаатар хот Чингэлтэй дүүрэг 5-р хороо Баянбогд плаза 402 тоот',
-              ontap: () => goto(Scaffold(
-                appBar: SideAppBar(text: 'Инфо-Системс ХХК'),
-                body: GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                      target: LatLng(47.92484953743797, 106.90244796842113),
-                      zoom: 14),
-                  markers: {
-                    Marker(
-                      markerId: MarkerId('is'),
-                      position: LatLng(47.92484953743797, 106.90244796842113),
-                      icon: BitmapDescriptor.defaultMarker,
-                    )
-                  },
-                ),
-              )),
+            // Компанийн лого болон танилцуулга
+            _buildCompanyHeader(),
+            const SizedBox(height: 24),
+
+            // Үндсэн мэдээллийн картууд
+            _buildInfoCard(
+              'Үүсэл хөгжил',
+              'Манай компани 1997 оноос эхлэн Мэдээллийн технологийн салбарт програм хангамжийн чиглэлээр ажиллаж зах зээлд өөрийн гэсэн байр сууриа эзэлж, тэргүүлэгч компаниудын нэг болсон.',
+              Icons.history_edu,
             ),
-            contact(
-              Icons.email,
-              'contact@infosystems.mn',
-              ontap: () => sendEmail('contact@infosystems.mn'),
+            _buildInfoCard(
+              'Зорилт',
+              'Бид үйл ажиллагааны хүрээгээ өргөтгөн, хэрэглэгчиддээ чанартай, олон улсын түвшинд хүрсэн бүтээгдэхүүнээр хангахын тулд зорилтуудыг дэвшүүлэн ажиллаж байна.',
+              Icons.rocket_launch_outlined,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ...socialUrls.map(
-                  (url) => InkWell(
-                    onTap: () => launchUrlString(urls[socialUrls.indexOf(url)]),
-                    child: SizedBox(
-                      height: 50,
-                      child: CircleAvatar(backgroundImage: NetworkImage(url)),
-                    ),
+
+            const SizedBox(height: 10),
+            _buildSectionTitle('Холбоо барих'),
+
+            // Холбоо барих хэсэг
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                children: [
+                  _contactTile(
+                    Icons.call,
+                    '70116399, 70126399, 91916549',
+                    onTap: () => makePhoneCall('70116399'),
                   ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  contact(IconData icon, String text, {Function()? ontap}) {
-    return InkWell(
-      onTap: ontap ?? () {},
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 5),
-        child: Row(
-          spacing: 10,
-          children: [
-            Icon(icon),
-            Expanded(flex: 4, child: Text(text)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  div(String title, String text) {
-    var side = Expanded(child: Container(color: neonBlue, height: 1));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          spacing: 10,
-          children: [
-            side,
-            Align(
-              alignment: Alignment.center,
-              child: Text(
-                title,
-                textAlign: TextAlign.end,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                  _buildDivider(),
+                  _contactTile(
+                    Icons.email_outlined,
+                    'contact@infosystems.mn',
+                    onTap: () => sendEmail('contact@infosystems.mn'),
+                  ),
+                  _buildDivider(),
+                  _contactTile(
+                    Icons.location_on_outlined,
+                    'Улаанбаатар, Чингэлтэй дүүрэг, 5-р хороо, Баянбогд плаза 402 тоот',
+                    isLast: true,
+                    onTap: () => _openMap(context),
+                  ),
+                ],
               ),
             ),
-            side,
+
+            const SizedBox(height: 30),
+
+            // Сошиал сувгууд
+            _buildSectionTitle('Биднийг дагаарай'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 20,
+              children:
+                  socials.map((social) => _buildSocialItem(social)).toList(),
+            ),
+
+            const SizedBox(height: 40),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCompanyHeader() {
+    return Column(
+      children: [
+        // Container(
+        //   height: 80,
+        //   width: 80,
+        //   padding: const EdgeInsets.all(12),
+        //   decoration: BoxDecoration(
+        //     color: Colors.white,
+        //     shape: BoxShape.circle,
+        //     boxShadow: [
+        //       BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)
+        //     ],
+        //   ),
+        //   child: const FlutterLogo(
+        //     size: 40,
+        //   ), // Энд өөрийн логог Image.asset-аар солино уу
+        // ),
+        // const SizedBox(height: 16),
+        const Text(
+          'ИНФО-СИСТЕМС ХХК',
+          style: TextStyle(
+              fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1),
+        ),
+        const SizedBox(height: 4),
         Text(
-          text,
-          style: TextStyle(color: grey600),
-        )
+          'Мэдээллийн технологийн салбарт 25+ жил',
+          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+        ),
       ],
     );
   }
 
+  Widget _buildInfoCard(String title, String text, IconData icon) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: primary, size: 20),
+              const SizedBox(width: 8),
+              Text(title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 15)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            text,
+            style: TextStyle(
+                color: Colors.grey.shade700, height: 1.5, fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _contactTile(IconData icon, String text,
+      {required VoidCallback onTap, bool isLast = false}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: isLast
+          ? const BorderRadius.vertical(bottom: Radius.circular(16))
+          : BorderRadius.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade50, shape: BoxShape.circle),
+              child: Icon(icon, size: 18, color: primary),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialItem(Map<String, String> social) {
+    return InkWell(
+      onTap: () => launchUrlString(social['url']!),
+      child: CircleAvatar(
+        radius: 22,
+        backgroundColor: Colors.white,
+        backgroundImage: NetworkImage(social['icon']!),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, left: 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          title,
+          style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() =>
+      Divider(height: 1, indent: 60, color: Colors.grey.shade100);
+
+  void _openMap(BuildContext context) {
+    goto(Scaffold(
+      appBar: const SideAppBar(text: 'Инфо-Системс ХХК'),
+      body: GoogleMap(
+        initialCameraPosition: const CameraPosition(
+          target: LatLng(47.92484953743797, 106.90244796842113),
+          zoom: 16,
+        ),
+        markers: {
+          const Marker(
+            markerId: MarkerId('is'),
+            position: LatLng(47.92484953743797, 106.90244796842113),
+          )
+        },
+      ),
+    ));
+  }
+
   void makePhoneCall(String phoneNumber) async {
     final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
-
     if (await canLaunchUrl(phoneUri)) {
       await launchUrl(phoneUri);
-    } else {
-      throw 'Could not launch $phoneUri';
     }
   }
 }
 
 void sendEmail(String email) async {
-  final Uri emailUri = Uri(
-    scheme: 'mailto',
-    path: email,
-    queryParameters: {
-      'subject': 'Inquiry about your service',
-      'body': 'Hello, I would like to ask about...',
-    },
-  );
-
+  final Uri emailUri = Uri(scheme: 'mailto', path: email);
   if (await canLaunchUrl(emailUri)) {
     await launchUrl(emailUri);
-  } else {
-    throw 'Could not launch $emailUri';
   }
 }

@@ -30,25 +30,31 @@ final lightTheme = ThemeData(
     ),
   ),
   appBarTheme: AppBarTheme(
-    backgroundColor: white,
-    surfaceTintColor: white,
-    // scrolledUnderElevation: 1,
-    shadowColor: grey100,
+    backgroundColor: Colors.white,
+    surfaceTintColor: Colors
+        .white, // Material 3 дээр scroll хийхэд өнгө өөрчлөгдөхөөс сэргийлнэ
+    elevation: 0, // Илүү цэвэрхэн харагдуулахын тулд 0 болгов
+    scrolledUnderElevation:
+        0.5, // Scroll хийх үед маш бүдэг сүүдэр эсвэл зураас гарна
+    shadowColor: Colors.grey.withOpacity(0.2),
     centerTitle: false,
-    iconTheme: IconThemeData(
-      color: black,
-      applyTextScaling: true,
+    iconTheme: const IconThemeData(
+      color: Color(
+          0xFF1A1A1A), // Цэвэр хар биш, гүн саарал (Deep Charcoal) нь илүү дээд зэрэглэлийн харагддаг
+      size: 24,
     ),
-    titleTextStyle: TextStyle(
-      fontSize: 16,
-      color: black,
-      fontWeight: FontWeight.bold,
+    actionsIconTheme: const IconThemeData(
+      color: Color(0xFF1A1A1A),
+      size: 24,
     ),
-    elevation: 1,
-    foregroundColor: black,
-    actionsIconTheme: IconThemeData(
-      color: black,
+    titleTextStyle: const TextStyle(
+      fontSize: 18, // 16 байсныг 18 болговол гарчиг илүү тод харагдана
+      color: Color(0xFF1A1A1A),
+      fontWeight: FontWeight.w700, // Bold-оос арай зөөлөн боловч тод
+      letterSpacing: -0.5, // Текстүүд хоорондоо илүү нягт, цэгцтэй харагдана
+      fontFamily: 'Inter', // Хэрэв та Inter эсвэл Roboto ашигладаг бол
     ),
+    toolbarHeight: 64, // Бага зэрэг өндөр болгосноор "амьсгалах" зай ихэснэ
   ),
 
   inputDecorationTheme: const InputDecorationTheme(

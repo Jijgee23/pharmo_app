@@ -1,10 +1,10 @@
 import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/views/DRIVER/active_delivery/delivery_detail.dart';
+import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_detail.dart';
 import 'package:pharmo_app/views/DRIVER/widgets/status_changer.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class DeliveryWidget extends StatefulWidget {
-  final Order order;
+  final DeliveryOrder order;
   final int delId;
   const DeliveryWidget({super.key, required this.order, required this.delId});
 
@@ -57,12 +57,16 @@ class _DeliveryWidgetState extends State<DeliveryWidget>
 
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) => InkWell(
-        onTap: () =>
-            goto(DeliveryDetail(order: widget.order, delId: widget.delId)),
-        onLongPress: () => Get.bottomSheet(StatusChanger(
+        onTap: () => goto(
+          DeliveryDetail(order: widget.order, delId: widget.delId),
+        ),
+        onLongPress: () => Get.bottomSheet(
+          StatusChanger(
             delId: widget.delId,
             orderId: widget.order.id,
-            status: widget.order.process)),
+            status: widget.order.process,
+          ),
+        ),
         child: AnimatedContainer(
           curve: Curves.slowMiddle,
           duration: const Duration(milliseconds: 300),
@@ -95,15 +99,23 @@ class _DeliveryWidgetState extends State<DeliveryWidget>
               ),
               Column(
                 children: expandedFields
-                    .map((v) => infoRow(
-                        v, expandedValues[expandedFields.indexOf(v)],
-                        color1: white, color2: white))
+                    .map(
+                      (v) => infoRow(
+                        v,
+                        expandedValues[expandedFields.indexOf(v)],
+                        color1: white,
+                        color2: white,
+                      ),
+                    )
                     .toList(),
               ),
               Align(
-                  alignment: Alignment.centerRight,
-                  child: Text('Дэлгэрэнгүй >',
-                      style: const TextStyle(color: white))),
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'Дэлгэрэнгүй >',
+                  style: const TextStyle(color: black),
+                ),
+              ),
             ],
           ),
         ),
@@ -179,7 +191,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget>
     }
   }
 
-  Widget product(Item item, BuildContext context) {
+  Widget product(dynamic item, BuildContext context) {
     double itemWidth = Sizes.width * 0.4;
     double maxItemWidth = 180;
     double minItemWidth = 140;
@@ -214,7 +226,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget>
               color: Colors.blueAccent, size: 30), // Product icon
           const SizedBox(height: 5),
           Text(
-            '${item.itemName} (${item.itemQty})',
+            '${item['itemName']} (${item['itemQty']})',
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 14,
@@ -224,7 +236,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget>
           ),
           const SizedBox(height: 5),
           Text(
-            '${toPrice(item.itemPrice.toString())} (Нэгж)',
+            '${toPrice(item['itemPrice'])} (Нэгж)',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -233,7 +245,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget>
           ),
           const SizedBox(height: 5),
           Text(
-            '${toPrice(item.itemTotalPrice.toString())} (Нийт)',
+            '${toPrice(item['itemTotalPrice'].toString())} (Нийт)',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -322,7 +334,7 @@ getOrderProcessColor(String process) {
   }
 }
 
-findCustId(Order order) {
+findCustId(DeliveryOrder order) {
   if (order.orderer != null) {
     return order.orderer!.id;
   } else if (order.customer != null) {

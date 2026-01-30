@@ -17,6 +17,7 @@ class CustomTextField extends StatelessWidget {
   final Function(String?)? onSubmitted;
   final Function()? onComplete;
   final int? maxLine;
+  final IconData? prefix;
 
   const CustomTextField({
     super.key,
@@ -34,11 +35,12 @@ class CustomTextField extends StatelessWidget {
     this.onComplete,
     this.align,
     this.maxLine,
+    this.prefix,
   });
 
   @override
   Widget build(BuildContext context) {
-    final sw = MediaQuery.of(context).size.width;
+    // final sw = MediaQuery.of(context).size.width;
     final border = OutlineInputBorder(
         borderSide: BorderSide(color: grey400, width: .5),
         borderRadius: BorderRadius.circular(Sizes.mediumFontSize));
@@ -60,8 +62,14 @@ class CustomTextField extends StatelessWidget {
         cursorColor: Colors.black,
         maxLines: maxLine ?? 1,
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: sw * 0.04),
+          contentPadding: EdgeInsets.symmetric(horizontal: 20),
           // labelText: hintText,
+          prefixIcon: prefix != null
+              ? Icon(
+                  prefix,
+                  color: primary,
+                )
+              : null,
           labelStyle: ts,
           hintText: hintText,
           hintStyle: TextStyle(

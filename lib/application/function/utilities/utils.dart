@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:intl/intl.dart' as intl;
 import 'package:image/image.dart' as img;
-import 'package:pharmo_app/controller/a_controlller.dart';
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/auth/root/root_provider.dart';
 
 Future<T?> goto<T>(Widget widget) async {
@@ -64,22 +64,27 @@ int parseInt(dynamic value) {
 }
 
 String toPrice(dynamic v) {
-  if (v == null) {
-    return '0₮';
+  // 1. Null эсвэл хоосон утга шалгах
+  if (v == null || v.toString().trim().isEmpty) {
+    return '0.00₮';
   }
+
   try {
-    num numberValue;
+    double numberValue;
+
+    // 2. Төрөл хөрвүүлэлт
     if (v is num) {
-      numberValue = v;
-    } else if (v is String) {
-      numberValue = num.tryParse(v) ?? 0;
+      numberValue = v.toDouble();
     } else {
-      throw Exception('Unsupported value type');
+      // String болон бусад төрлийг parse хийх
+      numberValue = double.tryParse(v.toString()) ?? 0.0;
     }
-    String formattedNumber = intl.NumberFormat('#,##0.##').format(numberValue);
-    return '$formattedNumber₮';
+
+    // 3. Форматлах: '#,##0.00' нь ямагт 2 оронтой бутархайг харуулна
+    final formatter = intl.NumberFormat('#,##0.00', 'en_US');
+    return '${formatter.format(numberValue)}₮';
   } catch (e) {
-    return '0₮';
+    return '0.00₮';
   }
 }
 
@@ -214,4 +219,37 @@ bool isImageLessThan1MB(File imageFile) {
   const int oneMBInBytes = 1 * 1024 * 1024;
   int fileSize = imageFile.lengthSync();
   return fileSize < oneMBInBytes;
+}
+
+Future<DateTime?> pickdate(BuildContext context,
+    {DateTime? initial, DateTime? first, DateTime? end}) async {
+  final DateTime? newDate = await showDatePicker(
+    context: context,
+    initialDate: initial,
+    firstDate: first ?? DateTime(2020),
+    lastDate: end ?? DateTime(2040),
+    builder: (context, child) {
+      return datePickerTheme(context, child);
+    },
+  );
+  return newDate;
+}
+
+Theme datePickerTheme(BuildContext context, Widget? child) {
+  return Theme(
+    data: Theme.of(context).copyWith(
+      colorScheme: ColorScheme.light(
+        primary: primary,
+        onPrimary: white,
+        onSurface: black,
+      ),
+      scaffoldBackgroundColor: white,
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primary,
+        ),
+      ),
+    ),
+    child: child!,
+  );
 }

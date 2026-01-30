@@ -3,7 +3,6 @@ import 'package:pharmo_app/views/public/product/add_basket_sheet.dart';
 import 'package:pharmo_app/views/public/product/product_detail_page.dart';
 import 'package:pharmo_app/application/application.dart';
 
-//GRID VIEW
 class ProductWidget extends StatelessWidget {
   final Product item;
   final bool? hasSale;
@@ -22,26 +21,20 @@ class ProductWidget extends StatelessWidget {
       builder: (context, home, child) {
         final secutity = LocalBase.security;
         bool isNotPharm = (secutity!.role != 'PA');
-        return InkWell(
-          onTap: () => goto(ProductDetail(prod: item)),
-          splashColor: Colors.grey,
-          highlightColor: Colors.grey,
-          child: Stack(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Sizes.smallFontSize - 2),
-                  color: Colors.white,
-                  border: Border.all(
-                    color: const Color.fromARGB(255, 207, 206, 206),
-                    width: 1,
-                  ),
-                ),
-                margin: const EdgeInsets.all(Sizes.smallFontSize / 3),
-                padding: const EdgeInsets.all(Sizes.smallFontSize / 2),
-                child: InkWell(
-                  onTap: () => goto(ProductDetail(prod: item)),
+        return Stack(
+          children: [
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: BorderSide(color: Colors.grey.shade300),
+              ),
+              surfaceTintColor: Colors.amber,
+              child: InkWell(
+                onTap: () => goto(ProductDetail(prod: item)),
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -54,7 +47,7 @@ class ProductWidget extends StatelessWidget {
                         maxLines: 2,
                         style: const TextStyle(
                           color: Colors.black,
-                          fontSize: Sizes.mediumFontSize - 2,
+                          fontSize: 12,
                         ),
                       ),
                       Row(
@@ -98,28 +91,28 @@ class ProductWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              (hasSale == true)
-                  ? Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 2, horizontal: 5),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          hasSale == true ? '${item.discount}%' : '',
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
+            ),
+            (hasSale == true)
+                ? Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 2, horizontal: 5),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        hasSale == true ? '${item.discount}%' : '',
+                        style: const TextStyle(
+                          color: Colors.white,
                         ),
                       ),
-                    )
-                  : const SizedBox(),
-            ],
-          ),
+                    ),
+                  )
+                : const SizedBox(),
+          ],
         );
       },
     );
