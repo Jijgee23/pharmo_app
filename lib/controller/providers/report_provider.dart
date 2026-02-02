@@ -4,7 +4,7 @@ import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
 import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 
 class ReportProvider extends ChangeNotifier {
-  DateTime currentDate = DateTime.now();
+  DateTime currentDate = DateTime.now().subtract(Duration(days: 30));
   DateTime currentDate2 = DateTime.now();
   List<dynamic> report = [];
   setReport(dynamic newReports) {
@@ -25,17 +25,13 @@ class ReportProvider extends ChangeNotifier {
     try {
       final r = await api(Api.get, e);
       if (r == null) return;
-      print(r.statusCode);
-      print(r.body);
       if (r.statusCode == 200) {
-        print(convertData(r).runtimeType);
         List<dynamic> data = convertData(r);
         setReport(data);
         notifyListeners();
       } else {
         report.clear();
         notifyListeners();
-        // message(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -44,7 +40,7 @@ class ReportProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setCurrentDate(DateTime newDate, {bool isStart = true}) {
+  setCurrentDate(DateTime newDate, {bool isStart = true}) async {
     final now = DateTime.now();
     if (newDate.isAfter(now)) {
       messageWarning('Огноо зөв сонгоно уу!');
@@ -56,6 +52,7 @@ class ReportProvider extends ChangeNotifier {
         return;
       }
       currentDate = newDate;
+
       notifyListeners();
       return;
     }

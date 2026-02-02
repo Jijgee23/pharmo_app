@@ -32,53 +32,49 @@ class _PromotionWidgetState extends State<PromotionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // final size = MediaQuery.of(context).size;
     return Consumer<PromotionProvider>(
       builder: (_, provider, child) {
         final promos = provider.promotions;
-        return DefaultBox(
-          title: 'Урамшуулалууд',
-          child: Column(
-            children: [
-              SingleChildScrollView(
-                padding: EdgeInsets.all(15),
-                scrollDirection: Axis.horizontal,
-                child: Wrap(
-                  direction: Axis.horizontal,
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 25,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: DropdownButton(
+        return Scaffold(
+          appBar: AppBar(title: Text('Урамшуулал')),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  height: 60, // Тогтмол өндөр нь цэсийг цэгцтэй харагдуулна
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    children: [
+                      // 1. Төрөл сонгох Dropdown
+                      _buildFilterWrapper(
+                        child: DropdownButton<String>(
                           dropdownColor: Colors.white,
-                          isExpanded: false,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          underline: const SizedBox(),
                           value: selectedPromoType,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          items: promoTypes.map((e) {
-                            return DropdownMenuItem(
-                                value: e,
-                                child: Text(
-                                  e,
-                                  style: const TextStyle(
-                                      color: Colors.black, fontSize: 12),
-                                ));
-                          }).toList(),
+                          underline: const SizedBox(),
+                          icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                              size: 18),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500),
+                          items: promoTypes
+                              .map((e) =>
+                                  DropdownMenuItem(value: e, child: Text(e)))
+                              .toList(),
                           onChanged: (value) {
-                            setState(() {
-                              selectedPromoType = value!;
-                            });
+                            setState(() => selectedPromoType = value!);
                             provider.filterPromotion('promo_type',
                                 (promoTypes.indexOf(value!) + 1).toString());
-                          }),
-                    ),
-                    GestureDetector(
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // 2. Бэлэгтэй эсэх (Toggle Button загвараар)
+                      _buildFilterWrapper(
                         onTap: () {
                           setState(() {
                             hasGift = !hasGift;
@@ -86,39 +82,87 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                                 'has_gift', hasGift.toString());
                           });
                         },
-                        child: CustomIcon(
-                            name: hasGift
-                                ? 'gitf_filled.png'
-                                : 'gift_empty.png')),
-                    GestureDetector(
-                      onTap: () {
-                        //  _selectDate(context, provider);
-                        _datePicker(context);
-                        debugPrint(start.toString().substring(0, 10));
-                      },
-                      child: Column(
-                        children: [
-                          Text(
-                            start.toString().substring(0, 10),
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          Text(
-                            end.toString().substring(0, 10),
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ],
+                        color: hasGift
+                            ? primary.withOpacity(0.1)
+                            : Colors.transparent,
+                        borderColor: hasGift ? primary : Colors.grey.shade300,
+                        child: Row(
+                          children: [
+                            CustomIcon(
+                              name: hasGift
+                                  ? 'gitf_filled.png'
+                                  : 'gift_empty.png',
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Бэлэгтэй',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: hasGift ? primary : Colors.black87,
+                                fontWeight: hasGift
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    InkWell(
-                        borderRadius: BorderRadius.circular(10),
-                        splashColor: Colors.blue.shade100,
-                        onTap: provider.getPromotion,
-                        child: const CustomIcon(name: 'list.png')),
-                  ],
+
+                      const SizedBox(width: 12),
+
+                      // 3. Огноо сонгох
+                      _buildFilterWrapper(
+                        onTap: () => _datePicker(context),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_month_outlined,
+                                size: 16, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  start.toString().substring(0, 10),
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  end.toString().substring(0, 10),
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // 4. Дахин ачаалах/Жагсаалт
+                      IconButton(
+                        onPressed: provider.getPromotion,
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.grey.shade100,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: const CustomIcon(name: 'list.png'),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              (promos.isNotEmpty)
-                  ? Expanded(
+                Builder(
+                  builder: (context) {
+                    if (promos.isEmpty) {
+                      return NoResult();
+                    }
+                    return Expanded(
                       child: XBox(
                         child: SingleChildScrollView(
                           child: Column(
@@ -132,12 +176,33 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                           ),
                         ),
                       ),
-                    )
-                  : NoResult(),
-            ],
+                    );
+                  },
+                )
+              ],
+            ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildFilterWrapper(
+      {required Widget child,
+      VoidCallback? onTap,
+      Color? color,
+      Color? borderColor}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: color ?? Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor ?? Colors.grey.shade300),
+        ),
+        child: Center(child: child),
+      ),
     );
   }
 

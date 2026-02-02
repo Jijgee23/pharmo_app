@@ -13,7 +13,7 @@ class LocationPicker extends StatefulWidget {
 }
 
 class _LocationPickerState extends State<LocationPicker> {
-  late final GoogleMapController controller;
+  GoogleMapController? controller;
   LatLng _selectedLocation = ulaanbaatar;
   Marker? _marker;
 
@@ -60,13 +60,12 @@ class _LocationPickerState extends State<LocationPicker> {
           position: _selectedLocation,
           infoWindow: const InfoWindow(title: "Одоогийн байршил"),
         );
-        controller.animateCamera(CameraUpdate.newLatLng(_selectedLocation));
+        controller!.animateCamera(CameraUpdate.newLatLng(_selectedLocation));
       },
     );
   }
 
   _onMapTapped(LatLng location) {
-    print('lat ${location.latitude}\n lng${location.longitude}');
     setState(() {
       _selectedLocation = location;
       _marker = Marker(
@@ -81,97 +80,154 @@ class _LocationPickerState extends State<LocationPicker> {
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (context, home, pp, child) => Scaffold(
-        body: Builder(
-          builder: (context) {
-            return Stack(
-              children: <Widget>[
-                GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: _selectedLocation,
-                    zoom: 12,
-                  ),
-                  myLocationButtonEnabled: false,
-                  onMapCreated: (GoogleMapController c) {
-                    setState(() {
-                      controller = c;
-                    });
-                  },
-                  onTap: _onMapTapped,
-                  markers: _marker != null ? {_marker!} : {},
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 20,
-                  child: SafeArea(
-                    child: Column(
-                      spacing: 10,
-                      children: [
-                        FloatingActionButton(
-                          heroTag: 'cusotmerLocationGOTO',
-                          elevation: 20,
-                          onPressed: goToMyLocation,
-                          backgroundColor: Colors.white,
-                          child: const Icon(Icons.my_location,
-                              color: Colors.black),
-                        ),
-                        FloatingActionButton(
-                          heroTag: 'SaveCustomerLocation',
-                          elevation: 20,
-                          onPressed: () async => await saveCustomerLocatoin(pp),
-                          backgroundColor: Colors.white,
-                          child: const Icon(Icons.save, color: Colors.black),
-                        ),
-                      ],
-                    ),
+        body: Stack(
+          children: <Widget>[
+            // 1. Google Map
+            GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: _selectedLocation,
+                zoom: 14,
+              ),
+              myLocationEnabled: true, // Хэрэглэгчийн цэнхэр цэгийг харуулна
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false, // Илүү цэвэрхэн харагдуулна
+              onMapCreated: (c) => controller = c,
+              onTap: _onMapTapped,
+              markers: _marker != null ? {_marker!} : {},
+            ),
+
+            // 2. Дээд талын мэдээллийн хэсэг (Header)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top + 10,
+                    left: 16,
+                    right: 16,
+                    bottom: 20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.black.withOpacity(0.6), Colors.transparent],
                   ),
                 ),
-                Positioned(
-                  top: 0,
-                  left: 20,
-                  child: SafeArea(
-                    bottom: true,
-                    child: FloatingActionButton(
-                      heroTag: 'cusotmerLocationPop',
-                      elevation: 20,
-                      onPressed: () => Navigator.pop(context),
+                child: Row(
+                  children: [
+                    CircleAvatar(
                       backgroundColor: Colors.white,
-                      child: const Icon(
-                        Icons.chevron_left,
-                        color: Colors.black,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.black),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.customer.name ?? 'Байршил тогтоох',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18),
+                          ),
+                          const Text(
+                            'Газрын зураг дээр дарж байршлыг сонгоно уу',
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            );
-          },
+              ),
+            ),
+
+            // 3. Баруун доорх үйлдлийн товчлуурууд
+            Positioned(
+              bottom: 30,
+              right: 20,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _mapActionButton(
+                    icon: Icons.my_location,
+                    onTap: goToMyLocation,
+                    heroTag: 'myLoc',
+                  ),
+                  const SizedBox(height: 15),
+                  _mapActionButton(
+                    icon: Icons.check_circle,
+                    label: 'Хадгалах',
+                    color: primary,
+                    iconColor: Colors.white,
+                    onTap: () => saveCustomerLocatoin(pp),
+                    heroTag: 'saveLoc',
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Future<void> goToMyLocation() async {
-    if (controller == null) {
-      return;
-    }
-
-    final n = await Geolocator.getCurrentPosition();
-    if (n != null) _selectedLocation = LatLng(n.latitude, n.longitude);
-
-    _marker = Marker(
-      markerId: const MarkerId("current-location"),
-      position: _selectedLocation,
-      infoWindow: const InfoWindow(title: "Одоогийн байршил"),
-    );
-    await controller.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: _selectedLocation,
-          zoom: 16,
+  // Загварлаг газрын зургийн товчлуур
+  Widget _mapActionButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required String heroTag,
+    String? label,
+    Color color = Colors.white,
+    Color iconColor = Colors.black,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (label != null)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            margin: const EdgeInsets.only(bottom: 5),
+            decoration: BoxDecoration(
+                color: Colors.black54, borderRadius: BorderRadius.circular(5)),
+            child: Text(label,
+                style: const TextStyle(color: Colors.white, fontSize: 10)),
+          ),
+        FloatingActionButton(
+          heroTag: heroTag,
+          onPressed: onTap,
+          backgroundColor: color,
+          elevation: 4,
+          child: Icon(icon, color: iconColor),
         ),
-      ),
+      ],
     );
-    setState(() {});
+  }
+
+  // Жижиг засвар: controller-ийг null эсэхийг заавал шалгах
+  Future<void> goToMyLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition();
+      LatLng current = LatLng(position.latitude, position.longitude);
+
+      setState(() {
+        _selectedLocation = current;
+        _marker = Marker(
+          markerId: const MarkerId("selected-location"),
+          position: current,
+        );
+      });
+
+      controller?.animateCamera(CameraUpdate.newLatLngZoom(current, 16));
+    } catch (e) {
+      messageWarning("Байршил тогтооход алдаа гарлаа");
+    }
   }
 
   saveCustomerLocatoin(PharmProvider pharm) async {

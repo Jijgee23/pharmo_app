@@ -28,66 +28,85 @@ class ProductWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 side: BorderSide(color: Colors.grey.shade300),
               ),
+              margin: EdgeInsets.zero,
               surfaceTintColor: Colors.amber,
               child: InkWell(
                 onTap: () => goto(ProductDetail(prod: item)),
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 child: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(7.5),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       image(Sizes.height, fontSize),
-                      Text(
-                        item.name!,
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 12,
-                        ),
-                      ),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.name!,
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             toPrice(item.price),
                             style: const TextStyle(
                               color: Colors.black,
-                              fontWeight: FontWeight.bold,
                               fontSize: Sizes.mediumFontSize - 2,
                             ),
                           ),
                           if (isNotPharm)
                             Text(
-                              'Үлд: ${maybeNull(item.qty.toString())}',
+                              'Үлд: ${parseDouble(item.qty)}',
                               style: TextStyle(
-                                fontSize: Sizes.smallFontSize,
-                                fontWeight: FontWeight.bold,
+                                fontSize: Sizes.mediumFontSize - 2,
+                                color: item.qty > 0 ? Colors.green : Colors.red,
                               ),
-                            ),
-                          InkWell(
-                            highlightColor: Colors.grey,
-                            splashColor: Colors.grey,
-                            onTap: () =>
-                                Get.bottomSheet(AddBasketSheet(product: item)),
-                            child: Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(
-                                      color: theme.primaryColor, width: 1.5),
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Icon(Icons.add, color: theme.primaryColor),
-                            ),
-                          ),
+                            )
                         ],
                       ),
                     ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: InkWell(
+                highlightColor: Colors.grey,
+                splashColor: Colors.grey,
+                onTap: () => Get.bottomSheet(
+                  AddBasketSheet(product: item),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(
+                      color: theme.primaryColor,
+                      width: 1.5,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Icon(
+                    Icons.add,
+                    color: theme.primaryColor,
                   ),
                 ),
               ),

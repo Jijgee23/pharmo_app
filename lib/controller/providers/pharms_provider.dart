@@ -1,9 +1,6 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 
 class PharmProvider extends ChangeNotifier {
   List<Customer> filteredCustomers = <Customer>[];

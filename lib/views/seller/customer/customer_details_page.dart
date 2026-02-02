@@ -45,166 +45,228 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
               final d = pp.customerDetail;
               bool isEditable = (d.addedById != null &&
                   d.addedById == LocalBase.security!.id);
-              Map<String, String> params = {
-                'Мейл': maybeNull(d.email),
-                'Регистр': maybeNull(d.rn),
-                'Утас': maybeNull(d.phone),
-                'Утас 2': maybeNull(d.phone2),
-                'Утас 3': maybeNull(d.phone3),
-                'Тайлбар': maybeNull(d.note)
-              };
+
               return Scaffold(
+                backgroundColor: Colors.grey.shade50,
                 appBar: AppBar(
-                  centerTitle: false,
-                  backgroundColor: primary,
-                  foregroundColor: white,
-                  iconTheme: IconThemeData(color: white),
                   elevation: 0,
-                  title: Text(
-                    'Харилцагчийн мэдээлэл',
-                    style: const TextStyle(
+                  backgroundColor: primary,
+                  foregroundColor: Colors.white,
+                  iconTheme: IconThemeData(color: white),
+                  title: const Text(
+                    'Харилцагч',
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: white,
                     ),
                   ),
                   actions: [
                     if (isEditable)
-                      Ibtn(
-                        onTap: () => editCustomer(d, pp, params.keys.toList()),
-                        icon: Icons.edit,
+                      IconButton(
+                        onPressed: () => editCustomer(d, pp, [
+                          'Мейл',
+                          'Регистр',
+                          'Утас',
+                          'Утас 2',
+                          'Утас 3',
+                          'Тайлбар'
+                        ]),
+                        icon: const Icon(Icons.edit_note_rounded, size: 28),
                       ),
                   ],
                 ),
-                body: Column(
-                  spacing: 10.0,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    IntrinsicHeight(
-                      child: Container(
-                        width: double.maxFinite,
-                        padding: EdgeInsets.all(15.0),
-                        decoration: BoxDecoration(
-                          color: primary,
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(Sizes.bigFontSize),
-                            bottomRight: Radius.circular(Sizes.bigFontSize),
-                          ),
-                        ),
+                body: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildHeader(d),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            CircleAvatar(
-                              radius: Sizes.width * .07,
-                              backgroundColor: Colors.white,
-                              child: Text(
-                                d.name?.substring(0, 1).toUpperCase() ?? '',
-                                style: TextStyle(
-                                  fontSize: Sizes.width * .05,
-                                  color: primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              d.name ?? 'Харилцагчийн нэр',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              d.rn ?? 'Регистрийн дугааргүй',
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              spacing: 10,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                ...contacting.entries.map(
-                                  (e) => social(e, d),
-                                ),
+                            _buildInfoSection(
+                              title: 'Холбоо барих',
+                              items: [
+                                _infoTile(Icons.alternate_email_rounded,
+                                    'Мэйл хаяг', d.email),
+                                _infoTile(Icons.phone_iphone_rounded,
+                                    'Үндсэн утас', d.phone),
+                                if (d.phone2 != null)
+                                  _infoTile(Icons.phone_enabled_rounded,
+                                      'Нэмэлт утас 1', d.phone2),
+                                if (d.phone3 != null)
+                                  _infoTile(Icons.phone_enabled_rounded,
+                                      'Нэмэлт uтас 2', d.phone3),
                               ],
-                            )
+                            ),
+                            const SizedBox(height: 16),
+                            _buildInfoSection(
+                              title: 'Санхүүгийн мэдээлэл',
+                              items: [
+                                _infoTile(
+                                    Icons.account_balance_wallet_rounded,
+                                    'Зээлийн лимит',
+                                    (d.loanLimitUse == true)
+                                        ? toPrice(d.loanLimit)
+                                        : 'Ашиглахгүй'),
+                                _infoTile(Icons.badge_rounded,
+                                    'Регистрийн дугаар', d.rn),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            _buildInfoSection(
+                              title: 'Бусад',
+                              items: [
+                                _infoTile(Icons.description_rounded,
+                                    'Тэмдэглэл', d.note,
+                                    isMultiLine: true),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                    SingleChildScrollView(
-                      padding: EdgeInsets.all(14.0),
-                      child: Column(
-                        spacing: 20,
-                        children: [
-                          contactWidget(
-                            'Мэйл',
-                            [maybeNull(d.email ?? '')],
-                            Icons.email,
-                          ),
-                          contactWidget(
-                            'Утас',
-                            [
-                              maybeNull(d.phone ?? ''),
-                              maybeNull(d.phone2 ?? ''),
-                              maybeNull(d.phone3 ?? '')
-                            ].where((e) => e.isNotEmpty).toList(),
-                            Icons.phone,
-                          ),
-                          contactWidget(
-                            'Тайлбар',
-                            [maybeNull(d.note ?? '')],
-                            Icons.note,
-                          ),
-                          contactWidget(
-                            'Зээлийн мэдээлэл',
-                            [
-                              (d.loanLimitUse == true &&
-                                      double.parse(maybeNull(
-                                              d.loanLimit.toString())) >=
-                                          0.0)
-                                  ? 'Зээлийн лимит: ${toPrice(d.loanLimit)}'
-                                  : 'Зээлийн лимит ашиглахгүй',
-                            ],
-                            Icons.credit_card,
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
           );
   }
 
-  Expanded social(MapEntry<String, IconData> e, CustomerDetail d) {
-    return Expanded(
-      child: ElevatedButton(
-        onPressed: () => handleSocial(e.key, d),
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(
-              color: Colors.white.withAlpha(125),
-            ),
-          ),
-          overlayColor: Colors.white.withAlpha(100),
-          padding: const EdgeInsets.all(10),
-          backgroundColor: primary.withAlpha(150),
+  // 1. Header хэсэг: Нэр болон Social товчлуурууд
+  Widget _buildHeader(CustomerDetail d) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: primary,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
         ),
-        child: Column(
-          spacing: 3,
-          children: [
-            Icon(e.value, color: Colors.white),
-            Text(
-              e.key,
-              style: const TextStyle(
-                color: Colors.white,
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 45,
+            backgroundColor: Colors.white.withOpacity(0.2),
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.white,
+              child: Text(
+                d.name?.substring(0, 1).toUpperCase() ?? '?',
+                style: const TextStyle(
+                    fontSize: 32, fontWeight: FontWeight.bold, color: primary),
               ),
             ),
-          ],
+          ),
+          const SizedBox(height: 15),
+          Text(
+            d.name ?? 'Нэргүй харилцагч',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+                fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 25),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children:
+                contacting.entries.map((e) => _buildQuickAction(e, d)).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Quick Action Buttons (Call, Mail, Location, FB)
+  Widget _buildQuickAction(MapEntry<String, IconData> e, CustomerDetail d) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: () => handleSocial(e.key, d),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
+            ),
+            child: Icon(e.value, color: Colors.white, size: 24),
+          ),
         ),
+        const SizedBox(height: 8),
+        Text(e.key, style: const TextStyle(color: Colors.white, fontSize: 12)),
+      ],
+    );
+  }
+
+  // Мэдээллийн бүлэг (Card style)
+  Widget _buildInfoSection(
+      {required String title, required List<Widget> items}) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(title,
+                style: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.bold, color: primary)),
+          ),
+          const Divider(height: 1),
+          ...items,
+        ],
+      ),
+    );
+  }
+
+  // Мэдээллийн мөр бүр
+  Widget _infoTile(IconData icon, String label, String? value,
+      {bool isMultiLine = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        crossAxisAlignment:
+            isMultiLine ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, size: 18, color: Colors.grey.shade600),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style:
+                        TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                const SizedBox(height: 2),
+                Text(
+                  (value == null || value.isEmpty) ? '-' : value,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

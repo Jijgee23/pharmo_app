@@ -27,19 +27,12 @@ class BasketProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  int _count = 0;
-  int get count => _count;
   Basket? basket;
   List<dynamic> _shoppingCarts = [];
   List<dynamic> get shoppingCarts => [..._shoppingCarts];
 
   late OrderQRCode _qrCode;
   OrderQRCode get qrCode => _qrCode;
-
-  void increment() {
-    _count++;
-    notifyListeners();
-  }
 
   Future getBasket() async {
     try {
@@ -52,9 +45,7 @@ class BasketProvider extends ChangeNotifier {
       if (r.statusCode == 200) {
         final res = convertData(r);
         basket = Basket.fromJson(res as Map<String, dynamic>);
-        _count = basket!.items != null && basket!.items!.isNotEmpty
-            ? basket!.items!.length
-            : 0;
+
         _shoppingCarts = basket!.items!;
         notifyListeners();
       } else {
@@ -230,7 +221,6 @@ class BasketProvider extends ChangeNotifier {
 
   void reset() {
     qty.clear();
-    _count = 0;
     basket = null;
     shoppingCarts.clear();
     notifyListeners();

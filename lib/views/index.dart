@@ -110,6 +110,12 @@ class _IndexPharmaState extends State<IndexPharma> {
               'order-history',
               'user'
             ],
+            labels: [
+              if (role != 'PA') 'Харилцагч',
+              'Бараа',
+              'Түүх',
+              'Профайл',
+            ],
           ),
         );
       },

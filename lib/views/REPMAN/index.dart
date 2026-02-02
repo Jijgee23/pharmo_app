@@ -47,7 +47,10 @@ class _IndexRepState extends State<IndexRep> {
             ],
           ),
           body: pages[homeProvider.currentIndex],
-          bottomNavigationBar: BottomBar(icons: icons),
+          bottomNavigationBar: BottomBar(
+            icons: icons,
+            labels: ['Нүүр', 'Профайл'],
+          ),
         );
       },
     );

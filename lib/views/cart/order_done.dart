@@ -13,12 +13,11 @@ class _OrderDoneState extends State<OrderDone> {
   @override
   void initState() {
     super.initState();
-    // 3 секундын дараа автоматаар нүүр хуудас руу шилжинэ
-    // Future.delayed(const Duration(seconds: 3), () {
-    //   if (mounted) {
-    //     goHome(context.read<BasketProvider>());
-    //   }
-    // });
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        goHome(context.read<BasketProvider>());
+      }
+    });
   }
 
   goHome(BasketProvider provider) async {

@@ -1,5 +1,4 @@
 import 'package:pharmo_app/views/auth/login/auth_text.dart';
-import 'package:pharmo_app/views/auth/login/forget_and_signup.dart';
 import 'package:pharmo_app/views/auth/login/login_footer.dart';
 import 'package:pharmo_app/views/auth/login/login_header_image.dart';
 import 'package:pharmo_app/application/application.dart';
@@ -26,105 +25,128 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Consumer<AuthController>(
       builder: (context, auth, child) {
+        if (auth.loading) {
+          return const PharmoIndicator(
+            withMaterial: true,
+          );
+        }
+
         return Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: Builder(builder: (context) {
-            if (auth.loading) {
-              return PharmoIndicator();
-            }
-            return Form(
-              key: formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  LoginHeaderImage(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    decoration: BoxDecoration(color: theme.cardColor),
-                    child: Center(
-                      child: Column(
-                        spacing: 15,
+          body: Form(
+            key: formKey,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                const LoginHeaderImage(),
+                Padding(
+                  padding: const EdgeInsets.all(25.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AuthText('Нэвтрэх'),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Үргэлжлүүлэхийн тулд бүртгэлээрээ нэвтэрнэ үү.',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                      const SizedBox(height: 30),
+
+                      // Имейл
+                      CustomTextField(
+                        controller: auth.ema,
+                        autofillHints: const [AutofillHints.email],
+                        hintText: 'Имейл хаяг',
+                        prefix: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 15),
+
+                      // Нууц үг
+                      CustomTextField(
+                        controller: auth.pass,
+                        autofillHints: const [AutofillHints.password],
+                        hintText: 'Нууц үг',
+                        obscureText: auth.hidePass,
+                        prefix: Icons.lock_outline,
+                        suffixIcon: IconButton(
+                          onPressed: auth.toggleHidePass,
+                          icon: Icon(
+                            auth.hidePass
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: theme.primaryColor.withOpacity(0.5),
+                          ),
+                        ),
+                      ),
+
+                      // Сануулах & Нууц үг мартсан
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(),
-                          AuthText('Нэвтрэх'),
-                          CustomTextField(
-                            controller: auth.ema,
-                            autofillHints: const [AutofillHints.email],
-                            hintText: 'Имейл хаяг',
-                            validator: (v) {
-                              if (v!.isNotEmpty) {
-                                return validateEmail(v);
-                              } else {
-                                return null;
-                              }
-                            },
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          CustomTextField(
-                            autofillHints: const [AutofillHints.password],
-                            controller: auth.pass,
-                            hintText: 'Нууц үг',
-                            obscureText: auth.hidePass,
-                            validator: validatePassword,
-                            keyboardType: TextInputType.visiblePassword,
-                            suffixIcon: IconButton(
-                              onPressed: auth.toggleHidePass,
-                              icon: Icon(
-                                auth.hidePass
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: theme.primaryColor.withAlpha(75),
+                          Row(
+                            children: [
+                              Checkbox(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5)),
+                                value: auth.remember,
+                                onChanged: (val) => auth.setRemember(val!),
                               ),
-                            ),
+                              const Text('Сануулах',
+                                  style: TextStyle(fontSize: 13)),
+                            ],
                           ),
-                          GestureDetector(
-                            onTap: () => auth.setRemember(!auth.remember),
-                            child: Row(
-                              spacing: 5,
-                              children: [
-                                Checkbox(
-                                  visualDensity: VisualDensity.compact,
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  value: auth.remember,
-                                  onChanged: (val) =>
-                                      auth.setRemember(!auth.remember),
-                                ),
-                                Text(
-                                  'Сануулах',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: theme.primaryColor,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          CustomTextButton(
+                            text: 'Нууц үг мартсан?',
+                            onTap: () => goNamed('reset_password'),
                           ),
-                          CustomButton(
-                              text: 'Нэвтрэх',
-                              ontap: () async {
-                                if (!formKey.currentState!.validate()) {
-                                  message('Нэвтрэх нэр, нууц үг оруулна уу');
-                                  return;
-                                }
-                                await auth.login();
-                              }),
-                          ForgetAndSignup(),
                         ],
                       ),
-                    ),
+
+                      const SizedBox(height: 20),
+                      CustomButton(
+                        text: 'Нэвтрэх',
+                        ontap: () async {
+                          if (formKey.currentState!.validate()) {
+                            await auth.login();
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const Center(child: SignupPrompt()),
+                    ],
                   ),
-                ],
-              ),
-            );
-          }),
-          bottomNavigationBar: LoginFooter(),
+                ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: const LoginFooter(),
         );
       },
+    );
+  }
+}
+
+class SignupPrompt extends StatelessWidget {
+  const SignupPrompt({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text('Бүртгэлгүй юу? '),
+        GestureDetector(
+          onTap: () => goNamed('signup'),
+          child: Text(
+            'Бүртгүүлэх',
+            style: TextStyle(
+              color: primary,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

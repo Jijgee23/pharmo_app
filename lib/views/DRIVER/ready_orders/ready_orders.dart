@@ -61,9 +61,7 @@ class _ReadyOrdersState extends State<ReadyOrders> {
                   child: Builder(
                     builder: (context) {
                       if (jagger.orders.isEmpty) {
-                        return Column(
-                          children: [NoResult()],
-                        );
+                        return NoResult();
                       }
                       return ListView.builder(
                         itemCount: jagger.orders.length,

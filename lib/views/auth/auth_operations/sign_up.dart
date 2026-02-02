@@ -14,151 +14,172 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController phone = TextEditingController();
   final TextEditingController passConfirm = TextEditingController();
   final TextEditingController otp = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>(); // Validation хийхэд хэрэгтэй
   bool showPasss = false;
   bool otpSent = false;
-  setOtpSent(bool n) {
-    setState(() {
-      otpSent = n;
-    });
+
+  @override
+  void dispose() {
+    ema.dispose();
+    pass.dispose();
+    phone.dispose();
+    passConfirm.dispose();
+    otp.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
+
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // 1. Header хэсэг
+            Stack(
               children: [
                 Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                        ),
-                        color: theme.primaryColor.withAlpha(75),
-                        image: const DecorationImage(
-                            image: AssetImage('assets/picon.png')))),
-                const Positioned(
-                  top: 30,
-                  left: 15,
-                  child: ChevronBack(),
-                )
+                  height: MediaQuery.of(context).size.height * 0.25,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withOpacity(0.1),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(40),
+                      bottomRight: Radius.circular(40),
+                    ),
+                  ),
+                  child: Center(
+                    child: Image.asset('assets/picon.png', width: 100),
+                  ),
+                ),
+                const Positioned(top: 50, left: 15, child: ChevronBack()),
               ],
             ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: SingleChildScrollView(
-                child: Wrap(
-                  runSpacing: 15,
+
+            // 2. Form хэсэг
+            Padding(
+              padding: const EdgeInsets.all(25.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AuthText('Бүртгүүлэх'),
+                    const AuthText('Бүртгүүлэх'),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Шинэ бүртгэл үүсгэхийн тулд мэдээллээ оруулна уу.',
+                      style:
+                          TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    ),
+                    const SizedBox(height: 25),
+
                     CustomTextField(
                       controller: ema,
-                      hintText: 'Имейл',
-                      obscureText: false,
+                      hintText: 'Имейл хаяг',
+                      prefix: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: validateEmail,
                     ),
+                    const SizedBox(height: 15),
+
                     CustomTextField(
                       controller: phone,
                       hintText: 'Утасны дугаар',
-                      obscureText: false,
+                      prefix: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: validatePhone,
                     ),
+                    const SizedBox(height: 15),
+
                     CustomTextField(
                       controller: pass,
                       hintText: 'Нууц үг',
                       obscureText: !showPasss,
-                      keyboardType: TextInputType.visiblePassword,
+                      prefix: Icons.lock_outline,
+                      suffixIcon: _viewIcon(),
                       validator: validatePassword,
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            showPasss = !showPasss;
-                          });
-                        },
-                        icon: Icon(
-                            showPasss ? Icons.visibility : Icons.visibility_off,
-                            color: theme.primaryColor),
-                      ),
                     ),
+                    const SizedBox(height: 15),
+
                     CustomTextField(
                       controller: passConfirm,
                       hintText: 'Нууц үг давтах',
                       obscureText: !showPasss,
-                      keyboardType: TextInputType.visiblePassword,
-                      validator: validatePassword,
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            showPasss = !showPasss;
-                          });
-                        },
-                        icon: Icon(
-                            showPasss ? Icons.visibility : Icons.visibility_off,
-                            color: theme.primaryColor),
-                      ),
+                      prefix: Icons.lock_reset,
+                      suffixIcon: _viewIcon(),
+                      validator: (v) =>
+                          v != pass.text ? 'Нууц үг таарахгүй байна' : null,
                     ),
-                    (otpSent)
-                        ? CustomTextField(
-                            controller: otp,
-                            hintText: 'Батлагаажуулах код',
-                            keyboardType: TextInputType.number,
-                          )
-                        : const SizedBox(),
-                    (!otpSent)
+
+                    if (otpSent) ...[
+                      const SizedBox(height: 15),
+                      CustomTextField(
+                        controller: otp,
+                        hintText: 'Батлагаажуулах код',
+                        prefix: Icons.vibration_outlined,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ],
+
+                    const SizedBox(height: 30),
+
+                    // 3. Үйлдэл хийх товч
+                    otpSent
                         ? CustomButton(
-                            text: 'Батлагаажуулах код авах',
-                            ontap: () => getOtp(authController),
+                            text: 'Бүртгэл баталгаажуулах',
+                            ontap: () => confirm(authController),
                           )
                         : CustomButton(
-                            text: 'Батлагаажуулах',
-                            ontap: () => confirm(authController),
+                            text: 'Батлагаажуулах код авах',
+                            ontap: () => getOtp(authController),
                           ),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
+  IconButton _viewIcon() {
+    return IconButton(
+      onPressed: () => setState(() => showPasss = !showPasss),
+      icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
+          color: theme.primaryColor.withOpacity(0.6)),
+    );
+  }
+
+  // Логик хэсэгт нэмсэн засварууд
   getOtp(AuthController authController) async {
-    if (ema.text.isNotEmpty && phone.text.isNotEmpty) {
+    if (_formKey.currentState!.validate()) {
       dynamic res = await authController.signUpGetOtp(ema.text, phone.text);
-      final keyK = res['errorType'];
-      if (keyK == 1) {
-        setOtpSent(true);
+      if (res['errorType'] == 1) {
+        setState(() => otpSent = true);
       }
       messageComplete(res['message']);
-    } else {
-      messageWarning('Бүртгэлийг талбарууд гүйцээнэ үү!');
     }
   }
 
   confirm(AuthController authController) async {
-    if (pass.text == passConfirm.text && pass.text.isNotEmpty) {
+    if (_formKey.currentState!.validate() && otp.text.isNotEmpty) {
       dynamic res = await authController.register(
         email: ema.text,
         phone: phone.text,
         otp: otp.text,
         password: pass.text,
       );
-      messageComplete(res['message']);
-      print(res['errorType']);
       if (res['errorType'] == 1) {
+        messageComplete(res['message']);
         Navigator.pop(context);
+      } else {
+        messageWarning(res['message']);
       }
-    } else {
-      messageWarning('Нууц үг таарахгүй байна!');
+    } else if (otp.text.isEmpty) {
+      messageWarning('Баталгаажуулах код оруулна уу!');
     }
   }
 }

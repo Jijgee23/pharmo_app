@@ -19,7 +19,7 @@ class _IndexDriverState extends State<IndexDriver> {
         return Scaffold(
           // appBar: appBar(home),
           body: _pages[home.currentIndex],
-          bottomNavigationBar: BottomBar(icons: icons),
+          bottomNavigationBar: BottomBar(icons: icons, labels: labels),
         );
       },
     );
@@ -28,4 +28,5 @@ class _IndexDriverState extends State<IndexDriver> {
   final List _pages = [TrackMap(), ReadyOrders(), DeliveryProfile()];
 
   List<String> icons = ['marker', 'box-check', 'user'];
+  List<String> labels = ['Map', 'Захиалгууд', 'Профайл'];
 }

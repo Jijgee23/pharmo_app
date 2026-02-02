@@ -66,11 +66,12 @@ class _CustomerListState extends State<CustomerList>
         if (user == null) return AuthError();
         return SafeArea(
           child: Column(
+            spacing: 10,
             children: [
               CustomerSearcher(),
               customersList(pp, home),
             ],
-          ),
+          ).paddingSymmetric(horizontal: 10),
         );
       },
     );
@@ -81,7 +82,6 @@ class _CustomerListState extends State<CustomerList>
       child: RefreshIndicator.adaptive(
         onRefresh: () async => init(true),
         child: ListView.builder(
-          padding: EdgeInsets.all(5),
           itemCount: pp.filteredCustomers.length,
           itemBuilder: (context, ind) {
             final customer = pp.filteredCustomers[ind];

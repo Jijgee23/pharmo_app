@@ -1,8 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
-import 'package:pharmo_app/views/home/widgets/modern_field.dart';
-import 'package:pharmo_app/views/home/widgets/modern_icon.dart';
-import 'package:pharmo_app/views/home/widgets/selected_filter.dart';
 
 class CustomerSearcher extends StatefulWidget {
   const CustomerSearcher({super.key});
@@ -58,7 +55,7 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
           ),
           // CartIcon()
         ],
-      ).paddingSymmetric(horizontal: 10),
+      ),
     );
   }
 

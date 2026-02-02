@@ -1,8 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pharmo_app/views/home/widgets/filter_chip.dart';
-import 'package:pharmo_app/views/home/widgets/modern_field.dart';
-import 'package:pharmo_app/views/home/widgets/modern_icon.dart';
-import 'package:pharmo_app/views/home/widgets/selected_filter.dart';
+import 'package:pharmo_app/views/auth/authentication/auth_error.dart';
 import 'package:pharmo_app/views/public/filter/filter.dart';
 import 'package:pharmo_app/views/public/product/product_widget.dart';
 import 'package:pharmo_app/application/application.dart';
@@ -102,45 +99,41 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               spacing: 5,
               children: [
                 if (user.role == 'PA')
-                  Padding(
-                    key: actoinKey,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      spacing: 10,
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () => handleActionButton(home),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primary.shade600,
-                              elevation: 0,
-                              minimumSize: Size(double.maxFinite, 45),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadiusGeometry.circular(
-                                  10,
-                                ),
+                  Row(
+                    spacing: 10,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => handleActionButton(home),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primary.shade600,
+                            elevation: 0,
+                            minimumSize: Size(double.maxFinite, 45),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusGeometry.circular(
+                                10,
                               ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  home.picked.name,
-                                  style: TextStyle(
-                                    color: white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.arrow_downward_rounded,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                home.picked.name,
+                                style: TextStyle(
                                   color: white,
-                                )
-                              ],
-                            ),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_downward_rounded,
+                                color: white,
+                              )
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 Row(
                   spacing: 10,
@@ -161,12 +154,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     ),
                     // CartIcon(),
                   ],
-                ).paddingSymmetric(horizontal: 10),
+                ),
                 if (user.role == 'PA') filtering(Sizes.smallFontSize),
                 products(home),
               ],
             ),
-          ),
+          ).paddingSymmetric(horizontal: 10),
         );
       },
     );
@@ -237,24 +230,29 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Widget products(HomeProvider home) {
+    var del = SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: Sizes.isTablet() ? 3 : 2,
+      childAspectRatio: .9,
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+    );
+    final user = LocalBase.security;
+
     return Expanded(
       child: Builder(
         builder: (context) {
-          if (LocalBase.security!.role == 'PA' &&
-                  home.picked.id.toString() == '-1' ||
-              home.picked == null) {
+          if (user == null) {
+            return AuthError();
+          }
+          if (user.role == 'PA' &&
+              (home.picked.id.toString() == '-1' || home.picked == null)) {
             return errorWidget();
           }
           if (loading) {
             return GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-              ),
+              gridDelegate: del,
               itemBuilder: (_, idx) {
-                return Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: ShimmerBox(controller: controller, height: 150),
-                );
+                return ShimmerBox(controller: controller, height: 150);
               },
             );
           }
@@ -262,7 +260,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             return ListView.separated(
               shrinkWrap: true,
               separatorBuilder: (context, idx) => SizedBox(height: 10),
-              padding: EdgeInsets.all(10),
               itemCount: home.fetchedItems.length,
               controller: _scrollController,
               itemBuilder: (context, idx) {
@@ -272,15 +269,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             );
           }
           return GridView.builder(
-            padding: EdgeInsets.all(10),
             controller: _scrollController,
             shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: Sizes.isTablet() ? 3 : 2,
-              childAspectRatio: .9,
-              mainAxisSpacing: 5,
-              crossAxisSpacing: 5,
-            ),
+            gridDelegate: del,
             itemCount: home.fetchedItems.length,
             itemBuilder: (context, idx) {
               Product product = home.fetchedItems[idx];
@@ -296,7 +287,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   SingleChildScrollView filtering(double smallFontSize) {
     final homeProvider = context.read<HomeProvider>();
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
       scrollDirection: Axis.horizontal,
       child: Row(
         spacing: 10,
@@ -408,29 +398,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         fontSize: Sizes.mediumFontSize,
         fontWeight: FontWeight.bold,
       ),
-    );
-  }
-}
-
-class Products extends StatelessWidget {
-  final ScrollController controller;
-  final List<Product> products;
-  const Products({
-    super.key,
-    required this.controller,
-    required this.products,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      controller: controller,
-      gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-      itemCount: products.length,
-      itemBuilder: (context, idx) {
-        Product product = products[idx];
-        return ProductWidget(item: product);
-      },
     );
   }
 }

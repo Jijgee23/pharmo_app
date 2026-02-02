@@ -2,30 +2,29 @@ import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
 
 class LoginHeaderImage extends StatelessWidget {
-  const LoginHeaderImage({
-    super.key,
-  });
+  const LoginHeaderImage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      flex: 2,
-      child: Container(
-        width: double.maxFinite,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              primary.withAlpha(50),
-              darkPrimary.withAlpha(80),
-            ],
-          ),
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(30),
-            bottomRight: Radius.circular(30),
-          ),
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.3, // Тогтмол харьцаа
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [primary, darkPrimary],
         ),
-        child: Image.asset('assets/picon.png'),
+        borderRadius: const BorderRadius.only(
+          bottomRight: Radius.circular(80), // Илүү загварлаг хэлбэр
+        ),
+      ),
+      child: Center(
+        child: Hero(
+          // Animation-д зориулсан
+          tag: 'logo',
+          child: Image.asset('assets/picon.png', width: 120),
+        ),
       ),
     );
   }

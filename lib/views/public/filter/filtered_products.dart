@@ -1,5 +1,5 @@
-import 'package:pharmo_app/views/home/home.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/public/product/product_widget.dart';
 
 class FilteredProducts extends StatefulWidget {
   final String? type;
@@ -78,6 +78,29 @@ class _FilteredProductsState extends State<FilteredProducts> {
           }),
         ),
       ),
+    );
+  }
+}
+
+class Products extends StatelessWidget {
+  final ScrollController controller;
+  final List<Product> products;
+  const Products({
+    super.key,
+    required this.controller,
+    required this.products,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      controller: controller,
+      gridDelegate:
+          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      itemCount: products.length,
+      itemBuilder: (context, idx) {
+        Product product = products[idx];
+        return ProductWidget(item: product);
+      },
     );
   }
 }

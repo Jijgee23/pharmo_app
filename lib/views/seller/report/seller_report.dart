@@ -1,11 +1,13 @@
 import 'package:pharmo_app/views/SELLER/report/report_widget.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/home/widgets/selected_filter.dart';
 
 class Reportfilter {
   String title;
   String query;
-  Reportfilter({required this.title, required this.query});
+  Reportfilter({
+    required this.title,
+    required this.query,
+  });
 }
 
 class SellerReportPage extends StatefulWidget {
@@ -49,112 +51,52 @@ class _SellerReportState extends State<SellerReportPage> {
       builder: (context, rp, child) {
         dynamic data = rp.report;
         return Scaffold(
-          appBar: AppBar(
-            centerTitle: false,
-            title: Text(
-              'Борлуулагчийн тайлан',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: black,
-              ),
-            ),
+          backgroundColor: Colors.grey.shade50, // Зөөлөн дэвсгэр өнгө
+          appBar: SideAppBar(
+            title: Text('Борлуулагчийн тайлан'),
           ),
-          body: Container(
-            padding: const EdgeInsets.all(Sizes.smallFontSize),
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 5,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // 1. Огноо сонгох хэсэг
                 Row(
-                  spacing: 10,
                   children: [
-                    dateSelector(
-                        date: rp.currentDate,
-                        handle: () => _showCalendar(report)),
-                    dateSelector(
-                      date: rp.currentDate2,
-                      handle: () => _showCalendar(
-                        report,
-                        isStart: false,
-                      ),
-                    ),
+                    _buildDateBox(
+                        'Эхлэх', rp.currentDate, () => _showCalendar(report)),
+                    const SizedBox(width: 12),
+                    _buildDateBox('Дуусах', rp.currentDate2,
+                        () => _showCalendar(report, isStart: false)),
                   ],
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    mySheet(
-                      isDismissible: true,
-                      children: filters.map(
-                        (filter) {
-                          return SelectedFilter(
-                            selected: filter.title == selectedFilter.title,
-                            caption: filter.title,
-                            onSelect: () {
-                              selectedFilter = filter;
-                              rp.getReports(selectedFilter.query);
-                              setState(() {});
-                            },
-                          );
-                        },
-                      ).toList(),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-                    side: BorderSide(
-                      color: Colors.grey.shade500,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(selectedFilter.title),
-                      Icon(Icons.arrow_drop_down_rounded)
-                    ],
-                  ),
+                const SizedBox(height: 12),
+
+                // 2. Шүүлтүүр сонгох товч
+                _buildFilterButton(rp),
+                const SizedBox(height: 24),
+
+                // 3. Хүснэгтийн толгой
+                _buildTableHeader(),
+
+                // 4. Дата жагсаалт
+                Expanded(
+                  child: data is List && data.isNotEmpty
+                      ? ListView.separated(
+                          padding: const EdgeInsets.only(top: 8),
+                          itemCount: data.length,
+                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemBuilder: (context, idx) {
+                            final r = data[idx];
+                            return ReportWidget(
+                              date: r[selectedFilter.query].toString(),
+                              total: toPrice(r['total']), // toPrice ашиглав
+                              count: '${r['count']} ш',
+                            );
+                          },
+                        )
+                      : const Center(child: NoResult()),
                 ),
-                Builder(
-                  builder: (context) {
-                    if (data != {}) {
-                      return Expanded(
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                ...titles.map(
-                                  (t) => text(
-                                    t: t,
-                                    color: colors[titles.indexOf(t)],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Expanded(
-                              child: ListView.builder(
-                                itemBuilder: (context, idx) {
-                                  final r = data[idx];
-                                  return ReportWidget(
-                                    date: maybeNull(
-                                        r[selectedFilter.query].toString()),
-                                    total: maybeNull(r['total'].toString()),
-                                    count: maybeNull(r['count'].toString()),
-                                  );
-                                },
-                                itemCount: (data as List).length,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                    return NoResult();
-                  },
-                )
               ],
             ),
           ),
@@ -163,48 +105,128 @@ class _SellerReportState extends State<SellerReportPage> {
     );
   }
 
-  Widget text({required String t, Color? color}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        vertical: Sizes.smallFontSize,
+  Widget _buildDateBox(String label, DateTime date, VoidCallback onTap) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today_outlined,
+                      size: 14, color: primary),
+                  const SizedBox(width: 8),
+                  Text(getDate(date),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 13)),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
-      decoration: BoxDecoration(color: color ?? Theme.of(context).primaryColor),
-      width: (Sizes.width - Sizes.smallFontSize * 2) / 3,
-      child: Center(child: SmallText(t)),
     );
   }
 
-  Widget dateSelector({required DateTime date, required Function() handle}) {
-    return Expanded(
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          backgroundColor: white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: Colors.grey, width: 2),
-          ),
-          padding: EdgeInsets.symmetric(vertical: 12),
+  Widget _buildFilterButton(ReportProvider rp) {
+    return InkWell(
+      onTap: () => mySheet(
+        isDismissible: true,
+        children: filters
+            .map((f) => SelectedFilter(
+                  selected: f.title == selectedFilter.title,
+                  caption: f.title,
+                  onSelect: () {
+                    setState(() => selectedFilter = f);
+                    rp.getReports(selectedFilter.query);
+                  },
+                ))
+            .toList(),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: primary.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: primary.withOpacity(0.2)),
         ),
-        onPressed: handle,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 10,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(
-              Icons.edit_calendar,
-              color: Colors.black,
-            ),
-            const SizedBox(width: Sizes.smallFontSize),
             Text(
-              getDate(date),
+              'Тайлангийн төрөл: ${selectedFilter.title}',
               style: const TextStyle(
-                fontSize: Sizes.mediumFontSize,
-                color: Colors.black,
+                color: primary,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            const Icon(
+              Icons.tune_rounded,
+              color: primary,
+              size: 20,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTableHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade800,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+      ),
+      child: Row(
+        children: const [
+          Expanded(
+            flex: 2,
+            child: Text(
+              'Огноо',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              'Дүн',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              'Тоо',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -221,5 +243,6 @@ class _SellerReportState extends State<SellerReportPage> {
     );
     if (pickedDate == null) return;
     report.setCurrentDate(pickedDate, isStart: isStart);
+    await report.getReports(selectedFilter.query);
   }
 }
