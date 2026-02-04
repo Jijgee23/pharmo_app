@@ -12,10 +12,10 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<MyOrderProvider>(
       builder: (context, provider, child) {
-        bool isSeller = LocalBase.security!.role == 'S';
+        bool isPharma = LocalBase.security!.isPharmacist;
         return Padding(
           padding: const EdgeInsets.only(left: 10, right: 10),
-          child: LocalBase.security!.role == 'S'
+          child: !isPharma
               ? Slidable(
                   key: ValueKey(order.id),
                   endActionPane: ActionPane(
@@ -40,25 +40,25 @@ class OrderCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: _buildOrderCard(context, provider, isSeller),
+                  child: _buildOrderCard(context, provider, isPharma),
                 )
-              : _buildOrderCard(context, provider, isSeller),
+              : _buildOrderCard(context, provider, isPharma),
         );
       },
     );
   }
 
   Widget _buildOrderCard(
-      BuildContext context, MyOrderProvider provider, bool isSeller) {
+      BuildContext context, MyOrderProvider provider, bool isPharma) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          if (isSeller) {
-            goto(SellerOrderDetail(oId: parseInt(order.id)));
-          } else {
+          if (isPharma) {
             goto(PharmOrderDetail(order: order));
+            return;
           }
+          goto(SellerOrderDetail(oId: parseInt(order.id)));
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
@@ -77,9 +77,9 @@ class OrderCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context, isSeller),
+              _buildHeader(context, isPharma),
               Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
-              _buildBody(context, provider, isSeller),
+              _buildBody(context, provider, !isPharma),
             ],
           ),
         ),
@@ -87,13 +87,12 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isSeller) {
-    // Худалдагч бол 'Customer' нэр, Худалдан авагч бол 'Supplier' нэр харуулна
-    String displayName = isSeller
+  Widget _buildHeader(BuildContext context, bool isPharma) {
+    String displayName = !isPharma
         ? (order.customer ?? "Захиалагч")
         : (order.supplier ?? "Нийлүүлэгч");
     IconData headerIcon =
-        isSeller ? Icons.person_outline : Icons.home_work_outlined;
+        !isPharma ? Icons.person_outline : Icons.home_work_outlined;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -116,9 +115,10 @@ class OrderCard extends StatelessWidget {
                     child: Text(
                       displayName,
                       style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: primary),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: primary,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -133,13 +133,17 @@ class OrderCard extends StatelessWidget {
               Text(
                 toPrice(order.totalPrice.toString()),
                 style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.green.shade700),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.green.shade700,
+                ),
               ),
               Text(
                 '#${order.orderNo}',
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey.shade600,
+                ),
               ),
             ],
           ),
@@ -149,7 +153,10 @@ class OrderCard extends StatelessWidget {
   }
 
   Widget _buildBody(
-      BuildContext context, MyOrderProvider provider, bool isSeller) {
+    BuildContext context,
+    MyOrderProvider provider,
+    bool isPharma,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -160,27 +167,30 @@ class OrderCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (order.status != null) _buildStatusChip(order.status!),
+                    if (order.status != null) OrderStatusChip(order.status!),
                     const SizedBox(height: 8),
                     if (order.process != null)
-                      _buildInfoRow(
-                          Icons.sync_outlined, order.process!, Colors.blue),
+                      IconedText(
+                        icon: Icons.sync_outlined,
+                        text: order.process!,
+                        color: Colors.blue,
+                      ),
                     const SizedBox(height: 4),
                     if (order.createdOn != null)
-                      _buildInfoRow(
-                          Icons.calendar_today_outlined,
-                          order.createdOn!.length > 10
-                              ? order.createdOn!.substring(0, 10)
-                              : order.createdOn!,
-                          Colors.grey.shade600),
+                      IconedText(
+                        icon: Icons.calendar_today_outlined,
+                        text: order.createdOn!.length > 10
+                            ? order.createdOn!.substring(0, 10)
+                            : order.createdOn!,
+                        color: Colors.grey.shade600,
+                      ),
                   ],
                 ),
               ),
               const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
             ],
           ),
-          // Хэрэв PharmOrder (Худалдан авагч) бол "Хүлээн авах" товчийг харуулна
-          if (!isSeller &&
+          if (isPharma &&
               (order.process == 'Бэлэн болсон' ||
                   order.process == 'Түгээлтэнд гарсан')) ...[
             const SizedBox(height: 12),
@@ -191,11 +201,16 @@ class OrderCard extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: succesColor,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: const Text('Хүлээн авах',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Хүлээн авах',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ]
@@ -204,8 +219,30 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  // Туслах функцууд (Status Chip, Info Row, Dialogs...)
-  Widget _buildStatusChip(String status) {
+  Future<void> _confirmOrder(
+    BuildContext context,
+    MyOrderProvider provider,
+  ) async {
+    dynamic res = await provider.confirmOrder(order.id);
+    message(res['message']);
+  }
+
+  void _showDeleteDialog(BuildContext context, MyOrderProvider provider) async {
+    final confirmed = await confirmDialog(
+      context: context,
+      title: 'Захиалга устгах уу?',
+    );
+    if (!confirmed) return;
+    await provider.deleteSellerOrder(orderId: order.id);
+  }
+}
+
+class OrderStatusChip extends StatelessWidget {
+  final String status;
+  const OrderStatusChip(this.status, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
     Color color = _getStatusColor(status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -214,19 +251,14 @@ class OrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
-      child: Text(status,
-          style: TextStyle(
-              fontSize: 12, fontWeight: FontWeight.bold, color: color)),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text, Color color) {
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: color),
-        const SizedBox(width: 6),
-        Text(text, style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
-      ],
+      child: Text(
+        status,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
     );
   }
 
@@ -235,16 +267,5 @@ class OrderCard extends StatelessWidget {
     if (status.contains('баталгаажсан')) return Colors.blue;
     if (status.contains('хүргэгдсэн')) return Colors.green;
     return Colors.grey;
-  }
-
-  // Actions
-  Future<void> _confirmOrder(
-      BuildContext context, MyOrderProvider provider) async {
-    dynamic res = await provider.confirmOrder(order.id);
-    message(res['message']);
-  }
-
-  void _showDeleteDialog(BuildContext context, MyOrderProvider provider) {
-    // Дээрх SellerOrderWidget-ийн dialog кодыг энд ашиглана
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/application.dart';
 
@@ -23,6 +24,7 @@ class _ReadyOrdersState extends State<ReadyOrders> {
     LoadingService.run(() async {
       final jag = context.read<DriverProvider>();
       await jag.getOrders();
+      await jag.getDelmans();
     });
   }
 
@@ -65,9 +67,14 @@ class _ReadyOrdersState extends State<ReadyOrders> {
                       }
                       return ListView.builder(
                         itemCount: jagger.orders.length,
-                        itemBuilder: (context, index) => _orderWidget(
-                          jagger.orders[index],
-                        ),
+                        itemBuilder: (context, index) {
+                          final order = jagger.orders[index];
+                          return ReadyOrderCard(
+                            onTap: () => onTapOrder(order),
+                            selected: selecteds.contains(order.id),
+                            ord: order,
+                          );
+                        },
                       );
                     },
                   ).paddingAll(10),
@@ -78,24 +85,37 @@ class _ReadyOrdersState extends State<ReadyOrders> {
           AnimatedPositioned(
             duration: Durations.medium1,
             bottom: 20,
-            right: selecteds.isNotEmpty ? 20 : -200,
+            right: selecteds.isNotEmpty ? 20 : -300,
             child: SafeArea(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 30,
+                      ),
                       backgroundColor: primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(10),
+                        borderRadius: BorderRadiusGeometry.circular(16),
                       ),
                     ),
                     onPressed: () => addSheet(jagger),
-                    child: Text(
-                      'Түгээлт рүү нэмэх',
-                      style: TextStyle(color: white),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 12,
+                      children: [
+                        Icon(Icons.add_rounded, color: white, size: 20),
+                        Text(
+                          'Түгээлт рүү нэмэх',
+                          style: TextStyle(
+                            color: white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -107,9 +127,166 @@ class _ReadyOrdersState extends State<ReadyOrders> {
     );
   }
 
-  Widget _orderWidget(DeliveryOrder ord) {
-    bool selected = selecteds.contains(ord.id);
+  void addSheet(DriverProvider driver) {
+    Get.bottomSheet(
+      StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle Bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Түгээлтэнд нэмэх (${selecteds.length} захиалга)',
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              const SizedBox(height: 24),
 
+              // 1. Selection Type
+              const BottomSheetLabelBuilder('Түгээгч сонгох төрөл'),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: BottomSheetOptionChip(
+                      title: 'Өөрийн',
+                      v: 'Өөрийн',
+                      icon: '👤',
+                      isSelected: me == 'Өөрийн',
+                      onTap: () => setModalState(() => me = 'Өөрийн'),
+                    ),
+                  ),
+                  Expanded(
+                    child: BottomSheetOptionChip(
+                      title: 'Бусдын',
+                      v: 'Бусдын',
+                      icon: '👥',
+                      isSelected: me == 'Бусдын',
+                      onTap: () => setModalState(() => me = 'Бусдын'),
+                    ),
+                  ),
+                ],
+              ),
+
+              // 2. Delman Selection (Conditional)
+              if (me != 'Өөрийн') ...[
+                const SizedBox(height: 24),
+                const BottomSheetLabelBuilder('Түгээгч сонгох'),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 100, // Fixed height for horizontal scroll or use Wrap
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: driver.delmans.map((dm) {
+                        bool isSelected = delman == dm.id;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: ChoiceChip(
+                            label: Text(dm.name),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              if (selected) HapticFeedback.lightImpact();
+                              setModalState(() => delman = dm.id);
+                            },
+                            // --- Modern Styling ---
+                            elevation: isSelected ? 4 : 0,
+                            pressElevation: 0,
+                            shadowColor: primary.withOpacity(0.3),
+                            backgroundColor: Colors.grey[100],
+                            selectedColor: primary.withOpacity(0.15),
+                            side: BorderSide(
+                              color: isSelected ? primary : Colors.transparent,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  12), // Softer, more modern corners
+                            ),
+                            showCheckmark:
+                                false, // Modern chips usually skip the checkmark icon
+                            labelStyle: TextStyle(
+                              color: isSelected ? primary : Colors.grey[700],
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              fontSize: 14,
+                              letterSpacing: 0.3,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 32),
+
+              // 3. Action Button
+              CustomButton(
+                text: 'Хадгалах',
+                ontap: () {
+                  if (me == 'Өөрийн') {
+                    driver.addOrdersToDelivery(selecteds);
+                  } else {
+                    if (delman == -1) {
+                      message('Түгээгч сонгоно уу!');
+                      return;
+                    }
+                    driver.passOrdersToDelman(selecteds, delman);
+                  }
+                  Navigator.pop(context);
+                  setState(() => selecteds.clear()); // Clear main state
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  void cleanOrders(Function(void Function()) setModalState) {
+    setModalState(() {
+      selecteds.clear();
+    });
+  }
+}
+
+class ReadyOrderCard extends StatelessWidget {
+  final bool selected;
+  final void Function()? onTap;
+  final DeliveryOrder ord;
+  const ReadyOrderCard({
+    super.key,
+    required this.selected,
+    this.onTap,
+    required this.ord,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -117,7 +294,7 @@ class _ReadyOrdersState extends State<ReadyOrders> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => onTapOrder(ord),
+          onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -272,104 +449,6 @@ class _ReadyOrdersState extends State<ReadyOrders> {
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void addSheet(DriverProvider driver) {
-    Get.bottomSheet(
-      StatefulBuilder(
-        builder: (context, setModalState) => SheetContainer(
-          title: '$me түгээлт дээр нэмэх',
-          children: [
-            Row(
-              spacing: 10,
-              children: [
-                picker('Өөрийн', setModalState),
-                picker('Бусдын', setModalState),
-              ],
-            ),
-            if (me != 'Өөрийн')
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: driver.delmans
-                    .map((dm) => _delmanWidget(dm, setModalState))
-                    .toList(),
-              ),
-            CustomButton(
-              text: 'Хадгалах',
-              ontap: () {
-                if (me == 'Өөрийн') {
-                  driver.addOrdersToDelivery(selecteds);
-                } else {
-                  if (delman == -1) {
-                    message('Түгээгч сонгоно уу!');
-                  } else {
-                    driver.passOrdersToDelman(selecteds, delman);
-                  }
-                }
-                Navigator.pop(context);
-                cleanOrders(setModalState);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void cleanOrders(Function(void Function()) setModalState) {
-    setModalState(() {
-      selecteds.clear();
-    });
-  }
-
-  Widget _delmanWidget(Delman dm, Function(void Function()) setModalState) {
-    bool selected = delman == dm.id;
-    return InkWell(
-      onTap: () => setModalState(() => setDelman(dm.id)),
-      child: IntrinsicWidth(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-          constraints: BoxConstraints(),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: selected ? neonBlue.withAlpha(150) : Colors.transparent,
-            border: Border.all(color: selected ? neonBlue : frenchGrey),
-          ),
-          child: Text(
-            dm.name,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget picker(String n, Function(void Function()) setModalState) {
-    bool sel = me == n;
-    return Expanded(
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: BorderSide(color: sel ? succesColor : grey500),
-        ),
-        color: sel ? succesColor.withAlpha(120) : Colors.white,
-        child: InkWell(
-          onTap: () => setModalState(() => me = n),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Center(child: Text(n)),
           ),
         ),
       ),

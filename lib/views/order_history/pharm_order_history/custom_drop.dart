@@ -6,6 +6,7 @@ class CustomDropdown<T> extends StatelessWidget {
   final String Function(T) getLabel;
   final void Function(T?)? onChanged;
   final String text;
+  final void Function()? onRemove;
 
   const CustomDropdown({
     super.key,
@@ -14,6 +15,7 @@ class CustomDropdown<T> extends StatelessWidget {
     this.value,
     this.onChanged,
     required this.text,
+    this.onRemove,
   });
 
   @override
@@ -27,26 +29,39 @@ class CustomDropdown<T> extends StatelessWidget {
           border: Border.all(color: grey300),
         ),
         child: Center(
-          child: DropdownButton<T>(
-            items: items.map<DropdownMenuItem<T>>((T item) {
-              return DropdownMenuItem<T>(
-                value: item,
-                child: Text(getLabel(item), style: filterStyle()),
-              );
-            }).toList(),
-            value: value,
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            onChanged: onChanged,
-            style: filterStyle(),
-            alignment: Alignment.center,
-            isDense: true,
-            dropdownColor: Colors.white,
-            menuWidth: 200,
-            borderRadius: BorderRadius.circular(10),
-            underline: const SizedBox(),
-            selectedItemBuilder: (BuildContext context) {
-              return items.map((item) => filterText(text)).toList();
-            },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DropdownButton<T>(
+                items: items.map<DropdownMenuItem<T>>((T item) {
+                  return DropdownMenuItem<T>(
+                    value: item,
+                    child: Text(getLabel(item), style: filterStyle()),
+                  );
+                }).toList(),
+                value: value,
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                onChanged: onChanged,
+                style: filterStyle(),
+                alignment: Alignment.center,
+                isDense: true,
+                dropdownColor: Colors.white,
+                menuWidth: 200,
+                borderRadius: BorderRadius.circular(10),
+                underline: const SizedBox(),
+                selectedItemBuilder: (BuildContext context) {
+                  return items.map((item) => filterText(text)).toList();
+                },
+              ),
+              if (onRemove != null)
+                IconButton(
+                  onPressed: onRemove,
+                  icon: Icon(
+                    Icons.cancel,
+                    color: Colors.red,
+                  ),
+                )
+            ],
           ),
         ),
       ),

@@ -6,6 +6,8 @@ import 'package:pharmo_app/views/track_map/map_buttons.dart';
 import 'package:pharmo_app/views/track_map/map_heading.dart';
 import 'package:pharmo_app/views/track_map/seller_track_button.dart';
 import 'package:pharmo_app/views/track_map/track_permission_page.dart';
+import 'package:pharmo_app/views/track_map/tracking_status_card.dart';
+import 'package:pharmo_app/views/track_map/delivery_info_card.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/deliveries.dart';
 
 class TrackMap extends StatefulWidget {
@@ -25,11 +27,15 @@ class _TrackMapState extends State<TrackMap> {
   }
 
   Future<void> init() async {
+    final user = LocalBase.security;
     final jag = context.read<JaggerProvider>();
 
-    LoadingService.run(() async {
+    await LoadingService.run(() async {
       await jag.loadPermission();
       await jag.checkSellerTrack();
+      if (user!.isDriver) {
+        await jag.getDeliveries();
+      }
     });
   }
 
@@ -74,11 +80,13 @@ class _TrackMapState extends State<TrackMap> {
               ),
               MapButtons(),
               MapHeading(isSeller: isSeller, showTracking: showTracking),
+              if (showTracking && isSeller) const TrackingStatusCard(),
+              if (!isSeller) const DeliveryInfoCard(),
               DriverButton(),
               SellerTrackButton(
                 onPressed: () => handleTap(isStart: isStart),
                 isStart: isStart,
-              )
+              ),
             ],
           );
         }

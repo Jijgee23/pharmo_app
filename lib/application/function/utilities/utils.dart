@@ -126,35 +126,35 @@ process(String status) {
   }
 }
 
-getProcessGif(String process) {
-  if (process == 'Шинэ') {
-    return 'assets/stickers/hourglass.gif';
-  } else if (process == 'Бэлтгэж эхэлсэн') {
-    return 'assets/stickers/box.gif';
-  } else if (process == 'Бэлэн болсон') {
-    return 'assets/stickers/delivery-service.gif';
-  } else if (process == 'Түгээлтэнд гарсан') {
-    return 'assets/stickers/truck_animation.gif';
-  } else if (process == 'Хүлээн авсан') {
-    return 'assets/stickers/delivery-completed.gif';
-  } else {
-    return 'assets/stickers/hourglass.gif';
-  }
-}
+// getProcessGif(String process) {
+//   if (process == 'Шинэ') {
+//     return 'assets/stickers/hourglass.gif';
+//   } else if (process == 'Бэлтгэж эхэлсэн') {
+//     return 'assets/stickers/box.gif';
+//   } else if (process == 'Бэлэн болсон') {
+//     return 'assets/stickers/delivery-service.gif';
+//   } else if (process == 'Түгээлтэнд гарсан') {
+//     return 'assets/stickers/truck_animation.gif';
+//   } else if (process == 'Хүлээн авсан') {
+//     return 'assets/stickers/delivery-completed.gif';
+//   } else {
+//     return 'assets/stickers/hourglass.gif';
+//   }
+// }
 
-getStatusGif(String status) {
-  if (status == 'Төлбөр хүлээгдэж буй') {
-    return 'assets/stickers/payment-time.gif';
-  } else if (status == 'Төлбөр төлөгдсөн') {
-    return 'assets/stickers/credit-card.gif';
-  } else if (status == 'Цуцлагдсан') {
-    return 'assets/stickers/delivery-service.gif';
-  } else if (status == 'Биелсэн') {
-    return 'assets/stickers/verified.gif';
-  } else {
-    return 'assets/stickers/hourglass.gif';
-  }
-}
+// getStatusGif(String status) {
+//   if (status == 'Төлбөр хүлээгдэж буй') {
+//     return 'assets/stickers/payment-time.gif';
+//   } else if (status == 'Төлбөр төлөгдсөн') {
+//     return 'assets/stickers/credit-card.gif';
+//   } else if (status == 'Цуцлагдсан') {
+//     return 'assets/stickers/delivery-service.gif';
+//   } else if (status == 'Биелсэн') {
+//     return 'assets/stickers/verified.gif';
+//   } else {
+//     return 'assets/stickers/hourglass.gif';
+//   }
+// }
 
 getPayType(String status) {
   if (status == 'L') {

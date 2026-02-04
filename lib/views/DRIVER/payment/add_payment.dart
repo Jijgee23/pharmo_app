@@ -44,7 +44,16 @@ class _AddPaymentState extends State<AddPayment>
       builder: (context, jagger, pharm, child) => Scaffold(
         backgroundColor: grey50,
         appBar: AppBar(
-          leading: ChevronBack(),
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            style: IconButton.styleFrom(
+              backgroundColor: grey200,
+            ),
+            splashColor: Colors.red,
+            icon: Icon(
+              Icons.chevron_left,
+            ),
+          ),
           title: Text('Төлбөр, тооцоо бүртгэх'),
           centerTitle: false,
           bottom: TabBar(

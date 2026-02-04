@@ -1,6 +1,6 @@
 import 'package:pharmo_app/views/order_history/pharm_order_history/custom_drop.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/order_history/seller_order_history/seller_order_widget.dart';
+import 'package:pharmo_app/views/order_history/seller_order_history/order_card.dart';
 
 class PharmOrderHistory extends StatefulWidget {
   const PharmOrderHistory({super.key});
@@ -12,17 +12,17 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      refresh();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async => await refresh());
   }
 
-  refresh() async {
+  Future refresh({bool afterInit = false}) async {
     LoadingService.run(() async {
       final order = context.read<MyOrderProvider>();
-      await order.getBranches();
-      await order.getSuppliers();
-      await order.getMyorders();
+      if (!afterInit) {
+        await order.getBranches();
+        await order.getSuppliers();
+      }
+      await order.filterOrders();
     });
   }
 
@@ -69,121 +69,103 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
     );
   }
 
-  String status = '';
-  Map<String, String> statuses = {
-    "": "Төлөв",
-    "N": "Шинэ",
-    "M": "Бэлтгэж эхэлсэн",
-    "P": "Бэлэн болсон",
-    "O": "Хүргэлтэнд гарсан",
-    "A": "Хүргэгдсэн",
-  };
-  MapEntry<String, String> s = MapEntry("", "Төлөв");
-  String process = '';
-  Map<String, String> processess = {
-    "": "Явц",
-    "W": "Төлбөр хүлээгдэж буй",
-    "P": "Төлбөр төлөгдсөн",
-    "S": "Цуцлагдсан",
-    "R": "Буцаагдсан",
-    "C": "Биелсэн",
-  };
-  String payType = '';
-  Map<String, String> payTypes = {
-    "": "Төлбөрийн хэлбэр",
-    "C": "Бэлнээр",
-    "L": "Зээлээр",
-  };
-
-  Branch branch = Branch(id: -1, name: 'Салбар сонгох');
-  Supplier supplier = Supplier(id: -1, name: 'Нийлүүлэгч сонгох', stocks: []);
   Widget filterRow() {
-    final order = context.read<MyOrderProvider>();
-    return Container(
-      height: 60,
-      alignment: Alignment.bottomCenter,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(vertical: 5),
-        child: Row(
-          spacing: 10,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            CustomDropdown<String>(
-              items: statuses.keys.toList(),
-              getLabel: (String key) => statuses[key] ?? '',
-              value: status,
-              onChanged: (String? newValue) async {
-                setState(() {
-                  status = newValue ?? '';
-                });
-                await order.filterOrders('0', process);
-              },
-              text: statuses[status] ?? 'Явц',
-            ),
-            CustomDropdown<String>(
-              items: processess.keys.toList(),
-              getLabel: (String key) => processess[key] ?? '',
-              value: process,
-              onChanged: (String? newValue) async {
-                setState(() {
-                  process = newValue ?? '';
-                });
-                await order.filterOrders('1', process);
-              },
-              text: processess[process] ?? 'Явц',
-            ),
-            CustomDropdown<String>(
-              items: payTypes.keys.toList(),
-              getLabel: (String key) => payTypes[key] ?? '',
-              value: payType,
-              onChanged: (String? newValue) async {
-                setState(() {
-                  payType = newValue ?? '';
-                });
-                await order.filterOrders('2', payType);
-              },
-              text: payTypes[process] ?? 'Явц',
-            ),
-            CustomDropdown<Branch>(
-              items: order.branches,
-              getLabel: (Branch s) => s.name,
-              value: order.branches.isNotEmpty
-                  ? order.branches.firstWhere(
-                      (b) => b.id == branch.id,
-                      orElse: () => order.branches.first,
-                    )
-                  : Branch(id: -1, name: 'Салбар сонгох'),
-              onChanged: (Branch? value) async {
-                setState(() {
-                  branch = value!;
-                });
-                await order.filterOrders('3', value!.id.toString());
-              },
-              text: branch.name,
-            ),
-            CustomDropdown<Supplier>(
-              items: order.suppliers,
-              getLabel: (Supplier s) => s.name,
-              value: order.suppliers.isNotEmpty
-                  ? order.suppliers.firstWhere(
-                      (b) => b.id == supplier.id,
-                      orElse: () => order.suppliers.first,
-                    )
-                  : Supplier(
-                      id: -1,
-                      name: 'Нийлүүлэгч сонгох',
-                      stocks: [],
-                    ),
-              onChanged: (Supplier? value) async {
-                setState(() {
-                  supplier = value!;
-                });
-                await order.filterOrders('4', value!.id.toString());
-              },
-              text: supplier.name,
-            ),
-          ],
+    final provider = context.read<MyOrderProvider>();
+    return Consumer<MyOrderProvider>(
+      builder: (context, value, child) => Container(
+        height: 60,
+        alignment: Alignment.bottomCenter,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.symmetric(vertical: 5),
+          child: Row(
+            spacing: 10,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              CustomDropdown<OrderStatus>(
+                items: OrderStatus.filterList,
+                getLabel: (OrderStatus st) => st.name,
+                value: provider.status,
+                onChanged: (OrderStatus? newValue) =>
+                    provider.updateStatus(newValue),
+                text: provider.status == OrderStatus.all
+                    ? "Төлөв"
+                    : provider.status.name,
+                onRemove: provider.status == OrderStatus.all
+                    ? null
+                    : () => provider.updateStatus(OrderStatus.all),
+              ),
+              CustomDropdown<OrderProcess>(
+                items: OrderProcess.filterList,
+                getLabel: (OrderProcess pro) => pro.name,
+                value: provider.process,
+                onChanged: (OrderProcess? newValue) =>
+                    provider.updateProcess(newValue),
+                text: provider.process == OrderProcess.all
+                    ? "Явц"
+                    : provider.process.name,
+                onRemove: provider.process == OrderProcess.all
+                    ? null
+                    : () => provider.updateProcess(OrderProcess.all),
+              ),
+              CustomDropdown<PayType>(
+                items: PayType.filterList,
+                getLabel: (PayType pm) => pm.name,
+                value: provider.paymentMethod,
+                onChanged: (PayType? newValue) =>
+                    provider.updatePayMethod(newValue),
+                text: provider.paymentMethod == PayType.unknown
+                    ? "Төлбөрийн хэлбэр"
+                    : provider.paymentMethod.name,
+                onRemove: provider.paymentMethod == PayType.unknown
+                    ? null
+                    : () => provider.updatePayMethod(PayType.unknown),
+              ),
+              CustomDropdown<Branch>(
+                items: provider.branches,
+                getLabel: (Branch s) => s.name,
+                value: provider.branches.isNotEmpty
+                    ? provider.branches.firstWhere(
+                        (b) => b.id == provider.branch.id,
+                        orElse: () => provider.branches.first,
+                      )
+                    : Branch(id: -1, name: 'Салбар сонгох'),
+                onChanged: (Branch? value) async {
+                  provider.updateBranch(value);
+                },
+                text: provider.branch.name,
+                onRemove: provider.branch.id == -1
+                    ? null
+                    : () => provider.updateBranch(
+                          Branch(id: -1, name: 'Салбар сонгох'),
+                        ),
+              ),
+              CustomDropdown<Supplier>(
+                items: provider.suppliers,
+                getLabel: (Supplier s) => s.name,
+                value: provider.suppliers.isNotEmpty
+                    ? provider.suppliers.firstWhere(
+                        (b) => b.id == provider.supplier.id,
+                        orElse: () => provider.suppliers.first,
+                      )
+                    : Supplier(
+                        id: -1,
+                        name: 'Нийлүүлэгч сонгох',
+                        stocks: [],
+                      ),
+                onChanged: (Supplier? value) async {
+                  provider.updateSupplier(value);
+                },
+                text: provider.supplier.name,
+                onRemove: provider.supplier.id == -1
+                    ? null
+                    : () => provider.updateSupplier(
+                          Supplier(
+                              id: -1, name: 'Нийлүүлэгч сонгох', stocks: []),
+                        ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -6,8 +6,11 @@ import 'package:pharmo_app/application/application.dart';
 class CompleteRegistration extends StatefulWidget {
   final String ema;
   final String pass;
-  const CompleteRegistration(
-      {super.key, required this.ema, required this.pass});
+  const CompleteRegistration({
+    super.key,
+    required this.ema,
+    required this.pass,
+  });
 
   @override
   State<CompleteRegistration> createState() => _CompleteRegistrationState();
@@ -40,8 +43,9 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
   Future<void> _pickLogo() async {
     await Permission.storage.request();
     await Permission.camera.request();
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
     setState(() {
       logo = File(pickedFile!.path);
     });
@@ -112,7 +116,10 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                           height: 50,
                           width: 50,
                         ),
-                        Ibtn(onTap: () => _removeLogo(), icon: Icons.delete)
+                        IconButton(
+                          onPressed: () => _removeLogo(),
+                          icon: Icon(Icons.delete),
+                        ),
                       ],
                     ),
             ),
@@ -124,7 +131,10 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                   : Column(
                       spacing: 10,
                       children: [
-                        Ibtn(onTap: () => _pickFromDevice(), icon: Icons.add),
+                        IconButton(
+                          onPressed: () => _pickFromDevice(),
+                          icon: Icon(Icons.add),
+                        ),
                         ...licenses.map((l) => selectedLic(l))
                       ],
                     ),
@@ -134,19 +144,24 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
             CustomTextField(controller: inviCode, hintText: 'Урилгын код'),
             Row(
               children: [
-                Checkbox(value: picked, onChanged: (b) => setPicked(b!)),
-                Text('Одоогийн байршилаар бүртгэх',
-                    style: TextStyle(color: theme.primaryColor)),
+                Checkbox(
+                  value: picked,
+                  onChanged: (b) => setPicked(b!),
+                ),
+                Text(
+                  'Одоогийн байршилаар бүртгэх',
+                  style: TextStyle(color: theme.primaryColor),
+                ),
               ],
             ),
-            // DefInputContainer(
-            //   child: const Text('Байршил сонгох'),
-            //   ontap: () => goto(const LocationSelector()),
-            // ),
             CustomTextField(
-                controller: addressDetail, hintText: 'Хаягийн дэлгэрэнгүй'),
+              controller: addressDetail,
+              hintText: 'Хаягийн дэлгэрэнгүй',
+            ),
             CustomButton(
-                text: 'Баталгаажуулах', ontap: () => _registerComplete()),
+              text: 'Баталгаажуулах',
+              ontap: () => _registerComplete(),
+            ),
             const SizedBox()
           ],
         ),
@@ -166,7 +181,10 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
           Image.file(l),
           Positioned(
             right: 0,
-            child: Ibtn(onTap: () => _removeImage(l), icon: Icons.delete),
+            child: IconButton(
+              onPressed: () => _removeImage(l),
+              icon: Icon(Icons.delete),
+            ),
           )
         ],
       ),

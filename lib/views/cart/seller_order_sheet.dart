@@ -61,25 +61,36 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
             const SizedBox(height: 24),
 
             // 2. Төлбөрийн хэлбэр
-            _buildLabel('Төлбөрийн хэлбэр'),
+            BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
             const SizedBox(height: 12),
             Row(
               children: payMethods
-                  .map((p) => Expanded(
-                        child: _payTypeChip(p['title']!, p['v']!, p['icon']!),
-                      ))
+                  .map(
+                    (p) => Expanded(
+                      child: BottomSheetOptionChip(
+                        title: p['title'] ?? '',
+                        v: p['v']!,
+                        icon: p['icon']!,
+                        isSelected: payType == p['v'],
+                        onTap: () {
+                          payType = p['v']!;
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
             const SizedBox(height: 24),
 
             // 3. Захиалагч сонгох
-            _buildLabel('Захиалагч сонгох'),
+            BottomSheetLabelBuilder('Захиалагч сонгох'),
             const SizedBox(height: 12),
             _customerSelector(home),
             const SizedBox(height: 24),
 
             // 4. Тайлбар хэсэг
-            _buildLabel('Нэмэлт тайлбар (заавал биш)'),
+            BottomSheetLabelBuilder('Нэмэлт тайлбар (заавал биш)'),
             const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
@@ -106,53 +117,6 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
               ontap: () => _createOrder(),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: Colors.grey.shade600,
-      ),
-    );
-  }
-
-  Widget _payTypeChip(String title, String v, String icon) {
-    bool isSelected = (payType == v);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: InkWell(
-        onTap: () => setState(() => payType = v),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? primary.withOpacity(0.05) : Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? primary : Colors.grey.shade300,
-              width: isSelected ? 1.5 : 1,
-            ),
-          ),
-          child: Column(
-            children: [
-              Text(icon, style: const TextStyle(fontSize: 20)),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? primary : Colors.black87,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -216,16 +180,16 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
   }
 
   Future _createOrder() async {
+    if (homeProvider.customer == null) {
+      messageWarning('Захиалагч сонгоно уу!');
+      return;
+    }
     if (payType == '') {
       messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
       return;
     }
     if ((basketProvider.basket?.totalCount ?? 0) == 0) {
       messageWarning('Сагс хоосон байна!');
-      return;
-    }
-    if (homeProvider.customer == null) {
-      messageWarning('Захиалагч сонгоно уу!');
       return;
     }
 
@@ -236,5 +200,77 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     } finally {
       LoadingService.hide();
     }
+  }
+}
+
+class BottomSheetLabelBuilder extends StatelessWidget {
+  const BottomSheetLabelBuilder(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: Colors.grey.shade600,
+      ),
+    );
+  }
+}
+
+class BottomSheetOptionChip extends StatelessWidget {
+  const BottomSheetOptionChip({
+    super.key,
+    required this.title,
+    required this.v,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String title;
+  final String v;
+  final String icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? primary.withOpacity(0.05) : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? primary : Colors.grey.shade300,
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(icon, style: const TextStyle(fontSize: 18)),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? primary : Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

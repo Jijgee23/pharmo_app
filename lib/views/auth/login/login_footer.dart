@@ -9,14 +9,12 @@ class LoginFooter extends StatelessWidget {
       height: 70,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            primary.withAlpha(50),
-            darkPrimary.withAlpha(80),
-          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [primary, darkPrimary],
         ),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(80),
         ),
       ),
     );

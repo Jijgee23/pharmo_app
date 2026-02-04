@@ -221,12 +221,9 @@ class _SellerOrderDetailState extends State<SellerOrderDetail>
   }
 
   void _showEditBottomSheet(BuildContext context, OrderModel order) {
+    setState(() {});
     Get.bottomSheet(
-      EditSellerOrder(
-        note: maybeNull(order.noteText),
-        pt: order.payType ?? '',
-        oId: order.id,
-      ),
+      EditSellerOrder(order: order),
       isScrollControlled: true,
     );
   }
@@ -338,15 +335,8 @@ class _SellerOrderDetailState extends State<SellerOrderDetail>
 }
 
 class EditSellerOrder extends StatefulWidget {
-  final String note;
-  final String pt;
-  final int oId;
-  const EditSellerOrder({
-    super.key,
-    required this.note,
-    required this.pt,
-    required this.oId,
-  });
+  final OrderModel order;
+  const EditSellerOrder({super.key, required this.order});
 
   @override
   State<EditSellerOrder> createState() => _EditSellerOrderState();
@@ -361,11 +351,18 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
   }
 
   init() {
-    if (widget.note != null && widget.note != 'null') {
-      setState(() {
-        nc.text = widget.note;
-      });
-    }
+    print(widget.order.payMethod.value);
+    setState(() {
+      nc.text = widget.order.noteText ?? '';
+      setPayType(widget.order.payMethod);
+    });
+  }
+
+  PayType method = PayType.unknown;
+  setPayType(PayType value) {
+    setState(() {
+      method = value;
+    });
   }
 
   @override
@@ -384,45 +381,67 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
         child: SingleChildScrollView(
           child: Column(
             spacing: 20,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Захиалгын мэдээлэл засах',
-                      style: TextStyle(fontSize: 12)),
+                  Text(
+                    'Захиалгын мэдээлэл засах',
+                    style: TextStyle(fontSize: 12),
+                  ),
                   PopSheet()
                 ],
               ),
-              Input(hint: 'Нэмэлт тайлбар', contr: nc),
+              BottomSheetLabelBuilder('Тайлбар (Заавал биш)'),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: TextField(
+                  controller: nc,
+                  decoration: const InputDecoration(
+                    hintText: 'Энд тайлбар бичиж болно...',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ),
+              ),
+              BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 spacing: 10,
                 children: [
-                  MyChip(
-                      title: 'Дансаар',
-                      v: 'T',
-                      selected: payType == 'T',
-                      ontap: () => setPayType('T')),
-                  MyChip(
-                      title: 'Бэлнээр',
-                      v: 'C',
-                      selected: payType == 'C',
-                      ontap: () => setPayType('C')),
-                  MyChip(
-                      title: 'Зээлээр',
-                      v: 'L',
-                      selected: payType == 'L',
-                      ontap: () => setPayType('L')),
+                  ...paymentMethods.map(
+                    (pm) => Expanded(
+                      child: BottomSheetOptionChip(
+                        title: pm.name,
+                        v: pm.value,
+                        icon: pm.icon,
+                        isSelected: method == pm,
+                        onTap: () => setPayType(pm),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               CustomButton(
                 text: 'Хадгалах',
-                ontap: () {
-                  final pharmProvider =
-                      Provider.of<PharmProvider>(context, listen: false);
-                  pharmProvider
-                      .editSellerOrder(nc.text, payType, widget.oId, context)
-                      .then((e) => Navigator.pop(context));
+                ontap: () async {
+                  final pp = context.read<PharmProvider>();
+                  await pp
+                      .editSellerOrder(
+                        nc.text,
+                        method.name,
+                        widget.order.id,
+                        context,
+                      )
+                      .then(
+                        (e) => Navigator.pop(context),
+                      );
                 },
               ),
             ],
@@ -430,12 +449,5 @@ class _EditSellerOrderState extends State<EditSellerOrder> {
         ),
       ),
     );
-  }
-
-  String payType = '';
-  setPayType(String v) {
-    setState(() {
-      payType = v;
-    });
   }
 }

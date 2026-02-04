@@ -1,32 +1,21 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/controller/models/a_models.dart';
-import 'package:pharmo_app/application/function/utilities/a_utils.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class MyOrderProvider extends ChangeNotifier {
-  List<OrderModel> _orders = <OrderModel>[];
+  List<OrderModel> orders = <OrderModel>[];
   List<OrderModel> sellerOrders = <OrderModel>[];
   List<OrderModel> filteredsellerOrders = <OrderModel>[];
-  List<OrderModel> get orders => _orders;
-
-  // List<MyOrderDetailModel> _orderDetails = <MyOrderDetailModel>[];
-  // List<MyOrderDetailModel> get orderDetails => _orderDetails;
   List<Supplier> suppliers = [];
   List<Branch> branches = [];
 
   void reset() {
     sellerOrders.clear();
     filteredsellerOrders.clear();
-    // orderDetails.clear();
     orders.clear();
     suppliers.clear();
     branches.clear();
     notifyListeners();
   }
 
-  // late MyOrderDetailModel fetchedDetail;
   Future<List<OrderModel>> getSellerOrders() async {
     List<OrderModel> rult = [];
     try {
@@ -46,20 +35,24 @@ class MyOrderProvider extends ChangeNotifier {
     return rult;
   }
 
-  deleteSellerOrders({required int orderId}) async {
+  Future deleteSellerOrder({required int orderId}) async {
     try {
       final r = await api(Api.delete, 'seller/order/$orderId/');
       if (r == null) return;
       if (r.statusCode == 204) {
         messageComplete('Захиалга устлаа');
+        await getSellerOrders();
       } else {
+        if (convertData(r).toString().contains('order_not_deletable')) {
+          messageError('Устгах боломжгүй захиалга!');
+          return;
+        }
         messageWarning(wait);
       }
     } catch (e) {
       debugPrint(e.toString());
+      throw Exception(e);
     }
-    getSellerOrders();
-    notifyListeners();
   }
 
   Future filterOrder(String type, String query) async {
@@ -111,58 +104,6 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> getMyorders() async {
-    try {
-      final r = await api(Api.get, 'pharmacy/orders/');
-      if (r == null) return;
-      if (r.statusCode == 200) {
-        _orders.clear();
-        final data = convertData(r);
-        List<dynamic> ords = data['orders'];
-        _orders = (ords).map((data) => OrderModel.fromJson(data)).toList();
-        notifyListeners();
-        return {
-          'errorType': 1,
-          'data': r,
-          'message': 'Захиалгуудыг амжилттай авчирлаа.'
-        };
-      } else {
-        notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'
-        };
-      }
-    } catch (e) {
-      return {'errorType': 3, 'data': e, 'message': e};
-    }
-  }
-
-  // getMyorderDetail(int orderId) async {
-  //   try {
-  //     final r = await api(Api.get, 'pharmacy/orders/$orderId/items/');
-  //     if (r == null) return;
-  //     if (r.statusCode == 200) {
-  //       // _orderDetails.clear();
-  //       final data = convertData(r);
-  //       List<dynamic> dtls = data;
-  //       // _orderDetails =
-  //       //     (dtls).map((data) => MyOrderDetailModel.fromJson(data)).toList();
-  //       notifyListeners();
-  //     } else {
-  //       notifyListeners();
-  //       return {
-  //         'errorType': 2,
-  //         'data': null,
-  //         'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'
-  //       };
-  //     }
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //   }
-  // }
-
   Future<dynamic> getSuppliers() async {
     try {
       final r = await api(Api.get, 'suppliers_list/');
@@ -187,51 +128,81 @@ class MyOrderProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      // return {'errorType': 3, 'data': e, 'message': e};\
       throw Exception(e);
     }
   }
 
-  Future<dynamic> filterOrders(
-      String selectedFilter, String selectedItem) async {
-    try {
-      Response? r;
-      if (selectedFilter == '0') {
-        r = await api(Api.get, 'pharmacy/orders/?process=$selectedItem');
-      } else if (selectedFilter == '1') {
-        r = await api(Api.get, 'pharmacy/orders/?status=$selectedItem');
-      } else if (selectedFilter == '2') {
-        r = await api(Api.get, 'pharmacy/orders/?payType=$selectedItem');
-      } else if (selectedFilter == '3') {
-        r = await api(Api.get, 'pharmacy/orders/?addrs=$selectedItem');
-      } else if (selectedFilter == '4') {
-        r = await api(Api.get, 'pharmacy/orders/?supplier=$selectedItem');
-      } else {
-        r = await api(Api.get, 'pharmacy/orders/');
-      }
-      if (r == null) return;
-      if (r.statusCode == 200) {
-        _orders.clear();
-        final data = convertData(r);
-        List<dynamic> ords = data['orders'];
-        _orders = (ords).map((data) => OrderModel.fromJson(data)).toList();
-        notifyListeners();
-        return {
-          'errorType': 1,
-          'data': data,
-          'message': 'Захиалгуудыг амжилттай авчирлаа.'
-        };
-      } else {
-        notifyListeners();
-        return {
-          'errorType': 2,
-          'data': null,
-          'message': 'Захиалгуудыг авчрахад алдаа гарлаа.'
-        };
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+  OrderStatus status = OrderStatus.all;
+  void updateStatus(OrderStatus? value) async {
+    if (value == null) return;
+    status = value;
+    notifyListeners();
+    await filterOrders();
+  }
+
+  OrderProcess process = OrderProcess.all;
+  void updateProcess(OrderProcess? value) async {
+    if (value == null) return;
+    process = value;
+    notifyListeners();
+    await filterOrders();
+  }
+
+  PayType paymentMethod = PayType.unknown;
+  void updatePayMethod(PayType? value) async {
+    if (value == null) return;
+    paymentMethod = value;
+    notifyListeners();
+    await filterOrders();
+  }
+
+  Branch branch = Branch(id: -1, name: 'Салбар сонгох');
+  void updateBranch(Branch? value) async {
+    if (value == null) return;
+    branch = value;
+    notifyListeners();
+    await filterOrders();
+  }
+
+  Supplier supplier = Supplier(id: -1, name: 'Нийлүүлэгч сонгох', stocks: []);
+  void updateSupplier(Supplier? value) async {
+    if (value == null) return;
+    supplier = value;
+    notifyListeners();
+    await filterOrders();
+  }
+
+  Future<dynamic> filterOrders() async {
+    await LoadingService.run(
+      () async {
+        try {
+          String url = 'pharmacy/orders/?status=${status.value}';
+          if (process != OrderProcess.all) {
+            url = '$url&process=${process.code}';
+          }
+          if (paymentMethod != PayType.unknown) {
+            url = '$url&payType=${paymentMethod.value}';
+          }
+          if (branch.id != -1) {
+            url = '$url&addrs=${branch.id}';
+          }
+          if (supplier.id != -1) {
+            url = '$url&supplier=${supplier.id}';
+          }
+
+          final r = await api(Api.get, url);
+          if (r == null) return;
+          if (r.statusCode == 200) {
+            final data = convertData(r);
+            List<dynamic> ords = data['orders'];
+            orders = (ords).map((data) => OrderModel.fromJson(data)).toList();
+            notifyListeners();
+          }
+        } catch (e) {
+          debugPrint(e.toString());
+        }
+      },
+    );
   }
 
   Future confirmOrder(int orderId) async {
@@ -241,7 +212,7 @@ class MyOrderProvider extends ChangeNotifier {
       if (r == null) return;
       switch (r.statusCode) {
         case 200:
-          await getMyorders();
+          await filterOrders();
           return buildResponse(
               1, null, 'Таны захиалга амжилттай баталгаажлаа.');
 

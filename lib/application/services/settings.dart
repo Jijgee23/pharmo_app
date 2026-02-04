@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -72,20 +73,21 @@ class Settings {
 
   static Future<bool> checkAlwaysLocationPermission() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    print("service enabled: $serviceEnabled");
     if (!serviceEnabled) {
-      await Geolocator.requestPermission();
-      return false;
+      await openAppSettings();
     }
     LocationPermission permission = await Geolocator.checkPermission();
     print(permission);
-    final accuricy = await Geolocator.getLocationAccuracy();
-    if (permission == LocationPermission.always &&
-        accuricy == LocationAccuracyStatus.precise) {
-      return true;
-    }
 
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      try {
+        permission = await Geolocator.requestPermission();
+      } catch (e) {
+        if (e is PlatformException) {
+          await openAppSettings();
+        }
+      }
     }
     if (permission == LocationPermission.deniedForever) {
       await openAppSettings();
@@ -93,8 +95,15 @@ class Settings {
     if (permission == LocationPermission.whileInUse) {
       await openAppSettings();
     }
-    if (accuricy != LocationAccuracyStatus.precise) {
-      await openAppSettings();
+    if (permission == LocationPermission.always) {
+      final accuricy = await Geolocator.getLocationAccuracy();
+      if (permission == LocationPermission.always &&
+          accuricy == LocationAccuracyStatus.precise) {
+        return true;
+      }
+      if (accuricy != LocationAccuracyStatus.precise) {
+        await openAppSettings();
+      }
     }
     await Geolocator.requestPermission();
     return false;

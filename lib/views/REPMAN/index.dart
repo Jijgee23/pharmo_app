@@ -7,7 +7,6 @@ import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
 import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/widgets/inputs/ibtn.dart';
 import 'package:pharmo_app/controller/a_controlller.dart';
 
 class IndexRep extends StatefulWidget {
@@ -39,11 +38,11 @@ class _IndexRepState extends State<IndexRep> {
           appBar: CustomAppBar(
             title: appBarSingleText('Миний профайл'),
             actions: [
-              Ibtn(
-                onTap: () => goto(SeeMap()),
-                icon: Icons.location_on,
+              IconButton(
+                onPressed: () => goto(SeeMap()),
+                icon: Icon(Icons.location_on),
                 color: Colors.indigo,
-              )
+              ),
             ],
           ),
           body: pages[homeProvider.currentIndex],

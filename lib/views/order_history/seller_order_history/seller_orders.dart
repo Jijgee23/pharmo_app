@@ -1,4 +1,4 @@
-import 'package:pharmo_app/views/order_history/seller_order_history/seller_order_widget.dart';
+import 'package:pharmo_app/views/order_history/seller_order_history/order_card.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class SellerOrderHistory extends StatefulWidget {

@@ -41,12 +41,6 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     {'title': 'Хүргэлтээр', 'v': 'D', 'icon': '🛵'},
   ];
 
-  final List<Map<String, String>> payMethods = [
-    {'title': 'Бэлнээр', 'v': 'C', 'icon': '💰'},
-    {'title': 'Дансаар', 'v': 'T', 'icon': '💳'},
-    {'title': 'Зээлээр', 'v': 'L', 'icon': '📝'},
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -76,19 +70,48 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 24),
-
+          BottomSheetLabelBuilder('Сонгосон нийлүүлэгч'),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: primary.withOpacity(0.2)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.home_work_outlined, color: primary, size: 18),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    "${homeProvider.picked.name} (${homeProvider.selected.name})",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: primary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           // 2. Хүргэлтийн хэлбэр
-          _buildLabel('Хүргэлтийн нөхцөл'),
+          BottomSheetLabelBuilder('Хүргэлтийн нөхцөл'),
           const SizedBox(height: 10),
           Row(
             children: deliveryMethods
                 .map((dm) => Expanded(
-                      child: _optionChip(
-                          dm['title']!,
-                          dm['v']!,
-                          dm['icon']!,
-                          deliveryType == dm['v'],
-                          () => setDeliverType(dm['v']!)),
+                      child: BottomSheetOptionChip(
+                        title: dm['title']!,
+                        v: dm['v']!,
+                        icon: dm['icon']!,
+                        isSelected: deliveryType == dm['v'],
+                        onTap: () => setDeliverType(dm['v']!),
+                      ),
                     ))
                 .toList(),
           ),
@@ -96,27 +119,34 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
 
           // 3. Салбар сонгох (Хэрэв Хүргэлтээр бол заавал салбар сонгоно)
           if (deliveryType == 'D' || homeProvider.branches.length > 1) ...[
-            _buildLabel('Хүргэлт хийх салбар'),
+            BottomSheetLabelBuilder('Хүргэлт хийх салбар'),
             const SizedBox(height: 10),
             _branchSelector(),
             const SizedBox(height: 20),
           ],
 
           // 4. Төлбөрийн хэлбэр
-          _buildLabel('Төлбөрийн хэлбэр'),
+          BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
           const SizedBox(height: 10),
           Row(
-            children: payMethods
-                .map((pm) => Expanded(
-                      child: _optionChip(pm['title']!, pm['v']!, pm['icon']!,
-                          payType == pm['v'], () => setPayType(pm['v']!)),
-                    ))
+            children: paymentMethods
+                .map(
+                  (pm) => Expanded(
+                    child: BottomSheetOptionChip(
+                      title: pm.name,
+                      v: pm.value,
+                      icon: pm.icon,
+                      isSelected: payType == pm.value,
+                      onTap: () => setPayType(pm.value),
+                    ),
+                  ),
+                )
                 .toList(),
           ),
           const SizedBox(height: 20),
 
           // 5. Тайлбар
-          _buildLabel('Тайлбар (Заавал биш)'),
+          BottomSheetLabelBuilder('Тайлбар (Заавал биш)'),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -147,53 +177,6 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     );
   }
 
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: Colors.grey.shade600),
-    );
-  }
-
-  Widget _optionChip(String title, String v, String icon, bool isSelected,
-      VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? primary.withOpacity(0.05) : Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? primary : Colors.grey.shade300,
-              width: isSelected ? 1.5 : 1,
-            ),
-          ),
-          child: Column(
-            children: [
-              Text(icon, style: const TextStyle(fontSize: 18)),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? primary : Colors.black87,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _branchSelector() {
     bool isSelected = selectedBranchId != -1;
     return InkWell(
@@ -203,14 +186,18 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border:
-              Border.all(color: isSelected ? primary : Colors.grey.shade300),
+          border: Border.all(
+            color: isSelected ? primary : Colors.grey.shade300,
+          ),
           color: isSelected ? primary.withOpacity(0.02) : Colors.white,
         ),
         child: Row(
           children: [
-            Icon(Icons.location_on_outlined,
-                color: isSelected ? primary : Colors.grey, size: 20),
+            Icon(
+              Icons.location_on_outlined,
+              color: isSelected ? primary : Colors.grey,
+              size: 20,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -280,50 +267,5 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     } finally {
       LoadingService.hide();
     }
-  }
-}
-
-class MyChip extends StatelessWidget {
-  final String title;
-  final String v;
-  final bool selected;
-  final Function() ontap;
-  const MyChip({
-    super.key,
-    required this.title,
-    required this.v,
-    required this.selected,
-    required this.ontap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    double fontSize = Sizes.height * .012;
-    return Expanded(
-      child: InkWell(
-        onTap: ontap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: selected ? theme.primaryColor : Colors.grey.shade300,
-              width: 1.5,
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          child: Center(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.w700,
-                color: selected ? theme.primaryColor : Colors.grey.shade500,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

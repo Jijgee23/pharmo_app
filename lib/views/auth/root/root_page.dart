@@ -2,9 +2,6 @@ import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/auth/login/login.dart';
 import 'package:pharmo_app/views/auth/root/root_provider.dart';
 import 'package:pharmo_app/views/auth/root/splash_screen.dart';
-import 'package:pharmo_app/views/DRIVER/index_driver.dart';
-import 'package:pharmo_app/views/index.dart';
-import 'package:pharmo_app/views/REPMAN/index.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -46,14 +43,7 @@ class _RootPageState extends State<RootPage> {
         final security = LocalBase.security;
 
         if (security == null) return LoginPage();
-
-        if (security.role == 'D') {
-          return IndexDriver();
-        }
-        if (security.role == "R") {
-          return IndexRep();
-        }
-        return IndexPharma();
+        return RoleConfig.getHomePage(security.userRole);
       },
     );
   }

@@ -1,5 +1,5 @@
-import 'package:pharmo_app/views/SELLER/report/report_widget.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/SELLER/report/report_widget.dart';
 
 class Reportfilter {
   String title;
@@ -51,10 +51,8 @@ class _SellerReportState extends State<SellerReportPage> {
       builder: (context, rp, child) {
         dynamic data = rp.report;
         return Scaffold(
-          backgroundColor: Colors.grey.shade50, // Зөөлөн дэвсгэр өнгө
-          appBar: SideAppBar(
-            title: Text('Борлуулагчийн тайлан'),
-          ),
+          backgroundColor: Colors.grey.shade50,
+          appBar: SideAppBar(title: Text('Борлуулагчийн тайлан')),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -63,17 +61,38 @@ class _SellerReportState extends State<SellerReportPage> {
                 // 1. Огноо сонгох хэсэг
                 Row(
                   children: [
-                    _buildDateBox(
-                        'Эхлэх', rp.currentDate, () => _showCalendar(report)),
+                    DateButton(
+                      label: 'Эхлэх',
+                      date: rp.currentDate,
+                      onTap: () => _showCalendar(report),
+                    ),
                     const SizedBox(width: 12),
-                    _buildDateBox('Дуусах', rp.currentDate2,
-                        () => _showCalendar(report, isStart: false)),
+                    DateButton(
+                      label: 'Эхлэх',
+                      date: rp.currentDate2,
+                      onTap: () => _showCalendar(report, isStart: false),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
 
                 // 2. Шүүлтүүр сонгох товч
-                _buildFilterButton(rp),
+                FilterButton(
+                  label: 'Тайлангийн төрөл: ${selectedFilter.title}',
+                  onPressed: () => mySheet(
+                    isDismissible: true,
+                    children: filters
+                        .map((f) => SelectedFilter(
+                              selected: f.title == selectedFilter.title,
+                              caption: f.title,
+                              onSelect: () {
+                                setState(() => selectedFilter = f);
+                                rp.getReports(selectedFilter.query);
+                              },
+                            ))
+                        .toList(),
+                  ),
+                ),
                 const SizedBox(height: 24),
 
                 // 3. Хүснэгтийн толгой
@@ -102,83 +121,6 @@ class _SellerReportState extends State<SellerReportPage> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildDateBox(String label, DateTime date, VoidCallback onTap) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label,
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade500)),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(Icons.calendar_today_outlined,
-                      size: 14, color: primary),
-                  const SizedBox(width: 8),
-                  Text(getDate(date),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 13)),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterButton(ReportProvider rp) {
-    return InkWell(
-      onTap: () => mySheet(
-        isDismissible: true,
-        children: filters
-            .map((f) => SelectedFilter(
-                  selected: f.title == selectedFilter.title,
-                  caption: f.title,
-                  onSelect: () {
-                    setState(() => selectedFilter = f);
-                    rp.getReports(selectedFilter.query);
-                  },
-                ))
-            .toList(),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: primary.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: primary.withOpacity(0.2)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Тайлангийн төрөл: ${selectedFilter.title}',
-              style: const TextStyle(
-                color: primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Icon(
-              Icons.tune_rounded,
-              color: primary,
-              size: 20,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -244,5 +186,113 @@ class _SellerReportState extends State<SellerReportPage> {
     if (pickedDate == null) return;
     report.setCurrentDate(pickedDate, isStart: isStart);
     await report.getReports(selectedFilter.query);
+  }
+}
+
+class FilterButton extends StatelessWidget {
+  final void Function()? onPressed;
+  final String label;
+
+  const FilterButton({
+    super.key,
+    this.onPressed,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: primary.withOpacity(0.05),
+        foregroundColor: primary,
+        padding: const EdgeInsets.all(14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: primary.withOpacity(0.2),
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Icon(
+            Icons.tune_rounded,
+            size: 20,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DateButton extends StatelessWidget {
+  final VoidCallback? onTap;
+  final String? label;
+  final DateTime date;
+
+  const DateButton({
+    super.key,
+    this.onTap,
+    this.label,
+    required this.date,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.grey.shade200),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label ?? "Огноо",
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.grey.shade500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 14,
+                  color: primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  getDate(date),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

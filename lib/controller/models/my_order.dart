@@ -1,3 +1,4 @@
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/application/function/utilities/utils.dart';
 
 class OrderModel {
@@ -7,7 +8,7 @@ class OrderModel {
   double totalCount;
   String? status;
   String? process;
-  String? payType;
+  String payType;
   String? createdOn;
   String? customer;
   String? supplier;
@@ -29,7 +30,7 @@ class OrderModel {
     required this.totalCount,
     this.status,
     this.process,
-    this.payType,
+    required this.payType,
     this.createdOn,
     this.customer,
     this.supplier,
@@ -48,7 +49,7 @@ class OrderModel {
         totalCount = parseDouble(json['totalCount']),
         status = json['status'],
         process = json['process'],
-        payType = json['payType'],
+        payType = json['payType'] ?? 'U',
         createdOn = json['createdOn'],
         customer = json['customer'],
         supplier = json['supplier'],
@@ -80,4 +81,6 @@ class OrderModel {
       'endedOn': endedOn,
     };
   }
+
+  PayType get payMethod => PayType.fromName(payType);
 }

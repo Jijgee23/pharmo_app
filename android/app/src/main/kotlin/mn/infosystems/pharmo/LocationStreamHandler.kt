@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import io.flutter.plugin.common.EventChannel
@@ -12,13 +13,25 @@ import io.flutter.plugin.common.EventChannel
 class LocationStreamHandler(private val activity: Activity) : EventChannel.StreamHandler {
     private var eventSink: EventChannel.EventSink? = null
     private var isSubscribed = false
+    private var isListening = false
     override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
-        // if(!hasBackgroundPermission()){
-        //     requestBackgroundPermission();
-        // }
+        Log.d(TAG, "📡 onListen called - Setting EventSink")
+
         eventSink = events
-        isSubscribed = true
+        isListening = true
+
+        // ✅ CRITICAL: Set EventSink to Service IMMEDIATELY
         LocationService.setEventSink(events)
+
+        Log.d(TAG, "✅ EventSink set successfully")
+
+        // Check if service is already running
+        if (LocationService.isRunning()) {
+            Log.d(TAG, "Service already running, EventSink reconnected")
+            return
+        }
+
+        // If not running, start with permissions
         when {
             hasForegroundPermission() -> ensureBackgroundPermissionThenStart()
             else -> requestForegroundPermission()
@@ -26,11 +39,16 @@ class LocationStreamHandler(private val activity: Activity) : EventChannel.Strea
     }
 
     override fun onCancel(arguments: Any?) {
-        android.util.Log.d("LocationTrack", "Flutter-ээс зогсоох хүсэлт ирлээ")
-        isSubscribed = false
-        stopService()
+        Log.d(TAG, "🛑 onCancel called")
+
+        isListening = false
+
+        // DON'T stop service here - only clear EventSink
+        // Service should be controlled via MethodChannel
         LocationService.setEventSink(null)
         eventSink = null
+
+        Log.d(TAG, "✅ EventSink cleared")
     }
 
     fun checkAndRequestFullLocationPermissions() {
@@ -166,16 +184,19 @@ class LocationStreamHandler(private val activity: Activity) : EventChannel.Strea
     }
 
     private fun startService() {
+        Log.d(TAG, "Starting LocationService...")
         val intent = Intent(activity, LocationService::class.java)
         ContextCompat.startForegroundService(activity, intent)
     }
-
+    
     private fun stopService() {
+        Log.d(TAG, "Stopping LocationService...")
         val intent = Intent(activity, LocationService::class.java)
         activity.stopService(intent)
     }
-
+    
     private fun permissionDenied(message: String) {
+        Log.e(TAG, "Permission denied: $message")
         LocationService.setEventSink(null)
         stopService()
         eventSink?.error("permission_denied", message, null)
@@ -184,5 +205,6 @@ class LocationStreamHandler(private val activity: Activity) : EventChannel.Strea
     companion object {
         const val REQUEST_CODE_FOREGROUND = 9021
         const val REQUEST_CODE_BACKGROUND = 9022
+        private const val TAG = "LocationStreamHandler"
     }
 }

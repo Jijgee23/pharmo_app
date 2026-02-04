@@ -38,6 +38,7 @@ class AppConfigs {
     Locale('en', 'US'),
     Locale('mn', 'MN'),
   ];
+
   static Map<String, Widget Function(BuildContext)> appRoutes = {
     "/root": (_) => RootPage(),
     "/login": (_) => LoginPage(),

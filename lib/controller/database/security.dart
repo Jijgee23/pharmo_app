@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:pharmo_app/application/config/role_managemant/user_role.dart';
 
 part 'security.g.dart';
 
@@ -52,7 +53,10 @@ class Security extends HiveObject {
   });
 
   factory Security.fromJson(
-      Map<String, dynamic> json, String access, String refresh) {
+    Map<String, dynamic> json,
+    String access,
+    String refresh,
+  ) {
     return Security(
       id: json['user_id'],
       name: json['name'].toString(),
@@ -67,4 +71,13 @@ class Security extends HiveObject {
       refresh: refresh,
     );
   }
+  UserRole get userRole => UserRole.fromCode(role);
+
+  /// Роль-ын нэр
+  String get roleName => userRole.displayName;
+  bool get isDriver => userRole.isDriver();
+  bool get isRepresentative => userRole.isRepresentative();
+  bool get isPharmacist => userRole.isPharmacist();
+  bool get isAdmin => userRole.isAdmin();
+  bool get isSaler => userRole.isSaler();
 }

@@ -4,13 +4,11 @@ import 'package:pharmo_app/controller/models/delivery.dart';
 
 class PharmProvider extends ChangeNotifier {
   List<Customer> filteredCustomers = <Customer>[];
-  List<SellerOrder> orderDets = <SellerOrder>[];
   CustomerDetail customerDetail = CustomerDetail();
   List<Zone> zones = [];
   Zone selectedZone = Zone(id: -1, name: 'Бүс сонгох');
   void reset() {
     filteredCustomers.clear();
-    orderDets.clear();
     customerDetail = CustomerDetail();
     zones.clear();
     selectedZone = Zone(id: -1, name: 'Бүс сонгох');
@@ -119,10 +117,6 @@ class PharmProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint(e.toString());
     }
-  }
-
-  clearOrderDets() {
-    orderDets.clear();
   }
 
   Stream<OrderModel>? getSellerOrderDetail(int oId) async* {
@@ -268,159 +262,6 @@ class PharmProvider extends ChangeNotifier {
       zones = (convertData(r) as List).map((z) => Zone.fromJson(z)).toList();
       notifyListeners();
     }
-  }
-}
-
-class PharmFullInfo {
-  int id;
-  String name;
-  bool isCustomer;
-  int badCnt;
-  bool isBad;
-  double debt;
-  double debtLimit;
-  PharmFullInfo(
-    this.id,
-    this.name,
-    this.isCustomer,
-    this.badCnt,
-    this.isBad,
-    this.debt,
-    this.debtLimit,
-  );
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'isCustomer': isCustomer,
-      'badCnt': badCnt,
-      'isBad': isBad,
-      'debt': debt,
-      'debtLimit': debtLimit,
-    };
-  }
-
-  factory PharmFullInfo.fromJson(Map<String, dynamic> json) {
-    return PharmFullInfo(
-      json['id'],
-      json['name'],
-      json['isCustomer'],
-      json['badCnt'],
-      json['isBad'],
-      json['debt'].toDouble(),
-      json['debtLimit'].toDouble(),
-    );
-  }
-}
-
-class SellerOrder {
-  final int id;
-  final String orderNo;
-  final String customer;
-  final double totalPrice;
-  final int totalCount;
-  final String status;
-  final String process;
-  final String createdOn;
-  final String payType;
-  final String note;
-  final List<OrderItem> items;
-
-  SellerOrder({
-    required this.id,
-    required this.orderNo,
-    required this.customer,
-    required this.totalPrice,
-    required this.totalCount,
-    required this.status,
-    required this.process,
-    required this.createdOn,
-    required this.payType,
-    required this.note,
-    required this.items,
-  });
-
-  // Factory constructor for parsing JSON data
-  factory SellerOrder.fromJson(Map<String, dynamic> json) {
-    return SellerOrder(
-      id: json['id'],
-      orderNo: json['orderNo'].toString(),
-      customer: json['customer'].toString(),
-      totalPrice: (json['totalPrice'] as num).toDouble(),
-      totalCount: json['totalCount'],
-      status: json['status'].toString(),
-      process: json['process'].toString(),
-      createdOn: json['createdOn'].toString(),
-      payType: json['payType'].toString(),
-      note: json['note'].toString(),
-      items: (json['items'] as List<dynamic>)
-          .map((item) => OrderItem.fromJson(item as Map<String, dynamic>))
-          .toList(),
-    );
-  }
-
-  // Method to convert an instance back to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'orderNo': orderNo,
-      'customer': customer,
-      'totalPrice': totalPrice,
-      'totalCount': totalCount,
-      'status': status,
-      'process': process,
-      'createdOn': createdOn,
-      'payType': payType,
-      'note': note,
-      'items': items.map((item) => item.toJson()).toList(),
-    };
-  }
-}
-
-class OrderItem {
-  final String itemName;
-  final double itemPrice;
-  final int iQty;
-  final int itemQty;
-  final double itemTotalPrice;
-  final String itemnameId;
-  final int productId;
-
-  OrderItem({
-    required this.itemName,
-    required this.itemPrice,
-    required this.iQty,
-    required this.itemQty,
-    required this.itemTotalPrice,
-    required this.itemnameId,
-    required this.productId,
-  });
-
-  // Factory constructor for parsing JSON data
-  factory OrderItem.fromJson(Map<String, dynamic> json) {
-    // print('TYPE: ${json['itemname_id'].runtimeType}');
-    return OrderItem(
-      itemName: json['itemName'],
-      itemPrice: (json['itemPrice'] as num).toDouble(),
-      iQty: json['iQty'],
-      itemQty: json['itemQty'],
-      itemTotalPrice: (json['itemTotalPrice'] as num).toDouble(),
-      itemnameId: json['itemname_id'].toString(),
-      productId: json['product_id'],
-    );
-  }
-
-  // Method to convert an instance back to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'itemName': itemName,
-      'itemPrice': itemPrice,
-      'iQty': iQty,
-      'itemQty': itemQty,
-      'itemTotalPrice': itemTotalPrice,
-      'itemname_id': itemnameId,
-      'product_id': productId,
-    };
   }
 }
 

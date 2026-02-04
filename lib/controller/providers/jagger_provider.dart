@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -26,11 +25,11 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   bool isOnline = false;
   void _setupStreams() async {
     // location
-    NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
-          (dynamic location) => _eventController.add(
-            LocationEvent(location),
-          ),
-        );
+    // NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
+    //       (dynamic location) => _eventController.add(
+    //         LocationEvent(location),
+    //       ),
+    //     );
     connectivity.onConnectivityChanged
         .listen((List<ConnectivityResult> status) async {
       _eventController.add(NetworkEvent(status));
@@ -87,7 +86,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   List<LatLng> routeCoords = [];
   List<Payment> payments = [];
   final LogService logService = LogService();
-  final Battery battery = Battery();
 
   LocationPermission? permission;
   LocationAccuracyStatus? accuracy;
@@ -201,53 +199,71 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     }
     await getTrackBox();
     try {
-      subscription = mergedEvents.listen(
+      // final started = await NativeChannel.startLocationService();
+      // if (!started) {
+      //   messageError('Location service эхлүүлж чадсангүй');
+      //   return;
+      // }
+
+      subscription =
+          NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
         (event) async {
-          final logType = isSeller ? 'Борлуулалт' : 'Түгээлт';
-          if (event is LocationEvent) {
-            print("location changed: ${event.location}");
-            final lat = parseDouble(event.location['lat']);
-            final lng = parseDouble(event.location['lng']);
-            await sendTobackend(lat, lng);
-          } else if (event is NetworkEvent) {
-            final rults = event.results;
-            bool isMobile = rults.contains(ConnectivityResult.mobile);
-            bool isWifi = rults.contains(ConnectivityResult.wifi);
-            if (isMobile || isWifi) {
-              await logService.createLog(
-                logType,
-                'Байршил дамжуулах явцад холболт сэргэсэн (${DateTime.now().toIso8601String()})',
-              );
-              await getTrackBox();
-              await syncOffineTracks();
-            } else {
-              await logService.createLog(
-                logType,
-                'Байршил дамжуулах явцад холболт салсан  (${DateTime.now().toIso8601String()})',
-              );
-            }
-          } else if (event is BatteryEvent) {
-            print('Батерейны түвшин 20%-с бага байна: ${event.level}');
-            await LogService().createLog(
-              logType,
-              'Таны төхөөрөмжийн баттерей ${event.level}% байна.',
-            );
-            await FirebaseApi.local(
-              'Баттерей сул байна',
-              'Таны төхөөрөмжийн баттерей ${event.level}% байна. '
-                  'Цэнэглэнэ үү, байршил дамжуулалт зогсох магадлалтай.',
-            );
-          } else if (event is LifeCycleEvent) {
-            print('Аппликейшний төлөв өөрчлөгдлөө: ${event.state}');
-            if (event.state == AppLifecycleState.paused) {
-              await logService.createLog(
-                logType,
-                'Байршил дамжуулах явцад бусад апп руу шилжсэн.  (${DateTime.now().toIso8601String()})',
-              );
-            }
-          }
+          print("location changed: ${event}");
+          final lat = parseDouble(event['lat']);
+          final lng = parseDouble(event['lng']);
+          await sendTobackend(lat, lng);
+          // final logType = isSeller ? 'Борлуулалт' : 'Түгээлт';
+          // if (event is LocationEvent) {
+          //   // print("location changed: ${event.location}");
+          //   // final lat = parseDouble(event.location['lat']);
+          //   // final lng = parseDouble(event.location['lng']);
+          //   // await sendTobackend(lat, lng);
+          // } else if (event is NetworkEvent) {
+          //   final rults = event.results;
+          //   bool isMobile = rults.contains(ConnectivityResult.mobile);
+          //   bool isWifi = rults.contains(ConnectivityResult.wifi);
+          //   if (isMobile || isWifi) {
+          //     await logService.createLog(
+          //       logType,
+          //       'Байршил дамжуулах явцад холболт сэргэсэн (${DateTime.now().toIso8601String()})',
+          //     );
+          //     await getTrackBox();
+          //     await syncOffineTracks();
+          //   } else {
+          //     await logService.createLog(
+          //       logType,
+          //       'Байршил дамжуулах явцад холболт салсан  (${DateTime.now().toIso8601String()})',
+          //     );
+          //   }
+          // } else if (event is BatteryEvent) {
+          //   print('Батерейны түвшин 20%-с бага байна: ${event.level}');
+          //   await LogService().createLog(
+          //     logType,
+          //     'Таны төхөөрөмжийн баттерей ${event.level}% байна.',
+          //   );
+          //   await FirebaseApi.local(
+          //     'Баттерей сул байна',
+          //     'Таны төхөөрөмжийн баттерей ${event.level}% байна. '
+          //         'Цэнэглэнэ үү, байршил дамжуулалт зогсох магадлалтай.',
+          //   );
+          // } else if (event is LifeCycleEvent) {
+          //   print('Аппликейшний төлөв өөрчлөгдлөө: ${event.state}');
+          //   if (event.state == AppLifecycleState.paused) {
+          //     await logService.createLog(
+          //       logType,
+          //       'Байршил дамжуулах явцад бусад апп руу шилжсэн.  (${DateTime.now().toIso8601String()})',
+          //     );
+          //   }
+          // }
         },
       );
+      await Future.delayed(Duration(milliseconds: 500));
+
+      final started = await NativeChannel.startLocationService();
+      if (!started) {
+        messageError('Location service эхлүүлж чадсангүй');
+        return;
+      }
       timer = Timer.periodic(Duration(seconds: 1), (v) {
         now = DateTime.now();
         notifyListeners();
@@ -265,12 +281,19 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   Future stopTracking() async {
     try {
       await syncOffineTracks();
+      await subscription!.cancel();
+      final stopped = await NativeChannel.stopLocationService();
+      if (stopped) {
+        debugPrint('✅ Native location service stopped');
+      } else {
+        debugPrint('⚠️ Failed to stop native service');
+      }
       await LocalBase.clearDelmanTrack();
       await LocalBase.removeSellerTrackId();
       await clearTrackData();
       if (subscription == null) return;
       print('stoping track');
-      await subscription!.cancel();
+
       subscription = null;
       notifyListeners();
       print('subsciption null: ${subscription == null}');

@@ -108,9 +108,9 @@ class _RepHomeState extends State<RepHome> {
                       )),
                 ],
               ),
-              Ibtn(
-                onTap: () => editVisit(visit),
-                icon: Icons.edit,
+              IconButton(
+                onPressed: () => editVisit(visit),
+                icon: Icon(Icons.edit),
                 color: Colors.green,
               )
             ],
@@ -145,14 +145,14 @@ class _RepHomeState extends State<RepHome> {
         children: [
           SizedBox(),
           Text('Уулзалтын мэдээлэл засах', style: TextStyle(fontSize: 16)),
-          Ibtn(
-              onTap: () async {
-                await rep.deleteVisit(visit.id);
-                Navigator.pop(context);
-              },
-              icon: Icons.delete,
-              color: Colors.white,
-              bColor: Colors.red),
+          IconButton(
+            onPressed: () async {
+              await rep.deleteVisit(visit.id);
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.delete_forever),
+            color: Colors.red,
+          ),
         ],
       ),
       CustomTextField(controller: note),

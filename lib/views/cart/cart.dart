@@ -1,5 +1,4 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/home/widgets/bottom_submit.dart';
 
 class Cart extends StatefulWidget {
   const Cart({super.key});
@@ -15,16 +14,19 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
     super.initState();
     controller = AnimationController(
       vsync: this,
-      duration:
-          const Duration(milliseconds: 1000), // Shimmer-т 1сек илүү тохиромжтой
+      duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
-
     WidgetsBinding.instance.addPostFrameCallback((_) => init());
   }
 
   Future<void> init() async {
     LoadingService.run(() async {
       await context.read<BasketProvider>().getBasket();
+      final user = LocalBase.security;
+      if (user == null) return;
+      if (user.isPharmacist) {
+        await context.read<HomeProvider>().getBranches();
+      }
     });
   }
 
@@ -36,21 +38,46 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BasketProvider>(
-      builder: (context, provider, _) {
+    return Consumer2<BasketProvider, HomeProvider>(
+      builder: (context, provider, home, _) {
         final cartDatas = provider.shoppingCarts;
         final basket = provider.basket;
         final bool basketIsEmpty = (basket == null ||
             basket.totalCount == 0 ||
             (basket.items?.isEmpty ?? true));
-
+        final user = LocalBase.security;
         return Scaffold(
           backgroundColor: Colors.grey.shade50, // Зөөлөн дэвсгэр
           appBar: const SideAppBar(text: 'Миний сагс'),
           bottomNavigationBar: !basketIsEmpty
-              ? BottomSubmit(
-                  ontap: () => placeOrder(context),
-                  caption: "Захиалга үүсгэх",
+              ? IntrinsicHeight(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: Colors.grey.shade200,
+                        ),
+                      ),
+                    ),
+                    padding: EdgeInsets.all(20),
+                    child: SafeArea(
+                      child: Column(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (user!.isPharmacist)
+                            BottomSheetLabelBuilder(
+                                'Сонгосон нийлүүлэгч: ${home.picked.name}'),
+                          Expanded(
+                            child: CustomButton(
+                              text: "Захиалга үүсгэх",
+                              ontap: () => placeOrder(context),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 )
               : null,
           body: RefreshIndicator.adaptive(

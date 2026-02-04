@@ -5,7 +5,7 @@ import 'package:pharmo_app/views/auth/root/root_page.dart';
 import 'package:upgrader/upgrader.dart';
 import 'application/application.dart';
 
-final pharmo = Pharmo();
+final app = Pharmo();
 const platform = MethodChannel('bg_channel');
 
 Future<void> startNativeTimer() async {
@@ -21,35 +21,38 @@ Future<void> main() async {
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
   };
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await FirebaseApi.initFirebase();
-    await Upgrader.clearSavedSettings();
-    await dotenv.load(fileName: ".env");
-    await Hive.initFlutter();
-    Hive.registerAdapter(SecurityAdapter());
-    Hive.registerAdapter(LogModelAdapter());
-    Hive.registerAdapter(TrackDataAdapter());
-    await LocalBase.initLocalBase();
-    await LogService().initialize();
-    // await startNativeTimer();
-    runApp(
-      UpgradeAlert(
-        dialogStyle: UpgradeDialogStyle.material,
-        showIgnore: false,
-        showLater: true,
-        showReleaseNotes: false,
-        child: MultiProvider(
-          providers: AppConfigs.providers,
-          child: Pharmo(),
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await FirebaseApi.initFirebase();
+      await Upgrader.clearSavedSettings();
+      await dotenv.load(fileName: ".env");
+      await Hive.initFlutter();
+      Hive.registerAdapter(SecurityAdapter());
+      Hive.registerAdapter(LogModelAdapter());
+      Hive.registerAdapter(TrackDataAdapter());
+      await LocalBase.initLocalBase();
+      await LogService().initialize();
+      // await startNativeTimer();
+      runApp(
+        UpgradeAlert(
+          dialogStyle: UpgradeDialogStyle.material,
+          showIgnore: false,
+          showLater: true,
+          showReleaseNotes: false,
+          child: MultiProvider(
+            providers: AppConfigs.providers,
+            child: app,
+          ),
         ),
-      ),
-    );
-  }, (error, stack) async {
-    await apiMacsMn(error, stack);
-    debugPrint("ERROR=======> ${error.toString()}");
-    debugPrint("ERROR=======> ${stack.toString()}");
-  });
+      );
+    },
+    (error, stack) async {
+      await apiMacsMn(error, stack);
+      debugPrint("ERROR=======> ${error.toString()}");
+      debugPrint("ERROR=======> ${stack.toString()}");
+    },
+  );
 }
 
 class Pharmo extends StatefulWidget {

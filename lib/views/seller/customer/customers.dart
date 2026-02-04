@@ -31,31 +31,11 @@ class _CustomerListState extends State<CustomerList>
   }
 
   void init(bool force) async {
-    final pharmProvider = context.read<PharmProvider>();
-    Future fetch() async {
-      await pharmProvider.getCustomers(1, 100, context);
+    await LoadingService.run(() async {
+      final pharmProvider = context.read<PharmProvider>();
+      await await pharmProvider.getCustomers(1, 100, context);
       await pharmProvider.getZones();
-    }
-
-    try {
-      LoadingService.show();
-      if (!force) {
-        if (pharmProvider.filteredCustomers.isNotEmpty) {
-          LoadingService.hide();
-          return;
-        }
-        if (pharmProvider.zones.isNotEmpty) {
-          LoadingService.hide();
-          return;
-        }
-        await fetch();
-      }
-    } catch (e) {
-      print(e);
-      throw Exception(e);
-    } finally {
-      LoadingService.hide();
-    }
+    });
   }
 
   @override

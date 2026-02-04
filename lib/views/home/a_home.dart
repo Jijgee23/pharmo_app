@@ -6,3 +6,4 @@ export 'widgets/modern_icon.dart';
 export 'widgets/section_card.dart';
 export 'widgets/selected_filter.dart';
 export 'widgets/modern_action_button.dart';
+export 'widgets/iconed_text.dart';
