@@ -196,31 +196,31 @@ class _SplashScreenState extends State<SplashScreen>
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
           children: [
-            SizedBox(height: size.height * 0.05),
+            // SizedBox(height: size.height * 0.05),
 
             // Animated image
-            ScaleTransition(
-              scale: _scaleAnimation,
-              child: RotationTransition(
-                turns: _rotateAnimation,
-                child: Container(
-                  height: size.height * 0.3,
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: page.color.withOpacity(0.3),
-                        blurRadius: 40,
-                        spreadRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: Image.asset(
-                    page.image,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ),
+            // ScaleTransition(
+            //   scale: _scaleAnimation,
+            //   child: RotationTransition(
+            //     turns: _rotateAnimation,
+            //     child: Container(
+            //       height: size.height * 0.3,
+            //       decoration: BoxDecoration(
+            //         boxShadow: [
+            //           BoxShadow(
+            //             color: page.color.withOpacity(0.3),
+            //             blurRadius: 40,
+            //             spreadRadius: 10,
+            //           ),
+            //         ],
+            //       ),
+            //       child: Image.asset(
+            //         page.image,
+            //         fit: BoxFit.contain,
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
             SizedBox(height: size.height * 0.05),
 
@@ -340,7 +340,7 @@ class _SplashScreenState extends State<SplashScreen>
     final isLastPage = _currentPage == _pages.length - 1;
 
     return Container(
-      padding: const EdgeInsets.all(30),
+      padding: const EdgeInsets.all(20),
       child: Row(
         children: [
           // Back button
@@ -401,15 +401,17 @@ class _SplashScreenState extends State<SplashScreen>
                 children: [
                   Text(
                     isLastPage ? 'Эхлэх' : 'Үргэлжлүүлэх',
+                    softWrap: true,
                     style: TextStyle(
-                      fontSize: 18,
+                      // fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.fade,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Icon(
                     isLastPage ? Icons.check_circle : Icons.arrow_forward,
-                    size: 24,
+                    // size: 24,
                   ),
                 ],
               ),

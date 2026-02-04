@@ -38,85 +38,87 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Consumer<HomeProvider>(
-        builder: (context, home, child) => Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. Handle Bar
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
+        builder: (context, home, child) => SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Handle Bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Захиалга баталгаажуулах',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 20),
+              const Text(
+                'Захиалга баталгаажуулах',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              const SizedBox(height: 24),
 
-            // 2. Төлбөрийн хэлбэр
-            BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
-            const SizedBox(height: 12),
-            Row(
-              children: payMethods
-                  .map(
-                    (p) => Expanded(
-                      child: BottomSheetOptionChip(
-                        title: p['title'] ?? '',
-                        v: p['v']!,
-                        icon: p['icon']!,
-                        isSelected: payType == p['v'],
-                        onTap: () {
-                          payType = p['v']!;
-                          setState(() {});
-                        },
+              // 2. Төлбөрийн хэлбэр
+              BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
+              const SizedBox(height: 12),
+              Row(
+                children: payMethods
+                    .map(
+                      (p) => Expanded(
+                        child: BottomSheetOptionChip(
+                          title: p['title'] ?? '',
+                          v: p['v']!,
+                          icon: p['icon']!,
+                          isSelected: payType == p['v'],
+                          onTap: () {
+                            payType = p['v']!;
+                            setState(() {});
+                          },
+                        ),
                       ),
-                    ),
-                  )
-                  .toList(),
-            ),
-            const SizedBox(height: 24),
-
-            // 3. Захиалагч сонгох
-            BottomSheetLabelBuilder('Захиалагч сонгох'),
-            const SizedBox(height: 12),
-            _customerSelector(home),
-            const SizedBox(height: 24),
-
-            // 4. Тайлбар хэсэг
-            BottomSheetLabelBuilder('Нэмэлт тайлбар (заавал биш)'),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
+                    )
+                    .toList(),
               ),
-              child: TextField(
-                controller: noteController,
-                maxLines: 2,
-                onChanged: (v) => homeProvider.setNote(v),
-                decoration: const InputDecoration(
-                  hintText: 'Энд тайлбар бичиж болно...',
-                  contentPadding: EdgeInsets.all(16),
-                  border: InputBorder.none,
+              const SizedBox(height: 24),
+
+              // 3. Захиалагч сонгох
+              BottomSheetLabelBuilder('Захиалагч сонгох'),
+              const SizedBox(height: 12),
+              _customerSelector(home),
+              const SizedBox(height: 24),
+
+              // 4. Тайлбар хэсэг
+              BottomSheetLabelBuilder('Нэмэлт тайлбар (заавал биш)'),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: TextField(
+                  controller: noteController,
+                  maxLines: 2,
+                  onChanged: (v) => homeProvider.setNote(v),
+                  decoration: const InputDecoration(
+                    hintText: 'Энд тайлбар бичиж болно...',
+                    contentPadding: EdgeInsets.all(16),
+                    border: InputBorder.none,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 32),
+              const SizedBox(height: 32),
 
-            // 5. Захиалах товч
-            CustomButton(
-              text: 'Захиалга үүсгэх',
-              ontap: () => _createOrder(),
-            ),
-          ],
+              // 5. Захиалах товч
+              CustomButton(
+                text: 'Захиалга үүсгэх',
+                ontap: () => _createOrder(),
+              ),
+            ],
+          ),
         ),
       ),
     );

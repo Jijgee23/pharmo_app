@@ -122,9 +122,7 @@ class PharmProvider extends ChangeNotifier {
   Stream<OrderModel>? getSellerOrderDetail(int oId) async* {
     OrderModel? result;
     try {
-      final user = LocalBase.security;
-
-      final u = user!.role == 'S' ? 'seller/order/$oId/' : '';
+      final u = 'seller/order/$oId/';
       final r = await api(Api.get, u);
       if (r == null) return;
       if (apiSucceess(r)) {

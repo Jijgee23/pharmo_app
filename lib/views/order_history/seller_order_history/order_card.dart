@@ -49,7 +49,10 @@ class OrderCard extends StatelessWidget {
   }
 
   Widget _buildOrderCard(
-      BuildContext context, MyOrderProvider provider, bool isPharma) {
+    BuildContext context,
+    MyOrderProvider provider,
+    bool isPharma,
+  ) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -58,7 +61,7 @@ class OrderCard extends StatelessWidget {
             goto(PharmOrderDetail(order: order));
             return;
           }
-          goto(SellerOrderDetail(oId: parseInt(order.id)));
+          goto(SellerOrderDetail(oId: order.id));
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
@@ -79,7 +82,7 @@ class OrderCard extends StatelessWidget {
             children: [
               _buildHeader(context, isPharma),
               Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
-              _buildBody(context, provider, !isPharma),
+              _buildBody(context, provider, isPharma),
             ],
           ),
         ),
@@ -167,13 +170,14 @@ class OrderCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (order.status != null) OrderStatusChip(order.status!),
+                    if (order.status != null)
+                      OrderStatusChip(order.orderStatus),
                     const SizedBox(height: 8),
                     if (order.process != null)
                       IconedText(
                         icon: Icons.sync_outlined,
-                        text: order.process!,
-                        color: Colors.blue,
+                        text: order.orderProcess.name,
+                        color: order.orderProcess.color,
                       ),
                     const SizedBox(height: 4),
                     if (order.createdOn != null)
@@ -190,9 +194,7 @@ class OrderCard extends StatelessWidget {
               const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
             ],
           ),
-          if (isPharma &&
-              (order.process == 'Бэлэн болсон' ||
-                  order.process == 'Түгээлтэнд гарсан')) ...[
+          if (isPharma && (order.isAcceptable)) ...[
             const SizedBox(height: 12),
             SizedBox(
               width: double.maxFinite,
@@ -238,12 +240,12 @@ class OrderCard extends StatelessWidget {
 }
 
 class OrderStatusChip extends StatelessWidget {
-  final String status;
+  final OrderStatus status;
   const OrderStatusChip(this.status, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    Color color = _getStatusColor(status);
+    Color color = status.color;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -252,7 +254,7 @@ class OrderStatusChip extends StatelessWidget {
         border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Text(
-        status,
+        status.name,
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
@@ -262,10 +264,10 @@ class OrderStatusChip extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(String status) {
-    if (status.contains('хүлээгдэж')) return Colors.orange;
-    if (status.contains('баталгаажсан')) return Colors.blue;
-    if (status.contains('хүргэгдсэн')) return Colors.green;
-    return Colors.grey;
-  }
+  // Color _getStatusColor(String status) {
+  //   if (status.contains('хүлээгдэж')) return Colors.orange;
+  //   if (status.contains('баталгаажсан')) return Colors.blue;
+  //   if (status.contains('хүргэгдсэн')) return Colors.green;
+  //   return Colors.grey;
+  // }
 }

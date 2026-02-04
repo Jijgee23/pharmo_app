@@ -1,7 +1,7 @@
 import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/order_general_builder.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/order_item_card.dart';
-import 'package:pharmo_app/views/public/product/add_basket_sheet.dart';
+import 'package:pharmo_app/views/product/add_basket_sheet.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class SellerOrderDetail extends StatefulWidget {
@@ -35,6 +35,9 @@ class _SellerOrderDetailState extends State<SellerOrderDetail>
     return StreamBuilder<OrderModel>(
       stream: context.read<PharmProvider>().getSellerOrderDetail(widget.oId),
       builder: (context, stream) {
+        if (stream.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator.adaptive();
+        }
         return Scaffold(
           appBar: _buildAppBar(context, stream),
           body: _buildContent(stream),

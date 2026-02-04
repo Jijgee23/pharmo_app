@@ -12,6 +12,11 @@ class CartItem extends StatefulWidget {
 
 class _CartItemState extends State<CartItem> {
   Future<void> removeBasketItem() async {
+    bool confirmed = await confirmDialog(
+      context: context,
+      title: 'Барааг сагснаас хасах уу?',
+    );
+    if (!confirmed) return;
     final basket = context.read<BasketProvider>();
     await basket.removeBasketItem(itemId: widget.detail['id']);
   }
@@ -172,12 +177,14 @@ class _CartItemState extends State<CartItem> {
 
 class ChangeQtyPad extends StatelessWidget {
   final String initValue;
+  final String? title;
   final Function(String) onSubmit;
 
   const ChangeQtyPad({
     super.key,
     required this.initValue,
     required this.onSubmit,
+    this.title,
   });
 
   @override
@@ -209,8 +216,8 @@ class ChangeQtyPad extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 15),
-            const Text(
-              'Тоо ширхэг өөрчлөх',
+            Text(
+              title ?? 'Тоо ширхэг өөрчлөх',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 15),

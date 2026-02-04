@@ -1,7 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/views/auth/authentication/auth_error.dart';
 import 'package:pharmo_app/views/public/filter/filter.dart';
-import 'package:pharmo_app/views/public/product/product_widget.dart';
+import 'package:pharmo_app/views/product/product_widget.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class Home extends StatefulWidget {

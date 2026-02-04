@@ -161,7 +161,10 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
                     ? null
                     : () => provider.updateSupplier(
                           Supplier(
-                              id: -1, name: 'Нийлүүлэгч сонгох', stocks: []),
+                            id: -1,
+                            name: 'Нийлүүлэгч сонгох',
+                            stocks: [],
+                          ),
                         ),
               ),
             ],

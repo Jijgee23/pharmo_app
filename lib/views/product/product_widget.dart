@@ -1,6 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pharmo_app/views/public/product/add_basket_sheet.dart';
-import 'package:pharmo_app/views/public/product/product_detail_page.dart';
+import 'package:pharmo_app/views/product/product_detail_page.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class ProductWidget extends StatelessWidget {
@@ -92,7 +91,17 @@ class ProductWidget extends StatelessWidget {
                 highlightColor: Colors.grey,
                 splashColor: Colors.grey,
                 onTap: () => Get.bottomSheet(
-                  AddBasketSheet(product: item),
+                  isScrollControlled: true,
+                  ChangeQtyPad(
+                    title: 'Тоо хэмжээ оруулна уу',
+                    initValue: '',
+                    onSubmit: (value) => addBasket(
+                      item,
+                      parseDouble(value),
+                      context,
+                    ).then((e) => Navigator.pop(context)),
+                  ),
+                  // AddBasketSheet(product: item),
                 ),
                 child: Container(
                   padding: const EdgeInsets.all(3),
@@ -163,6 +172,19 @@ class ProductWidget extends StatelessWidget {
   }
 }
 
+Future<void> addBasket(Product item, double qty, BuildContext context) async {
+  await LoadingService.run(
+    () async {
+      try {
+        final basketProvider = context.read<BasketProvider>();
+        await basketProvider.addProduct(item.id, item.name ?? 'Бараа', qty);
+      } catch (e) {
+        throw Exception(e);
+      }
+    },
+  );
+}
+
 //LIST VIEW
 class ProductWidgetListView extends StatelessWidget {
   final Product item;
@@ -231,7 +253,19 @@ class ProductWidgetListView extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: () => Get.bottomSheet(AddBasketSheet(product: item)),
+              onPressed: () => Get.bottomSheet(
+                isScrollControlled: true,
+                ChangeQtyPad(
+                  title: 'Тоо хэмжээ оруулна уу',
+                  initValue: '',
+                  onSubmit: (value) => addBasket(
+                    item,
+                    parseDouble(value),
+                    context,
+                  ).then((e) => Navigator.pop(context)),
+                ),
+                // AddBasketSheet(product: item),
+              ),
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 shape: RoundedRectangleBorder(

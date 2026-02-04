@@ -150,7 +150,7 @@ Future<http.Response> responser(
 ) async {
   final Uri url = ApiService.buildUrl(endpoint);
 
-  // print(url);
+  print(url);
   // print(access);
   Map<String, String> headers = {
     ...header ?? {},

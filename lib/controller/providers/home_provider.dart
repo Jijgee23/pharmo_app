@@ -208,29 +208,30 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  deleteImages({required int id, required int imageID}) async {
+  Future<bool> deleteImages({required int id, required int imageID}) async {
     try {
       final security = await LocalBase.getSecurity();
       if (security == null) {
         messageWarning('Нэвтэрнэ үү');
-        return;
+        false;
       }
       final uri = ApiService.buildUrl('update_product_image/');
       var request = http.MultipartRequest('PATCH', uri);
-      request.headers['Authorization'] = security.access;
+      request.headers['Authorization'] = security!.access;
       request.fields['product_id'] = id.toString();
       request.fields['images_to_remove'] = imageID.toString();
       var r = await request.send();
-      if (r == null) return;
+      if (r == null) return false;
       // String rBody = await r.stream.bytesToString();
       if (r.statusCode == 200) {
-        return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
+        messageComplete('Амжилттай хадгалагдлаа');
+        return true;
       } else {
         messageWarning(wait);
-        return buildResponse(1, null, wait);
+        return false;
       }
     } catch (e) {
-      return buildResponse(2, null, 'Түх хүлээгээд дахин оролдоно уу!');
+      throw Exception(e);
     }
   }
 

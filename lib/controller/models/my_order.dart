@@ -1,13 +1,12 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/application/function/utilities/utils.dart';
 
 class OrderModel {
   int id;
-  int? orderNo;
+  String orderNo;
   double totalPrice;
   double totalCount;
-  String? status;
-  String? process;
+  String status;
+  String process;
   String payType;
   String? createdOn;
   String? customer;
@@ -21,15 +20,15 @@ class OrderModel {
   // SellerOrderModel-д байсан талбарууд
   bool? qp;
   String? endedOn;
-  bool? hasNote; // bool note
+  bool hasNote; // bool note
 
   OrderModel({
     required this.id,
-    this.orderNo,
+    required this.orderNo,
     required this.totalPrice,
     required this.totalCount,
-    this.status,
-    this.process,
+    required this.status,
+    required this.process,
     required this.payType,
     this.createdOn,
     this.customer,
@@ -39,16 +38,16 @@ class OrderModel {
     required this.products,
     this.qp,
     this.endedOn,
-    this.hasNote,
+    required this.hasNote,
   });
 
   OrderModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        orderNo = json['orderNo'],
+        orderNo = json['orderNo'].toString(),
         totalPrice = parseDouble(json['totalPrice']),
         totalCount = parseDouble(json['totalCount']),
-        status = json['status'],
-        process = json['process'],
+        status = json['status'] ?? 'U',
+        process = json['process'] ?? 'U',
         payType = json['payType'] ?? 'U',
         createdOn = json['createdOn'],
         customer = json['customer'],
@@ -56,7 +55,7 @@ class OrderModel {
         address = json['address'],
         // JSON-оос ирэхдээ 'note' нь String эсвэл bool байж болзошгүй тул шалгах
         noteText = json['note'] is String ? json['note'] : null,
-        hasNote = json['note'] is bool ? json['note'] : null,
+        hasNote = json['note'] is bool ? json['note'] : false,
         products =
             json['items'] != null ? List<dynamic>.from(json['items']) : [],
         qp = json['qp'],
@@ -75,12 +74,18 @@ class OrderModel {
       'customer': customer,
       'supplier': supplier,
       'address': address,
-      'note': noteText ?? hasNote, // Аль нэгийг нь илгээнэ
+      'note': noteText ?? hasNote,
       'items': products,
       'qp': qp,
       'endedOn': endedOn,
     };
   }
 
+  OrderStatus get orderStatus => OrderStatus.fromName(status);
+  OrderProcess get orderProcess => OrderProcess.fromName(process);
   PayType get payMethod => PayType.fromName(payType);
+
+  bool get isAcceptable =>
+      orderProcess == OrderProcess.onDelivery ||
+      orderProcess == OrderProcess.packed;
 }

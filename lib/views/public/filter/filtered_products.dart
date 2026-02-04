@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/public/product/product_widget.dart';
+import 'package:pharmo_app/views/product/product_widget.dart';
 
 class FilteredProducts extends StatefulWidget {
   final String? type;

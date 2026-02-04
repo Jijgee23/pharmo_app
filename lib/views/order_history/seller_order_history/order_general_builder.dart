@@ -81,7 +81,7 @@ class OrderGeneralBuilder extends StatelessWidget {
                   const SizedBox(height: 20),
                   ModernDetailRow(
                     'Захиалгын дугаар',
-                    order.orderNo?.toString(),
+                    order.orderNo.toString(),
                   ),
                   DividerBuidler(),
                   ModernDetailRow('Төлөв', order.status),

@@ -49,130 +49,132 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Handle Bar
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Захиалга баталгаажуулах',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          const SizedBox(height: 24),
-          BottomSheetLabelBuilder('Сонгосон нийлүүлэгч'),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              color: primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: primary.withOpacity(0.2)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.home_work_outlined, color: primary, size: 18),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    "${homeProvider.picked.name} (${homeProvider.selected.name})",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: primary,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Handle Bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          // 2. Хүргэлтийн хэлбэр
-          BottomSheetLabelBuilder('Хүргэлтийн нөхцөл'),
-          const SizedBox(height: 10),
-          Row(
-            children: deliveryMethods
-                .map((dm) => Expanded(
-                      child: BottomSheetOptionChip(
-                        title: dm['title']!,
-                        v: dm['v']!,
-                        icon: dm['icon']!,
-                        isSelected: deliveryType == dm['v'],
-                        onTap: () => setDeliverType(dm['v']!),
-                      ),
-                    ))
-                .toList(),
-          ),
-          const SizedBox(height: 20),
-
-          // 3. Салбар сонгох (Хэрэв Хүргэлтээр бол заавал салбар сонгоно)
-          if (deliveryType == 'D' || homeProvider.branches.length > 1) ...[
-            BottomSheetLabelBuilder('Хүргэлт хийх салбар'),
-            const SizedBox(height: 10),
-            _branchSelector(),
-            const SizedBox(height: 20),
-          ],
-
-          // 4. Төлбөрийн хэлбэр
-          BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
-          const SizedBox(height: 10),
-          Row(
-            children: paymentMethods
-                .map(
-                  (pm) => Expanded(
-                    child: BottomSheetOptionChip(
-                      title: pm.name,
-                      v: pm.value,
-                      icon: pm.icon,
-                      isSelected: payType == pm.value,
-                      onTap: () => setPayType(pm.value),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-          const SizedBox(height: 20),
-
-          // 5. Тайлбар
-          BottomSheetLabelBuilder('Тайлбар (Заавал биш)'),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: TextField(
-              controller: noteController,
-              onChanged: (v) => homeProvider.setNote(v),
-              decoration: const InputDecoration(
-                hintText: 'Энд тайлбар бичиж болно...',
-                border: InputBorder.none,
-                hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
               ),
             ),
-          ),
-          const SizedBox(height: 32),
+            const SizedBox(height: 20),
+            const Text(
+              'Захиалга баталгаажуулах',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 24),
+            BottomSheetLabelBuilder('Сонгосон нийлүүлэгч'),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              decoration: BoxDecoration(
+                color: primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: primary.withOpacity(0.2)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.home_work_outlined, color: primary, size: 18),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      "${homeProvider.picked.name} (${homeProvider.selected.name})",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: primary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            // 2. Хүргэлтийн хэлбэр
+            BottomSheetLabelBuilder('Хүргэлтийн нөхцөл'),
+            const SizedBox(height: 10),
+            Row(
+              children: deliveryMethods
+                  .map((dm) => Expanded(
+                        child: BottomSheetOptionChip(
+                          title: dm['title']!,
+                          v: dm['v']!,
+                          icon: dm['icon']!,
+                          isSelected: deliveryType == dm['v'],
+                          onTap: () => setDeliverType(dm['v']!),
+                        ),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 20),
 
-          // 6. Захиалах товч
-          CustomButton(
-            text: 'Захиалга үүсгэх',
-            ontap: () => _handleOrder(),
-          ),
-        ],
+            // 3. Салбар сонгох (Хэрэв Хүргэлтээр бол заавал салбар сонгоно)
+            if (deliveryType == 'D' || homeProvider.branches.length > 1) ...[
+              BottomSheetLabelBuilder('Хүргэлт хийх салбар'),
+              const SizedBox(height: 10),
+              _branchSelector(),
+              const SizedBox(height: 20),
+            ],
+
+            // 4. Төлбөрийн хэлбэр
+            BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
+            const SizedBox(height: 10),
+            Row(
+              children: paymentMethods
+                  .map(
+                    (pm) => Expanded(
+                      child: BottomSheetOptionChip(
+                        title: pm.name,
+                        v: pm.value,
+                        icon: pm.icon,
+                        isSelected: payType == pm.value,
+                        onTap: () => setPayType(pm.value),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 20),
+
+            // 5. Тайлбар
+            BottomSheetLabelBuilder('Тайлбар (Заавал биш)'),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: TextField(
+                controller: noteController,
+                onChanged: (v) => homeProvider.setNote(v),
+                decoration: const InputDecoration(
+                  hintText: 'Энд тайлбар бичиж болно...',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // 6. Захиалах товч
+            CustomButton(
+              text: 'Захиалга үүсгэх',
+              ontap: () => _handleOrder(),
+            ),
+          ],
+        ),
       ),
     );
   }

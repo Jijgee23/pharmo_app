@@ -7,17 +7,19 @@ class ChevronBack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: BackButton(
-        onPressed: () => Navigator.pop(context),
-        style: ButtonStyle(
-          iconColor: WidgetStatePropertyAll<Color>(color ?? Colors.white),
-          backgroundColor: WidgetStatePropertyAll<Color>(
-            backgroundColor ?? Colors.black.withOpacity(0.2),
-          ),
-        ),
-      ),
+    return IconButton(
+      onPressed: () => Navigator.pop(context),
+      // style: IconButton.styleFrom(
+      //   backgroundColor: Colors.black.withAlpha(50),
+      // ),
+
+      // ButtonStyle.(
+      //   iconColor: WidgetStatePropertyAll<Color>(color ?? Colors.white),
+      //   backgroundColor: WidgetStatePropertyAll<Color>(
+      //     backgroundColor ?? Colors.black.withOpacity(0.2),
+      //   ),
+      // ),
+      icon: Icon(Icons.chevron_left_rounded),
     );
   }
 }

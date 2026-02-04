@@ -36,6 +36,13 @@ enum OrderProcess {
     );
   }
 
+  static OrderProcess fromName(String name) {
+    return OrderProcess.values.firstWhere(
+      (e) => e.name == name,
+      orElse: () => OrderProcess.unknown,
+    );
+  }
+
   // UI-д шүүлтүүр хэлбэрээр харуулах жагсаалт (Бүгд + Үндсэн төлөвүүд)
   static List<OrderProcess> get filterList =>
       OrderProcess.values.where((e) => e != OrderProcess.unknown).toList();
@@ -91,6 +98,13 @@ enum OrderStatus {
   static OrderStatus fromValue(String value) {
     return OrderStatus.values.firstWhere(
       (e) => e.value == value,
+      orElse: () => OrderStatus.unknown,
+    );
+  }
+
+  static OrderStatus fromName(String value) {
+    return OrderStatus.values.firstWhere(
+      (e) => e.name == value,
       orElse: () => OrderStatus.unknown,
     );
   }

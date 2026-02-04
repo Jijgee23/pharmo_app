@@ -22,8 +22,9 @@ class _PharmOrderDetailState extends State<PharmOrderDetail>
   }
 
   Future getDetails() async {
-    LoadingService.run(
+    await LoadingService.run(
       () async {
+        print(widget.order.orderNo);
         final r =
             await api(Api.get, 'pharmacy/orders/${widget.order.id}/items/');
         if (r == null) return;
@@ -67,7 +68,7 @@ class _PharmOrderDetailState extends State<PharmOrderDetail>
             controller: controller,
             children: [
               OrderGeneralBuilder(order: order),
-              OrderItemsTab(products: products, orderId: order.orderNo ?? 0),
+              OrderItemsTab(products: products, orderId: order.id),
             ],
           ),
         );
