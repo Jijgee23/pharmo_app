@@ -11,21 +11,21 @@ class RootProvider extends ChangeNotifier {
 
   Future readUser() async {
     print('root initing');
-    await LocalBase.initLocalBase();
+    await Authenticator.initAuthenticator();
 
-    bool splashed = LocalBase.hasSpashed;
+    bool splashed = Authenticator.hasSpashed;
     if (!splashed) {
       updateState(AuthState.notSplashed);
       return;
     }
 
-    bool isLoggedIn = await LocalBase.isLoggedIn();
+    bool isLoggedIn = await Authenticator.isLoggedIn();
     if (!isLoggedIn) {
       updateState(AuthState.notLoggedIn);
       return;
     }
 
-    final sec = LocalBase.security;
+    final sec = Authenticator.security;
     if (sec == null) {
       updateState(AuthState.notLoggedIn);
       return;

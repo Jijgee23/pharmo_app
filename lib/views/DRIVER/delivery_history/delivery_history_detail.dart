@@ -14,10 +14,7 @@ class ShipmentHistoryDetail extends StatelessWidget {
         itemCount: delivery.orders.length,
         itemBuilder: (context, index) {
           final order = delivery.orders[index];
-          return DeliveryOrderCard(
-            order: order,
-            delId: delivery.id,
-          );
+          return DeliveryOrderCard(orderId: order.id);
         },
       ).paddingAll(10),
     );

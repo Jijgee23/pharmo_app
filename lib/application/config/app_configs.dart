@@ -1,10 +1,11 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/auth/auth_operations/complete_registration.dart';
-import 'package:pharmo_app/views/auth/login/login.dart';
-import 'package:pharmo_app/views/auth/auth_operations/reset_pass.dart';
-import 'package:pharmo_app/views/auth/root/root_page.dart';
-import 'package:pharmo_app/views/auth/root/root_provider.dart';
-import 'package:pharmo_app/views/auth/auth_operations/sign_up.dart';
+import 'package:pharmo_app/controller/providers/Listeners/life_cycle_listener.dart';
+import 'package:pharmo_app/authentication/auth_operations/complete_registration.dart';
+import 'package:pharmo_app/authentication/login/login.dart';
+import 'package:pharmo_app/authentication/auth_operations/reset_pass.dart';
+import 'package:pharmo_app/authentication/root/root_page.dart';
+import 'package:pharmo_app/authentication/root/root_provider.dart';
+import 'package:pharmo_app/authentication/auth_operations/sign_up.dart';
 import 'package:pharmo_app/views/SELLER/customer/choose_customer.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/views/DRIVER/index_driver.dart';
@@ -13,6 +14,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 class AppConfigs {
   static List<SingleChildWidget> providers = [
+    ChangeNotifierProvider(create: (_) => ConnectionProvider(), lazy: false),
+    ChangeNotifierProvider(create: (_) => BatteryProvider(), lazy: false),
+    ChangeNotifierProvider(create: (_) => LifeCycleListener(), lazy: false),
     ChangeNotifierProvider(create: (_) => RootProvider()),
     ChangeNotifierProvider(create: (_) => AuthController()),
     ChangeNotifierProvider(create: (_) => BasketProvider()),

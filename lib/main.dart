@@ -1,21 +1,8 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:pharmo_app/views/auth/root/root_page.dart';
+import 'package:pharmo_app/authentication/root/root_page.dart';
 import 'package:upgrader/upgrader.dart';
 import 'application/application.dart';
-
-final app = Pharmo();
-const platform = MethodChannel('bg_channel');
-
-Future<void> startNativeTimer() async {
-  try {
-    print('calling native timer on flutter');
-    await platform.invokeMethod('startTimer');
-  } on PlatformException catch (e) {
-    print("Алдаа гарлаа: '${e.message}'.");
-  }
-}
 
 Future<void> main() async {
   FlutterError.onError = (details) {
@@ -31,9 +18,8 @@ Future<void> main() async {
       Hive.registerAdapter(SecurityAdapter());
       Hive.registerAdapter(LogModelAdapter());
       Hive.registerAdapter(TrackDataAdapter());
-      await LocalBase.initLocalBase();
+      await Authenticator.initAuthenticator();
       await LogService().initialize();
-      // await startNativeTimer();
       runApp(
         UpgradeAlert(
           dialogStyle: UpgradeDialogStyle.material,
@@ -42,7 +28,7 @@ Future<void> main() async {
           showReleaseNotes: false,
           child: MultiProvider(
             providers: AppConfigs.providers,
-            child: app,
+            child: Pharmo(),
           ),
         ),
       );
@@ -55,46 +41,8 @@ Future<void> main() async {
   );
 }
 
-class Pharmo extends StatefulWidget {
+class Pharmo extends StatelessWidget {
   const Pharmo({super.key});
-  @override
-  State<Pharmo> createState() => _PharmoState();
-}
-
-class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    resumeWhenHasTrack(AppLifecycleState.resumed);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      resumeWhenHasTrack(state);
-    }
-  }
-
-  void resumeWhenHasTrack(AppLifecycleState state) async {
-    Security? security = LocalBase.security;
-    if (security == null || (security != null && security.role == 'PA')) {
-      return;
-    }
-    Future.microtask(
-      () async {
-        return await context.read<JaggerProvider>().tracking();
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
@@ -114,4 +62,3 @@ class _PharmoState extends State<Pharmo> with WidgetsBindingObserver {
     );
   }
 }
-//

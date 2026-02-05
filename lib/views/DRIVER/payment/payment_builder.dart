@@ -57,7 +57,7 @@ class PaymentBuilder extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _buildPayTypeBadge(payment.payType),
+                  _buildPayTypeBadge(payment.paymentType),
                 ],
               ),
 
@@ -110,8 +110,8 @@ class PaymentBuilder extends StatelessWidget {
   }
 
   // Төлбөрийн хэлбэрийг ялгах Badge
-  Widget _buildPayTypeBadge(String type) {
-    String typeName = getPayType(type);
+  Widget _buildPayTypeBadge(PayType type) {
+    // String typeName = getPayType(type);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -119,7 +119,7 @@ class PaymentBuilder extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        typeName,
+        type.name,
         style: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,

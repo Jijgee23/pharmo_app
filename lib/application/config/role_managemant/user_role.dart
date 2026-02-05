@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 // import 'package:pharmo_app/application/config/role_managemant/user_permission.dart';
 import 'package:pharmo_app/views/DRIVER/index_driver.dart';
 import 'package:pharmo_app/views/REPMAN/index.dart';
-import 'package:pharmo_app/views/auth/login/login.dart';
+import 'package:pharmo_app/authentication/login/login.dart';
 import 'package:pharmo_app/views/index.dart';
 
 enum UserRole {

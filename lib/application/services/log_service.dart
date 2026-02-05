@@ -21,10 +21,10 @@ class LogService {
     //   await saveModel(LogModel(logType: logType, desc: desc));
     //   return;
     // }
-    final user = LocalBase.security;
+    final user = Authenticator.security;
     if (user == null) return;
-    if (user.role == 'PA') return;
-    final String deviceToken = await LocalBase.getDeviceToken();
+    if (user.isPharmacist) return;
+    final String deviceToken = await Authenticator.getDeviceToken();
     var r = await api(
       Api.post,
       'mobile_activity_log/',
@@ -75,27 +75,6 @@ class LogService {
     await logBox.clear();
   }
 
-  Future saveLastNotif(DateTime date) async {
-    bool alreadyOpened = Hive.isBoxOpen(lastNotifDate);
-    if (!alreadyOpened) {
-      Hive.openBox(lastNotifDate);
-    }
-    var notifBox = await Hive.openBox(lastNotifDate);
-    await notifBox.put('lastNotifTime', date);
-
-    await notifBox.flush();
-  }
-
-  Future<DateTime?> getLastNotifDate() async {
-    bool alreadyOpened = Hive.isBoxOpen(lastNotifDate);
-    if (!alreadyOpened) {
-      Hive.openBox(lastNotifDate);
-    }
-    var notifBox = await Hive.openBox(lastNotifDate);
-    return await notifBox.get('lastNotifTime');
-  }
-
-  final String lastNotifDate = 'lastNotifDate';
   static const String login = 'Нэвтрэх';
   static const String logout = 'Системээс гарах';
   static const String disconnected = 'Холболт салсан';

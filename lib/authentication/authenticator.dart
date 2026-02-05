@@ -3,10 +3,10 @@ import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controller/database/security.dart';
 
-class LocalBase {
-  static final LocalBase _instance = LocalBase._internal();
-  LocalBase._internal();
-  factory LocalBase() {
+class Authenticator {
+  static final Authenticator _instance = Authenticator._internal();
+  Authenticator._internal();
+  factory Authenticator() {
     return _instance;
   }
 
@@ -31,7 +31,7 @@ class LocalBase {
   static const String _dmTrackKey = 'delmantrack';
   static const String _deviceToken = 'deviceToken';
 
-  static Future initLocalBase({bool showLog = true}) async {
+  static Future initAuthenticator({bool showLog = true}) async {
     localDb = await Hive.openBox(_boxKey);
     security = await getSecurity();
     hasSpashed = await hasSplashed();
@@ -100,7 +100,7 @@ class LocalBase {
     await localDb.delete(_accessKey);
     await localDb.delete(_refreshKey);
     await localDb.flush();
-    await initLocalBase();
+    await initAuthenticator();
   }
 
   static Future updateAccess(String access, {String? refresh}) async {
@@ -108,7 +108,7 @@ class LocalBase {
     await localDb.put('access', access);
     if (refresh != null) await localDb.put('refresh', refresh);
     await localDb.flush();
-    await initLocalBase();
+    await initAuthenticator();
   }
 
   static Future getAccess() async {
@@ -122,7 +122,7 @@ class LocalBase {
     await localDb.put(_supplierIdKey, supplierId);
     await localDb.put(_stockIdKey, stockId);
     await localDb.flush();
-    await initLocalBase();
+    await initAuthenticator();
   }
 
   static Future<Security?> getSecurity() async {
@@ -197,7 +197,7 @@ class LocalBase {
     return localDb.get(_rememberKey, defaultValue: false);
   }
 
-  static Future clearLocalBase() async {
+  static Future clearAuthenticator() async {
     localDb = await Hive.openBox(_boxKey);
     localDb.clear();
     await localDb.flush();
@@ -254,13 +254,13 @@ class LocalBase {
   }
 
   static Future saveIdentifierAndPassword(String email, String password) async {
-    await initLocalBase();
+    await initAuthenticator();
     await localDb.put('identifier', email);
     await localDb.put('password', password);
   }
 
   static Future<Map<String, String>> readIdentifierAndPassword() async {
-    await initLocalBase();
+    await initAuthenticator();
     final identifier = await localDb.get('identifier', defaultValue: '');
     final password = await localDb.get('password', defaultValue: '');
     return {"identifier": identifier, "password": password};

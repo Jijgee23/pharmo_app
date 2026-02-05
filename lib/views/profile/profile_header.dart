@@ -5,7 +5,7 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final security = LocalBase.security;
+    final security = Authenticator.security;
     if (security == null) return SizedBox.shrink();
     return Container(
       decoration: BoxDecoration(

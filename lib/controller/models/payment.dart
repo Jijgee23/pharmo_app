@@ -1,3 +1,5 @@
+import 'package:pharmo_app/application/function/utilities/a_utils.dart';
+
 class Cust {
   final int id;
   final String? name;
@@ -21,7 +23,8 @@ class Cust {
     };
   }
 }
-// 
+
+//
 class Receiver {
   final int id;
   final String name;
@@ -59,6 +62,8 @@ class Payment {
     required this.receiver,
     required this.paidOn,
   });
+
+  PayType get paymentType => PayType.fromValue(payType);
 
   factory Payment.fromJson(Map<String, dynamic> json) {
     return Payment(

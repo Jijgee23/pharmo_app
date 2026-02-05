@@ -1,4 +1,4 @@
-import 'package:pharmo_app/views/auth/login/auth_text.dart';
+import 'package:pharmo_app/authentication/login/auth_text.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class SignUp extends StatefulWidget {

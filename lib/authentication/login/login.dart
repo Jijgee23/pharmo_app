@@ -1,6 +1,6 @@
-import 'package:pharmo_app/views/auth/login/auth_text.dart';
-import 'package:pharmo_app/views/auth/login/login_footer.dart';
-import 'package:pharmo_app/views/auth/login/login_header_image.dart';
+import 'package:pharmo_app/authentication/login/auth_text.dart';
+import 'package:pharmo_app/authentication/login/login_footer.dart';
+import 'package:pharmo_app/authentication/login/login_header_image.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class LoginPage extends StatefulWidget {

@@ -1,10 +1,8 @@
 import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pharmo_app/application/application.dart';
 
 Future<http.Response?> api(
@@ -16,55 +14,58 @@ Future<http.Response?> api(
   try {
     final hasInternet = await NetworkChecker.hasInternet();
     if (!hasInternet) return null;
-    await LocalBase.initLocalBase(showLog: false);
-    final security = LocalBase.security;
+    await Authenticator.initAuthenticator(showLog: false);
+    final security = Authenticator.security;
     if (security == null) return null;
-    final access = security.access;
-    if (JwtDecoder.isExpired(access)) {
-      bool refreshExpired = JwtDecoder.isExpired(security.refresh);
-      if (refreshExpired) {
+
+    // Access token хөөлөн expires болсон тэмэл нэхэх
+    if (JwtDecoder.isExpired(security.access)) {
+      if (JwtDecoder.isExpired(security.refresh)) {
         await showLogoutDialog(Get.context!,
             'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!');
         return null;
       }
-      bool success = await refreshed();
-      if (!success) {
+      if (!await refreshed()) {
         await showLogoutDialog(
           Get.context!,
           'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!',
         );
         return null;
       }
-      var s = await LocalBase.getSecurity();
-      if (s == null) return null;
-
-      return await responser(method, endpoint, s.access, body, header);
-    }
-    var res = await responser(method, endpoint, access, body, header);
-    if (res != null) {
-      if (res.statusCode == 401) {
-        final code = convertData(res)['code'];
-        if (code == "token_not_valid") {
-          var b = await refreshed();
-          if (b) {
-            return responser(method, endpoint, access, body, header);
-          }
-        }
-        if (code == "authentication_failed") {
-          await showLogoutDialog(
-            Get.context!,
-            'Өөр төхөөрөмжөөс нэвтэрсэн байна! \n Нэвтэрнэ үү!',
-          );
-          return null;
-        }
-      }
+      // Шинэ token-ийг хадсан Security-с авах
+      final updated = await Authenticator.getSecurity();
+      if (updated == null) return null;
+      return responser(method, endpoint, updated.access, body, header);
     }
 
+    final res =
+        await responser(method, endpoint, security.access, body, header);
     if (res == null) {
       messageError(
           'Серверт холбогдож чадсангүй, Инфосистемс ХХК-д холбогдоно уу!');
       return null;
     }
+
+    // 401 — token хөөлөн expires болсон тэмэл дахин refresh-ийн оролдлого
+    if (res.statusCode == 401) {
+      final code = convertData(res)['code'];
+      if (code == "token_not_valid") {
+        if (await refreshed()) {
+          final updated = await Authenticator.getSecurity();
+          if (updated != null) {
+            return responser(method, endpoint, updated.access, body, header);
+          }
+        }
+      }
+      if (code == "authentication_failed") {
+        await showLogoutDialog(
+          Get.context!,
+          'Өөр төхөөрөмжөөс нэвтэрсэн байна! \n Нэвтэрнэ үү!',
+        );
+        return null;
+      }
+    }
+
     return res;
   } catch (e) {
     if (e is http.ClientException) {
@@ -76,8 +77,8 @@ Future<http.Response?> api(
   }
 }
 
-Future showLogoutDialog(BuildContext context, String reason) async {
-  showDialog(
+Future<void> showLogoutDialog(BuildContext context, String reason) async {
+  await showDialog(
     barrierDismissible: false,
     context: context,
     builder: (context) {
@@ -149,14 +150,9 @@ Future<http.Response> responser(
   Map<String, String>? header,
 ) async {
   final Uri url = ApiService.buildUrl(endpoint);
-
-  print(url);
-  // print(access);
-  Map<String, String> headers = {
+  final Map<String, String> headers = {
     ...header ?? {},
-    'Content-Type': 'application/json; charset=UTF-8',
-    'X-Pharmo-Client': '!pharmo_app?',
-    'Authorization': 'Bearer $access',
+    ...ApiService.buildHeader('Bearer $access'),
   };
   final client = ApiService.client;
   late http.Response res;
@@ -170,40 +166,28 @@ Future<http.Response> responser(
     case Api.delete:
       res = await client.delete(url, headers: headers, body: jsonEncode(body));
   }
-  if (res.statusCode != 201 && res.statusCode != 200) {
-    print("url: $url \n st: ${res.statusCode}");
-    print('acc: $access');
-    print("error body: ${res.body}");
+  if (kDebugMode && res.statusCode != 200 && res.statusCode != 201) {
+    debugPrint('[$endpoint] status: ${res.statusCode} body: ${res.body}');
   }
-
   return res;
 }
 
 Future<bool> refreshed() async {
-  print('refreshing');
   final hasInternet = await NetworkChecker.hasInternet();
   if (!hasInternet) return false;
-  await LocalBase.initLocalBase();
-  final user = LocalBase.security;
+  await Authenticator.initAuthenticator();
+  final user = Authenticator.security;
   if (user == null) return false;
-  final oldAccess = user.access;
-  var b = {"refresh": user.refresh};
   try {
-    final k = await apiPostWithoutToken('auth/refresh/', b);
-    if (k == null) return false;
-    if (apiSucceess(k)) {
-      Map<String, dynamic> res = convertData(k);
-      print('token refreshed: ${res['access'] != oldAccess}');
-      await LocalBase.updateAccess(res['access']);
-      final newAccess = await LocalBase.getAccess();
-      print('oldAccess: $oldAccess');
-      print('newAccess: $newAccess');
-      return true;
-    }
+    final response =
+        await apiPostWithoutToken('auth/refresh/', {"refresh": user.refresh});
+    if (response == null || !apiSucceess(response)) return false;
+    await Authenticator.updateAccess(convertData(response)['access']);
+    return true;
   } catch (e) {
-    throw Exception('Error refreshing token: $e');
+    debugPrint('Error refreshing token: $e');
+    return false;
   }
-  return false;
 }
 
 Map<String, dynamic> buildResponse(
@@ -220,130 +204,61 @@ Future<http.Response?> apiPostWithoutToken(
   Object? body,
 ) async {
   try {
-    final client = ApiService.client;
     final connected = await NetworkChecker.hasInternet();
     if (!connected) {
       messageWarning('Интернет холболтоо шалгана уу!');
       return null;
     }
-    // var response =
-    return await client
+    return await ApiService.client
         .post(
           ApiService.buildUrl(endPoint),
           headers: ApiService.buildHeader(null),
           body: jsonEncode(body),
         )
-        .timeout(
-          Duration(seconds: 5),
-        );
+        .timeout(const Duration(seconds: 5));
   } catch (e) {
     if (e is TimeoutException) {
       messageError('Түр хүлээнэ үү!');
-      return null;
+    } else {
+      debugPrint('apiPostWithoutToken error at $endPoint: $e');
     }
+    return null;
   }
-  return null;
 }
 
 dynamic convertData(http.Response body) {
-  final d = jsonDecode(utf8.decode(body.bodyBytes));
-  return d;
+  return jsonDecode(utf8.decode(body.bodyBytes));
 }
 
-getApiInformation(String endPoint, http.Response response) {
+Future<http.Response?> apiMacsMn(Object o, StackTrace s) async {
   try {
-    print('<===$endPoint===>');
-    print('<===${response.statusCode}===>');
-    print('<===${response.body}===>');
-  } catch (e) {
-    debugPrint('ERROR at $endPoint : $e');
-  }
-}
-
-Future<String> loadVersionAppversion() async {
-  final info = await PackageInfo.fromPlatform();
-  return info.version;
-}
-
-Future<http.Response> apiMacsMn(Object o, StackTrace s) async {
-  final client = ApiService.client;
-  var url = Uri.parse('${dotenv.env['MACS']}logs/pharmo_error');
-  final device = await deviceInfo();
-  var b = {
-    "error_message": o.toString(),
-    "stack_trace": s.toString(),
-    "os": device.os,
-    "os_version": device.osVersion,
-    "device_name": device.name,
-    "app_version": await loadVersionAppversion(),
-    "app_name": "Pharmo"
-  };
-  final res = await client.post(
-    url,
-    headers: {
-      "Connection": "Keep-Alive",
-      "Accept": "application/json",
-      "Content-type": "application/json",
-      "charset": "utf-8",
-      "checkcode": "46",
-    },
-    body: jsonEncode(b),
-  );
-  return res;
-}
-
-Future<Device> deviceInfo() async {
-  DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-  final token = await FirebaseApi.getToken();
-  if (Platform.isIOS) {
-    IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
-    return Device(
-      brand: 'Apple',
-      name: iosInfo.name,
-      model: iosInfo.model,
-      modelVersion: iosInfo.utsname.machine,
-      os: iosInfo.systemName,
-      osVersion: iosInfo.systemVersion,
-      id: iosInfo.identifierForVendor ?? '',
-      firebaseToken: token,
-      type: "IOS",
+    final isOnline = await NetworkChecker.hasInternet();
+    if (!isOnline) return null;
+    final deviceManager = DeviceManager();
+    final device = await deviceManager.deviceInfo();
+    return await ApiService.client.post(
+      Uri.parse('${dotenv.env['MACS']}logs/pharmo_error/'),
+      headers: {
+        "Connection": "Keep-Alive",
+        "Accept": "application/json",
+        "Content-type": "application/json",
+        "charset": "utf-8",
+        "checkcode": "46",
+      },
+      body: jsonEncode({
+        "error_message": o.toString(),
+        "stack_trace": s.toString(),
+        "os": device.os,
+        "os_version": device.osVersion,
+        "device_name": device.name,
+        "app_version": await deviceManager.loadVersionAppversion(),
+        "app_name": "Pharmo",
+      }),
     );
+  } catch (e) {
+    if (e is SocketException) {
+      debugPrint(e.toString());
+    }
+    throw Exception(e);
   }
-  AndroidDeviceInfo android = await deviceInfoPlugin.androidInfo;
-  return Device(
-    brand: android.brand,
-    name: android.name,
-    model: android.model,
-    modelVersion: android.device,
-    os: Platform.operatingSystem,
-    osVersion: Platform.operatingSystemVersion,
-    id: android.id,
-    firebaseToken: token,
-    type: "ANDROID",
-  );
-}
-
-const String contactUsMessage = 'Алдаа гарлаа, ИНФОСИСТЕМС ХХК-д хандана уу!';
-
-class Device {
-  final String brand;
-  final String name;
-  final String model;
-  final String modelVersion;
-  final String os;
-  final String osVersion;
-  final String id;
-  final String firebaseToken;
-  final String type;
-  Device({
-    required this.brand,
-    required this.name,
-    required this.model,
-    required this.modelVersion,
-    required this.os,
-    required this.osVersion,
-    required this.id,
-    required this.firebaseToken,
-    required this.type,
-  });
 }

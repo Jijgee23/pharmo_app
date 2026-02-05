@@ -15,11 +15,11 @@ class ProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double fontSize = Sizes.height * 0.0135;
+    // double fontSize = Sizes.height * 0.0135;
     return Consumer<HomeProvider>(
       builder: (context, home, child) {
-        final secutity = LocalBase.security;
-        bool isNotPharm = (secutity!.role != 'PA');
+        final secutity = Authenticator.security;
+        bool isNotPharm = (!secutity!.isPharmacist);
         return Stack(
           children: [
             Card(
@@ -34,92 +34,119 @@ class ProductWidget extends StatelessWidget {
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 child: Container(
-                  padding: const EdgeInsets.all(7.5),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
+                    spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      image(Sizes.height, fontSize),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.name!,
-                              softWrap: true,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
+                      Expanded(
+                        flex: 3,
+                        child: image(Sizes.height),
                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            toPrice(item.price),
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: Sizes.mediumFontSize - 2,
-                            ),
-                          ),
-                          if (isNotPharm)
-                            Text(
-                              'Үлд: ${parseDouble(item.qty)}',
-                              style: TextStyle(
-                                fontSize: Sizes.mediumFontSize - 2,
-                                color: item.qty > 0 ? Colors.green : Colors.red,
+                      Text(
+                        item.name!,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 5,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      toPrice(item.price),
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: Sizes.mediumFontSize - 2,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isNotPharm)
+                                    Expanded(
+                                      child: Text(
+                                        'Үлд: ${parseDouble(item.qty)}',
+                                        style: TextStyle(
+                                          fontSize: Sizes.mediumFontSize - 2,
+                                          color: item.qty > 0
+                                              ? Colors.green
+                                              : Colors.red,
+                                        ),
+                                      ),
+                                    )
+                                ],
                               ),
-                            )
-                        ],
+                            ),
+                            IconButton(
+                              onPressed: () => Get.bottomSheet(
+                                isScrollControlled: true,
+                                ChangeQtyPad(
+                                  title: 'Тоо хэмжээ оруулна уу',
+                                  initValue: '',
+                                  onSubmit: (value) async => await addBasket(
+                                    item,
+                                    parseDouble(value),
+                                    context,
+                                  ).then((e) => Navigator.pop(context)),
+                                ),
+                              ),
+                              style: IconButton.styleFrom(
+                                shape: CircleBorder(
+                                  side: BorderSide(color: primary, width: 2),
+                                ),
+                              ),
+                              icon: Icon(
+                                Icons.add,
+                                color: theme.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-            Positioned(
-              bottom: 10,
-              right: 10,
-              child: InkWell(
-                highlightColor: Colors.grey,
-                splashColor: Colors.grey,
-                onTap: () => Get.bottomSheet(
-                  isScrollControlled: true,
-                  ChangeQtyPad(
-                    title: 'Тоо хэмжээ оруулна уу',
-                    initValue: '',
-                    onSubmit: (value) => addBasket(
-                      item,
-                      parseDouble(value),
-                      context,
-                    ).then((e) => Navigator.pop(context)),
-                  ),
-                  // AddBasketSheet(product: item),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: theme.primaryColor,
-                      width: 1.5,
-                    ),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Icon(
-                    Icons.add,
-                    color: theme.primaryColor,
-                  ),
-                ),
-              ),
-            ),
+            // Positioned(
+            //   bottom: 10,
+            //   right: 10,
+            //   child: IconButton(
+            //     onPressed: () => Get.bottomSheet(
+            //       isScrollControlled: true,
+            //       ChangeQtyPad(
+            //         title: 'Тоо хэмжээ оруулна уу',
+            //         initValue: '',
+            //         onSubmit: (value) async => await addBasket(
+            //           item,
+            //           parseDouble(value),
+            //           context,
+            //         ).then((e) => Navigator.pop(context)),
+            //       ),
+            //     ),
+            //     style: IconButton.styleFrom(
+            //       shape: CircleBorder(
+            //         side: BorderSide(color: primary, width: 2),
+            //       ),
+            //     ),
+            //     icon: Icon(
+            //       Icons.add,
+            //       color: theme.primaryColor,
+            //     ),
+            //   ),
+            // ),
             (hasSale == true)
                 ? Positioned(
                     top: 0,
@@ -146,11 +173,10 @@ class ProductWidget extends StatelessWidget {
     );
   }
 
-  Widget image(double height, double fontSize) {
+  Widget image(double height) {
     return Stack(
       children: [
         Container(
-          height: height * .12,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
@@ -236,7 +262,7 @@ class ProductWidgetListView extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (LocalBase.security!.role != 'PA')
+                      if (Authenticator.security!.isPharmacist)
                         Expanded(
                           child: Text(
                             'Үлд: ${maybeNull(item.qty.toString())}',

@@ -53,7 +53,7 @@ class _ProductDetailState extends State<ProductDetail> {
   Widget build(BuildContext context) {
     return Consumer2<BasketProvider, HomeProvider>(
       builder: (context, basket, home, child) {
-        final isNotPharma = !LocalBase.security!.isPharmacist;
+        final isNotPharma = !Authenticator.security!.isPharmacist;
 
         return Scaffold(
           backgroundColor: Colors.grey.shade50,

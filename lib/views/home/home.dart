@@ -1,5 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pharmo_app/views/auth/authentication/auth_error.dart';
+import 'package:pharmo_app/authentication/authentication/auth_error.dart';
 import 'package:pharmo_app/views/public/filter/filter.dart';
 import 'package:pharmo_app/views/product/product_widget.dart';
 import 'package:pharmo_app/application/application.dart';
@@ -40,7 +40,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     final home = context.read<HomeProvider>();
     final basket = context.read<BasketProvider>();
     setLoading(true);
-    final security = LocalBase.security;
+    final security = Authenticator.security;
     if (security == null) return;
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
@@ -90,7 +90,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PromotionProvider>(
       builder: (_, home, promotionProvider, child) {
-        final user = LocalBase.security;
+        final user = Authenticator.security;
         if (user == null) return SizedBox();
         return SafeArea(
           child: RefreshIndicator.adaptive(
@@ -232,11 +232,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget products(HomeProvider home) {
     var del = SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: Sizes.isTablet() ? 3 : 2,
-      childAspectRatio: .9,
+      childAspectRatio: .8,
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
     );
-    final user = LocalBase.security;
+    final user = Authenticator.security;
 
     return Expanded(
       child: Builder(

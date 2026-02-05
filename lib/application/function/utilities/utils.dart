@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:intl/intl.dart' as intl;
 import 'package:image/image.dart' as img;
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/auth/root/root_provider.dart';
+import 'package:pharmo_app/authentication/root/root_provider.dart';
 
 Future<T?> goto<T>(Widget widget) async {
   final res = await Get.to(
@@ -25,13 +25,11 @@ Future gotoRemoveUntil(Widget widget) async {
 
 Future gotoRootPage() async {
   final rooter = Get.context!.read<RootProvider>();
-  await rooter.readUser().then((val) async {
-    await Get.offAllNamed(
-      '/root',
-      // curve: Curves.fastLinearToSlowEaseIn,
-      // transition: Transition.rightToLeft,
-    );
-  });
+  await rooter.readUser().then(
+    (val) async {
+      await Get.offAllNamed('/root');
+    },
+  );
 }
 
 double parseDouble(dynamic value) {
@@ -103,70 +101,40 @@ status(String status) {
   }
 }
 
-process(String status) {
-  switch (status) {
-    case "D":
-      return 'Хүргэгдсэн';
-    case "C":
-      return 'Хаалттай';
-    case "R":
-      return 'Буцаагдсан';
-    case "O":
-      return 'Түгээлтэнд гарсан';
-    case "N":
-      return 'Шинэ';
-    case "P":
-      return 'Бэлэн болсон';
-    case "Т":
-      return 'Бэлтгэж эхлэсэн';
-    case "A":
-      return 'Хүлээн авсан';
-    default:
-      return 'Тодорхойгүй';
-  }
-}
-
-// getProcessGif(String process) {
-//   if (process == 'Шинэ') {
-//     return 'assets/stickers/hourglass.gif';
-//   } else if (process == 'Бэлтгэж эхэлсэн') {
-//     return 'assets/stickers/box.gif';
-//   } else if (process == 'Бэлэн болсон') {
-//     return 'assets/stickers/delivery-service.gif';
-//   } else if (process == 'Түгээлтэнд гарсан') {
-//     return 'assets/stickers/truck_animation.gif';
-//   } else if (process == 'Хүлээн авсан') {
-//     return 'assets/stickers/delivery-completed.gif';
-//   } else {
-//     return 'assets/stickers/hourglass.gif';
+// process(String status) {
+//   switch (status) {
+//     case "D":
+//       return 'Хүргэгдсэн';
+//     case "C":
+//       return 'Хаалттай';
+//     case "R":
+//       return 'Буцаагдсан';
+//     case "O":
+//       return 'Түгээлтэнд гарсан';
+//     case "N":
+//       return 'Шинэ';
+//     case "P":
+//       return 'Бэлэн болсон';
+//     case "Т":
+//       return 'Бэлтгэж эхлэсэн';
+//     case "A":
+//       return 'Хүлээн авсан';
+//     default:
+//       return 'Тодорхойгүй';
 //   }
 // }
 
-// getStatusGif(String status) {
-//   if (status == 'Төлбөр хүлээгдэж буй') {
-//     return 'assets/stickers/payment-time.gif';
-//   } else if (status == 'Төлбөр төлөгдсөн') {
-//     return 'assets/stickers/credit-card.gif';
-//   } else if (status == 'Цуцлагдсан') {
-//     return 'assets/stickers/delivery-service.gif';
-//   } else if (status == 'Биелсэн') {
-//     return 'assets/stickers/verified.gif';
+// getPayType(String status) {
+//   if (status == 'L') {
+//     return 'Зээлээр';
+//   } else if (status == 'C') {
+//     return 'Бэлнээр';
+//   } else if (status == 'T') {
+//     return 'Дансаар';
 //   } else {
-//     return 'assets/stickers/hourglass.gif';
+//     return 'Тодорхой биш';
 //   }
 // }
-
-getPayType(String status) {
-  if (status == 'L') {
-    return 'Зээлээр';
-  } else if (status == 'C') {
-    return 'Бэлнээр';
-  } else if (status == 'T') {
-    return 'Дансаар';
-  } else {
-    return 'Тодорхой биш';
-  }
-}
 
 checker(Map response, String key) {
   if (response.containsKey(key)) {

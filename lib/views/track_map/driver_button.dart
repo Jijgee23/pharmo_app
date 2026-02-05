@@ -34,7 +34,7 @@ class _DriverButtonState extends State<DriverButton>
 
   @override
   Widget build(BuildContext context) {
-    final user = LocalBase.security;
+    final user = Authenticator.security;
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
         if (user == null || user.role != "D") {

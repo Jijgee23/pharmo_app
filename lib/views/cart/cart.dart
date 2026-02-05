@@ -22,7 +22,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
   Future<void> init() async {
     LoadingService.run(() async {
       await context.read<BasketProvider>().getBasket();
-      final user = LocalBase.security;
+      final user = Authenticator.security;
       if (user == null) return;
       if (user.isPharmacist) {
         await context.read<HomeProvider>().getBranches();
@@ -45,7 +45,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
         final bool basketIsEmpty = (basket == null ||
             basket.totalCount == 0 ||
             (basket.items?.isEmpty ?? true));
-        final user = LocalBase.security;
+        final user = Authenticator.security;
         return Scaffold(
           backgroundColor: Colors.grey.shade50, // Зөөлөн дэвсгэр
           appBar: const SideAppBar(text: 'Миний сагс'),
@@ -123,7 +123,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
   }
 
   Future<void> placeOrder(BuildContext context) async {
-    final Security? security = LocalBase.security;
+    final Security? security = Authenticator.security;
     if (security == null) return;
 
     final provider = context.read<BasketProvider>();

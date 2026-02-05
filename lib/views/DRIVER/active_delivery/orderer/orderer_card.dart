@@ -6,8 +6,7 @@ import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/orderer_orders.d
 
 class OrdererCard extends StatefulWidget {
   final User? user;
-  final Delivery del;
-  const OrdererCard({super.key, required this.user, required this.del});
+  const OrdererCard({super.key, required this.user});
 
   @override
   State<OrdererCard> createState() => _OrdererCardState();
@@ -28,105 +27,104 @@ class _OrdererCardState extends State<OrdererCard> {
 
   @override
   Widget build(BuildContext context) {
-    var ordererOrders = widget.del.orders
-        .where((order) => getUser(order)?.id == widget.user?.id)
-        .toSet()
-        .toList();
-
-    final deliveredCount = ordererOrders.where((o) => o.process == 'D').length;
-    final totalCount = ordererOrders.length;
-    final progress = totalCount > 0 ? deliveredCount / totalCount : 0.0;
-
-    final name = (widget.user == null || widget.user!.name == 'null')
-        ? 'Харилцагч (${widget.user?.id ?? ""})'
-        : widget.user!.name;
-
     return Consumer<JaggerProvider>(
-      builder: (context, jagger, child) => Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          child: InkWell(
-            onTap: () => goto(
-              OrdererOrders(
-                orders: ordererOrders,
-                ordererName: name,
-                delId: widget.del.id,
-              ),
-            ),
+      builder: (context, jagger, child) {
+        var ordererOrders = jagger.delivery!.orders
+            .where((order) => getUser(order)?.id == widget.user?.id)
+            .toSet()
+            .toList();
+
+        final deliveredCount =
+            ordererOrders.where((o) => o.process == 'D').length;
+        final totalCount = ordererOrders.length;
+        final progress = totalCount > 0 ? deliveredCount / totalCount : 0.0;
+
+        final name = (widget.user == null || widget.user!.name == 'null')
+            ? 'Харилцагч (${widget.user?.id ?? ""})'
+            : widget.user!.name;
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      _buildAvatar(name),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              name,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              onTap: () => goto(
+                OrdererOrders(orderer: widget.user!),
+              ),
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        _buildAvatar(name),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                _buildOrderBadge(
-                                  deliveredCount,
-                                  totalCount,
-                                  progress,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '$deliveredCount / $totalCount захиалга',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 12,
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  _buildOrderBadge(
+                                    deliveredCount,
+                                    totalCount,
+                                    progress,
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '$deliveredCount / $totalCount захиалга',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const Icon(
-                        Icons.chevron_right,
-                        color: Colors.grey,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _buildProgressBar(progress),
-                  if (widget.user != null && !widget.user!.id.contains('p')) ...[
+                        const Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 12),
-                    _buildPaymentButton(jagger),
+                    _buildProgressBar(progress),
+                    if (widget.user != null &&
+                        !widget.user!.id.contains('p')) ...[
+                      const SizedBox(height: 12),
+                      _buildPaymentButton(jagger),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -254,10 +252,10 @@ class _OrdererCardState extends State<OrdererCard> {
     );
   }
 
-  Iterable<Widget> orders() {
-    return widget.del.orders.map(
+  Iterable<Widget> orders(JaggerProvider jagger) {
+    return jagger.delivery!.orders.map(
       (order) => getUser(order)!.id == widget.user!.id
-          ? DeliveryOrderCard(order: order, delId: widget.del.id)
+          ? DeliveryOrderCard(orderId: order.id)
           : const SizedBox(),
     );
   }
@@ -306,6 +304,7 @@ class _OrdererCardState extends State<OrdererCard> {
   Future registerSheet(JaggerProvider jagger, User user) async {
     String? name = user.name;
     Get.bottomSheet(
+      isScrollControlled: true,
       StatefulBuilder(
         builder: (context, setModalState) => Container(
           padding: const EdgeInsets.all(20),
@@ -313,101 +312,103 @@ class _OrdererCardState extends State<OrdererCard> {
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: neonBlue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: neonBlue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.payment, color: neonBlue),
                     ),
-                    child: const Icon(Icons.payment, color: neonBlue),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Төлбөр бүртгэх',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (name != null)
-                          Text(
-                            name,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Төлбөр бүртгэх',
                             style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 13,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                      ],
+                          if (name != null)
+                            Text(
+                              name,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 13,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Төлбөрийн хэлбэр',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  picker('Бэлнээр', 'C', setModalState),
-                  const SizedBox(width: 12),
-                  picker('Дансаар', 'T', setModalState),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Дүн',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 10),
-              CustomTextField(
-                controller: amountCr,
-                hintText: 'Дүн оруулах',
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (amountCr.text.isEmpty) {
-                      messageWarning('Дүн оруулна уу!');
-                    } else {
-                      registerPayment(jagger, pType, amountCr.text, user.id);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
                     ),
-                  ),
-                  child: const Text(
-                    'Хадгалах',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Төлбөрийн хэлбэр',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    picker('Бэлнээр', 'C', setModalState),
+                    const SizedBox(width: 12),
+                    picker('Дансаар', 'T', setModalState),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Дүн',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 10),
+                CustomTextField(
+                  controller: amountCr,
+                  hintText: 'Дүн оруулах',
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (amountCr.text.isEmpty) {
+                        messageWarning('Дүн оруулна уу!');
+                      } else {
+                        registerPayment(jagger, pType, amountCr.text, user.id);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Хадгалах',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-            ],
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
         ),
       ),

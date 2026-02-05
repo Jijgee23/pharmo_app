@@ -2,33 +2,35 @@ import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_detail.dart';
 import 'package:pharmo_app/views/DRIVER/widgets/status_changer.dart';
+import 'package:pharmo_app/views/order_history/order_card/order_status_chip.dart';
+import 'package:pharmo_app/views/order_history/order_card/user_tag.dart';
 
 class DeliveryOrderCard extends StatelessWidget {
-  final DeliveryOrder order;
-  final int delId;
+  final int orderId;
 
-  const DeliveryOrderCard({
-    super.key,
-    required this.order,
-    required this.delId,
-  });
+  const DeliveryOrderCard({super.key, required this.orderId});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<JaggerProvider>(
       builder: (context, provider, child) {
-        bool isSeller = LocalBase.security!.role == 'S';
-        return _buildOrderCard(context, provider, isSeller);
+        DeliveryOrder order =
+            provider.delivery!.orders.firstWhere((e) => e.id == orderId);
+
+        return _buildOrderCard(context, provider, order);
       },
     );
   }
 
   Widget _buildOrderCard(
-      BuildContext context, JaggerProvider provider, bool isSeller) {
+    BuildContext context,
+    JaggerProvider jagger,
+    DeliveryOrder order,
+  ) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => goto(DeliveryDetail(order: order, delId: delId)),
+        onTap: () => goto(DeliveryDetail(orderId: order.id)),
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
@@ -46,9 +48,21 @@ class DeliveryOrderCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context),
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    UserTag(name: getName(order)),
+                    const SizedBox(width: 12),
+                    OrderCardPriceAndNo(
+                      price: order.totalPrice.toString(),
+                      orderNo: order.orderNo,
+                    ),
+                  ],
+                ),
+              ),
               Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
-              _buildBody(context),
+              _buildBody(context, order),
             ],
           ),
         ),
@@ -56,7 +70,7 @@ class DeliveryOrderCard extends StatelessWidget {
     );
   }
 
-  String getName() {
+  String getName(DeliveryOrder order) {
     if (order.orderer != null && order.orderer!.name != 'null') {
       return order.orderer!.name;
     } else if (order.customer != null && order.customer!.name != 'null') {
@@ -66,67 +80,7 @@ class DeliveryOrderCard extends StatelessWidget {
     }
   }
 
-  Widget _buildHeader(BuildContext context) {
-    // Худалдагч бол 'Customer' нэр, Худалдан авагч бол 'Supplier' нэр харуулна
-    String displayName = getName();
-    // IconData headerIcon =
-    //     isSeller ? Icons.person_outline : Icons.home_work_outlined;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              decoration: BoxDecoration(
-                color: primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: primary.withOpacity(0.2)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.person_outline, color: primary, size: 18),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      displayName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: primary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                toPrice(order.totalPrice.toString()),
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.green.shade700),
-              ),
-              Text(
-                '#${order.orderNo}',
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, DeliveryOrder order) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -137,23 +91,22 @@ class DeliveryOrderCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (order.status != null)
-                      _buildStatusChip(status(order.status)),
+                    OrderStatusChip(order.orderStatus),
                     const SizedBox(height: 8),
                     if (order.process != null)
-                      _buildInfoRow(
-                        Icons.sync_outlined,
-                        process(order.process),
-                        Colors.blue,
+                      IconedText(
+                        icon: Icons.sync_outlined,
+                        text: order.orderProcess.name,
+                        color: Colors.blue,
                       ),
                     const SizedBox(height: 4),
                     if (order.createdOn != null)
-                      _buildInfoRow(
-                        Icons.calendar_today_outlined,
-                        order.createdOn.length > 10
+                      IconedText(
+                        icon: Icons.calendar_today_outlined,
+                        text: order.createdOn.length > 10
                             ? order.createdOn.substring(0, 10)
                             : order.createdOn,
-                        Colors.grey.shade600,
+                        color: Colors.grey.shade600,
                       ),
                   ],
                 ),
@@ -166,13 +119,8 @@ class DeliveryOrderCard extends StatelessWidget {
             SizedBox(
               width: double.maxFinite,
               child: ElevatedButton(
-                onPressed: () async => await Get.bottomSheet(
-                  StatusChanger(
-                    delId: delId,
-                    orderId: order.id,
-                    status: order.status,
-                  ),
-                ),
+                onPressed: () async =>
+                    await Get.bottomSheet(StatusChanger(order: order)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: succesColor,
                   shape: RoundedRectangleBorder(
@@ -193,42 +141,34 @@ class DeliveryOrderCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  // Туслах функцууд (Status Chip, Info Row, Dialogs...)
-  Widget _buildStatusChip(String status) {
-    Color color = _getStatusColor(status);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
-      ),
-    );
-  }
+class OrderCardPriceAndNo extends StatelessWidget {
+  final String price, orderNo;
+  const OrderCardPriceAndNo({
+    super.key,
+    required this.price,
+    required this.orderNo,
+  });
 
-  Widget _buildInfoRow(IconData icon, String text, Color color) {
-    return Row(
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Icon(icon, size: 14, color: color),
-        const SizedBox(width: 6),
-        Text(text, style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
+        Text(
+          toPrice(price),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: Colors.green.shade700,
+          ),
+        ),
+        Text(
+          '#$orderNo',
+          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+        ),
       ],
     );
-  }
-
-  Color _getStatusColor(String status) {
-    if (status.contains('хүлээгдэж')) return Colors.orange;
-    if (status.contains('баталгаажсан')) return Colors.blue;
-    if (status.contains('хүргэгдсэн')) return Colors.green;
-    return Colors.grey;
   }
 }

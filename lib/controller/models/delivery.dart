@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/function/utilities/utils.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class Delivery {
   int id;
@@ -118,23 +118,27 @@ class DeliveryOrder {
   List<dynamic> items;
   List<OrderPayment> payments;
 
-  DeliveryOrder(
-      {required this.id,
-      required this.orderNo,
-      this.user,
-      this.customer,
-      this.orderer,
-      required this.totalPrice,
-      required this.totalCount,
-      required this.status,
-      required this.process,
-      this.seller,
-      required this.deliveryId,
-      required this.payType,
-      required this.zone,
-      required this.createdOn,
-      required this.items,
-      required this.payments});
+  DeliveryOrder({
+    required this.id,
+    required this.orderNo,
+    this.user,
+    this.customer,
+    this.orderer,
+    required this.totalPrice,
+    required this.totalCount,
+    required this.status,
+    required this.process,
+    this.seller,
+    required this.deliveryId,
+    required this.payType,
+    required this.zone,
+    required this.createdOn,
+    required this.items,
+    required this.payments,
+  });
+  PayType get paymentType => PayType.fromValue(payType);
+  OrderProcess get orderProcess => OrderProcess.fromCode(process);
+  OrderStatus get orderStatus => OrderStatus.fromValue(status);
 
   factory DeliveryOrder.fromJson(Map<String, dynamic> json) {
     return DeliveryOrder(
@@ -203,44 +207,6 @@ class User {
         'name': name,
       };
 }
-
-// class Item {
-//   int id;
-//   String itemName;
-//   double itemQty;
-//   double itemPrice;
-//   double itemTotalPrice;
-//   int productId;
-
-//   Item({
-//     required this.id,
-//     required this.itemName,
-//     required this.itemQty,
-//     required this.itemPrice,
-//     required this.itemTotalPrice,
-//     required this.productId,
-//   });
-
-//   factory Item.fromJson(Map<String, dynamic> json) {
-//     return Item(
-//       id: json['id'],
-//       itemName: json['itemName'],
-//       itemQty: parseDouble(json['itemQty']),
-//       itemPrice: parseDouble(json['itemPrice']),
-//       itemTotalPrice: parseDouble(json['itemTotalPrice']),
-//       productId: json['product_id'],
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() => {
-//         'id': id,
-//         'itemName': itemName,
-//         'itemQty': itemQty,
-//         'itemPrice': itemPrice,
-//         'itemTotalPrice': itemTotalPrice,
-//         'product_id': productId,
-//       };
-// }
 
 class OrderPayment {
   final int orderId;

@@ -22,7 +22,7 @@ class _IndexPharmaState extends State<IndexPharma> {
   }
 
   Future inititliazeBasket() async {
-    final security = LocalBase.security;
+    final security = Authenticator.security;
     if (security == null) return;
     final basket = context.read<BasketProvider>();
     final home = context.read<HomeProvider>();
@@ -62,7 +62,7 @@ class _IndexPharmaState extends State<IndexPharma> {
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
       builder: (context, home, _) {
-        final security = LocalBase.security;
+        final security = Authenticator.security;
         if (security == null) {
           return Scaffold();
         }

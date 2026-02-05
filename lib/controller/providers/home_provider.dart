@@ -180,7 +180,7 @@ class HomeProvider extends ChangeNotifier {
     required List<File> images,
   }) async {
     try {
-      final security = await LocalBase.getSecurity();
+      final security = await Authenticator.getSecurity();
       if (security == null) {
         messageWarning('Нэвтэрнэ үү');
         return;
@@ -210,7 +210,7 @@ class HomeProvider extends ChangeNotifier {
 
   Future<bool> deleteImages({required int id, required int imageID}) async {
     try {
-      final security = await LocalBase.getSecurity();
+      final security = await Authenticator.getSecurity();
       if (security == null) {
         messageWarning('Нэвтэрнэ үү');
         false;
@@ -346,12 +346,12 @@ class HomeProvider extends ChangeNotifier {
       setStock(stock);
       setSupplier(sup);
       Map<String, dynamic> res = jsonDecode(r.body);
-      await LocalBase.updateAccess(
+      await Authenticator.updateAccess(
         res['access_token'],
         refresh: res['refresh_token'],
       );
-      await LocalBase.updateStock(sup.id, stock.id);
-      await LocalBase.initLocalBase();
+      await Authenticator.updateStock(sup.id, stock.id);
+      await Authenticator.initAuthenticator();
       final promotion = context.read<PromotionProvider>();
       final basket = context.read<BasketProvider>();
       await promotion.getMarkedPromotion();
@@ -407,7 +407,7 @@ class HomeProvider extends ChangeNotifier {
       if (r.statusCode == 200) {
         AuthController().logout(context);
         messageWarning(
-          '${LocalBase.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа',
+          '${Authenticator.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа',
         );
       } else {
         messageWarning('Алдаа гарлаа');

@@ -71,7 +71,7 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  getSellerOrdersByDateRanged(String startDate, String endDate) async {
+  Future getSellerOrdersByDateRanged(String startDate, String endDate) async {
     try {
       final r =
           await api(Api.get, 'seller/order/?start=$startDate&end=$endDate');
@@ -88,7 +88,7 @@ class MyOrderProvider extends ChangeNotifier {
     }
   }
 
-  getSellerOrdersByDateSingle(String date) async {
+  Future getSellerOrdersByDateSingle(String date) async {
     try {
       final r = await api(Api.get, 'seller/order/?start=$date');
       if (r == null) return;
@@ -207,22 +207,20 @@ class MyOrderProvider extends ChangeNotifier {
 
   Future confirmOrder(int orderId) async {
     try {
-      final r =
-          await api(Api.patch, 'pharmacy/accept_order/', body: {"id": orderId});
+      var b = {"id": orderId};
+      final r = await api(Api.patch, pharmConfirmOrder, body: b);
       if (r == null) return;
       switch (r.statusCode) {
         case 200:
           await filterOrders();
-          return buildResponse(
-              1, null, 'Таны захиалга амжилттай баталгаажлаа.');
-
+          return messageComplete('Таны захиалга амжилттай баталгаажлаа.');
         case 400:
-          return buildResponse(2, null, 'Захиалгын түгээлт эхлээгүй');
+          return messageWarning('Захиалгын түгээлт эхлээгүй');
         default:
-          return buildResponse(3, null, 'Түр хүлээгээд дахин оролдно уу!');
+          return messageError('Түр хүлээгээд дахин оролдно уу!');
       }
     } catch (e) {
-      return buildResponse(4, null, 'Түр хүлээгээд дахин оролдно уу!');
+      return messageError('Түр хүлээгээд дахин оролдно уу!');
     }
   }
 }

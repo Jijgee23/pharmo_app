@@ -1,7 +1,7 @@
 import 'package:pharmo_app/views/SELLER/customer/customer_searcher.dart';
 import 'package:pharmo_app/views/SELLER/customer/customer_tile.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/auth/authentication/auth_error.dart';
+import 'package:pharmo_app/authentication/authentication/auth_error.dart';
 
 class CustomerList extends StatefulWidget {
   const CustomerList({super.key});
@@ -42,7 +42,7 @@ class _CustomerListState extends State<CustomerList>
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, PharmProvider>(
       builder: (_, home, pp, child) {
-        final user = LocalBase.security;
+        final user = Authenticator.security;
         if (user == null) return AuthError();
         return SafeArea(
           child: Column(

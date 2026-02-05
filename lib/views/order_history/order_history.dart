@@ -12,7 +12,7 @@ class OrderHistory extends StatefulWidget {
 class _OrderHistoryState extends State<OrderHistory> {
   @override
   Widget build(BuildContext context) {
-    final user = LocalBase.security;
+    final user = Authenticator.security;
     if (user == null) {
       return Center(
         child: Text('Хэрэглэгч олдсонгүй'),

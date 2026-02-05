@@ -1,7 +1,7 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/auth/login/login.dart';
-import 'package:pharmo_app/views/auth/root/root_provider.dart';
-import 'package:pharmo_app/views/auth/root/splash_screen.dart';
+import 'package:pharmo_app/authentication/login/login.dart';
+import 'package:pharmo_app/authentication/root/root_provider.dart';
+import 'package:pharmo_app/authentication/root/splash_screen.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -40,7 +40,7 @@ class _RootPageState extends State<RootPage> {
           return LoginPage();
         }
 
-        final security = LocalBase.security;
+        final security = Authenticator.security;
 
         if (security == null) return LoginPage();
         return RoleConfig.getHomePage(security.userRole);

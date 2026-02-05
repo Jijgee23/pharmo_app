@@ -551,7 +551,7 @@ class _DeliveriesState extends State<Deliveries> {
         ...users.map(
           (user) => Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: OrdererCard(user: user, del: delivery),
+            child: OrdererCard(user: user),
           ),
         ),
       ],

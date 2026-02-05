@@ -1,19 +1,18 @@
 import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
-import 'package:pharmo_app/views/auth/auth_operations/complete_registration.dart';
-import 'package:pharmo_app/views/auth/auth_operations/reset_pass.dart';
+import 'package:pharmo_app/authentication/auth_operations/complete_registration.dart';
+import 'package:pharmo_app/authentication/auth_operations/reset_pass.dart';
 import 'package:http_parser/http_parser.dart' as pharser;
 import 'package:pharmo_app/application/application.dart';
 
 class AuthController extends ChangeNotifier {
   void initLoginpage() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final remembered = await LocalBase.getRemember();
+      final remembered = await Authenticator.getRemember();
       if (remembered) {
         setRemember(true);
-        final idendAndPass = await LocalBase.readIdentifierAndPassword();
+        final idendAndPass = await Authenticator.readIdentifierAndPassword();
         final email = idendAndPass['identifier'];
         final pass = idendAndPass['password'];
         fillEmail(email ?? '');
@@ -102,17 +101,17 @@ class AuthController extends ChangeNotifier {
         messageWarning('Веб хуудсаар хандана уу!');
         return;
       }
-      await LocalBase.clearSecurity();
-      await LocalBase.saveModel(res);
-      await LocalBase.initLocalBase();
+      await Authenticator.clearSecurity();
+      await Authenticator.saveModel(res);
+      await Authenticator.initAuthenticator();
       await getDeviceInfo();
-      await LocalBase.saveLastLoggedIn(true);
+      await Authenticator.saveLastLoggedIn(true);
       await LogService().createLog('Нэвтрэх', LogService.login);
       if (remember) {
-        await LocalBase.saveRemember();
-        await LocalBase.saveIdentifierAndPassword(ema.text, pass.text);
+        await Authenticator.saveRemember();
+        await Authenticator.saveIdentifierAndPassword(ema.text, pass.text);
       }
-      final sec = LocalBase.security;
+      final sec = Authenticator.security;
       if (sec == null) return;
       setLogging(false);
       await gotoRootPage();
@@ -149,9 +148,9 @@ class AuthController extends ChangeNotifier {
         await LogService().createLog('Системээс гарах', LogService.logout);
         await api(Api.post, logoutUrl);
       }
-      await LocalBase.removeTokens();
-      await LocalBase.clearSecurity();
-      await LocalBase.saveLastLoggedIn(false);
+      await Authenticator.removeTokens();
+      await Authenticator.clearSecurity();
+      await Authenticator.saveLastLoggedIn(false);
       context.read<HomeProvider>().reset();
       context.read<BasketProvider>().reset();
       context.read<DriverProvider>().reset();
@@ -273,45 +272,17 @@ class AuthController extends ChangeNotifier {
   }
 
   Future getDeviceInfo() async {
-    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    Map<String, String> deviceData = {};
-    String token = await FirebaseApi.getToken();
-    if (token != '') {
-      await LocalBase.saveDeviceToken(token);
-    }
-    debugPrint("device token: $token");
+    final deviceManager = DeviceManager();
+    final device = await deviceManager.deviceInfo();
     try {
-      if (Platform.isAndroid) {
-        AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
-        deviceData = {
-          "deviceId": token,
-          "platform": 'android',
-          "brand": androidInfo.brand,
-          "model": androidInfo.model,
-          "modelVersion": androidInfo.device,
-          "os": Platform.operatingSystem,
-          "osVersion": Platform.operatingSystemVersion,
-        };
-      } else if (Platform.isIOS) {
-        IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
-        deviceData = {
-          "deviceId": token,
-          "platform": "ios",
-          "brand": "Apple",
-          "model": iosInfo.name,
-          "modelVersion": iosInfo.utsname.machine,
-          "os": "iOS",
-          "osVersion": iosInfo.systemVersion,
-        };
-      }
       final data = {
-        'token': deviceData['deviceId'],
-        'platform': deviceData['platform'],
-        'brand': deviceData['brand'],
-        'model': deviceData['model'],
-        'modelVersion': deviceData['modelVersion'],
-        'os': deviceData['os'],
-        'osVersion': deviceData['osVersion']
+        'token': device.firebaseToken,
+        'platform': device.type,
+        'brand': device.brand,
+        'model': device.model,
+        'modelVersion': device.modelVersion,
+        'os': device.os,
+        'osVersion': device.osVersion,
       };
       final r = await api(Api.post, deviceTokenUrl, body: data);
       if (r == null) return;

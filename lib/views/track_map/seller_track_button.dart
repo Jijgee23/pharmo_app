@@ -60,13 +60,13 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
 
   @override
   Widget build(BuildContext context) {
-    final user = LocalBase.security;
+    final user = Authenticator.security;
     return Positioned(
       bottom: 20,
       left: 20,
       child: SafeArea(
         child: Builder(builder: (context) {
-          if (user == null || user.role != 'S') {
+          if (user == null || !user.isSaler) {
             return const SizedBox();
           }
           return AnimatedBuilder(

@@ -7,7 +7,6 @@ import 'package:pharmo_app/views/track_map/map_heading.dart';
 import 'package:pharmo_app/views/track_map/seller_track_button.dart';
 import 'package:pharmo_app/views/track_map/track_permission_page.dart';
 import 'package:pharmo_app/views/track_map/tracking_status_card.dart';
-import 'package:pharmo_app/views/track_map/delivery_info_card.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/deliveries.dart';
 
 class TrackMap extends StatefulWidget {
@@ -27,7 +26,7 @@ class _TrackMapState extends State<TrackMap> {
   }
 
   Future<void> init() async {
-    final user = LocalBase.security;
+    final user = Authenticator.security;
     final jag = context.read<JaggerProvider>();
 
     await LoadingService.run(() async {
@@ -41,11 +40,11 @@ class _TrackMapState extends State<TrackMap> {
 
   @override
   Widget build(BuildContext context) {
-    final user = LocalBase.security;
+    final user = Authenticator.security;
     if (user == null) return Scaffold();
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
-        bool isSeller = user.role == 'S';
+        bool isSeller = user.isSaler;
         final isStart = jagger.subscription == null ||
             (jagger.subscription != null && jagger.subscription!.isPaused);
         LocationPermission? per = jagger.permission;
@@ -80,8 +79,8 @@ class _TrackMapState extends State<TrackMap> {
               ),
               MapButtons(),
               MapHeading(isSeller: isSeller, showTracking: showTracking),
-              if (showTracking && isSeller) const TrackingStatusCard(),
-              if (!isSeller) const DeliveryInfoCard(),
+              if (showTracking && !isSeller) const TrackingStatusCard(),
+              // if (!isSeller) const DeliveryInfoCard(),
               DriverButton(),
               SellerTrackButton(
                 onPressed: () => handleTap(isStart: isStart),
@@ -147,8 +146,8 @@ class _TrackMapState extends State<TrackMap> {
     if (r != null && apiSucceess(r)) {
       await tracker.clearTrackData();
       await tracker.addPointToBox(data);
-      await LocalBase.saveSellerTrackId();
-      final bool sellerTID = await LocalBase.hasSellerTrack();
+      await Authenticator.saveSellerTrackId();
+      final bool sellerTID = await Authenticator.hasSellerTrack();
       if (sellerTID) {
         messageComplete('Борлуулалт амжилттай эхлэлээ!');
         await LogService().createLog(

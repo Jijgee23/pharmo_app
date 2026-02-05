@@ -1,70 +1,32 @@
-import 'dart:ui';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 
-class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
-  final StreamController<AppEvent> _eventController =
-      StreamController<AppEvent>.broadcast();
-  Stream<AppEvent> get mergedEvents => _eventController.stream;
+Future<bool> hasTrack() async {
+  final user = Authenticator.security;
+  if (user == null) return false;
+  bool hasDelmanTrack = await Authenticator.hasDelmanTrack();
+  bool hasSellerTrack = await Authenticator.hasSellerTrack();
+  if (user.isSaler && hasSellerTrack) {
+    return true;
+  }
+  if (user.isDriver && hasDelmanTrack) {
+    return true;
+  }
+  return false;
+}
 
+class JaggerProvider extends ChangeNotifier {
   JaggerProvider() {
-    _setupStreams();
+    initJagger();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    _eventController.add(LifeCycleEvent(state));
-  }
-
-  final connectivity = Connectivity();
-  bool isOnline = false;
-  void _setupStreams() async {
-    // location
-    // NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
-    //       (dynamic location) => _eventController.add(
-    //         LocationEvent(location),
-    //       ),
-    //     );
-    connectivity.onConnectivityChanged
-        .listen((List<ConnectivityResult> status) async {
-      _eventController.add(NetworkEvent(status));
-      bool online = await NetworkChecker.hasInternet();
-      isOnline = online;
-      notifyListeners();
-      if (online && isDialogOpen) {
-        _hideNetworkDialog();
-        return;
-      }
-      if (!online && !isDialogOpen) {
-        _showNetworkDialog();
-      }
-    });
-    NativeChannel.batteryChannel.receiveBroadcastStream().listen(
-      (dynamic value) {
-        print(value);
-        if (value != null && value is num) {
-          _eventController.add(BatteryEvent(value.toInt()));
-        }
-      },
-    );
-
-    AppLifecycleListener(
-      onPause: () => _eventController.add(
-        LifeCycleEvent(AppLifecycleState.paused),
-      ),
-      onResume: () async {
-        _eventController.add(
-          LifeCycleEvent(AppLifecycleState.resumed),
-        );
-        await loadPermission();
-      },
-    );
-    await initJagger();
+  bool isShowingTrackingInfo = true;
+  void toggleShowing() {
+    isShowingTrackingInfo = !isShowingTrackingInfo;
+    notifyListeners();
   }
 
   Future initJagger() async {
@@ -80,7 +42,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   late final Box<TrackData> trackBox;
 
   Position? currentPosition;
-  // List<Delivery> delivery = [];
   Delivery? delivery;
   List<Zone> zones = [];
   List<LatLng> routeCoords = [];
@@ -98,8 +59,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       final newAccuracy = await Geolocator.getLocationAccuracy();
       accuracy = newAccuracy;
     }
-    print(permission);
-    print(accuracy);
     notifyListeners();
   }
 
@@ -110,8 +69,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   Future checkSellerTrack() async {
-    await LocalBase.initLocalBase();
-    final user = LocalBase.security;
+    await Authenticator.initAuthenticator();
+    final user = Authenticator.security;
     if (user == null) return;
     if (user.role == "S") {
       final r = await api(Api.get, 'sales/route/?active=1');
@@ -122,7 +81,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       }
     }
     if (user.role == 'D') {
-      updateTracking(await LocalBase.hasDelmanTrack());
+      updateTracking(await Authenticator.hasDelmanTrack());
     }
   }
 
@@ -152,8 +111,8 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
             sended: true,
           ),
         );
-        await LocalBase.saveDelmanTrack(shipmentId).whenComplete(() async {
-          final trackId = await LocalBase.getDelmanTrackId();
+        await Authenticator.saveDelmanTrack(shipmentId).whenComplete(() async {
+          final trackId = await Authenticator.getDelmanTrackId();
           if (trackId == 0) {
             messageWarning('Түгээлт олдсонгүй!');
             return;
@@ -186,75 +145,16 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   Future tracking() async {
-    final user = LocalBase.security;
-    if (user == null) return;
-    bool isSeller = user.role == "S";
-    bool hasDelmanTrack = await LocalBase.hasDelmanTrack();
-    bool hasSellerTrack = await LocalBase.hasSellerTrack();
-    if (isSeller && !hasSellerTrack) {
-      return;
-    }
-    if (!isSeller && !hasDelmanTrack) {
-      return;
-    }
+    if (!await hasTrack()) return;
     await getTrackBox();
     try {
-      // final started = await NativeChannel.startLocationService();
-      // if (!started) {
-      //   messageError('Location service эхлүүлж чадсангүй');
-      //   return;
-      // }
-
       subscription =
           NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
         (event) async {
-          print("location changed: ${event}");
+          print("location changed: $event");
           final lat = parseDouble(event['lat']);
           final lng = parseDouble(event['lng']);
           await sendTobackend(lat, lng);
-          // final logType = isSeller ? 'Борлуулалт' : 'Түгээлт';
-          // if (event is LocationEvent) {
-          //   // print("location changed: ${event.location}");
-          //   // final lat = parseDouble(event.location['lat']);
-          //   // final lng = parseDouble(event.location['lng']);
-          //   // await sendTobackend(lat, lng);
-          // } else if (event is NetworkEvent) {
-          //   final rults = event.results;
-          //   bool isMobile = rults.contains(ConnectivityResult.mobile);
-          //   bool isWifi = rults.contains(ConnectivityResult.wifi);
-          //   if (isMobile || isWifi) {
-          //     await logService.createLog(
-          //       logType,
-          //       'Байршил дамжуулах явцад холболт сэргэсэн (${DateTime.now().toIso8601String()})',
-          //     );
-          //     await getTrackBox();
-          //     await syncOffineTracks();
-          //   } else {
-          //     await logService.createLog(
-          //       logType,
-          //       'Байршил дамжуулах явцад холболт салсан  (${DateTime.now().toIso8601String()})',
-          //     );
-          //   }
-          // } else if (event is BatteryEvent) {
-          //   print('Батерейны түвшин 20%-с бага байна: ${event.level}');
-          //   await LogService().createLog(
-          //     logType,
-          //     'Таны төхөөрөмжийн баттерей ${event.level}% байна.',
-          //   );
-          //   await FirebaseApi.local(
-          //     'Баттерей сул байна',
-          //     'Таны төхөөрөмжийн баттерей ${event.level}% байна. '
-          //         'Цэнэглэнэ үү, байршил дамжуулалт зогсох магадлалтай.',
-          //   );
-          // } else if (event is LifeCycleEvent) {
-          //   print('Аппликейшний төлөв өөрчлөгдлөө: ${event.state}');
-          //   if (event.state == AppLifecycleState.paused) {
-          //     await logService.createLog(
-          //       logType,
-          //       'Байршил дамжуулах явцад бусад апп руу шилжсэн.  (${DateTime.now().toIso8601String()})',
-          //     );
-          //   }
-          // }
         },
       );
       await Future.delayed(Duration(milliseconds: 500));
@@ -288,20 +188,20 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
       } else {
         debugPrint('⚠️ Failed to stop native service');
       }
-      await LocalBase.clearDelmanTrack();
-      await LocalBase.removeSellerTrackId();
+      await Authenticator.clearDelmanTrack();
+      await Authenticator.removeSellerTrackId();
       await clearTrackData();
       if (subscription == null) return;
       print('stoping track');
 
       subscription = null;
       notifyListeners();
-      print('subsciption null: ${subscription == null}');
-      final hasDelmanTrack = await LocalBase.getDelmanTrackId();
-      await LogService().createLog(
-        '${(hasDelmanTrack == 0) ? 'Боруулалт' : 'Түгээлт'} дууссан',
-        DateTime.now().toIso8601String(),
-      );
+      // print('subsciption null: ${subscription == null}');
+      // final hasDelmanTrack = await Authenticator.getDelmanTrackId();
+      // await LogService().createLog(
+      //   '${(hasDelmanTrack == 0) ? 'Боруулалт' : 'Түгээлт'} дууссан',
+      //   DateTime.now().toIso8601String(),
+      // );
       routeCoords.clear();
       polylines.clear();
       orderMarkers.clear();
@@ -330,7 +230,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         lat,
         lng,
       );
-      print('DISTANSE FROM LAST: $distance');
       if (distance < 10) return;
     }
 
@@ -353,12 +252,10 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
         now.difference(_lastUploadTime!).inSeconds < _uploadIntervalSeconds) {
       return;
     }
-    final isSeller =
-        LocalBase.security != null && LocalBase.security!.role == 'S';
+    final isSeller = Authenticator.security!.isSaler;
     final trackUrl = isSeller ? 'sales/route/' : 'delivery/location/';
-    // final apiMethod = isSeller ? Api.post : Api.patch;
     var body = locationr(
-      await LocalBase.getDelmanTrackId(),
+      await Authenticator.getDelmanTrackId(),
       [locatioData(true)],
     );
     final r = await api(Api.patch, trackUrl, body: body);
@@ -376,20 +273,19 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
   Future syncOffineTracks() async {
     await getTrackBox();
-    final user = LocalBase.security;
+    final user = Authenticator.security;
     if (user == null) return;
-    bool hasDelmanTrack = await LocalBase.hasDelmanTrack();
-    bool hasSellerTrack = await LocalBase.hasSellerTrack();
+    bool hasDelmanTrack = await Authenticator.hasDelmanTrack();
+    bool hasSellerTrack = await Authenticator.hasSellerTrack();
     if (!hasSellerTrack && !hasDelmanTrack) return;
-    bool isSeller = user.role == "S";
+    bool isSeller = user.isSaler;
     final trackUrl = isSeller ? 'sales/route/' : 'delivery/location/';
-    // final apiMethod = isSeller ? Api.post : Api.patch;
     if (trackDatas.isNotEmpty) {
       final unsended = trackDatas.where((e) => e.sended == false).toList();
       if (unsended.isEmpty) {
         return;
       }
-      var b = locationr(await LocalBase.getDelmanTrackId(), unsended);
+      var b = locationr(await Authenticator.getDelmanTrackId(), unsended);
       final r = await api(Api.patch, trackUrl, body: b);
       if (apiSucceess(r)) {
         await updateDatasToSended();
@@ -398,7 +294,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
   }
 
   Map<String, Object> locationr(int id, List<TrackData> locs) {
-    final user = LocalBase.security;
+    final user = Authenticator.security;
     if (user == null) return {};
     bool isSeller = user.role == "S";
     if (isSeller) {
@@ -517,7 +413,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
       if (r.statusCode == 200) {
         await getDeliveries();
-        await LocalBase.clearDelmanTrack();
+        await Authenticator.clearDelmanTrack();
         await FirebaseApi.local(
           'Түгээлт дууслаа',
           'Таны $shipmentId дугаартай түгээлт дууслаа.',
@@ -613,18 +509,17 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     notifyListeners();
   }
 
-  Future<dynamic> getDeliveryDetail(int id) async {
-    try {
-      final r = await api(Api.get, 'delivery/order_detail/?order_id=$id');
-      if (r == null) return;
-      final data = jsonDecode(utf8.decode(r.bodyBytes));
-      print(data);
-      if (r.statusCode == 200) {}
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-    notifyListeners();
-  }
+  // Future<dynamic> getDeliveryDetail(int id) async {
+  //   try {
+  //     final r = await api(Api.get, 'delivery/order_detail/?order_id=$id');
+  //     if (r == null) return;
+  //     final data = jsonDecode(utf8.decode(r.bodyBytes));
+  //     if (r.statusCode == 200) {}
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //   }
+  //   notifyListeners();
+  // }
 
   addCustomerPayment(String type, String amount, String customerId) async {
     try {
@@ -860,107 +755,6 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
     );
     return rult;
   }
-
-  bool isDialogOpen = false;
-
-  void _showNetworkDialog() {
-    isDialogOpen = true;
-    showDialog(
-      barrierDismissible: false,
-      context: GlobalKeys.navigatorKey.currentContext!,
-      builder: (context) {
-        return PopScope(
-          canPop: false,
-          child: Dialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(30),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.wifi_off, color: Colors.red, size: 50),
-                  SizedBox(height: 20),
-                  Text(
-                    'Интернет холболт салсан',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // Dialog хаах функц
-  void _hideNetworkDialog() {
-    if (isDialogOpen) {
-      Navigator.of(GlobalKeys.navigatorKey.currentContext!).pop();
-      isDialogOpen = false;
-    }
-  }
-
-  @override
-  void didChangeViewFocus(ViewFocusEvent event) {}
-
-  @override
-  void handleCancelBackGesture() {}
-
-  @override
-  void handleCommitBackGesture() {}
-
-  @override
-  bool handleStartBackGesture(PredictiveBackEvent backEvent) {
-    throw UnimplementedError();
-  }
-
-  @override
-  void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {}
-  @override
-  void didChangeAccessibilityFeatures() {}
-
-  @override
-  void didChangeLocales(List<Locale>? locales) {}
-
-  @override
-  void didChangeMetrics() {}
-
-  @override
-  void didChangePlatformBrightness() {}
-
-  @override
-  void didChangeTextScaleFactor() {}
-
-  @override
-  void didHaveMemoryPressure() {}
-
-  @override
-  Future<bool> didPopRoute() async => false;
-
-  @override
-  Future<bool> didPushRoute(String route) async => false;
-
-  @override
-  Future<bool> didPushRouteInformation(
-          RouteInformation routeInformation) async =>
-      false;
-
-  @override
-  Future<AppExitResponse> didRequestAppExit() async {
-    throw UnimplementedError();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-    _eventController.close();
-  }
 }
 
 
@@ -985,7 +779,7 @@ class JaggerProvider extends ChangeNotifier implements WidgetsBindingObserver {
 
  // Future<dynamic> getDeliveryLocation() async {
   //   currentPosition = await Geolocator.getCurrentPosition();
-  //   final security = await LocalBase.getSecurity();
+  //   final security = await Authenticator.getSecurity();
   //   if (security == null) return;
   //   try {
   //     final r = await api(Api.get, 'delivery/locations/?with_routes=true');

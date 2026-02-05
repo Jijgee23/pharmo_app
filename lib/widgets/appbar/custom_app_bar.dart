@@ -27,7 +27,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Consumer3<HomeProvider, BasketProvider, AuthController>(
       builder: (_, homeprovider, basketProvider, auth, child) {
-        final security = LocalBase.security;
+        final security = Authenticator.security;
         if (security == null) {
           return PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),

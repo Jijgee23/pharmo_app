@@ -53,7 +53,7 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
 
   @override
   Widget build(BuildContext context) {
-    final isSeller = LocalBase.security!.isSaler;
+    final isSeller = Authenticator.security!.isSaler;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],

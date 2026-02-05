@@ -1,5 +1,7 @@
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/order_history/order_card/order_status_chip.dart';
+import 'package:pharmo_app/views/order_history/order_card/user_tag.dart';
 import 'package:pharmo_app/views/order_history/pharm_order_history/pharm_order_detail.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/seller_order_detail.dart';
 
@@ -12,10 +14,10 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<MyOrderProvider>(
       builder: (context, provider, child) {
-        bool isPharma = LocalBase.security!.isPharmacist;
+        bool isPharma = Authenticator.security!.isPharmacist;
         return Padding(
           padding: const EdgeInsets.only(left: 10, right: 10),
-          child: !isPharma
+          child: (!isPharma && order.orderProcess == OrderProcess.newOrder)
               ? Slidable(
                   key: ValueKey(order.id),
                   endActionPane: ActionPane(
@@ -29,6 +31,7 @@ class OrderCard extends StatelessWidget {
                         foregroundColor: Colors.red.shade700,
                         borderRadius: BorderRadius.circular(12),
                         child: Column(
+                          
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.delete_outline,
@@ -94,41 +97,11 @@ class OrderCard extends StatelessWidget {
     String displayName = !isPharma
         ? (order.customer ?? "Захиалагч")
         : (order.supplier ?? "Нийлүүлэгч");
-    IconData headerIcon =
-        !isPharma ? Icons.person_outline : Icons.home_work_outlined;
-
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              decoration: BoxDecoration(
-                color: primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: primary.withOpacity(0.2)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(headerIcon, color: primary, size: 18),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      displayName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: primary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          UserTag(name: displayName, isSupplier: isPharma),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -170,15 +143,13 @@ class OrderCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (order.status != null)
-                      OrderStatusChip(order.orderStatus),
+                    OrderStatusChip(order.orderStatus),
                     const SizedBox(height: 8),
-                    if (order.process != null)
-                      IconedText(
-                        icon: Icons.sync_outlined,
-                        text: order.orderProcess.name,
-                        color: order.orderProcess.color,
-                      ),
+                    IconedText(
+                      icon: Icons.sync_outlined,
+                      text: order.orderProcess.name,
+                      color: order.orderProcess.color,
+                    ),
                     const SizedBox(height: 4),
                     if (order.createdOn != null)
                       IconedText(
@@ -199,7 +170,7 @@ class OrderCard extends StatelessWidget {
             SizedBox(
               width: double.maxFinite,
               child: ElevatedButton(
-                onPressed: () => _confirmOrder(context, provider),
+                onPressed: () async => await provider.confirmOrder(order.id),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: succesColor,
                   shape: RoundedRectangleBorder(
@@ -221,14 +192,6 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Future<void> _confirmOrder(
-    BuildContext context,
-    MyOrderProvider provider,
-  ) async {
-    dynamic res = await provider.confirmOrder(order.id);
-    message(res['message']);
-  }
-
   void _showDeleteDialog(BuildContext context, MyOrderProvider provider) async {
     final confirmed = await confirmDialog(
       context: context,
@@ -237,37 +200,4 @@ class OrderCard extends StatelessWidget {
     if (!confirmed) return;
     await provider.deleteSellerOrder(orderId: order.id);
   }
-}
-
-class OrderStatusChip extends StatelessWidget {
-  final OrderStatus status;
-  const OrderStatusChip(this.status, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    Color color = status.color;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Text(
-        status.name,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
-      ),
-    );
-  }
-
-  // Color _getStatusColor(String status) {
-  //   if (status.contains('хүлээгдэж')) return Colors.orange;
-  //   if (status.contains('баталгаажсан')) return Colors.blue;
-  //   if (status.contains('хүргэгдсэн')) return Colors.green;
-  //   return Colors.grey;
-  // }
 }

@@ -1,15 +1,11 @@
-import 'package:pharmo_app/views/DRIVER/active_delivery/delivery_widget.dart';
+import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class StatusChanger extends StatefulWidget {
-  final int delId;
-  final int orderId;
-  final String status;
+  final DeliveryOrder order;
   const StatusChanger({
     super.key,
-    required this.delId,
-    required this.orderId,
-    required this.status,
+    required this.order,
   });
 
   @override
@@ -17,20 +13,12 @@ class StatusChanger extends StatefulWidget {
 }
 
 class _StatusChangerState extends State<StatusChanger> {
-  List<String> statuses = [
-    'Хүргэгдсэн',
-    'Хаалттай',
-    'Буцаагдсан',
-    'Түгээлтэнд гарсан'
-  ];
-
-  setStatus() {}
-  String selected = '';
+  OrderProcess pro = OrderProcess.unknown;
   @override
   void initState() {
     super.initState();
     setState(() {
-      selected = status(widget.status);
+      pro = widget.order.orderProcess;
     });
   }
 
@@ -44,8 +32,8 @@ class _StatusChangerState extends State<StatusChanger> {
           child: Column(
             spacing: 15,
             children: [
-              ...statuses.map(
-                (status) => pro(status, provider, context),
+              ...OrderProcess.deliveryProcess.map(
+                (process) => processBuilder(process, provider, context),
               )
             ],
           ),
@@ -54,55 +42,63 @@ class _StatusChangerState extends State<StatusChanger> {
     );
   }
 
-  InkWell pro(String status, JaggerProvider provider, BuildContext context) {
-    bool sel = status == selected;
-    return InkWell(
-      onTap: () async {
-        final data = {
-          "delivery_id": widget.delId.toString(),
-          "order_id": widget.orderId,
-          "process": getOrderProcess(status)
-        };
-        final r = await api(Api.patch, 'delivery/order/', body: data);
-
-        if (r == null) return;
-        print(r.statusCode);
-        print(r.body);
-        if (r.statusCode == 200 || r.statusCode == 201) {
-          message('Төлөв өөрчлөгдлөө');
-          await provider.getDeliveries();
-        } else if (r.statusCode == 400) {
-          if (convertData(r).toString().contains('Delivery not started!')) {
-            message('Түгээлт эхлээгүй!');
-          } else {
-            message('Амжилтгүй!');
-          }
-        } else {
-          message(wait);
-        }
+  Widget processBuilder(
+    OrderProcess process,
+    JaggerProvider provider,
+    BuildContext context,
+  ) {
+    bool selected = pro == process;
+    return ElevatedButton(
+      onPressed: () async {
         Navigator.pop(context);
+        await LoadingService.run(
+          () async {
+            final data = {
+              "delivery_id": widget.order.deliveryId,
+              "order_id": widget.order.id,
+              "process": process.code,
+            };
+            final r = await api(Api.patch, 'delivery/order/', body: data);
+            if (r == null) return;
+            print(r.statusCode);
+            print(r.body);
+            if (r.statusCode == 200 || r.statusCode == 201) {
+              messageComplete('Төлөв өөрчлөгдлөө');
+              await provider.getDeliveries();
+            } else if (r.statusCode == 400) {
+              if (convertData(r).toString().contains('Delivery not started!')) {
+                messageWarning('Түгээлт эхлээгүй!');
+              } else {
+                messageWarning('Амжилтгүй!');
+              }
+            } else {
+              messageError(wait);
+            }
+          },
+        );
       },
-      child: Container(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: selected ? Colors.green.shade50 : Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-        decoration: BoxDecoration(
-          color: sel ? succesColor : transperant,
-          border: Border.all(color: sel ? transperant : frenchGrey),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Row(
-          spacing: 15,
-          children: [
-            SizedBox(width: 20),
-            Text(
-              status,
-              style: TextStyle(
-                color: sel ? white : black,
-                fontSize: 16,
-              ),
-            ),
-          ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusGeometry.circular(12),
+          side: BorderSide(
+            color: selected ? Colors.green.shade300 : Colors.grey.shade200,
+            width: selected ? 2 : 1,
+          ),
         ),
       ),
+      child: Row(
+        children: [
+          Text(
+            process.name,
+            style: TextStyle(
+              color: selected ? Colors.green.shade900 : Colors.black87,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ).paddingOnly(left: 10),
     );
   }
 }

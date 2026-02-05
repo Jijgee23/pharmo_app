@@ -23,3 +23,5 @@ export './database/security.dart';
 export './database/track_data.dart';
 export './database/track_data_list.dart';
 export './models/a_models.dart';
+export 'providers/Listeners/connection_provider.dart';
+export 'providers/Listeners/battery_provider.dart';

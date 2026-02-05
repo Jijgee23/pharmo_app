@@ -35,12 +35,16 @@ class _SellerOrderDetailState extends State<SellerOrderDetail>
     return StreamBuilder<OrderModel>(
       stream: context.read<PharmProvider>().getSellerOrderDetail(widget.oId),
       builder: (context, stream) {
-        if (stream.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator.adaptive();
-        }
         return Scaffold(
           appBar: _buildAppBar(context, stream),
-          body: _buildContent(stream),
+          body: Builder(builder: (context) {
+            if (stream.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator.adaptive(),
+              );
+            }
+            return _buildContent(stream);
+          }),
         );
       },
     );

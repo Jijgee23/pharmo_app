@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:pharmo_app/controller/providers/jagger_provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class TrackingStatusCard extends StatelessWidget {
   const TrackingStatusCard({super.key});
@@ -13,77 +11,129 @@ class TrackingStatusCard extends StatelessWidget {
             jagger.subscription != null && !jagger.subscription!.isPaused;
 
         if (!isTracking) return const SizedBox.shrink();
-
+        // final isDriver = Authenticator.security!.isDriver;
         final trackDatas = jagger.trackDatas;
         final distance = _calculateTotalDistance(trackDatas, jagger);
-        final duration = _formatDuration(jagger.now, jagger.delivery?.startedOn);
+        final duration =
+            _formatDuration(jagger.now, jagger.delivery?.startedOn);
 
         return Positioned(
           top: 100,
           left: 16,
           right: 16,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    _buildPulsingIndicator(),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Байршил дамжуулж байна',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.teal,
+          child: Column(
+            children: [
+              AnimatedCrossFade(
+                crossFadeState: jagger.isShowingTrackingInfo
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 300),
+                secondChild: const SizedBox.shrink(),
+                firstChild: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          _buildPulsingIndicator(),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Байршил дамжуулж байна',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.teal,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildStatItem(
+                            icon: Icons.timer_outlined,
+                            value: duration,
+                            label: 'Хугацаа',
+                            color: Colors.blue,
+                          ),
+                          _buildDivider(),
+                          _buildStatItem(
+                            icon: Icons.straighten,
+                            value: _formatDistance(distance),
+                            label: 'Зай',
+                            color: Colors.orange,
+                          ),
+                          _buildDivider(),
+                          _buildStatItem(
+                            icon: Icons.speed,
+                            value:
+                                '${_calculateSpeed(distance, jagger).toStringAsFixed(1)} км/ц',
+                            label: 'Дундаж хурд',
+                            color: Colors.green,
+                          ),
+                        ],
+                      ),
+                      if (trackDatas.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        _buildProgressBar(trackDatas, jagger),
+                      ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem(
-                      icon: Icons.timer_outlined,
-                      value: duration,
-                      label: 'Хугацаа',
-                      color: Colors.blue,
-                    ),
-                    _buildDivider(),
-                    _buildStatItem(
-                      icon: Icons.straighten,
-                      value: _formatDistance(distance),
-                      label: 'Зай',
-                      color: Colors.orange,
-                    ),
-                    _buildDivider(),
-                    _buildStatItem(
-                      icon: Icons.speed,
-                      value: '${_calculateSpeed(distance, jagger).toStringAsFixed(1)} км/ц',
-                      label: 'Дундаж хурд',
-                      color: Colors.green,
-                    ),
-                  ],
+              ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: jagger.toggleShowing,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        jagger.isShowingTrackingInfo
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        size: 16,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        jagger.isShowingTrackingInfo ? 'Харуулах' : 'Нуух',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                if (trackDatas.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  _buildProgressBar(trackDatas, jagger),
-                ],
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -267,7 +317,8 @@ class TrackingStatusCard extends StatelessWidget {
     double result = isSin ? x : 1;
     double term = isSin ? x : 1;
     for (int n = 1; n < 20; n++) {
-      term *= -x * x / ((isSin ? 2 * n : 2 * n - 1) * (isSin ? 2 * n + 1 : 2 * n));
+      term *=
+          -x * x / ((isSin ? 2 * n : 2 * n - 1) * (isSin ? 2 * n + 1 : 2 * n));
       result += term;
     }
     return result;

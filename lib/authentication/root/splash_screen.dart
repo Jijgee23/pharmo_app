@@ -12,8 +12,8 @@ class _SplashScreenState extends State<SplashScreen>
   int _currentPage = 0;
   final PageController _pageController = PageController();
   late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _rotateAnimation;
+  // late Animation<double> _scaleAnimation;
+  // late Animation<double> _rotateAnimation;
 
   final List<OnboardingPage> _pages = [
     OnboardingPage(
@@ -66,19 +66,19 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 800),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.elasticOut,
-      ),
-    );
+    // _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+    //   CurvedAnimation(
+    //     parent: _animationController,
+    //     curve: Curves.elasticOut,
+    //   ),
+    // );
 
-    _rotateAnimation = Tween<double>(begin: -0.1, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
-    );
+    // _rotateAnimation = Tween<double>(begin: -0.1, end: 0.0).animate(
+    //   CurvedAnimation(
+    //     parent: _animationController,
+    //     curve: Curves.easeOut,
+    //   ),
+    // );
 
     _animationController.forward();
   }
@@ -171,7 +171,7 @@ class _SplashScreenState extends State<SplashScreen>
           if (_currentPage < _pages.length - 1)
             TextButton(
               onPressed: () async {
-                await LocalBase.saveSplashed(true);
+                await Authenticator.saveSplashed(true);
                 gotoRootPage();
               },
               child: Text(
@@ -377,7 +377,7 @@ class _SplashScreenState extends State<SplashScreen>
             child: ElevatedButton(
               onPressed: () async {
                 if (isLastPage) {
-                  await LocalBase.saveSplashed(true);
+                  await Authenticator.saveSplashed(true);
                   gotoRootPage();
                 } else {
                   _pageController.nextPage(

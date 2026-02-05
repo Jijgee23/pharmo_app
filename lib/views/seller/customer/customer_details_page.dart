@@ -44,7 +44,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
             builder: (context, pp, child) {
               final d = pp.customerDetail;
               bool isEditable = (d.addedById != null &&
-                  d.addedById == LocalBase.security!.id);
+                  d.addedById == Authenticator.security!.id);
 
               return Scaffold(
                 backgroundColor: Colors.grey.shade50,

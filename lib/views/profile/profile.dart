@@ -18,7 +18,7 @@ class Profile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, AuthController>(
       builder: (context, homeProvider, auth, child) {
-        final security = LocalBase.security;
+        final security = Authenticator.security;
 
         if (security == null) {
           return Material(

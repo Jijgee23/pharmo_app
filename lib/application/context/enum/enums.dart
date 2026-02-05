@@ -46,6 +46,13 @@ enum OrderProcess {
   // UI-д шүүлтүүр хэлбэрээр харуулах жагсаалт (Бүгд + Үндсэн төлөвүүд)
   static List<OrderProcess> get filterList =>
       OrderProcess.values.where((e) => e != OrderProcess.unknown).toList();
+  static List<OrderProcess> get deliveryProcess => OrderProcess.values
+      .where((e) =>
+          e == OrderProcess.onDelivery ||
+          e == OrderProcess.delivered ||
+          e == OrderProcess.returned ||
+          e == OrderProcess.closed)
+      .toList();
 }
 
 enum PayType {
