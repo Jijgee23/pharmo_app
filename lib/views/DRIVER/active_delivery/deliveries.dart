@@ -384,7 +384,7 @@ class _DeliveriesState extends State<Deliveries> {
                     label: 'Дуусгах',
                     icon: Icons.stop,
                     color: Colors.red,
-                    onTap: () => askToEnd(delivery, jagger),
+                    onTap: () async => await jagger.endTrack(),
                   ),
                 ),
             ],
@@ -626,30 +626,8 @@ class _DeliveriesState extends State<Deliveries> {
 
   askToStart(int delid) async {
     var j = context.read<JaggerProvider>();
-    bool confirmed = await confirmDialog(
-      context: context,
-      title: 'Түгээлтийг эхлүүлэх үү?',
-      message: 'Түгээлтийн үед таны байршлыг хянахыг анхаарна уу!',
-    );
-
-    if (confirmed) {
-      await Authenticator.saveTrackId(delid);
-      await j.startShipment();
-    }
-  }
-
-  askToEnd(Delivery del, JaggerProvider jagger) async {
-    List<DeliveryOrder>? unDeliveredOrders =
-        del.orders.where((t) => t.process == 'O').toList();
-    var j = context.read<JaggerProvider>();
-    bool confirmed = await confirmDialog(
-      context: context,
-      title: 'Түгээлтийг үнэхээр дуусгах уу?',
-      message: unDeliveredOrders.isNotEmpty
-          ? 'Дараах захиалгууд хүргэгдээгүй байна:\n ${unDeliveredOrders.map((e) => e.orderNo)}'
-          : '',
-    );
-    if (confirmed) await j.endTrack();
+    await Authenticator.saveTrackId(delid);
+    await j.startShipment();
   }
 }
 

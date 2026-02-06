@@ -275,10 +275,13 @@ class JaggerProvider extends ChangeNotifier {
 
     bool isDriver = user.isDriver;
     String action = isDriver ? 'түгээлт' : 'борлуулалт';
-
+    List<DeliveryOrder>? unDeliveredOrders =
+        delivery!.orders.where((t) => t.process == 'O').toList();
     final confirmed = await confirmDialog(
       context: GlobalKeys.navigatorKey.currentContext!,
       title: '${action.capitalize} дуусгах үү?',
+      message:
+          '${action.capitalize}-ийн үед таны байршлыг хянахыг зогсооно. ${isDriver && unDeliveredOrders.isNotEmpty ? 'Мөн ${unDeliveredOrders.length} захиалга хүргэгдээгүй байна!' : ''}',
     );
 
     if (!confirmed) return;
