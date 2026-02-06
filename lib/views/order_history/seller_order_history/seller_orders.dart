@@ -29,7 +29,7 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
 
   Future init() async {
     LoadingService.run(() async {
-      final orderProvider = context.read<MyOrderProvider>();
+      final orderProvider = context.read<OrderProvider>();
       await orderProvider.getSellerOrders();
     });
   }
@@ -83,7 +83,7 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<MyOrderProvider, PharmProvider>(
+    return Consumer2<OrderProvider, PharmProvider>(
       builder: (_, provider, pp, child) {
         return SafeArea(
           bottom: true,
@@ -104,7 +104,7 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
                       ModernField(
                         hint: '$selectedFilter хайх',
                         onChanged: (v) {
-                          final orderProvider = context.read<MyOrderProvider>();
+                          final orderProvider = context.read<OrderProvider>();
                           WidgetsBinding.instance.addPostFrameCallback(
                             (cb) async {
                               if (v.isEmpty) {
@@ -235,7 +235,7 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
   }
 
   _filter() async {
-    final orderProvider = context.read<MyOrderProvider>();
+    final orderProvider = context.read<OrderProvider>();
     await orderProvider
         .filterOrder(
             !isEnd ? 'end' : 'start', selectedDate.toString().substring(0, 10))

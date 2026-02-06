@@ -152,11 +152,11 @@ class AuthController extends ChangeNotifier {
       await Authenticator.clearSecurity();
       await Authenticator.saveLastLoggedIn(false);
       context.read<HomeProvider>().reset();
-      context.read<BasketProvider>().reset();
+      context.read<CartProvider>().reset();
       context.read<DriverProvider>().reset();
       context.read<JaggerProvider>().reset();
       context.read<LogProvider>().reset();
-      context.read<MyOrderProvider>().reset();
+      context.read<OrderProvider>().reset();
       context.read<PharmProvider>().reset();
       context.read<PromotionProvider>().reset();
       context.read<ReportProvider>().reset();

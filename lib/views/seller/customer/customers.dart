@@ -21,7 +21,7 @@ class _CustomerListState extends State<CustomerList>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     )..repeat(reverse: true);
-    Future.microtask(() => init(false));
+    WidgetsBinding.instance.addPostFrameCallback((_) async => await init());
   }
 
   @override
@@ -30,8 +30,8 @@ class _CustomerListState extends State<CustomerList>
     super.dispose();
   }
 
-  void init(bool force) async {
-    await LoadingService.run(() async {
+  Future init() async {
+    await LoadingService.run(() async { 
       final pharmProvider = context.read<PharmProvider>();
       await await pharmProvider.getCustomers(1, 100, context);
       await pharmProvider.getZones();
@@ -60,7 +60,7 @@ class _CustomerListState extends State<CustomerList>
   Widget customersList(PharmProvider pp, HomeProvider homeProvider) {
     return Expanded(
       child: RefreshIndicator.adaptive(
-        onRefresh: () async => init(true),
+        onRefresh: () async => init(),
         child: ListView.builder(
           itemCount: pp.filteredCustomers.length,
           itemBuilder: (context, ind) {

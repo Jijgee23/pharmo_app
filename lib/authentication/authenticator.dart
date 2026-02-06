@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/controller/database/security.dart';
@@ -28,24 +27,14 @@ class Authenticator {
   static const String _refreshKey = 'refresh';
   static const String _rememberKey = 'remember';
   static const String _splashedKey = 'splashed';
-  static const String _dmTrackKey = 'delmantrack';
+  static const String _dmTrackKey = 'track_id';
   static const String _deviceToken = 'deviceToken';
 
-  static Future initAuthenticator({bool showLog = true}) async {
+  static Future initAuthenticator() async {
     localDb = await Hive.openBox(_boxKey);
     security = await getSecurity();
     hasSpashed = await hasSplashed();
     remember = await getRemember();
-
-    if (showLog) {
-      debugPrint(
-        'local base inited, has user: ${security != null}, splashed: $hasSpashed',
-      );
-    }
-
-    // if (security == null) return;
-    // print(JwtDecoder.decode(security!.access));
-    // print(JwtDecoder.getRemainingTime(security!.access));
   }
 
   static Future removeTokens() async {
@@ -147,24 +136,34 @@ class Authenticator {
     return result;
   }
 
-  static Future saveSellerTrackId() async {
-    localDb = await Hive.openBox(_boxKey);
-    await localDb.delete('seller_track_id');
-    await localDb.put('seller_track_id', 1);
-    await localDb.flush();
-  }
+  // static Future saveSellerTrackId() async {
+  //   localDb = await Hive.openBox(_boxKey);
+  //   await localDb.delete('seller_track_id');
+  //   await localDb.put('seller_track_id', 1);
+  //   await localDb.put('seller_track_date', DateTime.now().toIso8601String());
+  //   await localDb.flush();
+  // }
 
-  static Future<bool> hasSellerTrack() async {
-    localDb = await Hive.openBox(_boxKey);
-    var id = localDb.get('seller_track_id', defaultValue: 0);
-    // print("seller track id: $id");
-    return id != 0;
-  }
+  // static Future<DateTime> getSellerTrackDate() async {
+  //   localDb = await Hive.openBox(_boxKey);
+  //   var date = localDb.get(
+  //     'seller_track_date',
+  //     defaultValue: DateTime.now().toIso8601String(),
+  //   );
+  //   return DateTime.parse(date);
+  // }
 
-  static Future removeSellerTrackId() async {
-    localDb = await Hive.openBox(_boxKey);
-    await localDb.delete('seller_track_id');
-  }
+  // static Future<bool> hasSellerTrack() async {
+  //   localDb = await Hive.openBox(_boxKey);
+  //   var id = localDb.get('seller_track_id', defaultValue: 0);
+  //   // print("seller track id: $id");
+  //   return id != 0;
+  // }
+
+  // static Future removeSellerTrackId() async {
+  //   localDb = await Hive.openBox(_boxKey);
+  //   await localDb.delete('seller_track_id');
+  // }
 
   static Future saveSplashed(bool value) async {
     localDb = await Hive.openBox(_boxKey);
@@ -203,25 +202,26 @@ class Authenticator {
     await localDb.flush();
   }
 
-  static Future saveDelmanTrack(int id) async {
+  static Future saveTrackId(int id) async {
     localDb = await Hive.openBox(_boxKey);
     localDb.put(_dmTrackKey, id);
+    await getTrackId();
     await localDb.flush();
   }
 
-  static Future<int> getDelmanTrackId() async {
+  static Future<int> getTrackId() async {
     localDb = await Hive.openBox(_boxKey);
     int id = await localDb.get(_dmTrackKey, defaultValue: 0);
     return id;
   }
 
-  static Future<bool> hasDelmanTrack() async {
+  static Future<bool> hasTrack() async {
     localDb = await Hive.openBox(_boxKey);
     int trackId = await localDb.get(_dmTrackKey, defaultValue: 0);
     return trackId != 0;
   }
 
-  static Future clearDelmanTrack() async {
+  static Future clearTrackId() async {
     localDb = await Hive.openBox(_boxKey);
     await localDb.delete(_dmTrackKey);
   }

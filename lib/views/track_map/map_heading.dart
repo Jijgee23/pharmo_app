@@ -88,57 +88,60 @@ class _LiveTrackingIndicatorState extends State<_LiveTrackingIndicator>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.teal.withOpacity(0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(
-          color: Colors.teal.withOpacity(0.3),
-          width: 1.5,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedBuilder(
-            animation: _dotAnimation,
-            builder: (context, child) {
-              return Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.teal.withOpacity(_dotAnimation.value),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.teal.withOpacity(0.4 * _dotAnimation.value),
-                      blurRadius: 6 * _dotAnimation.value,
-                      spreadRadius: 1 * _dotAnimation.value,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            'LIVE',
-            style: TextStyle(
-              color: Colors.teal,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              letterSpacing: 1,
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.teal.withOpacity(0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
+          ],
+          border: Border.all(
+            color: Colors.teal.withOpacity(0.3),
+            width: 1.5,
           ),
-        ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedBuilder(
+              animation: _dotAnimation,
+              builder: (context, child) {
+                return Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.teal.withOpacity(_dotAnimation.value),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.teal.withOpacity(0.4 * _dotAnimation.value),
+                        blurRadius: 6 * _dotAnimation.value,
+                        spreadRadius: 1 * _dotAnimation.value,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'LIVE',
+              style: TextStyle(
+                color: Colors.teal,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

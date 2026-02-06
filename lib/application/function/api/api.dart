@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/application/application.dart';
 
 Future<http.Response?> api(
@@ -14,29 +12,9 @@ Future<http.Response?> api(
   try {
     final hasInternet = await NetworkChecker.hasInternet();
     if (!hasInternet) return null;
-    await Authenticator.initAuthenticator(showLog: false);
+    await Authenticator.initAuthenticator();
     final security = Authenticator.security;
     if (security == null) return null;
-
-    // Access token хөөлөн expires болсон тэмэл нэхэх
-    if (JwtDecoder.isExpired(security.access)) {
-      if (JwtDecoder.isExpired(security.refresh)) {
-        await showLogoutDialog(Get.context!,
-            'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!');
-        return null;
-      }
-      if (!await refreshed()) {
-        await showLogoutDialog(
-          Get.context!,
-          'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!',
-        );
-        return null;
-      }
-      // Шинэ token-ийг хадсан Security-с авах
-      final updated = await Authenticator.getSecurity();
-      if (updated == null) return null;
-      return responser(method, endpoint, updated.access, body, header);
-    }
 
     final res =
         await responser(method, endpoint, security.access, body, header);
@@ -50,14 +28,24 @@ Future<http.Response?> api(
     if (res.statusCode == 401) {
       final code = convertData(res)['code'];
       if (code == "token_not_valid") {
-        if (await refreshed()) {
+        print('token_not_valid');
+        bool refreshSuccess = await refreshed();
+        print("Refresh success: $refreshSuccess");
+        if (refreshSuccess) {
           final updated = await Authenticator.getSecurity();
           if (updated != null) {
             return responser(method, endpoint, updated.access, body, header);
           }
         }
+        LoadingService.hide();
+        await showLogoutDialog(
+          Get.context!,
+          'Хэрэглэгчийн хандах эрх дууссан байна! \n Нэвтэрнэ үү!',
+        );
+        return null;
       }
       if (code == "authentication_failed") {
+        LoadingService.hide();
         await showLogoutDialog(
           Get.context!,
           'Өөр төхөөрөмжөөс нэвтэрсэн байна! \n Нэвтэрнэ үү!',
@@ -166,21 +154,23 @@ Future<http.Response> responser(
     case Api.delete:
       res = await client.delete(url, headers: headers, body: jsonEncode(body));
   }
-  if (kDebugMode && res.statusCode != 200 && res.statusCode != 201) {
-    debugPrint('[$endpoint] status: ${res.statusCode} body: ${res.body}');
-  }
+  // if (kDebugMode) {
+  //   debugPrint('[$endpoint] status: ${res.statusCode} body: ${res.body}');
+  // }
   return res;
 }
 
 Future<bool> refreshed() async {
-  final hasInternet = await NetworkChecker.hasInternet();
-  if (!hasInternet) return false;
+  // final hasInternet = await NetworkChecker.hasInternet();
+  // if (!hasInternet) return false;
   await Authenticator.initAuthenticator();
   final user = Authenticator.security;
   if (user == null) return false;
   try {
-    final response =
-        await apiPostWithoutToken('auth/refresh/', {"refresh": user.refresh});
+    final response = await apiPostWithoutToken(
+      'auth/refresh/',
+      {"refresh": user.refresh},
+    );
     if (response == null || !apiSucceess(response)) return false;
     await Authenticator.updateAccess(convertData(response)['access']);
     return true;

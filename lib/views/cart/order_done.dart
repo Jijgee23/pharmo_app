@@ -15,12 +15,12 @@ class _OrderDoneState extends State<OrderDone> {
     super.initState();
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        goHome(context.read<BasketProvider>());
+        goHome(context.read<CartProvider>());
       }
     });
   }
 
-  goHome(BasketProvider provider) async {
+  goHome(CartProvider provider) async {
     final home = context.read<HomeProvider>();
     await home.changeIndex(0);
     await provider.clearBasket();
@@ -36,7 +36,7 @@ class _OrderDoneState extends State<OrderDone> {
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Consumer<BasketProvider>(
+          child: Consumer<CartProvider>(
             builder: (context, provider, _) {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -60,7 +60,7 @@ class _OrderDoneState extends State<OrderDone> {
                       padding: EdgeInsets.all(10),
                       child: Center(
                         child: Image.asset(
-                          'assets/stickers/verified.gif',
+                          AssetIcon.orderSuccess,
                           width: 100,
                         ),
                       ),

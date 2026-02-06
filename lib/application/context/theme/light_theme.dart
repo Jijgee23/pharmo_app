@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/color/colors.dart';
+import 'package:pharmo_app/application/context/theme/color/colors.dart';
 
 final lightTheme = ThemeData(
   primaryColor: primary,
@@ -31,16 +31,13 @@ final lightTheme = ThemeData(
   ),
   appBarTheme: AppBarTheme(
     backgroundColor: Colors.white,
-    surfaceTintColor: Colors
-        .white, // Material 3 дээр scroll хийхэд өнгө өөрчлөгдөхөөс сэргийлнэ
-    elevation: 0, // Илүү цэвэрхэн харагдуулахын тулд 0 болгов
-    scrolledUnderElevation:
-        0.5, // Scroll хийх үед маш бүдэг сүүдэр эсвэл зураас гарна
+    surfaceTintColor: Colors.white,
+    elevation: 0,
+    scrolledUnderElevation: 0.5,
     shadowColor: Colors.grey.withOpacity(0.2),
     centerTitle: false,
     iconTheme: const IconThemeData(
-      color: Color(
-          0xFF1A1A1A), // Цэвэр хар биш, гүн саарал (Deep Charcoal) нь илүү дээд зэрэглэлийн харагддаг
+      color: Color(0xFF1A1A1A),
       size: 24,
     ),
     actionsIconTheme: const IconThemeData(
@@ -48,13 +45,13 @@ final lightTheme = ThemeData(
       size: 24,
     ),
     titleTextStyle: const TextStyle(
-      fontSize: 18, // 16 байсныг 18 болговол гарчиг илүү тод харагдана
+      fontSize: 18,
       color: Color(0xFF1A1A1A),
-      fontWeight: FontWeight.w700, // Bold-оос арай зөөлөн боловч тод
-      letterSpacing: -0.5, // Текстүүд хоорондоо илүү нягт, цэгцтэй харагдана
-      fontFamily: 'Inter', // Хэрэв та Inter эсвэл Roboto ашигладаг бол
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.5,
+      fontFamily: 'Inter',
     ),
-    toolbarHeight: 64, // Бага зэрэг өндөр болгосноор "амьсгалах" зай ихэснэ
+    toolbarHeight: 64,
   ),
 
   inputDecorationTheme: const InputDecorationTheme(
@@ -63,7 +60,6 @@ final lightTheme = ThemeData(
     ),
     focusedBorder: InputBorder.none,
     border: InputBorder.none,
-    // labelStyle: TextStyle(color: primary),
   ),
   checkboxTheme: CheckboxThemeData(
     checkColor: WidgetStateProperty.all(primary),

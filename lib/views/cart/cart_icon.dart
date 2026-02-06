@@ -11,7 +11,7 @@ class CartIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<HomeProvider, BasketProvider>(
+    return Consumer2<HomeProvider, CartProvider>(
       builder: (context, home, basket, child) {
         Widget iconWidget = type == CartIconType.floating
             ? FloatingActionButton(

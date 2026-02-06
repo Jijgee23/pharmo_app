@@ -1,13 +1,7 @@
-import 'package:pharmo_app/application/function/utilities/utils.dart';
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/REPMAN/home.dart';
 import 'package:pharmo_app/views/profile/profile.dart';
 import 'package:pharmo_app/views/REPMAN/see_map.dart';
-import 'package:pharmo_app/widgets/appbar/custom_app_bar.dart';
-import 'package:pharmo_app/widgets/bottomSheet/my_sheet.dart';
-import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_filed.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
 
 class IndexRep extends StatefulWidget {
   const IndexRep({super.key});
@@ -17,10 +11,10 @@ class IndexRep extends StatefulWidget {
 }
 
 class _IndexRepState extends State<IndexRep> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
 
   List<Widget> pages = [RepHome(), Profile()];
 
@@ -80,5 +74,5 @@ class _IndexRepState extends State<IndexRep> {
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
   }
 
-  List<String> icons = ['category', 'user'];
+  List<String> icons = [AssetIcon.category, AssetIcon.user];
 }

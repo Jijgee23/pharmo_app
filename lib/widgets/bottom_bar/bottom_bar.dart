@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/size/sizes.dart';
+import 'package:pharmo_app/application/context/theme/size/sizes.dart';
 import 'package:provider/provider.dart';
 import '../../controller/providers/home_provider.dart';
 
@@ -100,7 +100,7 @@ class BottomBarItem extends StatelessWidget {
                       ),
                     ),
                   Image.asset(
-                    'assets/icons_2/$icon.png',
+                    icon,
                     height: 24,
                     width: 24,
                     color: isSelected ? activeColor : inactiveColor,

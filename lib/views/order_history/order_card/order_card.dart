@@ -12,7 +12,7 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MyOrderProvider>(
+    return Consumer<OrderProvider>(
       builder: (context, provider, child) {
         bool isPharma = Authenticator.security!.isPharmacist;
         return Padding(
@@ -53,7 +53,7 @@ class OrderCard extends StatelessWidget {
 
   Widget _buildOrderCard(
     BuildContext context,
-    MyOrderProvider provider,
+    OrderProvider provider,
     bool isPharma,
   ) {
     return Material(
@@ -130,7 +130,7 @@ class OrderCard extends StatelessWidget {
 
   Widget _buildBody(
     BuildContext context,
-    MyOrderProvider provider,
+    OrderProvider provider,
     bool isPharma,
   ) {
     return Padding(
@@ -192,7 +192,7 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, MyOrderProvider provider) async {
+  void _showDeleteDialog(BuildContext context, OrderProvider provider) async {
     final confirmed = await confirmDialog(
       context: context,
       title: 'Захиалга устгах уу?',

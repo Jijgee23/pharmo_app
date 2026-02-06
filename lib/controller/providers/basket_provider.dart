@@ -1,6 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
 
-class BasketProvider extends ChangeNotifier {
+class CartProvider extends ChangeNotifier {
   final TextEditingController qty = TextEditingController();
   void setQTYvalue(String n) {
     qty.text = n;

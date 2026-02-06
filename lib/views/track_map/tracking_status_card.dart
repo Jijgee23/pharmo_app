@@ -14,8 +14,12 @@ class TrackingStatusCard extends StatelessWidget {
         // final isDriver = Authenticator.security!.isDriver;
         final trackDatas = jagger.trackDatas;
         final distance = _calculateTotalDistance(trackDatas, jagger);
-        final duration =
-            _formatDuration(jagger.now, jagger.delivery?.startedOn);
+        final duration = _formatDuration(
+          jagger.now,
+          Authenticator.security!.isSaler
+              ? jagger.salerStartedOn
+              : jagger.delivery?.startedOn,
+        );
 
         return Positioned(
           top: 100,
@@ -29,107 +33,113 @@ class TrackingStatusCard extends StatelessWidget {
                     : CrossFadeState.showFirst,
                 duration: const Duration(milliseconds: 300),
                 secondChild: const SizedBox.shrink(),
-                firstChild: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          _buildPulsingIndicator(),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Байршил дамжуулж байна',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.teal,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildStatItem(
-                            icon: Icons.timer_outlined,
-                            value: duration,
-                            label: 'Хугацаа',
-                            color: Colors.blue,
-                          ),
-                          _buildDivider(),
-                          _buildStatItem(
-                            icon: Icons.straighten,
-                            value: _formatDistance(distance),
-                            label: 'Зай',
-                            color: Colors.orange,
-                          ),
-                          _buildDivider(),
-                          _buildStatItem(
-                            icon: Icons.speed,
-                            value:
-                                '${_calculateSpeed(distance, jagger).toStringAsFixed(1)} км/ц',
-                            label: 'Дундаж хурд',
-                            color: Colors.green,
-                          ),
-                        ],
-                      ),
-                      if (trackDatas.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        _buildProgressBar(trackDatas, jagger),
+                firstChild: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
                       ],
-                    ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            _buildPulsingIndicator(),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Байршил дамжуулж байна',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.teal,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStatItem(
+                              icon: Icons.timer_outlined,
+                              value: duration,
+                              label: 'Хугацаа',
+                              color: Colors.blue,
+                            ),
+                            _buildDivider(),
+                            _buildStatItem(
+                              icon: Icons.straighten,
+                              value: _formatDistance(distance),
+                              label: 'Зай',
+                              color: Colors.orange,
+                            ),
+                            _buildDivider(),
+                            _buildStatItem(
+                              icon: Icons.speed,
+                              value:
+                                  '${_calculateSpeed(distance, jagger).toStringAsFixed(1)} км/ц',
+                              label: 'Дундаж хурд',
+                              color: Colors.green,
+                            ),
+                          ],
+                        ),
+                        if (trackDatas.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          _buildProgressBar(trackDatas, jagger),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: jagger.toggleShowing,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        jagger.isShowingTrackingInfo
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        size: 16,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        jagger.isShowingTrackingInfo ? 'Харуулах' : 'Нуух',
-                        style: TextStyle(
-                          fontSize: 12,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          jagger.isShowingTrackingInfo
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          size: 16,
                           color: Colors.grey[600],
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 4),
+                        Text(
+                          jagger.isShowingTrackingInfo ? 'Харуулах' : 'Нуух',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

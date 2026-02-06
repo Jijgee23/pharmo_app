@@ -12,8 +12,8 @@ class QRCode extends StatefulWidget {
 class _QRCodeState extends State<QRCode> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<BasketProvider>(builder: (context, provider, _) {
-      List? urls = provider.qrCode.urls;
+    return Consumer<CartProvider>(builder: (context, cart, _) {
+      List? urls = cart.qrCode.urls;
       return Scaffold(
         appBar: const SideAppBar(text: 'Бэлнээр төлөх'),
         body: Container(
@@ -36,13 +36,13 @@ class _QRCodeState extends State<QRCode> {
                       ),
                       Center(
                           child: QrImageView(
-                        data: provider.qrCode.qrTxt.toString(),
+                        data: cart.qrCode.qrTxt.toString(),
                         size: 200,
                       )),
-                      info('Төлөх дүн:', toPrice(provider.qrCode.totalPrice),
+                      info('Төлөх дүн:', toPrice(cart.qrCode.totalPrice),
                           color: secondary),
                       info('Нийт тоо ширхэг:',
-                          provider.qrCode.totalCount.toString()),
+                          cart.qrCode.totalCount.toString()),
                       Container(
                         width: double.maxFinite,
                         decoration: BoxDecoration(
@@ -74,7 +74,7 @@ class _QRCodeState extends State<QRCode> {
           height: 60,
           child: CustomButton(
             text: 'Төлбөр шалгах',
-            ontap: () async => await provider.checkPayment(),
+            ontap: () async => await cart.checkPayment(),
           ),
         ),
       );

@@ -202,8 +202,8 @@ Future<void> addBasket(Product item, double qty, BuildContext context) async {
   await LoadingService.run(
     () async {
       try {
-        final basketProvider = context.read<BasketProvider>();
-        await basketProvider.addProduct(item.id, item.name ?? 'Бараа', qty);
+        final cart = context.read<CartProvider>();
+        await cart.addProduct(item.id, item.name ?? 'Бараа', qty);
       } catch (e) {
         throw Exception(e);
       }

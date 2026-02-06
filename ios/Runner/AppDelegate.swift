@@ -19,31 +19,39 @@ import UserNotifications
         // Google Maps API
         GMSServices.provideAPIKey("AIzaSyA0hFR0VJcj140Z5aXu1pfrQpxbVfmL6DI")
 
-        // Get messenger (same as Android: flutterEngine.dartExecutor.binaryMessenger)
+        // ✅ Match Android: Get messenger (flutterEngine.dartExecutor.binaryMessenger)
         guard let controller = window?.rootViewController as? FlutterViewController else {
             return super.application(application, didFinishLaunchingWithOptions: launchOptions)
         }
         let messenger = controller.binaryMessenger
 
-        // ✅ Initialize handlers (matches Android: locationStreamHandler = LocationStreamHandler(this))
+        // ✅ Match Android: Initialize handlers
+        // Android: locationStreamHandler = LocationStreamHandler(this)
+        // Android: batteryHandler = BatteryHandler(this)
         locationHandler = LocationHandler()
         batteryHandler = BatteryHandler()
 
-        // ✅ Setup Location Event Channel
+        // ✅ Match Android: Setup Location Event Channel
+        // Android: EventChannel(flutterEngine.dartExecutor.binaryMessenger, LOCATION_EVENT_CHANNEL)
+        //         .setStreamHandler(locationStreamHandler)
         let bgLocationChannel = FlutterEventChannel(
             name: AppConstants.LOCATION_EVENT_CHANNEL,
             binaryMessenger: messenger
         )
         bgLocationChannel.setStreamHandler(locationHandler)
 
-        // ✅ Setup Battery Event Channel
+        // ✅ Match Android: Setup Battery Event Channel
+        // Android: EventChannel(flutterEngine.dartExecutor.binaryMessenger, BATTERY_EVENT_CHANNEL)
+        //         .setStreamHandler(batteryHandler)
         let batteryChannel = FlutterEventChannel(
             name: AppConstants.BATTERY_EVENT_CHANNEL,
             binaryMessenger: messenger
         )
         batteryChannel.setStreamHandler(batteryHandler)
 
-        // ✅ Setup Location Control Method Channel (matches Android MethodChannel)
+        // ✅ Match Android: Setup Location Control Method Channel
+        // Android: MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LOCATION_CONTROL_CHANNEL)
+        //         .setMethodCallHandler { call, result -> ... }
         let locationControlChannel = FlutterMethodChannel(
             name: AppConstants.LOCATION_CONTROL_CHANNEL,
             binaryMessenger: messenger
@@ -55,6 +63,7 @@ import UserNotifications
                 return
             }
 
+            // ✅ Match Android: when (call.method) { "start" -> ..., "stop" -> ..., "isRunning" -> ... }
             switch call.method {
             case "start":
                 let started = self.startLocationService()
@@ -96,28 +105,45 @@ import UserNotifications
         )
     }
 
-    // ================= METHOD CHANNEL HANDLERS =================
-    // (Matches Android: startLocationService, stopLocationService, isLocationServiceRunning)
+    // ================= METHOD CHANNEL HANDLERS - EXACT MATCH WITH Android =================
 
+    // Match Android: private fun startLocationService(): Boolean
     private func startLocationService() -> Bool {
-        // In iOS, we don't have separate Service like Android
-        // Location updates are controlled by LocationHandler.onListen()
-        // This is just for API compatibility
-        print("✅ startLocationService called (iOS uses onListen)")
+        // ✅ Match Android behavior:
+        // Android starts actual Service with: ContextCompat.startForegroundService(this, intent)
+        // iOS doesn't have Services, but we can verify handler is ready
+        
+        print("✅ startLocationService called")
+        
+        // In iOS, location is actually started by LocationHandler.onListen()
+        // This method is just for API compatibility with Android
+        
+        if locationHandler == nil {
+            print("❌ LocationHandler is nil")
+            return false
+        }
+        
+        print("✅ LocationHandler is ready (actual start happens via onListen)")
         return true
     }
 
+    // Match Android: private fun stopLocationService(): Boolean
     private func stopLocationService() -> Bool {
-        // In iOS, stopping is handled by LocationHandler.onCancel()
-        // This is just for API compatibility
-        print("✅ stopLocationService called (iOS uses onCancel)")
-
-        // Clear EventSink (matches Android: LocationService.setEventSink(null))
+        print("✅ stopLocationService called")
+        
+        // ✅ Match Android: LocationService.setEventSink(null)
         LocationHandler.clearEventSink()
+        
+        // In iOS, location is actually stopped by LocationHandler.onCancel()
+        // This method is just for API compatibility with Android
+        
+        print("✅ EventSink cleared (actual stop happens via onCancel)")
         return true
     }
 
+    // Match Android: private fun isLocationServiceRunning(): Boolean
     private func isLocationServiceRunning() -> Bool {
+        // ✅ Match Android: return LocationService.isRunning()
         let isRunning = LocationHandler.isRunning()
         print("📊 isLocationServiceRunning: \(isRunning)")
         return isRunning
@@ -135,22 +161,31 @@ import UserNotifications
 
     override func applicationWillTerminate(_ application: UIApplication) {
         print("🛑 App terminating")
+        
+        // Clean up (match Android onDestroy behavior)
+        LocationHandler.clearEventSink()
         locationHandler = nil
         batteryHandler = nil
     }
 }
 
 // ============================================
-// APP CONSTANTS
-// (Matches Android companion object in MainActivity)
+// APP CONSTANTS - EXACT MATCH WITH Android companion object
 // ============================================
 
 struct AppConstants {
+    // ✅ Match Android MainActivity companion object EXACTLY:
+    // companion object {
+    //     private val LOCATION_CONTROL_CHANNEL = "location_control"
+    //     private val LOCATION_EVENT_CHANNEL = "bg_location_stream"
+    //     private val BATTERY_EVENT_CHANNEL = "batteryStream"
+    // }
+    
     static let LOCATION_CONTROL_CHANNEL = "location_control"
     static let LOCATION_EVENT_CHANNEL = "bg_location_stream"
     static let BATTERY_EVENT_CHANNEL = "batteryStream"
 
-    // Legacy names for compatibility (can remove later)
+    // Legacy names for backward compatibility (can be removed)
     static let batteryChannelName = BATTERY_EVENT_CHANNEL
     static let bgLocationChannelName = LOCATION_EVENT_CHANNEL
 }

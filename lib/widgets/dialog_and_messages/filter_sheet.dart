@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pharmo_app/application/context/size/sizes.dart';
+import 'package:pharmo_app/application/context/theme/size/sizes.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 
-import '../../application/context/color/colors.dart';
+import '../../application/context/theme/color/colors.dart';
 
 typedef FilterContentBuilder = List<Widget> Function(
     BuildContext context, StateSetter setModalState);

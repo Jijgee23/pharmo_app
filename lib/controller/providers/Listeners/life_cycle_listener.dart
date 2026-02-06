@@ -27,7 +27,7 @@ class LifeCycleListener extends ChangeNotifier
       await jagger.loadPermission();
     }
     if (state == AppLifecycleState.paused) {
-      bool isSharingLocation = await hasTrack();
+      bool isSharingLocation = await Authenticator.hasTrack();
       if (isSharingLocation) {
         final logType =
             Authenticator.security!.isSaler ? 'Борлуулалт' : 'Түгээлт';
@@ -37,23 +37,21 @@ class LifeCycleListener extends ChangeNotifier
         );
       }
     }
-    if (state == AppLifecycleState.resumed) {
-      resumeWhenHasTrack(state);
+    if (state == AppLifecycleState.resumed ||
+        state == AppLifecycleState.inactive) {
+      print('APP RESUMED, HAS CONTEXT: ${context != null} ');
+      if (context != null) resumeWhenHasTrack(context);
     }
   }
 
-  void resumeWhenHasTrack(AppLifecycleState state) async {
-    Security? security = Authenticator.security;
-    if (security == null || (security != null && security.role == 'PA')) {
+  void resumeWhenHasTrack(BuildContext context) async {
+    final security = Authenticator.security;
+    if (security != null && security.isTracker) {
+      print('APP RESUMED, CHECKING TRACK STATE...');
+      final jagger = context.read<JaggerProvider>();
+      await jagger.tracking();
       return;
     }
-    Future.microtask(
-      () async {
-        await GlobalKeys.navigatorKey.currentContext!
-            .read<JaggerProvider>()
-            .tracking();
-      },
-    );
   }
 
   @override

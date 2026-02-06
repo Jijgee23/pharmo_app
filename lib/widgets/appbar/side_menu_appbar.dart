@@ -37,10 +37,10 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<HomeProvider, BasketProvider>(
-      builder: (_, home, basket, child) {
+    return Consumer2<HomeProvider, CartProvider>(
+      builder: (_, home, cart, child) {
         return ChangeNotifierProvider(
-          create: (context) => BasketProvider(),
+          create: (context) => CartProvider(),
           child: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
             child: AppBar(

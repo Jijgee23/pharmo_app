@@ -1,3 +1,4 @@
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/track_map/track_map.dart';
 import 'package:pharmo_app/views/DRIVER/ready_orders/ready_orders.dart';
 import 'package:pharmo_app/views/profile/delivery_profile.dart';
@@ -27,6 +28,6 @@ class _IndexDriverState extends State<IndexDriver> {
 
   final List _pages = [TrackMap(), ReadyOrders(), DeliveryProfile()];
 
-  List<String> icons = ['marker', 'box-check', 'user'];
+  List<String> icons = [AssetIcon.marker, AssetIcon.boxCheck, AssetIcon.user];
   List<String> labels = ['Map', 'Захиалгууд', 'Профайл'];
 }

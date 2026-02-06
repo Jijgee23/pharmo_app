@@ -25,8 +25,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer3<HomeProvider, BasketProvider, AuthController>(
-      builder: (_, homeprovider, basketProvider, auth, child) {
+    return Consumer3<HomeProvider, CartProvider, AuthController>(
+      builder: (_, homeprovider, cart, auth, child) {
         final security = Authenticator.security;
         if (security == null) {
           return PreferredSize(

@@ -353,7 +353,7 @@ class HomeProvider extends ChangeNotifier {
       await Authenticator.updateStock(sup.id, stock.id);
       await Authenticator.initAuthenticator();
       final promotion = context.read<PromotionProvider>();
-      final basket = context.read<BasketProvider>();
+      final basket = context.read<CartProvider>();
       await promotion.getMarkedPromotion();
       await getFilters();
       await basket.getBasket();
@@ -424,7 +424,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   Future createSellerOrder(BuildContext context, String type) async {
-    final basket = Provider.of<BasketProvider>(context, listen: false);
+    final basket = Provider.of<CartProvider>(context, listen: false);
     try {
       var body = {
         'customer_id': customer!.id,

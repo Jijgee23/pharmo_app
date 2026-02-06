@@ -11,8 +11,8 @@ class _CartInfoState extends State<CartInfo> {
   @override
   Widget build(BuildContext context) {
     // Дата өөрчлөгдөх бүрт UI шинэчлэгдэхийн тулд listen: true (Default) ашиглана
-    final basketProvider = Provider.of<BasketProvider>(context);
-    final basket = basketProvider.basket;
+    final cartProvider = Provider.of<CartProvider>(context);
+    final basket = cartProvider.basket;
 
     void clearBasket() async {
       final confirmed = await confirmDialog(
@@ -20,8 +20,8 @@ class _CartInfoState extends State<CartInfo> {
         context: context,
       );
       if (confirmed) {
-        await basketProvider.clearBasket();
-        await basketProvider.getBasket();
+        await cartProvider.clearBasket();
+        await cartProvider.getBasket();
       }
     }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/size/sizes.dart';
+import 'package:pharmo_app/application/context/theme/size/sizes.dart';
 
 class AuthText extends StatelessWidget {
   final String text;

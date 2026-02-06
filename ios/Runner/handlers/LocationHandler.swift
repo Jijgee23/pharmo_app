@@ -1,7 +1,3 @@
-// ============================================
-// iOS LOCATION HANDLER - Matches Android LocationService
-// Added static methods: isRunning(), clearEventSink()
-// ============================================
 
 import CoreLocation
 import Flutter
@@ -11,8 +7,6 @@ import os.log
 class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler {
 
     private var locationManager: CLLocationManager = CLLocationManager()
-
-    // ✅ Match Android: private var eventSink: EventChannel.EventSink? = null
     private var eventSink: FlutterEventSink?
 
     // Filtering components
@@ -26,31 +20,34 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
     private var totalRejected = 0
 
     // ✅ Match Android: @Volatile private var isRunningFlag = false
-    private static var isRunningFlag = false
-
+    private static var isRunningFlagLock = NSLock()
+    private static var _isRunningFlag = false
+    
     // ✅ Match Android: @Volatile private var eventSink: EventChannel.EventSink? = null
-    private static var sharedEventSink: FlutterEventSink?
+    private static var sharedEventSinkLock = NSLock()
+    private static var _sharedEventSink: FlutterEventSink?
 
-    // Configuration - synchronized with Android
+    // Configuration - EXACTLY synchronized with Android
     private let maxAccuracyMeters: CLLocationAccuracy = 30.0
     private let minDistanceMeters: CLLocationDistance = 10.0
     private let minTimeBetweenUpdatesSeconds: TimeInterval = 3.0
-    private let gpsDriftThreshold: CLLocationDistance = 8.0
+    private let gpsDriftThreshold: CLLocationDistance = 12.0
 
-    // Speed thresholds (m/s)
+    // Speed thresholds (m/s) - EXACT match with Android
     private let highSpeedThreshold: CLLocationSpeed = 16.7  // 60 km/h
     private let mediumSpeedThreshold: CLLocationSpeed = 8.3  // 30 km/h
     private let lowSpeedThreshold: CLLocationSpeed = 2.8  // 10 km/h
     private let minSpeedThreshold: CLLocationSpeed = 0.5  // 1.8 km/h
 
-    // Distance thresholds
+    // Distance thresholds - EXACT match with Android
     private let highSpeedDistance: CLLocationDistance = 200.0
     private let mediumSpeedDistance: CLLocationDistance = 100.0
     private let normalSpeedDistance: CLLocationDistance = 50.0
     private let walkingSpeedDistance: CLLocationDistance = 15.0
 
-    // GPS jump detection
+    // GPS jump detection - EXACT match with Android
     private let maxSpeedMs: CLLocationSpeed = 50.0  // 180 km/h
+    private let maxAccuracyForValidation: CLLocationAccuracy = 20.0 // Match Android: MAX_ACCURACY = 20f
 
     private let logger = OSLog(subsystem: "mn.infosystems.pharmo", category: "LocationTracking")
 
@@ -74,26 +71,46 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
         os_log("✅ LocationManager configured", log: logger, type: .info)
     }
 
-    // ================= STATIC METHODS (Match Android companion object) =================
+    // ================= STATIC METHODS - EXACT MATCH WITH Android companion object =================
 
     // Match Android: fun isRunning(): Boolean = isRunningFlag
     static func isRunning() -> Bool {
-        return isRunningFlag
+        isRunningFlagLock.lock()
+        defer { isRunningFlagLock.unlock() }
+        return _isRunningFlag
+    }
+    
+    private static func setRunning(_ value: Bool) {
+        isRunningFlagLock.lock()
+        defer { isRunningFlagLock.unlock() }
+        _isRunningFlag = value
     }
 
-    // Match Android: fun setEventSink(sink: EventChannel.EventSink?)
+    // Match Android: @Synchronized fun setEventSink(sink: EventChannel.EventSink?)
     @objc static func setEventSink(_ sink: FlutterEventSink?) {
-        sharedEventSink = sink
+        sharedEventSinkLock.lock()
+        defer { sharedEventSinkLock.unlock() }
+        _sharedEventSink = sink
         print(sink != nil ? "✅ EventSink SET (not null)" : "⚠️ EventSink CLEARED (null)")
+    }
+    
+    private static func getEventSink() -> FlutterEventSink? {
+        sharedEventSinkLock.lock()
+        defer { sharedEventSinkLock.unlock() }
+        return _sharedEventSink
+    }
+
+    // Match Android: fun hasEventSink(): Boolean = eventSink != null
+    static func hasEventSink() -> Bool {
+        return getEventSink() != nil
     }
 
     // Match Android: LocationService.setEventSink(null)
     @objc static func clearEventSink() {
-        sharedEventSink = nil
-        print("⚠️ EventSink CLEARED (null)")
+        setEventSink(nil)
     }
 
-    // ================= FLUTTER STREAM HANDLER =================
+    // ================= FLUTTER STREAM HANDLER - MATCH Android onListen/onCancel =================
 
     func onListen(
         withArguments arguments: Any?,
@@ -101,15 +118,25 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
     ) -> FlutterError? {
         os_log("📡 onListen called - Setting EventSink", log: logger, type: .info)
 
-        // ✅ Match Android: self.eventSink = events
+        // ✅ Match Android: eventSink = events
         self.eventSink = events
-        LocationHandler.sharedEventSink = events
+        LocationHandler.setEventSink(events)
 
-        // ✅ Match Android: LocationHandler.isRunning = true (but we use isRunningFlag)
-        LocationHandler.isRunningFlag = true
+        // ✅ Match Android: isRunningFlag = true
+        LocationHandler.setRunning(true)
         os_log("✅ isRunningFlag = true", log: logger, type: .info)
 
-        // Reset filters (match Android)
+        // ✅ Match Android: Wait a bit for EventSink confirmation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            if !LocationHandler.hasEventSink() {
+                os_log("⚠️ EventSink still null after 200ms", log: self.logger, type: .error)
+                os_log("Make sure EventChannel.listen() is called BEFORE starting service", log: self.logger, type: .error)
+            } else {
+                os_log("✅ EventSink confirmed ready", log: self.logger, type: .info)
+            }
+        }
+
+        // Reset filters (match Android onCreate behavior)
         kalmanFilter.reset()
         lastAcceptedLocation = nil
         lastBroadcastTime = nil
@@ -120,7 +147,7 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
         // Request authorization
         locationManager.requestAlwaysAuthorization()
 
-        // Start location updates
+        // Start location updates (match Android startLocationUpdates)
         locationManager.startMonitoringSignificantLocationChanges()
         locationManager.startUpdatingLocation()
 
@@ -132,19 +159,20 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
         os_log("🛑 onCancel called", log: logger, type: .info)
 
-        // ✅ Match Android: LocationHandler.isRunning = false
-        LocationHandler.isRunningFlag = false
+        // ✅ Match Android: isRunningFlag = false
+        LocationHandler.setRunning(false)
         os_log("✅ isRunningFlag = false", log: logger, type: .info)
 
+        // Stop location updates (match Android stopLocationUpdates)
         locationManager.stopUpdatingLocation()
         locationManager.stopMonitoringSignificantLocationChanges()
 
-        // Log final statistics
+        // Log final statistics (match Android onDestroy)
         logStatistics()
 
-        // ✅ Match Android: self.eventSink = null
+        // ✅ Match Android: setEventSink(null)
+        LocationHandler.setEventSink(nil)
         self.eventSink = nil
-        LocationHandler.sharedEventSink = nil
         self.lastAcceptedLocation = nil
         self.lastBroadcastTime = nil
 
@@ -160,7 +188,7 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
         locationManager.startMonitoringSignificantLocationChanges()
     }
 
-    // ================= LOCATION DELEGATE =================
+    // ================= LOCATION DELEGATE - EXACT MATCH WITH Android onLocationChanged =================
 
     func locationManager(
         _ manager: CLLocationManager,
@@ -168,20 +196,25 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
     ) {
         totalReceived += 1
 
-        // ✅ Match Android: guard let sink = eventSink
-        guard let sink = eventSink ?? LocationHandler.sharedEventSink else {
+        // ✅ Match Android: val sink = eventSink; if (sink == null)
+        let sink = self.eventSink ?? LocationHandler.getEventSink()
+        
+        if sink == nil {
+            // Match Android: Only log every 10th attempt to avoid spam
             if totalReceived % 10 == 1 {
                 os_log(
                     """
                     ⚠️ EventSink is NULL (attempt %d)
                     - Service running: %{public}@
                     - Total received: %d
+                    - Total ignored: %d
                     ⚠️ Call EventChannel.listen() BEFORE starting service!
                     """,
                     log: logger,
                     type: .error,
                     totalReceived,
-                    LocationHandler.isRunningFlag ? "YES" : "NO",
+                    LocationHandler.isRunning() ? "YES" : "NO",
+                    totalReceived,
                     totalReceived
                 )
             }
@@ -190,13 +223,14 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
 
         guard let rawLocation = locations.last else { return }
 
-        // Process through filtering pipeline
+        // ✅ Match Android: Process location through filtering pipeline
         let result = processLocation(rawLocation)
 
+        // ✅ Match Android: when (result) { is FilterResult.Accepted/Rejected }
         switch result {
         case .accepted(let filtered, let reason):
             totalAccepted += 1
-            broadcastLocation(filtered, to: sink)
+            broadcastLocation(filtered, to: sink!)
             logAcceptance(filtered, reason: reason)
 
         case .rejected(let reason):
@@ -204,48 +238,49 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
             logRejection(reason)
         }
 
-        // Log stats every 50 locations
+        // Match Android: Log stats every 50 locations
         if totalReceived % 50 == 0 {
             logStatistics()
         }
     }
 
-    // ================= FILTERING PIPELINE =================
+    // ================= FILTERING PIPELINE - EXACT MATCH WITH Android processLocation =================
 
     private func processLocation(_ rawLocation: CLLocation) -> FilterResult {
-        // STEP 1: Accuracy validation
+        // STEP 1: Accuracy validation (match Android)
         if !isAccuracyValid(rawLocation) {
             return .rejected(
                 "Poor accuracy: \(Int(rawLocation.horizontalAccuracy))m > \(Int(maxAccuracyMeters))m"
             )
         }
 
-        // STEP 2: Apply Kalman filter
+        // STEP 2: Apply Kalman filter for smoothing (match Android)
         let smoothedLocation = kalmanFilter.filter(rawLocation)
 
-        // STEP 3: First location - always accept
+        // STEP 3: First location - MATCH Android behavior (reject with WARM UP)
         guard let previous = lastAcceptedLocation else {
             let filtered = FilteredLocation(location: smoothedLocation)
             lastAcceptedLocation = filtered
             lastBroadcastTime = Date()
-            return .accepted(filtered, "First location")
+            // ✅ Match Android: return FilterResult.Rejected("WARM UP: First location")
+            return .rejected("WARM UP: First location")
         }
 
-        // STEP 4: Time throttling
+        // STEP 4: Time-based throttling (match Android)
         let now = Date()
         if let lastTime = lastBroadcastTime {
-            let timeDelta = now.timeIntervalSince(lastTime)
-            if timeDelta < minTimeBetweenUpdatesSeconds {
+            let timeDeltaMs = now.timeIntervalSince(lastTime) * 1000.0
+            if timeDeltaMs < minTimeBetweenUpdatesSeconds * 1000.0 {
                 return .rejected(
-                    "Too frequent: \(String(format: "%.1f", timeDelta))s < \(minTimeBetweenUpdatesSeconds)s"
+                    "Too frequent: \(Int(timeDeltaMs))ms < \(Int(minTimeBetweenUpdatesSeconds * 1000))ms"
                 )
             }
         }
 
-        // STEP 5: Distance validation
+        // STEP 5: Distance validation (match Android)
         let distance = smoothedLocation.distance(from: previous.location)
 
-        // GPS drift detection (stationary)
+        // GPS drift detection (stationary) - EXACT match with Android
         if smoothedLocation.speed >= 0 && smoothedLocation.speed < minSpeedThreshold {
             if distance < gpsDriftThreshold {
                 return .rejected(
@@ -254,7 +289,7 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
             }
         }
 
-        // STEP 6: Speed-based distance threshold
+        // STEP 6: Speed-based distance threshold (match Android)
         let requiredDistance = calculateDynamicDistance(for: smoothedLocation.speed)
         if distance < requiredDistance {
             return .rejected(
@@ -262,22 +297,23 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
             )
         }
 
-        // STEP 7: GPS jump detection
+        // STEP 7: Speed validation (GPS jump detection) - EXACT match with Android
         if let lastTime = lastBroadcastTime {
-            let timeDeltaSeconds = now.timeIntervalSince(lastTime)
-            if timeDeltaSeconds > 0 {
-                let calculatedSpeed = distance / timeDeltaSeconds
-
-                if calculatedSpeed > maxSpeedMs {
-                    let speedKmh = Int(calculatedSpeed * 3.6)
-                    return .rejected(
-                        "GPS jump: \(speedKmh)km/h (max: \(Int(maxSpeedMs * 3.6))km/h)"
-                    )
+            let timeDeltaMs = now.timeIntervalSince(lastTime) * 1000.0
+            if timeDeltaMs > 0 {
+                let speedResult = validateSpeed(
+                    previous: previous.location,
+                    current: smoothedLocation,
+                    timeDeltaMs: timeDeltaMs
+                )
+                
+                if !speedResult.isValid {
+                    return .rejected(speedResult.reason ?? "Invalid speed")
                 }
             }
         }
 
-        // STEP 8: All checks passed!
+        // STEP 8: All checks passed! (match Android)
         let filtered = FilteredLocation(location: smoothedLocation)
         lastAcceptedLocation = filtered
         lastBroadcastTime = now
@@ -289,13 +325,42 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
         )
     }
 
-    // ================= HELPERS =================
+    // ================= VALIDATION HELPERS - MATCH Android LocationFilterValidator =================
 
     private func isAccuracyValid(_ location: CLLocation) -> Bool {
-        return location.horizontalAccuracy > 0 && location.horizontalAccuracy <= maxAccuracyMeters
+        // Match Android: return location.accuracy > 0 && location.accuracy <= MAX_ACCURACY
+        return location.horizontalAccuracy > 0 && location.horizontalAccuracy <= maxAccuracyForValidation
+    }
+
+    private func validateSpeed(
+        previous: CLLocation,
+        current: CLLocation,
+        timeDeltaMs: Double
+    ) -> ValidationResult {
+        // Match Android: validateSpeed implementation
+        if timeDeltaMs <= 0 {
+            return ValidationResult(isValid: false, reason: "Invalid time delta")
+        }
+
+        let distance = current.distance(from: previous)
+        let timeDeltaSec = timeDeltaMs / 1000.0
+        let calculatedSpeed = distance / timeDeltaSec
+
+        // Check for GPS jump (unrealistic speed)
+        if calculatedSpeed > maxSpeedMs {
+            let speedKmh = Int(calculatedSpeed * 3.6)
+            let maxSpeedKmh = Int(maxSpeedMs * 3.6)
+            return ValidationResult(
+                isValid: false,
+                reason: "GPS jump: \(speedKmh)km/h (max: \(maxSpeedKmh)km/h)"
+            )
+        }
+
+        return ValidationResult(isValid: true, reason: nil)
     }
 
     private func calculateDynamicDistance(for speedMs: CLLocationSpeed) -> CLLocationDistance {
+        // EXACT match with Android calculateDynamicDistance
         if speedMs >= highSpeedThreshold {
             return highSpeedDistance
         } else if speedMs >= mediumSpeedThreshold {
@@ -307,9 +372,12 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
         }
     }
 
+    // ================= BROADCAST TO FLUTTER - EXACT MATCH WITH Android =================
+
     private func broadcastLocation(_ filtered: FilteredLocation, to sink: FlutterEventSink) {
         let location = filtered.location
 
+        // ✅ Match Android map structure EXACTLY
         let locationData: [String: Any] = [
             "lat": location.coordinate.latitude,
             "lng": location.coordinate.longitude,
@@ -317,47 +385,34 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
             "speed": location.speed,
             "time": Int64(location.timestamp.timeIntervalSince1970 * 1000),
             "heading": location.course >= 0 ? location.course : 0,
+            // Debug info
             "filtered": true,
             "accept_rate": totalReceived > 0 ? Float(totalAccepted) / Float(totalReceived) : 0,
         ]
 
         sink(locationData)
 
-        os_log(
-            "✅ Location broadcast: (%f, %f)",
-            log: logger,
-            type: .debug,
-            location.coordinate.latitude,
-            location.coordinate.longitude
-        )
+        // Match Android: Commented out detailed log
+        // os_log("✅ Location broadcast: (%f, %f)", log: logger, type: .debug, ...)
     }
 
-    // ================= LOGGING =================
+    // ================= LOGGING & STATISTICS - EXACT MATCH WITH Android =================
 
     private func logAcceptance(_ location: FilteredLocation, reason: String) {
         let speedKmh = Int(location.location.speed * 3.6)
         let accuracy = Int(location.location.horizontalAccuracy)
 
-        os_log(
-            "✅ ACCEPTED: %{public}@ | Speed: %dkm/h | Acc: %dm",
-            log: logger,
-            type: .debug,
-            reason,
-            speedKmh,
-            accuracy
-        )
+        // Match Android: Commented out (can uncomment for debugging)
+        // os_log("✅ ACCEPTED: %{public}@ | Speed: %dkm/h | Acc: %dm", ...)
     }
 
     private func logRejection(_ reason: String) {
-        os_log(
-            "❌ REJECTED: %{public}@",
-            log: logger,
-            type: .debug,
-            reason
-        )
+        // Match Android: Commented out (can uncomment for debugging)
+        // os_log("❌ REJECTED: %{public}@", ...)
     }
 
     private func logStatistics() {
+        // ✅ EXACT match with Android logStatistics format
         let acceptRate =
             totalReceived > 0
             ? Int(Float(totalAccepted) / Float(totalReceived) * 100)
@@ -372,7 +427,7 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
             Rejected: %d
             Accept rate: %d%%
             EventSink: %{public}@
-            Running: %{public}@
+            Service running: %{public}@
             ═══════════════════════════════
             """,
             log: logger,
@@ -381,8 +436,8 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
             totalAccepted,
             totalRejected,
             acceptRate,
-            (eventSink != nil || LocationHandler.sharedEventSink != nil) ? "✅ SET" : "❌ NULL",
-            LocationHandler.isRunningFlag ? "✅ YES" : "❌ NO"
+            LocationHandler.hasEventSink() ? "✅ SET" : "❌ NULL",
+            LocationHandler.isRunning() ? "✅ YES" : "❌ NO"
         )
     }
 
@@ -430,23 +485,28 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
 }
 
 // ============================================
-// KALMAN FILTER (Same as Android)
+// KALMAN FILTER - EXACT MATCH WITH Android
 // ============================================
 
 class KalmanLocationFilter {
     private var lat: Double = 0.0
     private var lng: Double = 0.0
     private var variance: Double = -1.0
-
-    private let processNoise: Double = 0.5
+    
+    // Match Android: private const val PROCESS_NOISE = 0.1
+    private let processNoise: Double = 0.1
 
     func filter(_ measurement: CLLocation) -> CLLocation {
         if variance < 0 {
+            // First measurement
             lat = measurement.coordinate.latitude
             lng = measurement.coordinate.longitude
             variance = Double(measurement.horizontalAccuracy * measurement.horizontalAccuracy)
         } else {
+            // Predict
             let predictionVariance = variance + processNoise
+
+            // Update
             let measurementVariance = Double(
                 measurement.horizontalAccuracy * measurement.horizontalAccuracy
             )
@@ -457,6 +517,7 @@ class KalmanLocationFilter {
             variance = (1 - kalmanGain) * predictionVariance
         }
 
+        // Create filtered location
         let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lng)
         let filteredLocation = CLLocation(
             coordinate: coordinate,
@@ -477,7 +538,7 @@ class KalmanLocationFilter {
 }
 
 // ============================================
-// DATA STRUCTURES (Same as Android)
+// DATA STRUCTURES - EXACT MATCH WITH Android
 // ============================================
 
 struct FilteredLocation {
@@ -493,4 +554,10 @@ struct FilteredLocation {
 enum FilterResult {
     case accepted(FilteredLocation, String)
     case rejected(String)
+}
+
+// Match Android: data class ValidationResult
+struct ValidationResult {
+    let isValid: Bool
+    let reason: String?
 }

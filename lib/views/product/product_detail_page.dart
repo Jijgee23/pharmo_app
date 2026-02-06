@@ -51,8 +51,8 @@ class _ProductDetailState extends State<ProductDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<BasketProvider, HomeProvider>(
-      builder: (context, basket, home, child) {
+    return Consumer2<CartProvider, HomeProvider>(
+      builder: (context, cart, home, child) {
         final isNotPharma = !Authenticator.security!.isPharmacist;
 
         return Scaffold(
@@ -98,7 +98,7 @@ class _ProductDetailState extends State<ProductDetail> {
           ),
 
           // Bottom Add to Cart Button
-          bottomNavigationBar: _buildBottomBar(basket),
+          bottomNavigationBar: _buildBottomBar(cart),
         );
       },
     );
@@ -639,7 +639,7 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
-  Widget _buildBottomBar(BasketProvider basket) {
+  Widget _buildBottomBar(CartProvider basket) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -825,7 +825,7 @@ class _ProductDetailState extends State<ProductDetail> {
   //   });
   // }
 
-  void _showAddToCartSheet(BasketProvider basket) {
+  void _showAddToCartSheet(CartProvider basket) {
     Get.bottomSheet(
       ChangeQtyPad(
         onSubmit: (v) async {
@@ -837,7 +837,7 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
-  Future<void> _addToCart(String qty, BasketProvider basket) async {
+  Future<void> _addToCart(String qty, CartProvider basket) async {
     if (qty.isEmpty || qty == 'Тоо ширхэг') {
       message('Тоон утга оруулна уу!');
       return;

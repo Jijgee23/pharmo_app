@@ -17,7 +17,7 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
 
   Future refresh({bool afterInit = false}) async {
     LoadingService.run(() async {
-      final order = context.read<MyOrderProvider>();
+      final order = context.read<OrderProvider>();
       if (!afterInit) {
         await order.getBranches();
         await order.getSuppliers();
@@ -28,7 +28,7 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MyOrderProvider>(
+    return Consumer<OrderProvider>(
       builder: (context, provider, _) {
         final orders = provider.orders;
         return SafeArea(
@@ -70,9 +70,8 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
   }
 
   Widget filterRow() {
-    final provider = context.read<MyOrderProvider>();
-    return Consumer<MyOrderProvider>(
-      builder: (context, value, child) => Container(
+    return Consumer<OrderProvider>(
+      builder: (context, provider, child) => Container(
         height: 60,
         alignment: Alignment.bottomCenter,
         child: SingleChildScrollView(

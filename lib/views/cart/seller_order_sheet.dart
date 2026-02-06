@@ -9,16 +9,12 @@ class SellerOrderSheet extends StatefulWidget {
 }
 
 class _SellerOrderSheetState extends State<SellerOrderSheet> {
-  late HomeProvider homeProvider;
-  late BasketProvider basketProvider;
   final noteController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    basketProvider = Provider.of<BasketProvider>(context, listen: false);
-    // Хэрэв өмнө нь тэмдэглэл байсан бол сэргээх
+    final homeProvider = context.read<HomeProvider>();
     noteController.text = homeProvider.note ?? '';
   }
 
@@ -37,8 +33,8 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Consumer<HomeProvider>(
-        builder: (context, home, child) => SingleChildScrollView(
+      child: Consumer2<HomeProvider, CartProvider>(
+        builder: (context, home, cart, child) => SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +98,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
                 child: TextField(
                   controller: noteController,
                   maxLines: 2,
-                  onChanged: (v) => homeProvider.setNote(v),
+                  onChanged: (v) => home.setNote(v),
                   decoration: const InputDecoration(
                     hintText: 'Энд тайлбар бичиж болно...',
                     contentPadding: EdgeInsets.all(16),
@@ -115,7 +111,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
               // 5. Захиалах товч
               CustomButton(
                 text: 'Захиалга үүсгэх',
-                ontap: () => _createOrder(),
+                ontap: () => _createOrder(cart, home),
               ),
             ],
           ),
@@ -181,8 +177,8 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     );
   }
 
-  Future _createOrder() async {
-    if (homeProvider.customer == null) {
+  Future _createOrder(CartProvider cart, HomeProvider home) async {
+    if (home.customer == null) {
       messageWarning('Захиалагч сонгоно уу!');
       return;
     }
@@ -190,7 +186,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
       messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
       return;
     }
-    if ((basketProvider.basket?.totalCount ?? 0) == 0) {
+    if ((cart.basket?.totalCount ?? 0) == 0) {
       messageWarning('Сагс хоосон байна!');
       return;
     }
@@ -198,7 +194,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     // Ачааллаж буйг харуулах
     LoadingService.show();
     try {
-      await homeProvider.createSellerOrder(context, payType);
+      await home.createSellerOrder(context, payType);
     } finally {
       LoadingService.hide();
     }

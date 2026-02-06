@@ -24,7 +24,7 @@ class ConnectionProvider extends ChangeNotifier {
         if (!isOnline && !isDialogOpen) {
           _showNetworkDialog();
         }
-        bool isSharingLocation = await hasTrack();
+        bool isSharingLocation = await Authenticator.hasTrack();
 
         if (isSharingLocation) {
           final logType =

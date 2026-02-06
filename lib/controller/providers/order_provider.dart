@@ -1,6 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
 
-class MyOrderProvider extends ChangeNotifier {
+class OrderProvider extends ChangeNotifier {
   List<OrderModel> orders = <OrderModel>[];
   List<OrderModel> sellerOrders = <OrderModel>[];
   List<OrderModel> filteredsellerOrders = <OrderModel>[];
@@ -74,7 +74,7 @@ class MyOrderProvider extends ChangeNotifier {
   Future getSellerOrdersByDateRanged(String startDate, String endDate) async {
     try {
       final r =
-          await api(Api.get, 'seller/order/?start=$startDate&end=$endDate');
+          await api(Api.get, 'seller/order/?start=$startDate&end=$endDate,');
       if (r == null) return;
       if (r.statusCode == 200) {
         final data = convertData(r);

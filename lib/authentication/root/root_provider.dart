@@ -1,4 +1,5 @@
 // import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class RootProvider extends ChangeNotifier {
@@ -6,6 +7,7 @@ class RootProvider extends ChangeNotifier {
   void updateState(AuthState value) {
     if (state == value) return;
     state = value;
+    print(state);
     notifyListeners();
   }
 
@@ -31,11 +33,13 @@ class RootProvider extends ChangeNotifier {
       return;
     }
 
-    // bool expired = JwtDecoder.isExpired(sec.refresh);
-    // if (expired) {
-    //   updateState(AuthState.expired);
-    //   return;
-    // }
+    bool expired = JwtDecoder.isExpired(sec.refresh);
+    if (expired) {
+      updateState(AuthState.expired);
+      return;
+    }
+
+    print(sec.role);
 
     updateState(AuthState.loggedIn);
   }

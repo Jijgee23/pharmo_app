@@ -16,10 +16,12 @@ class PharmProvider extends ChangeNotifier {
   }
 
   /// харилцагч
-  getCustomers(int page, int size, BuildContext c) async {
+  Future getCustomers(int page, int size, BuildContext c) async {
     try {
-      final r =
-          await api(Api.get, 'seller/customer/?page=$page&page_size=$size/');
+      final r = await api(
+        Api.get,
+        'seller/customer/?page=$page&page_size=$size/',
+      );
       if (r == null) return;
       if (r.statusCode == 200) {
         Map data = convertData(r);

@@ -2,7 +2,7 @@ export 'providers/auth_provider.dart';
 export 'providers/basket_provider.dart';
 export 'providers/home_provider.dart';
 export 'providers/jagger_provider.dart';
-export 'providers/myorder_provider.dart';
+export 'providers/order_provider.dart';
 export 'providers/pharms_provider.dart';
 export 'providers/promotion_provider.dart';
 export 'providers/rep_provider.dart';

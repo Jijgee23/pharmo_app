@@ -631,7 +631,11 @@ class _DeliveriesState extends State<Deliveries> {
       title: 'Түгээлтийг эхлүүлэх үү?',
       message: 'Түгээлтийн үед таны байршлыг хянахыг анхаарна уу!',
     );
-    if (confirmed) await j.startShipment(delid);
+
+    if (confirmed) {
+      await Authenticator.saveTrackId(delid);
+      await j.startShipment();
+    }
   }
 
   askToEnd(Delivery del, JaggerProvider jagger) async {
@@ -645,7 +649,7 @@ class _DeliveriesState extends State<Deliveries> {
           ? 'Дараах захиалгууд хүргэгдээгүй байна:\n ${unDeliveredOrders.map((e) => e.orderNo)}'
           : '',
     );
-    if (confirmed) await j.endShipment(del.id);
+    if (confirmed) await j.endTrack();
   }
 }
 

@@ -17,14 +17,14 @@ class _CartItemState extends State<CartItem> {
       title: 'Барааг сагснаас хасах уу?',
     );
     if (!confirmed) return;
-    final basket = context.read<BasketProvider>();
+    final basket = context.read<CartProvider>();
     await basket.removeBasketItem(itemId: widget.detail['id']);
   }
 
   Future changeBasketItem(int productId, double qty) async {
     try {
       LoadingService.show();
-      final basket = context.read<BasketProvider>();
+      final basket = context.read<CartProvider>();
       await basket.addProduct(productId, widget.detail['name'], qty);
     } catch (e) {
       messageError('Алдаа гарлаа');
@@ -189,7 +189,7 @@ class ChangeQtyPad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final basket = context.read<BasketProvider>();
+    final basket = context.read<CartProvider>();
     Future.delayed(Duration.zero, () => basket.setQTYvalue(initValue));
 
     return Container(
@@ -223,7 +223,7 @@ class ChangeQtyPad extends StatelessWidget {
             const SizedBox(height: 15),
 
             // 2. Display
-            Consumer<BasketProvider>(
+            Consumer<CartProvider>(
               builder: (context, b, _) => Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -281,7 +281,7 @@ class ChangeQtyPad extends StatelessWidget {
 
   Widget _numBtn(BuildContext context, String txt, {bool isSpecial = false}) {
     return InkWell(
-      onTap: () => context.read<BasketProvider>().write(txt),
+      onTap: () => context.read<CartProvider>().write(txt),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         alignment: Alignment.center,
@@ -320,6 +320,7 @@ class LoadingService {
     try {
       return await runner();
     } catch (e) {
+      hide();
       rethrow;
     } finally {
       hide();

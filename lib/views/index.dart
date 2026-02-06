@@ -24,10 +24,10 @@ class _IndexPharmaState extends State<IndexPharma> {
   Future inititliazeBasket() async {
     final security = Authenticator.security;
     if (security == null) return;
-    final basket = context.read<BasketProvider>();
+    final cart = context.read<CartProvider>();
     final home = context.read<HomeProvider>();
     final promotion = context.read<PromotionProvider>();
-    await basket.getBasket();
+    await cart.getBasket();
     if (security.role == 'PA') {
       print(home.selected.name);
       await promotion.getMarkedPromotion();
@@ -66,13 +66,12 @@ class _IndexPharmaState extends State<IndexPharma> {
         if (security == null) {
           return Scaffold();
         }
-        String role = security.role;
         return Scaffold(
           body: Stack(
             children: [
               Center(
                 child: [
-                  if (role != 'PA') const CustomerList(),
+                  if (!security.isPharmacist) const CustomerList(),
                   const Home(),
                   OrderHistory(),
                   const Profile(),
@@ -105,13 +104,13 @@ class _IndexPharmaState extends State<IndexPharma> {
           ),
           bottomNavigationBar: BottomBar(
             icons: [
-              if (role != 'PA') 'users',
-              'category',
-              'order-history',
-              'user'
+              if (!security.isPharmacist) AssetIcon.users,
+              AssetIcon.category,
+              AssetIcon.orderHistory,
+              AssetIcon.user
             ],
             labels: [
-              if (role != 'PA') 'Харилцагч',
+              if (!security.isPharmacist) 'Харилцагч',
               'Бараа',
               'Түүх',
               'Профайл',

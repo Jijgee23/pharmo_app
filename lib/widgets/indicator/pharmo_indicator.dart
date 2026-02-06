@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/color/colors.dart';
+import 'package:pharmo_app/application/context/theme/color/colors.dart';
 
 class PharmoIndicator extends StatefulWidget {
   final bool withMaterial;

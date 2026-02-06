@@ -4,18 +4,14 @@ import 'package:hive/hive.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 
-Future<bool> hasTrack() async {
-  final user = Authenticator.security;
-  if (user == null) return false;
-  bool hasDelmanTrack = await Authenticator.hasDelmanTrack();
-  bool hasSellerTrack = await Authenticator.hasSellerTrack();
-  if (user.isSaler && hasSellerTrack) {
-    return true;
-  }
-  if (user.isDriver && hasDelmanTrack) {
-    return true;
-  }
-  return false;
+enum TrackState {
+  none(Colors.green, 'эхлүүлэх'),
+  tracking(Colors.red, 'дуусгах'),
+  paused(Colors.orange, 'үргэлжлүүлэх');
+
+  final Color btnColor;
+  final String name;
+  const TrackState(this.btnColor, this.name);
 }
 
 class JaggerProvider extends ChangeNotifier {
@@ -30,6 +26,7 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   Future initJagger() async {
+    await tracking();
     if (Hive.isBoxOpen('track_box')) {
       trackBox = Hive.box('track_box');
       return;
@@ -62,46 +59,124 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool isTracking = false;
-  void updateTracking(bool value) {
-    isTracking = value;
+  TrackState trackState = TrackState.none;
+  Future loadTrackState() async {
+    bool hasTrack = await Authenticator.hasTrack();
+    if (!hasTrack) {
+      trackState = TrackState.none;
+      notifyListeners();
+      print('TRACK STATE LOADED: $trackState');
+      return;
+    }
+    bool serviceRunning = await NativeChannel.isServiceRunning();
+
+    if (!serviceRunning && subscription == null) {
+      trackState = TrackState.paused;
+      notifyListeners();
+      print('TRACK STATE LOADED: $trackState');
+      return;
+    }
+    trackState = TrackState.tracking;
     notifyListeners();
+    print('TRACK STATE LOADED: $trackState');
   }
 
-  Future checkSellerTrack() async {
+  String salerStartedOn = '';
+  Future<int> checkSellerTrack() async {
     await Authenticator.initAuthenticator();
     final user = Authenticator.security;
-    if (user == null) return;
-    if (user.role == "S") {
+    if (user == null) return 0;
+    if (user.isSaler) {
       final r = await api(Api.get, 'sales/route/?active=1');
-      if (r == null) return;
+      if (r == null) return 0;
       if (r.statusCode == 200) {
         final data = convertData(r);
-        return updateTracking(data['count'] as int != 0);
+        if (data['count'] == 0) return 0;
+        final isActive = (data['results'] as List).isNotEmpty;
+        final delid = isActive ? data['results'][0]['id'] : 0;
+        salerStartedOn = data['results'][0]['started_on'] ?? '';
+        await Authenticator.saveTrackId(delid);
+        notifyListeners();
+        await loadTrackState();
+        return delid;
       }
     }
-    if (user.role == 'D') {
-      updateTracking(await Authenticator.hasDelmanTrack());
-    }
+    return 0;
   }
 
-  Future<void> startShipment(int shipmentId) async {
+  Future toggleTracking() async {
+    await loadTrackState();
+    if (trackState == TrackState.tracking) {
+      await endTrack();
+      return;
+    }
+    if (trackState == TrackState.paused) {
+      print('TRACK PAUSED,  RESUMING TRACK...');
+      await tracking();
+      return;
+    }
+    await startShipment();
+  }
+
+  Future<void> startShipment() async {
+    if (!await Settings.checkAlwaysLocationPermission()) {
+      return;
+    }
+    currentPosition = await Geolocator.getCurrentPosition();
+    if (currentPosition == null) {
+      messageWarning(
+        'Одоогийн байршил олдсонгүй!, Байршил тогтоогчоо асаарна уу!',
+      );
+      return;
+    }
+    final user = Authenticator.security;
+
+    if (user == null) return;
+
+    bool isDriver = user.isDriver;
+    String url = isDriver ? 'delivery/start/' : 'sales/route/';
+    String action = isDriver ? 'түгээлт' : 'борлуулалт';
+    final shipmentId = await Authenticator.getTrackId();
+
+    final confirmed = await confirmDialog(
+      context: GlobalKeys.navigatorKey.currentContext!,
+      title: '${action.capitalize} эхлүүлэх үү?',
+      message:
+          '${action.capitalize}-ийн үед таны байршлыг хянахыг анхаарна уу!',
+    );
+
+    if (!confirmed) return;
+
     setLoading(true);
     try {
-      if (!await Settings.checkAlwaysLocationPermission()) {
-        return;
-      }
-      var url = 'delivery/start/';
-      currentPosition = await Geolocator.getCurrentPosition();
-      if (currentPosition == null) return;
-      var body = {
-        "delivery_id": shipmentId,
-        "lat": currentPosition!.latitude,
-        "lng": currentPosition!.longitude
-      };
+      var body = isDriver
+          ? {
+              "delivery_id": shipmentId,
+              "lat": truncateToSixDigits(currentPosition!.latitude),
+              "lng": truncateToSixDigits(currentPosition!.longitude)
+            }
+          : {
+              "locations": [
+                {
+                  "lat": truncateToSixDigits(currentPosition!.latitude),
+                  "lng": truncateToSixDigits(currentPosition!.longitude),
+                  "created": DateTime.now().toIso8601String(),
+                }
+              ]
+            };
+
       final r = await api(Api.patch, url, body: body);
       if (r == null) return;
       if (r.statusCode == 200) {
+        messageComplete('$action амжилттай эхлэлээ!');
+
+        if (isDriver) {
+          await getDeliveries();
+        }
+        if (!isDriver) {
+          await checkSellerTrack();
+        }
+
         await clearTrackData();
         await addPointToBox(
           TrackData(
@@ -111,16 +186,26 @@ class JaggerProvider extends ChangeNotifier {
             sended: true,
           ),
         );
-        await Authenticator.saveDelmanTrack(shipmentId).whenComplete(() async {
-          final trackId = await Authenticator.getDelmanTrackId();
-          if (trackId == 0) {
-            messageWarning('Түгээлт олдсонгүй!');
-            return;
-          }
-          await getDeliveries();
-          await clearTrackData();
-          await tracking();
-        });
+        addMarker(
+          AssetIcon.flag,
+          position: LatLng(
+            currentPosition!.latitude,
+            currentPosition!.longitude,
+          ),
+        );
+
+        await Authenticator.saveTrackId(
+                isDriver ? shipmentId : await checkSellerTrack())
+            .whenComplete(
+          () async {
+            final trackId = await Authenticator.getTrackId();
+            if (trackId == 0) {
+              messageWarning('${{action.capitalize}} олдсонгүй!');
+              return;
+            }
+            await tracking();
+          },
+        );
       } else if (r != null && r.statusCode == 400) {
         String data = convertData(r).toString();
         if (data.contains('already started')) {
@@ -137,16 +222,12 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  TrackData? lastPoint;
-
-  void updateLastPoint(TrackData value) {
-    lastPoint = value;
-    notifyListeners();
-  }
-
   Future tracking() async {
-    if (!await hasTrack()) return;
+    if (!await Authenticator.hasTrack()) return;
     await getTrackBox();
+    if (Authenticator.security!.isSaler) {
+      await checkSellerTrack();
+    }
     try {
       subscription =
           NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
@@ -172,7 +253,81 @@ class JaggerProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint(e.toString());
+    } finally {
+      await loadTrackState();
     }
+  }
+
+  Future<dynamic> endTrack() async {
+    if (!await Settings.checkAlwaysLocationPermission()) {
+      return;
+    }
+    currentPosition = await Geolocator.getCurrentPosition();
+    if (currentPosition == null) {
+      messageWarning(
+        'Одоогийн байршил олдсонгүй!, Байршил тогтоогчоо асаарна уу!',
+      );
+      return;
+    }
+    final user = Authenticator.security;
+
+    if (user == null) return;
+
+    bool isDriver = user.isDriver;
+    String action = isDriver ? 'түгээлт' : 'борлуулалт';
+
+    final confirmed = await confirmDialog(
+      context: GlobalKeys.navigatorKey.currentContext!,
+      title: '${action.capitalize} дуусгах үү?',
+    );
+
+    if (!confirmed) return;
+    try {
+      final current = await Geolocator.getCurrentPosition();
+      final shipmentId = await Authenticator.getTrackId();
+      var body = {
+        if (isDriver) "delivery_id": shipmentId,
+        "lat": truncateToSixDigits(current.latitude),
+        "lng": truncateToSixDigits(current.longitude),
+        "created": DateTime.now().toIso8601String(),
+      };
+      final trackUrl = isDriver ? 'delivery/end/' : 'sales/route/end/';
+
+      final r = await api(Api.patch, trackUrl, body: body);
+      if (r == null) {
+        messageError('Сервертэй холбогдож чадсангүй!');
+        return;
+      }
+      if (r.statusCode == 200) {
+        if (isDriver) {
+          await getDeliveries();
+        }
+        await stopTracking();
+        messageComplete('Таны $shipmentId дугаартай $action дууслаа.');
+        await logService.createLog(
+          '${action.capitalize}',
+          '${action.capitalize} дуусгасан',
+        );
+      } else {
+        String data = r.body.toString();
+        if (data.contains('UB!')) {
+          messageWarning('Таний байршил Улаанбаатарт биш байна');
+        } else {
+          messageWarning('$action дуусгахад алдаа гарлаа.');
+        }
+      }
+    } catch (e) {
+      print("Error in endTrack: $e");
+      return {'fail': e};
+    }
+    notifyListeners();
+  }
+
+  TrackData? lastPoint;
+
+  void updateLastPoint(TrackData value) {
+    lastPoint = value;
+    notifyListeners();
   }
 
   late Timer timer;
@@ -182,33 +337,24 @@ class JaggerProvider extends ChangeNotifier {
     try {
       await syncOffineTracks();
       await subscription!.cancel();
-      final stopped = await NativeChannel.stopLocationService();
-      if (stopped) {
-        debugPrint('✅ Native location service stopped');
-      } else {
-        debugPrint('⚠️ Failed to stop native service');
-      }
-      await Authenticator.clearDelmanTrack();
-      await Authenticator.removeSellerTrackId();
+      await NativeChannel.stopLocationService();
+      await Authenticator.clearTrackId();
+      await loadTrackState();
       await clearTrackData();
-      if (subscription == null) return;
-      print('stoping track');
-
       subscription = null;
-      notifyListeners();
-      // print('subsciption null: ${subscription == null}');
-      // final hasDelmanTrack = await Authenticator.getDelmanTrackId();
-      // await LogService().createLog(
-      //   '${(hasDelmanTrack == 0) ? 'Боруулалт' : 'Түгээлт'} дууссан',
-      //   DateTime.now().toIso8601String(),
-      // );
       routeCoords.clear();
       polylines.clear();
       orderMarkers.clear();
       notifyListeners();
+      if (subscription != null) {
+        subscription = null;
+        notifyListeners();
+      }
     } catch (e) {
       print(e);
       throw Exception(e);
+    } finally {
+      await loadTrackState();
     }
   }
 
@@ -217,6 +363,7 @@ class JaggerProvider extends ChangeNotifier {
   final int _uploadIntervalSeconds = 5;
 
   Future sendTobackend(double lat, double lng) async {
+    await loadTrackState();
     double latitude = truncateToSixDigits(lat);
     double longitude = truncateToSixDigits(lng);
     final now = DateTime.now();
@@ -255,7 +402,7 @@ class JaggerProvider extends ChangeNotifier {
     final isSeller = Authenticator.security!.isSaler;
     final trackUrl = isSeller ? 'sales/route/' : 'delivery/location/';
     var body = locationr(
-      await Authenticator.getDelmanTrackId(),
+      await Authenticator.getTrackId(),
       [locatioData(true)],
     );
     final r = await api(Api.patch, trackUrl, body: body);
@@ -275,9 +422,9 @@ class JaggerProvider extends ChangeNotifier {
     await getTrackBox();
     final user = Authenticator.security;
     if (user == null) return;
-    bool hasDelmanTrack = await Authenticator.hasDelmanTrack();
-    bool hasSellerTrack = await Authenticator.hasSellerTrack();
-    if (!hasSellerTrack && !hasDelmanTrack) return;
+    bool hasTrack = await Authenticator.hasTrack();
+    // bool hasSellerTrack = await Authenticator.hasSellerTrack();
+    if (!hasTrack) return;
     bool isSeller = user.isSaler;
     final trackUrl = isSeller ? 'sales/route/' : 'delivery/location/';
     if (trackDatas.isNotEmpty) {
@@ -285,7 +432,7 @@ class JaggerProvider extends ChangeNotifier {
       if (unsended.isEmpty) {
         return;
       }
-      var b = locationr(await Authenticator.getDelmanTrackId(), unsended);
+      var b = locationr(await Authenticator.getTrackId(), unsended);
       final r = await api(Api.patch, trackUrl, body: b);
       if (apiSucceess(r)) {
         await updateDatasToSended();
@@ -372,6 +519,17 @@ class JaggerProvider extends ChangeNotifier {
   Future getTrackBox() async {
     if (!Hive.isBoxOpen('track_box')) return;
     trackDatas = trackBox.values.toList().cast<TrackData>();
+    if (trackDatas.isNotEmpty) {
+      updateLastPoint(trackDatas.last);
+      addMarker(
+        AssetIcon.flag,
+        position: LatLng(
+          trackDatas.first.latitude,
+          trackDatas.first.longitude,
+        ),
+        infoWindow: InfoWindow(title: 'Эхлэлийн цэг'),
+      );
+    }
     notifyListeners();
   }
 
@@ -395,49 +553,6 @@ class JaggerProvider extends ChangeNotifier {
     await getTrackBox();
   }
 
-  Future<dynamic> endShipment(int shipmentId) async {
-    try {
-      final current = await Geolocator.getCurrentPosition();
-      if (current == null) return;
-      var body = {
-        "delivery_id": shipmentId,
-        "lat": truncateToSixDigits(current.latitude),
-        "lng": truncateToSixDigits(current.longitude),
-        "created": DateTime.now().toIso8601String(),
-      };
-      final r = await api(Api.patch, 'delivery/end/', body: body);
-      if (r == null) {
-        messageError('Сервертэй холбогдож чадсангүй!');
-        return;
-      }
-
-      if (r.statusCode == 200) {
-        await getDeliveries();
-        await Authenticator.clearDelmanTrack();
-        await FirebaseApi.local(
-          'Түгээлт дууслаа',
-          'Таны $shipmentId дугаартай түгээлт дууслаа.',
-        );
-        await logService.createLog('Түгээлт', 'Түгээлт дуусгасан');
-
-        await stopTracking();
-        delivery = null;
-        notifyListeners();
-      } else {
-        String data = r.body.toString();
-        if (data.contains('UB!')) {
-          messageWarning('Таний байршил Улаанбаатарт биш байна');
-        } else {
-          messageWarning('Түгээлт дуусгахад алдаа гарлаа.');
-        }
-      }
-    } catch (e) {
-      print("Error in endShipment: $e");
-      return {'fail': e};
-    }
-    notifyListeners();
-  }
-
   Future<dynamic> getDeliveries() async {
     try {
       final r = await api(Api.get, 'delivery/delman_active/');
@@ -456,23 +571,15 @@ class JaggerProvider extends ChangeNotifier {
         if (delivery == null) return;
         for (var order in delivery!.orders) {
           if (order.orderer != null && order.orderer!.lat != null) {
-            orderMarkers.add(
-              Marker(
-                markerId: MarkerId(order.orderNo),
-                position: LatLng(
-                  parseDouble(order.orderer!.lat),
-                  parseDouble(order.orderer!.lng),
-                ),
-                infoWindow: InfoWindow(
-                  title: order.orderer!.name,
-                  snippet: 'Захиалагч',
-                ),
-                icon: await BitmapDescriptor.asset(
-                  ImageConfiguration.empty,
-                  'assets/box.png',
-                  width: 30,
-                  height: 30,
-                ),
+            addMarker(
+              AssetIcon.box,
+              position: LatLng(
+                parseDouble(order.orderer!.lat),
+                parseDouble(order.orderer!.lng),
+              ),
+              infoWindow: InfoWindow(
+                title: order.orderer!.name,
+                snippet: 'Захиалагч',
               ),
             );
             notifyListeners();
@@ -508,18 +615,6 @@ class JaggerProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
-
-  // Future<dynamic> getDeliveryDetail(int id) async {
-  //   try {
-  //     final r = await api(Api.get, 'delivery/order_detail/?order_id=$id');
-  //     if (r == null) return;
-  //     final data = jsonDecode(utf8.decode(r.bodyBytes));
-  //     if (r.statusCode == 200) {}
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //   }
-  //   notifyListeners();
-  // }
 
   addCustomerPayment(String type, String amount, String customerId) async {
     try {
@@ -653,6 +748,20 @@ class JaggerProvider extends ChangeNotifier {
   // Set<Marker> markers = {};
   Set<Marker> orderMarkers = {};
 
+  void addMarker(String icon,
+      {required LatLng position, InfoWindow? infoWindow}) async {
+    final mid = DateTime.now().millisecondsSinceEpoch.toString();
+    orderMarkers.add(
+      Marker(
+        markerId: MarkerId(icon + mid),
+        infoWindow: infoWindow ?? InfoWindow(title: icon),
+        position: position,
+        icon: await readIcon(icon),
+      ),
+    );
+    notifyListeners();
+  }
+
   zoomIn() {
     zoomIndex = zoomIndex + 1.0;
     mapController.animateCamera(CameraUpdate.zoomTo(zoomIndex));
@@ -746,10 +855,10 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<BitmapDescriptor> readIcon() async {
+  Future<BitmapDescriptor> readIcon(String assetPath) async {
     final rult = await BitmapDescriptor.asset(
       ImageConfiguration.empty,
-      'assets/car.png',
+      assetPath,
       width: 30,
       height: 30,
     );

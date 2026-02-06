@@ -21,7 +21,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
 
   Future<void> init() async {
     LoadingService.run(() async {
-      await context.read<BasketProvider>().getBasket();
+      await context.read<CartProvider>().getBasket();
       final user = Authenticator.security;
       if (user == null) return;
       if (user.isPharmacist) {
@@ -38,7 +38,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<BasketProvider, HomeProvider>(
+    return Consumer2<CartProvider, HomeProvider>(
       builder: (context, provider, home, _) {
         final cartDatas = provider.shoppingCarts;
         final basket = provider.basket;
@@ -126,7 +126,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
     final Security? security = Authenticator.security;
     if (security == null) return;
 
-    final provider = context.read<BasketProvider>();
+    final provider = context.read<CartProvider>();
     await provider.getBasket();
 
     // Үнийн дүнгийн шалгалт

@@ -48,7 +48,7 @@ class LocationService : Service(), LocationListener {
         private const val MAX_ACCURACY_METERS = 30f
         private const val MIN_DISTANCE_METERS = 10f
         private const val MIN_TIME_BETWEEN_UPDATES_MS = 3000L
-        private const val GPS_DRIFT_THRESHOLD = 8f
+        private const val GPS_DRIFT_THRESHOLD = 12f // 8 байсан
 
         // Speed thresholds (m/s)
         private const val HIGH_SPEED_THRESHOLD = 16.7f // 60 km/h
@@ -196,7 +196,8 @@ class LocationService : Service(), LocationListener {
             val filtered = FilteredLocation(smoothedLocation)
             lastAcceptedLocation = filtered
             lastBroadcastTime = System.currentTimeMillis()
-            return FilterResult.Accepted(filtered, "First location")
+            return FilterResult.Rejected("WARM UP: First location")
+            // return FilterResult.Accepted(filtered, "First location accepted")
         }
 
         // STEP 4: Time-based throttling
@@ -276,7 +277,7 @@ class LocationService : Service(), LocationListener {
                 )
             )
 
-            Log.d(TAG, "✅ Location broadcast: (${loc.latitude}, ${loc.longitude})")
+            // Log.d(TAG, "✅ Location broadcast: (${loc.latitude}, ${loc.longitude})")
             
         } catch (e: Exception) {
             Log.e(TAG, "❌ Failed to broadcast location", e)
@@ -320,14 +321,14 @@ class LocationService : Service(), LocationListener {
 
     private fun logAcceptance(location: FilteredLocation, reason: String) {
         val speedKmh = (location.location.speed * 3.6f).toInt()
-        Log.d(
-            TAG,
-            "✅ ACCEPTED: $reason | Speed: ${speedKmh}km/h | Acc: ${location.location.accuracy.toInt()}m"
-        )
+        // Log.d(
+        //     TAG,
+        //     "✅ ACCEPTED: $reason | Speed: ${speedKmh}km/h | Acc: ${location.location.accuracy.toInt()}m"
+        // )
     }
 
     private fun logRejection(reason: String) {
-        Log.d(TAG, "❌ REJECTED: $reason")
+        // Log.d(TAG, "❌ REJECTED: $reason")
     }
 
     private fun logStatistics() {
@@ -401,6 +402,7 @@ class LocationService : Service(), LocationListener {
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
+            .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
@@ -442,9 +444,6 @@ class LocationService : Service(), LocationListener {
     }
 }
 
-// ============================================
-// KALMAN FILTER IMPLEMENTATION
-// ============================================
 
 class KalmanLocationFilter {
     private var lat = 0.0
@@ -452,7 +451,7 @@ class KalmanLocationFilter {
     private var variance = -1.0
 
     companion object {
-        private const val PROCESS_NOISE = 0.5
+        private const val PROCESS_NOISE = 0.1 // 0.5 baisan
     }
 
     fun filter(measurement: Location): Location {
@@ -493,7 +492,7 @@ class KalmanLocationFilter {
 
 class LocationFilterValidator {
     companion object {
-        private const val MAX_ACCURACY = 30f
+        private const val MAX_ACCURACY = 20f // 30 байсан
         private const val MAX_SPEED_MS = 50f // 180 km/h
     }
 

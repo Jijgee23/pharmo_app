@@ -38,7 +38,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   Future initPublic() async {
     final home = context.read<HomeProvider>();
-    final basket = context.read<BasketProvider>();
+    final cart = context.read<CartProvider>();
     setLoading(true);
     final security = Authenticator.security;
     if (security == null) return;
@@ -51,7 +51,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     home.clearItems();
     home.setPageKey(1);
     await home.fetchProducts();
-    await basket.getBasket();
+    await cart.getBasket();
     if (mounted) setLoading(false);
   }
 

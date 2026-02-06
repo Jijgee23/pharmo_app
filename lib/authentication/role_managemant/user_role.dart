@@ -109,8 +109,8 @@ class RoleConfig {
         return IndexPharma();
       case UserRole.seller:
         return IndexPharma();
-      case UserRole.admin:
-        return IndexPharma();
+      // case UserRole.admin:
+      //   return IndexPharma();
       default:
         return LoginPage();
     }

@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:pharmo_app/application/config/role_managemant/user_role.dart';
+import 'package:pharmo_app/authentication/role_managemant/user_role.dart';
 
 part 'security.g.dart';
 
@@ -80,4 +80,5 @@ class Security extends HiveObject {
   bool get isPharmacist => userRole.isPharmacist();
   bool get isAdmin => userRole.isAdmin();
   bool get isSaler => userRole.isSaler();
+  bool get isTracker => userRole.isSaler() || userRole.isDriver();
 }

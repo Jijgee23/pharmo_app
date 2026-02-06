@@ -9,7 +9,7 @@ class BatteryProvider extends ChangeNotifier {
     NativeChannel.batteryChannel.receiveBroadcastStream().listen(
       (dynamic value) async {
         if (value == null) return;
-        bool isSharingLocation = await hasTrack();
+        bool isSharingLocation = await Authenticator.hasTrack();
         if (isSharingLocation) {
           final logType =
               Authenticator.security!.isSaler ? 'Борлуулалт' : 'Түгээлт';

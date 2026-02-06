@@ -1,13 +1,13 @@
 import 'package:pharmo_app/application/application.dart';
 
 class SellerTrackButton extends StatefulWidget {
-  final bool isStart;
-  final void Function() onPressed;
+  // final bool isStart;
+  // final void Function() onPressed;
 
   const SellerTrackButton({
     super.key,
-    required this.onPressed,
-    required this.isStart,
+    // required this.onPressed,
+    // required this.isStart,
   });
 
   @override
@@ -23,6 +23,8 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
   @override
   void initState() {
     super.initState();
+    final jagger = context.read<JaggerProvider>();
+    final isTracking = jagger.trackState == TrackState.tracking;
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -36,17 +38,19 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    if (!widget.isStart) {
+    if (!isTracking) {
       _controller.repeat(reverse: true);
     }
   }
 
   @override
   void didUpdateWidget(SellerTrackButton oldWidget) {
+    final jagger = context.read<JaggerProvider>();
+    final isTracking = jagger.trackState == TrackState.tracking;
     super.didUpdateWidget(oldWidget);
-    if (!widget.isStart && !_controller.isAnimating) {
+    if (!isTracking && !_controller.isAnimating) {
       _controller.repeat(reverse: true);
-    } else if (widget.isStart && _controller.isAnimating) {
+    } else if (isTracking && _controller.isAnimating) {
       _controller.stop();
       _controller.reset();
     }
@@ -61,93 +65,101 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
   @override
   Widget build(BuildContext context) {
     final user = Authenticator.security;
-    return Positioned(
-      bottom: 20,
-      left: 20,
-      child: SafeArea(
-        child: Builder(builder: (context) {
-          if (user == null || !user.isSaler) {
-            return const SizedBox();
-          }
-          return AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              final bgColor = widget.isStart ? Colors.green : Colors.red;
-              return Stack(
-                alignment: Alignment.centerLeft,
-                children: [
-                  if (!widget.isStart)
-                    Transform.scale(
-                      scale: _pulseAnimation.value,
-                      child: Container(
-                        height: 48,
-                        width: 220,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(28),
-                          color: bgColor.withOpacity(
-                              0.25 * (1.15 - _pulseAnimation.value) * 6.67),
-                        ),
-                      ),
-                    ),
-                  Transform.scale(
-                    scale: !widget.isStart ? _scaleAnimation.value : 1.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
-                          BoxShadow(
-                            color: bgColor.withOpacity(0.4),
-                            blurRadius: !widget.isStart ? 16 : 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: FloatingActionButton.extended(
-                        elevation: 0,
-                        heroTag: 'trackingDeliveriesSeller',
-                        onPressed: widget.onPressed,
-                        backgroundColor: bgColor,
-                        label: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (!widget.isStart) ...[
-                              _PulsingDot(),
-                              const SizedBox(width: 12),
-                            ] else ...[
-                              const Icon(
-                                Icons.play_arrow_rounded,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                              const SizedBox(width: 8),
-                            ],
-                            Text(
-                              "Борлуулалт ${widget.isStart ? 'эхлэх' : 'дуусгах'}",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
+    return Consumer<JaggerProvider>(
+      builder: (context, jagger, child) {
+        return Positioned(
+          bottom: 20,
+          left: 20,
+          child: SafeArea(
+            child: Builder(
+              builder: (context) {
+                if (user == null || !user.isSaler) {
+                  return const SizedBox();
+                }
+                return AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    final bgColor = jagger.trackState.btnColor;
+                    bool isStart = jagger.trackState == TrackState.none;
+                    return Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        if (!isStart)
+                          Transform.scale(
+                            scale: _pulseAnimation.value,
+                            child: Container(
+                              height: 48,
+                              width: 220,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(28),
+                                color: bgColor.withOpacity(0.25 *
+                                    (1.15 - _pulseAnimation.value) *
+                                    6.67),
                               ),
                             ),
-                            if (!widget.isStart) ...[
-                              const SizedBox(width: 8),
-                              const Icon(
-                                Icons.stop_rounded,
-                                color: Colors.white,
-                                size: 24,
+                          ),
+                        Transform.scale(
+                          scale: !isStart ? _scaleAnimation.value : 1.0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(28),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: bgColor.withOpacity(0.4),
+                                  blurRadius: !isStart ? 16 : 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: FloatingActionButton.extended(
+                              elevation: 0,
+                              heroTag: 'trackingDeliveriesSeller',
+                              onPressed: jagger.toggleTracking,
+                              backgroundColor: bgColor,
+                              label: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (!isStart) ...[
+                                    _PulsingDot(),
+                                    const SizedBox(width: 12),
+                                  ] else ...[
+                                    const Icon(
+                                      Icons.play_arrow_rounded,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Text(
+                                    "Борлуулалт ${jagger.trackState.name}",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  if (!isStart) ...[
+                                    const SizedBox(width: 8),
+                                    const Icon(
+                                      Icons.stop_rounded,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ],
+                                ],
                               ),
-                            ],
-                          ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        }),
-      ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

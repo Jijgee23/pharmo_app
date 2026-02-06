@@ -43,7 +43,7 @@ class _PharmOrderDetailState extends State<PharmOrderDetail>
   @override
   Widget build(BuildContext context) {
     final order = widget.order;
-    return Consumer<MyOrderProvider>(
+    return Consumer<OrderProvider>(
       builder: (context, provider, child) {
         return Scaffold(
           appBar: AppBar(
