@@ -2,6 +2,8 @@ import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/additional_delivery.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/orderer_card.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/DRIVER/active_delivery/widgets/delivery_action_button.dart';
+import 'package:pharmo_app/views/DRIVER/active_delivery/widgets/delivery_stat_card.dart';
 
 class Deliveries extends StatefulWidget {
   const Deliveries({super.key});
@@ -68,13 +70,23 @@ class _DeliveriesState extends State<Deliveries> {
       pinned: true,
       backgroundColor: primary,
       foregroundColor: Colors.white,
+      iconTheme: const IconThemeData(color: Colors.white),
       actions: [
         IconButton(
           onPressed: () async => await init(),
-          icon: const Icon(Icons.refresh_rounded),
+          icon: const Icon(
+            Icons.refresh_rounded,
+            color: white,
+          ),
           tooltip: 'Шинэчлэх',
         ),
       ],
+      title: Text(
+        delivery != null
+            ? 'Түгээлт #${delivery.id}'
+            : 'Идэвхтэй түгээлт байхгүй',
+        style: const TextStyle(color: white),
+      ),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
@@ -124,8 +136,7 @@ class _DeliveriesState extends State<Deliveries> {
   Widget _buildDeliveryHeader(
       Delivery delivery, JaggerProvider jagger, bool isTracking) {
     final totalOrders = delivery.orders.length;
-    final deliveredOrders =
-        delivery.orders.where((o) => o.process == 'D').length;
+    final deliveredOrders = delivery.orders.where((o) => o.isDelivered).length;
     final progress = totalOrders > 0 ? deliveredOrders / totalOrders : 0.0;
 
     return Row(
@@ -338,8 +349,11 @@ class _DeliveriesState extends State<Deliveries> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.warning_amber,
-                      color: Colors.amber, size: 20),
+                  const Icon(
+                    Icons.warning_amber,
+                    color: Colors.amber,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   const Expanded(
                     child: Text(
@@ -360,7 +374,7 @@ class _DeliveriesState extends State<Deliveries> {
             children: [
               if (!started)
                 Expanded(
-                  child: _buildActionButton(
+                  child: DeliveryActionButton(
                     label: 'Эхлүүлэх',
                     icon: Icons.play_arrow,
                     color: Colors.green,
@@ -369,18 +383,18 @@ class _DeliveriesState extends State<Deliveries> {
                 ),
               if (trackStopped) ...[
                 Expanded(
-                  child: _buildActionButton(
+                  child: DeliveryActionButton(
                     label: 'Үргэлжлүүлэх',
                     icon: Icons.refresh,
                     color: Colors.amber,
-                    onTap: () async => await jagger.tracking(),
+                    onTap: () async => await jagger.resumeTracking(),
                   ),
                 ),
                 const SizedBox(width: 12),
               ],
               if (started)
                 Expanded(
-                  child: _buildActionButton(
+                  child: DeliveryActionButton(
                     label: 'Дуусгах',
                     icon: Icons.stop,
                     color: Colors.red,
@@ -394,126 +408,32 @@ class _DeliveriesState extends State<Deliveries> {
     );
   }
 
-  Widget _buildActionButton({
-    required String label,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: color,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildStatsRow(Delivery delivery) {
-    final pending = delivery.orders.where((o) => o.process == 'O').length;
-    final inProgress = delivery.orders.where((o) => o.process == 'P').length;
-    final delivered = delivery.orders.where((o) => o.process == 'D').length;
-
+    int pending = delivery.orders.where((o) => o.isPending).length;
+    int inProgress = delivery.orders.where((o) => o.isOnDelivery).length;
+    int delivered = delivery.orders.where((o) => o.isDelivered).length;
     return Row(
+      spacing: 12,
       children: [
-        Expanded(
-          child: _buildStatCard(
-            icon: Icons.pending_actions,
-            label: 'Хүлээгдэж буй',
-            value: pending.toString(),
-            color: Colors.orange,
-          ),
+        DeliveryStatCard(
+          icon: Icons.pending_actions,
+          label: 'Хүлээгдэж буй',
+          value: pending.toString(),
+          color: Colors.orange,
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            icon: Icons.local_shipping,
-            label: 'Хүргэж буй',
-            value: inProgress.toString(),
-            color: Colors.blue,
-          ),
+        DeliveryStatCard(
+          icon: Icons.local_shipping,
+          label: 'Хүргэж буй',
+          value: inProgress.toString(),
+          color: Colors.blue,
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            icon: Icons.check_circle,
-            label: 'Хүргэсэн',
-            value: delivered.toString(),
-            color: Colors.green,
-          ),
+        DeliveryStatCard(
+          icon: Icons.check_circle,
+          label: 'Хүргэгдсэн',
+          value: delivered.toString(),
+          color: Colors.green,
         ),
       ],
-    );
-  }
-
-  Widget _buildStatCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[600],
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
     );
   }
 

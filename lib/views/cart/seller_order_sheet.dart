@@ -25,6 +25,8 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     {'title': 'Зээлээр', 'v': 'L', 'icon': '📝'},
   ];
 
+  FocusNode focusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -97,8 +99,11 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
                 ),
                 child: TextField(
                   controller: noteController,
-                  maxLines: 2,
+                  focusNode: focusNode,
+                  // maxLines: 2,
                   onChanged: (v) => home.setNote(v),
+                  onEditingComplete: () => focusNode.unfocus(),
+                  onSubmitted: (value) => focusNode.unfocus(),
                   decoration: const InputDecoration(
                     hintText: 'Энд тайлбар бичиж болно...',
                     contentPadding: EdgeInsets.all(16),
@@ -178,12 +183,12 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
   }
 
   Future _createOrder(CartProvider cart, HomeProvider home) async {
-    if (home.customer == null) {
-      messageWarning('Захиалагч сонгоно уу!');
-      return;
-    }
     if (payType == '') {
       messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
+      return;
+    }
+    if (home.customer == null) {
+      messageWarning('Захиалагч сонгоно уу!');
       return;
     }
     if ((cart.basket?.totalCount ?? 0) == 0) {

@@ -12,7 +12,7 @@ class CartIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, CartProvider>(
-      builder: (context, home, basket, child) {
+      builder: (context, home, cart, child) {
         Widget iconWidget = type == CartIconType.floating
             ? FloatingActionButton(
                 heroTag: 'MYCART',
@@ -30,11 +30,11 @@ class CartIcon extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             iconWidget,
-            if (basket.basket?.totalCount != 0)
+            if (cart.basket?.totalCount != 0)
               Positioned(
                 right: type == CartIconType.appBar ? 0 : 2,
                 top: type == CartIconType.appBar ? 0 : 2,
-                child: _buildBadge(basket.basket?.totalCount.toInt() ?? 0),
+                child: _buildBadge(cart.basket?.totalCount.toInt() ?? 0),
               ),
           ],
         );

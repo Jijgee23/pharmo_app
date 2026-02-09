@@ -476,6 +476,8 @@ class HomeProvider extends ChangeNotifier {
   }
 
   switchView() {
+    // bool isRefreshed = await refreshed();
+    // print('isRefreshed: $isRefreshed');
     isList = !isList;
     notifyListeners();
   }

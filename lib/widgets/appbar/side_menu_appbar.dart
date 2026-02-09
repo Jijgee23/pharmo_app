@@ -1,9 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/basket_provider.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
+import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/cart/cart_icon.dart';
 import 'package:pharmo_app/widgets/others/chevren_back.dart';
-import 'package:provider/provider.dart';
 
 class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? leadingOnTap;
@@ -39,29 +36,26 @@ class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Consumer2<HomeProvider, CartProvider>(
       builder: (_, home, cart, child) {
-        return ChangeNotifierProvider(
-          create: (context) => CartProvider(),
-          child: PreferredSize(
-            preferredSize: const Size.fromHeight(kToolbarHeight),
-            child: AppBar(
-              centerTitle: false,
-              title: (text != null)
-                  ? Text(
-                      text!,
-                      maxLines: 2,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : title,
-              leading: leading ?? const ChevronBack(),
-              actions: [
-                if (hasBasket) CartIcon.forAppBar(),
-                action ?? const SizedBox()
-              ],
-              bottom: bottom,
-            ),
+        return PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: AppBar(
+            centerTitle: false,
+            title: (text != null)
+                ? Text(
+                    text!,
+                    maxLines: 2,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                : title,
+            leading: leading ?? const ChevronBack(),
+            actions: [
+              if (hasBasket) CartIcon.forAppBar().marginOnly(right: 10),
+              action ?? const SizedBox()
+            ],
+            bottom: bottom,
           ),
         );
       },

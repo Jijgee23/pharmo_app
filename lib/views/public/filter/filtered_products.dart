@@ -50,7 +50,11 @@ class _FilteredProductsState extends State<FilteredProducts> {
 
   fetItems() async {
     List<Product> items = await homeProvider.filter(
-        widget.type!, widget.filterKey, pageKey, _pageSize);
+      widget.type!,
+      widget.filterKey,
+      pageKey,
+      _pageSize,
+    );
     setState(() {
       products.addAll(items);
     });
@@ -64,9 +68,7 @@ class _FilteredProductsState extends State<FilteredProducts> {
         body: Center(
           child: Builder(builder: (context) {
             if (products.isEmpty) {
-              return Column(
-                children: [NoResult()],
-              );
+              return NoResult();
             }
             return Container(
               padding: const EdgeInsets.only(right: 10, left: 10),
@@ -94,8 +96,12 @@ class Products extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       controller: controller,
-      gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: Sizes.isTablet() ? 3 : 2,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 0.75,
+      ),
       itemCount: products.length,
       itemBuilder: (context, idx) {
         Product product = products[idx];

@@ -29,6 +29,7 @@ final lightTheme = ThemeData(
       side: BorderSide(color: Colors.grey.shade300),
     ),
   ),
+
   appBarTheme: AppBarTheme(
     backgroundColor: Colors.white,
     surfaceTintColor: Colors.white,

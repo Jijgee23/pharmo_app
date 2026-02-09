@@ -138,6 +138,9 @@ Future<http.Response> responser(
   Map<String, String>? header,
 ) async {
   final Uri url = ApiService.buildUrl(endpoint);
+
+  // print(url.toString());
+  // print(access);
   final Map<String, String> headers = {
     ...header ?? {},
     ...ApiService.buildHeader('Bearer $access'),
@@ -165,15 +168,23 @@ Future<bool> refreshed() async {
   // if (!hasInternet) return false;
   await Authenticator.initAuthenticator();
   final user = Authenticator.security;
+
   if (user == null) return false;
+  final access = user.access;
   try {
     final response = await apiPostWithoutToken(
       'auth/refresh/',
       {"refresh": user.refresh},
     );
     if (response == null || !apiSucceess(response)) return false;
-    await Authenticator.updateAccess(convertData(response)['access']);
-    return true;
+    final data = convertData(response);
+    print('Refresh token response data: $data');
+    final newAccess = data['access'];
+    if (newAccess == null) return false;
+    await Authenticator.updateAccess(newAccess);
+    final updated = await Authenticator.getSecurity();
+    if (updated == null) return false;
+    return updated.access != access;
   } catch (e) {
     debugPrint('Error refreshing token: $e');
     return false;

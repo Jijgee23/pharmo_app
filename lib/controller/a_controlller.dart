@@ -1,5 +1,5 @@
 export 'providers/auth_provider.dart';
-export 'providers/basket_provider.dart';
+export 'providers/cart_provider.dart';
 export 'providers/home_provider.dart';
 export 'providers/jagger_provider.dart';
 export 'providers/order_provider.dart';

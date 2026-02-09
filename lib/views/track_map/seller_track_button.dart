@@ -1,14 +1,7 @@
 import 'package:pharmo_app/application/application.dart';
 
 class SellerTrackButton extends StatefulWidget {
-  // final bool isStart;
-  // final void Function() onPressed;
-
-  const SellerTrackButton({
-    super.key,
-    // required this.onPressed,
-    // required this.isStart,
-  });
+  const SellerTrackButton({super.key});
 
   @override
   State<SellerTrackButton> createState() => _SellerTrackButtonState();
@@ -19,12 +12,11 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
   late AnimationController _controller;
   late Animation<double> _pulseAnimation;
   late Animation<double> _scaleAnimation;
+  TrackState? _previousState;
 
   @override
   void initState() {
     super.initState();
-    final jagger = context.read<JaggerProvider>();
-    final isTracking = jagger.trackState == TrackState.tracking;
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -37,20 +29,16 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-
-    if (!isTracking) {
-      _controller.repeat(reverse: true);
-    }
   }
 
-  @override
-  void didUpdateWidget(SellerTrackButton oldWidget) {
-    final jagger = context.read<JaggerProvider>();
-    final isTracking = jagger.trackState == TrackState.tracking;
-    super.didUpdateWidget(oldWidget);
-    if (!isTracking && !_controller.isAnimating) {
-      _controller.repeat(reverse: true);
-    } else if (isTracking && _controller.isAnimating) {
+  void _syncAnimation(TrackState state) {
+    if (_previousState == state) return;
+    _previousState = state;
+    if (state == TrackState.tracking || state == TrackState.paused) {
+      if (!_controller.isAnimating) {
+        _controller.repeat(reverse: true);
+      }
+    } else {
       _controller.stop();
       _controller.reset();
     }
@@ -67,6 +55,7 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
     final user = Authenticator.security;
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
+        _syncAnimation(jagger.trackState);
         return Positioned(
           bottom: 20,
           left: 20,
@@ -76,15 +65,18 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
                 if (user == null || !user.isSaler) {
                   return const SizedBox();
                 }
+                final trackState = jagger.trackState;
+                final bgColor = trackState.btnColor;
+                final bool isNone = trackState == TrackState.none;
+                final bool isTracking = trackState == TrackState.tracking;
+
                 return AnimatedBuilder(
                   animation: _controller,
                   builder: (context, child) {
-                    final bgColor = jagger.trackState.btnColor;
-                    bool isStart = jagger.trackState == TrackState.none;
                     return Stack(
                       alignment: Alignment.centerLeft,
                       children: [
-                        if (!isStart)
+                        if (!isNone)
                           Transform.scale(
                             scale: _pulseAnimation.value,
                             child: Container(
@@ -99,14 +91,14 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
                             ),
                           ),
                         Transform.scale(
-                          scale: !isStart ? _scaleAnimation.value : 1.0,
+                          scale: !isNone ? _scaleAnimation.value : 1.0,
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(28),
                               boxShadow: [
                                 BoxShadow(
                                   color: bgColor.withOpacity(0.4),
-                                  blurRadius: !isStart ? 16 : 8,
+                                  blurRadius: !isNone ? 16 : 8,
                                   offset: const Offset(0, 4),
                                 ),
                               ],
@@ -119,29 +111,29 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
                               label: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (!isStart) ...[
+                                  if (isTracking) ...[
                                     _PulsingDot(),
                                     const SizedBox(width: 12),
                                   ] else ...[
-                                    const Icon(
-                                      Icons.play_arrow_rounded,
+                                    Icon(
+                                      trackState.icon,
                                       color: Colors.white,
                                       size: 24,
                                     ),
                                     const SizedBox(width: 8),
                                   ],
                                   Text(
-                                    "Борлуулалт ${jagger.trackState.name}",
+                                    "Борлуулалт ${trackState.label}",
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 15,
                                     ),
                                   ),
-                                  if (!isStart) ...[
+                                  if (isTracking) ...[
                                     const SizedBox(width: 8),
-                                    const Icon(
-                                      Icons.stop_rounded,
+                                    Icon(
+                                      trackState.icon,
                                       color: Colors.white,
                                       size: 24,
                                     ),

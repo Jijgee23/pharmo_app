@@ -5,13 +5,14 @@ import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 
 enum TrackState {
-  none(Colors.green, 'эхлүүлэх'),
-  tracking(Colors.red, 'дуусгах'),
-  paused(Colors.orange, 'үргэлжлүүлэх');
+  none(Colors.green, 'эхлүүлэх', Icons.play_arrow_rounded),
+  tracking(Colors.red, 'дуусгах', Icons.stop_rounded),
+  paused(Colors.orange, 'үргэлжлүүлэх', Icons.play_arrow_rounded);
 
   final Color btnColor;
-  final String name;
-  const TrackState(this.btnColor, this.name);
+  final String label;
+  final IconData icon;
+  const TrackState(this.btnColor, this.label, this.icon);
 }
 
 class JaggerProvider extends ChangeNotifier {
@@ -26,12 +27,12 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   Future initJagger() async {
-    await tracking();
     if (Hive.isBoxOpen('track_box')) {
       trackBox = Hive.box('track_box');
-      return;
+    } else {
+      trackBox = await Hive.openBox('track_box');
     }
-    trackBox = await Hive.openBox('track_box');
+    await tracking();
   }
 
   // TRACKING
@@ -93,7 +94,8 @@ class JaggerProvider extends ChangeNotifier {
         final data = convertData(r);
         if (data['count'] == 0) return 0;
         final isActive = (data['results'] as List).isNotEmpty;
-        final delid = isActive ? data['results'][0]['id'] : 0;
+        if (!isActive) return 0;
+        final delid = data['results'][0]['id'];
         salerStartedOn = data['results'][0]['started_on'] ?? '';
         await Authenticator.saveTrackId(delid);
         notifyListeners();
@@ -112,7 +114,7 @@ class JaggerProvider extends ChangeNotifier {
     }
     if (trackState == TrackState.paused) {
       print('TRACK PAUSED,  RESUMING TRACK...');
-      await tracking();
+      await resumeTracking();
       return;
     }
     await startShipment();
@@ -170,11 +172,11 @@ class JaggerProvider extends ChangeNotifier {
       if (r.statusCode == 200) {
         messageComplete('$action амжилттай эхлэлээ!');
 
+        int sellerTrackId = 0;
         if (isDriver) {
           await getDeliveries();
-        }
-        if (!isDriver) {
-          await checkSellerTrack();
+        } else {
+          sellerTrackId = await checkSellerTrack();
         }
 
         await clearTrackData();
@@ -188,25 +190,25 @@ class JaggerProvider extends ChangeNotifier {
         );
         addMarker(
           AssetIcon.flag,
+          infoWindow: InfoWindow(title: 'Эхлэл'),
           position: LatLng(
             currentPosition!.latitude,
             currentPosition!.longitude,
           ),
         );
 
-        await Authenticator.saveTrackId(
-                isDriver ? shipmentId : await checkSellerTrack())
+        await Authenticator.saveTrackId(isDriver ? shipmentId : sellerTrackId)
             .whenComplete(
           () async {
             final trackId = await Authenticator.getTrackId();
             if (trackId == 0) {
-              messageWarning('${{action.capitalize}} олдсонгүй!');
+              messageWarning('${action.capitalize} олдсонгүй!');
               return;
             }
             await tracking();
           },
         );
-      } else if (r != null && r.statusCode == 400) {
+      } else if (r.statusCode == 400) {
         String data = convertData(r).toString();
         if (data.contains('already started')) {
           messageWarning('Түгээлт эхлэсэн байна!');
@@ -222,10 +224,31 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> resumeTracking() async {
+    bool confirmed = await confirmDialog(
+      context: GlobalKeys.navigatorKey.currentContext!,
+      title: 'Байршил хянах үйлчилгээг үргэлжлүүлэх үү?',
+      message: 'Таны байршлыг хянах үйлчилгээг үргэлжлүүлэх үү?',
+    );
+    if (!confirmed) return;
+    await tracking();
+    await loadTrackState();
+    final user = Authenticator.security;
+    if (user == null) return;
+    if (user.isSaler) {
+      await checkSellerTrack();
+    }
+    if (user.isDriver) {
+      await getDeliveries();
+    }
+  }
+
   Future tracking() async {
     if (!await Authenticator.hasTrack()) return;
     await getTrackBox();
-    if (Authenticator.security!.isSaler) {
+    final user = Authenticator.security;
+    if (user == null) return;
+    if (user.isSaler) {
       await checkSellerTrack();
     }
     try {
@@ -245,10 +268,10 @@ class JaggerProvider extends ChangeNotifier {
         messageError('Location service эхлүүлж чадсангүй');
         return;
       }
-      timer = Timer.periodic(Duration(seconds: 1), (v) {
-        now = DateTime.now();
-        notifyListeners();
-      });
+      // timer = Timer.periodic(Duration(seconds: 1), (v) {
+      //   now = DateTime.now();
+      //   notifyListeners();
+      // });
       print("subscription started :${subscription != null}");
       notifyListeners();
     } catch (e) {
@@ -275,13 +298,18 @@ class JaggerProvider extends ChangeNotifier {
 
     bool isDriver = user.isDriver;
     String action = isDriver ? 'түгээлт' : 'борлуулалт';
-    List<DeliveryOrder>? unDeliveredOrders =
-        delivery!.orders.where((t) => t.process == 'O').toList();
+    // List<DeliveryOrder>? orders = delivery?.orders;
+    List<DeliveryOrder> unDeliveredOrders = [];
+    if (isDriver && delivery != null) {
+      unDeliveredOrders =
+          delivery!.orders.where((t) => t.isOnDelivery).toList();
+    }
+
     final confirmed = await confirmDialog(
       context: GlobalKeys.navigatorKey.currentContext!,
       title: '${action.capitalize} дуусгах үү?',
       message:
-          '${action.capitalize}-ийн үед таны байршлыг хянахыг зогсооно. ${isDriver && unDeliveredOrders.isNotEmpty ? 'Мөн ${unDeliveredOrders.length} захиалга хүргэгдээгүй байна!' : ''}',
+          '${action.capitalize} дуусах үед таны байршлыг хянахыг зогсооно. ${isDriver && unDeliveredOrders.isNotEmpty ? 'Мөн ${unDeliveredOrders.length} захиалга хүргэгдээгүй байна!' : ''}',
     );
 
     if (!confirmed) return;
@@ -333,26 +361,21 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  late Timer timer;
+  // late Timer timer;
   DateTime now = DateTime.now();
 
   Future stopTracking() async {
     try {
       await syncOffineTracks();
-      await subscription!.cancel();
+      await subscription?.cancel();
+      subscription = null;
       await NativeChannel.stopLocationService();
       await Authenticator.clearTrackId();
-      await loadTrackState();
       await clearTrackData();
-      subscription = null;
       routeCoords.clear();
       polylines.clear();
       orderMarkers.clear();
       notifyListeners();
-      if (subscription != null) {
-        subscription = null;
-        notifyListeners();
-      }
     } catch (e) {
       print(e);
       throw Exception(e);
@@ -366,7 +389,7 @@ class JaggerProvider extends ChangeNotifier {
   final int _uploadIntervalSeconds = 5;
 
   Future sendTobackend(double lat, double lng) async {
-    await loadTrackState();
+    // await loadTrackState();
     double latitude = truncateToSixDigits(lat);
     double longitude = truncateToSixDigits(lng);
     final now = DateTime.now();
@@ -488,7 +511,10 @@ class JaggerProvider extends ChangeNotifier {
             .map((e) => LatLng(e.latitude, e.longitude))
             .toList(),
         color: Colors.teal,
-        width: 5,
+        width: 7,
+        jointType: JointType.round,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
       ),
       Polyline(
         polylineId:
@@ -498,7 +524,10 @@ class JaggerProvider extends ChangeNotifier {
             .map((e) => LatLng(e.latitude, e.longitude))
             .toList(),
         color: Colors.redAccent,
-        width: 5,
+        width: 7,
+        jointType: JointType.round,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
       ),
     };
     notifyListeners();
@@ -551,6 +580,7 @@ class JaggerProvider extends ChangeNotifier {
     for (var d in list) {
       if (d.sended == false) {
         d.sended = true;
+        await d.save();
       }
     }
     await getTrackBox();
@@ -565,8 +595,10 @@ class JaggerProvider extends ChangeNotifier {
       if (r.statusCode == 200) {
         final data = jsonDecode(utf8.decode(r.bodyBytes)) as List;
         if (data.isEmpty) {
-          delivery == null;
+          print('No active deliveries found for the driver.');
+          delivery = null;
           notifyListeners();
+          print(delivery?.created);
           return;
         }
 
@@ -653,7 +685,6 @@ class JaggerProvider extends ChangeNotifier {
       final r = await api(Api.patch, 'customer_payment/', body: data);
       if (r == null) return;
       if (r.statusCode == 200) {
-        getCustomerPayment();
         messageComplete('Амжилттай хадгаллаа');
         await getCustomerPayment();
       } else {
@@ -698,8 +729,8 @@ class JaggerProvider extends ChangeNotifier {
         "lng": loc.longitude
       };
       final r = await api(Api.post, 'delivery/addition/', body: data);
-      print(r!.statusCode);
       if (r == null) return;
+      print(r.statusCode);
       if (r.statusCode == 200 || r.statusCode == 201) {
         messageComplete('Амжилттай бүртгэлээ');
         await getDeliveries();
@@ -780,9 +811,7 @@ class JaggerProvider extends ChangeNotifier {
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
     notifyListeners();
-    if (mapController != null) {
-      goToMyLocation();
-    }
+    goToMyLocation();
   }
 
   void toggleTraffic() {

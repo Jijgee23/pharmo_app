@@ -26,11 +26,20 @@ class OrdererOrders extends StatelessWidget {
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 180,
+                expandedHeight: 140,
                 floating: false,
                 pinned: true,
                 backgroundColor: primary,
                 foregroundColor: Colors.white,
+                title: Text(
+                  orderer.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: white,
+                  ),
+                ),
+                iconTheme: const IconThemeData(color: Colors.white),
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
                     decoration: BoxDecoration(
@@ -48,14 +57,14 @@ class OrdererOrders extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           spacing: 10,
                           children: [
-                            Text(
-                              orderer.name,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: white,
-                              ),
-                            ),
+                            // Text(
+                            //   orderer.name,
+                            //   style: TextStyle(
+                            //     fontSize: 18,
+                            //     fontWeight: FontWeight.bold,
+                            //     color: white,
+                            //   ),
+                            // ),
                             Row(
                               children: [
                                 _buildProgressBadge(progress),
@@ -85,14 +94,6 @@ class OrdererOrders extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // title: Text(
-                  //   ordererName,
-                  //   style: const TextStyle(
-                  //     fontSize: 18,
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
-                  // centerTitle: false,
                 ),
               ),
               SliverPadding(

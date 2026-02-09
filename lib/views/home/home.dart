@@ -232,9 +232,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget products(HomeProvider home) {
     var del = SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: Sizes.isTablet() ? 3 : 2,
-      childAspectRatio: .8,
+      childAspectRatio: 0.75,
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
+      mainAxisExtent: 250,
     );
     final user = Authenticator.security;
 
@@ -244,7 +245,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           if (user == null) {
             return AuthError();
           }
-          if (user.role == 'PA' &&
+          if (user.isPharmacist &&
               (home.picked.id.toString() == '-1' || home.picked == null)) {
             return errorWidget();
           }
@@ -255,6 +256,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 return ShimmerBox(controller: controller, height: 150);
               },
             );
+          }
+          if (home.fetchedItems.isEmpty) {
+            return NoResult();
           }
           if (home.isList) {
             return ListView.separated(

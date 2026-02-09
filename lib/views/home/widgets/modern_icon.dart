@@ -19,9 +19,7 @@ class ModernIcon extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 0,
-        // minimumSize: Size(45, 45),
         padding: EdgeInsets.all(14),
-        // maximumSize: Size(45, 45),
       ),
       icon: Icon(
         iconData,

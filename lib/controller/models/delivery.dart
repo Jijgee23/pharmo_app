@@ -138,6 +138,9 @@ class DeliveryOrder {
   });
   PayType get paymentType => PayType.fromValue(payType);
   OrderProcess get orderProcess => OrderProcess.fromCode(process);
+  bool get isDelivered => orderProcess == OrderProcess.delivered;
+  bool get isPending => orderProcess == OrderProcess.packed;
+  bool get isOnDelivery => orderProcess == OrderProcess.onDelivery;
   OrderStatus get orderStatus => OrderStatus.fromValue(status);
 
   factory DeliveryOrder.fromJson(Map<String, dynamic> json) {

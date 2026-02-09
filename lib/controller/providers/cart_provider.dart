@@ -68,22 +68,27 @@ class CartProvider extends ChangeNotifier {
         body: {'product_id': id, 'qty': qty},
       );
       if (response == null) return;
+      final data = convertData(response);
+      print(response.body);
       if (response.statusCode == 200) {
-        print(response.body);
-        if (convertData(response).toString().contains('available_qty')) {
-          final result = convertData(response)['available_qty'];
+        if (data.toString().contains('available_qty')) {
+          final result = data['available_qty'];
           if (result == null) {
             messageWarning('Үлдэгдэл хүрэлцэхгүй байна.');
             return;
           }
           messageWarning(
-            'Үлдэгдэл хүрэлцэхгүй байна. Боломжит үлдэглэл ${convertData(response)['available_qty'] ?? 0}',
+            'Үлдэгдэл хүрэлцэхгүй байна. Боломжит үлдэглэл ${data['available_qty'] ?? 0}',
           );
         } else {
           await getBasket();
           messageComplete('$name сагсанд нэмэгдлээ');
         }
       } else {
+        if (data.toString().contains('Product not found!')) {
+          messageWarning('Бараа олдсонгүй!');
+          return;
+        }
         messageWarning(wait);
       }
     } catch (e, stackTrace) {

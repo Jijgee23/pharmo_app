@@ -22,7 +22,7 @@ class TrackingStatusCard extends StatelessWidget {
         );
 
         return Positioned(
-          top: 100,
+          top: 80,
           left: 16,
           right: 16,
           child: Column(
@@ -79,17 +79,17 @@ class TrackingStatusCard extends StatelessWidget {
                             _buildStatItem(
                               icon: Icons.straighten,
                               value: _formatDistance(distance),
-                              label: 'Зай',
+                              label: 'Зай (ойролцоогоор)',
                               color: Colors.orange,
                             ),
-                            _buildDivider(),
-                            _buildStatItem(
-                              icon: Icons.speed,
-                              value:
-                                  '${_calculateSpeed(distance, jagger).toStringAsFixed(1)} км/ц',
-                              label: 'Дундаж хурд',
-                              color: Colors.green,
-                            ),
+                            // _buildDivider(),
+                            // _buildStatItem(
+                            //   icon: Icons.speed,
+                            //   value:
+                            //       '${_calculateSpeed(distance, jagger).toStringAsFixed(1)} км/ц',
+                            //   label: 'Дундаж хурд',
+                            //   color: Colors.green,
+                            // ),
                           ],
                         ),
                         if (trackDatas.isNotEmpty) ...[
@@ -220,7 +220,7 @@ class TrackingStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressBar(List trackDatas, JaggerProvider jagger) {
+  Widget _buildProgressBar(List<TrackData> trackDatas, JaggerProvider jagger) {
     final sentCount = trackDatas.where((e) => e.sended).length;
     final totalCount = trackDatas.length;
     final progress = totalCount > 0 ? sentCount / totalCount : 1.0;
@@ -259,7 +259,10 @@ class TrackingStatusCard extends StatelessWidget {
     );
   }
 
-  double _calculateTotalDistance(List trackDatas, JaggerProvider jagger) {
+  double _calculateTotalDistance(
+    List<TrackData> trackDatas,
+    JaggerProvider jagger,
+  ) {
     if (trackDatas.length < 2) return 0;
 
     double total = 0;
@@ -361,20 +364,20 @@ class TrackingStatusCard extends StatelessWidget {
     }
   }
 
-  double _calculateSpeed(double distanceMeters, JaggerProvider jagger) {
-    if (jagger.delivery?.startedOn == null) return 0;
+  // double _calculateSpeed(double distanceMeters, JaggerProvider jagger) {
+  //   if (jagger.delivery?.startedOn == null) return 0;
 
-    try {
-      final startTime = DateTime.parse(jagger.delivery!.startedOn!);
-      final duration = jagger.now.difference(startTime);
+  //   try {
+  //     final startTime = DateTime.parse(jagger.delivery!.startedOn!);
+  //     final duration = jagger.now.difference(startTime);
 
-      if (duration.inSeconds == 0) return 0;
+  //     if (duration.inSeconds == 0) return 0;
 
-      // Convert m/s to km/h
-      final speedMs = distanceMeters / duration.inSeconds;
-      return speedMs * 3.6;
-    } catch (e) {
-      return 0;
-    }
-  }
+  //     // Convert m/s to km/h
+  //     final speedMs = distanceMeters / duration.inSeconds;
+  //     return speedMs * 3.6;
+  //   } catch (e) {
+  //     return 0;
+  //   }
+  // }
 }
