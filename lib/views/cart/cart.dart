@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class Cart extends StatefulWidget {

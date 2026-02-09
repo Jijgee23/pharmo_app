@@ -14,7 +14,7 @@ class SheetContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(maxHeight: ContextX(context).heigh * .8),
+      constraints: BoxConstraints(maxHeight: context.height * .8),
       width: double.maxFinite,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: const BoxDecoration(

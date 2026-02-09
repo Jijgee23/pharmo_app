@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/theme/size/sizes.dart';
+
+import 'package:pharmo_app/application/application.dart';
 
 class Button extends StatelessWidget {
   final String text;
@@ -17,7 +17,7 @@ class Button extends StatelessWidget {
       padding:
           EdgeInsets.symmetric(vertical: size.width * 0.03, horizontal: 10),
       decoration: BoxDecoration(
-        color: color ?? theme.primaryColor,
+        color: color ?? context.theme.primaryColor,
         borderRadius: BorderRadius.circular(size.width * 0.05),
       ),
       child: InkWell(

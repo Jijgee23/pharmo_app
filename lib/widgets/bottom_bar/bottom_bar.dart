@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/theme/size/sizes.dart';
-import 'package:provider/provider.dart';
-import '../../controller/providers/home_provider.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class BottomBar extends StatelessWidget {
   final List<String> icons;
@@ -71,7 +68,7 @@ class BottomBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color activeColor = theme.primaryColor;
+    final Color activeColor = context.theme.primaryColor;
     final Color inactiveColor = Colors.grey.shade400;
 
     return Expanded(

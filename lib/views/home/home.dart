@@ -93,73 +93,75 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         final user = Authenticator.security;
         if (user == null) return SizedBox();
         return SafeArea(
-          child: RefreshIndicator.adaptive(
-            onRefresh: () async => await refresh(),
-            child: Column(
-              spacing: 5,
-              children: [
-                if (user.role == 'PA')
+          child: Mater(
+            child: RefreshIndicator.adaptive(
+              onRefresh: () async => await refresh(),
+              child: Column(
+                spacing: 5,
+                children: [
+                  if (user.role == 'PA')
+                    Row(
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => handleActionButton(home),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primary.shade600,
+                              elevation: 0,
+                              minimumSize: Size(double.maxFinite, 45),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(
+                                  10,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  home.picked.name,
+                                  style: TextStyle(
+                                    color: white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_downward_rounded,
+                                  color: white,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   Row(
                     spacing: 10,
                     children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => handleActionButton(home),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primary.shade600,
-                            elevation: 0,
-                            minimumSize: Size(double.maxFinite, 45),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(
-                                10,
-                              ),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                home.picked.name,
-                                style: TextStyle(
-                                  color: white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_downward_rounded,
-                                color: white,
-                              )
-                            ],
-                          ),
+                      ModernField(
+                        onChanged: (v) => onfieldChanged(v, home),
+                        onSubmited: (v) => onFieldSubmitted(v, home),
+                        hint: '${home.searchType} хайх',
+                        suffixIcon: IconButton(
+                          onPressed: () => setFilter(home),
+                          icon: Icon(Icons.settings),
                         ),
                       ),
+                      ModernIcon(
+                        iconData:
+                            home.isList ? Icons.grid_view : Icons.list_sharp,
+                        onPressed: () => home.switchView(),
+                      ),
+                      // CartIcon(),
                     ],
                   ),
-                Row(
-                  spacing: 10,
-                  children: [
-                    ModernField(
-                      onChanged: (v) => onfieldChanged(v, home),
-                      onSubmited: (v) => onFieldSubmitted(v, home),
-                      hint: '${home.searchType} хайх',
-                      suffixIcon: IconButton(
-                        onPressed: () => setFilter(home),
-                        icon: Icon(Icons.settings),
-                      ),
-                    ),
-                    ModernIcon(
-                      iconData:
-                          home.isList ? Icons.grid_view : Icons.list_sharp,
-                      onPressed: () => home.switchView(),
-                    ),
-                    // CartIcon(),
-                  ],
-                ),
-                if (user.role == 'PA') filtering(Sizes.smallFontSize),
-                products(home),
-              ],
-            ),
-          ).paddingSymmetric(horizontal: 10),
+                  if (user.role == 'PA') filtering(smallFontSize),
+                  products(home),
+                ],
+              ),
+            ).paddingSymmetric(horizontal: 10),
+          ),
         );
       },
     );
@@ -231,7 +233,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   Widget products(HomeProvider home) {
     var del = SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: Sizes.isTablet() ? 3 : 2,
+      crossAxisCount: context.isTablet ? 3 : 2,
       childAspectRatio: 0.75,
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
@@ -394,12 +396,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Widget errorWidget() {
-    return const Text(
+    return Text(
       'Нийлүүлэгч сонгоно уу!',
       textAlign: TextAlign.center,
       style: TextStyle(
         color: Colors.red,
-        fontSize: Sizes.mediumFontSize,
+        fontSize: mediumFontSize,
         fontWeight: FontWeight.bold,
       ),
     );

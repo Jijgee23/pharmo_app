@@ -25,7 +25,7 @@ class NoResult extends StatelessWidget {
               opacity: 0.7,
               child: Image.asset(
                 'assets/icons/not-found.png',
-                width: Sizes.width * 0.4,
+                width: context.width * 0.4,
                 fit: BoxFit.contain,
                 // Хэрэв зураг байхгүй бол алдаа заахаас сэргийлнэ
                 errorBuilder: (context, error, stackTrace) => Icon(

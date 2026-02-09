@@ -93,11 +93,11 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                     ],
                   ),
                 if (promo.endDate != null)
-                  XBox(
+                  SectionCard(
+                    title: 'Урамшуулал дуусах хугацаа',
                     child: Column(
                       children: [
                         box,
-                        text('Урамшуулал дуусах хугацаа:'),
                         text(promo.endDate!.substring(0, 10),
                             color: myColor, size: 20),
                       ],
@@ -146,7 +146,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                               decoration: BoxDecoration(
                                 color: promotionProvider.delivery
                                     ? Colors.grey.shade300
-                                    : theme.primaryColor,
+                                    : context.theme.primaryColor,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: InkWell(
@@ -164,7 +164,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                               decoration: BoxDecoration(
                                 color: !promotionProvider.delivery
                                     ? Colors.grey.shade300
-                                    : theme.primaryColor,
+                                    : context.theme.primaryColor,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: InkWell(
@@ -179,7 +179,8 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                       box,
                       promotionProvider.delivery
                           ? const SizedBox()
-                          : XBox(
+                          : SectionCard(
+                              title: 'Салбар сонгох',
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: home.branches
@@ -199,7 +200,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                               decoration: BoxDecoration(
                                 color: !promotionProvider.isCash
                                     ? Colors.grey.shade300
-                                    : theme.primaryColor,
+                                    : context.theme.primaryColor,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: InkWell(
@@ -219,7 +220,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                               decoration: BoxDecoration(
                                 color: promotionProvider.isCash
                                     ? Colors.grey.shade300
-                                    : theme.primaryColor,
+                                    : context.theme.primaryColor,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: InkWell(
@@ -378,7 +379,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
               Icons.home,
               color: selectedBranch == e.id
                   ? AppColors.secondary
-                  : theme.primaryColor,
+                  : context.theme.primaryColor,
             ),
             Constants.boxH10,
             Text(e.name!),

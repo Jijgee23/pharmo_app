@@ -32,9 +32,9 @@ class CustomButton extends StatelessWidget {
         ),
         padding: padding ?? EdgeInsets.symmetric(vertical: 12),
         foregroundColor: enabled ? Colors.white : Colors.white.withAlpha(150),
-        maximumSize: Size(ContextX(context).width, 50),
+        maximumSize: Size(context.width, 50),
         animationDuration: Duration(milliseconds: 100),
-        backgroundColor: getColor(),
+        backgroundColor: getColor(context),
       ),
       onPressed: enabled ? ontap : null,
       child: Center(
@@ -43,7 +43,7 @@ class CustomButton extends StatelessWidget {
               text,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: Sizes.mediumFontSize,
+                fontSize: mediumFontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -51,11 +51,11 @@ class CustomButton extends StatelessWidget {
     );
   }
 
-  getColor() {
+  getColor(BuildContext context) {
     if (color != null && enabled) {
       return color;
     } else if (color == null && enabled) {
-      return theme.primaryColor;
+      return context.theme.primaryColor;
     } else if (color != null && !enabled) {
       return grey400;
     } else if (color == null && !enabled) {

@@ -1,6 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/application.dart';
+
 class LocationSelector extends StatefulWidget {
   const LocationSelector({super.key});
 
@@ -80,7 +81,8 @@ class _LocationSelectorState extends State<LocationSelector> {
       appBar: AppBar(
         leading: const ChevronBack(),
         title: const SmallText('Байршил сонгох'),
-        backgroundColor: theme.colorScheme.onPrimary,
+        backgroundColor:
+            ContextExtensionss(context).theme.colorScheme.onPrimary,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -98,18 +100,19 @@ class _LocationSelectorState extends State<LocationSelector> {
                   markers: _marker != null ? {_marker!} : {},
                 ),
                 Positioned(
-                  bottom: Sizes.smallFontSize,
-                  left: Sizes.width / 2 - Sizes.mediumFontSize * 2,
+                  bottom: smallFontSize,
+                  left: ContextExtensionss(context).width / 2 -
+                      mediumFontSize * 2,
                   child: InkWell(
                     onTap: () => Navigator.pop(context, _selectedLocation),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: Sizes.mediumFontSize,
-                          vertical: Sizes.smallFontSize),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: mediumFontSize,
+                          vertical: smallFontSize),
                       decoration: BoxDecoration(
                           color: Colors.green,
                           borderRadius:
-                              BorderRadius.circular(Sizes.bigFontSize)),
+                              BorderRadius.circular(bigFontSize)),
                       child: const Text('Болсон',
                           style: TextStyle(color: Colors.white)),
                     ),

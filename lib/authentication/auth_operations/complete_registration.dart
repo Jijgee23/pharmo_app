@@ -93,10 +93,10 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     return Scaffold(
       appBar: SideAppBar(text: 'Бүртгэл гүйцээх'),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: Sizes.mediumFontSize),
+        padding: EdgeInsets.symmetric(horizontal: mediumFontSize),
         child: Wrap(
-          spacing: Sizes.width / 2,
-          runSpacing: Sizes.bigFontSize,
+          spacing: context.width / 2,
+          runSpacing: bigFontSize,
           children: [
             const SizedBox(),
             CustomTextField(controller: rd, hintText: 'Байгууллагын РД'),
@@ -150,7 +150,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                 ),
                 Text(
                   'Одоогийн байршилаар бүртгэх',
-                  style: TextStyle(color: theme.primaryColor),
+                  style: TextStyle(color: context.theme.primaryColor),
                 ),
               ],
             ),
@@ -200,7 +200,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                 (t) => PopupMenuItem(onTap: () => setType(t), child: Text(t)))
           ],
           position: RelativeRect.fromLTRB(
-              Sizes.width / 2, Sizes.height / 4, Sizes.bigFontSize, 0)),
+              context.width / 2, context.height / 4, bigFontSize, 0)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [Text(selectedType), const Icon(Icons.arrow_drop_down)],

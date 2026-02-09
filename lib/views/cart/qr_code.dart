@@ -30,9 +30,10 @@ class _QRCodeState extends State<QRCode> {
                         'Доорх QR кодыг уншуулж төлбөр төлснөөр захиалга баталгаажна.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            color: theme.primaryColor),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: primary,
+                        ),
                       ),
                       Center(
                           child: QrImageView(

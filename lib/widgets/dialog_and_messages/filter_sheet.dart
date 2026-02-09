@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pharmo_app/application/context/theme/size/sizes.dart';
 import 'package:pharmo_app/widgets/inputs/custom_button.dart';
 
-import '../../application/context/theme/color/colors.dart';
+import '../../application/core/theme/color/colors.dart';
 
 typedef FilterContentBuilder = List<Widget> Function(
     BuildContext context, StateSetter setModalState);
@@ -22,8 +21,8 @@ Future<void> showFilterBottomSheet({
 }) {
   final sheetConstraints = constraints ??
       BoxConstraints(
-        minWidth: Sizes.width,
-        maxHeight: Sizes.height * .9,
+        minWidth: context.width,
+        maxHeight: context.height * .9,
       );
 
   return Get.bottomSheet(

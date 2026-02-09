@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/theme/size/sizes.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class AuthText extends StatelessWidget {
   final String text;
@@ -17,7 +16,7 @@ class AuthText extends StatelessWidget {
         style: TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.w900,
-          color: theme.primaryColor,
+          color: context.theme.primaryColor,
         ),
       ),
     );

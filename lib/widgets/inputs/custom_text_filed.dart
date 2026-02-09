@@ -1,7 +1,4 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/theme/color/colors.dart';
-import 'package:pharmo_app/application/context/theme/size/sizes.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController? controller;
@@ -95,7 +92,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(Sizes.mediumFontSize);
+    final borderRadius = BorderRadius.circular(mediumFontSize);
 
     final defaultBorder = OutlineInputBorder(
       borderSide: BorderSide(color: grey400, width: 1),

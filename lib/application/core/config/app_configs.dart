@@ -1,3 +1,4 @@
+
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/controller/providers/Listeners/life_cycle_listener.dart';
 import 'package:pharmo_app/authentication/auth_operations/complete_registration.dart';

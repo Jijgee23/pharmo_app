@@ -1,7 +1,4 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/application/function/utilities/a_utils.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class ReportProvider extends ChangeNotifier {
   DateTime currentDate = DateTime.now().subtract(Duration(days: 30));

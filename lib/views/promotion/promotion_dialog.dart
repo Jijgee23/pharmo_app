@@ -1,7 +1,7 @@
-
 import 'package:pharmo_app/views/promotion/buying_promo_dialog.dart';
 import 'package:pharmo_app/views/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/application/application.dart';
+
 class PromotionDialog extends StatelessWidget {
   const PromotionDialog({super.key});
 
@@ -19,12 +19,14 @@ class PromotionDialog extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      button2(Icons.chevron_left, handler: () => preivous(pageController)),
+                      button2(Icons.chevron_left,
+                          handler: () => preivous(pageController)),
                       button2(Icons.chevron_right,
                           handler: () => next(pageController, promo, context)),
                     ],
                   ),
-                  button2(Icons.highlight_remove, handler: () => Navigator.pop(context))
+                  button2(Icons.highlight_remove,
+                      handler: () => Navigator.pop(context))
                 ],
               ),
             ),
@@ -54,13 +56,14 @@ class PromotionDialog extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 10),
         padding: const EdgeInsets.all(10),
         child: Row(
-          children: [Icon(icon, color: theme.primaryColor)],
+          children: [Icon(icon, color: primary)],
         ),
       ),
     );
   }
 
-  void next(PageController pageController, PromotionProvider promo, BuildContext context) {
+  void next(PageController pageController, PromotionProvider promo,
+      BuildContext context) {
     if (pageController.page == promo.markedPromotions.length - 1) {
       Navigator.pop(context);
     } else {

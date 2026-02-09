@@ -1,6 +1,4 @@
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/views/cart/cart_icon.dart';
-import 'package:pharmo_app/widgets/others/chevren_back.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class SideAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? leadingOnTap;

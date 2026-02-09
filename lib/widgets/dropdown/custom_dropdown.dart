@@ -1,7 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
-
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/theme/size/sizes.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class ResponsiveDropdownButton extends StatefulWidget {
   final String initText;
@@ -93,7 +90,7 @@ class _ResponsiveDropdownButtonState extends State<ResponsiveDropdownButton> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: theme.primaryColor,
+          color: context.theme.primaryColor,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(

@@ -12,7 +12,7 @@ class BuyinPromo extends StatelessWidget {
     return Consumer<PromotionProvider>(
       builder: (_, promotion, child) {
         return Scaffold(
-          backgroundColor: theme.primaryColor,
+          backgroundColor: context.theme.primaryColor,
           body: DefaultBox(
             title: promo.name!,
             child: SingleChildScrollView(
@@ -26,20 +26,21 @@ class BuyinPromo extends StatelessWidget {
                         child: text('Дахиж харахгүй', color: black)),
                   ),
                   (promo.desc != null)
-                      ? XBox(
+                      ? SectionCard(
+                          title: 'Тайлбар',
                           child: Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.symmetric(vertical: 10),
-                          child: Text(promo.desc!),
-                        ))
+                            width: double.infinity,
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            child: Text(promo.desc!),
+                          ))
                       : const SizedBox(),
-                  XBox(
+                  SectionCard(
+                    title: 'Захиалгын дүн',
                     child: Wrap(
                       alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       direction: Axis.horizontal,
                       children: [
-                        const Text('Захиалгын дүн '),
                         Text(
                           '${promo.total}₮ ',
                           style: TextStyle(
@@ -63,7 +64,8 @@ class BuyinPromo extends StatelessWidget {
                           color: AppColors.secondary, size: 30)
                       : const SizedBox(),
                   (promo.gift != null)
-                      ? XBox(
+                      ? SectionCard(
+                          title: 'Бэлгийн мэдээлэл',
                           child: Column(
                             children: [
                               (promo.gift != null)
@@ -91,10 +93,10 @@ class BuyinPromo extends StatelessWidget {
                         )
                       : const SizedBox(),
                   promo.endDate != null
-                      ? XBox(
+                      ? SectionCard(
+                          title: 'Урамшуулал дуусах хугацаа',
                           child: Column(
                             children: [
-                              const Text('Урамшуулал дуусах хугацаа:'),
                               Text(
                                 promo.endDate != null
                                     ? promo.endDate!.substring(0, 10)
@@ -161,7 +163,7 @@ class BuyinPromo extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
-              color: theme.primaryColor,
+              color: context.theme.primaryColor,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(

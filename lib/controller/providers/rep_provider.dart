@@ -1,10 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
-import '../a_controlller.dart';
-import 'package:pharmo_app/application/services/a_services.dart';
-import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
-import 'package:pharmo_app/application/function/utilities/a_utils.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class RepProvider extends ChangeNotifier {
   Visiting? visiting;

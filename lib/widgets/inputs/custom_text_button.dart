@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/theme/size/sizes.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class CustomTextButton extends StatelessWidget {
   final String text;
@@ -19,7 +18,7 @@ class CustomTextButton extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: color ?? theme.primaryColor,
+            color: color ?? context.theme.primaryColor,
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),

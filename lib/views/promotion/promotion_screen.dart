@@ -163,7 +163,8 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                       return NoResult();
                     }
                     return Expanded(
-                      child: XBox(
+                      child: SectionCard(
+                        title: 'Урамшуулал',
                         child: SingleChildScrollView(
                           child: Column(
                             children: promos

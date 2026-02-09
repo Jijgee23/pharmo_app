@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/application/application.dart';
-
+import 'package:get/get.dart';
 class ProductDetail extends StatefulWidget {
   final Product prod;
   const ProductDetail({super.key, required this.prod});

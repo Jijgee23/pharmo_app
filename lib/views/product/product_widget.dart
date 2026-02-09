@@ -41,7 +41,7 @@ class ProductWidget extends StatelessWidget {
                     children: [
                       Expanded(
                         flex: 3,
-                        child: image(Sizes.height),
+                        child: image(ContextExtensionss(context).height),
                       ),
                       Text(
                         item.name!,
@@ -67,10 +67,10 @@ class ProductWidget extends StatelessWidget {
                                   Expanded(
                                     child: Text(
                                       toPrice(item.price),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: Sizes.mediumFontSize - 2,
+                                        fontSize: mediumFontSize - 2,
                                       ),
                                     ),
                                   ),
@@ -79,7 +79,7 @@ class ProductWidget extends StatelessWidget {
                                       child: Text(
                                         'Үлд: ${parseDouble(item.qty)}',
                                         style: TextStyle(
-                                          fontSize: Sizes.mediumFontSize - 2,
+                                          fontSize: mediumFontSize - 2,
                                           color: item.qty > 0
                                               ? Colors.green
                                               : Colors.red,
@@ -109,7 +109,9 @@ class ProductWidget extends StatelessWidget {
                               ),
                               icon: Icon(
                                 Icons.add,
-                                color: theme.primaryColor,
+                                color: ContextExtensionss(context)
+                                    .theme
+                                    .primaryColor,
                               ),
                             ),
                           ],
@@ -221,7 +223,7 @@ class ProductWidgetListView extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: theme.cardColor,
+        color: ContextExtensionss(context).theme.cardColor,
         border: Border.all(
           color: const Color.fromARGB(255, 207, 206, 206),
           width: 1,
@@ -267,7 +269,10 @@ class ProductWidgetListView extends StatelessWidget {
                           child: Text(
                             'Үлд: ${maybeNull(item.qty.toString())}',
                             style: TextStyle(
-                              color: theme.colorScheme.onPrimary,
+                              color: ContextExtensionss(context)
+                                  .theme
+                                  .colorScheme
+                                  .onPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                             ),

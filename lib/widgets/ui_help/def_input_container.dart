@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/theme/size/sizes.dart';
-import 'package:pharmo_app/widgets/text/small_text.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class DefInputContainer extends StatelessWidget {
   final Widget child;
@@ -20,11 +18,11 @@ class DefInputContainer extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(top: title != null ? 10 : 0),
             decoration: BoxDecoration(
-              border: Border.all(color: theme.primaryColor),
+              border: Border.all(color: context.theme.primaryColor),
               borderRadius: BorderRadius.circular(10),
             ),
             width: width,
-            padding: const EdgeInsets.all(Sizes.smallFontSize),
+            padding: EdgeInsets.all(smallFontSize),
             child: Center(child: child),
           ),
         ],

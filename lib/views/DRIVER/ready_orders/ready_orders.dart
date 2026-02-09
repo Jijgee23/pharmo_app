@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/DRIVER/ready_orders/ready_order_card.dart';
-
+import 'package:get/get.dart';
 class ReadyOrders extends StatefulWidget {
   const ReadyOrders({super.key});
 
@@ -55,7 +55,7 @@ class _ReadyOrdersState extends State<ReadyOrders> {
                   children: [
                     Text(
                       'Бэлэн захиалгууд',
-                      style: ContextX(context).theme.appBarTheme.titleTextStyle,
+                      style: context.theme.appBarTheme.titleTextStyle,
                     )
                   ],
                 ).paddingAll(10),

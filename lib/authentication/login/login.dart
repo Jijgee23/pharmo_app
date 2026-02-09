@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                                 auth.hidePass
                                     ? Icons.visibility_off
                                     : Icons.visibility,
-                                color: theme.primaryColor.withOpacity(0.5),
+                                color: primary.withOpacity(0.5),
                               ),
                             ),
                           ),

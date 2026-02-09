@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-
+import 'package:get/get.dart';
 class CustomDropdown<T> extends StatelessWidget {
   final List<T> items;
   final T? value;
@@ -36,13 +36,13 @@ class CustomDropdown<T> extends StatelessWidget {
                 items: items.map<DropdownMenuItem<T>>((T item) {
                   return DropdownMenuItem<T>(
                     value: item,
-                    child: Text(getLabel(item), style: filterStyle()),
+                    child: Text(getLabel(item), style: filterStyle(context)),
                   );
                 }).toList(),
                 value: value,
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 onChanged: onChanged,
-                style: filterStyle(),
+                style: filterStyle(context),
                 alignment: Alignment.center,
                 isDense: true,
                 dropdownColor: Colors.white,
@@ -50,7 +50,9 @@ class CustomDropdown<T> extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 underline: const SizedBox(),
                 selectedItemBuilder: (BuildContext context) {
-                  return items.map((item) => filterText(text)).toList();
+                  return items
+                      .map((item) => filterText(text, context))
+                      .toList();
                 },
               ),
               if (onRemove != null)
@@ -68,19 +70,19 @@ class CustomDropdown<T> extends StatelessWidget {
     );
   }
 
-  Widget filterText(String text) {
+  Widget filterText(String text, BuildContext context) {
     return Text(
       text,
       overflow: TextOverflow.fade,
       softWrap: true,
-      style: filterStyle(),
+      style: filterStyle(context),
     );
   }
 
-  TextStyle filterStyle() {
+  TextStyle filterStyle(BuildContext context) {
     return TextStyle(
       fontSize: 12,
-      color: theme.colorScheme.primary,
+      color: context.theme.colorScheme.primary,
       overflow: TextOverflow.fade,
       fontWeight: FontWeight.w600,
     );

@@ -39,12 +39,6 @@ class _SellerReportState extends State<SellerReportPage> {
 
   Duration duration = const Duration(milliseconds: 500);
 
-  List<Color> colors = [
-    theme.primaryColor,
-    theme.colorScheme.onError,
-    theme.colorScheme.secondary
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ReportProvider>(

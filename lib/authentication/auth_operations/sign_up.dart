@@ -44,7 +44,7 @@ class _SignUpState extends State<SignUp> {
                   height: MediaQuery.of(context).size.height * 0.25,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: theme.primaryColor.withOpacity(0.1),
+                    color: context.theme.primaryColor.withOpacity(0.1),
                     borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(40),
                       bottomRight: Radius.circular(40),
@@ -149,7 +149,7 @@ class _SignUpState extends State<SignUp> {
     return IconButton(
       onPressed: () => setState(() => showPasss = !showPasss),
       icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
-          color: theme.primaryColor.withOpacity(0.6)),
+          color: primary.withOpacity(0.6)),
     );
   }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/application/context/theme/color/colors.dart';
+import 'package:pharmo_app/application/core/theme/color/colors.dart';
 
 final lightTheme = ThemeData(
   primaryColor: primary,

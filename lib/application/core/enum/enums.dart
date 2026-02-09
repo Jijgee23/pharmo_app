@@ -8,9 +8,9 @@ enum AuthState { unknown, loggedIn, notLoggedIn, expired, notSplashed }
 
 enum Role { noUser, seller, driver, orderer, admin, repman }
 
-enum NetworkStatus { online, offline, hasConnectionButNotInternet }
+// enum NetworkStatus { online, offline, hasConnectionButNotInternet }
 
-enum Tracker { sellerTrack, driverTrack }
+// enum Tracker { sellerTrack, driverTrack }
 
 enum OrderProcess {
   all("", "Бүгд", '📊', Colors.grey),

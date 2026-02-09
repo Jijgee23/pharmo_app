@@ -39,12 +39,9 @@ class _FilterPageState extends State<FilterPage> {
           length: tabs.length,
           child: Scaffold(
             appBar: AppBar(
-              title: const Text(
+              title: Text(
                 'Ангилал',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: context.theme.appBarTheme.titleTextStyle,
               ),
               actions: [CartIcon.forAppBar(), const SizedBox(width: 5)],
               bottom: TabBar(
@@ -153,8 +150,8 @@ class _ManufacturerItem extends StatelessWidget {
             Expanded(
               child: Text(
                 item.name,
-                style: const TextStyle(
-                  fontSize: Sizes.mediumFontSize,
+                style:  TextStyle(
+                  fontSize: mediumFontSize,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -253,7 +250,7 @@ class _CategoryItemState extends State<CategoryItem>
                   child: Text(
                     widget.cat.name,
                     style: TextStyle(
-                      fontSize: Sizes.mediumFontSize,
+                      fontSize: mediumFontSize,
                       fontWeight:
                           widget.depth == 0 ? FontWeight.w600 : FontWeight.w500,
                       color: isExpanded ? primary : null,

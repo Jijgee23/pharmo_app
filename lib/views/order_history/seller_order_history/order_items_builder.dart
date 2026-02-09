@@ -1,7 +1,7 @@
 import 'package:pharmo_app/controller/a_controlller.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/order_item_card.dart';
 import 'package:pharmo_app/widgets/others/no_result.dart';
-
+import 'package:get/get.dart';
 class OrderItemsTab extends StatelessWidget {
   final List<dynamic> products;
   final int orderId;

@@ -1,6 +1,6 @@
 import "package:flutter/services.dart";
 import "package:permission_handler/permission_handler.dart";
-import "package:pharmo_app/application/native_channels/native_channel.dart";
+import "package:pharmo_app/native/native_channel.dart";
 import "package:pharmo_app/controller/a_controlller.dart";
 
 class SettingsProvider extends ChangeNotifier {

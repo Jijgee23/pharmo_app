@@ -1,8 +1,7 @@
-export '../../context/theme/color/colors.dart';
-export '../../context/enum/enums.dart';
+export '../../core/theme/color/colors.dart';
+export '../../core/enum/enums.dart';
 export '../../services/firebase_options.dart';
-export '../../context/keys/global_key.dart';
-export '../../context/theme/size/sizes.dart';
+export '../../core/keys/global_key.dart';
 export 'utils.dart';
 export '../validator/varlidator.dart';
 export '../api/api.dart';

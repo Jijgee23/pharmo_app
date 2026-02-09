@@ -140,7 +140,7 @@ class PopSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: Get.back,
+      onTap: () => Navigator.pop(context),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(

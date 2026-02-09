@@ -8,7 +8,7 @@ export 'providers/promotion_provider.dart';
 export 'providers/rep_provider.dart';
 export 'providers/report_provider.dart';
 export 'package:provider/provider.dart';
-export 'package:get/get.dart';
+// export 'package:get/get.dart';
 export 'package:firebase_core/firebase_core.dart';
 export 'package:firebase_messaging/firebase_messaging.dart';
 export 'package:shared_preferences/shared_preferences.dart';

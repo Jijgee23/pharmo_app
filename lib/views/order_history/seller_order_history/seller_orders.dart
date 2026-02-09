@@ -96,7 +96,7 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
                 children: [
                   Text(
                     'Захиалгын түүх',
-                    style: ContextX(context).theme.appBarTheme.titleTextStyle,
+                    style: context.theme.appBarTheme.titleTextStyle,
                   ),
                   Row(
                     spacing: 10,
@@ -188,7 +188,7 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
         child: StatefulBuilder(
           builder: (dialogContext, setDialogState) {
             return Container(
-              padding: const EdgeInsets.all(Sizes.smallFontSize),
+              padding: EdgeInsets.all(smallFontSize),
               child: Wrap(
                 children: [
                   CalendarDatePicker(

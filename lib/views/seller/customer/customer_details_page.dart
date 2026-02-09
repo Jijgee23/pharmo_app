@@ -323,7 +323,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
           Text(
             title,
             style: TextStyle(
-              fontSize: Sizes.mediumFontSize,
+              fontSize: mediumFontSize,
               fontWeight: FontWeight.bold,
             ),
           ),

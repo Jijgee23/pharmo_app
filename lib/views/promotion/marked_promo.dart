@@ -1,4 +1,3 @@
-
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pharmo_app/application/application.dart';
@@ -61,7 +60,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
     final promo = widget.promo;
     return Consumer2<HomeProvider, PromotionProvider>(
       builder: (_, home, promotionProvider, child) => Scaffold(
-        backgroundColor: theme.primaryColor,
+        backgroundColor: context.theme.primaryColor,
         extendBody: true,
         body: DefaultBox(
           title: promo.name!,
@@ -69,16 +68,16 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
             child: Column(
               children: [
                 (promo.desc != null)
-                    ? XBox(
+                    ? SectionCard(
+                        title: 'Тайлбар',
                         child: Text(promo.desc!),
                       )
                     : const SizedBox(),
                 promo.bundles != null
-                    ? XBox(
+                    ? SectionCard(
+                        title: 'Багц',
                         child: Column(
                           children: [
-                            const Text('Багц:',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
                             box,
                             promo.bundles != null
                                 ? GridView.builder(
@@ -103,11 +102,12 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                       )
                     : const SizedBox(),
                 (promo.bundlePrice != null)
-                    ? XBox(
+                    ? SectionCard(
+                        title: '',
                         child: Column(
                           children: [
-                            const Text('Багцийн үнэ:',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            // const Text('Багцийн үнэ:',
+                            //     style: TextStyle(fontWeight: FontWeight.bold)),
                             Text(
                                 promo.bundlePrice != null
                                     ? promo.bundlePrice.toString()
@@ -119,7 +119,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                       )
                     : const SizedBox(),
                 (promo.gift != null)
-                    ? XBox(
+                    ? SectionCard(
+                        title: 'Урамшуулал дуусах хугацаа',
                         child: Column(
                           children: [
                             Icon(Icons.add,
@@ -147,7 +148,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                       )
                     : const SizedBox(),
                 promo.endDate != null
-                    ? XBox(
+                    ? SectionCard(
+                        title: 'Урамшуулал дуусах хугацаа',
                         child: Column(
                           children: [
                             box,
@@ -170,7 +172,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                     ? const SizedBox()
                     : Column(
                         children: [
-                          XBox(
+                          SectionCard(
+                            title: '',
                             child: Column(
                               children: [
                                 Row(
@@ -205,7 +208,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                   decoration: BoxDecoration(
                                     color: promotionProvider.delivery
                                         ? Colors.grey.shade300
-                                        : theme.primaryColor,
+                                        : context.theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -224,7 +227,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.delivery
                                         ? Colors.grey.shade300
-                                        : theme.primaryColor,
+                                        : context.theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -240,7 +243,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                           box,
                           promotionProvider.delivery
                               ? const SizedBox()
-                              : XBox(
+                              : SectionCard(
+                                  title: '',
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -261,7 +265,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.isCash
                                         ? Colors.grey.shade300
-                                        : theme.primaryColor,
+                                        : context.theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -281,7 +285,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                   decoration: BoxDecoration(
                                     color: promotionProvider.isCash
                                         ? Colors.grey.shade300
-                                        : theme.primaryColor,
+                                        : context.theme.primaryColor,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
@@ -302,7 +306,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                               onTap: () => promotionProvider
                                   .setHasnote(!promotionProvider.hasNote),
                               child: Text('Нэмэлт тайлбар',
-                                  style: TextStyle(color: theme.primaryColor))),
+                                  style: TextStyle(
+                                      color: context.theme.primaryColor))),
                           box,
                           !promotionProvider.hasNote
                               ? const SizedBox()

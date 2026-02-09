@@ -64,7 +64,7 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
             key: formKey,
             child: SingleChildScrollView(
               child: Wrap(
-                runSpacing: Sizes.smallFontSize,
+                runSpacing: smallFontSize,
                 children: [
                   Align(
                     alignment: Alignment.center,

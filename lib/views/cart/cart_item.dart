@@ -1,4 +1,6 @@
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class CartItem extends StatefulWidget {
