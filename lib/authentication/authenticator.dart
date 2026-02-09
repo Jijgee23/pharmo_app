@@ -50,9 +50,8 @@ class Authenticator {
     if (r != null) {
       await clearSecurity();
     }
-    // print(res);
+
     final decodedToken = JwtDecoder.decode(res['access_token']);
-    // print(decodedToken);
     var security = Security.fromJson(
       decodedToken,
       res['access_token'],

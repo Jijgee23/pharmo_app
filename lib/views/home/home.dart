@@ -93,13 +93,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         final user = Authenticator.security;
         if (user == null) return SizedBox();
         return SafeArea(
-          child: Mater(
+          child: Material(
             child: RefreshIndicator.adaptive(
               onRefresh: () async => await refresh(),
               child: Column(
                 spacing: 5,
                 children: [
-                  if (user.role == 'PA')
+                  if (user.isPharmacist)
                     Row(
                       spacing: 10,
                       children: [

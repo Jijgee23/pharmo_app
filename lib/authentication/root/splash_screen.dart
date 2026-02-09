@@ -12,15 +12,14 @@ class _SplashScreenState extends State<SplashScreen>
   int _currentPage = 0;
   final PageController _pageController = PageController();
   late AnimationController _animationController;
-  // late Animation<double> _scaleAnimation;
-  // late Animation<double> _rotateAnimation;
 
   final List<OnboardingPage> _pages = [
     OnboardingPage(
       image: 'assets/stickers/pharmacy.gif',
       title: 'Эмийн захиалга',
       subtitle: 'Хялбар, хурдан',
-      description: 'Өөрийн эмийн сангаас бүх төрлийн эмийг бөөний үнээр авах',
+      description:
+          'Эм ханган нийлүүлэх байгууллагаа сонгоод бүх төрлийн эмийг бөөний үнээр авах',
       color: Color(0xFF667eea),
       features: [
         Feature('1000+ бараа', Icons.inventory_2),
@@ -65,21 +64,6 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-
-    // _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-    //   CurvedAnimation(
-    //     parent: _animationController,
-    //     curve: Curves.elasticOut,
-    //   ),
-    // );
-
-    // _rotateAnimation = Tween<double>(begin: -0.1, end: 0.0).animate(
-    //   CurvedAnimation(
-    //     parent: _animationController,
-    //     curve: Curves.easeOut,
-    //   ),
-    // );
-
     _animationController.forward();
   }
 
@@ -196,32 +180,6 @@ class _SplashScreenState extends State<SplashScreen>
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
           children: [
-            // SizedBox(height: size.height * 0.05),
-
-            // Animated image
-            // ScaleTransition(
-            //   scale: _scaleAnimation,
-            //   child: RotationTransition(
-            //     turns: _rotateAnimation,
-            //     child: Container(
-            //       height: size.height * 0.3,
-            //       decoration: BoxDecoration(
-            //         boxShadow: [
-            //           BoxShadow(
-            //             color: page.color.withOpacity(0.3),
-            //             blurRadius: 40,
-            //             spreadRadius: 10,
-            //           ),
-            //         ],
-            //       ),
-            //       child: Image.asset(
-            //         page.image,
-            //         fit: BoxFit.contain,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-
             SizedBox(height: size.height * 0.05),
 
             // Title section with card

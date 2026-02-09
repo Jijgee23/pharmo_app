@@ -317,7 +317,8 @@ class JaggerProvider extends ChangeNotifier {
       final current = await Geolocator.getCurrentPosition();
       final shipmentId = await Authenticator.getTrackId();
       var body = {
-        if (isDriver) "delivery_id": shipmentId,
+        if (isDriver)
+          "delivery_id": delivery != null ? delivery!.id : shipmentId,
         "lat": truncateToSixDigits(current.latitude),
         "lng": truncateToSixDigits(current.longitude),
         "created": DateTime.now().toIso8601String(),
