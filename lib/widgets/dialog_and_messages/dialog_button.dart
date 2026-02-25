@@ -65,6 +65,8 @@ Future<bool> confirmDialog({
   String title = 'Итгэлтэй байна уу?',
   String message = '',
   String? attentionText,
+  TextAlign messageAlign = TextAlign.center,
+  TextStyle? messageStyle,
   Widget? content,
 }) async {
   final result = await showDialog<bool>(
@@ -93,8 +95,8 @@ Future<bool> confirmDialog({
               const SizedBox(height: 10),
               Text(
                 message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.black54),
+                textAlign: messageAlign,
+                style: messageStyle ?? TextStyle(color: Colors.black54),
               ),
               if (attentionText != null) SizedBox(height: 15),
               if (attentionText != null)

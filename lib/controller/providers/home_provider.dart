@@ -237,10 +237,11 @@ class HomeProvider extends ChangeNotifier {
 
   Future getBranches() async {
     try {
-      final r = await api(Api.get, 'branch/');
+      final r = await api(Api.get, 'branch/orderer');
       if (r == null) return;
       if (r.statusCode == 200) {
         List<dynamic> res = convertData(r);
+        // print(res);
         branches = (res).map((data) => Sector.fromJson(data)).toList();
       }
       notifyListeners();
@@ -424,35 +425,38 @@ class HomeProvider extends ChangeNotifier {
   }
 
   Future createSellerOrder(BuildContext context, String type) async {
-    final basket = Provider.of<CartProvider>(context, listen: false);
-    try {
-      var body = {
-        'customer_id': customer!.id,
-        'basket_id': basket.basket!.id,
-        'payType': type,
-        "note": (note != null) ? note : null
-      };
-      final r = await api(Api.post, 'seller/order/', body: body);
-      if (r == null) return;
-      final res = convertData(r);
-      if (r.statusCode == 201) {
-        final orderNumber = res['orderNo'];
-        goto(OrderDone(orderNo: orderNumber.toString()));
-        await basket.clearBasket();
-        setCustomer(null);
-        note = null;
-        notifyListeners();
-      } else {
-        if (res.toString().contains('Customer not verified')) {
-          messageWarning('Баталгаажаагүй харилцагч байна!');
+    await LoadingService.run(() async {
+      try {
+        final basket = context.read<CartProvider>();
+        var body = {
+          'customer_id': customer!.id,
+          'basket_id': basket.basket!.id,
+          'payType': type,
+          "note": (note != null) ? note : null
+        };
+        final r = await api(Api.post, 'seller/order/', body: body);
+        if (r == null) return;
+        final res = convertData(r);
+        if (r.statusCode == 201) {
+          final orderNumber = res['orderNo'];
+          goto(OrderDone(orderNo: orderNumber.toString()));
+          await basket.clearBasket();
+          setCustomer(null);
+          note = null;
+          notifyListeners();
+        } else {
+          if (res.toString().contains('Customer not verified')) {
+            messageWarning('Баталгаажаагүй харилцагч байна!');
+            return;
+          }
+          messageWarning('Түр хүлээнэ үү!');
           return;
         }
-        messageWarning('Түр хүлээнэ үү!');
-        return;
+      } catch (e) {
+        print(e);
+        messageWarning('Захиалга үүсгэхэд алдаа гарлаа.');
       }
-    } catch (e) {
-      messageWarning('Захиалга үүсгэхэд алдаа гарлаа.');
-    }
+    });
   }
 
   setNote(String nv) {
@@ -476,8 +480,6 @@ class HomeProvider extends ChangeNotifier {
   }
 
   switchView() {
-    // bool isRefreshed = await refreshed();
-    // print('isRefreshed: $isRefreshed');
     isList = !isList;
     notifyListeners();
   }

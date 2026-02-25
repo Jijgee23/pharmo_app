@@ -116,7 +116,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
               // 5. Захиалах товч
               CustomButton(
                 text: 'Захиалга үүсгэх',
-                ontap: () => _createOrder(cart, home),
+                ontap: () => _createOrder(cart, home, context),
               ),
             ],
           ),
@@ -182,7 +182,8 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     );
   }
 
-  Future _createOrder(CartProvider cart, HomeProvider home) async {
+  Future _createOrder(
+      CartProvider cart, HomeProvider home, BuildContext c) async {
     if (payType == '') {
       messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
       return;
@@ -196,13 +197,25 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
       return;
     }
 
+    final loanAvailable = await cart.checkLoan(home.customer!.id);
+    if (!loanAvailable) return;
+
+    String priceInfo = 'Үнийн дүн: ${cart.basket!.totalPrice}\n';
+    String qtyInfo = 'Нийт тоо ширхэг: ${cart.basket!.totalCount}\n';
+    String branchInfo = 'Захиалагч/Харилцагч: ${home.customer!.name}\n';
+    bool confirmed = await confirmDialog(
+      context: c,
+      title: 'Захиалга үүсгэх үү?',
+      message: '$priceInfo $qtyInfo $branchInfo',
+      messageAlign: TextAlign.start,
+      messageStyle: TextStyle(color: primary, fontWeight: FontWeight.bold),
+    );
+
+    if (!confirmed) return;
+
     // Ачааллаж буйг харуулах
-    LoadingService.show();
-    try {
-      await home.createSellerOrder(context, payType);
-    } finally {
-      LoadingService.hide();
-    }
+
+    await home.createSellerOrder(c, payType);
   }
 }
 

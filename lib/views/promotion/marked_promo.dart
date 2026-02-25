@@ -443,7 +443,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                   : Theme.of(context).primaryColor,
             ),
             Constants.boxH10,
-            Text(e.name!),
+            Text(e.name),
           ],
         ),
       ),

@@ -30,11 +30,12 @@ class PharmoFilterChip extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.circle,
-            size: 8,
-            color: selected ? white : grey400,
-          ),
+          if (selected)
+            Icon(
+              Icons.circle,
+              size: 8,
+              color: selected ? white : grey400,
+            ),
           SizedBox(width: 5),
           Text(
             caption,

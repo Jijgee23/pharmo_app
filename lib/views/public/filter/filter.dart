@@ -50,6 +50,7 @@ class _FilterPageState extends State<FilterPage> {
                 dividerHeight: 0,
                 labelColor: primary,
                 unselectedLabelColor: Colors.grey,
+                isScrollable: true,
                 tabs: tabs
                     .map(
                       (tab) => Tab(
@@ -150,7 +151,7 @@ class _ManufacturerItem extends StatelessWidget {
             Expanded(
               child: Text(
                 item.name,
-                style:  TextStyle(
+                style: TextStyle(
                   fontSize: mediumFontSize,
                   fontWeight: FontWeight.w500,
                 ),

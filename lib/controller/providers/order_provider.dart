@@ -120,7 +120,7 @@ class OrderProvider extends ChangeNotifier {
 
   Future<dynamic> getBranches() async {
     try {
-      final r = await api(Api.get, 'branch/');
+      final r = await api(Api.get, 'branch/orderer');
       if (r == null) return;
       if (r.statusCode == 200) {
         final data = convertData(r);

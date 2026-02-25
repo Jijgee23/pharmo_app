@@ -382,7 +382,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                   : context.theme.primaryColor,
             ),
             Constants.boxH10,
-            Text(e.name!),
+            Text(e.name),
           ],
         ),
       ),

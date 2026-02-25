@@ -140,7 +140,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
     }
 
     // Role-оос хамаарч Order Sheet харуулах
-    Get.bottomSheet(
+    await Get.bottomSheet(
       security.role == 'PA'
           ? const PharmOrderSheet()
           : const SellerOrderSheet(),

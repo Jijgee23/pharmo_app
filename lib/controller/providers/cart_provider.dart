@@ -34,6 +34,42 @@ class CartProvider extends ChangeNotifier {
   late OrderQRCode _qrCode;
   OrderQRCode get qrCode => _qrCode;
 
+  Future<bool> checkLoan(int bId) async {
+    final user = Authenticator.security;
+    bool isSaler = user != null && user.isSaler;
+    String sellerUrl =
+        'seller/customer/$bId/check_loan_info/?total_price=${basket!.totalPrice}';
+    String paUrl =
+        'check_loan_info/?branch_id=$bId&total_price=${basket!.totalPrice}';
+    final r = await api(Api.get, isSaler ? sellerUrl : paUrl);
+    if (r == null) return false;
+    if (r.statusCode == 200) {
+      if (convertData(r)['is_loan_available'] == true) {
+        return true;
+      }
+      messageError(convertData(r)['msg']);
+      return false;
+    }
+    return false;
+  }
+
+  // Future<bool> checkSellerLoan(int cId) async {
+  //   String url =
+  //       'seller/customer/$cId/check_loan_info/?total_price=${basket!.totalPrice}';
+  //   print(url);
+  //   final r = await api(Api.get, url);
+  //   if (r == null) return false;
+  //   if (r.statusCode == 200) {
+  //     print(r.body);
+  //     if (convertData(r)['is_loan_available'] == true) {
+  //       return true;
+  //     }
+  //     messageError(convertData(r)['msg']);
+  //     return false;
+  //   }
+  //   return false;
+  // }
+
   Future getBasket() async {
     try {
       final r = await api(Api.get, basketUrl);
@@ -125,37 +161,40 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<dynamic> createOrder({
-    required int basketId,
+    // required int basketId,
     required int branchId,
     required String note,
     required String deliveryType,
     required String pt,
     required BuildContext context,
   }) async {
-    try {
-      var body = {
-        'basket_id': basketId,
-        'branch_id': branchId,
-        'pay_type': pt,
-        'note': note != '' ? note : null,
-        'is_come': deliveryType == 'N' ? true : false,
-      };
-      final r = await api(Api.post, 'pharmacy/order/', body: body);
-      if (r == null) return;
-      final res = convertData(r);
-      if (r.statusCode == 200) {
-        Future(() async {
-          await clearBasket();
-        }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
-        return res['orderNo'];
-      } else if (r.statusCode == 400) {
-        messageWarning('Сагс хоосон байна!');
-      } else {
-        messageError(res);
+    await LoadingService.run(() async {
+      try {
+        var body = {
+          'basket_id': basket!.id,
+          'branch_id': branchId,
+          'pay_type': pt,
+          'note': note != '' ? note : null,
+          'is_come': deliveryType == 'N' ? true : false,
+        };
+        final r = await api(Api.post, 'pharmacy/order/', body: body);
+        if (r == null) return;
+        final res = convertData(r);
+        if (r.statusCode == 200) {
+          Future(() async {
+            await clearBasket();
+          }).then(
+              (value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
+          return res['orderNo'];
+        } else if (r.statusCode == 400) {
+          messageWarning('Сагс хоосон байна!');
+        } else {
+          messageError(res);
+        }
+      } catch (e) {
+        //
       }
-    } catch (e) {
-      //
-    }
+    });
   }
 
   Future<dynamic> createQR(

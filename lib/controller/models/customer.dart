@@ -1,5 +1,5 @@
 class Customer {
-  int? id;
+  int id;
   String? name;
   String? rn;
   String? phone;
@@ -12,7 +12,7 @@ class Customer {
 
   // Constructor
   Customer(
-      {this.id,
+      {this.id = 0,
       this.name,
       this.rn,
       this.phone,

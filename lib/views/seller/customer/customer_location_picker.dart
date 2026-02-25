@@ -240,9 +240,9 @@ class _LocationPickerState extends State<LocationPicker> {
     );
 
     if (!confirmed) return;
-    await pharm.sendCustomerLocation(widget.customer.id!, _selectedLocation);
+    await pharm.sendCustomerLocation(widget.customer.id, _selectedLocation);
 
     Navigator.pop(context);
-    await pharm.getCustomerDetail(widget.customer.id!);
+    await pharm.getCustomerDetail(widget.customer.id);
   }
 }

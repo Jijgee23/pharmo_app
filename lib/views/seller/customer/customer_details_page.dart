@@ -25,7 +25,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
 
   getDetail() async {
     setFetching(true);
-    await context.read<PharmProvider>().getCustomerDetail(widget.customer.id!);
+    await context.read<PharmProvider>().getCustomerDetail(widget.customer.id);
     setFetching(false);
   }
 
