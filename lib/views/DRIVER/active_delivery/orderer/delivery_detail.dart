@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_order_location.dart';
 import 'package:pharmo_app/views/DRIVER/widgets/status_changer.dart';

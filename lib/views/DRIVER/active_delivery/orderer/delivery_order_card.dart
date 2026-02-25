@@ -4,7 +4,7 @@ import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_detail.
 import 'package:pharmo_app/views/DRIVER/widgets/status_changer.dart';
 import 'package:pharmo_app/views/order_history/order_card/order_status_chip.dart';
 import 'package:pharmo_app/views/order_history/order_card/user_tag.dart';
-import 'package:get/get.dart';
+
 class DeliveryOrderCard extends StatelessWidget {
   final int orderId;
 

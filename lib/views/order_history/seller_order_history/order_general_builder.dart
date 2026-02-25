@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:get/get.dart';
+
 class OrderGeneralBuilder extends StatelessWidget {
   final OrderModel order;
   const OrderGeneralBuilder({super.key, required this.order});

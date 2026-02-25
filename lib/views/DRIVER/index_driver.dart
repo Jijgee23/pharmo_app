@@ -2,8 +2,6 @@ import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/track_map/track_map.dart';
 import 'package:pharmo_app/views/DRIVER/ready_orders/ready_orders.dart';
 import 'package:pharmo_app/views/profile/delivery_profile.dart';
-import 'package:pharmo_app/widgets/bottom_bar/bottom_bar.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
 
 class IndexDriver extends StatefulWidget {
   const IndexDriver({super.key});

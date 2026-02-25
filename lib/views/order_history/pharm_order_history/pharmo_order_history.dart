@@ -1,7 +1,7 @@
 import 'package:pharmo_app/views/order_history/pharm_order_history/custom_drop.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/order_history/order_card/order_card.dart';
-import 'package:get/get.dart';
+
 class PharmOrderHistory extends StatefulWidget {
   const PharmOrderHistory({super.key});
   @override

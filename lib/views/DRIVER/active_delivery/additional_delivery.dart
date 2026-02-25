@@ -1,6 +1,6 @@
 import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:get/get.dart';
+
 class AdditionalDeliveries extends StatefulWidget {
   final List<DeliveryItem> items;
   const AdditionalDeliveries({super.key, required this.items});
@@ -356,7 +356,8 @@ class _AdditionalDeliveriesState extends State<AdditionalDeliveries> {
                     color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.add_location_alt, color: Colors.green),
+                  child:
+                      const Icon(Icons.add_location_alt, color: Colors.green),
                 ),
                 const SizedBox(width: 12),
                 const Expanded(
@@ -513,7 +514,8 @@ class _AdditionalDeliveriesState extends State<AdditionalDeliveries> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  jagger.editAdditionalDelivery(item.id, editNoteController.text);
+                  jagger.editAdditionalDelivery(
+                      item.id, editNoteController.text);
                   Navigator.pop(context);
                 },
                 icon: const Icon(Icons.save),

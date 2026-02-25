@@ -3,7 +3,7 @@ import 'package:pharmo_app/views/order_history/seller_order_history/order_genera
 import 'package:pharmo_app/views/order_history/seller_order_history/order_item_card.dart';
 import 'package:pharmo_app/views/product/add_basket_sheet.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:get/get.dart';
+
 class SellerOrderDetail extends StatefulWidget {
   final int oId;
   const SellerOrderDetail({super.key, required this.oId});

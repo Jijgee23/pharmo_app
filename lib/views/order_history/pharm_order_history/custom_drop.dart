@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:get/get.dart';
+
 class CustomDropdown<T> extends StatelessWidget {
   final List<T> items;
   final T? value;
