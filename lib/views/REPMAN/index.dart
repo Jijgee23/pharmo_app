@@ -1,7 +1,7 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/REPMAN/home.dart';
-import 'package:pharmo_app/views/profile/profile.dart';
 import 'package:pharmo_app/views/REPMAN/see_map.dart';
+import 'package:pharmo_app/views/profile/profile.dart';
 
 class IndexRep extends StatefulWidget {
   const IndexRep({super.key});
@@ -70,8 +70,7 @@ class _IndexRepState extends State<IndexRep> {
   }
 
   appBarSingleText(String v) {
-    return Text(v,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
+    return Text(v, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
   }
 
   List<String> icons = [AssetIcon.category, AssetIcon.user];

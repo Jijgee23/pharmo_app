@@ -1,5 +1,5 @@
-import 'package:pharmo_app/views/SELLER/customer/choose_customer.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/SELLER/customer/choose_customer.dart';
 
 class SellerOrderSheet extends StatefulWidget {
   const SellerOrderSheet({super.key});
@@ -148,9 +148,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
         child: Row(
           children: [
             Icon(
-              hasCustomer
-                  ? Icons.person_rounded
-                  : Icons.person_add_alt_1_rounded,
+              hasCustomer ? Icons.person_rounded : Icons.person_add_alt_1_rounded,
               color: hasCustomer ? primary : Colors.grey,
             ),
             const SizedBox(width: 12),
@@ -171,8 +169,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
                   home.setCustomer(null);
                   setState(() {});
                 },
-                icon: const Icon(Icons.close_rounded,
-                    size: 20, color: Colors.red),
+                icon: const Icon(Icons.close_rounded, size: 20, color: Colors.red),
               )
             else
               const Icon(Icons.chevron_right_rounded, color: Colors.grey),
@@ -182,8 +179,7 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     );
   }
 
-  Future _createOrder(
-      CartProvider cart, HomeProvider home, BuildContext c) async {
+  Future _createOrder(CartProvider cart, HomeProvider home, BuildContext c) async {
     if (payType == '') {
       messageWarning('Төлбөрийн хэлбэр сонгоно уу!');
       return;
@@ -204,7 +200,6 @@ class _SellerOrderSheetState extends State<SellerOrderSheet> {
     String qtyInfo = 'Нийт тоо ширхэг: ${cart.basket!.totalCount}\n';
     String branchInfo = 'Захиалагч/Харилцагч: ${home.customer!.name}\n';
     bool confirmed = await confirmDialog(
-      context: c,
       title: 'Захиалга үүсгэх үү?',
       message: '$priceInfo $qtyInfo $branchInfo',
       messageAlign: TextAlign.start,

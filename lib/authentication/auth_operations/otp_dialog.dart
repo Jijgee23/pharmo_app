@@ -1,6 +1,4 @@
-import 'package:pharmo_app/application/function/validator/varlidator.dart';
-import 'package:pharmo_app/widgets/inputs/custom_button.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class OtpDialog extends StatefulWidget {
   final String email;
@@ -21,8 +19,7 @@ class _OtpDialogState extends State<OtpDialog> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController passwordConfirmController =
-      TextEditingController();
+  final TextEditingController passwordConfirmController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -60,8 +57,7 @@ class _OtpDialogState extends State<OtpDialog> {
                 controller: otpController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                    labelText: 'Баталгаажуулах код',
-                    border: OutlineInputBorder()),
+                    labelText: 'Баталгаажуулах код', border: OutlineInputBorder()),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 obscureText: false,
                 validator: validateOtp,

@@ -276,7 +276,7 @@ class DateButton extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  getDate(date),
+                  date.yyyyMMdd,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,

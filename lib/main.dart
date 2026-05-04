@@ -1,7 +1,9 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:pharmo_app/authentication/root/root_page.dart';
+import 'package:pharmo_app/data/database/log_model.dart';
 import 'package:upgrader/upgrader.dart';
+
 import 'application/application.dart';
 
 Future<void> main() async {
@@ -21,15 +23,9 @@ Future<void> main() async {
       await Authenticator.initAuthenticator();
       await LogService().initialize();
       runApp(
-        UpgradeAlert(
-          dialogStyle: UpgradeDialogStyle.material,
-          showIgnore: false,
-          showLater: true,
-          showReleaseNotes: false,
-          child: MultiProvider(
-            providers: AppConfigs.providers,
-            child: Pharmo(),
-          ),
+        MultiProvider(
+          providers: AppConfigs.providers,
+          child: Pharmo(),
         ),
       );
     },

@@ -1,6 +1,6 @@
+import 'package:pharmo_app/application/application.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:pharmo_app/application/application.dart';
 
 // ignore: must_be_immutable
 class MarkedPromoWidget extends StatefulWidget {
@@ -34,8 +34,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
   }
 
   solveQTY() {
-    int blenght =
-        widget.promo.bundles != null ? widget.promo.bundles!.length : 0;
+    int blenght = widget.promo.bundles != null ? widget.promo.bundles!.length : 0;
     int glength = widget.promo.gift != null ? widget.promo.gift!.length : 0;
     int qty = blenght + glength;
     return qty;
@@ -43,10 +42,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
 
   solveTotal() {
     double total = 0;
-    double tbundle = widget.promo.bundles!.fold(
-        0.0,
-        (previousValue, element) =>
-            total = total + (element['price'] * element['qty']));
+    double tbundle = widget.promo.bundles!
+        .fold(0.0, (previousValue, element) => total = total + (element['price'] * element['qty']));
     return tbundle;
   }
 
@@ -54,8 +51,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
   Widget build(BuildContext context) {
     String noImage =
         'https://st4.depositphotos.com/14953852/24787/v/380/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg';
-    var textStyle = TextStyle(
-        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
+    var textStyle =
+        TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
     var box = const SizedBox(height: 10);
     final promo = widget.promo;
     return Consumer2<HomeProvider, PromotionProvider>(
@@ -81,18 +78,15 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                             box,
                             promo.bundles != null
                                 ? GridView.builder(
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 2,
                                       mainAxisSpacing: 10,
                                       crossAxisSpacing: 10,
                                     ),
                                     shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
+                                    physics: const NeverScrollableScrollPhysics(),
                                     itemBuilder: (context, index) {
-                                      return product(
-                                          promo.bundles?[index], noImage);
+                                      return product(promo.bundles?[index], noImage);
                                     },
                                     itemCount: promo.bundles?.length,
                                   )
@@ -108,10 +102,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                           children: [
                             // const Text('Багцийн үнэ:',
                             //     style: TextStyle(fontWeight: FontWeight.bold)),
-                            Text(
-                                promo.bundlePrice != null
-                                    ? promo.bundlePrice.toString()
-                                    : '-',
+                            Text(promo.bundlePrice != null ? promo.bundlePrice.toString() : '-',
                                 style: textStyle),
                             box,
                           ],
@@ -123,15 +114,12 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                         title: 'Урамшуулал дуусах хугацаа',
                         child: Column(
                           children: [
-                            Icon(Icons.add,
-                                color: Colors.grey.shade900, size: 30),
+                            Icon(Icons.add, color: Colors.grey.shade900, size: 30),
                             box,
-                            const Text('Бэлэг:',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            const Text('Бэлэг:', style: TextStyle(fontWeight: FontWeight.bold)),
                             box,
                             GridView.builder(
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
                                 mainAxisSpacing: 10,
                                 crossAxisSpacing: 10,
@@ -154,8 +142,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                           children: [
                             box,
                             const Text('Урамшуулал дуусах хугацаа:'),
-                            Text(promo.endDate!.substring(0, 10),
-                                style: textStyle),
+                            Text(promo.endDate!.substring(0, 10), style: textStyle),
                           ],
                         ),
                       )
@@ -164,8 +151,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                   margin: const EdgeInsets.symmetric(vertical: 5),
                   child: CustomButton(
                     ontap: () => promotionProvider.setOrderStarted(),
-                    text:
-                        promotionProvider.orderStarted ? 'Цуцлах' : 'Захиалах',
+                    text: promotionProvider.orderStarted ? 'Цуцлах' : 'Захиалах',
                   ),
                 ),
                 (promotionProvider.orderStarted == false)
@@ -177,16 +163,14 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                             child: Column(
                               children: [
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text('Нийт тоо, ширхэг:'),
                                     Text(solveQTY().toString()),
                                   ],
                                 ),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text('Үнийн дүн:'),
                                     Text(
@@ -203,8 +187,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                               Expanded(
                                 child: Container(
                                   margin: const EdgeInsets.only(right: 5),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
+                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                                   decoration: BoxDecoration(
                                     color: promotionProvider.delivery
                                         ? Colors.grey.shade300
@@ -212,18 +195,15 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
-                                    onTap: () =>
-                                        promotionProvider.setDelivery(false),
-                                    child:
-                                        const Center(child: Text('Хүргэлтээр')),
+                                    onTap: () => promotionProvider.setDelivery(false),
+                                    child: const Center(child: Text('Хүргэлтээр')),
                                   ),
                                 ),
                               ),
                               Expanded(
                                 child: Container(
                                   margin: const EdgeInsets.only(left: 5),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
+                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.delivery
                                         ? Colors.grey.shade300
@@ -231,10 +211,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: InkWell(
-                                    onTap: () =>
-                                        promotionProvider.setDelivery(true),
-                                    child:
-                                        const Center(child: Text('Очиж авах')),
+                                    onTap: () => promotionProvider.setDelivery(true),
+                                    child: const Center(child: Text('Очиж авах')),
                                   ),
                                 ),
                               )
@@ -246,11 +224,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                               : SectionCard(
                                   title: '',
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: home.branches
-                                        .map((e) => branch(e))
-                                        .toList(),
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: home.branches.map((e) => branch(e)).toList(),
                                   ),
                                 ),
                           box,
@@ -260,8 +235,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                               Expanded(
                                 child: Container(
                                   margin: const EdgeInsets.only(right: 5),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
+                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                                   decoration: BoxDecoration(
                                     color: !promotionProvider.isCash
                                         ? Colors.grey.shade300
@@ -280,8 +254,7 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                               Expanded(
                                 child: Container(
                                   margin: const EdgeInsets.only(left: 5),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
+                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                                   decoration: BoxDecoration(
                                     color: promotionProvider.isCash
                                         ? Colors.grey.shade300
@@ -303,23 +276,20 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                           InkWell(
                               borderRadius: BorderRadius.circular(10),
                               splashColor: Colors.blue.shade100,
-                              onTap: () => promotionProvider
-                                  .setHasnote(!promotionProvider.hasNote),
+                              onTap: () => promotionProvider.setHasnote(!promotionProvider.hasNote),
                               child: Text('Нэмэлт тайлбар',
-                                  style: TextStyle(
-                                      color: context.theme.primaryColor))),
+                                  style: TextStyle(color: context.theme.primaryColor))),
                           box,
                           !promotionProvider.hasNote
                               ? const SizedBox()
-                              : CustomTextField(
-                                  hintText: 'Тайлбар', controller: note),
+                              : CustomTextField(hintText: 'Тайлбар', controller: note),
                           box,
                           Container(
                             margin: const EdgeInsets.symmetric(vertical: 5),
                             child: CustomButton(
                               ontap: () {
-                                promotionProvider.orderPromo(widget.promo.id!,
-                                    selectedBranch, note.text, context);
+                                promotionProvider.orderPromo(
+                                    widget.promo.id!, selectedBranch, note.text, context);
                               },
                               text: 'Баталгаажуулах',
                             ),
@@ -341,12 +311,11 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                     InkWell(
                                         borderRadius: BorderRadius.circular(10),
                                         splashColor: Colors.blue.shade100,
-                                        onTap: () => promotionProvider.setBank(
-                                            !promotionProvider.useBank),
+                                        onTap: () =>
+                                            promotionProvider.setBank(!promotionProvider.useBank),
                                         child: const Text(
                                           'Банкны аппаар төлөх',
-                                          style:
-                                              TextStyle(color: AppColors.main),
+                                          style: TextStyle(color: AppColors.main),
                                         )),
                                     !promotionProvider.useBank
                                         ? const SizedBox()
@@ -355,53 +324,45 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
                                             child: Scrollbar(
                                               thickness: 1,
                                               child: SingleChildScrollView(
-                                                scrollDirection:
-                                                    Axis.horizontal,
+                                                scrollDirection: Axis.horizontal,
                                                 child: Row(
-                                                    children:
-                                                        promotionProvider.qrData
-                                                                    .urls !=
-                                                                null
-                                                            ? promotionProvider
-                                                                .qrData.urls!
-                                                                .map(
-                                                                    (e) =>
-                                                                        InkWell(
-                                                                          splashColor: Colors
-                                                                              .blue
-                                                                              .shade100,
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(10),
-                                                                          onTap:
-                                                                              () async {
-                                                                            bool
-                                                                                found =
-                                                                                await canLaunchUrl(Uri.parse(e.link!));
-                                                                            if (found) {
-                                                                              await launchUrl(Uri.parse(e.link!), mode: LaunchMode.externalApplication);
-                                                                            } else {
-                                                                              messageWarning('${e.description!} банкны апп олдсонгүй.');
-                                                                            }
-                                                                          },
-                                                                          child: Container(
-                                                                              margin: const EdgeInsets.all(10),
-                                                                              child: Image.network(
-                                                                                e.logo!,
-                                                                                width: 60,
-                                                                              )),
-                                                                        ))
-                                                                .toList()
-                                                            : []),
+                                                    children: promotionProvider.qrData.urls != null
+                                                        ? promotionProvider.qrData.urls!
+                                                            .map((e) => InkWell(
+                                                                  splashColor: Colors.blue.shade100,
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(10),
+                                                                  onTap: () async {
+                                                                    bool found = await canLaunchUrl(
+                                                                        Uri.parse(e.link!));
+                                                                    if (found) {
+                                                                      await launchUrl(
+                                                                          Uri.parse(e.link!),
+                                                                          mode: LaunchMode
+                                                                              .externalApplication);
+                                                                    } else {
+                                                                      messageWarning(
+                                                                          '${e.description!} банкны апп олдсонгүй.');
+                                                                    }
+                                                                  },
+                                                                  child: Container(
+                                                                      margin:
+                                                                          const EdgeInsets.all(10),
+                                                                      child: Image.network(
+                                                                        e.logo!,
+                                                                        width: 60,
+                                                                      )),
+                                                                ))
+                                                            .toList()
+                                                        : []),
                                               ),
                                             ),
                                           ),
                                     box,
                                     Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 5),
+                                      margin: const EdgeInsets.symmetric(vertical: 5),
                                       child: CustomButton(
-                                        ontap: () => promotionProvider
-                                            .checkPayment(context),
+                                        ontap: () => promotionProvider.checkPayment(context),
                                         text: 'Төлбөр шалгах',
                                       ),
                                     ),
@@ -430,19 +391,22 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
         padding: const EdgeInsets.all(10),
         margin: const EdgeInsets.only(top: 10, left: 5, right: 5),
         decoration: BoxDecoration(
-          boxShadow: [Constants.defaultShadow],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade200,
+              blurRadius: 3,
+            )
+          ],
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
+          spacing: 10,
           children: [
             Icon(
               Icons.home,
-              color: selectedBranch == e.id
-                  ? AppColors.secondary
-                  : Theme.of(context).primaryColor,
+              color: selectedBranch == e.id ? AppColors.secondary : Theme.of(context).primaryColor,
             ),
-            Constants.boxH10,
             Text(e.name),
           ],
         ),
@@ -454,7 +418,12 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
     return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [Constants.defaultShadow],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade200,
+              blurRadius: 3,
+            )
+          ],
           color: Colors.white),
       padding: const EdgeInsets.only(bottom: 5),
       child: Column(
@@ -463,10 +432,8 @@ class _MarkedPromoWidgetState extends State<MarkedPromoWidget> {
             child: Container(
               decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10)),
-                  border:
-                      Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                      topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                  border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
                   image: DecorationImage(
                     fit: BoxFit.cover,
                     scale: 1,

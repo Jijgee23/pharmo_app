@@ -1,5 +1,5 @@
-import 'package:pharmo_app/views/order_history/order_card/order_card.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/order_history/order_card/order_card.dart';
 
 class SellerOrderHistory extends StatefulWidget {
   const SellerOrderHistory({super.key});
@@ -104,18 +104,17 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
                       ModernField(
                         hint: '$selectedFilter хайх',
                         onChanged: (v) {
-                          final orderProvider = context.read<OrderProvider>();
                           WidgetsBinding.instance.addPostFrameCallback(
                             (cb) async {
                               if (v.isEmpty) {
-                                await orderProvider.getSellerOrders();
+                                await provider.getSellerOrders();
                               } else {
-                                await orderProvider.filterOrder(
-                                    filter, search.text);
+                                await provider.filterOrder(filter, search.text);
                               }
                             },
                           );
                         },
+                        controller: search,
                         suffixIcon: IconButton(
                           onPressed: selectType,
                           icon: Icon(
@@ -136,6 +135,11 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
                   onRefresh: () async => await init(),
                   child: Builder(
                     builder: (context) {
+                      if (provider.loading) {
+                        return Center(
+                          child: CircularProgressIndicator.adaptive(),
+                        );
+                      }
                       if (provider.sellerOrders.isEmpty) {
                         return Column(children: [NoResult()]);
                       }
@@ -143,8 +147,7 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
                         padding: EdgeInsets.only(bottom: 100),
                         scrollDirection: Axis.vertical,
                         key: _listKey,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 10),
+                        separatorBuilder: (context, index) => const SizedBox(height: 10),
                         shrinkWrap: true,
                         itemCount: provider.sellerOrders.length,
                         physics: const AlwaysScrollableScrollPhysics(),
@@ -237,8 +240,7 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
   _filter() async {
     final orderProvider = context.read<OrderProvider>();
     await orderProvider
-        .filterOrder(
-            !isEnd ? 'end' : 'start', selectedDate.toString().substring(0, 10))
+        .filterOrder(!isEnd ? 'end' : 'start', selectedDate.toString().substring(0, 10))
         .whenComplete(
           () => Navigator.pop(context),
         );

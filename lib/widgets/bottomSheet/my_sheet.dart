@@ -26,34 +26,53 @@ class SheetContainer extends StatelessWidget {
       ),
       child: SingleChildScrollView(
         child: SafeArea(
-          child: Column(
-            spacing: 20,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  height: 4,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                ),
-              ),
-              if (title != null)
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    title!,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: spacing,
-                children: children,
-              )
+                spacing: 12,
+                children: [
+                  SizedBox(),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      height: 4,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                  if (title != null)
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        title!,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: spacing,
+                    children: children,
+                  )
+                ],
+              ),
+              Positioned(
+                right: 0,
+                child: IconButton(
+                  style: IconButton.styleFrom(
+                    shape: CircleBorder(
+                      side: BorderSide(
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+                  ),
+                  onPressed: () => Get.close(1),
+                  icon: Icon(Icons.close, size: 18),
+                ),
+              ),
             ],
           ),
         ),

@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/DRIVER/ready_orders/ready_order_card.dart';
 
@@ -31,9 +30,7 @@ class _ReadyOrdersState extends State<ReadyOrders> {
 
   void onTapOrder(DeliveryOrder order) {
     setState(() {
-      selecteds.contains(order.id)
-          ? selecteds.remove(order.id)
-          : selecteds.add(order.id);
+      selecteds.contains(order.id) ? selecteds.remove(order.id) : selecteds.add(order.id);
     });
   }
 
@@ -155,8 +152,7 @@ class _ReadyOrdersState extends State<ReadyOrders> {
               const SizedBox(height: 20),
               Text(
                 'Түгээлтэнд нэмэх (${selecteds.length} захиалга)',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
               const SizedBox(height: 24),
 
@@ -218,21 +214,17 @@ class _ReadyOrdersState extends State<ReadyOrders> {
                               width: 1.5,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  12), // Softer, more modern corners
+                              borderRadius:
+                                  BorderRadius.circular(12), // Softer, more modern corners
                             ),
-                            showCheckmark:
-                                false, // Modern chips usually skip the checkmark icon
+                            showCheckmark: false, // Modern chips usually skip the checkmark icon
                             labelStyle: TextStyle(
                               color: isSelected ? primary : Colors.grey[700],
-                              fontWeight: isSelected
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                               fontSize: 14,
                               letterSpacing: 0.3,
                             ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           ),
                         );
                       }).toList(),

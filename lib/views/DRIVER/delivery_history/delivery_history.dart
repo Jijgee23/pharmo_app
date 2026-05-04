@@ -1,7 +1,6 @@
-import 'package:pharmo_app/controller/models/delivery.dart';
-import 'package:pharmo_app/views/DRIVER/delivery_history/delivery_history_detail.dart';
-import 'package:pharmo_app/application/application.dart';
 import 'package:intl/intl.dart';
+import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/DRIVER/delivery_history/delivery_history_detail.dart';
 
 class ShipmentHistory extends StatefulWidget {
   const ShipmentHistory({super.key});
@@ -80,8 +79,7 @@ class _ShipmentHistoryState extends State<ShipmentHistory> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final value = await pickdate(context,
-                    initial: isStart ? driver.start : driver.end);
+                final value = await pickdate(context, initial: isStart ? driver.start : driver.end);
                 if (value == null) return;
                 driver.updateDate(value, isStart: isStart);
               },
@@ -166,8 +164,7 @@ class ShipmentBuilder extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -195,15 +192,11 @@ class ShipmentBuilder extends StatelessWidget {
                     // Цагийн мэдээллүүд
                     Row(
                       children: [
-                        _buildTimeInfo('Эхэлсэн',
-                            maybeNull(delivery.startedOn).substring(10, 16)),
+                        _buildTimeInfo('Эхэлсэн', maybeNull(delivery.startedOn).substring(10, 16)),
                         _buildTimeDivider(),
-                        _buildTimeInfo('Дууссан',
-                            maybeNull(delivery.endedOn).substring(10, 16)),
+                        _buildTimeInfo('Дууссан', maybeNull(delivery.endedOn).substring(10, 16)),
                         _buildTimeDivider(),
-                        _buildTimeInfo(
-                            'Захиалга', delivery.orders.length.toString(),
-                            isLast: true),
+                        _buildTimeInfo('Захиалга', delivery.orders.length.toString(), isLast: true),
                       ],
                     ),
                   ],
@@ -212,8 +205,7 @@ class ShipmentBuilder extends StatelessWidget {
 
               // Явцын хэсэг (Progress Section)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: const BorderRadius.only(
@@ -258,8 +250,7 @@ class ShipmentBuilder extends StatelessWidget {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          const Icon(Icons.location_on_outlined,
-                              size: 14, color: Colors.orange),
+                          const Icon(Icons.location_on_outlined, size: 14, color: Colors.orange),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
@@ -289,8 +280,7 @@ class ShipmentBuilder extends StatelessWidget {
   Widget _buildTimeInfo(String label, String value, {bool isLast = false}) {
     return Expanded(
       child: Column(
-        crossAxisAlignment:
-            isLast ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isLast ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Text(
             label,

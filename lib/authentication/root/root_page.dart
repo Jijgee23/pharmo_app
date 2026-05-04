@@ -1,7 +1,10 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/authentication/login/login.dart';
+import 'package:pharmo_app/authentication/login/pre_login_page.dart';
 import 'package:pharmo_app/authentication/root/root_provider.dart';
 import 'package:pharmo_app/authentication/root/splash_screen.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/update_dialog.dart';
+import 'package:upgrader/upgrader.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -17,7 +20,12 @@ class _RootPageState extends State<RootPage> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async => await readUser(),
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) await UpdateDialog.showIfNeeded(context, updater);
+    });
   }
+
+  final updater = Upgrader();
 
   Future readUser() async {
     final rooter = context.read<RootProvider>();
@@ -37,6 +45,9 @@ class _RootPageState extends State<RootPage> {
           return PharmoIndicator(withMaterial: true);
         }
         if (state == AuthState.notLoggedIn || state == AuthState.expired) {
+          if (rooter.loginHistory.isNotEmpty) {
+            return PreLoginPage(history: rooter.loginHistory);
+          }
           return LoginPage();
         }
 

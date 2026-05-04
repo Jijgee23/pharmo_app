@@ -29,8 +29,8 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
 
   String deliveryType = '';
   String payType = '';
-  Sector sector = Sector(-1, 'Салбар сонгоно уу!', '', '', '', '', null, true,
-      '', 0, 0, Cmp(-1, '?'));
+  Sector sector =
+      Sector(-1, 'Салбар сонгоно уу!', '', '', '', '', null, true, '', 0, 0, Cmp(-1, '?'));
 
   TextEditingController phoneController = TextEditingController();
   TextEditingController phone2Controller = TextEditingController();
@@ -62,8 +62,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     return Consumer2<HomeProvider, CartProvider>(
       builder: (context, home, cart, child) {
         return Container(
-          constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * .9),
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * .9),
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -95,8 +94,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
                   BottomSheetLabelBuilder('Сонгосон нийлүүлэгч'),
                   const SizedBox(height: 10),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     decoration: BoxDecoration(
                       color: primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -105,8 +103,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.home_work_outlined,
-                            color: primary, size: 18),
+                        Icon(Icons.home_work_outlined, color: primary, size: 18),
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
@@ -252,8 +249,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
                 ),
               ),
             ),
-            if (home.branches.length > 1)
-              const Icon(Icons.arrow_drop_down, color: Colors.grey),
+            if (home.branches.length > 1) const Icon(Icons.arrow_drop_down, color: Colors.grey),
           ],
         ),
       ),
@@ -291,8 +287,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     );
   }
 
-  void _handleOrder(
-      HomeProvider home, CartProvider cart, BuildContext c) async {
+  void _handleOrder(HomeProvider home, CartProvider cart, BuildContext c) async {
     if (deliveryType == '') {
       messageWarning('Хүргэлтийн хэлбэр сонгоно уу!');
       return;
@@ -318,8 +313,7 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
         'phone': phoneController.text,
         'phone2': phone2Controller.text,
       });
-      if (res == null ||
-          (res != null && (res.statusCode != 200 || res.statusCode == 201))) {
+      if (res == null || (res != null && (res.statusCode != 200 || res.statusCode == 201))) {
         messageError('Утасны дугаар шинэчилж чадсангүй');
         return;
       }
@@ -329,7 +323,6 @@ class _PharmOrderSheetState extends State<PharmOrderSheet> {
     String qtyInfo = 'Нийт тоо ширхэг: ${cart.basket!.totalCount}\n';
     String branchInfo = 'Салбар: ${sector.name}\n';
     bool confirmed = await confirmDialog(
-      context: c,
       title: 'Захиалга үүсгэх үү?',
       message: '$priceInfo $qtyInfo $branchInfo',
       messageAlign: TextAlign.start,

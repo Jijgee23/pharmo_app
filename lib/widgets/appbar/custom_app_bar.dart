@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pharmo_app/controller/providers/auth_provider.dart';
-import 'package:pharmo_app/controller/providers/cart_provider.dart';
-import 'package:pharmo_app/controller/providers/home_provider.dart';
-import 'package:pharmo_app/application/services/a_services.dart';
+import 'package:pharmo_app/authentication/auth_provider.dart';
+import 'package:pharmo_app/views/cart/cart_provider.dart';
+import 'package:pharmo_app/views/home/home_provider.dart';
+import 'package:pharmo_app/application/settings/services/a_services.dart';
 import 'package:provider/provider.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

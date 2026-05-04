@@ -8,151 +8,194 @@ class ChooseCustomer extends StatefulWidget {
 }
 
 class _ChooseCustomerState extends State<ChooseCustomer> {
+  final TextEditingController query = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  String selectedFilter = 'Нэрээр';
+  String filter = 'name';
+
+  final List<String> filters = ['Нэрээр', 'Утасны дугаараар', 'Регистрийн дугаараар'];
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PharmProvider>().getCustomers(1, 100, context);
+      context.read<PharmProvider>().fetchCustomers();
     });
   }
 
-  TextEditingController query = TextEditingController();
-  String selectedFilter = 'Нэрээр';
-  String filter = 'name';
+  @override
+  void dispose() {
+    query.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      context.read<PharmProvider>().fetchMoreCustomers();
+    }
+  }
 
   void setFilter(String v) {
     setState(() {
       selectedFilter = v;
-      filter =
-          v == 'Нэрээр' ? 'name' : (v == 'Утасны дугаараар' ? 'phone' : 'rn');
+      filter = v == 'Нэрээр' ? 'name' : (v == 'Утасны дугаараар' ? 'phone' : 'rn');
     });
   }
 
-  List<String> filters = ['Нэрээр', 'Утасны дугаараар', 'Регистрийн дугаараар'];
+  void _onSearch(String v, PharmProvider pp) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (v.isEmpty) {
+        await pp.fetchCustomers();
+      } else {
+        await pp.fetchCustomers(type: filter, value: v);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<PharmProvider>(
-      builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: Colors.grey.shade50,
-          appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Colors.white,
-            leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios_new,
-                  color: Colors.black87, size: 20),
-            ),
-            titleSpacing: 0,
-            title: Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: _buildSearchField(provider),
+      builder: (context, provider, _) => Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          ),
+          title: Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ModernField(
+              controller: query,
+              onChanged: (v) => _onSearch(v, provider),
+              hint: '$selectedFilter хайх',
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.tune_rounded, size: 18),
+                onPressed: _showFilterMenu,
+              ),
             ),
           ),
-          body: Column(
-            children: [
-              // Сонгосон шүүлтүүрийг харуулах жижиг Badge
+        ),
+        body: Column(
+          children: [
+            // Active filter badge
+            if (selectedFilter != 'Нэрээр')
               Container(
                 width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: Colors.white,
-                child: Text(
-                  'Шүүлтүүр: $selectedFilter',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w500),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: const Color(0xFF00897B).withOpacity(0.06),
+                child: Row(
+                  spacing: 6,
+                  children: [
+                    Icon(Icons.filter_alt_outlined, size: 14, color: const Color(0xFF00897B)),
+                    Text(
+                      selectedFilter,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF00897B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Expanded(
-                child: provider.filteredCustomers.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: provider.filteredCustomers.length,
-                        itemBuilder: (context, index) {
-                          final e = provider.filteredCustomers[index];
-                          return _buildCustomerItem(e);
-                        },
-                      ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // Хайлтын талбар
-  Widget _buildSearchField(PharmProvider provider) {
-    return Container(
-      height: 45,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TextFormField(
-        controller: query,
-        onChanged: (v) => provider.filtCustomers(filter, v),
-        style: const TextStyle(fontSize: 14),
-        decoration: InputDecoration(
-          hintText: '$selectedFilter хайх...',
-          prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 10),
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.tune, size: 20, color: primary),
-            onPressed: () => _showFilterMenu(),
-          ),
+            Expanded(
+              child: provider.filteredCustomers.isEmpty && !provider.fetchingMore
+                  ? _emptyState()
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                      itemCount: provider.filteredCustomers.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == provider.filteredCustomers.length) {
+                          return _footer(provider);
+                        }
+                        return _customerItem(provider.filteredCustomers[index]);
+                      },
+                    ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // Харилцагчийн мөр (Item)
-  Widget _buildCustomerItem(Customer e) {
+  Widget _customerItem(Customer e) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: const Color(0xFFEBF2F1)),
       ),
       child: ListTile(
         onTap: () => Navigator.pop(context, e),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: CircleAvatar(
-          backgroundColor: primary.withOpacity(0.1),
-          child: Text(
-            (e.name ?? '?').substring(0, 1).toUpperCase(),
-            style: const TextStyle(color: primary, fontWeight: FontWeight.bold),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        leading: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: const Color(0xFF00897B).withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              (e.name ?? '?').substring(0, 1).toUpperCase(),
+              style: const TextStyle(
+                color: Color(0xFF00897B),
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+              ),
+            ),
           ),
         ),
         title: Text(
           e.name ?? '',
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
         subtitle: Text(
           'РД: ${e.rn ?? "-"}',
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+          style: const TextStyle(color: Color(0xFF6B8280), fontSize: 12),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+        trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFFD0DCDB), size: 20),
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _footer(PharmProvider pp) {
+    if (pp.fetchingMore) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(child: CircularProgressIndicator.adaptive()),
+      );
+    }
+    if (!pp.hasMore && pp.filteredCustomers.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Center(
+          child: Text(
+            'Нийт ${pp.totalCount} харилцагч',
+            style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+          ),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _emptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 12,
         children: [
-          Icon(Icons.person_off_outlined,
-              size: 64, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
-          Text('Харилцагч олдсонгүй',
-              style: TextStyle(color: Colors.grey.shade500)),
+          Icon(Icons.person_off_outlined, size: 56, color: Colors.grey.shade300),
+          Text(
+            'Харилцагч олдсонгүй',
+            style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+          ),
         ],
       ),
     );
@@ -161,15 +204,13 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
   void _showFilterMenu() {
     mySheet(
       title: 'Хайлтын төрөл сонгоно уу',
-      children: [
-        ...filters.map(
-          (e) => SelectedFilter(
-            selected: selectedFilter == e,
-            caption: e,
-            onSelect: () => setFilter(e),
-          ),
-        )
-      ],
+      children: filters
+          .map((e) => SelectedFilter(
+                selected: selectedFilter == e,
+                caption: e,
+                onSelect: () => setFilter(e),
+              ))
+          .toList(),
     );
   }
 }

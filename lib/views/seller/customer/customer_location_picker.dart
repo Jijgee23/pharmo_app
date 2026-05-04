@@ -35,8 +35,7 @@ class _LocationPickerState extends State<LocationPicker> {
 
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
+      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
         return;
       }
     }
@@ -52,9 +51,8 @@ class _LocationPickerState extends State<LocationPicker> {
     final custLng = pharm.customerDetail.lng;
     setState(
       () {
-        _selectedLocation = (custLat != null && custLng != null)
-            ? LatLng(custLat, custLng)
-            : currentLocation;
+        _selectedLocation =
+            (custLat != null && custLng != null) ? LatLng(custLat, custLng) : currentLocation;
         _marker = Marker(
           markerId: const MarkerId("current-location"),
           position: _selectedLocation,
@@ -103,10 +101,7 @@ class _LocationPickerState extends State<LocationPicker> {
               right: 0,
               child: Container(
                 padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + 10,
-                    left: 16,
-                    right: 16,
-                    bottom: 20),
+                    top: MediaQuery.of(context).padding.top + 10, left: 16, right: 16, bottom: 20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -131,14 +126,11 @@ class _LocationPickerState extends State<LocationPicker> {
                           Text(
                             widget.customer.name ?? 'Байршил тогтоох',
                             style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18),
+                                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                           ),
                           const Text(
                             'Газрын зураг дээр дарж байршлыг сонгоно уу',
-                            style:
-                                TextStyle(color: Colors.white70, fontSize: 12),
+                            style: TextStyle(color: Colors.white70, fontSize: 12),
                           ),
                         ],
                       ),
@@ -194,10 +186,9 @@ class _LocationPickerState extends State<LocationPicker> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             margin: const EdgeInsets.only(bottom: 5),
-            decoration: BoxDecoration(
-                color: Colors.black54, borderRadius: BorderRadius.circular(5)),
-            child: Text(label,
-                style: const TextStyle(color: Colors.white, fontSize: 10)),
+            decoration:
+                BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(5)),
+            child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 10)),
           ),
         FloatingActionButton(
           heroTag: heroTag,
@@ -231,10 +222,8 @@ class _LocationPickerState extends State<LocationPicker> {
   }
 
   saveCustomerLocatoin(PharmProvider pharm) async {
-    final msg =
-        'Уртраг: ${_selectedLocation.latitude}, Өргөрөг: ${_selectedLocation.longitude}';
+    final msg = 'Уртраг: ${_selectedLocation.latitude}, Өргөрөг: ${_selectedLocation.longitude}';
     final confirmed = await confirmDialog(
-      context: context,
       title: 'Та ${widget.customer.name}-ийн байршлыг шинэчилэх үү?',
       message: msg,
     );

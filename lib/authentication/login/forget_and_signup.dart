@@ -1,6 +1,4 @@
-import 'package:pharmo_app/application/core/config/app_configs.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
-import 'package:pharmo_app/widgets/inputs/custom_text_button.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class ForgetAndSignup extends StatelessWidget {
   const ForgetAndSignup({

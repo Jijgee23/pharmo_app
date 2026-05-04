@@ -1,5 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
+import 'package:pharmo_app/application/application.dart';
 
 class MapButtons extends StatelessWidget {
   const MapButtons({super.key});

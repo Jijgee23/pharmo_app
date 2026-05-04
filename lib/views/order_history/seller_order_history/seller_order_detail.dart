@@ -1,8 +1,8 @@
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/order_general_builder.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/order_item_card.dart';
 import 'package:pharmo_app/views/product/add_basket_sheet.dart';
-import 'package:pharmo_app/application/application.dart';
 
 class SellerOrderDetail extends StatefulWidget {
   final int oId;
@@ -12,8 +12,7 @@ class SellerOrderDetail extends StatefulWidget {
   State<SellerOrderDetail> createState() => _SellerOrderDetailState();
 }
 
-class _SellerOrderDetailState extends State<SellerOrderDetail>
-    with SingleTickerProviderStateMixin {
+class _SellerOrderDetailState extends State<SellerOrderDetail> with SingleTickerProviderStateMixin {
   late TabController controller;
   final TextEditingController qtyController = TextEditingController();
 
@@ -192,8 +191,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.inventory_2_outlined,
-                  size: 64, color: Colors.grey.shade300),
+              Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey.shade300),
               const SizedBox(height: 16),
               Text(
                 'Бараа олдсонгүй',
@@ -237,7 +235,6 @@ class _SellerOrderDetailState extends State<SellerOrderDetail>
 
   Future<void> changeQty(int oid, dynamic item) async {
     qtyController.text = item['itemQty'].toString();
-
     Get.bottomSheet(
       Container(
         decoration: const BoxDecoration(
@@ -326,7 +323,7 @@ class _SellerOrderDetailState extends State<SellerOrderDetail>
       final res = await p.changeItemQty(
         context: context,
         oId: oid,
-        itemId: item['productId'],
+        itemId: item['product_id'],
         qty: qty,
       );
 

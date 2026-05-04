@@ -13,6 +13,36 @@ class OrderItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ItemCard(
+      orderId: orderId,
+      qty: item['itemQty'] ?? 0,
+      itemName: item['itemName'],
+      totalPrice: item['itemTotalPrice'],
+      ontap: ontap,
+      iQty: item['iQty'],
+    );
+  }
+}
+
+class ItemCard extends StatelessWidget {
+  final int orderId;
+  final String itemName;
+  final double? iQty;
+  final double totalPrice, qty;
+  final void Function() ontap;
+
+  const ItemCard({
+    super.key,
+    required this.orderId,
+    required this.qty,
+    required this.itemName,
+    required this.totalPrice,
+    required this.ontap,
+    this.iQty,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       onTap: ontap,
       borderRadius: BorderRadius.circular(12),
@@ -53,7 +83,7 @@ class OrderItemCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item['itemName'] ?? '',
+                        itemName,
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -61,9 +91,9 @@ class OrderItemCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      if (item['iQty'] != null)
+                      if (iQty != null)
                         Text(
-                          'Анх захиалсан: ${item['iQty']}',
+                          'Анх захиалсан: $iQty',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -81,8 +111,7 @@ class OrderItemCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(20),
@@ -90,11 +119,10 @@ class OrderItemCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.inventory_2_outlined,
-                          size: 16, color: Colors.grey.shade700),
+                      Icon(Icons.inventory_2_outlined, size: 16, color: Colors.grey.shade700),
                       const SizedBox(width: 6),
                       Text(
-                        'Тоо: ${item['itemQty']}',
+                        'Тоо: $qty',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -105,7 +133,7 @@ class OrderItemCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  toPrice(item['itemTotalPrice']),
+                  toPrice(totalPrice),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,

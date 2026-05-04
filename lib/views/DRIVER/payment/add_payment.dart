@@ -1,6 +1,6 @@
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/DRIVER/payment/payment_builder.dart';
 import 'package:pharmo_app/views/SELLER/customer/choose_customer.dart';
-import 'package:pharmo_app/application/application.dart';
 
 class AddPayment extends StatefulWidget {
   const AddPayment({super.key});
@@ -9,16 +9,13 @@ class AddPayment extends StatefulWidget {
   State<AddPayment> createState() => _AddPaymentState();
 }
 
-class _AddPaymentState extends State<AddPayment>
-    with SingleTickerProviderStateMixin {
+class _AddPaymentState extends State<AddPayment> with SingleTickerProviderStateMixin {
   String selected = 'e';
-  String pType = 'E';
   String? selectedCustomer;
   Customer? customer;
   setSelected(String s, String p) {
     setState(() {
       selected = s;
-      pType = p;
     });
   }
 
@@ -102,9 +99,7 @@ class _AddPaymentState extends State<AddPayment>
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     decoration: BoxDecoration(
-                      color: hasCustomer
-                          ? primary.withOpacity(0.05)
-                          : Colors.white,
+                      color: hasCustomer ? primary.withOpacity(0.05) : Colors.white,
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
                         color: hasCustomer ? primary : Colors.grey.shade300,
@@ -113,25 +108,20 @@ class _AddPaymentState extends State<AddPayment>
                     ),
                     child: InkWell(
                       onTap: () async {
-                        Customer? value =
-                            await goto<Customer?>(ChooseCustomer());
+                        Customer? value = await goto<Customer?>(ChooseCustomer());
                         if (value != null) {
                           setState(() => customer = value);
                         }
                       },
                       borderRadius: BorderRadius.circular(15),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         child: Row(
                           children: [
                             CircleAvatar(
-                              backgroundColor:
-                                  hasCustomer ? primary : Colors.grey.shade100,
+                              backgroundColor: hasCustomer ? primary : Colors.grey.shade100,
                               child: Icon(
-                                hasCustomer
-                                    ? Icons.person
-                                    : Icons.person_search,
+                                hasCustomer ? Icons.person : Icons.person_search,
                                 color: hasCustomer ? Colors.white : Colors.grey,
                               ),
                             ),
@@ -148,15 +138,11 @@ class _AddPaymentState extends State<AddPayment>
                                     ),
                                   ),
                                   Text(
-                                    hasCustomer
-                                        ? customer!.name!
-                                        : 'Сонгох хэсэгт дарна уу',
+                                    hasCustomer ? customer!.name! : 'Сонгох хэсэгт дарна уу',
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
-                                      color: hasCustomer
-                                          ? primary
-                                          : Colors.grey.shade400,
+                                      color: hasCustomer ? primary : Colors.grey.shade400,
                                     ),
                                   ),
                                 ],
@@ -164,14 +150,11 @@ class _AddPaymentState extends State<AddPayment>
                             ),
                             if (hasCustomer)
                               IconButton(
-                                onPressed: () =>
-                                    setState(() => customer = null),
-                                icon: const Icon(Icons.cancel,
-                                    color: Colors.redAccent),
+                                onPressed: () => setState(() => customer = null),
+                                icon: const Icon(Icons.cancel, color: Colors.redAccent),
                               )
                             else
-                              const Icon(Icons.arrow_forward_ios,
-                                  size: 16, color: Colors.grey),
+                              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                           ],
                         ),
                       ),
@@ -278,8 +261,7 @@ class _AddPaymentState extends State<AddPayment>
     setState(() {
       ctr.text = payment.amount.toString();
     });
-    setSelected(
-        payment.payType == 'C' ? 'Бэлнээр' : 'Дансаар', payment.payType);
+    setSelected(payment.payType == 'C' ? 'Бэлнээр' : 'Дансаар', payment.payType);
     Get.bottomSheet(
       StatefulBuilder(
         builder: (context, setModalState) {
@@ -295,8 +277,8 @@ class _AddPaymentState extends State<AddPayment>
             CustomButton(
               text: 'Хадгалах',
               ontap: () {
-                jagger.editCustomerPayment(payment.cust.id.toString(),
-                    payment.paymentId, pType, ctr.text);
+                jagger.editCustomerPayment(
+                    payment.cust.id.toString(), payment.paymentId, selected, ctr.text);
                 Navigator.pop(context);
               },
             )
@@ -307,7 +289,7 @@ class _AddPaymentState extends State<AddPayment>
   }
 
   _register(JaggerProvider jagger) async {
-    if (pType == "E") {
+    if (selected == "e") {
       message('Төлбөрийн хэлбэр сонгоно уу!');
       return;
     }
@@ -319,13 +301,12 @@ class _AddPaymentState extends State<AddPayment>
       message('Харилцагч сонгоно уу!');
       return;
     }
-    await jagger.addCustomerPayment(
-        pType, amount.text, customer!.id.toString());
+    await jagger.addCustomerPayment(selected, amount.text, customer!.id.toString());
     amount.clear();
     setState(
       () {
         customer = null;
-        pType = 'E';
+        // pType = 'E';
         selected = 'e';
       },
     );
@@ -338,7 +319,7 @@ class _AddPaymentState extends State<AddPayment>
       child: InkWell(
         onTap: () => setModalState(() {
           selected = n;
-          pType = v;
+          // pType = v;
         }),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
@@ -369,7 +350,7 @@ class _AddPaymentState extends State<AddPayment>
     return InkWell(
       onTap: () => setState(() {
         selected = n;
-        pType = v;
+        // pType = v;
       }),
       child: AnimatedContainer(
         duration: duration,

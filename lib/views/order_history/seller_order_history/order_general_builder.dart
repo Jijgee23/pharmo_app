@@ -133,6 +133,12 @@ class OrderGeneralBuilder extends StatelessWidget {
                 ],
               ),
             ),
+            // CustomButton(
+            //   text: 'Баримт хэвлэх',
+            //   ontap: () async {
+            //     goto(PrintPreviev());
+            //   },
+            // )
           ],
         ),
       ).paddingAll(10),

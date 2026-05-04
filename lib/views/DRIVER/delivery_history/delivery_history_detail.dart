@@ -1,4 +1,3 @@
-import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_order_card.dart';
 
@@ -14,7 +13,7 @@ class ShipmentHistoryDetail extends StatelessWidget {
         itemCount: delivery.orders.length,
         itemBuilder: (context, index) {
           final order = delivery.orders[index];
-          return DeliveryOrderCard(orderId: order.id);
+          return DeliveryOrderCard(orderId: order.id, order: order);
         },
       ).paddingAll(10),
     );

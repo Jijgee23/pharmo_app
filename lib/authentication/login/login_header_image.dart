@@ -1,6 +1,6 @@
 import 'dart:math' as math;
-import 'package:pharmo_app/application/function/utilities/a_utils.dart';
-import 'package:pharmo_app/controller/a_controlller.dart';
+
+import 'package:pharmo_app/application/application.dart';
 
 class LoginHeaderImage extends StatefulWidget {
   final bool loading;
@@ -14,8 +14,7 @@ class LoginHeaderImage extends StatefulWidget {
   State<LoginHeaderImage> createState() => _LoginHeaderImageState();
 }
 
-class _LoginHeaderImageState extends State<LoginHeaderImage>
-    with SingleTickerProviderStateMixin {
+class _LoginHeaderImageState extends State<LoginHeaderImage> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _pulseAnimation;
   late Animation<double> _rotateAnimation;

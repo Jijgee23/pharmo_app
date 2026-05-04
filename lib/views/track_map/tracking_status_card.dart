@@ -7,22 +7,18 @@ class TrackingStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
-        final isTracking =
-            jagger.subscription != null && !jagger.subscription!.isPaused;
+        final isTracking = jagger.subscription != null && !jagger.subscription!.isPaused;
 
         if (!isTracking) return const SizedBox.shrink();
-        // final isDriver = Authenticator.security!.isDriver;
         final trackDatas = jagger.trackDatas;
         final distance = _calculateTotalDistance(trackDatas, jagger);
         final duration = _formatDuration(
           jagger.now,
-          Authenticator.security!.isSaler
-              ? jagger.salerStartedOn
-              : jagger.delivery?.startedOn,
+          Authenticator.security!.isSaler ? jagger.salerStartedOn : jagger.delivery?.startedOn,
         );
 
         return Positioned(
-          top: 80,
+          top: 110,
           left: 16,
           right: 16,
           child: Column(
@@ -107,8 +103,7 @@ class TrackingStatusCard extends StatelessWidget {
                 child: Material(
                   color: Colors.transparent,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -124,9 +119,7 @@ class TrackingStatusCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          jagger.isShowingTrackingInfo
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+                          jagger.isShowingTrackingInfo ? Icons.visibility : Icons.visibility_off,
                           size: 16,
                           color: Colors.grey[600],
                         ),
@@ -285,10 +278,7 @@ class TrackingStatusCard extends StatelessWidget {
     final double dLng = _toRadians(lng2 - lng1);
 
     final double a = _sin(dLat / 2) * _sin(dLat / 2) +
-        _cos(_toRadians(lat1)) *
-            _cos(_toRadians(lat2)) *
-            _sin(dLng / 2) *
-            _sin(dLng / 2);
+        _cos(_toRadians(lat1)) * _cos(_toRadians(lat2)) * _sin(dLng / 2) * _sin(dLng / 2);
 
     final double c = 2 * _atan2(_sqrt(a), _sqrt(1 - a));
     return earthRadius * c;
@@ -330,8 +320,7 @@ class TrackingStatusCard extends StatelessWidget {
     double result = isSin ? x : 1;
     double term = isSin ? x : 1;
     for (int n = 1; n < 20; n++) {
-      term *=
-          -x * x / ((isSin ? 2 * n : 2 * n - 1) * (isSin ? 2 * n + 1 : 2 * n));
+      term *= -x * x / ((isSin ? 2 * n : 2 * n - 1) * (isSin ? 2 * n + 1 : 2 * n));
       result += term;
     }
     return result;

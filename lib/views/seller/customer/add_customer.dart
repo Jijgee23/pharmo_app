@@ -1,4 +1,3 @@
-import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class AddCustomer extends StatefulWidget {
@@ -82,10 +81,7 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
                     child: Text(
                       'Харилцагч бүртгэх',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: black,
-                          fontSize: 16),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: black, fontSize: 16),
                     ),
                   ),
                   Input(hint: 'Нэр', contr: name, key: null),
@@ -116,8 +112,7 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
                       SizedBox(
                         height: 50, // эсвэл тохирох өндөр өгнө
                         child: SingleChildScrollView(
-                          scrollDirection:
-                              Axis.horizontal, // Хэвтээ гүйлгэлт болгох
+                          scrollDirection: Axis.horizontal, // Хэвтээ гүйлгэлт болгох
                           padding: EdgeInsets.symmetric(horizontal: 10),
                           child: Row(
                             spacing: 10,
@@ -147,13 +142,11 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
       onTap: () => pharm.setZone(zone),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding:
-            EdgeInsets.symmetric(horizontal: selected ? 15 : 10, vertical: 7.5),
+        padding: EdgeInsets.symmetric(horizontal: selected ? 15 : 10, vertical: 7.5),
         decoration: BoxDecoration(
           color: white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-              color: selected ? succesColor : grey400, width: selected ? 2 : 1),
+          border: Border.all(color: selected ? succesColor : grey400, width: selected ? 2 : 1),
         ),
         child: Text(
           zone.name,
@@ -168,10 +161,7 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
 
   // Бүртгэх
   _registerCustomer(PharmProvider pp, HomeProvider home) async {
-    if (name.text.isEmpty ||
-        rn.text.isEmpty ||
-        email.text.isEmpty ||
-        phone.text.isEmpty) {
+    if (name.text.isEmpty || rn.text.isEmpty || email.text.isEmpty || phone.text.isEmpty) {
       messageWarning('Бүртгэл гүйцээнээ үү!');
     } else {
       await pp
@@ -185,8 +175,8 @@ class _AddCustomerSheetState extends State<AddCustomerSheet> {
         home.currentLongitude.toString(),
         context,
       )
-          .whenComplete(() {
-        pp.getCustomers(1, 100, context);
+          .then((_) async {
+        await pp.getCustomers();
         popSheet();
       });
     }

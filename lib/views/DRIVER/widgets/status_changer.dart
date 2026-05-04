@@ -1,4 +1,3 @@
-import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class StatusChanger extends StatefulWidget {

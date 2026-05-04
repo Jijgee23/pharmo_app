@@ -1,5 +1,4 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/controller/models/delivery.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_detail.dart';
 import 'package:pharmo_app/views/DRIVER/widgets/status_changer.dart';
 import 'package:pharmo_app/views/order_history/order_card/order_status_chip.dart';
@@ -7,24 +6,24 @@ import 'package:pharmo_app/views/order_history/order_card/user_tag.dart';
 
 class DeliveryOrderCard extends StatelessWidget {
   final int orderId;
+  final DeliveryOrder? order;
 
-  const DeliveryOrderCard({super.key, required this.orderId});
+  const DeliveryOrderCard({super.key, required this.orderId, this.order});
 
   @override
   Widget build(BuildContext context) {
+    if (order != null) return _buildOrderCard(context, order!);
     return Consumer<JaggerProvider>(
       builder: (context, provider, child) {
-        DeliveryOrder order =
-            provider.delivery!.orders.firstWhere((e) => e.id == orderId);
-
-        return _buildOrderCard(context, provider, order);
+        final found = provider.delivery?.orders.where((e) => e.id == orderId).firstOrNull;
+        if (found == null) return const SizedBox();
+        return _buildOrderCard(context, found);
       },
     );
   }
 
   Widget _buildOrderCard(
     BuildContext context,
-    JaggerProvider jagger,
     DeliveryOrder order,
   ) {
     return Material(
@@ -76,7 +75,7 @@ class DeliveryOrderCard extends StatelessWidget {
     } else if (order.customer != null && order.customer!.name != 'null') {
       return order.customer!.name;
     } else {
-      return order.user!.name;
+      return order.user?.name ?? '';
     }
   }
 
@@ -119,8 +118,7 @@ class DeliveryOrderCard extends StatelessWidget {
             SizedBox(
               width: double.maxFinite,
               child: ElevatedButton(
-                onPressed: () async =>
-                    await Get.bottomSheet(StatusChanger(order: order)),
+                onPressed: () async => await Get.bottomSheet(StatusChanger(order: order)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: succesColor,
                   shape: RoundedRectangleBorder(

@@ -25,7 +25,7 @@ class NoResult extends StatelessWidget {
               opacity: 0.7,
               child: Image.asset(
                 'assets/icons/not-found.png',
-                width: context.width * 0.4,
+                width: context.width * 0.3,
                 fit: BoxFit.contain,
                 // Хэрэв зураг байхгүй бол алдаа заахаас сэргийлнэ
                 errorBuilder: (context, error, stackTrace) => Icon(
@@ -42,7 +42,7 @@ class NoResult extends StatelessWidget {
               message ?? 'Үр дүн олдсонгүй',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.grey.shade800,
               ),
@@ -50,13 +50,12 @@ class NoResult extends StatelessWidget {
             const SizedBox(height: 8),
 
             // 3. Туслах тайлбар
-            Text(
-              subMessage ?? 'Та хайх утгаа шалгах эсвэл дахин оролдож үзнэ үү.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade500,
-                height: 1.4,
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2),
+              child: Text(
+                subMessage ?? 'Та хайх утгаа шалгах эсвэл дахин оролдож үзнэ үү.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade500, letterSpacing: -.5),
               ),
             ),
 
@@ -69,8 +68,7 @@ class NoResult extends StatelessWidget {
                 label: const Text('Дахин ачаалах'),
                 style: TextButton.styleFrom(
                   foregroundColor: primary,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),
               ),
             ],

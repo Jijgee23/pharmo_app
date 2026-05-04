@@ -5,14 +5,10 @@ class ResponsiveDropdownButton extends StatefulWidget {
   final List<dynamic> items;
   final Function() onTapItem;
   const ResponsiveDropdownButton(
-      {super.key,
-      required this.initText,
-      required this.items,
-      required this.onTapItem});
+      {super.key, required this.initText, required this.items, required this.onTapItem});
 
   @override
-  _ResponsiveDropdownButtonState createState() =>
-      _ResponsiveDropdownButtonState();
+  _ResponsiveDropdownButtonState createState() => _ResponsiveDropdownButtonState();
 }
 
 class _ResponsiveDropdownButtonState extends State<ResponsiveDropdownButton> {
@@ -29,8 +25,7 @@ class _ResponsiveDropdownButtonState extends State<ResponsiveDropdownButton> {
   }
 
   void _showDropdown() {
-    final RenderBox buttonRenderBox =
-        _buttonKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox buttonRenderBox = _buttonKey.currentContext!.findRenderObject() as RenderBox;
     final Offset buttonPosition = buttonRenderBox.localToGlobal(Offset.zero);
     final Size buttonSize = buttonRenderBox.size;
 

@@ -79,14 +79,12 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
   }
 
   void _onSearch(String value, PharmProvider pp) {
-    WidgetsBinding.instance.addPostFrameCallback(
-      (cb) async {
-        if (value.isEmpty) {
-          await pp.getCustomers(1, 100, context);
-        } else {
-          await pp.filtCustomers(filter, controller.text);
-        }
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (value.isEmpty) {
+        await pp.fetchCustomers();
+      } else {
+        await pp.fetchCustomers(type: filter, value: value);
+      }
+    });
   }
 }

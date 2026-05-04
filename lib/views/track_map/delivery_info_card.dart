@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:pharmo_app/controller/providers/jagger_provider.dart';
+import 'package:pharmo_app/views/DRIVER/jagger_provider.dart';
 
 class DeliveryInfoCard extends StatefulWidget {
   const DeliveryInfoCard({super.key});

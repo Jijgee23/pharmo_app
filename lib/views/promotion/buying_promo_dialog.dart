@@ -1,7 +1,7 @@
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/promotion/marked_promo_dialog.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:pharmo_app/application/application.dart';
 
 class BuyingPromoOnDialog extends StatefulWidget {
   final MarkedPromo promo;
@@ -32,8 +32,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                      onPressed: () =>
-                          promotionProvider.hidePromo(promo.id!, context),
+                      onPressed: () => promotionProvider.hidePromo(promo.id!, context),
                       child: text('Дахиж харахгүй', color: black)),
                 ),
                 text(promo.name!),
@@ -45,8 +44,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                       const SizedBox(height: 10),
                       if (hasBundle)
                         GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             mainAxisSpacing: 10,
                             crossAxisSpacing: 10,
@@ -54,8 +52,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            return product(
-                                promo.bundles?[index], noImage, context);
+                            return product(promo.bundles?[index], noImage, context);
                           },
                           itemCount: promo.bundles?.length,
                         ),
@@ -77,8 +74,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                       text('Бэлэг:'),
                       box,
                       GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 10,
                           crossAxisSpacing: 10,
@@ -98,8 +94,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                     child: Column(
                       children: [
                         box,
-                        text(promo.endDate!.substring(0, 10),
-                            color: myColor, size: 20),
+                        text(promo.endDate!.substring(0, 10), color: myColor, size: 20),
                       ],
                     ),
                   ),
@@ -107,8 +102,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                   margin: const EdgeInsets.symmetric(vertical: 5),
                   child: CustomButton(
                     ontap: () => promotionProvider.setOrderStarted(),
-                    text:
-                        promotionProvider.orderStarted ? 'Цуцлах' : 'Захиалах',
+                    text: promotionProvider.orderStarted ? 'Цуцлах' : 'Захиалах',
                   ),
                 ),
                 if (promotionProvider.orderStarted)
@@ -127,9 +121,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               text('Үнийн дүн:'),
-                              text(toPrice(promotionProvider
-                                  .promoDetail.bundlePrice
-                                  .toString())),
+                              text(toPrice(promotionProvider.promoDetail.bundlePrice.toString())),
                             ],
                           )
                         ],
@@ -141,8 +133,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                           Expanded(
                             child: Container(
                               margin: const EdgeInsets.only(right: 5),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                               decoration: BoxDecoration(
                                 color: promotionProvider.delivery
                                     ? Colors.grey.shade300
@@ -150,8 +141,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: InkWell(
-                                onTap: () =>
-                                    promotionProvider.setDelivery(false),
+                                onTap: () => promotionProvider.setDelivery(false),
                                 child: const Center(child: Text('Хүргэлтээр')),
                               ),
                             ),
@@ -159,8 +149,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                           Expanded(
                             child: Container(
                               margin: const EdgeInsets.only(left: 5),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                               decoration: BoxDecoration(
                                 color: !promotionProvider.delivery
                                     ? Colors.grey.shade300
@@ -168,8 +157,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: InkWell(
-                                onTap: () =>
-                                    promotionProvider.setDelivery(true),
+                                onTap: () => promotionProvider.setDelivery(true),
                                 child: const Center(child: Text('Очиж авах')),
                               ),
                             ),
@@ -183,9 +171,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                               title: 'Салбар сонгох',
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: home.branches
-                                    .map((e) => branch(e))
-                                    .toList(),
+                                children: home.branches.map((e) => branch(e)).toList(),
                               ),
                             ),
                       box,
@@ -195,8 +181,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                           Expanded(
                             child: Container(
                               margin: const EdgeInsets.only(right: 5),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                               decoration: BoxDecoration(
                                 color: !promotionProvider.isCash
                                     ? Colors.grey.shade300
@@ -215,8 +200,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                           Expanded(
                             child: Container(
                               margin: const EdgeInsets.only(left: 5),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                               decoration: BoxDecoration(
                                 color: promotionProvider.isCash
                                     ? Colors.grey.shade300
@@ -238,23 +222,20 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                       InkWell(
                           borderRadius: BorderRadius.circular(10),
                           splashColor: Colors.blue.shade100,
-                          onTap: () => promotionProvider
-                              .setHasnote(!promotionProvider.hasNote),
+                          onTap: () => promotionProvider.setHasnote(!promotionProvider.hasNote),
                           child: Text('Нэмэлт тайлбар',
-                              style: TextStyle(
-                                  color: Theme.of(context).primaryColor))),
+                              style: TextStyle(color: Theme.of(context).primaryColor))),
                       box,
                       !promotionProvider.hasNote
                           ? const SizedBox()
-                          : CustomTextField(
-                              hintText: 'Тайлбар', controller: note),
+                          : CustomTextField(hintText: 'Тайлбар', controller: note),
                       box,
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 5),
                         child: CustomButton(
                           ontap: () {
-                            promotionProvider.orderPromo(widget.promo.id!,
-                                selectedBranch, note.text, context);
+                            promotionProvider.orderPromo(
+                                widget.promo.id!, selectedBranch, note.text, context);
                           },
                           text: 'Баталгаажуулах',
                         ),
@@ -276,8 +257,8 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                 InkWell(
                                     borderRadius: BorderRadius.circular(10),
                                     splashColor: Colors.blue.shade100,
-                                    onTap: () => promotionProvider
-                                        .setBank(!promotionProvider.useBank),
+                                    onTap: () =>
+                                        promotionProvider.setBank(!promotionProvider.useBank),
                                     child: const Text(
                                       'Банкны аппаар төлөх',
                                       style: TextStyle(color: AppColors.main),
@@ -291,61 +272,42 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
                                           child: SingleChildScrollView(
                                             scrollDirection: Axis.horizontal,
                                             child: Row(
-                                                children:
-                                                    promotionProvider
-                                                                .qrData.urls !=
-                                                            null
-                                                        ? promotionProvider
-                                                            .qrData.urls!
-                                                            .map((e) => InkWell(
-                                                                  splashColor:
-                                                                      Colors
-                                                                          .blue
-                                                                          .shade100,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10),
-                                                                  onTap:
-                                                                      () async {
-                                                                    bool found =
-                                                                        await canLaunchUrl(
-                                                                            Uri.parse(e.link!));
-                                                                    if (found) {
-                                                                      await launchUrl(
-                                                                          Uri.parse(e
-                                                                              .link!),
-                                                                          mode:
-                                                                              LaunchMode.externalApplication);
-                                                                    } else {
-                                                                      messageWarning(
-                                                                          '${e.description!} банкны апп олдсонгүй.');
-                                                                    }
-                                                                  },
-                                                                  child:
-                                                                      Container(
-                                                                          margin: const EdgeInsets
-                                                                              .all(
-                                                                              10),
-                                                                          child:
-                                                                              Image.network(
-                                                                            e.logo!,
-                                                                            width:
-                                                                                60,
-                                                                          )),
-                                                                ))
-                                                            .toList()
-                                                        : []),
+                                                children: promotionProvider.qrData.urls != null
+                                                    ? promotionProvider.qrData.urls!
+                                                        .map((e) => InkWell(
+                                                              splashColor: Colors.blue.shade100,
+                                                              borderRadius:
+                                                                  BorderRadius.circular(10),
+                                                              onTap: () async {
+                                                                bool found = await canLaunchUrl(
+                                                                    Uri.parse(e.link!));
+                                                                if (found) {
+                                                                  await launchUrl(
+                                                                      Uri.parse(e.link!),
+                                                                      mode: LaunchMode
+                                                                          .externalApplication);
+                                                                } else {
+                                                                  messageWarning(
+                                                                      '${e.description!} банкны апп олдсонгүй.');
+                                                                }
+                                                              },
+                                                              child: Container(
+                                                                  margin: const EdgeInsets.all(10),
+                                                                  child: Image.network(
+                                                                    e.logo!,
+                                                                    width: 60,
+                                                                  )),
+                                                            ))
+                                                        .toList()
+                                                    : []),
                                           ),
                                         ),
                                       ),
                                 box,
                                 Container(
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 5),
+                                  margin: const EdgeInsets.symmetric(vertical: 5),
                                   child: CustomButton(
-                                    ontap: () =>
-                                        promotionProvider.checkPayment(context),
+                                    ontap: () => promotionProvider.checkPayment(context),
                                     text: 'Төлбөр шалгах',
                                   ),
                                 ),
@@ -369,19 +331,22 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
         padding: const EdgeInsets.all(10),
         margin: const EdgeInsets.only(top: 10, left: 5, right: 5),
         decoration: BoxDecoration(
-          boxShadow: [Constants.defaultShadow],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade200,
+              blurRadius: 3,
+            )
+          ],
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
+          spacing: 10,
           children: [
             Icon(
               Icons.home,
-              color: selectedBranch == e.id
-                  ? AppColors.secondary
-                  : context.theme.primaryColor,
+              color: selectedBranch == e.id ? AppColors.secondary : context.theme.primaryColor,
             ),
-            Constants.boxH10,
             Text(e.name),
           ],
         ),
@@ -390,8 +355,7 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
   }
 
   solveQTY() {
-    int blenght =
-        widget.promo.bundles != null ? widget.promo.bundles!.length : 0;
+    int blenght = widget.promo.bundles != null ? widget.promo.bundles!.length : 0;
     int glength = widget.promo.gift != null ? widget.promo.gift!.length : 0;
     int qty = blenght + glength;
     return qty;
@@ -399,10 +363,8 @@ class _BuyingPromoOnDialogState extends State<BuyingPromoOnDialog> {
 
   solveTotal() {
     double total = 0;
-    double tbundle = widget.promo.bundles!.fold(
-        0.0,
-        (previousValue, element) =>
-            total = total + (element['price'] * element['qty']));
+    double tbundle = widget.promo.bundles!
+        .fold(0.0, (previousValue, element) => total = total + (element['price'] * element['qty']));
     return tbundle;
   }
 }
@@ -412,9 +374,15 @@ product(e, String noImage, BuildContext context) {
     children: [
       Container(
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.white,
-            boxShadow: [Constants.defaultShadow]),
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade200,
+              blurRadius: 3,
+            )
+          ],
+        ),
         padding: const EdgeInsets.all(5),
         child: Column(
           children: [

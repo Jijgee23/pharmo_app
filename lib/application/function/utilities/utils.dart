@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:intl/intl.dart' as intl;
+
 import 'package:image/image.dart' as img;
+import 'package:intl/intl.dart' as intl;
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/authentication/root/root_provider.dart';
 
@@ -101,41 +102,6 @@ status(String status) {
   }
 }
 
-// process(String status) {
-//   switch (status) {
-//     case "D":
-//       return 'Хүргэгдсэн';
-//     case "C":
-//       return 'Хаалттай';
-//     case "R":
-//       return 'Буцаагдсан';
-//     case "O":
-//       return 'Түгээлтэнд гарсан';
-//     case "N":
-//       return 'Шинэ';
-//     case "P":
-//       return 'Бэлэн болсон';
-//     case "Т":
-//       return 'Бэлтгэж эхлэсэн';
-//     case "A":
-//       return 'Хүлээн авсан';
-//     default:
-//       return 'Тодорхойгүй';
-//   }
-// }
-
-// getPayType(String status) {
-//   if (status == 'L') {
-//     return 'Зээлээр';
-//   } else if (status == 'C') {
-//     return 'Бэлнээр';
-//   } else if (status == 'T') {
-//     return 'Дансаар';
-//   } else {
-//     return 'Тодорхой биш';
-//   }
-// }
-
 checker(Map response, String key) {
   if (response.containsKey(key)) {
     return true;
@@ -158,10 +124,6 @@ String maybeNullToJson(String? text) {
   } else {
     return text;
   }
-}
-
-String getDate(DateTime date) {
-  return date.toString().substring(0, 10);
 }
 
 Future<File> compressImage(File imageFile) async {
@@ -196,28 +158,6 @@ Future<DateTime?> pickdate(BuildContext context,
     initialDate: initial,
     firstDate: first ?? DateTime(2020),
     lastDate: end ?? DateTime(2040),
-    builder: (context, child) {
-      return datePickerTheme(context, child);
-    },
   );
   return newDate;
-}
-
-Theme datePickerTheme(BuildContext context, Widget? child) {
-  return Theme(
-    data: Theme.of(context).copyWith(
-      colorScheme: ColorScheme.light(
-        primary: primary,
-        onPrimary: white,
-        onSurface: black,
-      ),
-      scaffoldBackgroundColor: white,
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: primary,
-        ),
-      ),
-    ),
-    child: child!,
-  );
 }

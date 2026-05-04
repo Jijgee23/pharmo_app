@@ -52,11 +52,9 @@ class _TrackMapState extends State<TrackMap> {
         LocationPermission? per = jagger.permission;
         LocationAccuracyStatus? accuracy = jagger.accuracy;
         bool backgrounEnabled = per != null && per == LocationPermission.always;
-        bool isPrecise =
-            accuracy != null && accuracy == LocationAccuracyStatus.precise;
+        bool isPrecise = accuracy != null && accuracy == LocationAccuracyStatus.precise;
         final showMap = backgrounEnabled && isPrecise;
-        final showTracking =
-            jagger.subscription != null && !jagger.subscription!.isPaused;
+        final showTracking = jagger.subscription != null && !jagger.subscription!.isPaused;
         if (showMap) {
           return Stack(
             children: [

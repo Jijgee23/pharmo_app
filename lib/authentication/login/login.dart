@@ -1,10 +1,11 @@
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/authentication/login/auth_text.dart';
 import 'package:pharmo_app/authentication/login/login_footer.dart';
 import 'package:pharmo_app/authentication/login/login_header_image.dart';
-import 'package:pharmo_app/application/application.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final String? prefillIdentifier;
+  const LoginPage({super.key, this.prefillIdentifier});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -15,7 +16,12 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthController>().initLoginpage();
+      final auth = context.read<AuthController>();
+      if (widget.prefillIdentifier != null) {
+        auth.fillEmail(widget.prefillIdentifier!);
+      } else {
+        auth.initLoginpage(skip: widget.prefillIdentifier == null);
+      }
     });
   }
 
@@ -68,12 +74,9 @@ class _LoginPageState extends State<LoginPage> {
                             prefix: Icons.lock_outline,
                             enabled: !auth.loading,
                             suffixIcon: IconButton(
-                              onPressed:
-                                  auth.loading ? null : auth.toggleHidePass,
+                              onPressed: auth.loading ? null : auth.toggleHidePass,
                               icon: Icon(
-                                auth.hidePass
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
+                                auth.hidePass ? Icons.visibility_off : Icons.visibility,
                                 color: primary.withOpacity(0.5),
                               ),
                             ),
@@ -89,9 +92,8 @@ class _LoginPageState extends State<LoginPage> {
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5)),
                                     value: auth.remember,
-                                    onChanged: auth.loading
-                                        ? null
-                                        : (val) => auth.setRemember(val!),
+                                    onChanged:
+                                        auth.loading ? null : (val) => auth.setRemember(val!),
                                   ),
                                   Text(
                                     'Сануулах',
@@ -104,9 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               CustomTextButton(
                                 text: 'Нууц үг мартсан?',
-                                onTap: auth.loading
-                                    ? null
-                                    : () => goNamed('reset_password'),
+                                onTap: auth.loading ? null : () => goNamed('reset_password'),
                               ),
                             ],
                           ),

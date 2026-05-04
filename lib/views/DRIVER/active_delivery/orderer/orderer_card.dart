@@ -1,4 +1,4 @@
-import 'package:pharmo_app/controller/models/delivery.dart';
+
 import 'package:pharmo_app/views/DRIVER/active_delivery/deliveries.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_order_card.dart';
 import 'package:pharmo_app/application/application.dart';

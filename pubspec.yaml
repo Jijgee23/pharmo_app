@@ -3,7 +3,7 @@ description: "Эмийн бөөний худалда, захиалгын сис�
 publish_to: none
 
 
-version: 2.1.0+89
+version: 2.1.2+91
 environment:
   sdk: '>=3.3.3 <4.0.0'
 
@@ -47,11 +47,12 @@ dependencies:
   image: ^4.5.2
   local_auth: ^2.3.0
   location: ^8.0.0
-  # shared_preferences: ^2.5.3
   connectivity_plus: ^7.0.0
-  # battery_plus: ^7.0.0
   cached_network_image: ^3.4.1
   flutter_localization: ^0.3.2
+  print_bluetooth_thermal:
+    path: packages/print_bluetooth_thermal
+  esc_pos_utils_plus: ^2.0.4
 
 
 dev_dependencies:

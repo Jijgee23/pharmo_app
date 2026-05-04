@@ -1,5 +1,4 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/controller/models/delivery.dart';
 
 class ReadyOrderCard extends StatelessWidget {
   final bool selected;

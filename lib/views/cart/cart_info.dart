@@ -17,7 +17,6 @@ class _CartInfoState extends State<CartInfo> {
     void clearBasket() async {
       final confirmed = await confirmDialog(
         title: 'Захиалгын сагсыг хоослох уу?',
-        context: context,
       );
       if (confirmed) {
         await cartProvider.clearBasket();
@@ -34,8 +33,7 @@ class _CartInfoState extends State<CartInfo> {
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
             blurRadius: 12,
-            offset: const Offset(
-                0, -4), // Дээшээ сүүдэр өгөх (Bottom bar шиг харагдана)
+            offset: const Offset(0, -4), // Дээшээ сүүдэр өгөх (Bottom bar шиг харагдана)
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,8 +18,7 @@ class _ProductDetailState extends State<ProductDetail> {
   Map<String, dynamic> det = {};
   List<File> images = [];
   int _currentImageIndex = 0;
-  final CarouselSliderController _carouselController =
-      CarouselSliderController();
+  final CarouselSliderController _carouselController = CarouselSliderController();
 
   @override
   void initState() {
@@ -227,26 +227,27 @@ class _ProductDetailState extends State<ProductDetail> {
   }
 
   Widget _buildNetworkImage(String url) {
-    return Container(
-      width: double.infinity,
-      color: Colors.grey.shade100,
-      child: Image.network(
-        url,
-        fit: BoxFit.contain,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholderImage();
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!
-                  : null,
-            ),
-          );
-        },
+    return GestureDetector(
+      child: Container(
+        width: double.infinity,
+        color: white,
+        child: Image.network(
+          url,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildPlaceholderImage();
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -346,9 +347,7 @@ class _ProductDetailState extends State<ProductDetail> {
       'Ерөнхий нэршил': det['intName']?.toString(),
       'Мастер савалгааны тоо': det['master_box_qty']?.toString(),
       'Үйлдвэрлэгч': det['vndr'] != null ? det['vndr']['name'] : null,
-      'Бөөний үнэ': det['sale_price'] != null
-          ? toPrice(det['sale_price'].toString())
-          : null,
+      'Бөөний үнэ': det['sale_price'] != null ? toPrice(det['sale_price'].toString()) : null,
       'Бөөний тоо': det['sale_qty']?.toString(),
       'Хямдрал дуусах хугацаа': det['discount_expiredate']?.toString(),
     };
@@ -737,8 +736,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      if (await Permission.camera.isDenied ||
-          await Permission.storage.isDenied) {
+      if (await Permission.camera.isDenied || await Permission.storage.isDenied) {
         await Permission.camera.request();
         await Permission.storage.request();
       }

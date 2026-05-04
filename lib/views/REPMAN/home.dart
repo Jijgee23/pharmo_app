@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:pharmo_app/application/application.dart';
 
 class RepHome extends StatefulWidget {
@@ -34,10 +35,8 @@ class _RepHomeState extends State<RepHome> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (hasVisit && rep.visiting!.outOn == null)
-                CustomButton(
-                    text: 'Уулзалтанд гарах', ontap: () => askStart(rep)),
-              if (hasVisit)
-                ...rep.visiting!.visits!.map((e) => visitBuilder(e)),
+                CustomButton(text: 'Уулзалтанд гарах', ontap: () => askStart(rep)),
+              if (hasVisit) ...rep.visiting!.visits!.map((e) => visitBuilder(e)),
               if (hasVisit)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -62,11 +61,9 @@ class _RepHomeState extends State<RepHome> {
 
   askStart(RepProvider rep) async {
     bool confirmed = await confirmDialog(
-      context: context,
       title: 'Уулзалтыг эхлэх үү?',
-      attentionText: Platform.isAndroid
-          ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
-          : null,
+      attentionText:
+          Platform.isAndroid ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!' : null,
       message: 'Уулзалтын үед таны байршлыг хянахыг анхаарна уу!',
     );
     if (confirmed) rep.start();
@@ -74,11 +71,9 @@ class _RepHomeState extends State<RepHome> {
 
   askEnd(RepProvider rep) async {
     bool confirmed = await confirmDialog(
-      context: context,
       title: 'Уулзалтыг дуусгах уу?',
-      attentionText: Platform.isAndroid
-          ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
-          : null,
+      attentionText:
+          Platform.isAndroid ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!' : null,
       message: 'Уулзалтын үед таны байршлыг хянахыг анхаарна уу!',
     );
     if (confirmed) rep.endVisiting();
@@ -89,9 +84,8 @@ class _RepHomeState extends State<RepHome> {
     return Container(
       width: double.maxFinite,
       padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-          color: Colors.blue.withAlpha(70),
-          borderRadius: BorderRadius.circular(10)),
+      decoration:
+          BoxDecoration(color: Colors.blue.withAlpha(70), borderRadius: BorderRadius.circular(10)),
       child: Column(
         children: [
           Row(

@@ -1,5 +1,5 @@
-import 'package:pharmo_app/views/promotion/marked_promo_dialog.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/promotion/marked_promo_dialog.dart';
 
 class BuyinPromo extends StatelessWidget {
   final MarkedPromo promo;
@@ -7,8 +7,8 @@ class BuyinPromo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = TextStyle(
-        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
+    var textStyle =
+        TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade600);
     return Consumer<PromotionProvider>(
       builder: (_, promotion, child) {
         return Scaffold(
@@ -21,8 +21,7 @@ class BuyinPromo extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                        onPressed: () =>
-                            promotion.hidePromo(promo.id!, context),
+                        onPressed: () => promotion.hidePromo(promo.id!, context),
                         child: text('Дахиж харахгүй', color: black)),
                   ),
                   (promo.desc != null)
@@ -43,25 +42,20 @@ class BuyinPromo extends StatelessWidget {
                       children: [
                         Text(
                           '${promo.total}₮ ',
-                          style: TextStyle(
-                              fontSize: 20, color: Colors.red.shade600),
+                          style: TextStyle(fontSize: 20, color: Colors.red.shade600),
                         ),
                         const Text('-с дээш бол '),
                         Text(
                           '${promo.procent}% ',
-                          style: TextStyle(
-                              fontSize: 20, color: Colors.red.shade600),
+                          style: TextStyle(fontSize: 20, color: Colors.red.shade600),
                         ),
                         const Text('хямдрал '),
-                        promo.gift != null
-                            ? const Text('эдэлж')
-                            : const Text('эдлээрэй!')
+                        promo.gift != null ? const Text('эдэлж') : const Text('эдлээрэй!')
                       ],
                     ),
                   ),
                   (promo.gift != null)
-                      ? const Icon(Icons.add,
-                          color: AppColors.secondary, size: 30)
+                      ? const Icon(Icons.add, color: AppColors.secondary, size: 30)
                       : const SizedBox(),
                   (promo.gift != null)
                       ? SectionCard(
@@ -70,18 +64,15 @@ class BuyinPromo extends StatelessWidget {
                             children: [
                               (promo.gift != null)
                                   ? GridView.builder(
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: 2,
                                         mainAxisSpacing: 20,
                                         crossAxisSpacing: 20,
                                       ),
                                       shrinkWrap: true,
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
+                                      physics: const AlwaysScrollableScrollPhysics(),
                                       itemBuilder: (context, index) {
-                                        return product(promo.gift?[index],
-                                            noImage, context);
+                                        return product(promo.gift?[index], noImage, context);
                                       },
                                       itemCount: promo.gift?.length,
                                     )
@@ -98,9 +89,7 @@ class BuyinPromo extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                promo.endDate != null
-                                    ? promo.endDate!.substring(0, 10)
-                                    : '-',
+                                promo.endDate != null ? promo.endDate!.substring(0, 10) : '-',
                                 style: textStyle,
                               )
                             ],
@@ -121,9 +110,15 @@ class BuyinPromo extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white,
-              boxShadow: [Constants.defaultShadow]),
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade200,
+                blurRadius: 3,
+              )
+            ],
+          ),
           padding: const EdgeInsets.all(5),
           child: Column(
             children: [
@@ -142,8 +137,7 @@ class BuyinPromo extends StatelessWidget {
                 e['name'] != null ? e['name'].toString() : '-',
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

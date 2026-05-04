@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pharmo_app/views/product/product_detail_page.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/product/product_detail_page.dart';
 
 class ProductWidget extends StatelessWidget {
   final Product item;
@@ -15,7 +15,6 @@ class ProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // double fontSize = Sizes.height * 0.0135;
     return Consumer<HomeProvider>(
       builder: (context, home, child) {
         final secutity = Authenticator.security;
@@ -64,54 +63,67 @@ class ProductWidget extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 5,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      toPrice(item.price),
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: mediumFontSize - 2,
+                                  Flexible(
+                                    flex: 5,
+                                    child: Container(
+                                      decoration: ShapeDecoration(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                        color: primary,
+                                      ),
+                                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      child: Text(
+                                        toPrice(item.price),
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: mediumFontSize - 2,
+                                        ),
                                       ),
                                     ),
                                   ),
                                   if (isNotPharm)
                                     Expanded(
-                                      child: Text(
-                                        'Үлд: ${parseDouble(item.qty)}',
-                                        style: TextStyle(
-                                          fontSize: mediumFontSize - 2,
-                                          color: item.qty > 0
-                                              ? Colors.green
-                                              : Colors.red,
-                                        ),
-                                      ),
+                                      flex: 3,
+                                      child: LayoutBuilder(builder: (context, constraints) {
+                                        return Text(
+                                          'Үлд: ${parseDouble(item.qty)}',
+                                          style: TextStyle(
+                                            fontSize: constraints.maxHeight - 3,
+                                            fontWeight: FontWeight.bold,
+                                            color: item.qty > 0 ? Colors.green : Colors.red,
+                                          ),
+                                        );
+                                      }),
                                     )
                                 ],
                               ),
                             ),
-                            IconButton(
-                              onPressed: () => Get.bottomSheet(
-                                isScrollControlled: true,
-                                ChangeQtyPad(
-                                  title: 'Тоо хэмжээ оруулна уу',
-                                  initValue: '',
-                                  onSubmit: (value) async => await addBasket(
-                                    item,
-                                    parseDouble(value),
-                                    context,
-                                  ).then((e) => Navigator.pop(context)),
+                            Opacity(
+                              opacity: .7,
+                              child: IconButton(
+                                onPressed: () => Get.bottomSheet(
+                                  isScrollControlled: true,
+                                  ChangeQtyPad(
+                                    title: 'Тоо хэмжээ оруулна уу',
+                                    initValue: '',
+                                    onSubmit: (value) async => await addBasket(
+                                      item,
+                                      parseDouble(value),
+                                      context,
+                                    ).then((e) => Navigator.pop(context)),
+                                  ),
                                 ),
-                              ),
-                              style: IconButton.styleFrom(
-                                shape: CircleBorder(
-                                  side: BorderSide(color: primary, width: 2),
+                                style: IconButton.styleFrom(
+                                  shape: CircleBorder(
+                                    side: BorderSide(color: primary, width: 2),
+                                  ),
                                 ),
-                              ),
-                              icon: Icon(
-                                Icons.add,
-                                color: ContextExtensionss(context)
-                                    .theme
-                                    .primaryColor,
+                                icon: Icon(
+                                  Icons.add,
+                                  color: ContextExtensionss(context).theme.primaryColor,
+                                ),
                               ),
                             ),
                           ],
@@ -122,40 +134,12 @@ class ProductWidget extends StatelessWidget {
                 ),
               ),
             ),
-            // Positioned(
-            //   bottom: 10,
-            //   right: 10,
-            //   child: IconButton(
-            //     onPressed: () => Get.bottomSheet(
-            //       isScrollControlled: true,
-            //       ChangeQtyPad(
-            //         title: 'Тоо хэмжээ оруулна уу',
-            //         initValue: '',
-            //         onSubmit: (value) async => await addBasket(
-            //           item,
-            //           parseDouble(value),
-            //           context,
-            //         ).then((e) => Navigator.pop(context)),
-            //       ),
-            //     ),
-            //     style: IconButton.styleFrom(
-            //       shape: CircleBorder(
-            //         side: BorderSide(color: primary, width: 2),
-            //       ),
-            //     ),
-            //     icon: Icon(
-            //       Icons.add,
-            //       color: theme.primaryColor,
-            //     ),
-            //   ),
-            // ),
             (hasSale == true)
                 ? Positioned(
                     top: 0,
                     right: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 2, horizontal: 5),
+                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
                       decoration: BoxDecoration(
                         color: AppColors.secondary,
                         borderRadius: BorderRadius.circular(10),
@@ -264,15 +248,12 @@ class ProductWidgetListView extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (Authenticator.security!.isPharmacist)
+                      if (!Authenticator.security!.isPharmacist)
                         Expanded(
                           child: Text(
                             'Үлд: ${maybeNull(item.qty.toString())}',
                             style: TextStyle(
-                              color: ContextExtensionss(context)
-                                  .theme
-                                  .colorScheme
-                                  .onPrimary,
+                              color: ContextExtensionss(context).theme.colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                             ),

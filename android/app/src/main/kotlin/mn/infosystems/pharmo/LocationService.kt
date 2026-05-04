@@ -32,6 +32,7 @@ class LocationService : Service(), LocationListener {
     private val locationFilter = LocationFilterValidator()
     private var lastAcceptedLocation: FilteredLocation? = null
     private var lastBroadcastTime = 0L
+    private var consecutiveTurnCount = 0
 
     // Statistics
     private var totalReceived = 0
@@ -45,22 +46,26 @@ class LocationService : Service(), LocationListener {
         private const val NOTIFICATION_ID = 0x444
 
         // Filter settings
-        private const val MAX_ACCURACY_METERS = 30f
-        private const val MIN_DISTANCE_METERS = 10f
-        private const val MIN_TIME_BETWEEN_UPDATES_MS = 3000L
-        private const val GPS_DRIFT_THRESHOLD = 12f // 8 байсан
+        private const val MAX_ACCURACY_METERS = 25f
+        private const val MIN_DISTANCE_METERS = 6f
+        private const val MIN_TIME_BETWEEN_UPDATES_MS = 2000L
+        private const val MIN_TIME_DURING_TURN_MS = 1000L
+        private const val GPS_DRIFT_THRESHOLD = 8f
+        private const val TURN_BEARING_THRESHOLD = 22f  // degrees — significant direction change
 
-        // Speed thresholds (m/s)
-        private const val HIGH_SPEED_THRESHOLD = 16.7f // 60 km/h
-        private const val MEDIUM_SPEED_THRESHOLD = 8.3f // 30 km/h
-        private const val LOW_SPEED_THRESHOLD = 2.8f // 10 km/h
-        private const val MIN_SPEED_THRESHOLD = 0.5f // 1.8 km/h
+        // Speed thresholds (m/s) — tuned for Ulaanbaatar city traffic
+        private const val HIGH_SPEED_THRESHOLD = 13.9f   // 50 km/h  (ring road / Peace Ave)
+        private const val MEDIUM_SPEED_THRESHOLD = 5.6f  // 20 km/h  (normal city flow)
+        private const val LOW_SPEED_THRESHOLD = 1.4f     // 5 km/h   (heavy traffic / seller walking)
+        private const val MIN_SPEED_THRESHOLD = 0.4f     // ~1.5 km/h (near-stationary)
 
-        // Distance thresholds
-        private const val HIGH_SPEED_DISTANCE = 200f
-        private const val MEDIUM_SPEED_DISTANCE = 100f
-        private const val NORMAL_SPEED_DISTANCE = 50f
-        private const val WALKING_SPEED_DISTANCE = 15f
+        // Distance thresholds (m) — UB: most time spent at 5–20 km/h
+        // Driver (car): normalSpeed range covers most UB traffic
+        // Seller (foot or car): walkingSpeed covers on-foot delivery
+        private const val HIGH_SPEED_DISTANCE = 60f      // 50+ km/h  → ~4 s interval
+        private const val MEDIUM_SPEED_DISTANCE = 30f    // 20–50 km/h → ~4 s interval
+        private const val NORMAL_SPEED_DISTANCE = 12f    // 5–20 km/h  → ~4 s in traffic
+        private const val WALKING_SPEED_DISTANCE = 6f    // <5 km/h    → seller on foot
 
         @Volatile 
         private var eventSink: EventChannel.EventSink? = null
@@ -200,33 +205,43 @@ class LocationService : Service(), LocationListener {
             // return FilterResult.Accepted(filtered, "First location accepted")
         }
 
-        // STEP 4: Time-based throttling
+        // STEP 4: Turn / roundabout detection
+        val turning = isTurnDetected(previous.location, smoothedLocation)
+        if (turning) consecutiveTurnCount++ else consecutiveTurnCount = 0
+        val onCircularPath = consecutiveTurnCount >= 3   // likely roundabout
+
+        // STEP 5: Time-based throttling
         val now = System.currentTimeMillis()
         val timeDelta = now - lastBroadcastTime
-        if (timeDelta < MIN_TIME_BETWEEN_UPDATES_MS) {
+        val minTime = if (turning || onCircularPath) MIN_TIME_DURING_TURN_MS else MIN_TIME_BETWEEN_UPDATES_MS
+        if (timeDelta < minTime) {
             return FilterResult.Rejected(
-                "Too frequent: ${timeDelta}ms < ${MIN_TIME_BETWEEN_UPDATES_MS}ms"
+                "Too frequent: ${timeDelta}ms < ${minTime}ms"
             )
         }
 
-        // STEP 5: Distance validation
+        // STEP 6: Distance validation
         val distance = smoothedLocation.distanceTo(previous.location)
 
-        // GPS drift detection (stationary)
-        if (smoothedLocation.hasSpeed() && smoothedLocation.speed < MIN_SPEED_THRESHOLD) {
+        // GPS drift check only when stationary and not turning
+        if (!turning && smoothedLocation.hasSpeed() && smoothedLocation.speed < MIN_SPEED_THRESHOLD) {
             if (distance < GPS_DRIFT_THRESHOLD) {
                 return FilterResult.Rejected(
-                    "GPS drift: ${distance.toInt()}m < ${GPS_DRIFT_THRESHOLD.toInt()}m (stationary)"
+                    "GPS drift: ${distance.toInt()}m (stationary)"
                 )
             }
         }
 
-        // STEP 6: Speed-based distance threshold
-        val requiredDistance = calculateDynamicDistance(smoothedLocation.speed)
-        if (distance < requiredDistance) {
-            return FilterResult.Rejected(
-                "Insufficient distance: ${distance.toInt()}m < ${requiredDistance.toInt()}m"
-            )
+        // Distance threshold — skipped entirely during turns/roundabouts.
+        // On a curve the chord is shorter than the arc, so distance-based
+        // filtering drops valid points and makes paths look angular.
+        if (!turning && !onCircularPath) {
+            val requiredDistance = calculateDynamicDistance(smoothedLocation.speed)
+            if (distance < requiredDistance) {
+                return FilterResult.Rejected(
+                    "Insufficient distance: ${distance.toInt()}m < ${requiredDistance.toInt()}m"
+                )
+            }
         }
 
         // STEP 7: Speed validation (GPS jump detection)
@@ -240,10 +255,41 @@ class LocationService : Service(), LocationListener {
         lastAcceptedLocation = filtered
         lastBroadcastTime = now
 
+        val mode = when {
+            onCircularPath -> "roundabout"
+            turning -> "turn"
+            else -> "straight"
+        }
         return FilterResult.Accepted(
             filtered,
-            "Valid: ${distance.toInt()}m, ${(smoothedLocation.speed * 3.6f).toInt()} km/h"
+            "$mode: ${distance.toInt()}m, ${(smoothedLocation.speed * 3.6f).toInt()} km/h"
         )
+    }
+
+    // ================= TURN DETECTION =================
+
+    private fun isTurnDetected(previous: Location, current: Location): Boolean {
+        // Require minimum distance to reliably compute a bearing from coordinates
+        val dist = current.distanceTo(previous)
+        if (dist < 3f) return false
+
+        // Direction computed from actual coordinates — reliable regardless of GPS bearing
+        val coordBearing = previous.bearingTo(current)
+
+        // Compare against the GPS-reported bearing at the last accepted point (direction we arrived)
+        if (previous.hasBearing()) {
+            if (bearingDiff(previous.bearing, coordBearing) >= TURN_BEARING_THRESHOLD) return true
+        }
+        // Fallback: compare two GPS-reported bearings if both available
+        if (previous.hasBearing() && current.hasBearing()) {
+            if (bearingDiff(previous.bearing, current.bearing) >= TURN_BEARING_THRESHOLD) return true
+        }
+        return false
+    }
+
+    private fun bearingDiff(a: Float, b: Float): Float {
+        val diff = Math.abs(a - b)
+        return if (diff > 180f) 360f - diff else diff
     }
 
     // ================= DYNAMIC DISTANCE CALCULATOR =================
@@ -312,6 +358,7 @@ class LocationService : Service(), LocationListener {
         locationManager.removeUpdates(this)
         isUpdating = false
         lastAcceptedLocation = null
+        consecutiveTurnCount = 0
         kalmanFilter.reset()
         
         Log.i(TAG, "✅ Location updates stopped")
@@ -450,39 +497,64 @@ class KalmanLocationFilter {
     private var lng = 0.0
     private var variance = -1.0
 
+    private var speed = 0.0
+    private var speedVariance = -1.0
+
     companion object {
-        private const val PROCESS_NOISE = 0.1 // 0.5 baisan
+        private const val PROCESS_NOISE = 10.0        // ~26% gain — tracks curves without cutting corners
+        private const val SPEED_PROCESS_NOISE = 3.0
+        private const val DEFAULT_SPEED_ACCURACY = 2.0
     }
 
     fun filter(measurement: Location): Location {
+        val rawSpeed = if (measurement.hasSpeed() && measurement.speed >= 0) {
+            measurement.speed.toDouble()
+        } else {
+            0.0
+        }
+        val speedAccuracy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            measurement.hasSpeedAccuracy() && measurement.speedAccuracyMetersPerSecond > 0
+        ) {
+            measurement.speedAccuracyMetersPerSecond.toDouble()
+        } else {
+            DEFAULT_SPEED_ACCURACY
+        }
+        val speedMeasurementVariance = speedAccuracy * speedAccuracy
+
         if (variance < 0) {
-            // First measurement
             lat = measurement.latitude
             lng = measurement.longitude
             variance = (measurement.accuracy * measurement.accuracy).toDouble()
+            speed = rawSpeed
+            speedVariance = speedMeasurementVariance
         } else {
-            // Predict
+            // Position
             val predictionVariance = variance + PROCESS_NOISE
-
-            // Update
             val measurementVariance = (measurement.accuracy * measurement.accuracy).toDouble()
             val kalmanGain = predictionVariance / (predictionVariance + measurementVariance)
-
             lat += kalmanGain * (measurement.latitude - lat)
             lng += kalmanGain * (measurement.longitude - lng)
             variance = (1 - kalmanGain) * predictionVariance
+
+            // Speed
+            val speedPredictionVariance = speedVariance + SPEED_PROCESS_NOISE
+            val speedGain = speedPredictionVariance / (speedPredictionVariance + speedMeasurementVariance)
+            speed += speedGain * (rawSpeed - speed)
+            speedVariance = (1 - speedGain) * speedPredictionVariance
         }
 
-        // Create filtered location
+        val smoothedSpeed = speed
         return Location(measurement).apply {
             latitude = lat
             longitude = lng
             accuracy = sqrt(variance).toFloat()
+            this.speed = maxOf(0.0, smoothedSpeed).toFloat()
         }
     }
 
     fun reset() {
         variance = -1.0
+        speedVariance = -1.0
     }
 }
 
@@ -492,8 +564,8 @@ class KalmanLocationFilter {
 
 class LocationFilterValidator {
     companion object {
-        private const val MAX_ACCURACY = 20f // 30 байсан
-        private const val MAX_SPEED_MS = 50f // 180 km/h
+        private const val MAX_ACCURACY = 25f
+        private const val MAX_SPEED_MS = 33.3f // 120 km/h — UB max road speed is 80 km/h
     }
 
     fun isAccuracyValid(location: Location): Boolean {
@@ -547,3 +619,4 @@ sealed class FilterResult {
         val reason: String
     ) : FilterResult()
 }
+

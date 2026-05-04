@@ -1,6 +1,6 @@
-import 'package:pharmo_app/views/order_history/pharm_order_history/custom_drop.dart';
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/order_history/order_card/order_card.dart';
+import 'package:pharmo_app/views/order_history/pharm_order_history/custom_drop.dart';
 
 class PharmOrderHistory extends StatefulWidget {
   const PharmOrderHistory({super.key});
@@ -85,11 +85,8 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
                 items: OrderStatus.filterList,
                 getLabel: (OrderStatus st) => st.name,
                 value: provider.status,
-                onChanged: (OrderStatus? newValue) =>
-                    provider.updateStatus(newValue),
-                text: provider.status == OrderStatus.all
-                    ? "Төлөв"
-                    : provider.status.name,
+                onChanged: (OrderStatus? newValue) => provider.updateStatus(newValue),
+                text: provider.status == OrderStatus.all ? "Төлөв" : provider.status.name,
                 onRemove: provider.status == OrderStatus.all
                     ? null
                     : () => provider.updateStatus(OrderStatus.all),
@@ -98,11 +95,8 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
                 items: OrderProcess.filterList,
                 getLabel: (OrderProcess pro) => pro.name,
                 value: provider.process,
-                onChanged: (OrderProcess? newValue) =>
-                    provider.updateProcess(newValue),
-                text: provider.process == OrderProcess.all
-                    ? "Явц"
-                    : provider.process.name,
+                onChanged: (OrderProcess? newValue) => provider.updateProcess(newValue),
+                text: provider.process == OrderProcess.all ? "Явц" : provider.process.name,
                 onRemove: provider.process == OrderProcess.all
                     ? null
                     : () => provider.updateProcess(OrderProcess.all),
@@ -111,8 +105,7 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
                 items: PayType.filterList,
                 getLabel: (PayType pm) => pm.name,
                 value: provider.paymentMethod,
-                onChanged: (PayType? newValue) =>
-                    provider.updatePayMethod(newValue),
+                onChanged: (PayType? newValue) => provider.updatePayMethod(newValue),
                 text: provider.paymentMethod == PayType.unknown
                     ? "Төлбөрийн хэлбэр"
                     : provider.paymentMethod.name,

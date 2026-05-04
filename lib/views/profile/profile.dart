@@ -1,15 +1,15 @@
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/DRIVER/index_driver.dart';
+import 'package:pharmo_app/views/REPMAN/visits.dart';
 import 'package:pharmo_app/views/SELLER/report/seller_report.dart';
 import 'package:pharmo_app/views/profile/app_info.dart';
 import 'package:pharmo_app/views/profile/menu_item_builder.dart';
 import 'package:pharmo_app/views/profile/menu_section.dart';
 import 'package:pharmo_app/views/profile/profile_header.dart';
 import 'package:pharmo_app/views/promotion/promotion_screen.dart';
-import 'package:pharmo_app/views/REPMAN/visits.dart';
 import 'package:pharmo_app/views/public/about_us.dart';
 import 'package:pharmo_app/views/public/privacy_policy/privacy_policy.dart';
-import 'package:pharmo_app/views/public/system_log.dart';
-import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/public/systme_log/system_log.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -134,6 +134,22 @@ class Profile extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 16),
+
+                    // General section
+                    MenuSection(
+                      context: context,
+                      title: 'Тохиргоо',
+                      icon: Icons.settings_outlined,
+                      children: [
+                        MenuItemBuilder(
+                          title: 'Тохиргоо',
+                          icon: Icons.settings,
+                          color: Colors.blueGrey,
+                          onTap: () => goto(const SettingsPage()),
+                        ),
+                      ],
+                    ),
 
                     const SizedBox(height: 16),
 
@@ -152,71 +168,12 @@ class Profile extends StatelessWidget {
   }
 }
 
-void logout(BuildContext context) {
-  Get.dialog(
-    Dialog(
-      backgroundColor: white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(
-              'Системээс гарах',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Системээс гарахдаа итгэлтэй байна уу?',
-              style: TextStyle(fontSize: 16, color: Colors.black54),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('Үгүй'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () =>
-                        context.read<AuthController>().logout(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('Тийм'),
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    ),
-    barrierDismissible: false,
+void logout(BuildContext context) async {
+  final ok = await confirmDialog(
+    title: "Системээс гарах",
+    message: "Системээс гарахдаа итгэлтэй байна уу?",
   );
+  if (ok) {
+    await context.read<AuthController>().logout(context);
+  }
 }

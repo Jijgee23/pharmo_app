@@ -2,9 +2,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class CartItem extends StatefulWidget {
-  final Map<String, dynamic> detail;
-  final String type;
-  const CartItem({super.key, required this.detail, this.type = "cart"});
+  final CartItemModel item;
+  const CartItem({super.key, required this.item});
 
   @override
   State<CartItem> createState() => _CartItemState();
@@ -13,19 +12,18 @@ class CartItem extends StatefulWidget {
 class _CartItemState extends State<CartItem> {
   Future<void> removeBasketItem() async {
     bool confirmed = await confirmDialog(
-      context: context,
       title: 'Барааг сагснаас хасах уу?',
     );
     if (!confirmed) return;
     final basket = context.read<CartProvider>();
-    await basket.removeBasketItem(itemId: widget.detail['id']);
+    await basket.removeBasketItem(itemId: widget.item.id);
   }
 
   Future changeBasketItem(int productId, double qty) async {
     try {
       LoadingService.show();
       final basket = context.read<CartProvider>();
-      await basket.addProduct(productId, widget.detail['name'], qty);
+      await basket.addProduct(productId, widget.item.name, qty);
     } catch (e) {
       messageError('Алдаа гарлаа');
     } finally {
@@ -35,6 +33,7 @@ class _CartItemState extends State<CartItem> {
 
   @override
   Widget build(BuildContext context) {
+    final item = widget.item;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Slidable(
@@ -48,8 +47,7 @@ class _CartItemState extends State<CartItem> {
               foregroundColor: Colors.red,
               icon: Icons.delete_outline,
               label: 'Устгах',
-              borderRadius:
-                  const BorderRadius.horizontal(right: Radius.circular(16)),
+              borderRadius: const BorderRadius.horizontal(right: Radius.circular(16)),
             ),
           ],
         ),
@@ -69,9 +67,8 @@ class _CartItemState extends State<CartItem> {
                   // Барааны нэр
                   Expanded(
                     child: Text(
-                      widget.detail['name'] ?? '',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 14),
+                      item.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -85,10 +82,8 @@ class _CartItemState extends State<CartItem> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _priceInfo('Нэгж үнэ:', toPrice(widget.detail['price'])),
-                  _priceInfo('Нийт:',
-                      toPrice(widget.detail['qty'] * widget.detail['price']),
-                      isTotal: true),
+                  _priceInfo('Нэгж үнэ:', toPrice(item.price)),
+                  _priceInfo('Нийт:', toPrice(item.qty * item.price), isTotal: true),
                 ],
               ),
             ],
@@ -99,7 +94,7 @@ class _CartItemState extends State<CartItem> {
   }
 
   Widget _buildQtyStepper() {
-    final qty = parseDouble(widget.detail['qty']);
+    final qty = parseDouble(widget.item.qty);
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
@@ -108,8 +103,7 @@ class _CartItemState extends State<CartItem> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _stepBtn(Icons.remove,
-              () => changeBasketItem(widget.detail['product_id'], qty - 1)),
+          _stepBtn(Icons.remove, () => changeBasketItem(widget.item.productId, qty - 1)),
           GestureDetector(
             onTap: () => Get.bottomSheet(
               ChangeQtyPad(
@@ -122,13 +116,11 @@ class _CartItemState extends State<CartItem> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
                 qty.toString().replaceAll('.0', ''),
-                style: const TextStyle(
-                    fontWeight: FontWeight.w800, color: primary),
+                style: const TextStyle(fontWeight: FontWeight.w800, color: primary),
               ),
             ),
           ),
-          _stepBtn(Icons.add,
-              () => changeBasketItem(widget.detail['product_id'], qty + 1)),
+          _stepBtn(Icons.add, () => changeBasketItem(widget.item.productId, qty + 1)),
         ],
       ),
     );
@@ -147,11 +139,9 @@ class _CartItemState extends State<CartItem> {
 
   Widget _priceInfo(String label, String value, {bool isTotal = false}) {
     return Column(
-      crossAxisAlignment:
-          isTotal ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: isTotal ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
         Text(
           '$value ₮',
           style: TextStyle(
@@ -171,7 +161,7 @@ class _CartItemState extends State<CartItem> {
       return;
     }
     Get.back();
-    await changeBasketItem(widget.detail['product_id'], newQty);
+    await changeBasketItem(widget.item.productId, newQty);
   }
 }
 
@@ -254,16 +244,13 @@ class ChangeQtyPad extends StatelessWidget {
                 crossAxisCount: 3,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
-                childAspectRatio:
-                    2, // Өндрийг бага зэрэг нэмсэн (1.8-аас 1.6 болгож)
+                childAspectRatio: 2, // Өндрийг бага зэрэг нэмсэн (1.8-аас 1.6 болгож)
                 children: [
-                  ...List.generate(
-                      9, (index) => _numBtn(context, (index + 1).toString())),
+                  ...List.generate(9, (index) => _numBtn(context, (index + 1).toString())),
                   _numBtn(context, '0'),
                   _numBtn(context, '00'),
                   _numBtn(context, '000'),
-                  _actionBtn(Icons.backspace_outlined, () => basket.clear(),
-                      Colors.orange),
+                  _actionBtn(Icons.backspace_outlined, () => basket.clear(), Colors.orange),
                   _numBtn(context, '.', isSpecial: true),
                   _actionBtn(
                     Icons.check,
@@ -280,20 +267,19 @@ class ChangeQtyPad extends StatelessWidget {
   }
 
   Widget _numBtn(BuildContext context, String txt, {bool isSpecial = false}) {
-    return InkWell(
-      onTap: () => context.read<CartProvider>().write(txt),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isSpecial ? Colors.grey.shade100 : Colors.white,
+    return ElevatedButton(
+      onPressed: () => context.read<CartProvider>().write(txt),
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          side: BorderSide(color: Colors.grey.shade200),
         ),
-        child: Text(
-          txt,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
+        backgroundColor: isSpecial ? Colors.grey.shade100 : Colors.white,
+      ),
+      child: Text(
+        txt,
+        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: primary),
       ),
     );
   }

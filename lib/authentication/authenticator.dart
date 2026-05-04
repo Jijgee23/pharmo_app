@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:pharmo_app/controller/database/security.dart';
+import 'package:pharmo_app/data/database/security.dart';
 
 class Authenticator {
   static final Authenticator _instance = Authenticator._internal();
@@ -29,6 +31,7 @@ class Authenticator {
   static const String _splashedKey = 'splashed';
   static const String _dmTrackKey = 'track_id';
   static const String _deviceToken = 'deviceToken';
+  static const String _byId = 'by_id';
 
   static Future initAuthenticator() async {
     localDb = await Hive.openBox(_boxKey);
@@ -69,6 +72,7 @@ class Authenticator {
     await localDb.put(_companyNameKey, security.companyName);
     await localDb.put(_accessKey, security.access);
     await localDb.put(_refreshKey, security.refresh);
+    await localDb.put(_byId, security.byId);
     if (security != null) {
       await saveSplashed(true);
     }
@@ -87,6 +91,7 @@ class Authenticator {
     await localDb.delete(_companyNameKey);
     await localDb.delete(_accessKey);
     await localDb.delete(_refreshKey);
+    await localDb.delete(_byId);
     await localDb.flush();
     await initAuthenticator();
   }
@@ -130,39 +135,11 @@ class Authenticator {
         companyName: localDb.get(_companyNameKey),
         access: localDb.get(_accessKey, defaultValue: ''),
         refresh: localDb.get(_refreshKey, defaultValue: ''),
+        byId: localDb.get(_byId, defaultValue: null),
       );
     }
     return result;
   }
-
-  // static Future saveSellerTrackId() async {
-  //   localDb = await Hive.openBox(_boxKey);
-  //   await localDb.delete('seller_track_id');
-  //   await localDb.put('seller_track_id', 1);
-  //   await localDb.put('seller_track_date', DateTime.now().toIso8601String());
-  //   await localDb.flush();
-  // }
-
-  // static Future<DateTime> getSellerTrackDate() async {
-  //   localDb = await Hive.openBox(_boxKey);
-  //   var date = localDb.get(
-  //     'seller_track_date',
-  //     defaultValue: DateTime.now().toIso8601String(),
-  //   );
-  //   return DateTime.parse(date);
-  // }
-
-  // static Future<bool> hasSellerTrack() async {
-  //   localDb = await Hive.openBox(_boxKey);
-  //   var id = localDb.get('seller_track_id', defaultValue: 0);
-  //   // print("seller track id: $id");
-  //   return id != 0;
-  // }
-
-  // static Future removeSellerTrackId() async {
-  //   localDb = await Hive.openBox(_boxKey);
-  //   await localDb.delete('seller_track_id');
-  // }
 
   static Future saveSplashed(bool value) async {
     localDb = await Hive.openBox(_boxKey);
@@ -250,6 +227,37 @@ class Authenticator {
     localDb = await Hive.openBox(_boxKey);
     String res = await localDb.get(_deviceToken, defaultValue: '');
     return res;
+  }
+
+  static const String _loginHistoryKey = 'login_history';
+
+  static Future saveLoginHistory(String identifier, String name) async {
+    localDb = await Hive.openBox(_boxKey);
+    List<Map<String, String>> history = await getLoginHistory();
+    history.removeWhere((e) => e['identifier'] == identifier);
+    history.insert(0, {'identifier': identifier, 'name': name});
+    if (history.length > 5) history = history.sublist(0, 5);
+    await localDb.put(_loginHistoryKey, jsonEncode(history));
+    await localDb.flush();
+  }
+
+  static Future<List<Map<String, String>>> getLoginHistory() async {
+    localDb = await Hive.openBox(_boxKey);
+    final raw = localDb.get(_loginHistoryKey, defaultValue: '[]');
+    try {
+      final decoded = jsonDecode(raw as String) as List;
+      return decoded.map((e) => Map<String, String>.from(e as Map)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static Future removeFromHistory(String identifier) async {
+    localDb = await Hive.openBox(_boxKey);
+    List<Map<String, String>> history = await getLoginHistory();
+    history.removeWhere((e) => e['identifier'] == identifier);
+    await localDb.put(_loginHistoryKey, jsonEncode(history));
+    await localDb.flush();
   }
 
   static Future saveIdentifierAndPassword(String email, String password) async {

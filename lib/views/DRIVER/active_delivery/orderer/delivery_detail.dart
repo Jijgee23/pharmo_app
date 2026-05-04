@@ -1,8 +1,8 @@
-import 'package:pharmo_app/controller/models/delivery.dart';
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_order_location.dart';
 import 'package:pharmo_app/views/DRIVER/widgets/status_changer.dart';
-import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/order_history/seller_order_history/order_items_builder.dart';
+import 'package:pharmo_app/views/order_history/seller_order_history/order_item_card.dart';
+import 'package:pharmo_app/views/printer/print_previev.dart';
 
 class DeliveryDetail extends StatefulWidget {
   final int orderId;
@@ -12,8 +12,7 @@ class DeliveryDetail extends StatefulWidget {
   State<DeliveryDetail> createState() => _DeliveryDetailState();
 }
 
-class _DeliveryDetailState extends State<DeliveryDetail>
-    with SingleTickerProviderStateMixin {
+class _DeliveryDetailState extends State<DeliveryDetail> with SingleTickerProviderStateMixin {
   late TabController controller;
   @override
   void initState() {
@@ -21,26 +20,30 @@ class _DeliveryDetailState extends State<DeliveryDetail>
     controller = TabController(length: 3, vsync: this);
   }
 
-  DeliveryOrder findOrder() {
-    final jagger = context.read<JaggerProvider>();
-    return jagger.delivery!.orders.firstWhere((e) => e.id == widget.orderId);
+  DeliveryOrder? findOrder(JaggerProvider jagger) {
+    List<DeliveryOrder> list = [];
+    final driver = context.read<DriverProvider>();
+    final delOrders = jagger.delivery?.orders;
+    for (var k in driver.history) {
+      if (k.orders.isNotEmpty) {
+        list.addAll(k.orders);
+      }
+    }
+    list.addAll(delOrders ?? []);
+    return list.where((e) => e.id == widget.orderId).firstOrNull;
   }
 
-  String getName() {
-    final order = findOrder();
-    return order.orderer?.name ??
-        order.customer?.name ??
-        order.user?.name ??
-        'Тодорхойгүй';
+  String getName(DeliveryOrder order) {
+    return order.orderer?.name ?? order.customer?.name ?? order.user?.name ?? 'Тодорхойгүй';
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
-        DeliveryOrder order = findOrder();
-        bool hasLoc =
-            (order.orderer?.lat != null && order.orderer?.lat != 'null');
+        final order = findOrder(jagger);
+        if (order == null) return const Scaffold(body: SizedBox());
+        bool hasLoc = (order.orderer?.lat != null && order.orderer?.lat != 'null');
         return Scaffold(
           backgroundColor: Colors.grey.shade50,
           appBar: AppBar(
@@ -95,7 +98,7 @@ class _DeliveryDetailState extends State<DeliveryDetail>
                       title: 'Үндсэн мэдээлэл',
                       child: Column(
                         children: [
-                          ModernDetailRow(' Захиалагч', getName()),
+                          ModernDetailRow(' Захиалагч', getName(order)),
                           DividerBuidler(),
                           ModernDetailRow(
                             'Нийт үнэ',
@@ -108,8 +111,7 @@ class _DeliveryDetailState extends State<DeliveryDetail>
                             '${order.totalCount} ширхэг',
                           ),
                           DividerBuidler(),
-                          ModernDetailRow(
-                              'Төлбөрийн хэлбэр', order.paymentType.name),
+                          ModernDetailRow('Төлбөрийн хэлбэр', order.paymentType.name),
                           DividerBuidler(),
                           ModernDetailRow('Төлөв', status(order.status)),
                           DividerBuidler(),
@@ -135,19 +137,26 @@ class _DeliveryDetailState extends State<DeliveryDetail>
                               icon: Icons.edit_note,
                               color: primary,
                               onTap: () async => await Get.bottomSheet(
-                                StatusChanger(order: findOrder()),
+                                StatusChanger(order: order),
                               ),
+                            ),
+                          ),
+                          Expanded(
+                            child: ModernActionButton(
+                              label: 'Баримт хэвлэх',
+                              icon: Icons.print,
+                              color: primary,
+                              onTap: () async => goto(PrintPreviev(order: order)),
                             ),
                           ),
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 100),
                   ],
                 ).paddingAll(10),
               ),
-              OrderItemsTab(products: order.items, orderId: order.id),
+              DeliveryOrderItems(order: order),
               Builder(
                 builder: (context) {
                   if (hasLoc) {
@@ -166,5 +175,31 @@ class _DeliveryDetailState extends State<DeliveryDetail>
         );
       },
     );
+  }
+}
+
+class DeliveryOrderItems extends StatelessWidget {
+  const DeliveryOrderItems({
+    super.key,
+    required this.order,
+  });
+
+  final DeliveryOrder order;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: order.items.length,
+      itemBuilder: (context, x) {
+        final item = order.items[x];
+        return ItemCard(
+          orderId: order.id,
+          qty: item.qty,
+          itemName: item.name,
+          totalPrice: item.totalPrice,
+          ontap: () {},
+        ).marginOnly(top: 12);
+      },
+    ).paddingAll(10);
   }
 }

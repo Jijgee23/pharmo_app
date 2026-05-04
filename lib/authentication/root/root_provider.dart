@@ -4,6 +4,8 @@ import 'package:pharmo_app/application/application.dart';
 
 class RootProvider extends ChangeNotifier {
   AuthState state = AuthState.unknown;
+  List<Map<String, String>> loginHistory = [];
+
   void updateState(AuthState value) {
     if (state == value) return;
     state = value;
@@ -14,6 +16,7 @@ class RootProvider extends ChangeNotifier {
   Future readUser() async {
     print('root initing');
     await Authenticator.initAuthenticator();
+    loginHistory = await Authenticator.getLoginHistory();
 
     bool splashed = Authenticator.hasSpashed;
     if (!splashed) {

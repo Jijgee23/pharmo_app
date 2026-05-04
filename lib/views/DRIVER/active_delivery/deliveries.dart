@@ -1,7 +1,6 @@
-import 'package:pharmo_app/controller/models/delivery.dart';
+import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/additional_delivery.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/orderer_card.dart';
-import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/widgets/delivery_action_button.dart';
 import 'package:pharmo_app/views/DRIVER/active_delivery/widgets/delivery_stat_card.dart';
 
@@ -61,8 +60,7 @@ class _DeliveriesState extends State<Deliveries> {
   }
 
   Widget _buildSliverAppBar(Delivery? delivery, JaggerProvider jagger) {
-    final isTracking =
-        jagger.subscription != null && !jagger.subscription!.isPaused;
+    final isTracking = jagger.subscription != null && !jagger.subscription!.isPaused;
 
     return SliverAppBar(
       expandedHeight: delivery != null ? 200 : 120,
@@ -82,9 +80,7 @@ class _DeliveriesState extends State<Deliveries> {
         ),
       ],
       title: Text(
-        delivery != null
-            ? 'Түгээлт #${delivery.id}'
-            : 'Идэвхтэй түгээлт байхгүй',
+        delivery != null ? 'Түгээлт #${delivery.id}' : 'Идэвхтэй түгээлт байхгүй',
         style: const TextStyle(color: white),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -133,8 +129,7 @@ class _DeliveriesState extends State<Deliveries> {
     );
   }
 
-  Widget _buildDeliveryHeader(
-      Delivery delivery, JaggerProvider jagger, bool isTracking) {
+  Widget _buildDeliveryHeader(Delivery delivery, JaggerProvider jagger, bool isTracking) {
     final totalOrders = delivery.orders.length;
     final deliveredOrders = delivery.orders.where((o) => o.isDelivered).length;
     final progress = totalOrders > 0 ? deliveredOrders / totalOrders : 0.0;
@@ -259,8 +254,7 @@ class _DeliveriesState extends State<Deliveries> {
     );
   }
 
-  Widget _buildMainTab(
-      Delivery delivery, JaggerProvider jagger, List<User> users) {
+  Widget _buildMainTab(Delivery delivery, JaggerProvider jagger, List<User> users) {
     return RefreshIndicator.adaptive(
       onRefresh: () async => await init(),
       child: ListView(
@@ -278,8 +272,8 @@ class _DeliveriesState extends State<Deliveries> {
 
   Widget _buildActionCard(Delivery delivery, JaggerProvider jagger) {
     final bool started = delivery.startedOn != null;
-    final bool trackStopped = started &&
-        (jagger.subscription == null || jagger.subscription!.isPaused);
+    final bool trackStopped =
+        started && (jagger.subscription == null || jagger.subscription!.isPaused);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -302,9 +296,7 @@ class _DeliveriesState extends State<Deliveries> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: started
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.orange.withOpacity(0.1),
+                  color: started ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -569,8 +561,7 @@ class _PulsingDot extends StatefulWidget {
   State<_PulsingDot> createState() => _PulsingDotState();
 }
 
-class _PulsingDotState extends State<_PulsingDot>
-    with SingleTickerProviderStateMixin {
+class _PulsingDotState extends State<_PulsingDot> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   double _opacity = 0.4;
 

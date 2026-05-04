@@ -25,19 +25,15 @@ class OrderCard extends StatelessWidget {
                     extentRatio: 0.25,
                     children: [
                       CustomSlidableAction(
-                        onPressed: (context) =>
-                            _showDeleteDialog(context, provider),
+                        onPressed: (context) => _showDeleteDialog(context, provider),
                         backgroundColor: Colors.red.shade50,
                         foregroundColor: Colors.red.shade700,
                         borderRadius: BorderRadius.circular(12),
                         child: Column(
-                          
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.delete_outline,
-                                color: Colors.red.shade700, size: 24),
-                            const Text('Устгах',
-                                style: TextStyle(fontSize: 12)),
+                            Icon(Icons.delete_outline, color: Colors.red.shade700, size: 24),
+                            const Text('Устгах', style: TextStyle(fontSize: 12)),
                           ],
                         ),
                       ),
@@ -94,9 +90,8 @@ class OrderCard extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, bool isPharma) {
-    String displayName = !isPharma
-        ? (order.customer ?? "Захиалагч")
-        : (order.supplier ?? "Нийлүүлэгч");
+    String displayName =
+        !isPharma ? (order.customer ?? "Захиалагч") : (order.supplier ?? "Нийлүүлэгч");
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -194,7 +189,6 @@ class OrderCard extends StatelessWidget {
 
   void _showDeleteDialog(BuildContext context, OrderProvider provider) async {
     final confirmed = await confirmDialog(
-      context: context,
       title: 'Захиалга устгах уу?',
     );
     if (!confirmed) return;

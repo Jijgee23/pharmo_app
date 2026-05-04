@@ -8,7 +8,7 @@ import 'package:pharmo_app/views/profile/profile.dart';
 import 'package:pharmo_app/views/profile/profile_header.dart';
 import 'package:pharmo_app/views/public/about_us.dart';
 import 'package:pharmo_app/views/public/privacy_policy/privacy_policy.dart';
-import 'package:pharmo_app/views/public/system_log.dart';
+import 'package:pharmo_app/views/public/systme_log/system_log.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class DeliveryProfile extends StatelessWidget {
@@ -91,6 +91,12 @@ class DeliveryProfile extends StatelessWidget {
                     title: 'Ерөнхий',
                     icon: Icons.settings_outlined,
                     children: [
+                      MenuItemBuilder(
+                        title: 'Тохиргоо',
+                        icon: Icons.settings_outlined,
+                        color: Colors.blueGrey,
+                        onTap: () => goto(const SettingsPage()),
+                      ),
                       MenuItemBuilder(
                           title: 'Нууцлалын бодлого',
                           icon: Icons.privacy_tip_outlined,

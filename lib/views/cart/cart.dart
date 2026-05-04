@@ -41,13 +41,10 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
     return Consumer2<CartProvider, HomeProvider>(
       builder: (context, provider, home, _) {
         final cartDatas = provider.shoppingCarts;
-        final basket = provider.basket;
-        final bool basketIsEmpty = (basket == null ||
-            basket.totalCount == 0 ||
-            (basket.items?.isEmpty ?? true));
+        bool basketIsEmpty = provider.basketIsEmpty;
         final user = Authenticator.security;
         return Scaffold(
-          backgroundColor: Colors.grey.shade50, // Зөөлөн дэвсгэр
+          backgroundColor: Colors.grey.shade50,
           appBar: const SideAppBar(text: 'Миний сагс'),
           bottomNavigationBar: !basketIsEmpty
               ? IntrinsicHeight(
@@ -66,8 +63,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (user!.isPharmacist)
-                            BottomSheetLabelBuilder(
-                                'Сонгосон нийлүүлэгч: ${home.picked.name}'),
+                            BottomSheetLabelBuilder('Сонгосон нийлүүлэгч: ${home.picked.name}'),
                           Expanded(
                             child: CustomButton(
                               text: "Захиалга үүсгэх",
@@ -100,7 +96,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
                               const AlwaysScrollableScrollPhysics(), // Refresh хийхэд заавал хэрэгтэй
                           itemCount: cartDatas.length,
                           itemBuilder: (context, index) {
-                            return CartItem(detail: cartDatas[index]);
+                            return CartItem(item: cartDatas[index]);
                           },
                         ),
                       ),
@@ -130,8 +126,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
     await provider.getBasket();
 
     // Үнийн дүнгийн шалгалт
-    double totalPrice =
-        double.tryParse(provider.basket?.totalPrice.toString() ?? '0') ?? 0;
+    double totalPrice = double.tryParse(provider.basket?.totalPrice.toString() ?? '0') ?? 0;
 
     if (totalPrice < 10) {
       messageWarning('Захиалгын доод дүн 10₮ байна!');
@@ -140,9 +135,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
 
     // Role-оос хамаарч Order Sheet харуулах
     await Get.bottomSheet(
-      security.role == 'PA'
-          ? const PharmOrderSheet()
-          : const SellerOrderSheet(),
+      security.role == 'PA' ? const PharmOrderSheet() : const SellerOrderSheet(),
       isScrollControlled: true, // Sheet бүтэн харагдахад тусална
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(

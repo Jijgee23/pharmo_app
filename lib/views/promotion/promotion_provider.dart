@@ -1,0 +1,213 @@
+import 'package:flutter/material.dart';
+import 'package:pharmo_app/application/function/utilities/a_utils.dart';
+import 'package:pharmo_app/data/models/a_models.dart';
+import 'package:pharmo_app/views/cart/order_done.dart';
+import 'package:pharmo_app/widgets/dialog_and_messages/snack_message.dart';
+
+class PromotionProvider extends ChangeNotifier {
+  List<Promotion> promotions = <Promotion>[];
+  List<MarkedPromo> markedPromotions = <MarkedPromo>[];
+  MarkedPromo promoDetail = MarkedPromo();
+  Map<String, dynamic> qrCode = {};
+  QrData qrData = QrData();
+  String payType = 'C';
+  bool hasNote = false;
+  bool useBank = false;
+  bool showQr = false;
+  bool isCash = true;
+  bool orderStarted = false;
+  bool delivery = false;
+  void reset() {
+    setDelivery(false);
+    setBank(false);
+    setHasnote(false);
+    setQr(false);
+    setIsCash(true);
+    setOrderStartedWithVal(false);
+    notifyListeners();
+  }
+
+  setOrderStartedWithVal(bool v) {
+    orderStarted = v;
+    notifyListeners();
+  }
+
+  setPayType() {
+    if (payType == 'C') {
+      payType = 'L';
+    } else {
+      payType = 'C';
+    }
+    notifyListeners();
+  }
+
+  setDelivery(bool v) {
+    delivery = v;
+    notifyListeners();
+  }
+
+  setOrderStarted() {
+    orderStarted = !orderStarted;
+    notifyListeners();
+  }
+
+  setIsCash(bool v) {
+    isCash = v;
+    notifyListeners();
+  }
+
+  setQr(bool v) {
+    showQr = v;
+    notifyListeners();
+  }
+
+  setHasnote(bool v) {
+    hasNote = v;
+    notifyListeners();
+  }
+
+  setBank(bool v) {
+    useBank = v;
+    notifyListeners();
+  }
+
+  setQrCode(Map<String, dynamic> v) {
+    qrCode = v;
+    notifyListeners();
+  }
+
+  void setMarkedPromo(MarkedPromo v) {
+    promoDetail = v;
+    notifyListeners();
+  }
+
+  void clearPromoDetail() {
+    promoDetail = MarkedPromo();
+    notifyListeners();
+  }
+
+  bool loading = false;
+  void setLoad(bool val) {
+    loading = val;
+    notifyListeners();
+  }
+
+  Future getPromotion() async {
+    setLoad(true);
+    try {
+      final r = await api(Api.get, 'get_promos/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final res = convertData(r);
+        print(res);
+        promotions.clear();
+        List<dynamic> promos = res['results'];
+        promotions = (promos).map((data) => Promotion.fromJson(data)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('ERROR AT PROMO: ${e.toString()}');
+    } finally {
+      setLoad(false);
+    }
+  }
+
+  getDetail(int promoId) async {
+    try {
+      final r = await api(Api.get, 'get_promos/$promoId/');
+      if (r!.statusCode == 200) {
+        Map<String, dynamic> p = convertData(r);
+        MarkedPromo mp = MarkedPromo.fromJson(p);
+        setMarkedPromo(mp);
+        notifyListeners();
+        return mp;
+      }
+    } catch (e) {
+      debugPrint('ERROR AT PROMODETAIL: ${e.toString()}');
+    }
+  }
+
+  getMarkedPromotion() async {
+    try {
+      markedPromotions.clear();
+      final r = await api(Api.get, 'marked_promos/');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final res = convertData(r);
+        markedPromotions = (res as List).map((data) => MarkedPromo.fromJson(data)).toList();
+      } else if (r.statusCode == 204) {
+        markedPromotions.clear();
+      }
+    } catch (e) {
+      // debugPrint('ERROR AT MPROMO: ${e.toString()}');
+    }
+    notifyListeners();
+  }
+
+  filterPromotion(String type, String value) async {
+    try {
+      final r = await api(Api.get, 'get_promos/?$type=$value');
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        final res = convertData(r);
+        List<dynamic> pro = res['results'];
+        promotions.clear();
+        promotions = (pro).map((data) => Promotion.fromJson(data)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('ERROR AT FILTER PROMO: ${e.toString()}');
+    }
+  }
+
+  hidePromo(int id, BuildContext context) async {
+    try {
+      final r = await api(Api.patch, 'marked_promos/$id/', body: {});
+      if (r == null) return;
+      if (r.statusCode == 200) {
+        messageComplete('Амжилттай');
+        getMarkedPromotion();
+      } else {
+        messageWarning('Амжилтгүй');
+      }
+    } catch (e) {
+      debugPrint('ERROR AT HIDE PROMO: ${e.toString()}');
+    }
+  }
+
+  orderPromo(int promoId, int branchId, String? note, BuildContext context) async {
+    try {
+      final body = {
+        "payType": payType,
+        "promoId": promoId,
+        "branchId": (delivery == false) ? branchId : null,
+        "note": note,
+      };
+      final r = await api(Api.post, 'pharmacy/promo_order/', body: body);
+      if (r == null) return;
+      var data = convertData(r);
+      if (r.statusCode == 200) {
+        qrData = QrData.fromJson(data);
+        setQr(true);
+      } else if (r.statusCode == 400) {
+        messageWarning('Урамшууллын хугацаа дууссан');
+      } else {}
+    } catch (e) {
+      debugPrint('ERROR AT ORDER PROMO: ${e.toString()}');
+    }
+  }
+
+  checkPayment(BuildContext context) async {
+    final r =
+        await api(Api.patch, 'pharmacy/promo_order/cp/', body: {"invoiceId": qrData.invoiceId});
+    if (r == null) return;
+    final data = convertData(r);
+    if (r.statusCode == 200) {
+      goto(OrderDone(orderNo: data['orderNo'].toString()));
+      messageComplete('Төлбөр төлөгдсөн байна');
+      return true;
+    } else {
+      messageWarning('Төлбөр төлөгдөөгүй байна');
+    }
+  }
+}
