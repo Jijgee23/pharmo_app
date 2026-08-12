@@ -10,5 +10,6 @@ export './indicator/pharmo_indicator.dart';
 export './inputs/inputs.dart';
 export './loader/loaders.dart';
 export './others/a_others.dart';
+export './splash_screen/splash_screen.dart';
 export './text/small_text.dart';
 export './ui_help/a_ui_help.dart';

@@ -21,7 +21,8 @@
     "lib/services/user_box.dart"
   ],
   "cmake.sourceDirectory": "/Users/infosystems/Downloads/pharmo_app/linux",
-  "java.configuration.updateBuildConfiguration": "disabled"
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "java.compile.nullAnalysis.mode": "disabled"
   // "editor.quickSuggestions": {
   //     "comments": "off",
   //     "strings": "off",

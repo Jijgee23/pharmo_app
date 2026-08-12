@@ -2,7 +2,6 @@ import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/authentication/login/login.dart';
 import 'package:pharmo_app/authentication/login/pre_login_page.dart';
 import 'package:pharmo_app/authentication/root/root_provider.dart';
-import 'package:pharmo_app/authentication/root/splash_screen.dart';
 import 'package:pharmo_app/widgets/dialog_and_messages/update_dialog.dart';
 import 'package:upgrader/upgrader.dart';
 
@@ -38,11 +37,13 @@ class _RootPageState extends State<RootPage> {
       builder: (context, rooter, child) {
         AuthState state = rooter.state;
 
-        if (state == AuthState.notSplashed) {
-          return SplashScreen();
-        }
-        if (state == AuthState.unknown) {
-          return PharmoIndicator(withMaterial: true);
+        if (state == AuthState.unknown || state == AuthState.notSplashed) {
+          return PharmoSplashScreen(
+            onFinished: () async {
+              await Authenticator.saveSplashed(true);
+              if (mounted) await rooter.readUser();
+            },
+          );
         }
         if (state == AuthState.notLoggedIn || state == AuthState.expired) {
           if (rooter.loginHistory.isNotEmpty) {
