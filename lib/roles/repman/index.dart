@@ -1,6 +1,7 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/roles/repman/home.dart';
 import 'package:pharmo_app/roles/repman/visit_note_sheet.dart';
+import 'package:pharmo_app/roles/repman/visits.dart';
 import 'package:pharmo_app/views/profile/profile.dart';
 
 class IndexRep extends StatefulWidget {
@@ -10,9 +11,17 @@ class IndexRep extends StatefulWidget {
 }
 
 class _IndexRepState extends State<IndexRep> {
-  static const List<Widget> _pages = [RepHome(), Profile()];
-  static const List<String> _icons = [AssetIcon.category, AssetIcon.user];
-  static const List<String> _labels = ['Нүүр', 'Профайл'];
+  static const List<Widget> _pages = [
+    RepHome(),
+    Visits(showAppBar: false),
+    Profile(),
+  ];
+  static const List<String> _icons = [
+    AssetIcon.category,
+    AssetIcon.orderHistory,
+    AssetIcon.user,
+  ];
+  static const List<String> _labels = ['Нүүр', 'Уулзалтууд', 'Профайл'];
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +44,7 @@ class _IndexRepState extends State<IndexRep> {
               // slot, so Scaffold has no way to know its height and would
               // place a real FAB right on top of it. Positioning it here,
               // well above the bar, matches VanSalesIndex's convention.
-              if (home.currentIndex == 0)
+              if (home.currentIndex == 0 || home.currentIndex == 1)
                 Positioned(
                   bottom: 100,
                   right: 16,
