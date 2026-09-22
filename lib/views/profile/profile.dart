@@ -1,7 +1,7 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/DRIVER/index_driver.dart';
-import 'package:pharmo_app/views/REPMAN/visits.dart';
-import 'package:pharmo_app/views/SELLER/report/seller_report.dart';
+import 'package:pharmo_app/roles/driver/index_driver.dart';
+import 'package:pharmo_app/roles/repman/visits.dart';
+import 'package:pharmo_app/roles/seller/report/seller_report.dart';
 import 'package:pharmo_app/views/profile/app_info.dart';
 import 'package:pharmo_app/views/profile/menu_item_builder.dart';
 import 'package:pharmo_app/views/profile/menu_section.dart';
@@ -33,134 +33,136 @@ class Profile extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: Colors.grey.shade50,
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                expandedHeight: 200,
-                floating: false,
-                pinned: true,
-                elevation: 0,
-                backgroundColor: Theme.of(context).primaryColor,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: ProfileHeader(),
-                ),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: IconButton(
-                      onPressed: () => logout(context),
-                      icon: const Icon(Icons.logout_rounded, color: white),
-                      tooltip: 'Гарах',
-                    ),
+          body: HomeScrollListener(
+            xchild: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: 200,
+                  floating: false,
+                  pinned: true,
+                  elevation: 0,
+                  backgroundColor: Theme.of(context).primaryColor,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: ProfileHeader(),
                   ),
-                ],
-              ),
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: IconButton(
+                        onPressed: () => logout(context),
+                        icon: const Icon(Icons.logout_rounded, color: white),
+                        tooltip: 'Гарах',
+                      ),
+                    ),
+                  ],
+                ),
 
-              // Content
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
+                // Content
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
 
-                    // Account section
-                    if (isSaler || isPharma || isRep)
+                      // Account section
+                      if (isSaler || isPharma || isRep)
+                        MenuSection(
+                          context: context,
+                          title: 'Бүртгэл',
+                          icon: Icons.account_circle_outlined,
+                          children: [
+                            if (isSaler)
+                              MenuItemBuilder(
+                                title: 'Тайлан',
+                                icon: Icons.assessment_outlined,
+                                color: Colors.pink,
+                                onTap: () => goto(const SellerReportPage()),
+                              ),
+                            if (isPharma)
+                              MenuItemBuilder(
+                                title: 'Урамшуулал',
+                                icon: Icons.local_offer_outlined,
+                                color: Colors.blue,
+                                onTap: () => goto(const PromotionWidget()),
+                              ),
+                            if (isDMan)
+                              MenuItemBuilder(
+                                title: 'Түгээгчрүү шилжих',
+                                icon: Icons.swap_horiz_rounded,
+                                color: Colors.orange,
+                                onTap: () {
+                                  homeProvider.changeIndex(0);
+                                  if (homeProvider.currentIndex == 0) {
+                                    gotoRemoveUntil(const IndexDriver());
+                                  }
+                                },
+                              ),
+                            if (isRep)
+                              MenuItemBuilder(
+                                title: 'Уулзалтууд',
+                                icon: Icons.meeting_room_outlined,
+                                color: Colors.purple,
+                                onTap: () => goto(Visits()),
+                              ),
+                            if (isSaler)
+                              MenuItemBuilder(
+                                title: 'Системийн лог',
+                                icon: Icons.history_outlined,
+                                color: Colors.teal,
+                                onTap: () => goto(SystemLog()),
+                              ),
+                          ],
+                        ),
+
+                      const SizedBox(height: 16),
+
+                      // General section
                       MenuSection(
                         context: context,
-                        title: 'Бүртгэл',
-                        icon: Icons.account_circle_outlined,
+                        title: 'Ерөнхий',
+                        icon: Icons.settings_outlined,
                         children: [
-                          if (isSaler)
-                            MenuItemBuilder(
-                              title: 'Тайлан',
-                              icon: Icons.assessment_outlined,
-                              color: Colors.pink,
-                              onTap: () => goto(const SellerReportPage()),
-                            ),
-                          if (isPharma)
-                            MenuItemBuilder(
-                              title: 'Урамшуулал',
-                              icon: Icons.local_offer_outlined,
-                              color: Colors.blue,
-                              onTap: () => goto(const PromotionWidget()),
-                            ),
-                          if (isDMan)
-                            MenuItemBuilder(
-                              title: 'Түгээгчрүү шилжих',
-                              icon: Icons.swap_horiz_rounded,
-                              color: Colors.orange,
-                              onTap: () {
-                                homeProvider.changeIndex(0);
-                                if (homeProvider.currentIndex == 0) {
-                                  gotoRemoveUntil(const IndexDriver());
-                                }
-                              },
-                            ),
-                          if (isRep)
-                            MenuItemBuilder(
-                              title: 'Уулзалтууд',
-                              icon: Icons.meeting_room_outlined,
-                              color: Colors.purple,
-                              onTap: () => goto(Visits()),
-                            ),
-                          if (isSaler)
-                            MenuItemBuilder(
-                              title: 'Системийн лог',
-                              icon: Icons.history_outlined,
-                              color: Colors.teal,
-                              onTap: () => goto(SystemLog()),
-                            ),
+                          MenuItemBuilder(
+                            title: 'Нууцлалын бодлого',
+                            icon: Icons.privacy_tip_outlined,
+                            color: Colors.blue,
+                            onTap: () => goto(const PrivacyPolicy()),
+                          ),
+                          MenuItemBuilder(
+                            title: 'Бидний тухай',
+                            icon: Icons.info_outline,
+                            color: Colors.green,
+                            onTap: () => goto(const AboutUs()),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // General section
+                      MenuSection(
+                        context: context,
+                        title: 'Тохиргоо',
+                        icon: Icons.settings_outlined,
+                        children: [
+                          MenuItemBuilder(
+                            title: 'Тохиргоо',
+                            icon: Icons.settings,
+                            color: Colors.blueGrey,
+                            onTap: () => goto(const SettingsPage()),
+                          ),
                         ],
                       ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    // General section
-                    MenuSection(
-                      context: context,
-                      title: 'Ерөнхий',
-                      icon: Icons.settings_outlined,
-                      children: [
-                        MenuItemBuilder(
-                          title: 'Нууцлалын бодлого',
-                          icon: Icons.privacy_tip_outlined,
-                          color: Colors.blue,
-                          onTap: () => goto(const PrivacyPolicy()),
-                        ),
-                        MenuItemBuilder(
-                          title: 'Бидний тухай',
-                          icon: Icons.info_outline,
-                          color: Colors.green,
-                          onTap: () => goto(const AboutUs()),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
+                      // App info
+                      AppInfo(),
 
-                    // General section
-                    MenuSection(
-                      context: context,
-                      title: 'Тохиргоо',
-                      icon: Icons.settings_outlined,
-                      children: [
-                        MenuItemBuilder(
-                          title: 'Тохиргоо',
-                          icon: Icons.settings,
-                          color: Colors.blueGrey,
-                          onTap: () => goto(const SettingsPage()),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // App info
-                    AppInfo(),
-
-                    const SizedBox(height: kTextTabBarHeight + 30),
-                  ],
+                      const SizedBox(height: kTextTabBarHeight * 3),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -174,6 +176,8 @@ void logout(BuildContext context) async {
     message: "Системээс гарахдаа итгэлтэй байна уу?",
   );
   if (ok) {
-    await context.read<AuthController>().logout(context);
+    await LoadingService.run(() async {
+      await context.read<AuthController>().logout(context);
+    });
   }
 }

@@ -139,17 +139,17 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               // Loading overlay
-              // if (auth.loading)
-              //   AnimatedOpacity(
-              //     opacity: auth.loading ? 1.0 : 0.0,
-              //     duration: const Duration(milliseconds: 200),
-              //     child: Container(
-              //       color: Colors.white.withOpacity(0.7),
-              //       child: const Center(
-              //         child: PharmoIndicator(),
-              //       ),
-              //     ),
-              //   ),
+              if (auth.loading)
+                AnimatedOpacity(
+                  opacity: auth.loading ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Container(
+                    color: Colors.white.withOpacity(0.7),
+                    child: const Center(
+                      child: PharmoIndicator(),
+                    ),
+                  ),
+                ),
             ],
           ),
           bottomNavigationBar: const LoginFooter(),
