@@ -29,15 +29,23 @@ class _IndexPharmaState extends State<IndexPharma> {
     await cart.getBasket();
     await home.getSuppliers();
     if (!mounted) return;
-    if (security.supplierId != null || security.byId != null) {
-      final sId = security.supplierId ?? security.byId;
-      final sup = home.supliers.firstWhere((e) => e.id == security.supplierId);
-      home.setSupplier(sup);
-      final findedSup = home.supliers.firstWhere((sup) => sup.id == sId);
-      final findedStock =
-          findedSup.stocks.firstWhere((stock) => stock.id == security.stockId);
-      if (findedSup != null && findedStock != null) {
-        home.setSupplier(findedSup);
+    if (home.supliers.isEmpty) return;
+    final sId = security.supplierId ?? security.byId;
+    // security.supplierId/stockId can go stale relative to the freshly
+    // fetched home.supliers — e.g. switching role (Driver -> Seller) reuses
+    // the same Security/stockId while home.getSuppliers() above returns a
+    // different list for the new role, so a plain firstWhere() (no match)
+    // threw "Bad state: No element" here. Fall back to the supplier's/the
+    // list's first entry instead of crashing when nothing matches.
+    final findedSup = sId != null
+        ? home.supliers.where((sup) => sup.id == sId).firstOrNull ?? home.supliers[0]
+        : null;
+    if (findedSup != null) {
+      home.setSupplier(findedSup);
+      if (findedSup.stocks.isNotEmpty) {
+        final findedStock =
+            findedSup.stocks.where((stock) => stock.id == security.stockId).firstOrNull ??
+                findedSup.stocks[0];
         home.setStock(findedStock);
       }
     } else {
