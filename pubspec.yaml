@@ -47,7 +47,6 @@ dependencies:
   google_maps_flutter: ^2.10.0
   image: ^4.5.2
   local_auth: ^2.3.0
-  location: ^8.0.0
   connectivity_plus: ^7.0.0
   cached_network_image: ^3.4.1
   flutter_localization: ^0.3.2
