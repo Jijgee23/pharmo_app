@@ -354,7 +354,6 @@ class _OrderSheetState extends State<OrderSheet> {
   void _showBranchMenu(HomeProvider home) {
     Get.bottomSheet(
       Container(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * .7),
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -362,60 +361,89 @@ class _OrderSheetState extends State<OrderSheet> {
         ),
         child: SafeArea(
           top: false,
-          child: Scrollbar(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _handleBar(),
-                  const SizedBox(height: 20),
-                  BottomSheetLabelBuilder('Хүргэлт хийх салбар'),
-                  const SizedBox(height: 12),
-                  ...home.branches.map((e) {
-                    final sel = e.id == _sector.id;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: InkWell(
-                        onTap: () {
-                          _setBranch(e);
-                          Get.back();
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
+          child: Stack(
+            children: [
+              Scrollbar(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _handleBar(),
+                      const SizedBox(height: 20),
+                      BottomSheetLabelBuilder('Хүргэлт хийх салбар'),
+                      const SizedBox(height: 12),
+                      ...home.branches.map((e) {
+                        final sel = e.id == _sector.id;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: InkWell(
+                            onTap: () {
+                              _setBranch(e);
+                              Get.back();
+                            },
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: sel ? primary : Colors.grey.shade300),
-                            color: sel ? primary.withOpacity(0.05) : Colors.white,
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.location_on_outlined,
-                                color: sel ? primary : Colors.grey,
-                                size: 20,
+                            child: Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: sel ? primary : Colors.grey.shade300),
+                                color: sel ? primary.withOpacity(0.05) : Colors.white,
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  e.name,
-                                  style: TextStyle(
-                                    fontWeight: sel ? FontWeight.bold : FontWeight.w500,
-                                    color: sel ? primary : Colors.black87,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    color: sel ? primary : Colors.grey,
+                                    size: 20,
                                   ),
-                                ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      e.name,
+                                      style: TextStyle(
+                                        fontWeight: sel ? FontWeight.bold : FontWeight.w500,
+                                        color: sel ? primary : Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                  if (sel) const Icon(Icons.check_circle, color: primary, size: 18),
+                                ],
                               ),
-                              if (sel) const Icon(Icons.check_circle, color: primary, size: 18),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  }),
-                ],
+                        );
+                      }),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    onPressed: () => Get.back(),
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black87,
+                      shape: const CircleBorder(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
