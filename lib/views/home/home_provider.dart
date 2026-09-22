@@ -268,6 +268,31 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
+  // Switches which branch the signed-in staff member is acting as
+  // (SelectCurrentBranchView.patch) — the response carries a fresh access
+  // token scoped to that branch's customer_id claim. The refresh token is
+  // untouched, so Authenticator.updateAccess() is called with no `refresh:`
+  // argument, mirroring the existing 401-retry flow in api.dart's
+  // refreshed().
+  Future<bool> selectBranch(int branchId) async {
+    try {
+      final r = await api(Api.patch, 'select_branch/', body: {'branch_id': branchId});
+      if (r == null) return false;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
+        await Authenticator.updateAccess(data['access_token']);
+        return true;
+      }
+      debugPrint('select_branch failed: ${convertData(r)}');
+      messageWarning('Салбар сонгоход алдаа гарлаа.');
+      return false;
+    } catch (e) {
+      debugPrint('ERROR AT selectBranch: $e');
+      messageWarning(wait);
+      return false;
+    }
+  }
+
   // Онцлох урамшуулал харуулах
   showMarkedPromos() {
     Get.dialog(const PromotionDialog());

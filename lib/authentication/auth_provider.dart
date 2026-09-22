@@ -7,6 +7,7 @@ import 'package:pharmo_app/application/application.dart'
     hide Response, FormData, MultipartFile;
 import 'package:pharmo_app/authentication/auth_operations/complete_registration.dart';
 import 'package:pharmo_app/authentication/auth_operations/reset_pass.dart';
+import 'package:pharmo_app/authentication/auth_operations/select_branch_page.dart';
 
 class AuthController extends ChangeNotifier {
   void initLoginpage({bool skip = false}) {
@@ -118,11 +119,29 @@ class AuthController extends ChangeNotifier {
       final sec = Authenticator.security;
       if (sec == null) return;
       await Authenticator.saveLoginHistory(ema.text, sec.name);
+      if (sec.isPharmacist) {
+        await _maybeSelectBranch();
+      }
       setLogging(false);
       await gotoRootPage();
     } catch (e) {
       throw Exception(e);
     }
+  }
+
+  // PA staff acting across multiple branches must pick which one they're
+  // acting as before proceeding to the home screen — PATCH select_branch/
+  // swaps the stored access token for one scoped to that branch's
+  // customer_id claim. Skipped entirely when there's only one branch (or
+  // none), matching the existing order_sheet.dart auto-select-if-one
+  // convention for the same branch list.
+  Future<void> _maybeSelectBranch() async {
+    final context = Get.context;
+    if (context == null) return;
+    final home = context.read<HomeProvider>();
+    await home.getBranches();
+    if (home.branches.length <= 1) return;
+    await goto(const SelectBranchPage());
   }
 
   // Нэвтрэх амжилтгүй
