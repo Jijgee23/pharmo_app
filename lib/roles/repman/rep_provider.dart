@@ -1,4 +1,3 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/application/application.dart';
@@ -54,9 +53,7 @@ class RepProvider extends ChangeNotifier {
       if (r == null) return;
       if (r.statusCode == 200) {
         final data = convertData(r);
-        final pref = await SharedPreferences.getInstance();
         visiting = Visiting.fromJson(data);
-        await pref.setInt('visitId', data['id']);
         notifyListeners();
       } else {}
     } catch (e) {
@@ -67,6 +64,28 @@ class RepProvider extends ChangeNotifier {
     }
   }
 
+  // The API rejects any PATCH to /company/visit/ or /company/visiting/
+  // with {"visiting": "ended"} once the visiting session has a back_on —
+  // surface that specifically instead of the generic "wait" message, which
+  // would otherwise tell the user to retry a call that can never succeed.
+  bool _isVisitingEndedError(dynamic r) {
+    if (r == null) return false;
+    try {
+      final data = convertData(r);
+      return data is Map && data['visiting'] == 'ended';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _warnMutationFailure(dynamic r) {
+    if (_isVisitingEndedError(r)) {
+      messageWarning('Уулзалт аль хэдийн дууссан байна');
+    } else {
+      messageWarning(wait);
+    }
+  }
+
   Future<dynamic> editVisit(int id, String note) async {
     try {
       final r = await api(
@@ -74,11 +93,15 @@ class RepProvider extends ChangeNotifier {
         'company/visit/',
         body: {"visit_id": id, "note": note},
       );
-      if (r!.statusCode == 200 || r.statusCode == 201) {
+      if (r == null) {
+        messageWarning(wait);
+        return;
+      }
+      if (r.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Амжилттай засагдлаа');
       } else {
-        messageWarning(wait);
+        _warnMutationFailure(r);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -101,11 +124,15 @@ class RepProvider extends ChangeNotifier {
           "lng": loc.longitude
         },
       );
-      if (r!.statusCode == 200 || r.statusCode == 201) {
+      if (r == null) {
+        messageWarning(wait);
+        return;
+      }
+      if (r.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Уулзалтын байршил илгээлээ');
       } else {
-        messageWarning(wait);
+        _warnMutationFailure(r);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -115,30 +142,37 @@ class RepProvider extends ChangeNotifier {
   }
 
   bool isTracking = false;
+  StreamSubscription<Position>? _positionSubscription;
 
   Future<dynamic> start() async {
     if (!await Settings.checkAlwaysLocationPermission()) {
       return;
     }
     await getActiveVisits();
+    // Was reading the currentPosition field, which is only ever populated
+    // by SeeMap.initState() — tapping "Уулзалтанд гарах" without having
+    // opened the map first hit a null-check exception here, silently
+    // swallowed by the catch below with zero feedback to the user. Fetch a
+    // fresh fix directly, same as endVisiting() already does.
+    final position = await Geolocator.getCurrentPosition();
+    currentPosition = position;
     String outOn = DateTime.now().toString().substring(0, 19);
     Box db = await Hive.openBox('meeting');
     try {
       final body = {
         "visiting_id": visiting!.id,
         "out_on": outOn,
-        "lat": currentPosition!.latitude,
-        "lng": currentPosition!.longitude
+        "lat": position.latitude,
+        "lng": position.longitude
       };
       final r = await api(Api.patch, 'company/visiting/', body: body);
       if (r == null) return;
       if (r.statusCode == 200 || r.statusCode == 201) {
-        isTracking = true;
         await db.delete('meetingId');
         await getActiveVisits();
         messageComplete('Уулзалтанд гарлаа');
         await db.put('meetingId', visiting!.id);
-        startTracking();
+        await startTracking();
       } else {
         messageWarning(wait);
       }
@@ -147,66 +181,67 @@ class RepProvider extends ChangeNotifier {
     }
   }
 
-  startTracking() async {
+  // Rep tracking is deliberately foreground-only — unlike Driver/Seller/
+  // VanSales there is no native background service behind it, matching the
+  // "Апп-аас гарах үед байршил дамжуулахгүй" warning already shown before
+  // starting a visit (see RepHome._askStart). A plain Geolocator position
+  // stream is the right amount of implementation for that documented
+  // limitation, not a full NativeChannel/foreground-service integration.
+  Future<void> startTracking() async {
     Box db = await Hive.openBox('meeting');
-    if (db.get('meetingId') == null) {
-      return;
-    }
-    // bg.BackgroundGeolocation.ready(
-    //   bg.Config(
-    //     desiredAccuracy: bg.Config.ACTIVITY_TYPE_OTHER_NAVIGATION,
-    //     distanceFilter: 10.0,
-    //     stopOnTerminate: false,
-    //     startOnBoot: true,
-    //     debug: false,
-    //     logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-    //   ),
-    // );
-    // bg.BackgroundGeolocation.onLocation((pos) async {
-    //   shareLocation(pos.coords.latitude, pos.coords.longitude);
-    // }, (pos) {
-    //   Notify.local(
-    //       '', 'Байршил дамжуулах чадсангүй, байршил дамжуулах дарна уу!');
-    // });
-    // await bg.BackgroundGeolocation.start().then((c) {
-    //   print(c);
-    //   if (c.enabled) {
-    //     message('Байршил дамжуулж эхлэлээ!');
-    //   }
-    // });
+    if (db.get('meetingId') == null) return;
+
+    await _positionSubscription?.cancel();
+    _positionSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+      (position) => shareLocation(position.latitude, position.longitude),
+      onError: (Object e) => debugPrint('Rep location stream error: $e'),
+    );
+    isTracking = true;
+    notifyListeners();
   }
 
-  List<double> noSendedLocs = [];
+  DateTime? _lastTrackingNotifAt;
+  static const _trackingNotifInterval = Duration(minutes: 3);
 
-  shareLocation(double lat, double lng) async {
+  // shareLocation() fires on every accepted position (distanceFilter: 6m
+  // apart) — a local notification on every single one of those would spam
+  // the user. Throttle both the "sending" and "not sending" notifications
+  // to at most once per interval instead of once per GPS point.
+  bool _shouldNotifyTracking() {
+    final now = DateTime.now();
+    if (_lastTrackingNotifAt == null || now.difference(_lastTrackingNotifAt!) > _trackingNotifInterval) {
+      _lastTrackingNotifAt = now;
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> shareLocation(double lat, double lng) async {
     Box db = await Hive.openBox('meeting');
     try {
-      if (db.get('meetingId') == null) {
-        messageWarning('Уулзалт олдсонгүй');
-        return;
-      }
-      final results = await Connectivity().checkConnectivity();
-      if (!results.contains(ConnectivityResult.wifi) &&
-          !results.contains(ConnectivityResult.mobile)) {
-        await FirebaseApi.local(
-          '📡 Сүлжээ тасарсан байна',
-          'Интернет холболтоо шалгана уу. Байршлын дамжуулалт түр зогссон.',
-        );
-        // noSendedLocs.add(Loc(lat: lat, lng: lng, created: DateTime.now()));
-        notifyListeners();
+      if (db.get('meetingId') == null) return;
+
+      final hasInternet = await NetworkChecker.hasInternet();
+      if (!hasInternet) {
+        if (_shouldNotifyTracking()) {
+          await FirebaseApi.local(
+            '📡 Сүлжээ тасарсан байна',
+            'Интернет холболтоо шалгана уу. Байршлын дамжуулалт түр зогссон.',
+          );
+        }
         return;
       }
       final body = {"visiting_id": db.get('meetingId'), "lat": lat, "lng": lng};
       final r = await api(Api.patch, 'company/visiting/route/', body: body);
       if (r == null) return;
       if (r.statusCode == 200) {
-        await FirebaseApi.local(
-          'Байршил дамжуулж байна',
-          'Таны байршлыг арын төлөвт дамжуулж байна. өргөрөг: $lat уртраг: $lng',
-        );
-        noSendedLocs.clear();
-        notifyListeners();
-      } else {
+        if (_shouldNotifyTracking()) {
+          await FirebaseApi.local(
+            'Байршил дамжуулж байна',
+            'Таны байршлыг дамжуулж байна.',
+          );
+        }
+      } else if (_shouldNotifyTracking()) {
         await FirebaseApi.local(
           'Байршил дамжуулаагүй!',
           'Байршил дамжуулах дарна уу!',
@@ -218,20 +253,25 @@ class RepProvider extends ChangeNotifier {
   }
 
   void stopTracking() {
-    // bg.BackgroundGeolocation.stop();
+    _positionSubscription?.cancel();
+    _positionSubscription = null;
     isTracking = false;
     notifyListeners();
   }
 
-  void initTracking() {
-    startTracking();
+  @override
+  void dispose() {
+    _positionSubscription?.cancel();
+    super.dispose();
   }
 
   Future<dynamic> endVisiting() async {
     String outOn = DateTime.now().toString().substring(0, 19);
     await getActiveVisits();
-    final pref = await SharedPreferences.getInstance();
-    int? vId = pref.getInt('visitId');
+    // visiting is freshly refetched above via getActiveVisits(), so use its
+    // id directly rather than a separately-persisted SharedPreferences
+    // value that could in principle drift out of sync with it.
+    final vId = visiting?.id;
     Position newPosition = await Geolocator.getCurrentPosition();
     try {
       final r = await api(
@@ -244,10 +284,16 @@ class RepProvider extends ChangeNotifier {
           "lng": newPosition.longitude
         },
       );
-      if (r!.statusCode == 200 || r.statusCode == 201) {
+      if (r == null) {
+        messageWarning(wait);
+        return;
+      }
+      if (r.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Уулзалт дууслаа');
         stopTracking();
+      } else {
+        _warnMutationFailure(r);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -264,11 +310,15 @@ class RepProvider extends ChangeNotifier {
         'company/visit/',
         body: {"visit_id": id, "left_on": leftOn},
       );
-      if (r!.statusCode == 200 || r.statusCode == 201) {
+      if (r == null) {
+        messageWarning(wait);
+        return;
+      }
+      if (r.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Уулзалтыг дуусгалаа');
       } else {
-        messageWarning(wait);
+        _warnMutationFailure(r);
       }
     } catch (e) {
       debugPrint(e.toString());

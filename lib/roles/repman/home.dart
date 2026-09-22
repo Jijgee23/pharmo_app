@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/roles/repman/visit_card.dart';
 
@@ -69,7 +67,28 @@ class _RepHomeState extends State<RepHome> {
                         children: [
                           Expanded(
                             child: CustomButton(
-                              text: 'Байршил дамжуулах',
+                              text: rep.isTracking ? 'Дамжуулж байна' : 'Байршил дамжуулах',
+                              color: rep.isTracking ? Colors.teal : null,
+                              child: rep.isTracking
+                                  ? Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      spacing: 8,
+                                      children: [
+                                        const Icon(Icons.circle, size: 8, color: white),
+                                        Text(
+                                          'Дамжуулж байна',
+                                          style: TextStyle(
+                                            color: white,
+                                            fontSize: mediumFontSize,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : null,
+                              // startTracking() cancels any prior subscription
+                              // before resubscribing, so retapping while
+                              // already active is a safe manual "retry".
                               ontap: () => rep.startTracking(),
                             ),
                           ),
@@ -92,12 +111,17 @@ class _RepHomeState extends State<RepHome> {
     );
   }
 
+  // Rep tracking is foreground-only on both platforms (RepProvider has no
+  // native background service behind it — see startTracking()'s comment),
+  // so this warning applies to iOS just as much as Android; it was
+  // previously Android-only for no reason grounded in the actual behavior.
+  static const _foregroundOnlyWarning =
+      'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!';
+
   Future<void> _askStart(RepProvider rep) async {
     bool confirmed = await confirmDialog(
       title: 'Уулзалтыг эхлэх үү?',
-      attentionText: Platform.isAndroid
-          ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
-          : null,
+      attentionText: _foregroundOnlyWarning,
       message: 'Уулзалтын үед таны байршлыг хянахыг анхаарна уу!',
     );
     if (confirmed) rep.start();
@@ -106,9 +130,7 @@ class _RepHomeState extends State<RepHome> {
   Future<void> _askEnd(RepProvider rep) async {
     bool confirmed = await confirmDialog(
       title: 'Уулзалтыг дуусгах уу?',
-      attentionText: Platform.isAndroid
-          ? 'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!'
-          : null,
+      attentionText: _foregroundOnlyWarning,
       message: 'Уулзалтын үед таны байршлыг хянахыг анхаарна уу!',
     );
     if (confirmed) rep.endVisiting();
