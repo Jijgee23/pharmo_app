@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/application.dart'; // primary, theme зэргийг авахын тулд
+import 'package:pharmo_app/application/app_lite.dart'; // primary, theme зэргийг авахын тулд
 
 class NoResult extends StatelessWidget {
   final String? message;
@@ -25,7 +25,7 @@ class NoResult extends StatelessWidget {
               opacity: 0.7,
               child: Image.asset(
                 'assets/icons/not-found.png',
-                width: context.width * 0.3,
+                width: context.orientation == Orientation.landscape ? 100 : context.width * 0.3,
                 fit: BoxFit.contain,
                 // Хэрэв зураг байхгүй бол алдаа заахаас сэргийлнэ
                 errorBuilder: (context, error, stackTrace) => Icon(
@@ -42,7 +42,6 @@ class NoResult extends StatelessWidget {
               message ?? 'Үр дүн олдсонгүй',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.grey.shade800,
               ),
@@ -55,7 +54,7 @@ class NoResult extends StatelessWidget {
               child: Text(
                 subMessage ?? 'Та хайх утгаа шалгах эсвэл дахин оролдож үзнэ үү.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade500, letterSpacing: -.5),
+                style: TextStyle(color: Colors.grey.shade500, letterSpacing: -.5),
               ),
             ),
 

@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/application/app_lite.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

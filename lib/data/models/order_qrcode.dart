@@ -1,24 +1,31 @@
+import 'package:pharmo_app/application/app_lite.dart';
+
 class OrderQRCode {
-  String? invId;
-  double? totalPrice;
-  int? totalCount;
-  String? qrTxt;
-  List<dynamic>? urls;
+  final String invId;
+  final double totalPrice;
+  final double? totalCount;
+  final String? qrTxt;
+  final List<BankUrl>? urls;
 
-  OrderQRCode(
-    this.invId,
-    this.qrTxt,
-    this.totalPrice,
-    this.totalCount,
-    this.urls,
-  );
+  OrderQRCode({
+    required this.invId,
+    required this.qrTxt,
+    required this.totalPrice,
+    required this.totalCount,
+    required this.urls,
+  });
 
-  OrderQRCode.fromJson(Map<String, dynamic> json)
-      : totalPrice = json['totalPrice'],
-        invId = json['invId'],
-        totalCount = json['totalCount'],
-        urls = json['urls'],
-        qrTxt = json['qrTxt'];
+  factory OrderQRCode.fromJson(Map<String, dynamic> json) {
+    return OrderQRCode(
+      invId: json['invId'] ?? "",
+      qrTxt: json['qrTxt'] ?? '',
+      totalPrice: parseDouble(json['totalPrice']),
+      totalCount: parseDouble(json['totalCount']),
+      urls: json['urls'] != null
+          ? (json['urls'] as List).map((url) => BankUrl.fromJson(url)).toList()
+          : [],
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -28,5 +35,27 @@ class OrderQRCode {
       'totalCount': totalCount,
       'urls': urls,
     };
+  }
+}
+
+class BankUrl {
+  final String name;
+  final String description;
+  final String logo;
+  final String link;
+  const BankUrl({
+    required this.name,
+    required this.description,
+    required this.logo,
+    required this.link,
+  });
+
+  factory BankUrl.fromJson(Map<String, dynamic> json) {
+    return BankUrl(
+      name: json['name'] ?? "",
+      description: json['description'] ?? '',
+      logo: json['logo'] ?? '',
+      link: json['link'] ?? '',
+    );
   }
 }

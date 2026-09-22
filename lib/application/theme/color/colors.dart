@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/application/app_lite.dart';
 
 class AppColors {
   static const secondary = Color(0xFFDE3163);

@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/application/app_lite.dart';
 
 double get smallFontSize => 10.0;
 double get mediumFontSize => 14.0;

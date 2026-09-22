@@ -1,46 +1,7 @@
-export 'dart:async' hide Zone;
-export 'dart:convert';
-
-export 'package:firebase_core/firebase_core.dart';
-export 'package:firebase_messaging/firebase_messaging.dart';
-export 'package:flutter/material.dart';
-export 'package:get/get.dart';
-export 'package:pharmo_app/authentication/role_managemant/user_permission.dart';
-export 'package:pharmo_app/authentication/role_managemant/user_role.dart';
-export 'package:pharmo_app/data/database/track_data.dart';
-export 'package:pharmo_app/data/models/a_models.dart';
-export 'package:pharmo_app/data/models/filters.dart' show Filters;
-export 'package:pharmo_app/views/cart/a_cart.dart';
-export 'package:pharmo_app/views/home/a_home.dart';
-export 'package:pharmo_app/widgets/a_widgets.dart';
-export 'package:provider/provider.dart';
-export 'package:restart_app/restart_app.dart';
-export 'package:shared_preferences/shared_preferences.dart';
-
-export '../authentication/auth_provider.dart';
-export '../roles/driver/driver_provider.dart';
-export '../roles/driver/jagger_provider.dart';
-export '../roles/repman/rep_provider.dart';
-export '../views/cart/cart_provider.dart';
-export '../views/home/home_provider.dart';
-export '../views/order_history/order_provider.dart';
-export '../views/promotion/promotion_provider.dart';
-export '../views/public/systme_log/log_provider.dart';
-export '../roles/seller/pharms_provider.dart';
-export '../roles/seller/report/report_provider.dart';
-export 'config/app_configs.dart';
-export 'const/asset_icon.dart';
-export 'const/const.dart';
-export 'const/queries.dart';
-export 'enum/enums.dart';
-export 'extension/extensions.dart';
-export 'function/api/api_service.dart';
-export 'function/utilities/a_utils.dart';
-export 'native/native_channel.dart';
-export 'settings/services/a_services.dart';
-export 'settings/services/battery_provider.dart';
-export 'settings/services/connection_provider.dart';
-export 'settings/settings_page.dart';
-export 'settings/settings_provider.dart';
-export 'theme/dark_theme.dart';
-export 'theme/light_theme.dart';
+// Aggregates the app's full dependency surface. Most files should keep
+// importing this — but a file that only needs Flutter + domain
+// types/utilities and never touches the provider tree can import
+// app_lite.dart instead for a narrower dependency footprint.
+export 'app_external.dart';
+export 'app_providers.dart';
+export 'app_core.dart';

@@ -1,4 +1,4 @@
-import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/application/app_lite.dart';
 
 class PharmoFilterChip extends StatelessWidget {
   final String caption;
