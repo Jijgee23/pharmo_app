@@ -444,11 +444,27 @@ class HomeProvider extends ChangeNotifier {
         final res = convertData(r);
         if (r.statusCode == 201) {
           final orderNumber = res['orderNo'];
-          goto(OrderDone(orderNo: orderNumber.toString()));
+          final totalPrice = basket.basket?.totalPrice ?? 0;
+          final totalCount = basket.basket?.totalCount ?? 0;
           await basket.clearBasket();
           setCustomer(null);
           note = null;
           notifyListeners();
+          // seller/order/ auto-attaches a QPay invoice when the basket was
+          // a cash-only group - resolve that before treating the order as
+          // "done" (QPay must never stop the sale from being recorded, so
+          // the order itself already exists either way).
+          if (SellerQpayInvoice.presentIn(res)) {
+            goto(SellerQpayPage(
+              orderId: parseInt(res['id']),
+              orderNo: orderNumber.toString(),
+              totalPrice: totalPrice,
+              totalCount: totalCount,
+              invoice: SellerQpayInvoice.fromJson(res),
+            ));
+          } else {
+            goto(OrderDone(orderNo: orderNumber.toString()));
+          }
         } else {
           if (res.toString().contains('Customer not verified')) {
             messageWarning('Баталгаажаагүй харилцагч байна!');

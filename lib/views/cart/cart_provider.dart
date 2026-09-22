@@ -300,9 +300,56 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
+  // ── Seller/VS order QPay (seller/order/{orderId}/qpay/*) ──────────────
+  // Distinct from createQR()/checkPayment() above, which are the
+  // pharmacist ci//cp/ flow: a seller order already exists (status W)
+  // before any of these are called - QPay never gates recording the sale.
+
+  Future<SellerQpayInvoice?> createSellerQpayInvoice(int orderId) async {
+    final r = await api(Api.post, 'seller/order/$orderId/qpay/');
+    if (r == null) return null;
+    if (r.statusCode == 200 || r.statusCode == 201) {
+      return SellerQpayInvoice.fromJson(convertData(r));
+    }
+    messageWarning('Qpay нэхэмжлэх үүсгэж чадсангүй.');
+    return null;
+  }
+
+  Future<bool> checkSellerQpayPayment(int orderId) async {
+    final r = await api(Api.post, 'seller/order/$orderId/qpay/check/');
+    if (r == null) return false;
+    if (r.statusCode == 200) {
+      return convertData(r)['isPaid'] == true;
+    }
+    return false;
+  }
+
+  Future<bool> skipSellerQpay(int orderId, String reason) async {
+    final r = await api(Api.post, 'seller/order/$orderId/qpay/skip/', body: {'reason': reason});
+    if (r == null) return false;
+    if (r.statusCode == 200) {
+      return convertData(r)['skipped'] == true;
+    }
+    return false;
+  }
+
+  SellerPaymentSettings? paymentSettings;
+
+  Future<void> getSellerPaymentSettings() async {
+    try {
+      final r = await api(Api.get, 'seller/payment_settings/');
+      if (r == null || r.statusCode != 200) return;
+      paymentSettings = SellerPaymentSettings.fromJson(convertData(r));
+      notifyListeners();
+    } catch (e) {
+      debugPrint('ERROR AT getSellerPaymentSettings: $e');
+    }
+  }
+
   void reset() {
     qty.clear();
     basket = null;
+    paymentSettings = null;
     shoppingCarts.clear();
     notifyListeners();
   }

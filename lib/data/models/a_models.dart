@@ -15,4 +15,6 @@ export 'products.dart';
 export 'promotion.dart';
 export 'qr_data.dart';
 export 'sector.dart';
+export 'seller_payment_settings.dart';
+export 'seller_qpay_invoice.dart';
 export 'supplier.dart';

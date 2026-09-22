@@ -31,6 +31,10 @@ class _OrderSheetState extends State<OrderSheet> {
     if (cart.isCashOnlyBasket) payType = PayType.cash.value;
     if (_isPharm) {
       WidgetsBinding.instance.addPostFrameCallback((_) async => await _loadBranches());
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) async => await cart.getSellerPaymentSettings(),
+      );
     }
   }
 
@@ -143,6 +147,10 @@ class _OrderSheetState extends State<OrderSheet> {
                         ))
                     .toList(),
               ),
+              if (!_isPharm && payType == 'T' && cart.paymentSettings != null) ...[
+                const SizedBox(height: 10),
+                _bankAccountsCard(cart.paymentSettings!),
+              ],
               const SizedBox(height: 20),
 
               // ── Shared: note ────────────────────────────────────────
@@ -392,6 +400,53 @@ class _OrderSheetState extends State<OrderSheet> {
     );
   }
 
+  Widget _bankAccountsCard(SellerPaymentSettings settings) {
+    if (settings.bankAccounts.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+        ),
+        child: const Text(
+          'Нийлүүлэгч дансны мэдээлэл байхгүй байна.',
+          style: TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.w600),
+        ),
+      );
+    }
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Дансаар шилжүүлэх данс',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade600),
+          ),
+          for (final acc in settings.bankAccounts) ...[
+            const SizedBox(height: 8),
+            Text(
+              '${acc.bankName} — ${acc.accountNumber}',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+            Text(
+              acc.accountHolder,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   // ── Submit logic ──────────────────────────────────────────────────────
 
   Future _submit(HomeProvider home, CartProvider cart) async {
@@ -471,7 +526,6 @@ class _OrderSheetState extends State<OrderSheet> {
     }
     final loanAvailable = await cart.checkLoan(home.customer!.id);
     if (!loanAvailable) return;
-    bool payViaQpay = false;
     final confirmed = await confirmDialog(
       title: 'Захиалга үүсгэх үү?',
       message: 'Үнийн дүн: ${cart.basket!.totalPrice}\n'
@@ -479,18 +533,15 @@ class _OrderSheetState extends State<OrderSheet> {
           'Захиалагч: ${home.customer!.name}\n',
       messageAlign: TextAlign.start,
       messageStyle: const TextStyle(color: primary, fontWeight: FontWeight.bold),
-      content: _qpayButton(() {
-        payViaQpay = true;
-        Navigator.of(context).pop(true);
-      }),
     );
     if (!confirmed) return;
     setState(() => _loading = true);
-    if (payType == 'C' || payViaQpay) {
-      await cart.createQR(deliveryType: 'D');
-    } else {
-      await home.createSellerOrder(context, payType);
-    }
+    // seller/order/ (not the pharmacist ci/ draft-invoice flow) always
+    // creates the order regardless of payType - it auto-attaches a QPay
+    // invoice itself when the basket needs one, so there is no separate
+    // "pay by qpay" branch here anymore: recording the sale must never
+    // wait on payment.
+    await home.createSellerOrder(context, payType);
     if (mounted) setState(() => _loading = false);
   }
 
