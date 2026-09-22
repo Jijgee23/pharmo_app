@@ -195,13 +195,25 @@ class _OrderSheetState extends State<OrderSheet> {
           Positioned(
             top: 0,
             right: 0,
-            child: IconButton(
-              onPressed: () => Get.back(),
-              icon: const Icon(Icons.close_rounded, size: 20),
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.grey.shade100,
-                foregroundColor: Colors.black87,
-                shape: const CircleBorder(),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                onPressed: () => Get.back(),
+                icon: const Icon(Icons.close_rounded, size: 20),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black87,
+                  shape: const CircleBorder(),
+                ),
               ),
             ),
           ),
