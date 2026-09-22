@@ -104,7 +104,7 @@ class QrPaymentScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                     ],
-                    QrImageView(data: qrText, size: 200),
+                    _PulsingQr(data: qrText, primary: primary),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -194,6 +194,111 @@ class QrPaymentScreen extends StatelessWidget {
         Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
       ],
     );
+  }
+}
+
+class _PulsingQr extends StatefulWidget {
+  final String data;
+  final Color primary;
+  const _PulsingQr({required this.data, required this.primary});
+
+  @override
+  State<_PulsingQr> createState() => _PulsingQrState();
+}
+
+class _PulsingQrState extends State<_PulsingQr> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+    _pulse = Tween<double>(begin: 0.92, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) => Transform.scale(scale: _pulse.value, child: child),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.primary.withOpacity(0.12),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: QrImageView(
+              data: widget.data,
+              size: 200,
+              eyeStyle: QrEyeStyle(eyeShape: QrEyeShape.square, color: widget.primary),
+              dataModuleStyle: QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
+                color: const Color(0xFF1A2B2B),
+              ),
+            ),
+          ),
+          ..._corners(widget.primary),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _corners(Color color) {
+    const size = 22.0;
+    const thick = 3.0;
+    const offset = -2.0;
+    BoxDecoration borderDecor(bool top, bool left) => BoxDecoration(
+          border: Border(
+            top: top ? BorderSide(color: color, width: thick) : BorderSide.none,
+            bottom: !top ? BorderSide(color: color, width: thick) : BorderSide.none,
+            left: left ? BorderSide(color: color, width: thick) : BorderSide.none,
+            right: !left ? BorderSide(color: color, width: thick) : BorderSide.none,
+          ),
+        );
+    return [
+      Positioned(
+        top: offset,
+        left: offset,
+        child: Container(width: size, height: size, decoration: borderDecor(true, true)),
+      ),
+      Positioned(
+        top: offset,
+        right: offset,
+        child: Container(width: size, height: size, decoration: borderDecor(true, false)),
+      ),
+      Positioned(
+        bottom: offset,
+        left: offset,
+        child: Container(width: size, height: size, decoration: borderDecor(false, true)),
+      ),
+      Positioned(
+        bottom: offset,
+        right: offset,
+        child: Container(width: size, height: size, decoration: borderDecor(false, false)),
+      ),
+    ];
   }
 }
 
