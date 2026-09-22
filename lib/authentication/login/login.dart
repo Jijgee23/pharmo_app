@@ -146,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Container(
                     color: Colors.white.withOpacity(0.7),
                     child: const Center(
-                      child: PharmoIndicator(),
+                      child: CustomLoader(),
                     ),
                   ),
                 ),
