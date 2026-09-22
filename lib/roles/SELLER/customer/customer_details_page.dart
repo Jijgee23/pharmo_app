@@ -1,4 +1,4 @@
-import 'package:pharmo_app/views/SELLER/customer/customer_location_picker.dart';
+import 'package:pharmo_app/roles/seller/customer/customer_location_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pharmo_app/application/application.dart';
 
@@ -43,8 +43,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
         : Consumer<PharmProvider>(
             builder: (context, pp, child) {
               final d = pp.customerDetail;
-              bool isEditable = (d.addedById != null &&
-                  d.addedById == Authenticator.security!.id);
+              bool isEditable = (d.addedById != null && d.addedById == Authenticator.security!.id);
 
               return Scaffold(
                 backgroundColor: Colors.grey.shade50,
@@ -64,14 +63,8 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                   actions: [
                     if (isEditable)
                       IconButton(
-                        onPressed: () => editCustomer(d, pp, [
-                          'Мейл',
-                          'Регистр',
-                          'Утас',
-                          'Утас 2',
-                          'Утас 3',
-                          'Тайлбар'
-                        ]),
+                        onPressed: () => editCustomer(
+                            d, pp, ['Мейл', 'Регистр', 'Утас', 'Утас 2', 'Утас 3', 'Тайлбар']),
                         icon: const Icon(Icons.edit_note_rounded, size: 28),
                       ),
                   ],
@@ -87,38 +80,28 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                             _buildInfoSection(
                               title: 'Холбоо барих',
                               items: [
-                                _infoTile(Icons.alternate_email_rounded,
-                                    'Мэйл хаяг', d.email),
-                                _infoTile(Icons.phone_iphone_rounded,
-                                    'Үндсэн утас', d.phone),
+                                _infoTile(Icons.alternate_email_rounded, 'Мэйл хаяг', d.email),
+                                _infoTile(Icons.phone_iphone_rounded, 'Үндсэн утас', d.phone),
                                 if (d.phone2 != null)
-                                  _infoTile(Icons.phone_enabled_rounded,
-                                      'Нэмэлт утас 1', d.phone2),
+                                  _infoTile(Icons.phone_enabled_rounded, 'Нэмэлт утас 1', d.phone2),
                                 if (d.phone3 != null)
-                                  _infoTile(Icons.phone_enabled_rounded,
-                                      'Нэмэлт uтас 2', d.phone3),
+                                  _infoTile(Icons.phone_enabled_rounded, 'Нэмэлт uтас 2', d.phone3),
                               ],
                             ),
                             const SizedBox(height: 16),
                             _buildInfoSection(
                               title: 'Санхүүгийн мэдээлэл',
                               items: [
-                                _infoTile(
-                                    Icons.account_balance_wallet_rounded,
-                                    'Зээлийн лимит',
-                                    (d.loanLimitUse == true)
-                                        ? toPrice(d.loanLimit)
-                                        : 'Ашиглахгүй'),
-                                _infoTile(Icons.badge_rounded,
-                                    'Регистрийн дугаар', d.rn),
+                                _infoTile(Icons.account_balance_wallet_rounded, 'Зээлийн лимит',
+                                    (d.loanLimitUse == true) ? toPrice(d.loanLimit) : 'Ашиглахгүй'),
+                                _infoTile(Icons.badge_rounded, 'Регистрийн дугаар', d.rn),
                               ],
                             ),
                             const SizedBox(height: 16),
                             _buildInfoSection(
                               title: 'Бусад',
                               items: [
-                                _infoTile(Icons.description_rounded,
-                                    'Тэмдэглэл', d.note,
+                                _infoTile(Icons.description_rounded, 'Тэмдэглэл', d.note,
                                     isMultiLine: true),
                               ],
                             ),
@@ -155,8 +138,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
               backgroundColor: Colors.white,
               child: Text(
                 d.name?.substring(0, 1).toUpperCase() ?? '?',
-                style: const TextStyle(
-                    fontSize: 32, fontWeight: FontWeight.bold, color: primary),
+                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: primary),
               ),
             ),
           ),
@@ -164,14 +146,12 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
           Text(
             d.name ?? 'Нэргүй харилцагч',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-                fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 25),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children:
-                contacting.entries.map((e) => _buildQuickAction(e, d)).toList(),
+            children: contacting.entries.map((e) => _buildQuickAction(e, d)).toList(),
           ),
         ],
       ),
@@ -201,8 +181,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
   }
 
   // Мэдээллийн бүлэг (Card style)
-  Widget _buildInfoSection(
-      {required String title, required List<Widget> items}) {
+  Widget _buildInfoSection({required String title, required List<Widget> items}) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -210,9 +189,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
+              color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))
         ],
       ),
       child: Column(
@@ -221,8 +198,7 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text(title,
-                style: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.bold, color: primary)),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: primary)),
           ),
           const Divider(height: 1),
           ...items,
@@ -232,19 +208,16 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
   }
 
   // Мэдээллийн мөр бүр
-  Widget _infoTile(IconData icon, String label, String? value,
-      {bool isMultiLine = false}) {
+  Widget _infoTile(IconData icon, String label, String? value, {bool isMultiLine = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
-        crossAxisAlignment:
-            isMultiLine ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        crossAxisAlignment: isMultiLine ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(8)),
+            decoration:
+                BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(8)),
             child: Icon(icon, size: 18, color: Colors.grey.shade600),
           ),
           const SizedBox(width: 16),
@@ -252,16 +225,12 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style:
-                        TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                Text(label, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
                 const SizedBox(height: 2),
                 Text(
                   (value == null || value.isEmpty) ? '-' : value,
                   style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87),
+                      fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
                 ),
               ],
             ),
@@ -410,26 +379,14 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
             ontap: () {
               pp.editCustomer(
                   id: parseInt(det.id),
-                  name: name.text.isNotEmpty
-                      ? name.text
-                      : maybeNullToJson(det.name),
+                  name: name.text.isNotEmpty ? name.text : maybeNullToJson(det.name),
                   rn: rn.text.isNotEmpty ? rn.text : maybeNullToJson(det.rn),
-                  email: email.text.isNotEmpty
-                      ? email.text
-                      : maybeNullToJson(det.email),
-                  phone: phone.text.isNotEmpty
-                      ? phone.text
-                      : maybeNullToJson(det.phone),
-                  note: note.text.isNotEmpty
-                      ? note.text
-                      : maybeNullToJson(det.note),
+                  email: email.text.isNotEmpty ? email.text : maybeNullToJson(det.email),
+                  phone: phone.text.isNotEmpty ? phone.text : maybeNullToJson(det.phone),
+                  note: note.text.isNotEmpty ? note.text : maybeNullToJson(det.note),
                   context: context,
-                  phone2: phone2.text.isNotEmpty
-                      ? phone2.text
-                      : maybeNullToJson(det.phone2),
-                  phone3: phone3.text.isNotEmpty
-                      ? phone3.text
-                      : maybeNullToJson(det.phone3));
+                  phone2: phone2.text.isNotEmpty ? phone2.text : maybeNullToJson(det.phone2),
+                  phone3: phone3.text.isNotEmpty ? phone3.text : maybeNullToJson(det.phone3));
               getDetail();
               Navigator.pop(context);
             }),

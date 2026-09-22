@@ -186,7 +186,7 @@ class PharmProvider extends ChangeNotifier {
     }
   }
 
-  Future registerCustomer(String name, String rn, String email, String phone, String? note,
+  Future<bool> registerCustomer(String name, String rn, String email, String phone, String? note,
       String? lat, String? lng, BuildContext context) async {
     try {
       var body = {
@@ -204,10 +204,10 @@ class PharmProvider extends ChangeNotifier {
         messageWarning('Бүс сонгоно уу!');
       } else {
         var r = await api(Api.post, 'seller/customer/', body: body);
-        if (r == null) return;
+        if (r == null) return false;
         if (apiSucceess(r)) {
           messageComplete('Амжилттай бүртгэгдлээ.');
-          return;
+          return true;
         }
         final data = convertData(r);
         if (data['error'] == 'name_exists!') {
@@ -215,10 +215,12 @@ class PharmProvider extends ChangeNotifier {
         } else {
           messageWarning('Алдаа гарлаа!');
         }
+        return false;
       }
     } catch (e) {
       debugPrint(e.toString());
     }
+    return false;
   }
 
   Future editCustomer(

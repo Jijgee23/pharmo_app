@@ -1,6 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/REPMAN/home.dart';
-import 'package:pharmo_app/views/REPMAN/see_map.dart';
+import 'package:pharmo_app/roles/repman/home.dart';
+import 'package:pharmo_app/roles/repman/see_map.dart';
 import 'package:pharmo_app/views/profile/profile.dart';
 
 class IndexRep extends StatefulWidget {
@@ -11,11 +11,6 @@ class IndexRep extends StatefulWidget {
 }
 
 class _IndexRepState extends State<IndexRep> {
-  // @override
-  // void initState() {
-  //   super.initState();
-  // }
-
   List<Widget> pages = [RepHome(), Profile()];
 
   @override
@@ -28,7 +23,6 @@ class _IndexRepState extends State<IndexRep> {
             onPressed: () => addVisit(),
             child: Icon(Icons.add, color: Colors.white),
           ),
-          extendBody: true,
           appBar: CustomAppBar(
             title: appBarSingleText('Миний профайл'),
             actions: [
@@ -39,10 +33,19 @@ class _IndexRepState extends State<IndexRep> {
               ),
             ],
           ),
-          body: pages[homeProvider.currentIndex],
-          bottomNavigationBar: BottomBar(
-            icons: icons,
-            labels: ['Нүүр', 'Профайл'],
+          body: Stack(
+            children: [
+              pages[homeProvider.currentIndex],
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: BottomBar(
+                  icons: icons,
+                  labels: ['Нүүр', 'Профайл'],
+                ),
+              ),
+            ],
           ),
         );
       },

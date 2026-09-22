@@ -1,6 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_detail.dart';
-import 'package:pharmo_app/views/DRIVER/widgets/status_changer.dart';
+import 'package:pharmo_app/roles/DRIVER/active_delivery/orderer/delivery_detail.dart';
+import 'package:pharmo_app/roles/DRIVER/widgets/status_changer.dart';
 import 'package:pharmo_app/views/order_history/order_card/order_status_chip.dart';
 import 'package:pharmo_app/views/order_history/order_card/user_tag.dart';
 

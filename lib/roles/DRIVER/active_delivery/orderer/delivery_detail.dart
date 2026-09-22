@@ -1,6 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_order_location.dart';
-import 'package:pharmo_app/views/DRIVER/widgets/status_changer.dart';
+import 'package:pharmo_app/roles/DRIVER/active_delivery/orderer/delivery_order_location.dart';
+import 'package:pharmo_app/roles/DRIVER/widgets/status_changer.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/order_item_card.dart';
 import 'package:pharmo_app/views/printer/print_previev.dart';
 
@@ -146,7 +146,9 @@ class _DeliveryDetailState extends State<DeliveryDetail> with SingleTickerProvid
                               label: 'Баримт хэвлэх',
                               icon: Icons.print,
                               color: primary,
-                              onTap: () async => goto(PrintPreviev(order: order)),
+                              onTap: () async {
+                                await goto(PrintPreviev(order: order));
+                              },
                             ),
                           ),
                         ],

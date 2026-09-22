@@ -1,5 +1,5 @@
-import 'package:pharmo_app/views/SELLER/customer/customer_details_page.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/seller/customer/customer_details_page.dart';
 
 class CustomerTile extends StatelessWidget {
   final Customer customer;
@@ -8,8 +8,7 @@ class CustomerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Анхааруулга байгаа эсэхийг шалгах
-    bool hasWarning =
-        (customer.loanBlock == true) || (customer.location == false);
+    bool hasWarning = (customer.loanBlock == true) || (customer.location == false);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -82,8 +81,7 @@ class CustomerTile extends StatelessWidget {
                     if (customer.loanBlock == true)
                       _buildWarningChip('Зээл хаагдсан', Icons.block_flipped),
                     if (customer.location == false)
-                      _buildWarningChip(
-                          'Байршилгүй', Icons.location_off_outlined),
+                      _buildWarningChip('Байршилгүй', Icons.location_off_outlined),
                   ],
                 ),
               ],

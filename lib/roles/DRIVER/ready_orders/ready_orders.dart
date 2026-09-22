@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/DRIVER/ready_orders/ready_order_card.dart';
+import 'package:pharmo_app/roles/DRIVER/ready_orders/ready_order_card.dart';
 
 class ReadyOrders extends StatefulWidget {
   const ReadyOrders({super.key});

@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/DRIVER/ready_orders/ready_orders.dart';
+import 'package:pharmo_app/roles/DRIVER/ready_orders/ready_orders.dart';
 import 'package:pharmo_app/views/profile/delivery_profile.dart';
 import 'package:pharmo_app/views/track_map/track_map.dart';
 
@@ -16,9 +16,19 @@ class _IndexDriverState extends State<IndexDriver> {
     return Consumer<HomeProvider>(
       builder: (context, home, _) {
         return Scaffold(
-          // appBar: appBar(home),
-          body: _pages[home.currentIndex],
-          bottomNavigationBar: BottomBar(icons: icons, labels: labels),
+          extendBody: true,
+          body: Stack(
+            children: [
+              _pages[home.currentIndex],
+              AnimatedPositioned(
+                duration: Duration(milliseconds: 300),
+                bottom: home.hidingOnScroll ? -120 : 0,
+                left: 0,
+                right: 0,
+                child: BottomBar(icons: icons, labels: labels),
+              ),
+            ],
+          ),
         );
       },
     );

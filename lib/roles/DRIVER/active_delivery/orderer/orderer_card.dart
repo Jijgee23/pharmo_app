@@ -1,8 +1,7 @@
-
-import 'package:pharmo_app/views/DRIVER/active_delivery/deliveries.dart';
-import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/delivery_order_card.dart';
+import 'package:pharmo_app/roles/DRIVER/active_delivery/deliveries.dart';
+import 'package:pharmo_app/roles/DRIVER/active_delivery/orderer/delivery_order_card.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/DRIVER/active_delivery/orderer/orderer_orders.dart';
+import 'package:pharmo_app/roles/DRIVER/active_delivery/orderer/orderer_orders.dart';
 
 class OrdererCard extends StatefulWidget {
   final User? user;
@@ -34,8 +33,7 @@ class _OrdererCardState extends State<OrdererCard> {
             .toSet()
             .toList();
 
-        final deliveredCount =
-            ordererOrders.where((o) => o.process == 'D').length;
+        final deliveredCount = ordererOrders.where((o) => o.process == 'D').length;
         final totalCount = ordererOrders.length;
         final progress = totalCount > 0 ? deliveredCount / totalCount : 0.0;
 
@@ -113,8 +111,7 @@ class _OrdererCardState extends State<OrdererCard> {
                     ),
                     const SizedBox(height: 12),
                     _buildProgressBar(progress),
-                    if (widget.user != null &&
-                        !widget.user!.id.contains('p')) ...[
+                    if (widget.user != null && !widget.user!.id.contains('p')) ...[
                       const SizedBox(height: 12),
                       _buildPaymentButton(jagger),
                     ],

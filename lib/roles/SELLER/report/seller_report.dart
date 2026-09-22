@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/SELLER/report/report_widget.dart';
+import 'package:pharmo_app/roles/seller/report/report_widget.dart';
 
 class Reportfilter {
   String title;
