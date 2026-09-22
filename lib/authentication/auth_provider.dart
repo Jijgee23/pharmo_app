@@ -165,7 +165,12 @@ class AuthController extends ChangeNotifier {
       context.read<PharmProvider>().reset();
       context.read<PromotionProvider>().reset();
       context.read<ReportProvider>().reset();
-      await goNamedOfAll('root');
+      // Санамж: goNamedOfAll(Get.offAndToNamed) буцаадаг Future нь шинэ
+      // ('root') дэлгэц ХОЖИМ нь pop хийгдэх хүртэл resolve болохгүй тул
+      // энд await хийвэл дуудагч (LoadingService.run гэх мэт) мөнхөд
+      // хүлээх болно. logout()-ийн бодит ажил дээрх мөрүүдэд аль хэдийн
+      // дуусаж, шилжилтийг эхлүүлээд л болно.
+      goNamedOfAll('root');
     } catch (e) {
       print(e);
       throw Exception(e);
