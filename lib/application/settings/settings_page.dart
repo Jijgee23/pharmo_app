@@ -26,7 +26,8 @@ class _SettingsPageState extends State<SettingsPage> {
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _SectionHeader(icon: Icons.battery_5_bar_rounded, label: 'Төхөөрөмж'),
+            _SectionHeader(
+                icon: Icons.battery_5_bar_rounded, label: 'Төхөөрөмж'),
             _SettingsTile(
               icon: Icons.battery_charging_full_rounded,
               title: 'Батарейны түвшин',
@@ -45,7 +46,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     ? const SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                        child:
+                            CircularProgressIndicator.adaptive(strokeWidth: 2),
                       )
                     : const Icon(Icons.refresh_rounded, size: 20),
                 tooltip: 'Дахин хайх',
@@ -60,7 +62,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ...printer.devices.map(
                 (device) => _DeviceTile(
                   device: device,
-                  connected: printer.connectedDevice?.macAdress == device.macAdress,
+                  connected:
+                      printer.connectedDevice?.macAdress == device.macAdress,
                   onTap: () => printer.connect(device),
                 ),
               ),
@@ -76,7 +79,8 @@ class _SectionHeader extends StatelessWidget {
   final String label;
   final Widget? trailing;
 
-  const _SectionHeader({required this.icon, required this.label, this.trailing});
+  const _SectionHeader(
+      {required this.icon, required this.label, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -112,11 +116,12 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        side: BorderSide(color: Colors.grey.shade200),
       ),
       child: ListTile(
         leading: Icon(icon, color: Colors.grey.shade600, size: 20),
@@ -144,7 +149,8 @@ class _ConnectedPrinterCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.bluetooth_connected_rounded, color: Colors.green.shade600, size: 20),
+          Icon(Icons.bluetooth_connected_rounded,
+              color: Colors.green.shade600, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -194,34 +200,39 @@ class _DeviceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
+      child: Material(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: connected ? Colors.green.shade300 : Colors.grey.shade200,
-        ),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: Icon(
-          Icons.print_outlined,
-          color: connected ? Colors.green.shade600 : Colors.grey.shade500,
-          size: 22,
-        ),
-        title: Text(device.name, style: const TextStyle(fontSize: 14)),
-        subtitle: Text(
-          device.macAdress,
-          style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-        ),
-        trailing: TextButton(
-          onPressed: onTap,
-          style: TextButton.styleFrom(
-            foregroundColor: connected ? Colors.green.shade600 : AppColors.main,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: connected ? Colors.green.shade300 : Colors.grey.shade200,
           ),
-          child: Text(
-            connected ? 'Холбогдсон' : 'Холбох',
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        ),
+        child: ListTile(
+          onTap: onTap,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          leading: Icon(
+            Icons.print_outlined,
+            color: connected ? Colors.green.shade600 : Colors.grey.shade500,
+            size: 22,
+          ),
+          title: Text(device.name, style: const TextStyle(fontSize: 14)),
+          subtitle: Text(
+            device.macAdress,
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+          ),
+          trailing: TextButton(
+            onPressed: onTap,
+            style: TextButton.styleFrom(
+              foregroundColor:
+                  connected ? Colors.green.shade600 : AppColors.main,
+            ),
+            child: Text(
+              connected ? 'Холбогдсон' : 'Холбох',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
           ),
         ),
       ),
@@ -240,7 +251,8 @@ class _EmptyDevices extends StatelessWidget {
       child: Column(
         spacing: 12,
         children: [
-          Icon(Icons.bluetooth_disabled_rounded, size: 40, color: Colors.grey.shade400),
+          Icon(Icons.bluetooth_disabled_rounded,
+              size: 40, color: Colors.grey.shade400),
           Text(
             'Bluetooth принтер олдсонгүй',
             style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
