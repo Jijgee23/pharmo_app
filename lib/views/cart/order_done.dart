@@ -1,4 +1,3 @@
-import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/application/application.dart';
 
 class OrderDone extends StatefulWidget {
@@ -25,7 +24,8 @@ class _OrderDoneState extends State<OrderDone> {
     await home.changeIndex(0);
     await provider.clearBasket();
     await provider.getBasket();
-    gotoRemoveUntil(const IndexPharma());
+    final role = Authenticator.security?.userRole ?? UserRole.unknown;
+    gotoRemoveUntil(RoleConfig.getHomePage(role));
   }
 
   @override
