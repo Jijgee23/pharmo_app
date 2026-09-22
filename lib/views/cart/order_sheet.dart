@@ -17,8 +17,8 @@ class _OrderSheetState extends State<OrderSheet> {
   String deliveryType = '';
   bool _loading = false;
 
-  Sector _sector = Sector(-1, 'Салбар сонгоно уу!', '', '', '', '', null, true,
-      '', 0, 0, Cmp(-1, '?'));
+  Sector _sector =
+      Sector(-1, 'Салбар сонгоно уу!', '', '', '', '', null, true, '', 0, 0, Cmp(-1, '?'));
 
   bool get _isPharm => Authenticator.security?.isPharmacist ?? false;
 
@@ -29,14 +29,13 @@ class _OrderSheetState extends State<OrderSheet> {
     final cart = context.read<CartProvider>();
     noteController.text = home.note ?? '';
     if (cart.isCashOnlyBasket) payType = PayType.cash.value;
-    if (_isPharm) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) async => await _loadBranches());
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) async => await cart.getSellerPaymentSettings(),
-      );
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Bank-transfer account info applies to any buyer role, not just
+      // Seller/VS — a pharmacist paying by transfer needs the supplier's
+      // account details shown the same way.
+      await cart.getSellerPaymentSettings();
+      if (_isPharm) await _loadBranches();
+    });
   }
 
   @override
@@ -73,8 +72,7 @@ class _OrderSheetState extends State<OrderSheet> {
     final cart = context.read<CartProvider>();
 
     return Container(
-      constraints:
-          BoxConstraints(maxHeight: MediaQuery.of(context).size.height * .92),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * .92),
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -110,11 +108,9 @@ class _OrderSheetState extends State<OrderSheet> {
                     const SizedBox(height: 12),
                     BottomSheetLabelBuilder('Холбоо барих'),
                     const SizedBox(height: 10),
-                    CustomTextField(
-                        controller: phoneController, labelText: 'Утас'),
+                    CustomTextField(controller: phoneController, labelText: 'Утас'),
                     const SizedBox(height: 8),
-                    CustomTextField(
-                        controller: phone2Controller, labelText: 'Утас 2'),
+                    CustomTextField(controller: phone2Controller, labelText: 'Утас 2'),
                   ],
                   const SizedBox(height: 20),
                 ],
@@ -139,22 +135,19 @@ class _OrderSheetState extends State<OrderSheet> {
                 const SizedBox(height: 10),
               ],
               Row(
-                children:
-                    (cart.isCashOnlyBasket ? [PayType.cash] : paymentMethods)
-                        .map((pm) => Expanded(
-                              child: BottomSheetOptionChip(
-                                title: pm.name,
-                                v: pm.value,
-                                icon: pm.icon,
-                                isSelected: payType == pm.value,
-                                onTap: () => setState(() => payType = pm.value),
-                              ),
-                            ))
-                        .toList(),
+                children: (cart.isCashOnlyBasket ? [PayType.cash] : paymentMethods)
+                    .map((pm) => Expanded(
+                          child: BottomSheetOptionChip(
+                            title: pm.name,
+                            v: pm.value,
+                            icon: pm.icon,
+                            isSelected: payType == pm.value,
+                            onTap: () => setState(() => payType = pm.value),
+                          ),
+                        ))
+                    .toList(),
               ),
-              if (!_isPharm &&
-                  payType == 'T' &&
-                  cart.paymentSettings != null) ...[
+              if (payType == 'T' && cart.paymentSettings != null) ...[
                 const SizedBox(height: 10),
                 _bankAccountsCard(cart.paymentSettings!),
               ],
@@ -265,8 +258,7 @@ class _OrderSheetState extends State<OrderSheet> {
         ),
         child: Row(
           children: [
-            Icon(Icons.location_on_outlined,
-                color: selected ? primary : Colors.grey, size: 20),
+            Icon(Icons.location_on_outlined, color: selected ? primary : Colors.grey, size: 20),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -277,8 +269,7 @@ class _OrderSheetState extends State<OrderSheet> {
                 ),
               ),
             ),
-            if (home.branches.length > 1)
-              const Icon(Icons.arrow_drop_down, color: Colors.grey),
+            if (home.branches.length > 1) const Icon(Icons.arrow_drop_down, color: Colors.grey),
           ],
         ),
       ),
@@ -288,8 +279,7 @@ class _OrderSheetState extends State<OrderSheet> {
   void _showBranchMenu(HomeProvider home) {
     Get.bottomSheet(
       Container(
-        constraints:
-            BoxConstraints(maxHeight: MediaQuery.of(context).size.height * .7),
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * .7),
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -321,10 +311,8 @@ class _OrderSheetState extends State<OrderSheet> {
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                                color: sel ? primary : Colors.grey.shade300),
-                            color:
-                                sel ? primary.withOpacity(0.05) : Colors.white,
+                            border: Border.all(color: sel ? primary : Colors.grey.shade300),
+                            color: sel ? primary.withOpacity(0.05) : Colors.white,
                           ),
                           child: Row(
                             children: [
@@ -338,15 +326,12 @@ class _OrderSheetState extends State<OrderSheet> {
                                 child: Text(
                                   e.name,
                                   style: TextStyle(
-                                    fontWeight:
-                                        sel ? FontWeight.bold : FontWeight.w500,
+                                    fontWeight: sel ? FontWeight.bold : FontWeight.w500,
                                     color: sel ? primary : Colors.black87,
                                   ),
                                 ),
                               ),
-                              if (sel)
-                                const Icon(Icons.check_circle,
-                                    color: primary, size: 18),
+                              if (sel) const Icon(Icons.check_circle, color: primary, size: 18),
                             ],
                           ),
                         ),
@@ -384,9 +369,7 @@ class _OrderSheetState extends State<OrderSheet> {
         child: Row(
           children: [
             Icon(
-              hasCustomer
-                  ? Icons.person_rounded
-                  : Icons.person_add_alt_1_rounded,
+              hasCustomer ? Icons.person_rounded : Icons.person_add_alt_1_rounded,
               color: hasCustomer ? primary : Colors.grey,
             ),
             const SizedBox(width: 12),
@@ -407,8 +390,7 @@ class _OrderSheetState extends State<OrderSheet> {
                   home.setCustomer(null);
                   setState(() {});
                 },
-                icon: const Icon(Icons.close_rounded,
-                    size: 20, color: Colors.red),
+                icon: const Icon(Icons.close_rounded, size: 20, color: Colors.red),
               )
             else
               const Icon(Icons.chevron_right_rounded, color: Colors.grey),
@@ -430,8 +412,7 @@ class _OrderSheetState extends State<OrderSheet> {
         ),
         child: const Text(
           'Нийлүүлэгч дансны мэдээлэл байхгүй байна.',
-          style: TextStyle(
-              fontSize: 12, color: Colors.orange, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.w600),
         ),
       );
     }
@@ -448,10 +429,8 @@ class _OrderSheetState extends State<OrderSheet> {
         children: [
           Text(
             'Дансаар шилжүүлэх данс',
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600),
+            style:
+                TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade600),
           ),
           for (final acc in settings.bankAccounts) ...[
             const SizedBox(height: 8),
@@ -515,8 +494,7 @@ class _OrderSheetState extends State<OrderSheet> {
           'Нийт тоо ширхэг: ${cart.basket!.totalCount}\n'
           'Салбар: ${_sector.name}\n',
       messageAlign: TextAlign.start,
-      messageStyle:
-          const TextStyle(color: primary, fontWeight: FontWeight.bold),
+      messageStyle: const TextStyle(color: primary, fontWeight: FontWeight.bold),
       content: _qpayButton(() {
         payViaQpay = true;
         Navigator.of(context).pop(true);
@@ -526,15 +504,10 @@ class _OrderSheetState extends State<OrderSheet> {
     setState(() => _loading = true);
     if (payType == 'C' || payViaQpay) {
       await cart.createQR(
-          branchId: _sector.id,
-          note: noteController.text,
-          deliveryType: deliveryType);
+          branchId: _sector.id, note: noteController.text, deliveryType: deliveryType);
     } else {
       await cart.createOrder(
-          branchId: _sector.id,
-          note: noteController.text,
-          deliveryType: deliveryType,
-          pt: payType);
+          branchId: _sector.id, note: noteController.text, deliveryType: deliveryType, pt: payType);
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -560,8 +533,7 @@ class _OrderSheetState extends State<OrderSheet> {
           'Нийт тоо ширхэг: ${cart.basket!.totalCount}\n'
           'Захиалагч: ${home.customer!.name}\n',
       messageAlign: TextAlign.start,
-      messageStyle:
-          const TextStyle(color: primary, fontWeight: FontWeight.bold),
+      messageStyle: const TextStyle(color: primary, fontWeight: FontWeight.bold),
     );
     if (!confirmed) return;
     if (!mounted) return;
@@ -586,8 +558,7 @@ class _OrderSheetState extends State<OrderSheet> {
           foregroundColor: primary,
           side: const BorderSide(color: primary),
           padding: const EdgeInsets.symmetric(vertical: 12),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );

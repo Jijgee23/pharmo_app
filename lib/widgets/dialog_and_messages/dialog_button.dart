@@ -60,6 +60,7 @@ void myDialog({required List<Widget> children, String? title}) {
 
 Future<bool> confirmDialog({
   String title = 'Итгэлтэй байна уу?',
+  Color? titleColor,
   String message = '',
   String? attentionText,
   TextAlign messageAlign = TextAlign.center,
@@ -74,6 +75,7 @@ Future<bool> confirmDialog({
     barrierColor: Colors.black.withOpacity(0.5),
     builder: (context) => _GlassConfirmDialog(
       title: title,
+      titleColor: titleColor,
       message: message,
       attentionText: attentionText,
       messageAlign: messageAlign,
@@ -95,6 +97,7 @@ class _GlassConfirmDialog extends StatefulWidget {
   final TextAlign messageAlign;
   final TextStyle? messageStyle;
   final Widget? content;
+  final Color? titleColor;
 
   const _GlassConfirmDialog({
     required this.title,
@@ -103,6 +106,7 @@ class _GlassConfirmDialog extends StatefulWidget {
     required this.messageAlign,
     this.messageStyle,
     this.content,
+    this.titleColor,
   });
 
   @override
@@ -191,10 +195,10 @@ class _GlassConfirmDialogState extends State<_GlassConfirmDialog>
                           Text(
                             widget.title,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF1A2B2B),
+                              color: widget.titleColor ?? Color(0xFF1A2B2B),
                               letterSpacing: -0.2,
                             ),
                           ),
@@ -237,12 +241,6 @@ class _GlassConfirmDialogState extends State<_GlassConfirmDialog>
                                 ),
                               ),
                             ),
-                          ],
-
-                          // Extra content
-                          if (widget.content != null) ...[
-                            const SizedBox(height: 12),
-                            widget.content!,
                           ],
 
                           const SizedBox(height: 24),
@@ -310,6 +308,14 @@ class _GlassConfirmDialogState extends State<_GlassConfirmDialog>
                               ),
                             ],
                           ),
+
+                          // Extra content — below the Тийм/Үгүй buttons
+                          // (e.g. the "pay via QPay instead" alternative
+                          // action on the cash-only-items dialog).
+                          if (widget.content != null) ...[
+                            const SizedBox(height: 12),
+                            widget.content!,
+                          ],
                         ],
                       ),
                     ),

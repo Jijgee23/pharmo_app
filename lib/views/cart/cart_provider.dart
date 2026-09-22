@@ -212,6 +212,11 @@ class CartProvider extends ChangeNotifier {
               await createQR(branchId: branchId, note: note, deliveryType: deliveryType);
             } else {
               await removeCashOnlyItems();
+              // Close the OrderSheet (still open behind this dialog) so the
+              // user lands back on the basket and sees it without the
+              // cash-only items instead of staying on a now-stale order
+              // summary that still reflects the pre-removal total.
+              if (Get.isBottomSheetOpen ?? false) Get.back();
             }
             return;
           }
