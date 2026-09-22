@@ -440,6 +440,15 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
         @unknown default: statusString = "Unknown"
         }
         os_log("📍 Authorization changed: %{public}@", log: logger, type: .info, statusString)
+
+        // os_log alone is device-local and invisible to Dart/backend — bridge
+        // a revoke to the same EventChannel Dart already listens on (matches
+        // Android's existing permission_denied stream error), so a mid-
+        // session revoke can actually be logged instead of going unnoticed.
+        if status == .denied || status == .restricted {
+            let sink = self.eventSink ?? LocationHandler.getEventSink()
+            sink?(FlutterError(code: "permission_denied", message: "Location permission revoked", details: nil))
+        }
     }
 }
 

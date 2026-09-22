@@ -26,6 +26,11 @@ import com.google.android.gms.location.Priority
 import io.flutter.plugin.common.EventChannel
 import kotlin.math.sqrt
 
+// File-scoped so LocationService and LocationFilterValidator share one
+// definition instead of two separately-declared (if currently equal)
+// constants that could silently drift apart.
+private const val MAX_ACCURACY_METERS = 25f
+
 class LocationService : Service() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -52,8 +57,6 @@ class LocationService : Service() {
         private const val NOTIFICATION_ID = 0x444
 
         // Filter settings
-        private const val MAX_ACCURACY_METERS = 25f
-        private const val MIN_DISTANCE_METERS = 6f
         private const val MIN_TIME_BETWEEN_UPDATES_MS = 2000L
         private const val MIN_TIME_DURING_TURN_MS = 1000L
         private const val GPS_DRIFT_THRESHOLD = 8f
@@ -372,9 +375,20 @@ class LocationService : Service() {
         }
         locationCallback = callback
 
-        fusedLocationClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
-
-        Log.i(TAG, "✅ Location updates started with Kalman filtering (FusedLocationProviderClient)")
+        try {
+            fusedLocationClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
+            Log.i(TAG, "✅ Location updates started with Kalman filtering (FusedLocationProviderClient)")
+        } catch (e: SecurityException) {
+            // Permission was revoked between the service being (re)started
+            // (e.g. a BootReceiver restart) and this call — without this
+            // catch it propagates out of onStartCommand() uncaught and
+            // crashes the service/process with no application-level signal.
+            Log.e(TAG, "❌ Permission revoked, cannot start location updates", e)
+            isUpdating = false
+            locationCallback = null
+            eventSink?.error("permission_denied", "Location permission revoked", null)
+            stopSelf()
+        }
     }
 
     private fun stopLocationUpdates() {
@@ -581,12 +595,11 @@ class KalmanLocationFilter {
 
 class LocationFilterValidator {
     companion object {
-        private const val MAX_ACCURACY = 25f
         private const val MAX_SPEED_MS = 33.3f // 120 km/h — UB max road speed is 80 km/h
     }
 
     fun isAccuracyValid(location: Location): Boolean {
-        return location.accuracy > 0 && location.accuracy <= MAX_ACCURACY
+        return location.accuracy > 0 && location.accuracy <= MAX_ACCURACY_METERS
     }
 
     fun validateSpeed(
