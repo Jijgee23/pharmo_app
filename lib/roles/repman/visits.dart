@@ -1,5 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/roles/repman/visit_card.dart';
+import 'package:pharmo_app/roles/repman/visit_note_sheet.dart';
 
 /// Widest a single-column content area is allowed to grow on tablets/large
 /// screens — mirrors the same cap used on [RepHome].
@@ -66,45 +67,7 @@ class _VisitsState extends State<Visits> {
     );
   }
 
-  final _noteController = TextEditingController();
-
   void _editVisit(RepProvider rep, Visit visit) {
-    _noteController.text = visit.note;
-    mySheet(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const SizedBox(),
-            const Text('Уулзалтын мэдээлэл засах', style: TextStyle(fontSize: 16)),
-            IconButton(
-              onPressed: () async {
-                await rep.deleteVisit(visit.id);
-                if (!mounted) return;
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.delete_forever),
-              color: Colors.red,
-            ),
-          ],
-        ),
-        CustomTextField(controller: _noteController),
-        CustomButton(
-          text: 'Хадгалах',
-          ontap: () async {
-            await rep.editVisit(visit.id, _noteController.text);
-            if (!mounted) return;
-            Navigator.pop(context);
-          },
-        ),
-        const SizedBox(),
-      ],
-    );
-  }
-
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
+    showVisitNoteSheet(context, rep: rep, visit: visit);
   }
 }

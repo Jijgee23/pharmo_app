@@ -1,5 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/roles/repman/home.dart';
+import 'package:pharmo_app/roles/repman/visit_note_sheet.dart';
 import 'package:pharmo_app/views/profile/profile.dart';
 
 class IndexRep extends StatefulWidget {
@@ -12,14 +13,6 @@ class _IndexRepState extends State<IndexRep> {
   static const List<Widget> _pages = [RepHome(), Profile()];
   static const List<String> _icons = [AssetIcon.category, AssetIcon.user];
   static const List<String> _labels = ['Нүүр', 'Профайл'];
-
-  final _noteController = TextEditingController();
-
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,21 +63,6 @@ class _IndexRepState extends State<IndexRep> {
 
   void _addVisit() {
     final rep = context.read<RepProvider>();
-    mySheet(
-      title: 'Уулзалт бүртгэх',
-      children: [
-        CustomTextField(controller: _noteController),
-        CustomButton(
-          text: 'Бүртгэх',
-          ontap: () async {
-            await rep.addVisit(_noteController.text);
-            if (!mounted) return;
-            Navigator.pop(context);
-            _noteController.clear();
-          },
-        ),
-        const SizedBox(),
-      ],
-    );
+    showVisitNoteSheet(context, rep: rep);
   }
 }

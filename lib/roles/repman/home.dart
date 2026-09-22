@@ -2,6 +2,7 @@ import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/roles/repman/rep_session_card.dart';
 import 'package:pharmo_app/roles/repman/see_map.dart';
 import 'package:pharmo_app/roles/repman/visit_card.dart';
+import 'package:pharmo_app/roles/repman/visit_note_sheet.dart';
 
 /// Widest a single-column content area is allowed to grow on tablets/large
 /// screens — keeps line lengths and tap targets comfortable instead of
@@ -53,22 +54,25 @@ class _RepHomeState extends State<RepHome> {
               // on a Scaffold-level appbar — matches ReadyOrders'/other role
               // tabs' convention, and avoids IndexRep stacking a second
               // header on top of Profile's own SliverAppBar on that tab.
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Миний хуваарь',
-                      style: context.theme.appBarTheme.titleTextStyle,
+              SafeArea(
+                bottom: false,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Миний хуваарь',
+                        style: context.theme.appBarTheme.titleTextStyle,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () => goto(const SeeMap()),
-                    icon: const Icon(Icons.location_on_outlined),
-                    color: primary,
-                    tooltip: 'Газрын зураг',
-                  ),
-                ],
-              ).paddingAll(10),
+                    IconButton(
+                      onPressed: () => goto(const SeeMap()),
+                      icon: const Icon(Icons.location_on_outlined),
+                      color: primary,
+                      tooltip: 'Газрын зураг',
+                    ),
+                  ],
+                ).paddingAll(10),
+              ),
               const Divider(height: 1),
               Expanded(
                 child: SingleChildScrollView(
@@ -144,46 +148,8 @@ class _RepHomeState extends State<RepHome> {
     if (confirmed) rep.endVisiting();
   }
 
-  final _noteController = TextEditingController();
-
   void _editVisit(Visit visit) {
     final rep = context.read<RepProvider>();
-    _noteController.text = visit.note;
-    mySheet(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const SizedBox(),
-            const Text('Уулзалтын мэдээлэл засах', style: TextStyle(fontSize: 16)),
-            IconButton(
-              onPressed: () async {
-                await rep.deleteVisit(visit.id);
-                if (!mounted) return;
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.delete_forever),
-              color: Colors.red,
-            ),
-          ],
-        ),
-        CustomTextField(controller: _noteController),
-        CustomButton(
-          text: 'Хадгалах',
-          ontap: () async {
-            await rep.editVisit(visit.id, _noteController.text);
-            if (!mounted) return;
-            Navigator.pop(context);
-          },
-        ),
-        const SizedBox(),
-      ],
-    );
-  }
-
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
+    showVisitNoteSheet(context, rep: rep, visit: visit);
   }
 }
