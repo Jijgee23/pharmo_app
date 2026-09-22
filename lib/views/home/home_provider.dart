@@ -28,6 +28,9 @@ class HomeProvider extends ChangeNotifier {
       logo: null,
       stocks: [],
     );
+    orderDeliveryType = '';
+    orderBranch = null;
+    orderPayType = '';
     notifyListeners();
   }
 
@@ -44,6 +47,35 @@ class HomeProvider extends ChangeNotifier {
   String query = '';
   int currentIndex = 0;
   String? note;
+
+  // Pharmacy ordering (OrderSheet) selections, remembered across the sheet
+  // being closed/reopened the same way `note` already is — cleared once
+  // via clearOrderSelections() after an order is actually placed.
+  String orderDeliveryType = '';
+  Sector? orderBranch;
+  String orderPayType = '';
+
+  void setOrderDeliveryType(String v) {
+    orderDeliveryType = v;
+    notifyListeners();
+  }
+
+  void setOrderBranch(Sector s) {
+    orderBranch = s;
+    notifyListeners();
+  }
+
+  void setOrderPayType(String v) {
+    orderPayType = v;
+    notifyListeners();
+  }
+
+  void clearOrderSelections() {
+    orderDeliveryType = '';
+    orderBranch = null;
+    orderPayType = '';
+    notifyListeners();
+  }
   List<Branch> branchList = <Branch>[];
   late LocationPermission permission;
   late bool servicePermission = false;

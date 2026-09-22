@@ -175,6 +175,9 @@ class CartProvider extends ChangeNotifier {
         if (r == null) return;
         final res = convertData(r);
         if (r.statusCode == 200) {
+          // The delivery type/branch/payment type this order was placed
+          // with no longer need to be pre-filled for a *next* order.
+          Get.context?.read<HomeProvider>().clearOrderSelections();
           Future(() async {
             await clearBasket();
           }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
@@ -293,6 +296,7 @@ class CartProvider extends ChangeNotifier {
           messageWarning('Төлбөр төлөгдөөгүй байна.');
         } else if (data.contains('paid')) {
           messageComplete('Төлбөр амжилттай төлөгдсөн.');
+          Get.context?.read<HomeProvider>().clearOrderSelections();
           goto(OrderDone(orderNo: convertData(r)['orderNo'].toString()));
         } else {
           messageWarning('Төлбөр төлөгдөөгүй байна.');

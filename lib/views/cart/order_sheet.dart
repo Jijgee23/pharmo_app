@@ -28,6 +28,19 @@ class _OrderSheetState extends State<OrderSheet> {
     final home = context.read<HomeProvider>();
     final cart = context.read<CartProvider>();
     noteController.text = home.note ?? '';
+    // Restore the PA order-sheet selections remembered on HomeProvider from
+    // a previous open of this same sheet (cleared once the order actually
+    // succeeds — see CartProvider.createOrder()/checkPayment()).
+    if (_isPharm) {
+      deliveryType = home.orderDeliveryType;
+      payType = home.orderPayType;
+      final rememberedBranch = home.orderBranch;
+      if (rememberedBranch != null) {
+        _sector = rememberedBranch;
+        phoneController.text = rememberedBranch.phone ?? '';
+        phone2Controller.text = rememberedBranch.phone2 ?? '';
+      }
+    }
     if (cart.isCashOnlyBasket) payType = PayType.cash.value;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Two different endpoints, identical response shape: PA/PM read the
@@ -57,10 +70,13 @@ class _OrderSheetState extends State<OrderSheet> {
     final home = context.read<HomeProvider>();
     await home.getBranches();
     if (!mounted) return;
+    // Already restored from home.orderBranch in initState — don't override
+    // a remembered selection with the auto-picked default.
+    if (_sector.id != -1) return;
     if (home.branches.length == 1) {
       _setBranch(home.branches[0]);
     } else {
-      final main = home.branches.firstWhere((e) => e.isMain == true);
+      final main = home.branches.where((e) => e.isMain == true).firstOrNull;
       if (main != null) _setBranch(main);
     }
   }
@@ -71,6 +87,7 @@ class _OrderSheetState extends State<OrderSheet> {
       phoneController.text = s.phone ?? '';
       phone2Controller.text = s.phone2 ?? '';
     });
+    context.read<HomeProvider>().setOrderBranch(s);
   }
 
   @override
@@ -155,7 +172,10 @@ class _OrderSheetState extends State<OrderSheet> {
                             v: pm.value,
                             icon: pm.icon,
                             isSelected: payType == pm.value,
-                            onTap: () => setState(() => payType = pm.value),
+                            onTap: () {
+                              setState(() => payType = pm.value);
+                              if (_isPharm) context.read<HomeProvider>().setOrderPayType(pm.value);
+                            },
                           ),
                         ))
                     .toList(),
@@ -289,7 +309,10 @@ class _OrderSheetState extends State<OrderSheet> {
                   v: dm['v']!,
                   icon: dm['icon']!,
                   isSelected: deliveryType == dm['v'],
-                  onTap: () => setState(() => deliveryType = dm['v']!),
+                  onTap: () {
+                    setState(() => deliveryType = dm['v']!);
+                    context.read<HomeProvider>().setOrderDeliveryType(dm['v']!);
+                  },
                 ),
               ))
           .toList(),
