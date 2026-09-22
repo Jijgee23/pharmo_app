@@ -47,7 +47,8 @@ class _CartItemState extends State<CartItem> {
               foregroundColor: Colors.red,
               icon: Icons.delete_outline,
               label: 'Устгах',
-              borderRadius: const BorderRadius.horizontal(right: Radius.circular(16)),
+              borderRadius:
+                  const BorderRadius.horizontal(right: Radius.circular(16)),
             ),
           ],
         ),
@@ -68,7 +69,8 @@ class _CartItemState extends State<CartItem> {
                   Expanded(
                     child: Text(
                       item.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -87,7 +89,8 @@ class _CartItemState extends State<CartItem> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _priceInfo('Нэгж үнэ:', toPrice(item.price)),
-                  _priceInfo('Нийт:', toPrice(item.qty * item.price), isTotal: true),
+                  _priceInfo('Нийт:', toPrice(item.qty * item.price),
+                      isTotal: true),
                 ],
               ),
             ],
@@ -108,7 +111,8 @@ class _CartItemState extends State<CartItem> {
         ),
         child: const Text(
           'Зөвхөн бэлнээр',
-          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+          style: TextStyle(
+              color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -124,7 +128,8 @@ class _CartItemState extends State<CartItem> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _stepBtn(Icons.remove, () => changeBasketItem(widget.item.productId, qty - 1)),
+          _stepBtn(Icons.remove,
+              () => changeBasketItem(widget.item.productId, qty - 1)),
           GestureDetector(
             onTap: () => Get.bottomSheet(
               ChangeQtyPad(
@@ -137,11 +142,13 @@ class _CartItemState extends State<CartItem> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
                 qty.toString().replaceAll('.0', ''),
-                style: const TextStyle(fontWeight: FontWeight.w800, color: primary),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w800, color: primary),
               ),
             ),
           ),
-          _stepBtn(Icons.add, () => changeBasketItem(widget.item.productId, qty + 1)),
+          _stepBtn(Icons.add,
+              () => changeBasketItem(widget.item.productId, qty + 1)),
         ],
       ),
     );
@@ -160,9 +167,11 @@ class _CartItemState extends State<CartItem> {
 
   Widget _priceInfo(String label, String value, {bool isTotal = false}) {
     return Column(
-      crossAxisAlignment: isTotal ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          isTotal ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+        Text(label,
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
         Text(
           '$value ₮',
           style: TextStyle(
@@ -204,80 +213,80 @@ class ChangeQtyPad extends StatelessWidget {
   Widget build(BuildContext context) {
     final basket = context.read<CartProvider>();
     Future.delayed(Duration.zero, () => basket.setQTYvalue(initValue));
-    final size = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      constraints: BoxConstraints(
-        maxHeight: context.isLandscape ? size.height - 20 : size.height * 0.65,
-      ),
       child: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 1. Handle Bar
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 15),
-            Text(
-              title ?? 'Тоо ширхэг өөрчлөх',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            if (cashOnly) ...[
-              const SizedBox(height: 12),
-              const CashOnlyWarning(),
-            ],
-            const SizedBox(height: 15),
-
-            // 2. Display
-            Consumer<CartProvider>(
-              builder: (context, b, _) => Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+        top: false,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 1. Handle Bar
+              Container(
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: primary.withOpacity(0.3)),
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                child: Text(
-                  b.qty.text,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    color: primary,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                title ?? 'Тоо ширхэг өөрчлөх',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              if (cashOnly) ...[
+                const SizedBox(height: 12),
+                const CashOnlyWarning(),
+              ],
+              const SizedBox(height: 15),
+
+              // 2. Display
+              Consumer<CartProvider>(
+                builder: (context, b, _) => Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: primary.withOpacity(0.3)),
+                  ),
+                  child: Text(
+                    b.qty.text,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: primary,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            // 3. Numpad - GridView-ийг Expanded дотор багтааж харуулна
-            Expanded(
-              // height: context.heigh * .4,
-              child: GridView.count(
-                physics:
-                    const BouncingScrollPhysics(), // Хэрэв дэлгэц жижиг бол дотроо scroll хийнэ
+              // 3. Numpad - contents ноорго/scroll шаардлагагүйгээр яг
+              // хэрэгцээт өндрөөрөө багтана (shrinkWrap), гаднаа
+              // SingleChildScrollView байгаа тул маш жижиг дэлгэц дээр ч
+              // overflow алдаагүй, зөвхөн шаардлагатай үед scroll хийнэ.
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: (context.isLandscape) ? 5 : 3,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
-                childAspectRatio: 2, // Өндрийг бага зэрэг нэмсэн (1.8-аас 1.6 болгож)
+                childAspectRatio: 2,
                 children: [
-                  ...List.generate(9, (index) => _numBtn(context, (index + 1).toString())),
+                  ...List.generate(
+                      9, (index) => _numBtn(context, (index + 1).toString())),
                   _numBtn(context, '0'),
                   _numBtn(context, '00'),
                   _numBtn(context, '000'),
-                  _actionBtn(Icons.backspace_outlined, () => basket.clear(), Colors.orange),
+                  _actionBtn(Icons.backspace_outlined, () => basket.clear(),
+                      Colors.orange),
                   _numBtn(context, '.', isSpecial: true),
                   _actionBtn(
                     Icons.check,
@@ -286,8 +295,8 @@ class ChangeQtyPad extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -306,7 +315,8 @@ class ChangeQtyPad extends StatelessWidget {
       ),
       child: Text(
         txt,
-        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: primary),
+        style: const TextStyle(
+            fontSize: 22, fontWeight: FontWeight.bold, color: primary),
       ),
     );
   }
