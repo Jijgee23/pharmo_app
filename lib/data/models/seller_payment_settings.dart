@@ -1,9 +1,13 @@
 import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 
-/// GET seller/payment_settings/ — the caller's own supplier's payment
-/// setup: whether QPay is configured, the bank accounts to read out to a
-/// customer paying by transfer, whether the supplier still offers
-/// "Дансаар", and the free-delivery threshold.
+/// Identical response shape shared by two endpoints:
+/// - GET seller/payment_settings/ — the caller's own supplier's payment
+///   setup (Seller/VS ordering on behalf of a customer).
+/// - GET supplier_order_settings/ — the supplier currently selected on the
+///   session's payment setup (Pharmacist/PM ordering from that supplier).
+/// Either way: whether QPay is configured, the bank accounts to read out
+/// to whoever is paying by transfer, whether "Дансаар" is still offered,
+/// and the free-delivery threshold.
 class SellerPaymentSettings {
   final int supplierId;
   final String supplierName;

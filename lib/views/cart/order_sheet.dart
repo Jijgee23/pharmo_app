@@ -30,11 +30,18 @@ class _OrderSheetState extends State<OrderSheet> {
     noteController.text = home.note ?? '';
     if (cart.isCashOnlyBasket) payType = PayType.cash.value;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Bank-transfer account info applies to any buyer role, not just
-      // Seller/VS — a pharmacist paying by transfer needs the supplier's
-      // account details shown the same way.
-      await cart.getSellerPaymentSettings();
-      if (_isPharm) await _loadBranches();
+      // Two different endpoints, identical response shape: PA/PM read the
+      // currently-selected supplier's own settings (supplier_order_settings/),
+      // Seller/VS read their own org's (seller/payment_settings/). Fetched
+      // before the sheet's content settles so the payment-method row can
+      // gate "Дансаар" on can_pay_by_transfer from the first frame that
+      // matters, instead of only after the user might have already tapped it.
+      if (_isPharm) {
+        await cart.getSupplierOrderSettings();
+        await _loadBranches();
+      } else {
+        await cart.getSellerPaymentSettings();
+      }
     });
   }
 
@@ -78,19 +85,25 @@ class _OrderSheetState extends State<OrderSheet> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Scrollbar(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _handleBar(),
-              const SizedBox(height: 20),
-              const Text(
-                'Захиалга баталгаажуулах',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 24),
+      // Stack, not just a trailing widget in the Column: a Positioned close
+      // button sits above the Scrollbar/SingleChildScrollView layer, so it
+      // stays fixed in place (not part of the scrolling content) no matter
+      // how far the sheet is scrolled, including all the way to the end.
+      child: Stack(
+        children: [
+          Scrollbar(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _handleBar(),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Захиалга баталгаажуулах',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 24),
 
               // ── PHARM sections ──────────────────────────────────────
               if (_isPharm) ...[
@@ -135,7 +148,7 @@ class _OrderSheetState extends State<OrderSheet> {
                 const SizedBox(height: 10),
               ],
               Row(
-                children: (cart.isCashOnlyBasket ? [PayType.cash] : paymentMethods)
+                children: _availablePaymentMethods(cart)
                     .map((pm) => Expanded(
                           child: BottomSheetOptionChip(
                             title: pm.name,
@@ -175,14 +188,41 @@ class _OrderSheetState extends State<OrderSheet> {
                       text: 'Захиалга үүсгэх',
                       ontap: () => _submit(home, cart),
                     ),
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: IconButton(
+              onPressed: () => Get.back(),
+              icon: const Icon(Icons.close_rounded, size: 20),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.grey.shade100,
+                foregroundColor: Colors.black87,
+                shape: const CircleBorder(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // ── Sub-widgets ───────────────────────────────────────────────────────
+
+  // "Дансаар" (T) is only ever valid when the relevant supplier's
+  // can_pay_by_transfer says so — it's already the AND of "the supplier
+  // left the option on" and "has a bank account on file", so it must be
+  // read as-is rather than re-derived from bankAccounts. Offering T
+  // anyway gets a 400 from the order endpoints at submit time instead of
+  // a clean, upfront "not offered".
+  List<PayType> _availablePaymentMethods(CartProvider cart) {
+    if (cart.isCashOnlyBasket) return [PayType.cash];
+    final canPayByTransfer = cart.paymentSettings?.canPayByTransfer ?? false;
+    return paymentMethods.where((pm) => pm != PayType.transAccount || canPayByTransfer).toList();
+  }
 
   Widget _handleBar() => Center(
         child: Container(

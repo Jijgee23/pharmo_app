@@ -351,6 +351,23 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
+  // Pharmacy ordering roles (PA) equivalent of getSellerPaymentSettings()
+  // above — different endpoint (describes the supplier currently selected
+  // on the session, not the caller's own org), but an identical response
+  // shape, so it's parsed into the same SellerPaymentSettings/BankAccount
+  // models and stored in the same paymentSettings field OrderSheet already
+  // reads regardless of role.
+  Future<void> getSupplierOrderSettings() async {
+    try {
+      final r = await api(Api.get, 'supplier_order_settings/');
+      if (r == null || r.statusCode != 200) return;
+      paymentSettings = SellerPaymentSettings.fromJson(convertData(r));
+      notifyListeners();
+    } catch (e) {
+      debugPrint('ERROR AT getSupplierOrderSettings: $e');
+    }
+  }
+
   void reset() {
     qty.clear();
     basket = null;
