@@ -252,16 +252,23 @@ class LocationService : Service() {
             }
         }
 
-        // Distance threshold — skipped entirely during turns/roundabouts.
-        // On a curve the chord is shorter than the arc, so distance-based
-        // filtering drops valid points and makes paths look angular.
-        if (!turning && !onCircularPath) {
-            val requiredDistance = calculateDynamicDistance(smoothedLocation.speed)
-            if (distance < requiredDistance) {
-                return FilterResult.Rejected(
-                    "Insufficient distance: ${distance.toInt()}m < ${requiredDistance.toInt()}m"
-                )
-            }
+        // Distance threshold — reduced (not skipped) during turns/roundabouts.
+        // On a curve the chord is shorter than the arc, so the full dynamic
+        // floor drops valid curve points and makes paths look angular; but
+        // accepting ANY distance while "turning" let GPS-noise-triggered
+        // false turns (see isTurnDetected's 8m baseline) through as rapid,
+        // near-zero-distance zig-zag spikes — the main driver of visible
+        // "jumping" in the field. A reduced floor keeps curves smooth while
+        // still rejecting near-duplicate noise.
+        val requiredDistance = if (turning || onCircularPath) {
+            WALKING_SPEED_DISTANCE / 2f
+        } else {
+            calculateDynamicDistance(smoothedLocation.speed)
+        }
+        if (distance < requiredDistance) {
+            return FilterResult.Rejected(
+                "Insufficient distance: ${distance.toInt()}m < ${requiredDistance.toInt()}m"
+            )
         }
 
         // STEP 7: Speed validation (GPS jump detection)
@@ -289,9 +296,13 @@ class LocationService : Service() {
     // ================= TURN DETECTION =================
 
     private fun isTurnDetected(previous: Location, current: Location): Boolean {
-        // Require minimum distance to reliably compute a bearing from coordinates
+        // Require minimum distance to reliably compute a bearing from
+        // coordinates. 3m was too short: under normal GPS noise (well
+        // within MAX_ACCURACY_METERS=25), a bearing computed over such a
+        // short baseline routinely produced spurious >=22° deltas during
+        // genuinely straight driving, falsely entering "turning" mode.
         val dist = current.distanceTo(previous)
-        if (dist < 3f) return false
+        if (dist < 8f) return false
 
         // Direction computed from actual coordinates — reliable regardless of GPS bearing
         val coordBearing = previous.bearingTo(current)

@@ -116,6 +116,15 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
 
         self.eventSink = events
         LocationHandler.setEventSink(events)
+        // The EventChannel resubscribes (app resume from background, hot
+        // stream resubscribe) far more often than a genuine new tracking
+        // session starts. Previously this reset the Kalman filter/anchor
+        // unconditionally on every onListen(), throwing away a good
+        // in-progress trend and reseeding from a fresh unfiltered "WARM UP"
+        // point on every backgrounding — a real, iOS-only jump source.
+        // Android already gets this right (LocationStreamHandler.onListen
+        // only restarts if the service isn't already running); mirror it.
+        let alreadyRunning = LocationHandler.isRunning()
         LocationHandler.setRunning(true)
         os_log("✅ isRunningFlag = true", log: logger, type: .info)
 
@@ -127,13 +136,15 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
             }
         }
 
-        kalmanFilter.reset()
-        lastAcceptedLocation = nil
-        lastBroadcastTime = nil
-        consecutiveTurnCount = 0
-        totalReceived = 0
-        totalAccepted = 0
-        totalRejected = 0
+        if !alreadyRunning {
+            kalmanFilter.reset()
+            lastAcceptedLocation = nil
+            lastBroadcastTime = nil
+            consecutiveTurnCount = 0
+            totalReceived = 0
+            totalAccepted = 0
+            totalRejected = 0
+        }
 
         locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
@@ -252,16 +263,21 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
             }
         }
 
-        // Distance threshold — skipped during turns/roundabouts.
-        // On a curve the chord is shorter than the arc, so distance-based
-        // filtering drops valid points and makes paths look angular.
-        if !turning && !onCircularPath {
-            let requiredDistance = calculateDynamicDistance(for: smoothedLocation.speed)
-            if distance < requiredDistance {
-                return .rejected(
-                    "Insufficient distance: \(Int(distance))m < \(Int(requiredDistance))m"
-                )
-            }
+        // Distance threshold — reduced (not skipped) during turns/roundabouts.
+        // On a curve the chord is shorter than the arc, so the full dynamic
+        // floor drops valid curve points and makes paths look angular; but
+        // accepting ANY distance while "turning" let GPS-noise-triggered
+        // false turns (see isTurnDetected's 8m baseline) through as rapid,
+        // near-zero-distance zig-zag spikes — the main driver of visible
+        // "jumping" in the field. A reduced floor keeps curves smooth while
+        // still rejecting near-duplicate noise. Mirrors Android exactly.
+        let requiredDistance = (turning || onCircularPath)
+            ? walkingSpeedDistance / 2.0
+            : calculateDynamicDistance(for: smoothedLocation.speed)
+        if distance < requiredDistance {
+            return .rejected(
+                "Insufficient distance: \(Int(distance))m < \(Int(requiredDistance))m"
+            )
         }
 
         // STEP 7: Speed validation (GPS jump detection)
@@ -294,8 +310,12 @@ class LocationHandler: NSObject, CLLocationManagerDelegate, FlutterStreamHandler
     // ================= TURN DETECTION =================
 
     private func isTurnDetected(previous: CLLocation, current: CLLocation) -> Bool {
+        // 3m was too short: under normal GPS noise (well within
+        // maxAccuracyMeters=25), a bearing computed over such a short
+        // baseline routinely produced spurious >=22° deltas during
+        // genuinely straight driving, falsely entering "turning" mode.
         let dist = current.distance(from: previous)
-        if dist < 3.0 { return false }
+        if dist < 8.0 { return false }
 
         // Bearing computed from actual coordinates — reliable regardless of GPS course
         let coordBearing = coordinateBearing(from: previous, to: current)
