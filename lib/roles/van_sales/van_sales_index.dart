@@ -14,6 +14,14 @@ class VanSalesIndex extends StatefulWidget {
 
 class _VanSalesIndexState extends State<VanSalesIndex> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async => await context.read<CartProvider>().getBasket(),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
       builder: (context, home, _) {
