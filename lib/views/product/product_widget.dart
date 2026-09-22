@@ -68,11 +68,13 @@ class ProductWidget extends StatelessWidget {
                                     child: Container(
                                       decoration: ShapeDecoration(
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(5),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                         ),
                                         color: primary,
                                       ),
-                                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
                                       child: Text(
                                         toPrice(item.price),
                                         style: TextStyle(
@@ -86,13 +88,16 @@ class ProductWidget extends StatelessWidget {
                                   if (isNotPharm)
                                     Expanded(
                                       flex: 3,
-                                      child: LayoutBuilder(builder: (context, constraints) {
+                                      child: LayoutBuilder(
+                                          builder: (context, constraints) {
                                         return Text(
                                           'Үлд: ${parseDouble(item.qty)}',
                                           style: TextStyle(
                                             fontSize: constraints.maxHeight - 3,
                                             fontWeight: FontWeight.bold,
-                                            color: item.qty > 0 ? Colors.green : Colors.red,
+                                            color: item.qty > 0
+                                                ? Colors.green
+                                                : Colors.red,
                                           ),
                                         );
                                       }),
@@ -109,11 +114,12 @@ class ProductWidget extends StatelessWidget {
                                     title: 'Тоо хэмжээ оруулна уу',
                                     initValue: '',
                                     cashOnly: item.cashOnly,
-                                    onSubmit: (value) async => await addBasket(
-                                      item,
-                                      parseDouble(value),
-                                      context,
-                                    ).then((e) => Navigator.pop(context)),
+                                    onSubmit: (value) async {
+                                      await addBasket(
+                                          item, parseDouble(value), context);
+                                      if (!context.mounted) return;
+                                      Navigator.pop(context);
+                                    },
                                   ),
                                 ),
                                 style: IconButton.styleFrom(
@@ -123,7 +129,9 @@ class ProductWidget extends StatelessWidget {
                                 ),
                                 icon: Icon(
                                   Icons.add,
-                                  color: ContextExtensionss(context).theme.primaryColor,
+                                  color: ContextExtensionss(context)
+                                      .theme
+                                      .primaryColor,
                                 ),
                               ),
                             ),
@@ -144,7 +152,8 @@ class ProductWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 2, horizontal: 5),
                       decoration: BoxDecoration(
                         color: Colors.redAccent,
                         borderRadius: BorderRadius.circular(10),
@@ -165,7 +174,8 @@ class ProductWidget extends StatelessWidget {
                     top: 0,
                     right: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 2, horizontal: 5),
                       decoration: BoxDecoration(
                         color: AppColors.secondary,
                         borderRadius: BorderRadius.circular(10),
@@ -279,7 +289,10 @@ class ProductWidgetListView extends StatelessWidget {
                           child: Text(
                             'Үлд: ${maybeNull(item.qty.toString())}',
                             style: TextStyle(
-                              color: ContextExtensionss(context).theme.colorScheme.onPrimary,
+                              color: ContextExtensionss(context)
+                                  .theme
+                                  .colorScheme
+                                  .onPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                             ),
@@ -297,11 +310,11 @@ class ProductWidgetListView extends StatelessWidget {
                   title: 'Тоо хэмжээ оруулна уу',
                   initValue: '',
                   cashOnly: item.cashOnly,
-                  onSubmit: (value) => addBasket(
-                    item,
-                    parseDouble(value),
-                    context,
-                  ).then((e) => Navigator.pop(context)),
+                  onSubmit: (value) async {
+                    await addBasket(item, parseDouble(value), context);
+                    if (!context.mounted) return;
+                    Navigator.pop(context);
+                  },
                 ),
                 // AddBasketSheet(product: item),
               ),

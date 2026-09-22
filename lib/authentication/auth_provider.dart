@@ -145,7 +145,8 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> logout(BuildContext context, {bool withoutRequest = false}) async {
+  Future<void> logout(BuildContext context,
+      {bool withoutRequest = false}) async {
     try {
       // api() дуудалтыг тэр даруй таслах — async clearSecurity()-г хүлээхгүй
       Authenticator.security = null;
@@ -156,6 +157,7 @@ class AuthController extends ChangeNotifier {
       await Authenticator.removeTokens();
       await Authenticator.clearSecurity();
       await Authenticator.saveLastLoggedIn(false);
+      if (!context.mounted) return;
       context.read<HomeProvider>().reset();
       context.read<CartProvider>().reset();
       context.read<DriverProvider>().reset();
@@ -203,7 +205,12 @@ class AuthController extends ChangeNotifier {
       required String otp,
       required String password}) async {
     try {
-      var body = {'email': email, 'phone': phone, 'otp': otp, 'password': password};
+      var body = {
+        'email': email,
+        'phone': phone,
+        'otp': otp,
+        'password': password
+      };
       final response = await apiPostWithoutToken(registerUrl, body);
       final data = convertData(response!);
       print(data);
@@ -260,6 +267,7 @@ class AuthController extends ChangeNotifier {
       if (response == null) return;
       if (response.statusCode == 200) {
         messageComplete('Нууц үг амжилттай үүслээ');
+        if (!context.mounted) return;
         Navigator.pop(context);
       } else {
         final data = convertData(response);
@@ -333,7 +341,8 @@ class AuthController extends ChangeNotifier {
 
       final formData = FormData.fromMap({
         'license[]': licenseFiles,
-        if (compressedLogo != null) 'logo': await MultipartFile.fromFile(compressedLogo.path),
+        if (compressedLogo != null)
+          'logo': await MultipartFile.fromFile(compressedLogo.path),
         'public_name': publicName,
         'email': ema,
         'password': pass,
@@ -342,7 +351,8 @@ class AuthController extends ChangeNotifier {
         if (additional != null) 'note': additional,
         if (inviCode != null) 'referral_code': inviCode,
         'cType': (type == 'Эмийн сан') ? 'P' : 'S',
-        'address2': jsonEncode({'lat': lat, 'lng': lng, 'address2': address}).toString(),
+        'address2': jsonEncode({'lat': lat, 'lng': lng, 'address2': address})
+            .toString(),
       });
       print(formData.fields);
       print(formData.files);
@@ -358,10 +368,12 @@ class AuthController extends ChangeNotifier {
       print(res.statusCode);
       print(responseBody);
       if (res.statusCode == 200 || res.statusCode == 201) {
-        return buildResponse(1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
+        return buildResponse(
+            1, null, 'Мэдээлэл амжилттай хадгалагдлаа. Нэвтэрнэ үү!');
       } else {
         if (responseBody.contains('already exists')) {
-          return buildResponse(2, null, 'И-Мейл, РД эсвэл нэр давхардаж байна!');
+          return buildResponse(
+              2, null, 'И-Мейл, РД эсвэл нэр давхардаж байна!');
         } else {
           return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
         }

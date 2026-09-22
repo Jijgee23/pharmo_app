@@ -1,5 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/order_history/order_card/order_card.dart';
+import 'package:pharmo_app/views/order_history/order_card/order_card_skeleton.dart';
 
 class SellerOrderHistory extends StatefulWidget {
   const SellerOrderHistory({super.key});
@@ -28,10 +29,15 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
   late AnimationController _controller;
 
   Future init() async {
-    LoadingService.run(() async {
-      final orderProvider = context.read<OrderProvider>();
+    final orderProvider = context.read<OrderProvider>();
+    orderProvider.setLoading(true);
+    try {
       await orderProvider.getSellerOrders();
-    });
+    } catch (e) {
+      throw Exception(e);
+    } finally {
+      orderProvider.setLoading(false);
+    }
   }
 
   @override
@@ -83,13 +89,14 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<OrderProvider, PharmProvider>(
-      builder: (_, provider, pp, child) {
+    return Consumer3<OrderProvider, PharmProvider, HomeProvider>(
+      builder: (_, provider, pp, home, child) {
         return SafeArea(
-          bottom: true,
+          bottom: false,
           child: Column(
             spacing: 10,
             children: [
+              if (context.isLandscape) SizedBox(height: 14),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 7.5,
@@ -101,24 +108,27 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
                   Row(
                     spacing: 10,
                     children: [
-                      ModernField(
-                        hint: '$selectedFilter хайх',
-                        onChanged: (v) {
-                          WidgetsBinding.instance.addPostFrameCallback(
-                            (cb) async {
-                              if (v.isEmpty) {
-                                await provider.getSellerOrders();
-                              } else {
-                                await provider.filterOrder(filter, search.text);
-                              }
-                            },
-                          );
-                        },
-                        controller: search,
-                        suffixIcon: IconButton(
-                          onPressed: selectType,
-                          icon: Icon(
-                            Icons.settings,
+                      Expanded(
+                        child: ModernField(
+                          hint: '$selectedFilter хайх',
+                          onChanged: (v) {
+                            WidgetsBinding.instance.addPostFrameCallback(
+                              (cb) async {
+                                if (v.isEmpty) {
+                                  await provider.getSellerOrders();
+                                } else {
+                                  await provider.filterOrder(
+                                      filter, search.text);
+                                }
+                              },
+                            );
+                          },
+                          controller: search,
+                          suffixIcon: IconButton(
+                            onPressed: selectType,
+                            icon: Icon(
+                              Icons.settings,
+                            ),
                           ),
                         ),
                       ),
@@ -136,25 +146,26 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
                   child: Builder(
                     builder: (context) {
                       if (provider.loading) {
-                        return Center(
-                          child: CircularProgressIndicator.adaptive(),
-                        );
+                        return SkeletonList();
                       }
                       if (provider.sellerOrders.isEmpty) {
                         return Column(children: [NoResult()]);
                       }
-                      return ListView.separated(
-                        padding: EdgeInsets.only(bottom: 100),
-                        scrollDirection: Axis.vertical,
-                        key: _listKey,
-                        separatorBuilder: (context, index) => const SizedBox(height: 10),
-                        shrinkWrap: true,
-                        itemCount: provider.sellerOrders.length,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          final order = provider.sellerOrders[index];
-                          return OrderCard(order: order);
-                        },
+                      return HomeScrollListener(
+                        xchild: ListView.separated(
+                          padding: EdgeInsets.only(bottom: 150),
+                          scrollDirection: Axis.vertical,
+                          key: _listKey,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 10),
+                          shrinkWrap: true,
+                          itemCount: provider.sellerOrders.length,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final order = provider.sellerOrders[index];
+                            return OrderCard(order: order);
+                          },
+                        ),
                       );
                     },
                   ),
@@ -240,10 +251,14 @@ class _SellerOrderHistoryState extends State<SellerOrderHistory>
   _filter() async {
     final orderProvider = context.read<OrderProvider>();
     await orderProvider
-        .filterOrder(!isEnd ? 'end' : 'start', selectedDate.toString().substring(0, 10))
+        .filterOrder(
+            !isEnd ? 'end' : 'start', selectedDate.toString().substring(0, 10))
         .whenComplete(
-          () => Navigator.pop(context),
-        );
+      () {
+        if (!mounted) return;
+        Navigator.pop(context);
+      },
+    );
   }
 
   Widget _smallbutton(String title, Function() ontap) {

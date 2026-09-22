@@ -18,7 +18,8 @@ class _ProductDetailState extends State<ProductDetail> {
   Map<String, dynamic> det = {};
   List<File> images = [];
   int _currentImageIndex = 0;
-  final CarouselSliderController _carouselController = CarouselSliderController();
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
 
   @override
   void initState() {
@@ -91,7 +92,8 @@ class _ProductDetailState extends State<ProductDetail> {
 
                                   // Image Management (for non-pharma)
                                   if (isNotPharma) ...[
-                                    if (isNotPharma) _buildImageManagementCard(home),
+                                    if (isNotPharma)
+                                      _buildImageManagementCard(home),
                                     const SizedBox(height: 80),
                                   ] else
                                     const SizedBox(height: 80),
@@ -257,7 +259,8 @@ class _ProductDetailState extends State<ProductDetail> {
             return Center(
               child: CircularProgressIndicator(
                 value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
                     : null,
               ),
             );
@@ -332,7 +335,10 @@ class _ProductDetailState extends State<ProductDetail> {
               ),
               child: const Text(
                 'Зөвхөн бэлнээр',
-                style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -378,7 +384,9 @@ class _ProductDetailState extends State<ProductDetail> {
       'Ерөнхий нэршил': det['intName']?.toString(),
       'Мастер савалгааны тоо': det['master_box_qty']?.toString(),
       'Үйлдвэрлэгч': det['vndr'] != null ? det['vndr']['name'] : null,
-      'Бөөний үнэ': det['sale_price'] != null ? toPrice(det['sale_price'].toString()) : null,
+      'Бөөний үнэ': det['sale_price'] != null
+          ? toPrice(det['sale_price'].toString())
+          : null,
       'Бөөний тоо': det['sale_qty']?.toString(),
       'Хямдрал дуусах хугацаа': det['discount_expiredate']?.toString(),
     };
@@ -761,7 +769,8 @@ class _ProductDetailState extends State<ProductDetail> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      if (await Permission.camera.isDenied || await Permission.storage.isDenied) {
+      if (await Permission.camera.isDenied ||
+          await Permission.storage.isDenied) {
         await Permission.camera.request();
         await Permission.storage.request();
       }
@@ -806,6 +815,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
       if (res['errorType'] == 0) {
         await _getProductDetail();
+        if (!mounted) return;
         home.refresh(context);
         setState(() => images.clear());
       }
@@ -885,6 +895,7 @@ class _ProductDetailState extends State<ProductDetail> {
         quantity,
       );
 
+      if (!mounted) return;
       Navigator.pop(context);
     } catch (e) {
       message('Алдаа гарлаа');

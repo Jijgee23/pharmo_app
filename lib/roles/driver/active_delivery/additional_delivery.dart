@@ -32,7 +32,9 @@ class _AdditionalDeliveriesState extends State<AdditionalDeliveries> {
             children: [
               _buildHeader(items.length, jagger),
               Expanded(
-                child: hasItems ? _buildItemsList(items) : _buildEmptyState(jagger),
+                child: hasItems
+                    ? _buildItemsList(items)
+                    : _buildEmptyState(jagger),
               ),
             ],
           ),
@@ -175,8 +177,12 @@ class _AdditionalDeliveriesState extends State<AdditionalDeliveries> {
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 15,
-                          color: item.note.isNotEmpty ? Colors.black87 : Colors.grey,
-                          fontStyle: item.note.isEmpty ? FontStyle.italic : FontStyle.normal,
+                          color: item.note.isNotEmpty
+                              ? Colors.black87
+                              : Colors.grey,
+                          fontStyle: item.note.isEmpty
+                              ? FontStyle.italic
+                              : FontStyle.normal,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -349,7 +355,8 @@ class _AdditionalDeliveriesState extends State<AdditionalDeliveries> {
                     color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.add_location_alt, color: Colors.green),
+                  child:
+                      const Icon(Icons.add_location_alt, color: Colors.green),
                 ),
                 const SizedBox(width: 12),
                 const Expanded(
@@ -396,6 +403,7 @@ class _AdditionalDeliveriesState extends State<AdditionalDeliveries> {
                 onPressed: () async {
                   await jagger.registerAdditionalDelivery(noteController.text);
                   noteController.clear();
+                  if (!mounted) return;
                   Navigator.pop(context);
                 },
                 icon: const Icon(Icons.check),
@@ -506,7 +514,8 @@ class _AdditionalDeliveriesState extends State<AdditionalDeliveries> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  jagger.editAdditionalDelivery(item.id, editNoteController.text);
+                  jagger.editAdditionalDelivery(
+                      item.id, editNoteController.text);
                   Navigator.pop(context);
                 },
                 icon: const Icon(Icons.save),

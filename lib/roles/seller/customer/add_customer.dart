@@ -55,7 +55,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   }
 
   Future<void> _submit() async {
-    if (_name.text.isEmpty || _rn.text.isEmpty || _email.text.isEmpty || _phone.text.isEmpty) {
+    if (_name.text.isEmpty ||
+        _rn.text.isEmpty ||
+        _email.text.isEmpty ||
+        _phone.text.isEmpty) {
       messageWarning('Бүртгэл гүйцээнээ үү!');
       return;
     }
@@ -75,6 +78,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     if (cust) {
       setState(() => _loading = false);
       await pp.fetchCustomers();
+      if (!mounted) return;
       Navigator.pop(context);
     }
     if (mounted) {
@@ -168,7 +172,8 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 ),
               ],
               const SizedBox(height: 28),
-              _SubmitButton(loading: _loading, onTap: _submit, primary: primary),
+              _SubmitButton(
+                  loading: _loading, onTap: _submit, primary: primary),
             ],
           ),
         ),
@@ -359,7 +364,8 @@ class InputState extends State<Input> {
                   color: Colors.grey.shade400,
                   fontWeight: FontWeight.w400,
                 ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
               ),
             ),
           ),
@@ -425,7 +431,8 @@ class _SubmitButton extends StatelessWidget {
   final VoidCallback onTap;
   final Color primary;
 
-  const _SubmitButton({required this.loading, required this.onTap, required this.primary});
+  const _SubmitButton(
+      {required this.loading, required this.onTap, required this.primary});
 
   @override
   Widget build(BuildContext context) {

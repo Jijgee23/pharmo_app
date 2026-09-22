@@ -33,7 +33,8 @@ class _OrdererCardState extends State<OrdererCard> {
             .toSet()
             .toList();
 
-        final deliveredCount = ordererOrders.where((o) => o.process == 'D').length;
+        final deliveredCount =
+            ordererOrders.where((o) => o.process == 'D').length;
         final totalCount = ordererOrders.length;
         final progress = totalCount > 0 ? deliveredCount / totalCount : 0.0;
 
@@ -111,7 +112,8 @@ class _OrdererCardState extends State<OrdererCard> {
                     ),
                     const SizedBox(height: 12),
                     _buildProgressBar(progress),
-                    if (widget.user != null && !widget.user!.id.contains('p')) ...[
+                    if (widget.user != null &&
+                        !widget.user!.id.contains('p')) ...[
                       const SizedBox(height: 12),
                       _buildPaymentButton(jagger),
                     ],
@@ -426,6 +428,7 @@ class _OrdererCardState extends State<OrdererCard> {
       await jagger.addCustomerPayment(type, amount, customerId);
       setSelected('E', 'e');
       amountCr.clear();
+      if (!mounted) return;
       Navigator.pop(context);
     }
   }

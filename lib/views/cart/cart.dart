@@ -1,4 +1,7 @@
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/van_sales/van_sales_index.dart';
+import 'package:pharmo_app/views/index.dart';
+import 'package:pharmo_app/views/order_history/order_card/order_card_skeleton.dart';
 
 class Cart extends StatefulWidget {
   const Cart({super.key});
@@ -20,14 +23,21 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
   }
 
   Future<void> init() async {
-    LoadingService.run(() async {
-      await context.read<CartProvider>().getBasket();
+    final cart = context.read<CartProvider>();
+    cart.setLoading(true);
+    try {
+      await cart.getBasket();
       final user = Authenticator.security;
       if (user == null) return;
       if (user.isPharmacist) {
+        if (!mounted) return;
         await context.read<HomeProvider>().getBranches();
       }
-    });
+    } catch (e) {
+      throw Exception(e);
+    } finally {
+      cart.setLoading(false);
+    }
   }
 
   @override
@@ -46,65 +56,96 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
         return Scaffold(
           backgroundColor: Colors.grey.shade50,
           appBar: const SideAppBar(text: 'Миний сагс'),
-          bottomNavigationBar: !basketIsEmpty
-              ? IntrinsicHeight(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: Colors.grey.shade200,
+          body: Stack(
+            children: [
+              RefreshIndicator.adaptive(
+                onRefresh: init,
+                child: Builder(
+                  builder: (context) {
+                    if (provider.loading) {
+                      return SkeletonList();
+                    }
+                    if (basketIsEmpty) {
+                      return _buildEmptyState();
+                    }
+                    return Column(
+                      children: [
+                        // Сагсны нийт мэдээллийг дээр нь тогтмол байршуулна
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(12, 12, 12, 0),
+                          child: CartInfo(),
                         ),
-                      ),
-                    ),
-                    padding: EdgeInsets.all(20),
-                    child: SafeArea(
-                      child: Column(
-                        spacing: 10,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (user!.isPharmacist)
-                            BottomSheetLabelBuilder('Сонгосон нийлүүлэгч: ${home.picked.name}'),
-                          Expanded(
-                            child: CustomButton(
-                              text: "Захиалга үүсгэх",
-                              ontap: () => placeOrder(context),
-                            ),
+                        Expanded(
+                          child: ListView(
+                            padding: const EdgeInsets.fromLTRB(12, 12, 12, 100),
+                            physics: AlwaysScrollableScrollPhysics(),
+                            children: _buildCartSections(cartDatas),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : null,
-          body: RefreshIndicator.adaptive(
-            onRefresh: init,
-            child: basketIsEmpty
-                ? _buildEmptyState()
-                : Column(
-                    children: [
-                      // Сагсны нийт мэдээллийг дээр нь тогтмол байршуулна
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(12, 12, 12, 0),
-                        child: CartInfo(),
-                      ),
-
-                      // Сагсан дахь бүтээгдэхүүнүүд
-                      Expanded(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(12),
-                          physics:
-                              const AlwaysScrollableScrollPhysics(), // Refresh хийхэд заавал хэрэгтэй
-                          itemCount: cartDatas.length,
-                          itemBuilder: (context, index) {
-                            return CartItem(item: cartDatas[index]);
-                          },
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              if (!basketIsEmpty)
+                StartOrder(
+                  isPharmacist: user!.isPharmacist,
+                  emptyBasket: basketIsEmpty,
+                  handler: () => placeOrder(context),
+                  onClearBasket: () async {
+                    final confirmed = await confirmDialog(
+                      title: 'Захиалгын сагсыг хоослох уу?',
+                    );
+                    if (confirmed) {
+                      await provider.clearBasket();
+                      await provider.getBasket();
+                    }
+                  },
+                  supplierName: home.picked.name,
+                )
+            ],
           ),
         );
       },
+    );
+  }
+
+  List<Widget> _buildCartSections(List<dynamic> cartDatas) {
+    final items = cartDatas.cast<CartItemModel>();
+    final cashOnlyItems = items.where((e) => e.cashOnly).toList();
+    final otherItems = items.where((e) => !e.cashOnly).toList();
+    final hasBothGroups = cashOnlyItems.isNotEmpty && otherItems.isNotEmpty;
+    return [
+      if (cashOnlyItems.isNotEmpty) ...[
+        _sectionHeader('Зөвхөн бэлнээр төлөгдөх', Colors.redAccent),
+        const SizedBox(height: 8),
+        ...cashOnlyItems.map((e) => CartItem(item: e)),
+      ],
+      if (otherItems.isNotEmpty) ...[
+        if (hasBothGroups) ...[
+          const SizedBox(height: 4),
+          _sectionHeader('Бусад бараа', Colors.grey),
+          const SizedBox(height: 8),
+        ],
+        ...otherItems.map((e) => CartItem(item: e)),
+      ],
+    ];
+  }
+
+  Widget _sectionHeader(String title, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4, left: 4),
+      child: Row(
+        children: [
+          Icon(Icons.circle, size: 8, color: color),
+          const SizedBox(width: 6),
+          Text(
+            title,
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: color),
+          ),
+        ],
+      ),
     );
   }
 
@@ -114,6 +155,40 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
       children: [
         SizedBox(height: MediaQuery.of(context).size.height * 0.2),
         const EmptyBasket(), // Таны өмнөх Empty State widget
+        SizedBox(height: 20),
+        Row(
+          children: [
+            Spacer(),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  final home = context.read<HomeProvider>();
+                  final user = Authenticator.security;
+                  home.changeIndex(user!.isPharmacist
+                      ? 0
+                      : user.isVanSales
+                          ? 1
+                          : 2);
+                  home.setHidingOnScroll(false);
+                  gotoRemoveUntil(
+                      user.isVanSales ? VanSalesIndex() : IndexPharma());
+                },
+                style: ElevatedButton.styleFrom(
+                  maximumSize: Size(150, 48),
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text('Бараа үзэх', style: TextStyle(fontSize: 14)),
+                    Icon(Icons.chevron_right_rounded, color: white),
+                  ],
+                ),
+              ),
+            ),
+            Spacer(),
+          ],
+        )
       ],
     );
   }
@@ -126,20 +201,95 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
     await provider.getBasket();
 
     // Үнийн дүнгийн шалгалт
-    double totalPrice = double.tryParse(provider.basket?.totalPrice.toString() ?? '0') ?? 0;
+    double totalPrice =
+        double.tryParse(provider.basket?.totalPrice.toString() ?? '0') ?? 0;
 
     if (totalPrice < 10) {
       messageWarning('Захиалгын доод дүн 10₮ байна!');
       return;
     }
 
-    // Role-оос хамаарч Order Sheet харуулах
     await Get.bottomSheet(
-      security.role == 'PA' ? const PharmOrderSheet() : const SellerOrderSheet(),
-      isScrollControlled: true, // Sheet бүтэн харагдахад тусална
+      const OrderSheet(),
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+    );
+  }
+}
+
+class StartOrder extends StatelessWidget {
+  final bool isPharmacist, emptyBasket;
+  final Function() handler, onClearBasket;
+  final String supplierName;
+  const StartOrder({
+    super.key,
+    required this.isPharmacist,
+    required this.emptyBasket,
+    required this.handler,
+    required this.supplierName,
+    required this.onClearBasket,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (emptyBasket) return SizedBox.shrink();
+    return Positioned(
+      bottom: 20,
+      width: MediaQuery.of(context).size.width,
+      left: 0,
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: IconButton(
+                color: white,
+                style: IconButton.styleFrom(
+                  shape: CircleBorder(),
+                  padding: EdgeInsets.all(12),
+                  backgroundColor: Colors.redAccent,
+                ),
+                onPressed: onClearBasket,
+                icon: Icon(Icons.delete_rounded),
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kToolbarHeight),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 14),
+                ),
+                onPressed: handler,
+                child: Row(
+                  spacing: 12,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(6),
+                      decoration:
+                          BoxDecoration(color: white, shape: BoxShape.circle),
+                      child: Icon(
+                        Icons.shopping_basket,
+                        color: AppColors.cleanBlack,
+                      ),
+                    ),
+                    Text(
+                      'Захиалах',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                    ),
+                    SizedBox.shrink()
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ).marginSymmetric(horizontal: 20),
       ),
     );
   }

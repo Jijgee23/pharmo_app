@@ -76,7 +76,8 @@ class HomeProvider extends ChangeNotifier {
   void refresh(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
-        final promotion = Provider.of<PromotionProvider>(context, listen: false);
+        final promotion =
+            Provider.of<PromotionProvider>(context, listen: false);
         clearItems();
         setPageKey(1);
         fetchProducts();
@@ -137,7 +138,9 @@ class HomeProvider extends ChangeNotifier {
       if (r.statusCode == 200) {
         final res = convertData(r);
         totalCount = res['count'] ?? 0;
-        final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        final prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         return prods;
       }
     } catch (e) {
@@ -149,13 +152,16 @@ class HomeProvider extends ChangeNotifier {
   Future<List<Product>> searchProducts(String query) async {
     try {
       if (query.isNotEmpty) {
-        final url = 'products/search/?k=$queryType&v=$query&page=$pageKey&page_size=$pageSize';
+        final url =
+            'products/search/?k=$queryType&v=$query&page=$pageKey&page_size=$pageSize';
         final r = await api(Api.get, url);
         if (r == null) return [];
         if (r.statusCode == 200) {
           final res = convertData(r);
           totalCount = res['count'] ?? 0;
-          final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+          final prods = (res['results'] as List)
+              .map((data) => Product.fromJson(data))
+              .toList();
           return prods;
         }
       }
@@ -172,7 +178,9 @@ class HomeProvider extends ChangeNotifier {
       if (r == null) return;
       if (r.statusCode == 200) {
         final res = convertData(r);
-        final prods = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        final prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         clearItems();
         fetchedItems.addAll(prods);
         return prods;
@@ -272,9 +280,14 @@ class HomeProvider extends ChangeNotifier {
       if (r == null) return;
       if (r.statusCode == 200) {
         Map res = convertData(r);
-        categories = (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
-        mnfrs = (res['mnfrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
-        vndrs = (res['vndrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
+        categories =
+            (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
+        mnfrs = (res['mnfrs'] as List)
+            .map((e) => Manufacturer.fromJson(e))
+            .toList();
+        vndrs = (res['vndrs'] as List)
+            .map((e) => Manufacturer.fromJson(e))
+            .toList();
         notifyListeners();
       }
     } catch (e) {
@@ -285,11 +298,13 @@ class HomeProvider extends ChangeNotifier {
 // Бараа ангиллаар шүүх
   filter(String type, int filters, int page, int pageSize) async {
     try {
-      final r = await api(Api.get, 'products/?$type=[$filters]&page=$page&page_size=$pageSize');
+      final r = await api(
+          Api.get, 'products/?$type=[$filters]&page=$page&page_size=$pageSize');
       if (r!.statusCode == 200) {
         Map res = convertData(r);
-        List<Product> prods =
-            (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         return prods;
       }
     } catch (e) {
@@ -299,11 +314,13 @@ class HomeProvider extends ChangeNotifier {
 
   filterCate(int id, int page, int pageSize) async {
     try {
-      final r = await api(Api.get, 'products/?category=[$id]&page=$page&page_size=$pageSize');
+      final r = await api(
+          Api.get, 'products/?category=[$id]&page=$page&page_size=$pageSize');
       if (r!.statusCode == 200) {
         Map<String, dynamic> res = convertData(r);
-        List<Product> prods =
-            (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        List<Product> prods = (res['results'] as List)
+            .map((data) => Product.fromJson(data))
+            .toList();
         return prods;
       }
     } catch (e) {
@@ -328,7 +345,8 @@ class HomeProvider extends ChangeNotifier {
         final user = Authenticator.security;
         if (user == null) return;
         if (user.isPharmacist) {
-          supliers = (data as List).map((sup) => Supplier.fromJson(sup)).toList();
+          supliers =
+              (data as List).map((sup) => Supplier.fromJson(sup)).toList();
         } else {
           supliers = (data as List)
               .map((sup) => Supplier.fromJson(sup))
@@ -362,6 +380,7 @@ class HomeProvider extends ChangeNotifier {
       );
       await Authenticator.updateStock(sup.id, stock.id);
       await Authenticator.initAuthenticator();
+      if (!context.mounted) return;
       final promotion = context.read<PromotionProvider>();
       final basket = context.read<CartProvider>();
       await promotion.getMarkedPromotion();
@@ -381,7 +400,8 @@ class HomeProvider extends ChangeNotifier {
       );
       if (res == null) return;
       if (res.statusCode == 200) {
-        branchList = (convertData(res) as List).map((j) => Branch.fromJson(j)).toList();
+        branchList =
+            (convertData(res) as List).map((j) => Branch.fromJson(j)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -392,8 +412,10 @@ class HomeProvider extends ChangeNotifier {
 
   Future getPosition() async {
     _currentLocation = await _getCurrentLocation();
-    currentLatitude = double.parse(_currentLocation!.latitude.toStringAsFixed(6));
-    currentLongitude = double.parse(_currentLocation!.longitude.toStringAsFixed(6));
+    currentLatitude =
+        double.parse(_currentLocation!.latitude.toStringAsFixed(6));
+    currentLongitude =
+        double.parse(_currentLocation!.longitude.toStringAsFixed(6));
   }
 
   Future<Position> _getCurrentLocation() async {
@@ -408,9 +430,11 @@ class HomeProvider extends ChangeNotifier {
 
   deactiveUser(String password, BuildContext context) async {
     try {
-      final r = await api(Api.patch, 'auth/delete_user_account/', body: {'pwd': password});
+      final r = await api(Api.patch, 'auth/delete_user_account/',
+          body: {'pwd': password});
       if (r == null) return;
       if (r.statusCode == 200) {
+        if (!context.mounted) return;
         AuthController().logout(context);
         messageWarning(
           '${Authenticator.security!.email} и-мейл хаягтай таний бүртгэл устгагдлаа',
@@ -457,8 +481,9 @@ class HomeProvider extends ChangeNotifier {
           // - this only decides whether to resolve payment before
           // treating checkout as "done".
           final subOrders = SellerSubOrder.listFrom(res);
-          final needsPayment =
-              subOrders.where((o) => o.requiresPayment && o.qpay != null).firstOrNull;
+          final needsPayment = subOrders
+              .where((o) => o.requiresPayment && o.qpay != null)
+              .firstOrNull;
           if (needsPayment != null) {
             goto(SellerQpayPage(
               orderId: needsPayment.id,
@@ -540,12 +565,14 @@ class HomeScrollListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
-      builder: (context, home, child) => NotificationListener<UserScrollNotification>(
+      builder: (context, home, child) =>
+          NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
           if (notification.direction == ScrollDirection.idle) {
             return false;
           }
-          home.setHidingOnScroll(notification.direction != ScrollDirection.forward);
+          home.setHidingOnScroll(
+              notification.direction != ScrollDirection.forward);
           return false;
         },
         child: xchild,

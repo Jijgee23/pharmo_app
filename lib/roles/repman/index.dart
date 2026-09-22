@@ -62,6 +62,7 @@ class _IndexRepState extends State<IndexRep> {
         text: 'Бүртгэх',
         ontap: () async {
           await rep.addVisit(note.text);
+          if (!mounted) return;
           Navigator.pop(context);
           setState(() {
             note.clear();
@@ -73,7 +74,8 @@ class _IndexRepState extends State<IndexRep> {
   }
 
   appBarSingleText(String v) {
-    return Text(v, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
+    return Text(v,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18));
   }
 
   List<String> icons = [AssetIcon.category, AssetIcon.user];

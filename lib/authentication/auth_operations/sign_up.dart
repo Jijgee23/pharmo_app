@@ -174,6 +174,7 @@ class _SignUpState extends State<SignUp> {
       );
       if (res['errorType'] == 1) {
         messageComplete(res['message']);
+        if (!mounted) return;
         Navigator.pop(context);
       } else {
         messageWarning(res['message']);

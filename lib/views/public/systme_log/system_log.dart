@@ -15,7 +15,10 @@ class _SystemLogState extends State<SystemLog> {
   }
 
   void _fetchLogs() {
-    Future.microtask(() => context.read<LogProvider>().getLogs());
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<LogProvider>().getLogs();
+    });
   }
 
   @override

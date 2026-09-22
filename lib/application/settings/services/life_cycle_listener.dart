@@ -3,7 +3,8 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:pharmo_app/application/application.dart';
 
-class LifeCycleListener extends ChangeNotifier implements WidgetsBindingObserver {
+class LifeCycleListener extends ChangeNotifier
+    implements WidgetsBindingObserver {
   final LogService logService = LogService();
 
   LifeCycleListener() {
@@ -29,16 +30,18 @@ class LifeCycleListener extends ChangeNotifier implements WidgetsBindingObserver
     if (state == AppLifecycleState.paused) {
       bool isSharingLocation = await Authenticator.hasTrack();
       if (isSharingLocation) {
-        final logType = Authenticator.security!.isSaler ? 'Борлуулалт' : 'Түгээлт';
+        final logType =
+            Authenticator.security!.isSaler ? 'Борлуулалт' : 'Түгээлт';
         await logService.createLog(
           logType,
           'Байршил дамжуулах явцад бусад апп руу шилжсэн.  (${DateTime.now().toIso8601String()})',
         );
       }
     }
-    if (state == AppLifecycleState.resumed || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.resumed ||
+        state == AppLifecycleState.inactive) {
       print('APP RESUMED, HAS CONTEXT: ${context != null} ');
-      if (context != null) resumeWhenHasTrack(context);
+      if (context != null && context.mounted) resumeWhenHasTrack(context);
     }
   }
 

@@ -250,6 +250,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     );
     messageWarning(res['message']);
     if (res['errorType'] == 1) {
+      if (!mounted) return;
       Navigator.pop(context);
     }
   }

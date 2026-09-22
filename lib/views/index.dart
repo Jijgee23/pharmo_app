@@ -1,5 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/SELLER/customer/customers.dart';
+import 'package:pharmo_app/authentication/login/login.dart';
+import 'package:pharmo_app/roles/seller/customer/customers.dart';
 import 'package:pharmo_app/views/home/home.dart';
 import 'package:pharmo_app/views/order_history/order_history.dart';
 import 'package:pharmo_app/views/profile/profile.dart';
@@ -27,12 +28,14 @@ class _IndexPharmaState extends State<IndexPharma> {
     final home = context.read<HomeProvider>();
     await cart.getBasket();
     await home.getSuppliers();
+    if (!mounted) return;
     if (security.supplierId != null || security.byId != null) {
       final sId = security.supplierId ?? security.byId;
       final sup = home.supliers.firstWhere((e) => e.id == security.supplierId);
       home.setSupplier(sup);
       final findedSup = home.supliers.firstWhere((sup) => sup.id == sId);
-      final findedStock = findedSup.stocks.firstWhere((stock) => stock.id == security.stockId);
+      final findedStock =
+          findedSup.stocks.firstWhere((stock) => stock.id == security.stockId);
       if (findedSup != null && findedStock != null) {
         home.setSupplier(findedSup);
         home.setStock(findedStock);
@@ -60,9 +63,10 @@ class _IndexPharmaState extends State<IndexPharma> {
       builder: (context, home, _) {
         final security = Authenticator.security;
         if (security == null) {
-          return Scaffold();
+          return LoginPage();
         }
         return Scaffold(
+          extendBody: true,
           body: Stack(
             children: [
               Center(
@@ -73,9 +77,10 @@ class _IndexPharmaState extends State<IndexPharma> {
                   const Profile(),
                 ][home.currentIndex],
               ),
-              Positioned(
-                bottom: 10,
-                right: 10,
+              AnimatedPositioned(
+                duration: Duration(milliseconds: 300),
+                bottom: 100,
+                right: home.hidingOnScroll ? -60 : 10,
                 child: SafeArea(
                   child: Column(
                     spacing: 10,
@@ -95,21 +100,27 @@ class _IndexPharmaState extends State<IndexPharma> {
                     ],
                   ),
                 ),
-              )
-            ],
-          ),
-          bottomNavigationBar: BottomBar(
-            icons: [
-              if (!security.isPharmacist) AssetIcon.users,
-              AssetIcon.category,
-              AssetIcon.orderHistory,
-              AssetIcon.user
-            ],
-            labels: [
-              if (!security.isPharmacist) 'Харилцагч',
-              'Бараа',
-              'Түүх',
-              'Профайл',
+              ),
+              AnimatedPositioned(
+                duration: Duration(milliseconds: 300),
+                bottom: home.hidingOnScroll ? -120 : 0,
+                left: 0,
+                right: 0,
+                child: BottomBar(
+                  icons: [
+                    if (!security.isPharmacist) AssetIcon.users,
+                    AssetIcon.category,
+                    AssetIcon.orderHistory,
+                    AssetIcon.user,
+                  ],
+                  labels: [
+                    if (!security.isPharmacist) 'Харилцагч',
+                    'Бараа',
+                    'Түүх',
+                    'Профайл',
+                  ],
+                ),
+              ),
             ],
           ),
         );

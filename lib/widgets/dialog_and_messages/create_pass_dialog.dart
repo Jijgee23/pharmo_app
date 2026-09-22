@@ -94,6 +94,7 @@ class _CreatePassDialogState extends State<CreatePassDialog> {
                       await auth.createPassword(email, otp, password, context);
                   messageComplete(cp['message']);
                   if (cp['errorType'] == 1) {
+                    if (!context.mounted) return;
                     Navigator.pop(context);
                   }
                 } else if (password2 != password) {

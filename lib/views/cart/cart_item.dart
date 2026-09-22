@@ -15,6 +15,7 @@ class _CartItemState extends State<CartItem> {
       title: 'Барааг сагснаас хасах уу?',
     );
     if (!confirmed) return;
+    if (!mounted) return;
     final basket = context.read<CartProvider>();
     await basket.removeBasketItem(itemId: widget.item.id);
   }

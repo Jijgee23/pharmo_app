@@ -64,6 +64,7 @@ class _SellerQpayPageState extends State<SellerQpayPage> {
   Future<void> _skip() async {
     final reason = await _askSkipReason();
     if (reason == null || reason.trim().isEmpty) return;
+    if (!mounted) return;
     setState(() => _busy = true);
     final cart = context.read<CartProvider>();
     final ok = await cart.skipSellerQpay(widget.orderId, reason.trim());
