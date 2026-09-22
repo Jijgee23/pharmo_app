@@ -89,15 +89,14 @@
             android:foregroundServiceType="location"/>
 
         <!-- Boot receiver to auto-restart location tracking -->
-        <!-- <receiver
+        <receiver
             android:name=".BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
-        </receiver> -->
+        </receiver>
     </application>
 
 </manifest>
-        <!-- // android:enabled="true" -->

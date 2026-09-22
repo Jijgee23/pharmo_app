@@ -11,19 +11,25 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
+import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import io.flutter.plugin.common.EventChannel
 import kotlin.math.sqrt
 
-class LocationService : Service(), LocationListener {
+class LocationService : Service() {
 
-    private lateinit var locationManager: LocationManager
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var locationCallback: LocationCallback? = null
     private var isUpdating = false
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -92,18 +98,24 @@ class LocationService : Service(), LocationListener {
   
     override fun onCreate() {
         super.onCreate()
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         ensureNotificationChannel()
         Log.i(TAG, "LocationService created")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "LocationService starting...")
-        
+
         // ✅ CRITICAL: Set running flag
         isRunningFlag = true
         Log.i(TAG, "✅ isRunningFlag = true")
-        
+
+        // Remember tracking was on, so BootReceiver can resume it after a device restart.
+        getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean("tracking_enabled", true)
+            .apply()
+
         // Wait a bit for EventSink to be set
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             if (eventSink == null) {
@@ -128,7 +140,12 @@ class LocationService : Service(), LocationListener {
         // ✅ CRITICAL: Clear running flag
         isRunningFlag = false
         Log.i(TAG, "✅ isRunningFlag = false")
-        
+
+        getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean("tracking_enabled", false)
+            .apply()
+
         stopLocationUpdates()
         releaseWakeLock()
         setEventSink(null)
@@ -142,7 +159,7 @@ class LocationService : Service(), LocationListener {
 
     // ================= MAIN LOCATION CALLBACK =================
 
-    override fun onLocationChanged(location: Location) {
+    private fun onLocationChanged(location: Location) {
         totalReceived++
 
         // ✅ Better EventSink check with detailed logging
@@ -338,29 +355,38 @@ class LocationService : Service(), LocationListener {
             Log.w(TAG, "Location updates already running")
             return
         }
-        
+
         isUpdating = true
 
-        // Request updates from GPS provider
-        locationManager.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER,
-            1000L, // OS filter: 1 second (we filter in app)
-            0f, // No OS distance filter (we filter in app)
-            this
-        )
+        // Fused provider: blends GPS/WiFi/cell, degrades more gracefully indoors
+        // and uses less battery than a raw GPS_PROVIDER request.
+        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000L)
+            .setMinUpdateIntervalMillis(1000L) // OS filter: 1 second (we filter in app)
+            .setMinUpdateDistanceMeters(0f) // No OS distance filter (we filter in app)
+            .build()
 
-        Log.i(TAG, "✅ Location updates started with Kalman filtering")
+        val callback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                result.lastLocation?.let { this@LocationService.onLocationChanged(it) }
+            }
+        }
+        locationCallback = callback
+
+        fusedLocationClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
+
+        Log.i(TAG, "✅ Location updates started with Kalman filtering (FusedLocationProviderClient)")
     }
 
     private fun stopLocationUpdates() {
         if (!isUpdating) return
-        
-        locationManager.removeUpdates(this)
+
+        locationCallback?.let { fusedLocationClient.removeLocationUpdates(it) }
+        locationCallback = null
         isUpdating = false
         lastAcceptedLocation = null
         consecutiveTurnCount = 0
         kalmanFilter.reset()
-        
+
         Log.i(TAG, "✅ Location updates stopped")
     }
 
@@ -480,15 +506,6 @@ class LocationService : Service(), LocationListener {
         Log.d(TAG, "✅ WakeLock released")
     }
 
-    // ================= LOCATION PROVIDER CALLBACKS =================
-
-    override fun onProviderEnabled(provider: String) {
-        Log.i(TAG, "✅ Provider enabled: $provider")
-    }
-
-    override fun onProviderDisabled(provider: String) {
-        Log.w(TAG, "⚠️ Provider disabled: $provider")
-    }
 }
 
 
