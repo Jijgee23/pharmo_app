@@ -44,4 +44,15 @@ class TrackData extends HiveObject {
   }
 
   void updateSended() {}
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrackData &&
+          other.latitude == latitude &&
+          other.longitude == longitude &&
+          other.date == date);
+
+  @override
+  int get hashCode => Object.hash(latitude, longitude, date);
 }

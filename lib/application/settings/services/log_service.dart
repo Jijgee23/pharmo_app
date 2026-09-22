@@ -17,13 +17,21 @@ class LogService {
   }
 
   Future createLog(String logType, String desc) async {
-    // if (!await isOnline()) {
-    //   await saveModel(LogModel(logType: logType, desc: desc));
-    //   return;
-    // }
     final user = Authenticator.security;
     if (user == null) return;
     if (user.isPharmacist) return;
+
+    // The scenarios this is most often called for (connection dropped,
+    // permission revoked while offline) are exactly the scenarios most
+    // likely to make the POST below fail — check connectivity up front so
+    // those calls queue immediately instead of round-tripping to a
+    // guaranteed-null response first.
+    final hasInternet = await NetworkChecker.hasInternet();
+    if (!hasInternet) {
+      await saveModel(LogModel(logType: logType, desc: desc));
+      return;
+    }
+
     final String deviceToken = await Authenticator.getDeviceToken();
     var r = await api(
       Api.post,
@@ -34,7 +42,12 @@ class LogService {
         "desc": desc,
       },
     );
-    if (r == null) return;
+    if (r == null) {
+      // Timed out/threw despite the connectivity check above (flaky
+      // connection) — queue instead of dropping the entry entirely.
+      await saveModel(LogModel(logType: logType, desc: desc));
+      return;
+    }
     if (r.statusCode == 200 || r.statusCode == 201) {
       debugPrint("log created: $logType");
       final savedLogs = await getList();
@@ -49,7 +62,7 @@ class LogService {
             "desc": log.desc,
           },
         );
-        if (k!.statusCode == 201 || k.statusCode == 200) {
+        if (k != null && (k.statusCode == 201 || k.statusCode == 200)) {
           await deleteModel(log);
         }
       }

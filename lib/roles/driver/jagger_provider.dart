@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
@@ -36,6 +37,7 @@ class JaggerProvider extends ChangeNotifier {
 
   // TRACKING
   StreamSubscription? subscription;
+  Timer? _permissionCheckTimer;
   late final Box<TrackData> trackBox;
 
   Position? currentPosition;
@@ -48,12 +50,29 @@ class JaggerProvider extends ChangeNotifier {
   LocationPermission? permission;
   LocationAccuracyStatus? accuracy;
 
+  bool _isGrantedPermission(LocationPermission? value) =>
+      value == LocationPermission.always || value == LocationPermission.whileInUse;
+
   Future loadPermission() async {
+    final previous = permission;
     final value = await Geolocator.checkPermission();
     permission = value;
-    if (value == LocationPermission.always || value == LocationPermission.whileInUse) {
+    if (_isGrantedPermission(value)) {
       final newAccuracy = await Geolocator.getLocationAccuracy();
       accuracy = newAccuracy;
+    }
+
+    // A user can revoke location permission from system Settings while a
+    // tracking session stays active in the background — the app never
+    // observes that unless something diffs old vs. new permission here.
+    if (_isGrantedPermission(previous) &&
+        !_isGrantedPermission(value) &&
+        trackState == TrackState.tracking) {
+      final isSeller = Authenticator.security?.isSaler ?? false;
+      await logService.createLog(
+        isSeller ? 'Борлуулалт' : 'Түгээлт',
+        'Байршлын зөвшөөрөл цуцлагдсан. (${DateTime.now().toIso8601String()})',
+      );
     }
     notifyListeners();
   }
@@ -118,11 +137,35 @@ class JaggerProvider extends ChangeNotifier {
     await startShipment();
   }
 
+  // Native tracking filters every point against MAX_ACCURACY_METERS=25, but
+  // these Dart-side entry/exit fixes bypass that filter entirely — a bad
+  // seed fix here becomes the trip's origin (lastPoint), skewing every
+  // later distance-floor decision in sendTobackend(). Retries a couple of
+  // times for a fix at least as accurate as the native threshold, falling
+  // back to the best one seen rather than blocking the flow indefinitely.
+  Future<Position> _getAccuratePosition({
+    double maxAccuracyMeters = 25,
+    int retries = 2,
+  }) async {
+    Position? best;
+    for (var i = 0; i <= retries; i++) {
+      final p = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.best,
+          timeLimit: Duration(seconds: 5),
+        ),
+      );
+      if (best == null || p.accuracy < best.accuracy) best = p;
+      if (p.accuracy <= maxAccuracyMeters) return p;
+    }
+    return best!;
+  }
+
   Future<void> startShipment() async {
     if (!await Settings.checkAlwaysLocationPermission()) {
       return;
     }
-    currentPosition = await Geolocator.getCurrentPosition();
+    currentPosition = await _getAccuratePosition();
     if (currentPosition == null) {
       messageWarning(
         'Одоогийн байршил олдсонгүй!, Байршил тогтоогчоо асаарна уу!',
@@ -253,6 +296,16 @@ class JaggerProvider extends ChangeNotifier {
           final lng = parseDouble(event['lng']);
           await sendTobackend(lat, lng);
         },
+        onError: (Object e) async {
+          debugPrint('location stream error: $e');
+          if (e is PlatformException && e.code == 'permission_denied') {
+            final isSeller = Authenticator.security?.isSaler ?? false;
+            await logService.createLog(
+              isSeller ? 'Борлуулалт' : 'Түгээлт',
+              'Байршлын зөвшөөрөл татгалзсан: ${e.message} (${DateTime.now().toIso8601String()})',
+            );
+          }
+        },
       );
 
       final started = await NativeChannel.startLocationService();
@@ -262,10 +315,11 @@ class JaggerProvider extends ChangeNotifier {
         subscription = null;
         return;
       }
-      // timer = Timer.periodic(Duration(seconds: 1), (v) {
-      //   now = DateTime.now();
-      //   notifyListeners();
-      // });
+      _permissionCheckTimer?.cancel();
+      _permissionCheckTimer = Timer.periodic(
+        const Duration(seconds: 20),
+        (_) => loadPermission(),
+      );
       print("subscription started :${subscription != null}");
       notifyListeners();
     } catch (e) {
@@ -279,7 +333,7 @@ class JaggerProvider extends ChangeNotifier {
     if (!await Settings.checkAlwaysLocationPermission()) {
       return;
     }
-    currentPosition = await Geolocator.getCurrentPosition();
+    currentPosition = await _getAccuratePosition();
     if (currentPosition == null) {
       messageWarning(
         'Одоогийн байршил олдсонгүй!, Байршил тогтоогчоо асаарна уу!',
@@ -306,7 +360,7 @@ class JaggerProvider extends ChangeNotifier {
 
     if (!confirmed) return;
     try {
-      final current = await Geolocator.getCurrentPosition();
+      final current = await _getAccuratePosition();
       final shipmentId = await Authenticator.getTrackId();
       var body = {
         if (isDriver) "delivery_id": delivery != null ? delivery!.id : shipmentId,
@@ -361,6 +415,8 @@ class JaggerProvider extends ChangeNotifier {
       await syncOffineTracks();
       await subscription?.cancel();
       subscription = null;
+      _permissionCheckTimer?.cancel();
+      _permissionCheckTimer = null;
       await NativeChannel.stopLocationService();
       await Authenticator.clearTrackId();
       await clearTrackData();
@@ -395,6 +451,10 @@ class JaggerProvider extends ChangeNotifier {
         lat,
         lng,
       );
+      // Deliberately not queued (unlike every other rejection path below):
+      // this is near-duplicate noise suppression mirroring the native
+      // filter's own distance floor, not a deferred send — persisting it
+      // would reintroduce the clutter this check exists to prevent.
       if (distance < 6) return;
     }
 
@@ -437,25 +497,40 @@ class JaggerProvider extends ChangeNotifier {
     await addPointToBox(locatioData(false));
   }
 
+  bool _isSyncing = false;
+  static const int _syncChunkSize = 200;
+
+  // A snapshot-then-mark-only-that-snapshot design: unlike marking "every
+  // currently unsent record" as sent, this can't flag a point that was
+  // inserted concurrently (e.g. from a native stream event arriving mid
+  // network round-trip) as sent when it was never actually part of the
+  // PATCH that succeeded. `_isSyncing` also prevents two of the three
+  // callers of this method (sendTobackend's success path, ConnectionProvider
+  // on reconnect, stopTracking) from racing each other in the first place.
   Future syncOffineTracks() async {
-    await getTrackBox();
-    final user = Authenticator.security;
-    if (user == null) return;
-    bool hasTrack = await Authenticator.hasTrack();
-    // bool hasSellerTrack = await Authenticator.hasSellerTrack();
-    if (!hasTrack) return;
-    bool isSeller = user.isSaler;
-    final trackUrl = isSeller ? 'sales/route/' : 'delivery/location/';
-    if (trackDatas.isNotEmpty) {
+    if (_isSyncing) return;
+    _isSyncing = true;
+    try {
+      await getTrackBox();
+      final user = Authenticator.security;
+      if (user == null) return;
+      bool hasTrack = await Authenticator.hasTrack();
+      if (!hasTrack) return;
+      bool isSeller = user.isSaler;
+      final trackUrl = isSeller ? 'sales/route/' : 'delivery/location/';
       final unsended = trackDatas.where((e) => e.sended == false).toList();
-      if (unsended.isEmpty) {
-        return;
+      if (unsended.isEmpty) return;
+
+      for (var i = 0; i < unsended.length; i += _syncChunkSize) {
+        final end = (i + _syncChunkSize < unsended.length) ? i + _syncChunkSize : unsended.length;
+        final chunk = unsended.sublist(i, end);
+        final b = locationr(await Authenticator.getTrackId(), chunk);
+        final r = await api(Api.patch, trackUrl, body: b);
+        if (!apiSucceess(r)) break; // stop; the rest retries on the next trigger
+        await updateDatasToSended(chunk);
       }
-      var b = locationr(await Authenticator.getTrackId(), unsended);
-      final r = await api(Api.patch, trackUrl, body: b);
-      if (apiSucceess(r)) {
-        await updateDatasToSended();
-      }
+    } finally {
+      _isSyncing = false;
     }
   }
 
@@ -470,7 +545,7 @@ class JaggerProvider extends ChangeNotifier {
             return {
               "lat": truncateToSixDigits(e.latitude),
               "lng": truncateToSixDigits(e.longitude),
-              "created": DateTime.now().toIso8601String()
+              "created": e.date.toIso8601String()
             };
           })
         ]
@@ -535,19 +610,27 @@ class JaggerProvider extends ChangeNotifier {
     updatePolylines();
   }
 
+  bool _startMarkerAdded = false;
+
   Future getTrackBox() async {
     if (!Hive.isBoxOpen('track_box')) return;
     trackDatas = trackBox.values.toList().cast<TrackData>();
     if (trackDatas.isNotEmpty) {
       updateLastPoint(trackDatas.last);
-      addMarker(
-        AssetIcon.flag,
-        position: LatLng(
-          trackDatas.first.latitude,
-          trackDatas.first.longitude,
-        ),
-        infoWindow: InfoWindow(title: 'Эхлэлийн цэг'),
-      );
+      // getTrackBox() runs on every accepted point (via addPointToBox), so
+      // without this guard the start-flag marker would be re-added once per
+      // point for the whole session instead of once per trip.
+      if (!_startMarkerAdded) {
+        _startMarkerAdded = true;
+        addMarker(
+          AssetIcon.flag,
+          position: LatLng(
+            trackDatas.first.latitude,
+            trackDatas.first.longitude,
+          ),
+          infoWindow: InfoWindow(title: 'Эхлэлийн цэг'),
+        );
+      }
     }
     notifyListeners();
   }
@@ -557,18 +640,16 @@ class JaggerProvider extends ChangeNotifier {
     await trackBox.clear();
     await trackBox.flush();
     trackDatas.clear();
+    _startMarkerAdded = false;
     notifyListeners();
     await getTrackBox();
   }
 
-  Future updateDatasToSended() async {
+  Future updateDatasToSended(List<TrackData> confirmed) async {
     if (!Hive.isBoxOpen('track_box')) return;
-    var list = trackBox.values;
-    for (var d in list) {
-      if (d.sended == false) {
-        d.sended = true;
-        await d.save();
-      }
+    for (var d in confirmed) {
+      d.sended = true;
+      await d.save();
     }
     await getTrackBox();
   }
@@ -825,8 +906,8 @@ class JaggerProvider extends ChangeNotifier {
     if (mapController == null) {
       return;
     }
-    final n = await Geolocator.getCurrentPosition();
-    if (n != null) latLng = LatLng(n.latitude, n.longitude);
+    final n = await _getAccuratePosition();
+    latLng = LatLng(n.latitude, n.longitude);
     notifyListeners();
     if (mapController == null) return;
     await mapController!.animateCamera(
@@ -869,6 +950,8 @@ class JaggerProvider extends ChangeNotifier {
       subscription = null;
       notifyListeners();
     }
+    _permissionCheckTimer?.cancel();
+    _permissionCheckTimer = null;
     zones.clear();
     currentPosition = null;
     delivery = null;
