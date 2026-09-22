@@ -600,19 +600,21 @@ class _OrderSheetState extends State<OrderSheet> {
           'Салбар: ${_sector.name}\n',
       messageAlign: TextAlign.start,
       messageStyle: const TextStyle(color: primary, fontWeight: FontWeight.bold),
-      content: _qpayButton(() {
-        payViaQpay = true;
-        Navigator.of(context).pop(true);
-      }),
     );
     if (!confirmed) return;
+    if (!mounted) return;
     setState(() => _loading = true);
     if (payType == 'C' || payViaQpay) {
       await cart.createQR(
           branchId: _sector.id, note: noteController.text, deliveryType: deliveryType);
     } else {
       await cart.createOrder(
-          branchId: _sector.id, note: noteController.text, deliveryType: deliveryType, pt: payType);
+        context,
+        branchId: _sector.id,
+        note: noteController.text,
+        deliveryType: deliveryType,
+        payType: payType,
+      );
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -648,25 +650,8 @@ class _OrderSheetState extends State<OrderSheet> {
     // invoice itself when the basket needs one, so there is no separate
     // "pay by qpay" branch here anymore: recording the sale must never
     // wait on payment.
-    await home.createSellerOrder(context, payType);
+    await cart.createOrder(context, payType: payType);
     if (mounted) setState(() => _loading = false);
-  }
-
-  Widget _qpayButton(VoidCallback onTap) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: onTap,
-        icon: const Icon(Icons.qr_code_rounded, size: 18),
-        label: const Text('Шууд Qpay-р төлөх'),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: primary,
-          side: const BorderSide(color: primary),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
-    );
   }
 }
 

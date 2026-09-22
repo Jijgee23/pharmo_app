@@ -155,89 +155,151 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> createOrder({
-    // required int basketId,
-    required int branchId,
-    required String note,
-    required String deliveryType,
-    required String pt,
+  // Single entry point for both order-creation flows: Pharmacist (PA/PM,
+  // pharmacy/order/, branch+delivery-type based) and Seller/VS (seller/
+  // order/, customer based) — merged since order_sheet.dart previously
+  // called two near-duplicate functions (this one, and HomeProvider.
+  // createSellerOrder()) that only differed in endpoint/body/success
+  // handling, sharing the same LoadingService/try-catch scaffolding.
+  Future<dynamic> createOrder(
+    BuildContext context, {
+    int? branchId,
+    String? note,
+    String? deliveryType,
+    required String payType,
   }) async {
+    final isPharm = Authenticator.security?.isPharmacist ?? false;
+    final home = context.read<HomeProvider>();
     await LoadingService.run(() async {
       try {
-        var body = {
-          'basket_id': basket!.id,
-          'branch_id': branchId,
-          'pay_type': pt,
-          'note': note != '' ? note : null,
-          'is_come': deliveryType == 'N' ? true : false,
-        };
-        final r = await api(Api.post, 'pharmacy/order/', body: body);
-        if (r == null) return;
-        final res = convertData(r);
-        if (r.statusCode == 200) {
-          // The delivery type/branch/payment type this order was placed
-          // with no longer need to be pre-filled for a *next* order.
-          Get.context?.read<HomeProvider>().clearOrderSelections();
-          Future(() async {
-            await clearBasket();
-          }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
-          return res['orderNo'];
-        } else if (r.statusCode == 400) {
-          if (res['payType'] != null) {
-            LoadingService.hide();
-            bool payViaQpay = false;
-            final confirmed = await confirmDialog(
-              title: res['payType'][0].toString(),
-              titleColor: Colors.red,
-              message: 'Зөвхөн бэлнээр төлөгдөх бараануудыг сагснаас хасах уу?',
-              content: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Эсвэл шууд Qpay-р төлөх үү?',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 13, color: Color(0xFF4A6361)),
-                    ),
-                    const SizedBox(height: 8),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        payViaQpay = true;
-                        final context = Get.context ?? GlobalKeys.navigatorKey.currentContext;
-                        if (context != null) Navigator.of(context).pop(true);
-                      },
-                      icon: const Icon(Icons.qr_code_rounded, size: 18),
-                      label: const Text('Шууд Qpay-р төлөх'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: primary,
-                        side: const BorderSide(color: primary),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        if (isPharm) {
+          var body = {
+            'basket_id': basket!.id,
+            'branch_id': branchId,
+            'pay_type': payType,
+            'note': (note != null && note != '') ? note : null,
+            'is_come': deliveryType == 'N',
+          };
+          final r = await api(Api.post, 'pharmacy/order/', body: body);
+          if (r == null) return;
+          final res = convertData(r);
+          if (r.statusCode == 200) {
+            // The delivery type/branch/payment type this order was placed
+            // with no longer need to be pre-filled for a *next* order.
+            home.clearOrderSelections();
+            Future(() async {
+              await clearBasket();
+            }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
+            return res['orderNo'];
+          } else if (r.statusCode == 400) {
+            if (res['payType'] != null) {
+              LoadingService.hide();
+              bool payViaQpay = false;
+              final confirmed = await confirmDialog(
+                title: res['payType'][0].toString(),
+                titleColor: Colors.red,
+                message: 'Зөвхөн бэлнээр төлөгдөх бараануудыг сагснаас хасах уу?',
+                content: SizedBox(
+                  width: double.infinity,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Эсвэл шууд Qpay-р төлөх үү?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, color: Color(0xFF4A6361)),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            payViaQpay = true;
+                            final ctx = Get.context ?? GlobalKeys.navigatorKey.currentContext;
+                            if (ctx != null) Navigator.of(ctx).pop(true);
+                          },
+                          icon: const Icon(Icons.qr_code_rounded, size: 18),
+                          label: const Text('Шууд Qpay-р төлөх'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: primary,
+                            side: const BorderSide(color: primary),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-            if (!confirmed) return;
-            if (payViaQpay) {
-              await createQR(branchId: branchId, note: note, deliveryType: deliveryType);
-            } else {
-              await removeCashOnlyItems();
-              // Close the OrderSheet (still open behind this dialog) so the
-              // user lands back on the basket and sees it without the
-              // cash-only items instead of staying on a now-stale order
-              // summary that still reflects the pre-removal total.
-              if (Get.isBottomSheetOpen ?? false) Get.back();
+              );
+              if (!confirmed) return;
+              if (payViaQpay) {
+                await createQR(
+                  branchId: branchId,
+                  note: note ?? '',
+                  deliveryType: deliveryType ?? '',
+                );
+              } else {
+                await removeCashOnlyItems();
+                // Close the OrderSheet (still open behind this dialog) so
+                // the user lands back on the basket and sees it without
+                // the cash-only items instead of staying on a now-stale
+                // order summary that still reflects the pre-removal total.
+                if (Get.isBottomSheetOpen ?? false) Get.back();
+              }
+              return;
             }
-            return;
+            messageWarning(res.toString());
+          } else {
+            messageError(res.toString());
           }
-          messageWarning(res.toString());
         } else {
-          messageError(res.toString());
+          var body = {
+            'customer_id': home.customer!.id,
+            'basket_id': basket!.id,
+            'payType': payType,
+            'note': home.note,
+          };
+          final r = await api(Api.post, 'seller/order/', body: body);
+          if (r == null) return;
+          final res = convertData(r);
+          if (r.statusCode == 201) {
+            final orderNumber = res['orderNo'];
+            await clearBasket();
+            home.setCustomer(null);
+            home.setNote('');
+            // seller/order/ can create more than one actual order
+            // (split_group) and auto-attaches a QPay invoice to whichever
+            // ones need one (a cash-only group) - each order's own
+            // `requires_payment`/`qpay` live inside the response's `orders`
+            // list, not at the top level. QPay must never stop the sale
+            // from being recorded, so the order(s) already exist either
+            // way - this only decides whether to resolve payment before
+            // treating checkout as "done".
+            final subOrders = SellerSubOrder.listFrom(res);
+            final needsPayment =
+                subOrders.where((o) => o.requiresPayment && o.qpay != null).firstOrNull;
+            if (needsPayment != null) {
+              goto(SellerQpayPage(
+                orderId: needsPayment.id,
+                orderNo: needsPayment.orderNo,
+                totalPrice: needsPayment.totalPrice,
+                totalCount: needsPayment.totalCount,
+                invoice: needsPayment.qpay!,
+              ));
+            } else {
+              goto(OrderDone(orderNo: orderNumber.toString()));
+            }
+          } else {
+            if (res.toString().contains('Customer not verified')) {
+              messageWarning('Баталгаажаагүй харилцагч байна!');
+              return;
+            }
+            messageWarning('Түр хүлээнэ үү!');
+          }
         }
       } catch (e) {
+        print(e);
         messageError('Захиалга үүсгэх үед алдаа гарлаа. Админтай холбогдоно уу!');
       }
     });

@@ -510,62 +510,11 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future createSellerOrder(BuildContext context, String type) async {
-    await LoadingService.run(() async {
-      try {
-        final basket = context.read<CartProvider>();
-        var body = {
-          'customer_id': customer!.id,
-          'basket_id': basket.basket!.id,
-          'payType': type,
-          "note": (note != null) ? note : null
-        };
-        final r = await api(Api.post, 'seller/order/', body: body);
-        if (r == null) return;
-        final res = convertData(r);
-        if (r.statusCode == 201) {
-          final orderNumber = res['orderNo'];
-          await basket.clearBasket();
-          setCustomer(null);
-          note = null;
-          notifyListeners();
-          // seller/order/ can create more than one actual order
-          // (split_group) and auto-attaches a QPay invoice to whichever
-          // ones need one (a cash-only group) - each order's own
-          // `requires_payment`/`qpay` live inside the response's `orders`
-          // list, not at the top level. QPay must never stop the sale
-          // from being recorded, so the order(s) already exist either way
-          // - this only decides whether to resolve payment before
-          // treating checkout as "done".
-          final subOrders = SellerSubOrder.listFrom(res);
-          final needsPayment = subOrders
-              .where((o) => o.requiresPayment && o.qpay != null)
-              .firstOrNull;
-          if (needsPayment != null) {
-            goto(SellerQpayPage(
-              orderId: needsPayment.id,
-              orderNo: needsPayment.orderNo,
-              totalPrice: needsPayment.totalPrice,
-              totalCount: needsPayment.totalCount,
-              invoice: needsPayment.qpay!,
-            ));
-          } else {
-            goto(OrderDone(orderNo: orderNumber.toString()));
-          }
-        } else {
-          if (res.toString().contains('Customer not verified')) {
-            messageWarning('Баталгаажаагүй харилцагч байна!');
-            return;
-          }
-          messageWarning('Түр хүлээнэ үү!');
-          return;
-        }
-      } catch (e) {
-        print(e);
-        messageWarning('Захиалга үүсгэхэд алдаа гарлаа.');
-      }
-    });
-  }
+  // Order creation itself moved to CartProvider.createOrder(context,
+  // payType: ...) — merged with the Pharmacist pharmacy/order/ flow, since
+  // both were near-duplicate LoadingService/try-catch wrappers around
+  // different endpoints. This provider still owns customer/note, which
+  // that merged function reads/clears via context.read<HomeProvider>().
 
   setNote(String nv) {
     note = nv;
