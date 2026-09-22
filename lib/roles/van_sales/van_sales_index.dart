@@ -1,6 +1,7 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/roles/driver/ready_orders/ready_orders.dart';
 import 'package:pharmo_app/views/home/home.dart';
+import 'package:pharmo_app/views/order_history/order_history.dart';
 import 'package:pharmo_app/views/profile/delivery_profile.dart';
 import 'package:pharmo_app/views/track_map/track_map.dart';
 
@@ -50,11 +51,16 @@ class _VanSalesIndexState extends State<VanSalesIndex> {
     );
   }
 
-  final List _pages = [TrackMap(), Home(), DeliveryProfile()];
+  final List _pages = [TrackMap(), Home(), OrderHistory(), DeliveryProfile()];
 
-  List<String> icons = [AssetIcon.marker, AssetIcon.category, AssetIcon.user];
+  List<String> icons = [
+    AssetIcon.marker,
+    AssetIcon.category,
+    AssetIcon.orderHistory,
+    AssetIcon.user,
+  ];
 
-  List<String> labels = ['Map', 'Бараа', 'Профайл'];
+  List<String> labels = ['Map', 'Бараа', 'Захиалгууд', 'Профайл'];
 }
 
 class _ReadyOrdersJumpButton extends StatelessWidget {
