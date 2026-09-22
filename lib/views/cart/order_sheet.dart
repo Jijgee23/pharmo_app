@@ -16,6 +16,7 @@ class _OrderSheetState extends State<OrderSheet> {
   String payType = '';
   String deliveryType = '';
   bool _loading = false;
+  int _step = 0;
 
   Sector _sector =
       Sector(-1, 'Салбар сонгоно уу!', '', '', '', '', null, true, '', 0, 0, Cmp(-1, '?'));
@@ -94,6 +95,14 @@ class _OrderSheetState extends State<OrderSheet> {
   Widget build(BuildContext context) {
     final home = context.read<HomeProvider>();
     final cart = context.read<CartProvider>();
+    // Recomputed every build so it always reflects the current deliveryType
+    // (the branch step only exists for 'D') — safe to key off _step
+    // directly with no clamping: deliveryType can only change while step 0
+    // itself is showing (its chips only render there), so _step can never
+    // end up pointing at a branch step that just stopped existing.
+    final steps = _buildSteps(home, cart);
+    final step = steps[_step];
+    final isLastStep = _step == steps.length - 1;
 
     return Container(
       constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * .92),
@@ -103,11 +112,16 @@ class _OrderSheetState extends State<OrderSheet> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       // Stack, not just a trailing widget in the Column: a Positioned close
-      // button sits above the Scrollbar/SingleChildScrollView layer, so it
-      // stays fixed in place (not part of the scrolling content) no matter
-      // how far the sheet is scrolled, including all the way to the end.
+      // button sits above everything else, so it stays fixed in place no
+      // matter which step is showing or how far its content is scrolled.
       child: Stack(
         children: [
+          // Whole thing (header + current step + nav buttons) in one
+          // scrollable column that sizes to its own content — not a fixed
+          // near-full-screen height regardless of step. Short steps (e.g.
+          // payment type) make a short sheet; a long one (e.g. many
+          // branches, or the note field) scrolls within the .92 cap below
+          // instead of everything being stretched to fill it either way.
           Scrollbar(
             child: SingleChildScrollView(
               child: Column(
@@ -120,96 +134,55 @@ class _OrderSheetState extends State<OrderSheet> {
                     'Захиалга баталгаажуулах',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 24),
-
-                  // ── PHARM sections ──────────────────────────────────────
-                  if (_isPharm) ...[
-                    _supplierInfo(home),
-                    const SizedBox(height: 20),
-                    BottomSheetLabelBuilder('Хүргэлтийн нөхцөл'),
-                    const SizedBox(height: 10),
-                    _deliveryChips(),
-                    const SizedBox(height: 20),
-                    if (deliveryType == 'D') ...[
-                      BottomSheetLabelBuilder('Хүргэлт хийх салбар'),
-                      const SizedBox(height: 10),
-                      _branchSelector(home),
-                      if (_sector.id != -1) ...[
-                        const SizedBox(height: 12),
-                        BottomSheetLabelBuilder('Холбоо барих'),
-                        const SizedBox(height: 10),
-                        CustomTextField(controller: phoneController, labelText: 'Утас'),
-                        const SizedBox(height: 8),
-                        CustomTextField(controller: phone2Controller, labelText: 'Утас 2'),
-                      ],
-                      const SizedBox(height: 20),
-                    ],
-                  ],
-
-                  // ── SELLER sections ─────────────────────────────────────
-                  if (!_isPharm) ...[
-                    BottomSheetLabelBuilder('Захиалагч сонгох'),
-                    const SizedBox(height: 12),
-                    _customerSelector(home),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // ── Shared: payment ─────────────────────────────────────
-                  BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
-                  const SizedBox(height: 10),
-                  if (cart.isCashOnlyBasket) ...[
-                    const CashOnlyWarning(
-                      message:
-                          'Сагсанд зөвхөн бэлнээр төлөгдөх бараа байгаа тул зөвхөн бэлэн төлбөр боломжтой.',
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                  Row(
-                    children: _availablePaymentMethods(cart)
-                        .map((pm) => Expanded(
-                              child: BottomSheetOptionChip(
-                                title: pm.name,
-                                v: pm.value,
-                                icon: pm.icon,
-                                isSelected: payType == pm.value,
-                                onTap: () {
-                                  setState(() => payType = pm.value);
-                                  if (_isPharm) {
-                                    context.read<HomeProvider>().setOrderPayType(pm.value);
-                                  }
-                                },
-                              ),
-                            ))
-                        .toList(),
-                  ),
-                  if (payType == 'T' && cart.paymentSettings != null) ...[
-                    const SizedBox(height: 10),
-                    _bankAccountsCard(cart.paymentSettings!),
-                  ],
+                  const SizedBox(height: 16),
+                  _stepProgress(_step, steps.length, step.title),
                   const SizedBox(height: 20),
-
-                  // ── Shared: note ────────────────────────────────────────
-                  BottomSheetLabelBuilder('Нэмэлт тайлбар (заавал биш)'),
-                  const SizedBox(height: 10),
-                  TextField(
-                    textInputAction: TextInputAction.done,
-                    controller: noteController,
-                    onChanged: (v) => home.setNote(v),
-                    decoration: const InputDecoration(
-                      hintText: 'Энд тайлбар бичиж болно...',
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: KeyedSubtree(key: ValueKey(step.title), child: step.content),
                   ),
-                  const SizedBox(height: 32),
-
-                  // ── Submit ──────────────────────────────────────────────
-                  _loading
-                      ? const LoadingButton()
-                      : CustomButton(
-                          text: 'Захиалга үүсгэх',
-                          ontap: () => _submit(home, cart),
+                  const SizedBox(height: 20),
+                  const Divider(height: 1),
+                  const SizedBox(height: 16),
+                  Row(
+                    spacing: 10,
+                    children: [
+                      if (_step > 0)
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => setState(() => _step--),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.black87,
+                              side: BorderSide(color: Colors.grey.shade300),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape:
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Буцах'),
+                          ),
                         ),
+                      Expanded(
+                        flex: 2,
+                        child: !isLastStep
+                            ? CustomButton(
+                                text: 'Дараах',
+                                ontap: () {
+                                  if (!step.canAdvance()) {
+                                    messageWarning(step.validationMessage);
+                                    return;
+                                  }
+                                  setState(() => _step++);
+                                },
+                              )
+                            : _loading
+                                ? const LoadingButton()
+                                : CustomButton(
+                                    text: 'Захиалга үүсгэх',
+                                    ontap: () => _submit(home, cart),
+                                  ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -241,6 +214,190 @@ class _OrderSheetState extends State<OrderSheet> {
           ),
         ],
       ),
+    );
+  }
+
+  // ── Step definitions ─────────────────────────────────────────────────
+
+  Widget _stepProgress(int step, int total, String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+            Text(
+              '${step + 1}/$total',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: (step + 1) / total,
+            minHeight: 6,
+            backgroundColor: Colors.grey.shade200,
+            color: primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // PA: delivery type -> branch (only if deliveryType == 'D') -> payment
+  // type -> note, last. Seller/VS: customer -> payment type -> note, last.
+  // Note is always the final step on both — never interleave it earlier.
+  List<_OrderStep> _buildSteps(HomeProvider home, CartProvider cart) {
+    if (_isPharm) {
+      return [
+        _OrderStep(
+          title: 'Хүргэлтийн нөхцөл',
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _supplierInfo(home),
+              const SizedBox(height: 20),
+              BottomSheetLabelBuilder('Хүргэлтийн нөхцөл'),
+              const SizedBox(height: 10),
+              _deliveryChips(),
+            ],
+          ),
+          canAdvance: () => deliveryType.isNotEmpty,
+          validationMessage: 'Хүргэлтийн хэлбэр сонгоно уу!',
+        ),
+        if (deliveryType == 'D')
+          _OrderStep(
+            title: 'Хүргэлт хийх салбар',
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                BottomSheetLabelBuilder('Хүргэлт хийх салбар'),
+                const SizedBox(height: 10),
+                _branchSelector(home),
+                if (_sector.id != -1) ...[
+                  const SizedBox(height: 12),
+                  BottomSheetLabelBuilder('Холбоо барих'),
+                  const SizedBox(height: 10),
+                  CustomTextField(controller: phoneController, labelText: 'Утас'),
+                  const SizedBox(height: 8),
+                  CustomTextField(controller: phone2Controller, labelText: 'Утас 2'),
+                ],
+              ],
+            ),
+            canAdvance: () => _sector.id != -1,
+            validationMessage: 'Салбар сонгоно уу!',
+          ),
+        _OrderStep(
+          title: 'Төлбөрийн хэлбэр',
+          content: _paymentStepContent(cart),
+          canAdvance: () => payType.isNotEmpty,
+          validationMessage: 'Төлбөрийн хэлбэр сонгоно уу!',
+        ),
+        _OrderStep(
+          title: 'Нэмэлт тайлбар',
+          content: _noteStepContent(home),
+          canAdvance: () => true,
+          validationMessage: '',
+        ),
+      ];
+    }
+    return [
+      _OrderStep(
+        title: 'Захиалагч сонгох',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BottomSheetLabelBuilder('Захиалагч сонгох'),
+            const SizedBox(height: 12),
+            _customerSelector(home),
+          ],
+        ),
+        canAdvance: () => home.customer != null,
+        validationMessage: 'Захиалагч сонгоно уу!',
+      ),
+      _OrderStep(
+        title: 'Төлбөрийн хэлбэр',
+        content: _paymentStepContent(cart),
+        canAdvance: () => payType.isNotEmpty,
+        validationMessage: 'Төлбөрийн хэлбэр сонгоно уу!',
+      ),
+      _OrderStep(
+        title: 'Нэмэлт тайлбар',
+        content: _noteStepContent(home),
+        canAdvance: () => true,
+        validationMessage: '',
+      ),
+    ];
+  }
+
+  Widget _paymentStepContent(CartProvider cart) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
+        const SizedBox(height: 10),
+        if (cart.isCashOnlyBasket) ...[
+          const CashOnlyWarning(
+            message:
+                'Сагсанд зөвхөн бэлнээр төлөгдөх бараа байгаа тул зөвхөн бэлэн төлбөр боломжтой.',
+          ),
+          const SizedBox(height: 10),
+        ],
+        Row(
+          children: _availablePaymentMethods(cart)
+              .map((pm) => Expanded(
+                    child: BottomSheetOptionChip(
+                      title: pm.name,
+                      v: pm.value,
+                      icon: pm.icon,
+                      isSelected: payType == pm.value,
+                      onTap: () {
+                        setState(() => payType = pm.value);
+                        if (_isPharm) {
+                          context.read<HomeProvider>().setOrderPayType(pm.value);
+                        }
+                      },
+                    ),
+                  ))
+              .toList(),
+        ),
+        if (payType == 'T' && cart.paymentSettings != null) ...[
+          const SizedBox(height: 10),
+          _bankAccountsCard(cart.paymentSettings!),
+        ],
+      ],
+    );
+  }
+
+  Widget _noteStepContent(HomeProvider home) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        BottomSheetLabelBuilder('Нэмэлт тайлбар (заавал биш)'),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: TextField(
+            textInputAction: TextInputAction.done,
+            controller: noteController,
+            onChanged: (v) => home.setNote(v),
+            minLines: 3,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              hintText: 'Энд тайлбар бичиж болно...',
+              border: InputBorder.none,
+              hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -653,6 +810,23 @@ class _OrderSheetState extends State<OrderSheet> {
     await cart.createOrder(context, payType: payType);
     if (mounted) setState(() => _loading = false);
   }
+}
+
+/// One page of OrderSheet's stepper — title for the progress header,
+/// the step's own content, and a gate the "Дараах" button checks before
+/// advancing (with the warning message to show when it's not satisfied).
+class _OrderStep {
+  final String title;
+  final Widget content;
+  final bool Function() canAdvance;
+  final String validationMessage;
+
+  const _OrderStep({
+    required this.title,
+    required this.content,
+    required this.canAdvance,
+    required this.validationMessage,
+  });
 }
 
 // ── Shared widgets ────────────────────────────────────────────────────────
