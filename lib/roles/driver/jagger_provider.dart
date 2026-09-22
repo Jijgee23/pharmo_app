@@ -254,11 +254,12 @@ class JaggerProvider extends ChangeNotifier {
           await sendTobackend(lat, lng);
         },
       );
-      await Future.delayed(Duration(milliseconds: 500));
 
       final started = await NativeChannel.startLocationService();
       if (!started) {
         messageError('Location service эхлүүлж чадсангүй');
+        await subscription?.cancel();
+        subscription = null;
         return;
       }
       // timer = Timer.periodic(Duration(seconds: 1), (v) {
@@ -414,6 +415,7 @@ class JaggerProvider extends ChangeNotifier {
 
     if (_lastUploadTime != null &&
         now.difference(_lastUploadTime!).inSeconds < _uploadIntervalSeconds) {
+      await addPointToBox(locatioData(false));
       return;
     }
     final isSeller = Authenticator.security!.isSaler;

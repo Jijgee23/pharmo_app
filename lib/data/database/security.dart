@@ -85,7 +85,8 @@ class Security extends HiveObject {
   bool get isPharmacist => userRole.isPharmacist();
   bool get isAdmin => userRole.isAdmin();
   bool get isSaler => userRole.isSaler();
-  bool get isTracker => userRole.isSaler() || userRole.isDriver();
+  bool get isTracker =>
+      userRole.isSaler() || userRole.isDriver() || userRole.isVanSales();
   bool get isVanSales => userRole.isVanSales();
 
   /// VS (Van Sales) нь D-ийн хийдэг бүх түгээлтийн үйлдлийг хийнэ.

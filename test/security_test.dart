@@ -30,4 +30,18 @@ void main() {
       expect(_security('A').isDeliveryCapable, isFalse);
     });
   });
+
+  group('Security.isTracker', () {
+    test('true for S (seller), D (driver) and VS (van sales)', () {
+      expect(_security('S').isTracker, isTrue);
+      expect(_security('D').isTracker, isTrue);
+      expect(_security('VS').isTracker, isTrue);
+    });
+
+    test('false for roles without continuous background tracking', () {
+      expect(_security('R').isTracker, isFalse);
+      expect(_security('PA').isTracker, isFalse);
+      expect(_security('A').isTracker, isFalse);
+    });
+  });
 }

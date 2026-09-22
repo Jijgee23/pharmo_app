@@ -19,9 +19,7 @@ class ConnectionProvider extends ChangeNotifier {
 
         if (isOnline && isDialogOpen) {
           _hideNetworkDialog();
-          return;
-        }
-        if (!isOnline && !isDialogOpen) {
+        } else if (!isOnline && !isDialogOpen) {
           _showNetworkDialog();
         }
         bool isSharingLocation = await Authenticator.hasTrack();
@@ -33,6 +31,12 @@ class ConnectionProvider extends ChangeNotifier {
             logType,
             'Байршил дамжуулах явцад холболт ${isOnline ? "сэргэсэн" : "салсан"}. (${DateTime.now().toIso8601String()})',
           );
+          if (isOnline) {
+            final context = GlobalKeys.navigatorKey.currentContext;
+            if (context != null && context.mounted) {
+              await context.read<JaggerProvider>().syncOffineTracks();
+            }
+          }
         }
       },
     );
