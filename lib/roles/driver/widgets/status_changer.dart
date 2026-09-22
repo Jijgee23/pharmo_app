@@ -60,7 +60,7 @@ class _StatusChangerState extends State<StatusChanger> {
             final r = await api(Api.patch, 'delivery/order/', body: data);
             if (r == null) return;
             print(r.statusCode);
-            print(r.body);
+            print(r.data);
             if (r.statusCode == 200 || r.statusCode == 201) {
               messageComplete('Төлөв өөрчлөгдлөө');
               await provider.getDeliveries();

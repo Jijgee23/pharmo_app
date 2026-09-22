@@ -22,7 +22,7 @@ class DriverProvider extends ChangeNotifier {
       final r = await api(Api.get, 'delivery/allocation/');
       if (r == null) return;
       if (r.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(r.bodyBytes));
+        final data = convertData(r);
         orders = (data as List).map((e) => DeliveryOrder.fromJson(e)).toList();
         orders.sort((a, b) => (a.orderer?.name ?? '').compareTo(b.orderer?.name ?? ''));
         notifyListeners();
@@ -96,7 +96,7 @@ class DriverProvider extends ChangeNotifier {
       final r = await api(Api.get, 'delivery/delmans/');
       if (r == null) return;
       if (r.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(r.bodyBytes));
+        final data = convertData(r);
         delmans = (data as List).map((del) => Delman.fromJson(del)).toList();
         notifyListeners();
       }

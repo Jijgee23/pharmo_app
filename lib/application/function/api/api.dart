@@ -1,11 +1,11 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart' hide Headers;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/application/application.dart' hide Response;
 
-Future<http.Response?> api(
+Future<Response?> api(
   Api method,
   String endpoint, {
   Map<String, dynamic>? body,
@@ -18,14 +18,14 @@ Future<http.Response?> api(
     await Authenticator.initAuthenticator();
     if (Authenticator.security == null) return null;
 
-    // 401 + refresh логик AuthClient interceptor-т шилжсэн
+    // 401 + refresh логик AuthInterceptor-т шилжсэн
     final res = await responser(method, endpoint, body, header);
     if (res == null) {
       messageError('Серверт холбогдож чадсангүй, Инфосистемс ХХК-д холбогдоно уу!');
     }
     return res;
   } catch (e) {
-    if (e is http.ClientException) {
+    if (e is DioException) {
       messageError('Серверт холбогдож чадсангүй, Инфосистемс ХХК-д холбогдоно уу!');
     }
     debugPrint('Error in $method request to $endpoint: $e');
@@ -130,7 +130,7 @@ Future<void> showLogoutDialog(BuildContext context, String reason) async {
   );
 }
 
-bool apiSucceess(http.Response? res) {
+bool apiSucceess(Response? res) {
   if (res == null) {
     messageError('Сервертэй холбогдож чадсангүй!');
     return false;
@@ -143,39 +143,38 @@ bool apiSucceess(http.Response? res) {
   return false;
 }
 
-Future<http.Response?> responser(
+Future<Response?> responser(
   Api method,
   String endpoint,
   Map<String, dynamic>? body,
   Map<String, String>? header,
 ) async {
-  final Uri url = ApiService.buildUrl(endpoint);
-  // Authorization header-г AuthClient interceptor автоматаар нэмнэ
+  final String url = ApiService.buildUrl(endpoint).toString();
+  // Authorization header-г AuthInterceptor автоматаар нэмнэ
   final Map<String, String> headers = {
     ...header ?? {},
     ...ApiService.buildHeader(null),
   };
-  final client = ApiService.client;
-  late http.Response res;
+  final options = Options(headers: headers);
+  final dio = ApiService.dio;
+  late Response res;
   switch (method) {
     case Api.get:
-      res = await client.get(url, headers: headers);
+      res = await dio.get(url, options: options);
     case Api.post:
-      res = await client.post(url, headers: headers, body: jsonEncode(body));
+      res = await dio.post(url, data: body, options: options);
     case Api.patch:
-      res = await client.patch(url, headers: headers, body: jsonEncode(body));
+      res = await dio.patch(url, data: body, options: options);
     case Api.delete:
-      res = await client.delete(url, headers: headers, body: jsonEncode(body));
+      res = await dio.delete(url, data: body, options: options);
   }
   if (kDebugMode) {
-    debugPrint('[$endpoint] status: ${res.statusCode} body: ${res.body}');
+    debugPrint('[$endpoint] status: ${res.statusCode} body: ${res.data}');
   }
   return res;
 }
 
 Future<bool> refreshed() async {
-  // final hasInternet = await NetworkChecker.hasInternet();
-  // if (!hasInternet) return false;
   await Authenticator.initAuthenticator();
   final user = Authenticator.security;
 
@@ -209,7 +208,7 @@ Map<String, dynamic> buildResponse(int errorType, dynamic data, String? message)
   };
 }
 
-Future<http.Response?> apiPostWithoutToken(
+Future<Response?> apiPostWithoutToken(
   String endPoint,
   Object? body,
 ) async {
@@ -219,11 +218,11 @@ Future<http.Response?> apiPostWithoutToken(
       messageWarning('Интернет холболтоо шалгана уу!');
       return null;
     }
-    return await ApiService.plainClient
+    return await ApiService.plainDio
         .post(
-          ApiService.buildUrl(endPoint),
-          headers: ApiService.buildHeader(null),
-          body: jsonEncode(body),
+          ApiService.buildUrl(endPoint).toString(),
+          data: body,
+          options: Options(headers: ApiService.buildHeader(null)),
         )
         .timeout(const Duration(seconds: 5));
   } catch (e) {
@@ -236,26 +235,28 @@ Future<http.Response?> apiPostWithoutToken(
   }
 }
 
-dynamic convertData(http.Response body) {
-  return jsonDecode(utf8.decode(body.bodyBytes));
+dynamic convertData(Response response) {
+  final data = response.data;
+  // Dio-ийн default transformer нь content-type='application/json'
+  // тохиолдолд аль хэдийн decode хийсэн байдаг; backend буруу
+  // content-type буцаавал түүхий String хэвээр ирнэ тул тэр тохиолдолд
+  // өмнөх http-суурьтай хувилбартай адил гараар jsonDecode хийнэ.
+  if (data is String) {
+    if (data.isEmpty) return data;
+    return jsonDecode(data);
+  }
+  return data;
 }
 
-Future<http.Response?> apiMacsMn(Object o, StackTrace s) async {
+Future<Response?> apiMacsMn(Object o, StackTrace s) async {
   try {
     final isOnline = await NetworkChecker.hasInternet();
     if (!isOnline) return null;
     final deviceManager = DeviceManager();
     final device = await deviceManager.deviceInfo();
-    return await ApiService.plainClient.post(
-      Uri.parse('${dotenv.env['MACS']}logs/pharmo_error/'),
-      headers: {
-        "Connection": "Keep-Alive",
-        "Accept": "application/json",
-        "Content-type": "application/json",
-        "charset": "utf-8",
-        "checkcode": "46",
-      },
-      body: jsonEncode({
+    return await ApiService.plainDio.post(
+      '${dotenv.env['MACS']}logs/pharmo_error/',
+      data: {
         "error_message": o.toString(),
         "stack_trace": s.toString(),
         "os": device.os,
@@ -263,7 +264,16 @@ Future<http.Response?> apiMacsMn(Object o, StackTrace s) async {
         "device_name": device.name,
         "app_version": await deviceManager.loadVersionAppversion(),
         "app_name": "Pharmo",
-      }),
+      },
+      options: Options(
+        headers: {
+          "Connection": "Keep-Alive",
+          "Accept": "application/json",
+          "Content-type": "application/json",
+          "charset": "utf-8",
+          "checkcode": "46",
+        },
+      ),
     );
   } catch (e) {
     if (e is SocketException) {

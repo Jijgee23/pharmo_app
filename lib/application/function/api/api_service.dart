@@ -1,7 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:pharmo_app/application/function/api/api.dart';
-import 'package:pharmo_app/application/function/api/auth_client.dart';
+import 'package:pharmo_app/application/function/api/auth_interceptor.dart';
 
 class ApiService {
   static Map<String, String> buildHeader(String? token, {bool toPharmo = true}) {
@@ -18,13 +18,19 @@ class ApiService {
     return url;
   }
 
+  static BaseOptions get _baseOptions => BaseOptions(
+        baseUrl: dotenv.env['SERVER_URL'] ?? '',
+        // http.Response never threw for non-2xx status codes - callers
+        // branch on r.statusCode themselves (400, 403, ... are expected
+        // control flow, not exceptions). Keep that behavior under Dio.
+        validateStatus: (_) => true,
+      );
+
   /// Token interceptor бүхий client — authenticated хүсэлтэд ашиглана
-  static http.Client client = AuthClient();
+  static final Dio dio = Dio(_baseOptions)..interceptors.add(AuthInterceptor());
 
   /// Token шаардахгүй хүсэлтэд (login, register, refresh г.м.)
-  static final http.Client plainClient = http.Client();
-
-  static final constResponse = http.Response('101', 101);
+  static final Dio plainDio = Dio(_baseOptions);
 
   static Future<bool> successRefresh() async {
     try {

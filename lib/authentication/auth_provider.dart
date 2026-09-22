@@ -1,9 +1,10 @@
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' hide Headers;
 import 'package:http_parser/http_parser.dart' as pharser;
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/application/application.dart'
+    hide Response, FormData, MultipartFile;
 import 'package:pharmo_app/authentication/auth_operations/complete_registration.dart';
 import 'package:pharmo_app/authentication/auth_operations/reset_pass.dart';
 
@@ -199,7 +200,7 @@ class AuthController extends ChangeNotifier {
     try {
       var body = {'email': email, 'phone': phone, 'otp': otp, 'password': password};
       final response = await apiPostWithoutToken(registerUrl, body);
-      final data = jsonDecode(utf8.decode(response!.bodyBytes));
+      final data = convertData(response!);
       print(data);
       if (response.statusCode == 200 || response.statusCode == 201) {
         return buildResponse(1, data, 'Бүртгэл үүслээ');
@@ -310,40 +311,45 @@ class AuthController extends ChangeNotifier {
       required double? lat,
       required double? lng}) async {
     try {
-      var request = http.MultipartRequest('POST', ApiService.buildUrl('company/info/'));
-
       String basicAuth = 'Basic ${base64Encode(utf8.encode('$ema:$pass'))}';
       if (license.isEmpty) {
         message('Тусгай зөвшөөрөл оруулна уу!');
         return;
       }
-      List<http.MultipartFile> files = [];
-      for (File lic in license) {
-        final file = await http.MultipartFile.fromPath('license[]', lic.path,
-            contentType: pharser.MediaType('image', 'jpeg'));
-        files.add(file);
-      }
-      request.files.addAll(files);
-      request.headers['Authorization'] = basicAuth;
-      request.headers['Accept'] = 'application/json';
+      final licenseFiles = await Future.wait(
+        license.map(
+          (lic) => MultipartFile.fromFile(
+            lic.path,
+            contentType: pharser.MediaType('image', 'jpeg'),
+          ),
+        ),
+      );
       final compressedLogo = await compressImage(logo!);
-      compressedLogo != null
-          ? request.files.add(await http.MultipartFile.fromPath('logo', compressedLogo.path))
-          : null;
-      request.fields['public_name'] = publicName;
-      request.fields['email'] = ema;
-      request.fields['password'] = pass;
-      request.fields['name'] = name;
-      request.fields['rd'] = rd;
-      additional != null ? request.fields['note'] = additional : null;
-      inviCode != null ? request.fields['referral_code'] = inviCode : null;
-      request.fields['cType'] = (type == 'Эмийн сан') ? 'P' : 'S';
-      request.fields['address2'] =
-          jsonEncode({'lat': lat, 'lng': lng, 'address2': address}).toString();
-      print(request.fields);
-      print(request.files);
-      var res = await request.send();
-      String responseBody = await res.stream.bytesToString();
+
+      final formData = FormData.fromMap({
+        'license[]': licenseFiles,
+        if (compressedLogo != null) 'logo': await MultipartFile.fromFile(compressedLogo.path),
+        'public_name': publicName,
+        'email': ema,
+        'password': pass,
+        'name': name,
+        'rd': rd,
+        if (additional != null) 'note': additional,
+        if (inviCode != null) 'referral_code': inviCode,
+        'cType': (type == 'Эмийн сан') ? 'P' : 'S',
+        'address2': jsonEncode({'lat': lat, 'lng': lng, 'address2': address}).toString(),
+      });
+      print(formData.fields);
+      print(formData.files);
+      final res = await ApiService.plainDio.post(
+        ApiService.buildUrl('company/info/').toString(),
+        data: formData,
+        options: Options(headers: {
+          'Authorization': basicAuth,
+          'Accept': 'application/json',
+        }),
+      );
+      final responseBody = convertData(res).toString();
       print(res.statusCode);
       print(responseBody);
       if (res.statusCode == 200 || res.statusCode == 201) {

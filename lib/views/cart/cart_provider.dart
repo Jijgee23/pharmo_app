@@ -32,6 +32,9 @@ class CartProvider extends ChangeNotifier {
   bool get basketIsEmpty => (basket == null ||
       (basket != null && basket!.totalCount == 0) ||
       (basket != null && basket!.items.isEmpty));
+
+  bool get isCashOnlyBasket =>
+      basket != null && basket!.items.isNotEmpty && basket!.items.every((i) => i.cashOnly);
   List<dynamic> _shoppingCarts = [];
   List<dynamic> get shoppingCarts => [..._shoppingCarts];
 
@@ -52,6 +55,7 @@ class CartProvider extends ChangeNotifier {
       messageError(convertData(r)['msg']);
       return false;
     }
+    messageError(convertData(r)['msg']);
     return false;
   }
 
@@ -89,7 +93,7 @@ class CartProvider extends ChangeNotifier {
       );
       if (response == null) return;
       final data = convertData(response);
-      print(response.body);
+      print(response.data);
       if (response.statusCode == 200) {
         if (data.toString().contains('available_qty')) {
           final result = data['available_qty'];
@@ -143,13 +147,20 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> removeCashOnlyItems() async {
+    if (basket == null) return;
+    final cashOnlyIds = basket!.items.where((i) => i.cashOnly).map((i) => i.id).toList();
+    for (final id in cashOnlyIds) {
+      await removeBasketItem(itemId: id);
+    }
+  }
+
   Future<dynamic> createOrder({
     // required int basketId,
     required int branchId,
     required String note,
     required String deliveryType,
     required String pt,
-    required BuildContext context,
   }) async {
     await LoadingService.run(() async {
       try {
@@ -169,23 +180,66 @@ class CartProvider extends ChangeNotifier {
           }).then((value) => goto(OrderDone(orderNo: res['orderNo'].toString())));
           return res['orderNo'];
         } else if (r.statusCode == 400) {
-          messageWarning('Сагс хоосон байна!');
+          if (res['payType'] != null) {
+            LoadingService.hide();
+            bool payViaQpay = false;
+            final confirmed = await confirmDialog(
+              title: res['payType'][0].toString(),
+              titleColor: Colors.red,
+              message: 'Зөвхөн бэлнээр төлөгдөх бараануудыг сагснаас хасах уу?\n'
+                  'Эсвэл шууд Qpay-р төлж болно.',
+              content: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    payViaQpay = true;
+                    final context = Get.context ?? GlobalKeys.navigatorKey.currentContext;
+                    if (context != null) Navigator.of(context).pop(true);
+                  },
+                  icon: const Icon(Icons.qr_code_rounded, size: 18),
+                  label: const Text('Шууд Qpay-р төлөх'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: primary,
+                    side: const BorderSide(color: primary),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            );
+            if (!confirmed) return;
+            if (payViaQpay) {
+              await createQR(branchId: branchId, note: note, deliveryType: deliveryType);
+            } else {
+              await removeCashOnlyItems();
+            }
+            return;
+          }
+          messageWarning(res.toString());
         } else {
-          messageError(res);
+          messageError(res.toString());
         }
       } catch (e) {
-        //
+        messageError('Захиалга үүсгэх үед алдаа гарлаа. Админтай холбогдоно уу!');
       }
     });
   }
 
-  Future<dynamic> createQR(
-      {required int basketId,
-      required int branchId,
-      required String deliveryType,
-      String? note,
-      required BuildContext context}) async {
+  bool loading = true;
+  setLoading(bool val) {
+    loading = val;
+    notifyListeners();
+  }
+
+  Future<dynamic> createQR({int? branchId, required String deliveryType, String? note}) async {
     try {
+      // final user = Authenticator.security;
+      // if (user == null) {
+      //   messageWarning('Нэвтэрнэ үү!');
+      //   return;
+      // }
+      // bool isPharmacist = user.isPharmacist;
+
       var body = {
         'branch_id': branchId,
         'note': note != '' ? note : null,
@@ -195,7 +249,6 @@ class CartProvider extends ChangeNotifier {
       if (r == null) return;
       final data = convertData(r);
       final status = r.statusCode;
-      print(r.body);
       if (status == 200) {
         _qrCode = OrderQRCode.fromJson(data);
         goto(const QRCode());
@@ -203,6 +256,8 @@ class CartProvider extends ChangeNotifier {
         if (data == 'qpay') {
           messageWarning('Нийлүүлэгч Qpay холбоогүй.');
         }
+      } else if (status == 403) {
+        messageWarning('Хэрэглэгчийн эрх хүрэхгүй байна.');
       } else if (status == 400) {
         if (data == 'bad qpay') {
           messageWarning('Нийлүүлэгчийн Qpay тохиргоо алдаатай!');

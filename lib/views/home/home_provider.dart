@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart' hide Headers;
+import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/application/application.dart'
+    hide Response, FormData, MultipartFile;
 import 'package:pharmo_app/views/promotion/promotion_dialog.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -26,6 +28,12 @@ class HomeProvider extends ChangeNotifier {
       logo: null,
       stocks: [],
     );
+    notifyListeners();
+  }
+
+  bool hidingOnScroll = false;
+  void setHidingOnScroll(bool val) {
+    hidingOnScroll = val;
     notifyListeners();
   }
 
@@ -141,8 +149,8 @@ class HomeProvider extends ChangeNotifier {
   Future<List<Product>> searchProducts(String query) async {
     try {
       if (query.isNotEmpty) {
-        final r = await api(
-            Api.get, 'products/search/?k=$queryType&v=$query&page=$pageKey&page_size=$pageSize');
+        final url = 'products/search/?k=$queryType&v=$query&page=$pageKey&page_size=$pageSize';
+        final r = await api(Api.get, url);
         if (r == null) return [];
         if (r.statusCode == 200) {
           final res = convertData(r);
@@ -185,17 +193,19 @@ class HomeProvider extends ChangeNotifier {
         messageWarning('Нэвтэрнэ үү');
         return;
       }
-      var request = http.MultipartRequest('PATCH', ApiService.buildUrl('update_product_image/'));
-      request.headers['Authorization'] = security.access;
-      request.fields['product_id'] = id.toString();
-      images
-          .map((image) async =>
-              request.files.add(await http.MultipartFile.fromPath('images', image.path)))
-          .toList();
-      var res = await request.send();
+      final formData = FormData.fromMap({
+        'product_id': id.toString(),
+        'images': await Future.wait(
+          images.map((image) => MultipartFile.fromFile(image.path)),
+        ),
+      });
+      final res = await ApiService.plainDio.patch(
+        ApiService.buildUrl('update_product_image/').toString(),
+        data: formData,
+        options: Options(headers: {'Authorization': security.access}),
+      );
       print(res.statusCode);
-      String rBody = await res.stream.bytesToString();
-      print(rBody);
+      print(res.data);
       if (res.statusCode == 200) {
         return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
       } else {
@@ -212,16 +222,17 @@ class HomeProvider extends ChangeNotifier {
       final security = await Authenticator.getSecurity();
       if (security == null) {
         messageWarning('Нэвтэрнэ үү');
-        false;
+        return false;
       }
-      final uri = ApiService.buildUrl('update_product_image/');
-      var request = http.MultipartRequest('PATCH', uri);
-      request.headers['Authorization'] = security!.access;
-      request.fields['product_id'] = id.toString();
-      request.fields['images_to_remove'] = imageID.toString();
-      var r = await request.send();
-      if (r == null) return false;
-      // String rBody = await r.stream.bytesToString();
+      final formData = FormData.fromMap({
+        'product_id': id.toString(),
+        'images_to_remove': imageID.toString(),
+      });
+      final r = await ApiService.plainDio.patch(
+        ApiService.buildUrl('update_product_image/').toString(),
+        data: formData,
+        options: Options(headers: {'Authorization': security.access}),
+      );
       if (r.statusCode == 200) {
         messageComplete('Амжилттай хадгалагдлаа');
         return true;
@@ -239,11 +250,11 @@ class HomeProvider extends ChangeNotifier {
       final r = await api(Api.get, 'branch/orderer');
       if (r == null) return;
       if (r.statusCode == 200) {
-        List<dynamic> res = convertData(r);
-        // print(res);
-        branches = (res).map((data) => Sector.fromJson(data)).toList();
+        final res = convertData(r);
+        print("fisrt branch ${res[0]}");
+        branches = (res as List).map((data) => Sector.fromJson(data)).toList();
+        notifyListeners();
       }
-      notifyListeners();
     } catch (e) {
       print(e);
     }
@@ -344,7 +355,7 @@ class HomeProvider extends ChangeNotifier {
     if (r.statusCode == 200) {
       setStock(stock);
       setSupplier(sup);
-      Map<String, dynamic> res = jsonDecode(r.body);
+      Map<String, dynamic> res = convertData(r);
       await Authenticator.updateAccess(
         res['access_token'],
         refresh: res['refresh_token'],
@@ -497,6 +508,27 @@ class HomeProvider extends ChangeNotifier {
         loading = value;
         notifyListeners();
       },
+    );
+  }
+}
+
+class HomeScrollListener extends StatelessWidget {
+  final Widget xchild;
+  const HomeScrollListener({super.key, required this.xchild});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<HomeProvider>(
+      builder: (context, home, child) => NotificationListener<UserScrollNotification>(
+        onNotification: (notification) {
+          if (notification.direction == ScrollDirection.idle) {
+            return false;
+          }
+          home.setHidingOnScroll(notification.direction != ScrollDirection.forward);
+          return false;
+        },
+        child: xchild,
+      ),
     );
   }
 }

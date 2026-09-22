@@ -331,7 +331,7 @@ class JaggerProvider extends ChangeNotifier {
           '${action.capitalize} дуусгасан',
         );
       } else {
-        String data = r.body.toString();
+        String data = convertData(r).toString();
         if (data.contains('UB!')) {
           messageWarning('Таний байршил Улаанбаатарт биш байна');
         } else {
@@ -578,7 +578,7 @@ class JaggerProvider extends ChangeNotifier {
         return;
       }
       if (r.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(r.bodyBytes)) as List;
+        final data = convertData(r) as List;
         if (data.isEmpty) {
           print('No active deliveries found for the driver.');
           delivery = null;
