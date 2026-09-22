@@ -444,23 +444,28 @@ class HomeProvider extends ChangeNotifier {
         final res = convertData(r);
         if (r.statusCode == 201) {
           final orderNumber = res['orderNo'];
-          final totalPrice = basket.basket?.totalPrice ?? 0;
-          final totalCount = basket.basket?.totalCount ?? 0;
           await basket.clearBasket();
           setCustomer(null);
           note = null;
           notifyListeners();
-          // seller/order/ auto-attaches a QPay invoice when the basket was
-          // a cash-only group - resolve that before treating the order as
-          // "done" (QPay must never stop the sale from being recorded, so
-          // the order itself already exists either way).
-          if (SellerQpayInvoice.presentIn(res)) {
+          // seller/order/ can create more than one actual order
+          // (split_group) and auto-attaches a QPay invoice to whichever
+          // ones need one (a cash-only group) - each order's own
+          // `requires_payment`/`qpay` live inside the response's `orders`
+          // list, not at the top level. QPay must never stop the sale
+          // from being recorded, so the order(s) already exist either way
+          // - this only decides whether to resolve payment before
+          // treating checkout as "done".
+          final subOrders = SellerSubOrder.listFrom(res);
+          final needsPayment =
+              subOrders.where((o) => o.requiresPayment && o.qpay != null).firstOrNull;
+          if (needsPayment != null) {
             goto(SellerQpayPage(
-              orderId: parseInt(res['id']),
-              orderNo: orderNumber.toString(),
-              totalPrice: totalPrice,
-              totalCount: totalCount,
-              invoice: SellerQpayInvoice.fromJson(res),
+              orderId: needsPayment.id,
+              orderNo: needsPayment.orderNo,
+              totalPrice: needsPayment.totalPrice,
+              totalCount: needsPayment.totalCount,
+              invoice: needsPayment.qpay!,
             ));
           } else {
             goto(OrderDone(orderNo: orderNumber.toString()));

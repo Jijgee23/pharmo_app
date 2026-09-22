@@ -1,3 +1,4 @@
+import 'package:pharmo_app/application/function/utilities/a_utils.dart';
 import 'package:pharmo_app/data/models/order_qrcode.dart';
 
 /// QPay invoice shape returned by the seller-order endpoints
@@ -27,10 +28,46 @@ class SellerQpayInvoice {
           : [],
     );
   }
+}
 
-  /// The create-order response only carries an invoice when the backend
-  /// decided one was needed (a cash-only group) - detect that by presence
-  /// of these keys rather than assuming every seller/order/ response has one.
-  static bool presentIn(Map<String, dynamic> json) =>
-      json['invoiceId'] != null && json['qrTxt'] != null;
+/// One entry of `seller/order/`'s response `orders` list. A single POST can
+/// create more than one actual order (e.g. a `split_group`) - each entry
+/// carries its own id, its own `requires_payment` flag, and, only when that
+/// flag is true, its own nested `qpay` invoice object.
+class SellerSubOrder {
+  final int id;
+  final String orderNo;
+  final double totalPrice;
+  final double totalCount;
+  final bool requiresPayment;
+  final SellerQpayInvoice? qpay;
+
+  const SellerSubOrder({
+    required this.id,
+    required this.orderNo,
+    required this.totalPrice,
+    required this.totalCount,
+    required this.requiresPayment,
+    this.qpay,
+  });
+
+  factory SellerSubOrder.fromJson(Map<String, dynamic> json) {
+    return SellerSubOrder(
+      id: parseInt(json['id']),
+      orderNo: json['orderNo']?.toString() ?? '',
+      totalPrice: parseDouble(json['totalPrice']),
+      totalCount: parseDouble(json['totalCount']),
+      requiresPayment: json['requires_payment'] == true,
+      qpay: json['qpay'] != null
+          ? SellerQpayInvoice.fromJson(json['qpay'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  /// Parses the top-level `seller/order/` response's `orders` list.
+  static List<SellerSubOrder> listFrom(Map<String, dynamic> res) {
+    final list = res['orders'];
+    if (list is! List) return [];
+    return list.map((e) => SellerSubOrder.fromJson(e as Map<String, dynamic>)).toList();
+  }
 }
