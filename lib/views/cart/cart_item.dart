@@ -78,6 +78,10 @@ class _CartItemState extends State<CartItem> {
                   _buildQtyStepper(),
                 ],
               ),
+              if (item.cashOnly) ...[
+                const SizedBox(height: 8),
+                _cashOnlyTag(),
+              ],
               const Divider(height: 20, thickness: 0.5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -88,6 +92,23 @@ class _CartItemState extends State<CartItem> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _cashOnlyTag() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+        decoration: BoxDecoration(
+          color: Colors.redAccent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Text(
+          'Зөвхөн бэлнээр',
+          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -169,19 +190,21 @@ class ChangeQtyPad extends StatelessWidget {
   final String initValue;
   final String? title;
   final Function(String) onSubmit;
+  final bool cashOnly;
 
   const ChangeQtyPad({
     super.key,
     required this.initValue,
     required this.onSubmit,
     this.title,
+    this.cashOnly = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final basket = context.read<CartProvider>();
     Future.delayed(Duration.zero, () => basket.setQTYvalue(initValue));
-
+    final size = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       decoration: const BoxDecoration(
@@ -189,7 +212,7 @@ class ChangeQtyPad extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.65,
+        maxHeight: context.isLandscape ? size.height - 20 : size.height * 0.65,
       ),
       child: SafeArea(
         child: Column(
@@ -210,6 +233,10 @@ class ChangeQtyPad extends StatelessWidget {
               title ?? 'Тоо ширхэг өөрчлөх',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
+            if (cashOnly) ...[
+              const SizedBox(height: 12),
+              const CashOnlyWarning(),
+            ],
             const SizedBox(height: 15),
 
             // 2. Display
@@ -241,7 +268,7 @@ class ChangeQtyPad extends StatelessWidget {
               child: GridView.count(
                 physics:
                     const BouncingScrollPhysics(), // Хэрэв дэлгэц жижиг бол дотроо scroll хийнэ
-                crossAxisCount: 3,
+                crossAxisCount: (context.isLandscape) ? 5 : 3,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
                 childAspectRatio: 2, // Өндрийг бага зэрэг нэмсэн (1.8-аас 1.6 болгож)

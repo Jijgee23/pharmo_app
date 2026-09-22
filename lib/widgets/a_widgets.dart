@@ -11,5 +11,6 @@ export './inputs/inputs.dart';
 export './loader/loaders.dart';
 export './others/a_others.dart';
 export './order_summary_card.dart';
+export './cash_only_warning.dart';
 export './text/small_text.dart';
 export './ui_help/a_ui_help.dart';

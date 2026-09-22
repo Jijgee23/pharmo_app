@@ -56,49 +56,64 @@ class _ProductDetailState extends State<ProductDetail> {
         final isNotPharma = !Authenticator.security!.isPharmacist;
 
         return Scaffold(
-          backgroundColor: Colors.grey.shade50,
+          backgroundColor: white,
           body: SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                // App Bar with Image
-                _buildSliverAppBar(isNotPharma, home),
+            bottom: false,
+            child: Material(
+              color: Colors.grey.shade100,
+              child: Stack(
+                children: [
+                  CustomScrollView(
+                    slivers: [
+                      // App Bar with Image
+                      _buildSliverAppBar(isNotPharma, home),
 
-                // Content
-                SliverToBoxAdapter(
-                  child: det.isEmpty
-                      ? _buildLoadingState()
-                      : Column(
-                          children: [
-                            // Product Info Card
-                            _buildProductInfoCard(),
+                      // Content
+                      SliverToBoxAdapter(
+                        child: det.isEmpty
+                            ? _buildLoadingState()
+                            : Column(
+                                children: [
+                                  // Product Info Card
+                                  _buildProductInfoCard(),
 
-                            const SizedBox(height: 12),
+                                  const SizedBox(height: 12),
 
-                            // Details Card
-                            _buildDetailsCard(),
+                                  // Details Card
+                                  _buildDetailsCard(),
 
-                            const SizedBox(height: 12),
+                                  const SizedBox(height: 12),
 
-                            // Price Card
-                            _buildPriceCard(),
+                                  // Price Card
+                                  _buildPriceCard(),
 
-                            const SizedBox(height: 12),
+                                  const SizedBox(height: 12),
 
-                            // Image Management (for non-pharma)
-                            if (isNotPharma) ...[
-                              if (isNotPharma) _buildImageManagementCard(home),
-                              const SizedBox(height: 80),
-                            ] else
-                              const SizedBox(height: 80),
-                          ],
-                        ),
-                ),
-              ],
+                                  // Image Management (for non-pharma)
+                                  if (isNotPharma) ...[
+                                    if (isNotPharma) _buildImageManagementCard(home),
+                                    const SizedBox(height: 80),
+                                  ] else
+                                    const SizedBox(height: 80),
+                                ],
+                              ),
+                      ),
+
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: 120),
+                      )
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    width: MediaQuery.of(context).size.width,
+                    child: _buildBottomBar(cart),
+                  )
+                ],
+              ),
             ),
           ),
-
-          // Bottom Add to Cart Button
-          bottomNavigationBar: _buildBottomBar(cart),
         );
       },
     );
@@ -305,6 +320,22 @@ class _ProductDetailState extends State<ProductDetail> {
               height: 1.3,
             ),
           ),
+
+          // Cash only tag
+          if (widget.prod.cashOnly) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              decoration: BoxDecoration(
+                color: Colors.redAccent,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text(
+                'Зөвхөн бэлнээр',
+                style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
 
           // Barcode
           if (widget.prod.barcode != null) ...[
@@ -643,45 +674,42 @@ class _ProductDetailState extends State<ProductDetail> {
   Widget _buildBottomBar(CartProvider basket) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
+      decoration: BoxDecoration(),
       child: SafeArea(
-        child: ElevatedButton(
-          onPressed: () => _showAddToCartSheet(basket),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            backgroundColor: primary,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.shopping_cart_outlined,
-                size: 22,
-                color: white,
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Сагслах',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: white,
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => _showAddToCartSheet(basket),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  backgroundColor: primary,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.shopping_cart_outlined,
+                      size: 22,
+                      color: white,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Сагслах',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -832,6 +860,7 @@ class _ProductDetailState extends State<ProductDetail> {
           await _addToCart(v, basket);
         },
         initValue: '',
+        cashOnly: widget.prod.cashOnly,
       ),
       isScrollControlled: true,
     );

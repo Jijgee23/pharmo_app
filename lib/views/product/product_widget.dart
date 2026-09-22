@@ -43,7 +43,7 @@ class ProductWidget extends StatelessWidget {
                         child: image(ContextExtensionss(context).height),
                       ),
                       Text(
-                        item.name!,
+                        item.name ?? '',
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 2,
@@ -108,6 +108,7 @@ class ProductWidget extends StatelessWidget {
                                   ChangeQtyPad(
                                     title: 'Тоо хэмжээ оруулна уу',
                                     initValue: '',
+                                    cashOnly: item.cashOnly,
                                     onSubmit: (value) async => await addBasket(
                                       item,
                                       parseDouble(value),
@@ -134,6 +135,31 @@ class ProductWidget extends StatelessWidget {
                 ),
               ),
             ),
+            if (item.cashOnly)
+              Positioned(
+                top: 5,
+                left: 5,
+                right: 5,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        'Зөвхөн бэлнээр',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             (hasSale == true)
                 ? Positioned(
                     top: 0,
@@ -270,6 +296,7 @@ class ProductWidgetListView extends StatelessWidget {
                 ChangeQtyPad(
                   title: 'Тоо хэмжээ оруулна уу',
                   initValue: '',
+                  cashOnly: item.cashOnly,
                   onSubmit: (value) => addBasket(
                     item,
                     parseDouble(value),
@@ -282,9 +309,7 @@ class ProductWidgetListView extends StatelessWidget {
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
-                  side: BorderSide(
-                    color: primary,
-                  ),
+                  side: BorderSide(color: primary),
                 ),
               ),
               child: Text(
