@@ -3,7 +3,8 @@ import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/roles/driver/ready_orders/ready_order_card.dart';
 
 class ReadyOrders extends StatefulWidget {
-  const ReadyOrders({super.key});
+  final bool showHeader;
+  const ReadyOrders({super.key, this.showHeader = true});
 
   @override
   State<ReadyOrders> createState() => _ReadyOrdersState();
@@ -48,15 +49,17 @@ class _ReadyOrdersState extends State<ReadyOrders> {
           SafeArea(
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Text(
-                      'Бэлэн захиалгууд',
-                      style: context.theme.appBarTheme.titleTextStyle,
-                    )
-                  ],
-                ).paddingAll(10),
-                Divider(),
+                if (widget.showHeader) ...[
+                  Row(
+                    children: [
+                      Text(
+                        'Бэлэн захиалгууд',
+                        style: context.theme.appBarTheme.titleTextStyle,
+                      )
+                    ],
+                  ).paddingAll(10),
+                  Divider(),
+                ],
                 Flexible(
                   child: Builder(
                     builder: (context) {

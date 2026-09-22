@@ -64,8 +64,20 @@ class _ReadyOrdersJumpButton extends StatelessWidget {
       heroTag: 'VS_READY_ORDERS',
       shape: const CircleBorder(),
       backgroundColor: Colors.white,
-      onPressed: () => goto(const ReadyOrders()),
+      onPressed: () => goto(const ReadyOrdersPage()),
       child: const Icon(Icons.checklist_rounded, color: primary),
+    );
+  }
+}
+
+class ReadyOrdersPage extends StatelessWidget {
+  const ReadyOrdersPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const SideAppBar(text: 'Бэлэн захиалгууд'),
+      body: const ReadyOrders(showHeader: false),
     );
   }
 }
