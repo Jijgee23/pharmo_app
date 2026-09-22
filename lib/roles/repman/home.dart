@@ -1,6 +1,12 @@
 import 'dart:io';
 
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/repman/visit_card.dart';
+
+/// Widest a single-column content area is allowed to grow on tablets/large
+/// screens — keeps line lengths and tap targets comfortable instead of
+/// stretching a phone-oriented layout edge to edge.
+const double _kMaxContentWidth = 640;
 
 class RepHome extends StatefulWidget {
   const RepHome({super.key});
@@ -13,55 +19,80 @@ class _RepHomeState extends State<RepHome> {
   @override
   void initState() {
     super.initState();
-    refresh();
+    WidgetsBinding.instance.addPostFrameCallback((_) => refresh());
   }
 
-  refresh() async {
+  Future<void> refresh() async {
     final rep = context.read<RepProvider>();
     await rep.getActiveVisits();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<RepProvider>(builder: (context, rep, child) {
-      final hasVisit = rep.visiting != null;
-      return DataScreen(
-        loading: rep.loading,
-        onRefresh: () async => await refresh(),
-        empty: !hasVisit,
-        child: SingleChildScrollView(
-          child: Column(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (hasVisit && rep.visiting!.outOn == null)
-                CustomButton(
-                    text: 'Уулзалтанд гарах', ontap: () => askStart(rep)),
-              if (hasVisit)
-                ...rep.visiting!.visits!.map((e) => visitBuilder(e)),
-              if (hasVisit)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Consumer<RepProvider>(
+      builder: (context, rep, child) {
+        final hasVisit = rep.visiting != null;
+        // Clears the floating BottomBar (index.dart) plus this device's own
+        // bottom safe-area inset, instead of a fixed magic number that can
+        // under-clear on devices with a tall gesture-navigation inset.
+        final bottomClearance = MediaQuery.of(context).padding.bottom + 100;
+        return DataScreen(
+          loading: rep.loading,
+          onRefresh: refresh,
+          empty: !hasVisit,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
+              child: SingleChildScrollView(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomButton(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        text: 'Байршил дамжуулах',
-                        ontap: () async => rep.startTracking()),
-                    CustomButton(
-                        padding: EdgeInsets.symmetric(horizontal: 30),
-                        text: 'Уулзалт дуусгах',
-                        ontap: () async => askEnd(rep)),
+                    if (hasVisit && rep.visiting!.outOn == null)
+                      SizedBox(
+                        width: double.infinity,
+                        child: CustomButton(
+                          text: 'Уулзалтанд гарах',
+                          ontap: () => _askStart(rep),
+                        ),
+                      ),
+                    if (hasVisit)
+                      ...?rep.visiting!.visits?.map(
+                        (visit) => VisitCard(
+                          visit: visit,
+                          onEdit: () => _editVisit(visit),
+                        ),
+                      ),
+                    if (hasVisit)
+                      Row(
+                        spacing: 10,
+                        children: [
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Байршил дамжуулах',
+                              ontap: () => rep.startTracking(),
+                            ),
+                          ),
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Уулзалт дуусгах',
+                              ontap: () => _askEnd(rep),
+                            ),
+                          ),
+                        ],
+                      ),
+                    SizedBox(height: bottomClearance),
                   ],
                 ),
-              SizedBox(height: kTextTabBarHeight * 3),
-            ],
+              ),
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
-  askStart(RepProvider rep) async {
+  Future<void> _askStart(RepProvider rep) async {
     bool confirmed = await confirmDialog(
       title: 'Уулзалтыг эхлэх үү?',
       attentionText: Platform.isAndroid
@@ -72,7 +103,7 @@ class _RepHomeState extends State<RepHome> {
     if (confirmed) rep.start();
   }
 
-  askEnd(RepProvider rep) async {
+  Future<void> _askEnd(RepProvider rep) async {
     bool confirmed = await confirmDialog(
       title: 'Уулзалтыг дуусгах уу?',
       attentionText: Platform.isAndroid
@@ -83,107 +114,46 @@ class _RepHomeState extends State<RepHome> {
     if (confirmed) rep.endVisiting();
   }
 
-  visitBuilder(Visit visit) {
+  final _noteController = TextEditingController();
+
+  void _editVisit(Visit visit) {
     final rep = context.read<RepProvider>();
-    return Container(
-      width: double.maxFinite,
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-          color: Colors.blue.withAlpha(70),
-          borderRadius: BorderRadius.circular(10)),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(visit.note, style: TextStyle(color: black)),
-                  Text(visit.createdAt.substring(0, 10),
-                      style: TextStyle(
-                        color: grey600,
-                        fontSize: 12,
-                      )),
-                ],
-              ),
-              IconButton(
-                onPressed: () => editVisit(visit),
-                icon: Icon(Icons.edit),
-                color: Colors.green,
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              btn('Ирсэн', () async => await rep.comedVisit(visit.id)),
-              btn('Явсан', () async => await rep.leftVisit(visit.id)),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  // continiuSharing() async {
-  //   final pref = await SharedPreferences.getInstance();
-  //   int? vId = pref.getInt('visitId');
-  //   // LocationService().startTracking(vId!);
-  // }
-
-  final note = TextEditingController();
-  editVisit(Visit visit) {
-    final rep = context.read<RepProvider>();
-    setState(() {
-      note.text = visit.note;
-    });
-    mySheet(children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(),
-          Text('Уулзалтын мэдээлэл засах', style: TextStyle(fontSize: 16)),
-          IconButton(
-            onPressed: () async {
-              await rep.deleteVisit(visit.id);
-              if (!mounted) return;
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.delete_forever),
-            color: Colors.red,
-          ),
-        ],
-      ),
-      CustomTextField(controller: note),
-      CustomButton(
-        text: 'Хадгалах',
-        ontap: () async {
-          await rep.editVisit(visit.id, note.text);
-          if (!mounted) return;
-          Navigator.pop(context);
-        },
-      ),
-      SizedBox()
-    ]);
-  }
-
-  btn(String title, Function() ontap) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
-          padding: EdgeInsets.symmetric(horizontal: 15),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-            10,
-          ))),
-      onPressed: ontap,
-      child: Center(
-        child: Text(
-          title,
-          style: TextStyle(color: white),
+    _noteController.text = visit.note;
+    mySheet(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(),
+            const Text('Уулзалтын мэдээлэл засах', style: TextStyle(fontSize: 16)),
+            IconButton(
+              onPressed: () async {
+                await rep.deleteVisit(visit.id);
+                if (!mounted) return;
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.delete_forever),
+              color: Colors.red,
+            ),
+          ],
         ),
-      ),
+        CustomTextField(controller: _noteController),
+        CustomButton(
+          text: 'Хадгалах',
+          ontap: () async {
+            await rep.editVisit(visit.id, _noteController.text);
+            if (!mounted) return;
+            Navigator.pop(context);
+          },
+        ),
+        const SizedBox(),
+      ],
     );
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
   }
 }
