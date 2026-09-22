@@ -33,7 +33,7 @@ class _TrackMapState extends State<TrackMap> {
       await jag.loadPermission();
       await jag.loadTrackState();
 
-      if (user.isDriver) {
+      if (user.isDeliveryCapable) {
         await jag.getDeliveries();
       }
       if (user.isSaler) {
@@ -81,7 +81,6 @@ class _TrackMapState extends State<TrackMap> {
               MapButtons(),
               MapHeading(isSeller: isSeller, showTracking: showTracking),
               if (showTracking) const TrackingStatusCard(),
-              // if (!isSeller) const DeliveryInfoCard(),
               DriverButton(),
               SellerTrackButton(),
             ],

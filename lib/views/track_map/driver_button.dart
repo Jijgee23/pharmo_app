@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/DRIVER/active_delivery/deliveries.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/deliveries.dart';
 
 class DriverButton extends StatefulWidget {
   const DriverButton({super.key});
@@ -8,8 +8,7 @@ class DriverButton extends StatefulWidget {
   State<DriverButton> createState() => _DriverButtonState();
 }
 
-class _DriverButtonState extends State<DriverButton>
-    with SingleTickerProviderStateMixin {
+class _DriverButtonState extends State<DriverButton> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _pulseAnimation;
 
@@ -37,16 +36,15 @@ class _DriverButtonState extends State<DriverButton>
     final user = Authenticator.security;
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
-        if (user == null || user.role != "D") {
+        if (user == null || !user.isDeliveryCapable) {
           return const SizedBox.shrink();
         }
 
         final hasActiveDelivery = jagger.delivery != null;
-        final isTracking =
-            jagger.subscription != null && !jagger.subscription!.isPaused;
+        final isTracking = jagger.subscription != null && !jagger.subscription!.isPaused;
 
         return Positioned(
-          bottom: 20,
+          bottom: 100,
           left: 20,
           child: SafeArea(
             child: AnimatedBuilder(
@@ -87,11 +85,8 @@ class _DriverButtonState extends State<DriverButton>
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
-                                  isTracking
-                                      ? Icons.local_shipping
-                                      : Icons.shopping_bag,
-                                  color:
-                                      isTracking ? Colors.teal : Colors.orange,
+                                  isTracking ? Icons.local_shipping : Icons.shopping_bag,
+                                  color: isTracking ? Colors.teal : Colors.orange,
                                   size: 24,
                                 ),
                               ),
@@ -119,8 +114,7 @@ class _DriverButtonState extends State<DriverButton>
                                     ],
                                   ),
                                   const SizedBox(height: 4),
-                                  if (hasActiveDelivery &&
-                                      jagger.delivery!.startedOn != null)
+                                  if (hasActiveDelivery && jagger.delivery!.startedOn != null)
                                     Row(
                                       children: [
                                         Icon(
@@ -174,8 +168,7 @@ class _LiveBadge extends StatefulWidget {
   State<_LiveBadge> createState() => _LiveBadgeState();
 }
 
-class _LiveBadgeState extends State<_LiveBadge>
-    with SingleTickerProviderStateMixin {
+class _LiveBadgeState extends State<_LiveBadge> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 

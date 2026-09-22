@@ -133,7 +133,7 @@ class JaggerProvider extends ChangeNotifier {
 
     if (user == null) return;
 
-    bool isDriver = user.isDriver;
+    bool isDriver = user.isDeliveryCapable;
     String url = isDriver ? 'delivery/start/' : 'sales/route/';
     String action = isDriver ? 'түгээлт' : 'борлуулалт';
     final shipmentId = await Authenticator.getTrackId();
@@ -232,7 +232,7 @@ class JaggerProvider extends ChangeNotifier {
     if (user.isSaler) {
       await checkSellerTrack();
     }
-    if (user.isDriver) {
+    if (user.isDeliveryCapable) {
       await getDeliveries();
     }
   }
@@ -289,7 +289,7 @@ class JaggerProvider extends ChangeNotifier {
 
     if (user == null) return;
 
-    bool isDriver = user.isDriver;
+    bool isDriver = user.isDeliveryCapable;
     String action = isDriver ? 'түгээлт' : 'борлуулалт';
     // List<DeliveryOrder>? orders = delivery?.orders;
     List<DeliveryOrder> unDeliveredOrders = [];
