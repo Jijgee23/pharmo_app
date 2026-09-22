@@ -189,24 +189,34 @@ class CartProvider extends ChangeNotifier {
             final confirmed = await confirmDialog(
               title: res['payType'][0].toString(),
               titleColor: Colors.red,
-              message: 'Зөвхөн бэлнээр төлөгдөх бараануудыг сагснаас хасах уу?\n'
-                  'Эсвэл шууд Qpay-р төлж болно.',
+              message: 'Зөвхөн бэлнээр төлөгдөх бараануудыг сагснаас хасах уу?',
               content: SizedBox(
                 width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    payViaQpay = true;
-                    final context = Get.context ?? GlobalKeys.navigatorKey.currentContext;
-                    if (context != null) Navigator.of(context).pop(true);
-                  },
-                  icon: const Icon(Icons.qr_code_rounded, size: 18),
-                  label: const Text('Шууд Qpay-р төлөх'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: primary,
-                    side: const BorderSide(color: primary),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Эсвэл шууд Qpay-р төлөх үү?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 13, color: Color(0xFF4A6361)),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        payViaQpay = true;
+                        final context = Get.context ?? GlobalKeys.navigatorKey.currentContext;
+                        if (context != null) Navigator.of(context).pop(true);
+                      },
+                      icon: const Icon(Icons.qr_code_rounded, size: 18),
+                      label: const Text('Шууд Qpay-р төлөх'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: primary,
+                        side: const BorderSide(color: primary),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );

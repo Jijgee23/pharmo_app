@@ -122,92 +122,94 @@ class _OrderSheetState extends State<OrderSheet> {
                   ),
                   const SizedBox(height: 24),
 
-              // ── PHARM sections ──────────────────────────────────────
-              if (_isPharm) ...[
-                _supplierInfo(home),
-                const SizedBox(height: 20),
-                BottomSheetLabelBuilder('Хүргэлтийн нөхцөл'),
-                const SizedBox(height: 10),
-                _deliveryChips(),
-                const SizedBox(height: 20),
-                if (deliveryType == 'D') ...[
-                  BottomSheetLabelBuilder('Хүргэлт хийх салбар'),
-                  const SizedBox(height: 10),
-                  _branchSelector(home),
-                  if (_sector.id != -1) ...[
-                    const SizedBox(height: 12),
-                    BottomSheetLabelBuilder('Холбоо барих'),
+                  // ── PHARM sections ──────────────────────────────────────
+                  if (_isPharm) ...[
+                    _supplierInfo(home),
+                    const SizedBox(height: 20),
+                    BottomSheetLabelBuilder('Хүргэлтийн нөхцөл'),
                     const SizedBox(height: 10),
-                    CustomTextField(controller: phoneController, labelText: 'Утас'),
-                    const SizedBox(height: 8),
-                    CustomTextField(controller: phone2Controller, labelText: 'Утас 2'),
+                    _deliveryChips(),
+                    const SizedBox(height: 20),
+                    if (deliveryType == 'D') ...[
+                      BottomSheetLabelBuilder('Хүргэлт хийх салбар'),
+                      const SizedBox(height: 10),
+                      _branchSelector(home),
+                      if (_sector.id != -1) ...[
+                        const SizedBox(height: 12),
+                        BottomSheetLabelBuilder('Холбоо барих'),
+                        const SizedBox(height: 10),
+                        CustomTextField(controller: phoneController, labelText: 'Утас'),
+                        const SizedBox(height: 8),
+                        CustomTextField(controller: phone2Controller, labelText: 'Утас 2'),
+                      ],
+                      const SizedBox(height: 20),
+                    ],
+                  ],
+
+                  // ── SELLER sections ─────────────────────────────────────
+                  if (!_isPharm) ...[
+                    BottomSheetLabelBuilder('Захиалагч сонгох'),
+                    const SizedBox(height: 12),
+                    _customerSelector(home),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // ── Shared: payment ─────────────────────────────────────
+                  BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
+                  const SizedBox(height: 10),
+                  if (cart.isCashOnlyBasket) ...[
+                    const CashOnlyWarning(
+                      message:
+                          'Сагсанд зөвхөн бэлнээр төлөгдөх бараа байгаа тул зөвхөн бэлэн төлбөр боломжтой.',
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                  Row(
+                    children: _availablePaymentMethods(cart)
+                        .map((pm) => Expanded(
+                              child: BottomSheetOptionChip(
+                                title: pm.name,
+                                v: pm.value,
+                                icon: pm.icon,
+                                isSelected: payType == pm.value,
+                                onTap: () {
+                                  setState(() => payType = pm.value);
+                                  if (_isPharm) {
+                                    context.read<HomeProvider>().setOrderPayType(pm.value);
+                                  }
+                                },
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                  if (payType == 'T' && cart.paymentSettings != null) ...[
+                    const SizedBox(height: 10),
+                    _bankAccountsCard(cart.paymentSettings!),
                   ],
                   const SizedBox(height: 20),
-                ],
-              ],
 
-              // ── SELLER sections ─────────────────────────────────────
-              if (!_isPharm) ...[
-                BottomSheetLabelBuilder('Захиалагч сонгох'),
-                const SizedBox(height: 12),
-                _customerSelector(home),
-                const SizedBox(height: 24),
-              ],
-
-              // ── Shared: payment ─────────────────────────────────────
-              BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
-              const SizedBox(height: 10),
-              if (cart.isCashOnlyBasket) ...[
-                const CashOnlyWarning(
-                  message:
-                      'Сагсанд зөвхөн бэлнээр төлөгдөх бараа байгаа тул зөвхөн бэлэн төлбөр боломжтой.',
-                ),
-                const SizedBox(height: 10),
-              ],
-              Row(
-                children: _availablePaymentMethods(cart)
-                    .map((pm) => Expanded(
-                          child: BottomSheetOptionChip(
-                            title: pm.name,
-                            v: pm.value,
-                            icon: pm.icon,
-                            isSelected: payType == pm.value,
-                            onTap: () {
-                              setState(() => payType = pm.value);
-                              if (_isPharm) context.read<HomeProvider>().setOrderPayType(pm.value);
-                            },
-                          ),
-                        ))
-                    .toList(),
-              ),
-              if (payType == 'T' && cart.paymentSettings != null) ...[
-                const SizedBox(height: 10),
-                _bankAccountsCard(cart.paymentSettings!),
-              ],
-              const SizedBox(height: 20),
-
-              // ── Shared: note ────────────────────────────────────────
-              BottomSheetLabelBuilder('Нэмэлт тайлбар (заавал биш)'),
-              const SizedBox(height: 10),
-              TextField(
-                textInputAction: TextInputAction.done,
-                controller: noteController,
-                onChanged: (v) => home.setNote(v),
-                decoration: const InputDecoration(
-                  hintText: 'Энд тайлбар бичиж болно...',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // ── Submit ──────────────────────────────────────────────
-              _loading
-                  ? const LoadingButton()
-                  : CustomButton(
-                      text: 'Захиалга үүсгэх',
-                      ontap: () => _submit(home, cart),
+                  // ── Shared: note ────────────────────────────────────────
+                  BottomSheetLabelBuilder('Нэмэлт тайлбар (заавал биш)'),
+                  const SizedBox(height: 10),
+                  TextField(
+                    textInputAction: TextInputAction.done,
+                    controller: noteController,
+                    onChanged: (v) => home.setNote(v),
+                    decoration: const InputDecoration(
+                      hintText: 'Энд тайлбар бичиж болно...',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // ── Submit ──────────────────────────────────────────────
+                  _loading
+                      ? const LoadingButton()
+                      : CustomButton(
+                          text: 'Захиалга үүсгэх',
+                          ontap: () => _submit(home, cart),
+                        ),
                 ],
               ),
             ),
