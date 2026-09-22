@@ -38,6 +38,11 @@ class _VisitsState extends State<Visits> {
           loading: rep.loading,
           onRefresh: _refresh,
           empty: visits.isEmpty,
+          customEmpty: NoResult(
+            message: 'Өнөөдөр бүртгэсэн уулзалт алга',
+            subMessage: 'Идэвхтэй уулзалт эхлээгүй эсвэл уулзалт бүртгээгүй байна.',
+            onRefresh: _refresh,
+          ),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),

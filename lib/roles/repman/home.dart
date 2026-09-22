@@ -1,4 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/repman/rep_session_card.dart';
+import 'package:pharmo_app/roles/repman/see_map.dart';
 import 'package:pharmo_app/roles/repman/visit_card.dart';
 
 /// Widest a single-column content area is allowed to grow on tablets/large
@@ -29,7 +31,8 @@ class _RepHomeState extends State<RepHome> {
   Widget build(BuildContext context) {
     return Consumer<RepProvider>(
       builder: (context, rep, child) {
-        final hasVisit = rep.visiting != null;
+        final visiting = rep.visiting;
+        final hasVisiting = visiting != null;
         // Clears the floating BottomBar (index.dart) plus this device's own
         // bottom safe-area inset, instead of a fixed magic number that can
         // under-clear on devices with a tall gesture-navigation inset.
@@ -37,74 +40,80 @@ class _RepHomeState extends State<RepHome> {
         return DataScreen(
           loading: rep.loading,
           onRefresh: refresh,
-          empty: !hasVisit,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
-              child: SingleChildScrollView(
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (hasVisit && rep.visiting!.outOn == null)
-                      SizedBox(
-                        width: double.infinity,
-                        child: CustomButton(
-                          text: 'Уулзалтанд гарах',
-                          ontap: () => _askStart(rep),
+          empty: !hasVisiting,
+          customEmpty: NoResult(
+            message: 'Идэвхтэй уулзалт алга',
+            subMessage: 'Доод буланд байрлах товчоор шинэ уулзалт бүртгэнэ үү.',
+            onRefresh: refresh,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Owns its own header (title + map action) instead of relying
+              // on a Scaffold-level appbar — matches ReadyOrders'/other role
+              // tabs' convention, and avoids IndexRep stacking a second
+              // header on top of Profile's own SliverAppBar on that tab.
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Миний хуваарь',
+                      style: context.theme.appBarTheme.titleTextStyle,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => goto(const SeeMap()),
+                    icon: const Icon(Icons.location_on_outlined),
+                    color: primary,
+                    tooltip: 'Газрын зураг',
+                  ),
+                ],
+              ).paddingAll(10),
+              const Divider(height: 1),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Column(
+                          spacing: 12,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (hasVisiting)
+                              RepSessionCard(
+                                visiting: visiting,
+                                isTracking: rep.isTracking,
+                                onStart: () => _askStart(rep),
+                                onShareLocation: () => rep.startTracking(),
+                                onEnd: () => _askEnd(rep),
+                              ),
+                            if (hasVisiting && (visiting.visits?.isNotEmpty ?? false)) ...[
+                              Text(
+                                'Уулзалтууд',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  color: Colors.grey.shade800,
+                                ),
+                              ),
+                              ...?visiting.visits?.map(
+                                (visit) => VisitCard(
+                                  visit: visit,
+                                  onEdit: () => _editVisit(visit),
+                                ),
+                              ),
+                            ],
+                            SizedBox(height: bottomClearance),
+                          ],
                         ),
                       ),
-                    if (hasVisit)
-                      ...?rep.visiting!.visits?.map(
-                        (visit) => VisitCard(
-                          visit: visit,
-                          onEdit: () => _editVisit(visit),
-                        ),
-                      ),
-                    if (hasVisit)
-                      Row(
-                        spacing: 10,
-                        children: [
-                          Expanded(
-                            child: CustomButton(
-                              text: rep.isTracking ? 'Дамжуулж байна' : 'Байршил дамжуулах',
-                              color: rep.isTracking ? Colors.teal : null,
-                              child: rep.isTracking
-                                  ? Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      spacing: 8,
-                                      children: [
-                                        const Icon(Icons.circle, size: 8, color: white),
-                                        Text(
-                                          'Дамжуулж байна',
-                                          style: TextStyle(
-                                            color: white,
-                                            fontSize: mediumFontSize,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : null,
-                              // startTracking() cancels any prior subscription
-                              // before resubscribing, so retapping while
-                              // already active is a safe manual "retry".
-                              ontap: () => rep.startTracking(),
-                            ),
-                          ),
-                          Expanded(
-                            child: CustomButton(
-                              text: 'Уулзалт дуусгах',
-                              ontap: () => _askEnd(rep),
-                            ),
-                          ),
-                        ],
-                      ),
-                    SizedBox(height: bottomClearance),
-                  ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         );
       },
@@ -112,9 +121,8 @@ class _RepHomeState extends State<RepHome> {
   }
 
   // Rep tracking is foreground-only on both platforms (RepProvider has no
-  // native background service behind it — see startTracking()'s comment),
-  // so this warning applies to iOS just as much as Android; it was
-  // previously Android-only for no reason grounded in the actual behavior.
+  // native background service behind it — see RepProvider.startTracking's
+  // comment), so this warning applies to iOS just as much as Android.
   static const _foregroundOnlyWarning =
       'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!';
 
