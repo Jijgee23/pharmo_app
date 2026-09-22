@@ -56,7 +56,7 @@ class SheetContainer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: spacing,
                     children: children,
-                  )
+                  ).marginOnly(top: 30)
                 ],
               ),
               Positioned(
@@ -68,6 +68,7 @@ class SheetContainer extends StatelessWidget {
                         color: Colors.blueGrey,
                       ),
                     ),
+                    elevation: 4,
                   ),
                   onPressed: () => Get.close(1),
                   icon: Icon(Icons.close, size: 18),

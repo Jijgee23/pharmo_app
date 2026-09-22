@@ -1,7 +1,7 @@
 export './appbar/custom_app_bar.dart';
 export './appbar/dm_app_bar.dart';
 export './appbar/side_menu_appbar.dart';
-export './bottomSheet/my_sheet.dart';
+export './bottom_sheet/my_sheet.dart';
 export './bottom_bar/bottom_bar.dart';
 export './dialog_and_messages/dialog_message_sheet_overlay.dart';
 export './dropdown/custom_dropdown.dart';
