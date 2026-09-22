@@ -14,7 +14,11 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
   String selectedFilter = 'Нэрээр';
   String filter = 'name';
 
-  final List<String> filters = ['Нэрээр', 'Утасны дугаараар', 'Регистрийн дугаараар'];
+  final List<String> filters = [
+    'Нэрээр',
+    'Утасны дугаараар',
+    'Регистрийн дугаараар'
+  ];
 
   @override
   void initState() {
@@ -33,7 +37,8 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       context.read<PharmProvider>().fetchMoreCustomers();
     }
   }
@@ -41,7 +46,8 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
   void setFilter(String v) {
     setState(() {
       selectedFilter = v;
-      filter = v == 'Нэрээр' ? 'name' : (v == 'Утасны дугаараар' ? 'phone' : 'rn');
+      filter =
+          v == 'Нэрээр' ? 'name' : (v == 'Утасны дугаараар' ? 'phone' : 'rn');
     });
   }
 
@@ -84,12 +90,14 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
             if (selectedFilter != 'Нэрээр')
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 color: const Color(0xFF00897B).withOpacity(0.06),
                 child: Row(
                   spacing: 6,
                   children: [
-                    Icon(Icons.filter_alt_outlined, size: 14, color: const Color(0xFF00897B)),
+                    Icon(Icons.filter_alt_outlined,
+                        size: 14, color: const Color(0xFF00897B)),
                     Text(
                       selectedFilter,
                       style: const TextStyle(
@@ -102,7 +110,8 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
                 ),
               ),
             Expanded(
-              child: provider.filteredCustomers.isEmpty && !provider.fetchingMore
+              child: provider.filteredCustomers.isEmpty &&
+                      !provider.fetchingMore
                   ? _emptyState()
                   : ListView.builder(
                       controller: _scrollController,
@@ -125,41 +134,46 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
   Widget _customerItem(Customer e) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
+      child: Material(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEBF2F1)),
-      ),
-      child: ListTile(
-        onTap: () => Navigator.pop(context, e),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        leading: Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: const Color(0xFF00897B).withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text(
-              (e.name ?? '?').substring(0, 1).toUpperCase(),
-              style: const TextStyle(
-                color: Color(0xFF00897B),
-                fontWeight: FontWeight.w700,
-                fontSize: 15,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xFFEBF2F1)),
+        ),
+        child: ListTile(
+          onTap: () => Navigator.pop(context, e),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          leading: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: const Color(0xFF00897B).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                (e.name ?? '?').substring(0, 1).toUpperCase(),
+                style: const TextStyle(
+                  color: Color(0xFF00897B),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
               ),
             ),
           ),
+          title: Text(
+            e.name ?? '',
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          ),
+          subtitle: Text(
+            'РД: ${e.rn ?? "-"}',
+            style: const TextStyle(color: Color(0xFF6B8280), fontSize: 12),
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded,
+              color: Color(0xFFD0DCDB), size: 20),
         ),
-        title: Text(
-          e.name ?? '',
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-        ),
-        subtitle: Text(
-          'РД: ${e.rn ?? "-"}',
-          style: const TextStyle(color: Color(0xFF6B8280), fontSize: 12),
-        ),
-        trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFFD0DCDB), size: 20),
       ),
     );
   }
@@ -191,7 +205,8 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 12,
         children: [
-          Icon(Icons.person_off_outlined, size: 56, color: Colors.grey.shade300),
+          Icon(Icons.person_off_outlined,
+              size: 56, color: Colors.grey.shade300),
           Text(
             'Харилцагч олдсонгүй',
             style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
