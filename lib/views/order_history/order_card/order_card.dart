@@ -1,7 +1,5 @@
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/order_history/order_card/order_status_chip.dart';
-import 'package:pharmo_app/views/order_history/order_card/user_tag.dart';
 import 'package:pharmo_app/views/order_history/pharm_order_history/pharm_order_detail.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/seller_order_detail.dart';
 
@@ -52,138 +50,28 @@ class OrderCard extends StatelessWidget {
     OrderProvider provider,
     bool isPharma,
   ) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          if (isPharma) {
-            goto(PharmOrderDetail(order: order));
-            return;
-          }
-          goto(SellerOrderDetail(oId: order.id));
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context, isPharma),
-              Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
-              _buildBody(context, provider, isPharma),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, bool isPharma) {
     String displayName =
         !isPharma ? (order.customer ?? "Захиалагч") : (order.supplier ?? "Нийлүүлэгч");
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          UserTag(name: displayName, isSupplier: isPharma),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                toPrice(order.totalPrice.toString()),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.green.shade700,
-                ),
-              ),
-              Text(
-                '#${order.orderNo}',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBody(
-    BuildContext context,
-    OrderProvider provider,
-    bool isPharma,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    OrderStatusChip(order.orderStatus),
-                    const SizedBox(height: 8),
-                    IconedText(
-                      icon: Icons.sync_outlined,
-                      text: order.orderProcess.name,
-                      color: order.orderProcess.color,
-                    ),
-                    const SizedBox(height: 4),
-                    if (order.createdOn != null)
-                      IconedText(
-                        icon: Icons.calendar_today_outlined,
-                        text: order.createdOn!.length > 10
-                            ? order.createdOn!.substring(0, 10)
-                            : order.createdOn!,
-                        color: Colors.grey.shade600,
-                      ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-            ],
-          ),
-          if (isPharma && (order.isAcceptable)) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.maxFinite,
-              child: ElevatedButton(
-                onPressed: () async => await provider.confirmOrder(order.id),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: succesColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Хүлээн авах',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ]
-        ],
-      ),
+    return OrderSummaryCard(
+      name: displayName,
+      isSupplier: isPharma,
+      price: order.totalPrice.toString(),
+      orderNo: order.orderNo,
+      status: order.orderStatus,
+      processText: order.orderProcess.name,
+      processColor: order.orderProcess.color,
+      createdOn: order.createdOn,
+      onTap: () {
+        if (isPharma) {
+          goto(PharmOrderDetail(order: order));
+          return;
+        }
+        goto(SellerOrderDetail(oId: order.id));
+      },
+      actionLabel: (isPharma && order.isAcceptable) ? 'Хүлээн авах' : null,
+      onAction: (isPharma && order.isAcceptable)
+          ? () async => await provider.confirmOrder(order.id)
+          : null,
     );
   }
 
