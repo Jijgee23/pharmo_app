@@ -13,7 +13,12 @@ class BatteryProvider extends ChangeNotifier {
         if (!hasTrack) return;
         final bool serviceRunning = await NativeChannel.isServiceRunning();
         if (!serviceRunning) return;
-        final logType = Authenticator.security!.isSaler ? 'Борлуулалт' : 'Түгээлт';
+        final security = Authenticator.security!;
+        final logType = security.isRepresentative
+            ? 'Уулзалт'
+            : security.isSaler
+                ? 'Борлуулалт'
+                : 'Түгээлт';
         await LogService().createLog(
           logType,
           'Таны төхөөрөмжийн баттерей $value% байна.',

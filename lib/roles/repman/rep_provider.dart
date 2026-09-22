@@ -20,11 +20,6 @@ class RepProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  LocationSettings locationSettings = const LocationSettings(
-    accuracy: LocationAccuracy.best,
-    distanceFilter: 6,
-  );
-
   Future<dynamic> addVisit(String note) async {
     try {
       if (note.isEmpty) {
@@ -142,7 +137,7 @@ class RepProvider extends ChangeNotifier {
   }
 
   bool isTracking = false;
-  StreamSubscription<Position>? _positionSubscription;
+  StreamSubscription? _positionSubscription;
 
   Future<dynamic> start() async {
     if (!await Settings.checkAlwaysLocationPermission()) {
@@ -172,6 +167,12 @@ class RepProvider extends ChangeNotifier {
         await getActiveVisits();
         messageComplete('Уулзалтанд гарлаа');
         await db.put('meetingId', visiting!.id);
+        // Shared with Driver/Seller/VanSales: makes Authenticator.hasTrack()
+        // true for this session too, so LifeCycleListener's pause-log,
+        // ConnectionProvider's connectivity-log and BatteryProvider's
+        // monitoring — all of which gate on hasTrack() — cover Rep as well,
+        // not just the other three roles.
+        await Authenticator.saveTrackId(visiting!.id);
         await startTracking();
       } else {
         messageWarning(wait);
@@ -181,21 +182,36 @@ class RepProvider extends ChangeNotifier {
     }
   }
 
-  // Rep tracking is deliberately foreground-only — unlike Driver/Seller/
-  // VanSales there is no native background service behind it, matching the
-  // "Апп-аас гарах үед байршил дамжуулахгүй" warning already shown before
-  // starting a visit (see RepHome._askStart). A plain Geolocator position
-  // stream is the right amount of implementation for that documented
-  // limitation, not a full NativeChannel/foreground-service integration.
+  // Uses the same native foreground-service/CLLocationManager pipeline as
+  // Driver/Seller/VanSales (JaggerProvider.tracking()) instead of a plain
+  // Dart-side Geolocator stream — that's what actually keeps emitting
+  // updates once the app is backgrounded/killed; a Dart stream alone does
+  // not survive that on either platform. NativeChannel itself doesn't care
+  // which role/provider is listening, so no changes to it or to
+  // JaggerProvider are needed — this just subscribes to the same stream
+  // and routes points to shareLocation() → company/visiting/route/
+  // instead of JaggerProvider's delivery/sales endpoints.
   Future<void> startTracking() async {
     Box db = await Hive.openBox('meeting');
     if (db.get('meetingId') == null) return;
 
     await _positionSubscription?.cancel();
-    _positionSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-      (position) => shareLocation(position.latitude, position.longitude),
+    _positionSubscription = NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
+      (event) {
+        final lat = parseDouble(event['lat']);
+        final lng = parseDouble(event['lng']);
+        shareLocation(lat, lng);
+      },
       onError: (Object e) => debugPrint('Rep location stream error: $e'),
     );
+
+    final started = await NativeChannel.startLocationService();
+    if (!started) {
+      messageError('Location service эхлүүлж чадсангүй');
+      await _positionSubscription?.cancel();
+      _positionSubscription = null;
+      return;
+    }
     isTracking = true;
     notifyListeners();
   }
@@ -252,9 +268,11 @@ class RepProvider extends ChangeNotifier {
     }
   }
 
-  void stopTracking() {
-    _positionSubscription?.cancel();
+  Future<void> stopTracking() async {
+    await _positionSubscription?.cancel();
     _positionSubscription = null;
+    await NativeChannel.stopLocationService();
+    await Authenticator.clearTrackId();
     isTracking = false;
     notifyListeners();
   }
@@ -291,7 +309,7 @@ class RepProvider extends ChangeNotifier {
       if (r.statusCode == 200 || r.statusCode == 201) {
         await getActiveVisits();
         messageComplete('Уулзалт дууслаа');
-        stopTracking();
+        await stopTracking();
       } else {
         _warnMutationFailure(r);
       }

@@ -30,8 +30,12 @@ class LifeCycleListener extends ChangeNotifier
     if (state == AppLifecycleState.paused) {
       bool isSharingLocation = await Authenticator.hasTrack();
       if (isSharingLocation) {
-        final logType =
-            Authenticator.security!.isSaler ? 'Борлуулалт' : 'Түгээлт';
+        final security = Authenticator.security!;
+        final logType = security.isRepresentative
+            ? 'Уулзалт'
+            : security.isSaler
+                ? 'Борлуулалт'
+                : 'Түгээлт';
         await logService.createLog(
           logType,
           'Байршил дамжуулах явцад бусад апп руу шилжсэн.  (${DateTime.now().toIso8601String()})',
@@ -47,12 +51,19 @@ class LifeCycleListener extends ChangeNotifier
 
   void resumeWhenHasTrack(BuildContext context) async {
     final security = Authenticator.security;
-    if (security != null && security.isTracker) {
-      print('APP RESUMED, CHECKING TRACK STATE...');
-      final jagger = context.read<JaggerProvider>();
-      await jagger.tracking();
+    if (security == null || !security.isTracker) return;
+    print('APP RESUMED, CHECKING TRACK STATE...');
+    // Reps use their own RepProvider (company/visiting/route/), not
+    // JaggerProvider's delivery/sales endpoints — same native background
+    // pipeline underneath (see RepProvider.startTracking), different
+    // Dart-side owner of "where do the points go".
+    if (security.isRepresentative) {
+      final rep = context.read<RepProvider>();
+      await rep.startTracking();
       return;
     }
+    final jagger = context.read<JaggerProvider>();
+    await jagger.tracking();
   }
 
   @override

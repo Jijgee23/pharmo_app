@@ -124,16 +124,9 @@ class _RepHomeState extends State<RepHome> {
     );
   }
 
-  // Rep tracking is foreground-only on both platforms (RepProvider has no
-  // native background service behind it — see RepProvider.startTracking's
-  // comment), so this warning applies to iOS just as much as Android.
-  static const _foregroundOnlyWarning =
-      'Апп-аас гарах үед байршил дамжуулахгүй болохыг анхаарна уу!';
-
   Future<void> _askStart(RepProvider rep) async {
     bool confirmed = await confirmDialog(
       title: 'Уулзалтыг эхлэх үү?',
-      attentionText: _foregroundOnlyWarning,
       message: 'Уулзалтын үед таны байршлыг хянахыг анхаарна уу!',
     );
     if (confirmed) rep.start();
@@ -142,7 +135,6 @@ class _RepHomeState extends State<RepHome> {
   Future<void> _askEnd(RepProvider rep) async {
     bool confirmed = await confirmDialog(
       title: 'Уулзалтыг дуусгах уу?',
-      attentionText: _foregroundOnlyWarning,
       message: 'Уулзалтын үед таны байршлыг хянахыг анхаарна уу!',
     );
     if (confirmed) rep.endVisiting();

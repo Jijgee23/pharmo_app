@@ -25,8 +25,12 @@ class ConnectionProvider extends ChangeNotifier {
         bool isSharingLocation = await Authenticator.hasTrack();
 
         if (isSharingLocation) {
-          final logType =
-              Authenticator.security!.isSaler ? 'Борлуулалт' : 'Түгээлт';
+          final security = Authenticator.security!;
+          final logType = security.isRepresentative
+              ? 'Уулзалт'
+              : security.isSaler
+                  ? 'Борлуулалт'
+                  : 'Түгээлт';
           await logService.createLog(
             logType,
             'Байршил дамжуулах явцад холболт ${isOnline ? "сэргэсэн" : "салсан"}. (${DateTime.now().toIso8601String()})',
