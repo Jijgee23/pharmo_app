@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/roles/DRIVER/delivery_history/delivery_history_detail.dart';
+import 'package:pharmo_app/roles/driver/delivery_history/delivery_history_detail.dart';
 
 class ShipmentHistory extends StatefulWidget {
   const ShipmentHistory({super.key});

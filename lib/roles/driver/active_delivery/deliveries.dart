@@ -1,8 +1,8 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/roles/DRIVER/active_delivery/additional_delivery.dart';
-import 'package:pharmo_app/roles/DRIVER/active_delivery/orderer/orderer_card.dart';
-import 'package:pharmo_app/roles/DRIVER/active_delivery/widgets/delivery_action_button.dart';
-import 'package:pharmo_app/roles/DRIVER/active_delivery/widgets/delivery_stat_card.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/additional_delivery.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/orderer/orderer_card.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/widgets/delivery_action_button.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/widgets/delivery_stat_card.dart';
 
 class Deliveries extends StatefulWidget {
   const Deliveries({super.key});

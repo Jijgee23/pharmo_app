@@ -1,7 +1,7 @@
-import 'package:pharmo_app/roles/DRIVER/active_delivery/deliveries.dart';
-import 'package:pharmo_app/roles/DRIVER/active_delivery/orderer/delivery_order_card.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/deliveries.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/orderer/delivery_order_card.dart';
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/roles/DRIVER/active_delivery/orderer/orderer_orders.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/orderer/orderer_orders.dart';
 
 class OrdererCard extends StatefulWidget {
   final User? user;

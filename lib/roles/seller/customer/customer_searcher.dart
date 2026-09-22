@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/roles/SELLER/customer/add_customer.dart';
+import 'package:pharmo_app/roles/seller/customer/add_customer.dart';
 
 class CustomerSearcher extends StatefulWidget {
   const CustomerSearcher({super.key});

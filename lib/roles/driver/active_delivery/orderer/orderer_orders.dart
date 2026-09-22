@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/roles/DRIVER/active_delivery/orderer/delivery_order_card.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/orderer/delivery_order_card.dart';
 
 class OrdererOrders extends StatelessWidget {
   final User orderer;

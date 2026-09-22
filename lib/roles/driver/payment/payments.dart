@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/roles/DRIVER/payment/payment_builder.dart';
+import 'package:pharmo_app/roles/driver/payment/payment_builder.dart';
 import 'package:pharmo_app/roles/seller/customer/choose_customer.dart';
 
 class Payments extends StatefulWidget {

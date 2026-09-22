@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/roles/DRIVER/ready_orders/ready_orders.dart';
+import 'package:pharmo_app/roles/driver/ready_orders/ready_orders.dart';
 import 'package:pharmo_app/views/profile/delivery_profile.dart';
 import 'package:pharmo_app/views/track_map/track_map.dart';
 
