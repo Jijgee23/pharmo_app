@@ -755,7 +755,7 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   //map settings
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
   double zoomIndex = 14;
   bool trafficEnabled = false;
   // Set<Marker> markers = {};
@@ -776,13 +776,13 @@ class JaggerProvider extends ChangeNotifier {
 
   zoomIn() {
     zoomIndex = zoomIndex + 1.0;
-    mapController.animateCamera(CameraUpdate.zoomTo(zoomIndex));
+    mapController?.animateCamera(CameraUpdate.zoomTo(zoomIndex));
     notifyListeners();
   }
 
   zoomOut() {
     zoomIndex = zoomIndex - 1.0;
-    mapController.animateCamera(CameraUpdate.zoomTo(zoomIndex));
+    mapController?.animateCamera(CameraUpdate.zoomTo(zoomIndex));
     notifyListeners();
   }
 
@@ -790,6 +790,15 @@ class JaggerProvider extends ChangeNotifier {
     mapController = controller;
     notifyListeners();
     goToMyLocation();
+  }
+
+  /// Call from the GoogleMap-hosting widget's dispose() — the platform
+  /// view (and this controller) dies with it, so any later use (an
+  /// in-flight goToMyLocation()'s Geolocator await resuming after the
+  /// user switched tabs, a background location tick, ...) would
+  /// otherwise throw "used after disposed".
+  void clearMapController() {
+    mapController = null;
   }
 
   void toggleTraffic() {
@@ -818,7 +827,7 @@ class JaggerProvider extends ChangeNotifier {
     if (n != null) latLng = LatLng(n.latitude, n.longitude);
     notifyListeners();
     if (mapController == null) return;
-    await mapController.animateCamera(
+    await mapController!.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: latLng, zoom: 16),
       ),
@@ -826,7 +835,8 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   Future gotoWithNative(LatLng value) async {
-    await mapController.animateCamera(
+    if (mapController == null) return;
+    await mapController!.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: value, zoom: zoomIndex),
       ),

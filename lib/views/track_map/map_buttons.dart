@@ -8,11 +8,10 @@ class MapButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
-        final isTracking =
-            jagger.subscription != null && !jagger.subscription!.isPaused;
+        final isTracking = jagger.subscription != null && !jagger.subscription!.isPaused;
 
         return Positioned(
-          bottom: 20,
+          bottom: 40,
           right: 15,
           child: SafeArea(
             child: Column(
@@ -22,7 +21,7 @@ class MapButtons extends StatelessWidget {
                   heroTag: 'zoomInDMANMAP',
                   icon: Icons.add,
                   onPressed: () {
-                    jagger.mapController.animateCamera(
+                    jagger.mapController?.animateCamera(
                       CameraUpdate.zoomIn(),
                     );
                   },
@@ -32,7 +31,7 @@ class MapButtons extends StatelessWidget {
                   heroTag: 'zoomOutDMANMAP',
                   icon: Icons.remove,
                   onPressed: () {
-                    jagger.mapController.animateCamera(
+                    jagger.mapController?.animateCamera(
                       CameraUpdate.zoomOut(),
                     );
                   },
@@ -47,10 +46,8 @@ class MapButtons extends StatelessWidget {
                   heroTag: 'toggleTrafficDMANMAP',
                   icon: Icons.traffic,
                   onPressed: jagger.toggleTraffic,
-                  backgroundColor:
-                      jagger.trafficEnabled ? Colors.blue : Colors.white,
-                  iconColor:
-                      jagger.trafficEnabled ? Colors.white : Colors.black,
+                  backgroundColor: jagger.trafficEnabled ? Colors.blue : Colors.white,
+                  iconColor: jagger.trafficEnabled ? Colors.white : Colors.black,
                 ),
                 const SizedBox(height: 10),
                 _buildMapButton(
@@ -215,8 +212,7 @@ class _AnimatedLocationButton extends StatefulWidget {
   });
 
   @override
-  State<_AnimatedLocationButton> createState() =>
-      _AnimatedLocationButtonState();
+  State<_AnimatedLocationButton> createState() => _AnimatedLocationButtonState();
 }
 
 class _AnimatedLocationButtonState extends State<_AnimatedLocationButton>
@@ -274,8 +270,7 @@ class _AnimatedLocationButtonState extends State<_AnimatedLocationButton>
                   height: 40,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.teal
-                        .withOpacity(0.3 * (1.2 - _pulseAnimation.value)),
+                    color: Colors.teal.withOpacity(0.3 * (1.2 - _pulseAnimation.value)),
                   ),
                 ),
               ),

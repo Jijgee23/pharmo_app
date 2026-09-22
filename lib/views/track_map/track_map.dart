@@ -16,12 +16,28 @@ class TrackMap extends StatefulWidget {
 }
 
 class _TrackMapState extends State<TrackMap> {
+  JaggerProvider? _jagger;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) async => await init(),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _jagger = context.read<JaggerProvider>();
+  }
+
+  @override
+  void dispose() {
+    // The GoogleMap platform view (and its controller) dies with this
+    // widget; drop the reference so nothing tries to use it afterwards.
+    _jagger?.clearMapController();
+    super.dispose();
   }
 
   Future<void> init() async {
