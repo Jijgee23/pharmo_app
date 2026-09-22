@@ -149,16 +149,30 @@ class JaggerProvider extends ChangeNotifier {
   }) async {
     Position? best;
     for (var i = 0; i <= retries; i++) {
-      final p = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.best,
-          timeLimit: Duration(seconds: 5),
-        ),
-      );
-      if (best == null || p.accuracy < best.accuracy) best = p;
-      if (p.accuracy <= maxAccuracyMeters) return p;
+      try {
+        final p = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.best,
+            timeLimit: Duration(seconds: 5),
+          ),
+        );
+        if (best == null || p.accuracy < best.accuracy) best = p;
+        if (p.accuracy <= maxAccuracyMeters) return p;
+      } on TimeoutException {
+        // GPS hasn't resolved within 5s (indoors, cold start) — try again,
+        // or fall through to the unbounded-time fallback below once retries
+        // are exhausted. Previously uncaught: this exception propagated
+        // straight out of goToMyLocation()/startShipment()/endTrack(),
+        // crashing the flow instead of just taking longer to get a fix.
+        continue;
+      }
     }
-    return best!;
+    if (best != null) return best;
+    // Every attempt timed out and we never got a single fix — one last
+    // call with no time limit rather than giving up, matching the
+    // unbounded behavior the raw Geolocator.getCurrentPosition() calls
+    // this helper replaced always had.
+    return Geolocator.getCurrentPosition();
   }
 
   Future<void> startShipment() async {
@@ -970,58 +984,38 @@ class JaggerProvider extends ChangeNotifier {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- // Future<dynamic> getDeliveryLocation() async {
-  //   currentPosition = await Geolocator.getCurrentPosition();
-  //   final security = await Authenticator.getSecurity();
-  //   if (security == null) return;
-  //   try {
-  //     final r = await api(Api.get, 'delivery/locations/?with_routes=true');
-  //     if (r!.statusCode == 200) {
-  //       final data = convertData(r);
-  //       final me = (data as List).firstWhere(
-  //           (element) => element['delman']['id'] == security.id,
-  //           orElse: () => null);
-  //       if (me == null) {
-  //         return;
-  //       }
-  //       routeCoords = (me['routes'] as List)
-  //           .map((r) => LatLng(parseDouble(r['lat']), parseDouble(r['lng'])))
-  //           .toList();
-  //       notifyListeners();
-  //       updatePolylines();
-  //     }
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //   } finally {
-  //     notifyListeners();
-  //   }
-  // }
-    // final text = 'Өрг: $latitude Урт: $longitude';
-      // final lastNotifDate = await logService.getLastNotifDate();
-      // bool hasNotLastNotid = lastNotifDate == null;
-      // if (hasNotLastNotid ||
-      //     (lastNotifDate != null &&
-      //         now.difference(lastNotifDate) > Duration(minutes: 3))) {
-      //   await FirebaseApi.local('Байршил илгээсэн', text);
-      //   await logService.saveLastNotif(now);
-      // }
+// Future<dynamic> getDeliveryLocation() async {
+//   currentPosition = await Geolocator.getCurrentPosition();
+//   final security = await Authenticator.getSecurity();
+//   if (security == null) return;
+//   try {
+//     final r = await api(Api.get, 'delivery/locations/?with_routes=true');
+//     if (r!.statusCode == 200) {
+//       final data = convertData(r);
+//       final me = (data as List).firstWhere(
+//           (element) => element['delman']['id'] == security.id,
+//           orElse: () => null);
+//       if (me == null) {
+//         return;
+//       }
+//       routeCoords = (me['routes'] as List)
+//           .map((r) => LatLng(parseDouble(r['lat']), parseDouble(r['lng'])))
+//           .toList();
+//       notifyListeners();
+//       updatePolylines();
+//     }
+//   } catch (e) {
+//     debugPrint(e.toString());
+//   } finally {
+//     notifyListeners();
+//   }
+// }
+// final text = 'Өрг: $latitude Урт: $longitude';
+// final lastNotifDate = await logService.getLastNotifDate();
+// bool hasNotLastNotid = lastNotifDate == null;
+// if (hasNotLastNotid ||
+//     (lastNotifDate != null &&
+//         now.difference(lastNotifDate) > Duration(minutes: 3))) {
+//   await FirebaseApi.local('Байршил илгээсэн', text);
+//   await logService.saveLastNotif(now);
+// }
