@@ -17,6 +17,7 @@ class _OrderSheetState extends State<OrderSheet> {
   String deliveryType = '';
   bool _loading = false;
   int _step = 0;
+  bool _showNoteInput = false;
 
   Sector _sector =
       Sector(-1, 'Салбар сонгоно уу!', '', '', '', '', null, true, '', 0, 0, Cmp(-1, '?'));
@@ -29,6 +30,7 @@ class _OrderSheetState extends State<OrderSheet> {
     final home = context.read<HomeProvider>();
     final cart = context.read<CartProvider>();
     noteController.text = home.note ?? '';
+    _showNoteInput = noteController.text.isNotEmpty;
     // Restore the PA order-sheet selections remembered on HomeProvider from
     // a previous open of this same sheet (cleared once the order actually
     // succeeds — see CartProvider.createOrder()/checkPayment()).
@@ -229,7 +231,8 @@ class _OrderSheetState extends State<OrderSheet> {
             Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
             Text(
               '${step + 1}/$total',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600),
+              style:
+                  TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -292,15 +295,9 @@ class _OrderSheetState extends State<OrderSheet> {
           ),
         _OrderStep(
           title: 'Төлбөрийн хэлбэр',
-          content: _paymentStepContent(cart),
+          content: _paymentStepContent(home, cart),
           canAdvance: () => payType.isNotEmpty,
           validationMessage: 'Төлбөрийн хэлбэр сонгоно уу!',
-        ),
-        _OrderStep(
-          title: 'Нэмэлт тайлбар',
-          content: _noteStepContent(home),
-          canAdvance: () => true,
-          validationMessage: '',
         ),
       ];
     }
@@ -320,23 +317,84 @@ class _OrderSheetState extends State<OrderSheet> {
       ),
       _OrderStep(
         title: 'Төлбөрийн хэлбэр',
-        content: _paymentStepContent(cart),
+        content: _paymentStepContent(home, cart),
         canAdvance: () => payType.isNotEmpty,
         validationMessage: 'Төлбөрийн хэлбэр сонгоно уу!',
-      ),
-      _OrderStep(
-        title: 'Нэмэлт тайлбар',
-        content: _noteStepContent(home),
-        canAdvance: () => true,
-        validationMessage: '',
       ),
     ];
   }
 
-  Widget _paymentStepContent(CartProvider cart) {
+  // Note is not its own step — a small toggle at the top of the (always
+  // last) payment step instead: collapsed to a "Тайлбар бичих" text
+  // button by default, expanding into the input in place when tapped.
+  Widget _noteToggle(HomeProvider home) {
+    if (!_showNoteInput) {
+      return InkWell(
+        onTap: () => setState(() => _showNoteInput = true),
+        borderRadius: BorderRadius.circular(8),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.edit_note_rounded, size: 18, color: primary),
+              SizedBox(width: 6),
+              Text(
+                'Тайлбар бичих',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: primary),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            BottomSheetLabelBuilder('Нэмэлт тайлбар (заавал биш)'),
+            IconButton(
+              onPressed: () => setState(() => _showNoteInput = false),
+              icon: const Icon(Icons.close_rounded, size: 18),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              color: Colors.grey,
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: TextField(
+            textInputAction: TextInputAction.done,
+            controller: noteController,
+            autofocus: true,
+            onChanged: (v) => home.setNote(v),
+            minLines: 2,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              hintText: 'Энд тайлбар бичиж болно...',
+              border: InputBorder.none,
+              hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _paymentStepContent(HomeProvider home, CartProvider cart) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _noteToggle(home),
+        const SizedBox(height: 20),
         BottomSheetLabelBuilder('Төлбөрийн хэлбэр'),
         const SizedBox(height: 10),
         if (cart.isCashOnlyBasket) ...[
@@ -368,35 +426,6 @@ class _OrderSheetState extends State<OrderSheet> {
           const SizedBox(height: 10),
           _bankAccountsCard(cart.paymentSettings!),
         ],
-      ],
-    );
-  }
-
-  Widget _noteStepContent(HomeProvider home) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        BottomSheetLabelBuilder('Нэмэлт тайлбар (заавал биш)'),
-        const SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: TextField(
-            textInputAction: TextInputAction.done,
-            controller: noteController,
-            onChanged: (v) => home.setNote(v),
-            minLines: 3,
-            maxLines: 5,
-            decoration: const InputDecoration(
-              hintText: 'Энд тайлбар бичиж болно...',
-              border: InputBorder.none,
-              hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-          ),
-        ),
       ],
     );
   }
