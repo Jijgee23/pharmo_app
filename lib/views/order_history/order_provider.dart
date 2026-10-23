@@ -1,4 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/order_history/seller_order_history/seller_order_filter.dart';
 
 class OrderProvider extends ChangeNotifier {
   List<OrderModel> orders = <OrderModel>[];
@@ -10,29 +11,92 @@ class OrderProvider extends ChangeNotifier {
   void reset() {
     sellerOrders.clear();
     filteredsellerOrders.clear();
+    sellerFilter = const SellerOrderFilter();
+    sellerOrdersLoaded = false;
+    sellerScrollOffset = 0;
     orders.clear();
+    ordersLoaded = false;
+    ordersScrollOffset = 0;
+    status = OrderStatus.all;
+    process = OrderProcess.all;
+    paymentMethod = PayType.unknown;
+    branch = Branch(id: -1, name: 'Салбар сонгох');
+    supplier = Supplier(id: -1, name: 'Нийлүүлэгч сонгох', stocks: []);
     suppliers.clear();
     branches.clear();
     notifyListeners();
   }
 
-  Future<List<OrderModel>> getSellerOrders() async {
-    List<OrderModel> rult = [];
+  // The order history tab's widget is rebuilt each time the bottom bar
+  // switches back to it, so besides the lists and their filters, whether
+  // they are loaded and where they were scrolled to live here too.
+
+  /// [sellerOrders] holds a loaded list, shown as is on returning to the tab.
+  bool sellerOrdersLoaded = false;
+  double sellerScrollOffset = 0;
+
+  /// [orders] (the pharmacy's) holds a loaded list, shown as is on return.
+  bool ordersLoaded = false;
+  double ordersScrollOffset = 0;
+
+  /// Applied by every seller order fetch, so a refresh keeps the filters.
+  SellerOrderFilter sellerFilter = const SellerOrderFilter();
+
+  // Bumped per fetch: a response from an older one (e.g. while the user was
+  // still typing) is dropped instead of overwriting a newer result.
+  int _sellerRequest = 0;
+
+  /// Sets [filter] without fetching, for a change that can't alter the
+  /// result (e.g. the search type while the search box is empty).
+  void setSellerFilter(SellerOrderFilter filter) {
+    sellerFilter = filter;
+    notifyListeners();
+  }
+
+  /// Sets [filter] and reloads the list behind the loading skeleton.
+  Future<void> applySellerFilter(SellerOrderFilter filter) async {
+    sellerFilter = filter;
+    await loadSellerOrders();
+  }
+
+  /// Reloads the list with [sellerFilter], behind the loading skeleton.
+  Future<void> loadSellerOrders() async {
+    final request = ++_sellerRequest;
+    // A list loaded afresh starts at the top.
+    sellerScrollOffset = 0;
+    setLoading(true);
     try {
-      final r = await api(Api.get, 'seller/order/');
-      if (r == null) return rult;
+      await _fetchSellerOrders(request);
+    } finally {
+      if (request == _sellerRequest) setLoading(false);
+    }
+  }
+
+  /// Reloads the list with [sellerFilter] in place, without the skeleton.
+  Future<List<OrderModel>> getSellerOrders() async {
+    await _fetchSellerOrders(++_sellerRequest);
+    return sellerOrders;
+  }
+
+  Future<void> _fetchSellerOrders(int request) async {
+    try {
+      final query = sellerFilter.toQuery();
+      final endpoint = Uri(
+        path: 'seller/order/',
+        queryParameters: query.isEmpty ? null : query,
+      ).toString();
+      final r = await api(Api.get, endpoint);
+      if (r == null || request != _sellerRequest) return;
       if (r.statusCode == 200) {
         final data = convertData(r);
         List<dynamic> ords = data['results'];
-        sellerOrders.clear();
-        sellerOrders = (ords).map((data) => OrderModel.fromJson(data)).toList();
-        rult = sellerOrders;
+        sellerOrders = ords.map((data) => OrderModel.fromJson(data)).toList();
+        sellerOrdersLoaded = true;
         notifyListeners();
       }
     } catch (e) {
       debugPrint(e.toString());
     }
-    return rult;
   }
 
   Future deleteSellerOrder({required int orderId}) async {
@@ -60,57 +124,6 @@ class OrderProvider extends ChangeNotifier {
   void setLoading(bool val) {
     loading = val;
     notifyListeners();
-  }
-
-  Future filterOrder(String type, String query) async {
-    setLoading(true);
-    try {
-      final r = await api(Api.get, 'seller/order/?$type=$query');
-      if (r == null) return;
-      if (r.statusCode == 200) {
-        final data = convertData(r);
-        List<dynamic> ords = data['results'];
-        sellerOrders.clear();
-        sellerOrders = (ords).map((data) => OrderModel.fromJson(data)).toList();
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  Future getSellerOrdersByDateRanged(String startDate, String endDate) async {
-    try {
-      final r = await api(Api.get, 'seller/order/?start=$startDate&end=$endDate');
-      if (r == null) return;
-      if (r.statusCode == 200) {
-        final data = convertData(r);
-        List<dynamic> ords = data['results'];
-        sellerOrders.clear();
-        sellerOrders = (ords).map((data) => OrderModel.fromJson(data)).toList();
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  Future getSellerOrdersByDateSingle(String date) async {
-    try {
-      final r = await api(Api.get, 'seller/order/?start=$date');
-      if (r == null) return;
-      if (r.statusCode == 200) {
-        final data = convertData(r);
-        List<dynamic> ords = data['results'];
-        sellerOrders.clear();
-        sellerOrders = (ords).map((data) => OrderModel.fromJson(data)).toList();
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
   }
 
   Future<dynamic> getSuppliers() async {
@@ -145,73 +158,77 @@ class OrderProvider extends ChangeNotifier {
   void updateStatus(OrderStatus? value) async {
     if (value == null) return;
     status = value;
-    notifyListeners();
-    await filterOrders();
+    await _refilterOrders();
   }
 
   OrderProcess process = OrderProcess.all;
   void updateProcess(OrderProcess? value) async {
     if (value == null) return;
     process = value;
-    notifyListeners();
-    await filterOrders();
+    await _refilterOrders();
   }
 
   PayType paymentMethod = PayType.unknown;
   void updatePayMethod(PayType? value) async {
     if (value == null) return;
     paymentMethod = value;
-    notifyListeners();
-    await filterOrders();
+    await _refilterOrders();
   }
 
   Branch branch = Branch(id: -1, name: 'Салбар сонгох');
   void updateBranch(Branch? value) async {
     if (value == null) return;
     branch = value;
-    notifyListeners();
-    await filterOrders();
+    await _refilterOrders();
   }
 
   Supplier supplier = Supplier(id: -1, name: 'Нийлүүлэгч сонгох', stocks: []);
   void updateSupplier(Supplier? value) async {
     if (value == null) return;
     supplier = value;
+    await _refilterOrders();
+  }
+
+  // A filter changed: the new list starts at the top.
+  Future<void> _refilterOrders() async {
+    ordersScrollOffset = 0;
     notifyListeners();
     await filterOrders();
   }
 
-  Future<dynamic> filterOrders() async {
-    await LoadingService.run(
-      () async {
-        try {
-          String url = 'pharmacy/orders/?status=${status.value}';
-          if (process != OrderProcess.all) {
-            url = '$url&process=${process.code}';
-          }
-          if (paymentMethod != PayType.unknown) {
-            url = '$url&payType=${paymentMethod.value}';
-          }
-          if (branch.id != -1) {
-            url = '$url&addrs=${branch.id}';
-          }
-          if (supplier.id != -1) {
-            url = '$url&supplier=${supplier.id}';
-          }
+  // Bumped per pharmacy order fetch, so a response to an older filter
+  // (several changed in a row) can't overwrite the newest one.
+  int _ordersRequest = 0;
 
-          final r = await api(Api.get, url);
-          if (r == null) return;
-          if (r.statusCode == 200) {
-            final data = convertData(r);
-            List<dynamic> ords = data['orders'];
-            orders = (ords).map((data) => OrderModel.fromJson(data)).toList();
-            notifyListeners();
-          }
-        } catch (e) {
-          debugPrint(e.toString());
-        }
-      },
-    );
+  Future<dynamic> filterOrders() async {
+    final request = ++_ordersRequest;
+    try {
+      String url = 'pharmacy/orders/?status=${status.value}';
+      if (process != OrderProcess.all) {
+        url = '$url&process=${process.code}';
+      }
+      if (paymentMethod != PayType.unknown) {
+        url = '$url&payType=${paymentMethod.value}';
+      }
+      if (branch.id != -1) {
+        url = '$url&addrs=${branch.id}';
+      }
+      if (supplier.id != -1) {
+        url = '$url&supplier=${supplier.id}';
+      }
+
+      final r = await api(Api.get, url);
+      if (r == null || request != _ordersRequest) return;
+      if (r.statusCode == 200) {
+        final data = convertData(r);
+        List<dynamic> ords = data['orders'];
+        orders = (ords).map((data) => OrderModel.fromJson(data)).toList();
+        ordersLoaded = true;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   Future confirmOrder(int orderId) async {

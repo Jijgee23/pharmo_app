@@ -19,8 +19,10 @@ class OrderItemsTab extends StatelessWidget {
       child: Builder(
         builder: (context) {
           if (products.isEmpty) {
-            return Column(
-              children: [NoResult()],
+            return const EmptyState(
+              icon: Icons.inventory_2_outlined,
+              title: 'Бараа олдсонгүй',
+              message: 'Энэ захиалгад бараа бүртгэгдээгүй байна.',
             );
           }
           return ListView.separated(

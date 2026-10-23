@@ -31,7 +31,11 @@ class _SystemLogState extends State<SystemLog> {
       body: Consumer<LogProvider>(
         builder: (context, value, child) {
           if (value.logs.isEmpty) {
-            return const Center(child: Text('Лог олдсонгүй'));
+            return const EmptyState(
+              icon: Icons.history_rounded,
+              title: 'Лог олдсонгүй',
+              message: 'Системийн үйлдэл бүртгэгдээгүй байна.',
+            );
           }
           return ListView.builder(
             padding: const EdgeInsets.all(16),

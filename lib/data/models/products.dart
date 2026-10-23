@@ -24,6 +24,9 @@ class Product {
   List<dynamic>? category;
   List<dynamic>? images;
   String? image;
+  String allowedPaytypes;
+  double minQty;
+  double stockQty;
 
   Product(
       this.id,
@@ -48,7 +51,10 @@ class Product {
       this.category,
       this.images,
       this.image,
-      this.qty);
+      this.allowedPaytypes,
+      this.qty,
+      this.minQty,
+      this.stockQty);
 
   Product.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -73,7 +79,10 @@ class Product {
         images = json['images'],
         image = json['image'],
         qty = parseDouble(json['qty']),
-        category = json['category'];
+        category = json['category'],
+        allowedPaytypes = json['allowed_paytypes'] ?? '',
+        minQty = parseDouble(json['min_qty']),
+        stockQty = parseDouble(json['stock_qty']);
 
   Map<String, dynamic> toJson() {
     return {
@@ -98,7 +107,15 @@ class Product {
       'vndr': vndr,
       'images': images,
       'image': image,
-      'category': category
+      'category': category,
+      'min_qty': minQty,
+      'stock_qty': stockQty,
     };
   }
+
+  bool get cashOnly => allowedPaytypes.toUpperCase() == 'C';
+
+  /// [qty]-г сагславал үлдэгдэл хамгийн бага үлдэгдэлээс доош орох эсэх.
+  /// [minQty] тохируулаагүй (0) бол шалгахгүй.
+  bool dropsBelowMinQty(double qty) => minQty > 0 && stockQty - qty < minQty;
 }

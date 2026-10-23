@@ -7,7 +7,7 @@ class Sector {
   BranchManager? manager;
   bool isMain;
   double? latitude, longitude;
-  Cmp cmp;
+  Cmp? cmp;
 
   Sector(
     this.id,
@@ -34,9 +34,11 @@ class Sector {
         note = json['note'],
         latitude = json['lat'],
         longitude = json['lng'],
-        manager = BranchManager.fromJson(json['manager']),
-        isMain = json['isMain'],
-        cmp = Cmp.fromJson(json['cmp']);
+        manager = json['manager'] == null
+            ? null
+            : BranchManager.fromJson(json['manager'] as Map<String, dynamic>),
+        isMain = json['isMain'] as bool,
+        cmp = json['cmp'] != null ? Cmp.fromJson(json['cmp']) : null;
 }
 
 class Cmp {

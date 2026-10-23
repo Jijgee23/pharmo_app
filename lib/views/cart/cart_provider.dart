@@ -128,6 +128,7 @@ class CartProvider extends ChangeNotifier {
       await getBasket();
       if (r.statusCode == 200) {
         debugPrint('basket cleared');
+        Get.context?.read<HomeProvider>().forgetCustomer();
         await getBasket();
         notifyListeners();
       }
@@ -258,8 +259,9 @@ class CartProvider extends ChangeNotifier {
             'customer_id': home.customer!.id,
             'basket_id': basket!.id,
             'payType': payType,
-            'note': home.note,
+            'note': (note == null) ? null : home.note,
           };
+          print(body);
           final r = await api(Api.post, 'seller/order/', body: body);
           if (r == null) return;
           final res = convertData(r);
@@ -268,6 +270,7 @@ class CartProvider extends ChangeNotifier {
             await clearBasket();
             home.setCustomer(null);
             home.setNote('');
+            home.setOrderStep(0);
             // seller/order/ can create more than one actual order
             // (split_group) and auto-attaches a QPay invoice to whichever
             // ones need one (a cash-only group) - each order's own

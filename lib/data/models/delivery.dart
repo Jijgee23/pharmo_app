@@ -42,6 +42,52 @@ class Delivery {
       created: json['created'],
     );
   }
+
+  /// When it started, in local time; null until it has.
+  DateTime? get startedAt => parseDateTime(startedOn);
+  bool get isStarted => startedAt != null;
+
+  /// Orders done with: delivered, returned or closed.
+  int get handledCount => orders.where((o) => o.isHandled).length;
+
+  /// [handledCount] as a share of all orders, 0 to 1.
+  double get doneRatio => orders.isEmpty ? 0 : handledCount / orders.length;
+
+  int countOf(OrderProcess process) => orders.where((o) => o.orderProcess == process).length;
+
+  /// The orders grouped by who they go to, in the order first met.
+  List<DeliveryStop> get stops {
+    final byKey = <String, List<DeliveryOrder>>{};
+    for (final order in orders) {
+      byKey.putIfAbsent(order.recipient?.id ?? '', () => []).add(order);
+    }
+    return [for (final e in byKey.entries) DeliveryStop(e.key, e.value)];
+  }
+
+  /// The stop for recipient [key], if the delivery still has one.
+  DeliveryStop? stop(String key) => stops.where((s) => s.key == key).firstOrNull;
+}
+
+/// One place a delivery calls at: a recipient and their orders on it.
+class DeliveryStop {
+  /// The recipient's id; empty for orders with none.
+  final String key;
+  final List<DeliveryOrder> orders;
+  const DeliveryStop(this.key, this.orders);
+
+  User? get recipient => orders.first.recipient;
+  String get name => orders.first.recipientName;
+
+  /// Where to go: the first order whose recipient has coordinates.
+  (double, double)? get coordinates =>
+      orders.map((o) => o.recipientCoordinates).nonNulls.firstOrNull;
+
+  int get handledCount => orders.where((o) => o.isHandled).length;
+  double get doneRatio => handledCount / orders.length;
+  bool get isDone => handledCount == orders.length;
+
+  /// Customer payments take a customer id; branches ("p…") have none.
+  int? get customerId => int.tryParse(key);
 }
 
 class DeliveryMan {
@@ -126,6 +172,25 @@ class DeliveryOrder {
   bool get isOnDelivery => orderProcess == OrderProcess.onDelivery;
   OrderStatus get orderStatus => OrderStatus.fromValue(status);
 
+  bool get isHandled => orderProcess.isHandled;
+
+  /// Who it goes to: the orderer, else the customer, else the user.
+  User? get recipient => orderer ?? customer ?? user;
+
+  /// Where it goes: the first of orderer, customer and user with coordinates.
+  (double, double)? get recipientCoordinates =>
+      [orderer, customer, user].map((u) => u?.coordinates).nonNulls.firstOrNull;
+
+  /// Who it goes to, for display: the orderer, else the customer, else the
+  /// user. A missing name arrives stringified as 'null' and doesn't count.
+  String get recipientName {
+    for (final u in [orderer, customer, user]) {
+      final name = u?.name.trim();
+      if (name != null && name.isNotEmpty && name != 'null') return name;
+    }
+    return 'Захиалагч';
+  }
+
   factory DeliveryOrder.fromJson(Map<String, dynamic> json) {
     return DeliveryOrder(
         id: json['id'],
@@ -187,6 +252,13 @@ class User {
   String? lng;
 
   User({required this.id, required this.name, this.zone, this.lat, this.lng});
+
+  /// (lat, lng), or null when missing; (0, 0) counts as missing too.
+  (double, double)? get coordinates {
+    final la = double.tryParse(lat ?? ''), lo = double.tryParse(lng ?? '');
+    if (la == null || lo == null || (la == 0 && lo == 0)) return null;
+    return (la, lo);
+  }
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(

@@ -1,8 +1,10 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/authentication/login/auth_text.dart';
-import 'package:pharmo_app/authentication/login/login_footer.dart';
+import 'package:pharmo_app/authentication/auth_operations/reset_pass.dart';
 import 'package:pharmo_app/authentication/login/login_header_image.dart';
+import 'package:pharmo_app/authentication/widgets/auth_widgets.dart';
 
+/// Two-step sign-in: the e-mail or phone first, checked against the server
+/// ([AuthController.continueWithIdentifier]), then the password.
 class LoginPage extends StatefulWidget {
   final String? prefillIdentifier;
   const LoginPage({super.key, this.prefillIdentifier});
@@ -18,213 +20,194 @@ class _LoginPageState extends State<LoginPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = context.read<AuthController>();
       if (widget.prefillIdentifier != null) {
-        auth.fillEmail(widget.prefillIdentifier!);
+        auth.fillIdentifier(widget.prefillIdentifier!);
       } else {
         auth.initLoginpage(skip: widget.prefillIdentifier == null);
       }
     });
   }
 
-  final formKey = GlobalKey<FormState>();
+  final _identifierFormKey = GlobalKey<FormState>();
+  final _passwordFormKey = GlobalKey<FormState>();
+
+  Future<void> _continue(AuthController auth) async {
+    if (auth.loading || !(_identifierFormKey.currentState?.validate() ?? false)) return;
+    FocusScope.of(context).unfocus();
+    await auth.continueWithIdentifier();
+  }
+
+  Future<void> _submit(AuthController auth) async {
+    if (auth.loading || !(_passwordFormKey.currentState?.validate() ?? false)) return;
+    FocusScope.of(context).unfocus();
+    await auth.login();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthController>(
       builder: (context, auth, child) {
-        return Scaffold(
-          body: Stack(
+        // Back from the password step returns to the identifier step.
+        return PopScope(
+          canPop: !auth.passwordStep,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop && !auth.loading) auth.backToIdentifier();
+          },
+          child: AuthScaffold(
+            showBack: false,
             children: [
-              // Main content
-              Form(
-                key: formKey,
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: [
-                    LoginHeaderImage(loading: auth.loading),
-                    Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const AuthText('Нэвтрэх'),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Үргэлжлүүлэхийн тулд бүртгэлээрээ нэвтэрнэ үү.',
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                          const SizedBox(height: 30),
-
-                          // Имейл
-                          CustomTextField(
-                            controller: auth.ema,
-                            autofillHints: const [AutofillHints.email],
-                            hintText: 'Имейл хаяг',
-                            prefix: Icons.email_outlined,
-                            keyboardType: TextInputType.emailAddress,
-                            enabled: !auth.loading,
-                          ),
-                          const SizedBox(height: 15),
-
-                          // Нууц үг
-                          CustomTextField(
-                            controller: auth.pass,
-                            autofillHints: const [AutofillHints.password],
-                            hintText: 'Нууц үг',
-                            obscureText: auth.hidePass,
-                            prefix: Icons.lock_outline,
-                            enabled: !auth.loading,
-                            suffixIcon: IconButton(
-                              onPressed: auth.loading ? null : auth.toggleHidePass,
-                              icon: Icon(
-                                auth.hidePass ? Icons.visibility_off : Icons.visibility,
-                                color: primary.withOpacity(0.5),
-                              ),
-                            ),
-                          ),
-
-                          // Сануулах & Нууц үг мартсан
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Checkbox(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    value: auth.remember,
-                                    onChanged:
-                                        auth.loading ? null : (val) => auth.setRemember(val!),
-                                  ),
-                                  Text(
-                                    'Сануулах',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: auth.loading ? grey400 : null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              CustomTextButton(
-                                text: 'Нууц үг мартсан?',
-                                onTap: auth.loading ? null : () => goNamed('reset_password'),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 20),
-                          _LoginButton(
-                            loading: auth.loading,
-                            onTap: () async {
-                              if (formKey.currentState!.validate()) {
-                                await auth.login();
-                              }
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: IgnorePointer(
-                              ignoring: auth.loading,
-                              child: AnimatedOpacity(
-                                opacity: auth.loading ? 0.5 : 1.0,
-                                duration: const Duration(milliseconds: 200),
-                                child: const SignupPrompt(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              AuthHeader(
+                leading: LoginHeaderImage(loading: auth.loading),
+                title: 'Нэвтрэх',
+                subtitle: AuthSubtitle(
+                  auth.passwordStep
+                      ? 'Нууц үгээ оруулж нэвтэрнэ үү.'
+                      : 'Үргэлжлүүлэхийн тулд бүртгэлээрээ нэвтэрнэ үү.',
                 ),
               ),
-
-              // Loading overlay
-              if (auth.loading)
-                AnimatedOpacity(
-                  opacity: auth.loading ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Container(
-                    color: Colors.white.withOpacity(0.7),
-                    child: const Center(
-                      child: CustomLoader(),
-                    ),
-                  ),
-                ),
+              const SizedBox(height: 32),
+              AuthStepSwitcher(
+                child: auth.passwordStep ? _passwordStep(auth) : _identifierStep(auth),
+              ),
+              const SizedBox(height: 24),
+              AuthPrompt(
+                question: 'Бүртгэлгүй юу? ',
+                action: 'Бүртгүүлэх',
+                onTap: auth.loading ? null : () => goNamed('signup'),
+              ),
             ],
           ),
-          bottomNavigationBar: const LoginFooter(),
         );
       },
     );
   }
-}
 
-class _LoginButton extends StatelessWidget {
-  final bool loading;
-  final VoidCallback onTap;
-
-  const _LoginButton({
-    required this.loading,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      height: 50,
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: loading ? null : onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
-          disabledBackgroundColor: primary.withOpacity(0.6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+  Widget _identifierStep(AuthController auth) {
+    return Form(
+      key: _identifierFormKey,
+      child: Column(
+        key: const ValueKey('identifier-step'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AuthMethodSwitch(
+            value: auth.method,
+            onChanged: auth.loading ? null : auth.setMethod,
           ),
-          elevation: loading ? 0 : 2,
-        ),
-        child: loading
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator.adaptive(
-                  backgroundColor: white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : const Text(
-                'Нэвтрэх',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+          const SizedBox(height: 20),
+          AuthLabel(auth.method.fieldLabel),
+          AuthIdentifierField(
+            method: auth.method,
+            controller: auth.identifierController,
+            enabled: !auth.loading,
+            onSubmitted: (_) => _continue(auth),
+          ),
+          const SizedBox(height: 24),
+          AuthPrimaryButton(
+            text: 'Үргэлжлүүлэх',
+            onTap: () => _continue(auth),
+            loading: auth.loading,
+          ),
+        ],
       ),
     );
   }
-}
 
-class SignupPrompt extends StatelessWidget {
-  const SignupPrompt({super.key});
+  Widget _passwordStep(AuthController auth) {
+    return Form(
+      key: _passwordFormKey,
+      child: AutofillGroup(
+        child: Column(
+          key: const ValueKey('password-step'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _identifierCard(auth),
+            const SizedBox(height: 18),
+            const AuthLabel('Нууц үг'),
+            CustomTextField(
+              controller: auth.pass,
+              autofillHints: const [AutofillHints.password],
+              hintText: '••••••••',
+              obscureText: auth.hidePass,
+              prefix: Icons.lock_outline_rounded,
+              enabled: !auth.loading,
+              // Only presence: strength rules apply at sign up, and
+              // older accounts may predate them.
+              validator: (v) => (v == null || v.isEmpty) ? 'Нууц үгээ оруулна уу' : null,
+              onSubmitted: (_) => _submit(auth),
+              suffixIcon: PasswordVisibilityButton(
+                visible: !auth.hidePass,
+                onTap: auth.loading ? null : auth.toggleHidePass,
+              ),
+            ),
+            const SizedBox(height: 6),
+            _rememberAndForgot(auth),
+            const SizedBox(height: 24),
+            AuthPrimaryButton(
+              text: 'Нэвтрэх',
+              onTap: () => _submit(auth),
+              loading: auth.loading,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text('Бүртгэлгүй юу? '),
-        GestureDetector(
-          onTap: () => goNamed('signup'),
-          child: Text(
-            'Бүртгүүлэх',
-            style: TextStyle(
-              color: primary,
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.underline,
+  // The account step one confirmed, with a way back to pick another.
+  Widget _identifierCard(AuthController auth) {
+    return AuthInfoBox(
+      padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
+      child: Row(
+        children: [
+          Icon(auth.method.icon, size: 20, color: context.theme.primaryColor),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              auth.identifier,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: grey600, fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ),
+          AuthLink('Солих', onTap: auth.loading ? null : auth.backToIdentifier),
+        ],
+      ),
+    );
+  }
+
+  Widget _rememberAndForgot(AuthController auth) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: auth.loading ? null : () => auth.setRemember(!auth.remember),
+          child: Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                side: BorderSide(color: grey400, width: 1.5),
+                visualDensity: VisualDensity.compact,
+                value: auth.remember,
+                onChanged: auth.loading ? null : (val) => auth.setRemember(val!),
+              ),
+              Text(
+                'Сануулах',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: auth.loading ? grey400 : grey600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        AuthLink(
+          'Нууц үг мартсан?',
+          onTap: auth.loading
+              ? null
+              : () {
+                  FocusScope.of(context).unfocus();
+                  goto(ResetPassword(identifier: auth.identifier));
+                },
         ),
       ],
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmo_app/application/function/validator/varlidator.dart';
 
 enum LoadState { loading, loaded, error }
 
@@ -6,7 +7,30 @@ enum Api { get, post, patch, delete }
 
 enum AuthState { unknown, loggedIn, notLoggedIn, expired, notSplashed }
 
-enum Role { noUser, seller, driver, orderer, admin, repman }
+/// What a user signs in (or recovers a password) with. [key] is the field
+/// name auth/login/ and auth/reset/ expect for it.
+enum LoginMethod {
+  email('email', 'И-мейл', 'И-мейл хаяг', Icons.email_outlined),
+  phone('phone', 'Утас', 'Утасны дугаар', Icons.phone_outlined);
+
+  final String key, label, fieldLabel;
+  final IconData icon;
+
+  const LoginMethod(this.key, this.label, this.fieldLabel, this.icon);
+
+  /// Saved identifiers are an e-mail or a phone number; only a phone number
+  /// is all digits.
+  static LoginMethod of(String identifier) =>
+      RegExp(r'^\d+$').hasMatch(identifier.trim()) ? LoginMethod.phone : LoginMethod.email;
+
+  String? validate(String? value) => this == email ? validateEmail(value) : validatePhone(value);
+}
+
+/// Outcome of asking for a password code: [cooldown] means one went out
+/// moments ago and is still valid, so the code step can be shown anyway.
+enum OtpRequest { sent, cooldown, failed }
+
+enum Role { noUser, seller, driver, orderer, admin, vanSales, repman }
 
 // enum NetworkStatus { online, offline, hasConnectionButNotInternet }
 
@@ -16,7 +40,7 @@ enum OrderProcess {
   all("", "Бүгд", '📊', Colors.grey),
   newOrder("N", "Шинэ", '✨', Colors.blue),
   accepted("A", "Хүлээн авсан", '🤝', Colors.indigo),
-  packing("T", "Бэлтгэж эхэлсэн", '👨‍🍳', Colors.orange),
+  packing("M", "Бэлтгэж эхэлсэн", '👨‍🍳', Colors.orange),
   packed("P", "Бэлэн болсон", '📦', Colors.teal),
   onDelivery("O", "Түгээлтэнд гарсан", '🛵', Colors.purple),
   delivered("D", "Хүргэгдсэн", '🏠', Colors.green),
@@ -45,6 +69,10 @@ enum OrderProcess {
 
   static List<OrderProcess> get filterList =>
       OrderProcess.values.where((e) => e != OrderProcess.unknown).toList();
+
+  /// Done with as far as a delivery goes: delivered, returned or closed.
+  bool get isHandled =>
+      this == OrderProcess.delivered || this == OrderProcess.returned || this == OrderProcess.closed;
   static List<OrderProcess> get deliveryProcess => OrderProcess.values
       .where((e) =>
           e == OrderProcess.onDelivery ||

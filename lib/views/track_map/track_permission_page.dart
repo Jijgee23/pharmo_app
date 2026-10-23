@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/deliveries.dart';
 
 class TrackPermissionPage extends StatefulWidget {
   const TrackPermissionPage({super.key});
@@ -53,24 +54,18 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
 
   @override
   Widget build(BuildContext context) {
-    final isSeller = Authenticator.security!.isSaler;
+    // final isSeller = Authenticator.security!.isSaler;
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: isSeller
-          ? AppBar(
-              title: const Text('Байршлын тохиргоо'),
-              elevation: 0,
-            )
-          : null,
-      body: Consumer<JaggerProvider>(
-        builder: (context, jagger, child) {
-          final permission = jagger.permission;
-          final isAlwaysAllowed = permission == LocationPermission.always;
-          final isPrecise = jagger.accuracy == LocationAccuracyStatus.precise;
-          final allGranted = isAlwaysAllowed && isPrecise;
+    return Consumer<JaggerProvider>(
+      builder: (context, jagger, child) {
+        final permission = jagger.permission;
+        final isAlwaysAllowed = permission == LocationPermission.always;
+        final isPrecise = jagger.accuracy == LocationAccuracyStatus.precise;
+        final allGranted = isAlwaysAllowed && isPrecise;
 
-          return FadeTransition(
+        return Scaffold(
+          backgroundColor: white,
+          body: FadeTransition(
             opacity: _fadeAnimation,
             child: SlideTransition(
               position: _slideAnimation,
@@ -110,18 +105,39 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
                       // Action button
                       _buildActionButton(jagger, allGranted),
 
+                      // The delivery itself (orders, statuses) doesn't need
+                      // background location; only starting it does.
+                      if (Authenticator.security?.isDeliveryCapable ?? false) ...[
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => goto(const Deliveries()),
+                            icon: const Icon(Icons.local_shipping_outlined),
+                            label: const Text('Түгээлтээ харах'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape:
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                      ],
+
                       const SizedBox(height: 16),
 
                       // Help text
                       if (!allGranted) _buildHelpText(),
+
+                      const SizedBox(height: 160),
                     ],
                   ),
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -131,7 +147,7 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+            color: Colors.blue.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -176,7 +192,7 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: (allGranted ? Colors.green : Colors.orange).withOpacity(0.3),
+            color: (allGranted ? Colors.green : Colors.orange).withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -200,7 +216,7 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                         width: 2,
                       ),
                     ),
@@ -218,7 +234,7 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                 ),
               ],
@@ -346,7 +362,7 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -523,8 +539,7 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
             borderRadius: BorderRadius.circular(12),
           ),
           elevation: 4,
-          shadowColor:
-              (allGranted ? Colors.green : Colors.blue).withOpacity(0.5),
+          shadowColor: (allGranted ? Colors.green : Colors.blue).withValues(alpha: 0.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -560,7 +575,7 @@ class _TrackPermissionPageState extends State<TrackPermissionPage>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Тохиргоо хийсний дараа "Шинэчлэх" товч дарна уу',
+              'Тохиргоогоо хийгээд апп руу буцаж ороход газрын зураг өөрөө нээгдэнэ.',
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.grey[700],

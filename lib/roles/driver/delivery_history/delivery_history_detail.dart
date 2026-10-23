@@ -29,9 +29,10 @@ class ShipmentHistoryDetail extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           if (delivery.orders.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: 40),
-              child: NoResult(),
+            const EmptyState(
+              icon: Icons.receipt_long_rounded,
+              title: 'Захиалга алга',
+              message: 'Энэ түгээлтэд захиалга бүртгэгдээгүй байна.',
             )
           else
             ...delivery.orders.map(

@@ -65,10 +65,12 @@ class _VisitsState extends State<Visits> {
           loading: rep.loading,
           onRefresh: _refresh,
           empty: visits.isEmpty,
-          customEmpty: NoResult(
-            message: 'Өнөөдөр бүртгэсэн уулзалт алга',
-            subMessage: 'Идэвхтэй уулзалт эхлээгүй эсвэл уулзалт бүртгээгүй байна.',
-            onRefresh: _refresh,
+          customEmpty: EmptyState(
+            icon: Icons.event_note_rounded,
+            title: 'Өнөөдөр бүртгэсэн уулзалт алга',
+            message: 'Идэвхтэй уулзалт эхлээгүй эсвэл уулзалт бүртгээгүй байна.',
+            actionLabel: 'Дахин ачаалах',
+            onAction: _refresh,
           ),
           child: widget.showAppBar
               ? list

@@ -4,8 +4,7 @@ import 'package:dio/dio.dart' hide Headers;
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pharmo_app/application/application.dart'
-    hide Response, FormData, MultipartFile;
+import 'package:pharmo_app/application/application.dart' hide Response, FormData, MultipartFile;
 import 'package:pharmo_app/views/promotion/promotion_dialog.dart';
 
 class HomeProvider extends ChangeNotifier {
@@ -22,6 +21,9 @@ class HomeProvider extends ChangeNotifier {
     vndrs.clear();
     branches.clear();
     fetchedItems.clear();
+    productsLoaded = false;
+    productFilter = allProducts;
+    productScrollOffset = 0;
     picked = Supplier(
       id: 1,
       name: 'Нийлүүлэгч сонгох',
@@ -31,6 +33,7 @@ class HomeProvider extends ChangeNotifier {
     orderDeliveryType = '';
     orderBranch = null;
     orderPayType = '';
+    orderStep = 0;
     notifyListeners();
   }
 
@@ -54,6 +57,9 @@ class HomeProvider extends ChangeNotifier {
   String orderDeliveryType = '';
   Sector? orderBranch;
   String orderPayType = '';
+  // Which OrderSheet step the user was on — so an accidental close (the X
+  // button, a swipe-down) reopens where they left off instead of at step 0.
+  int orderStep = 0;
 
   void setOrderDeliveryType(String v) {
     orderDeliveryType = v;
@@ -70,12 +76,19 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setOrderStep(int v) {
+    orderStep = v;
+    notifyListeners();
+  }
+
   void clearOrderSelections() {
     orderDeliveryType = '';
     orderBranch = null;
     orderPayType = '';
+    orderStep = 0;
     notifyListeners();
   }
+
   List<Branch> branchList = <Branch>[];
   late LocationPermission permission;
   late bool servicePermission = false;
@@ -108,11 +121,8 @@ class HomeProvider extends ChangeNotifier {
   void refresh(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
-        final promotion =
-            Provider.of<PromotionProvider>(context, listen: false);
-        clearItems();
-        setPageKey(1);
-        fetchProducts();
+        final promotion = Provider.of<PromotionProvider>(context, listen: false);
+        reloadProducts();
         if (promotion.markedPromotions.isNotEmpty) {
           showMarkedPromos();
         }
@@ -121,10 +131,43 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // Барааний жагсаалт & бараа хайх
+  //
+  // The products tab's widget is rebuilt each time the bottom bar switches
+  // back to it, so everything it shows lives here: the listing
+  // (fetchedItems, pageKey), what that listing is (query, productFilter)
+  // and where it was scrolled to.
   List<Product> fetchedItems = [];
   int pageKey = 1;
   int totalCount = 0;
   final int pageSize = 100;
+
+  /// [fetchedItems] holds a loaded listing, shown as is on returning to the
+  /// tab instead of fetching page 1 again.
+  bool productsLoaded = false;
+
+  static const allProducts = 'Бүгд';
+
+  /// The products tab's quick filters: the endpoint and query each lists.
+  ///
+  /// «Эрэлттэй» is products_by_demand/ (the catalogue ordered by demand):
+  /// supplier_indemand_products/ rows carry a demand-row id rather than the
+  /// product's, and no price. There is no «Шинэ»: the API can't order by
+  /// newest — products/ takes `ordering` on p_name only, hence «А–Я».
+  static const quickFilters = <String, (String, Map<String, String>)>{
+    'Хямдралтай': ('products/', {'discount__gt': '0'}),
+    'Эрэлттэй': ('products_by_demand/', {}),
+    'А–Я': ('products/', {'ordering': 'p_name'}),
+  };
+
+  /// The quick filter chip in use: [allProducts] or a [quickFilters] key.
+  String productFilter = allProducts;
+  void setProductFilter(String filter) {
+    productFilter = filter;
+    notifyListeners();
+  }
+
+  /// Last scroll position of the products list, restored on return.
+  double productScrollOffset = 0;
 
   bool get hasMore => fetchedItems.length < totalCount;
 
@@ -133,20 +176,41 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Bumped whenever the listing is replaced, so a page that arrives for an
+  // older one (a search typed over, a load started before switching tabs
+  // and back) is dropped instead of appended.
+  int _listing = 0;
+
   clearItems() {
+    _listing++;
     fetchedItems.clear();
     totalCount = 0;
+    productsLoaded = false;
+    // A new listing starts at the top.
+    productScrollOffset = 0;
     notifyListeners();
   }
 
+  /// The endpoint and query behind [fetchedItems]: the search while there is
+  /// a [query], else the quick filter in use, else the whole catalogue.
+  (String, Map<String, String>) get _source {
+    if (query.isNotEmpty) return ('products/search/', {'k': queryType, 'v': query});
+    return quickFilters[productFilter] ?? ('products/', const {});
+  }
+
+  /// Page [pageKey] of [_source], appended to [fetchedItems].
   Future<void> fetchProducts() async {
-    List<Product> items = await getProducts(pageKey);
-    if (items.isNotEmpty) {
-      fetchedItems.addAll(items);
-    }
+    final listing = _listing;
+    final (path, params) = _source;
+    final (items, count) = await productsPage(path, params, pageKey);
+    if (listing != _listing) return;
+    totalCount = count;
+    fetchedItems.addAll(items);
+    productsLoaded = true;
     notifyListeners();
   }
 
+  /// The next page of whatever is listed.
   void fetchMoreProducts() async {
     if (!hasMore) return;
     setPageKey(pageKey + 1);
@@ -154,137 +218,122 @@ class HomeProvider extends ChangeNotifier {
   }
 
   filterProduct(String query) async {
+    this.query = query;
+    productFilter = allProducts;
     clearItems();
-    List<Product> items = await searchProducts(query);
-    if (items.isNotEmpty) {
-      fetchedItems.addAll(items);
-    }
+    pageKey = 1;
+    await fetchProducts();
+  }
+
+  /// Lists one of [quickFilters]. The current list stays up until its
+  /// first page arrives.
+  Future<void> applyQuickFilter(String name) async {
+    query = '';
+    productFilter = name;
+    final listing = ++_listing;
+    notifyListeners();
+    final (path, params) = _source;
+    final (items, count) = await productsPage(path, params, 1);
+    if (listing != _listing) return;
+    clearItems();
+    pageKey = 1;
+    totalCount = count;
+    fetchedItems.addAll(items);
+    productsLoaded = true;
     notifyListeners();
   }
 
-  Future<List<Product>> getProducts(int pageKey) async {
+  /// One page of a product listing (GET [path], e.g. products/ with its
+  /// filters) and the total count the server reports for that listing.
+  Future<(List<Product>, int)> productsPage(
+    String path,
+    Map<String, String> query,
+    int page, {
+    int? size,
+  }) async {
     try {
-      var url = 'products/?page=$pageKey&page_size=$pageSize';
-      final r = await api(Api.get, url);
-      if (r == null) return [];
-      if (r.statusCode == 200) {
+      final endpoint = Uri(
+        path: path,
+        queryParameters: {...query, 'page': '$page', 'page_size': '${size ?? pageSize}'},
+      ).toString();
+      final r = await api(Api.get, endpoint);
+      if (r != null && r.statusCode == 200) {
         final res = convertData(r);
-        totalCount = res['count'] ?? 0;
-        final prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
-        return prods;
+        final items = (res['results'] as List).map((data) => Product.fromJson(data)).toList();
+        return (items, (res['count'] ?? 0) as int);
       }
     } catch (e) {
-      debugPrint('error============= on getProduct> ${e.toString()}');
+      debugPrint('error============= on $path > ${e.toString()}');
     }
-    return [];
+    return (<Product>[], 0);
   }
 
-  Future<List<Product>> searchProducts(String query) async {
-    try {
-      if (query.isNotEmpty) {
-        final url =
-            'products/search/?k=$queryType&v=$query&page=$pageKey&page_size=$pageSize';
-        final r = await api(Api.get, url);
-        if (r == null) return [];
-        if (r.statusCode == 200) {
-          final res = convertData(r);
-          totalCount = res['count'] ?? 0;
-          final prods = (res['results'] as List)
-              .map((data) => Product.fromJson(data))
-              .toList();
-          return prods;
-        }
-      }
-    } catch (e) {
-      debugPrint('error============= on getProduct> ${e.toString()}');
-    }
-    return [];
+  /// The whole catalogue from page 1: no search, no quick filter.
+  Future<void> showAllProducts() async {
+    query = '';
+    productFilter = allProducts;
+    clearItems();
+    pageKey = 1;
+    await fetchProducts();
   }
 
-  // хямдралтай, эрэлттэй, шинэ бараа
-  filterProducts(String filter) async {
-    try {
-      final r = await api(Api.get, 'products/?$filter');
-      if (r == null) return;
-      if (r.statusCode == 200) {
-        final res = convertData(r);
-        final prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
-        clearItems();
-        fetchedItems.addAll(prods);
-        return prods;
-      }
-    } catch (e) {
-      debugPrint('error============= on filterProduct > ${e.toString()}');
-    }
-    notifyListeners();
+  /// Fetches again whatever the tab is showing, e.g. on pull-to-refresh or
+  /// after the supplier changed.
+  Future<void> reloadProducts() async {
+    if (query.isNotEmpty) return await filterProduct(query);
+    if (quickFilters.containsKey(productFilter)) return await applyQuickFilter(productFilter);
+    await showAllProducts();
   }
 
+  /// Adds [images] to product [id]. Each must already be at most 1MB and a
+  /// jpeg/png/webp, at most 5 per call — see compressImage().
   Future uploadImage({
     required int id,
     required List<File> images,
   }) async {
     try {
-      final security = await Authenticator.getSecurity();
-      if (security == null) {
-        messageWarning('Нэвтэрнэ үү');
-        return;
-      }
-      final formData = FormData.fromMap({
-        'product_id': id.toString(),
-        'images': await Future.wait(
-          images.map((image) => MultipartFile.fromFile(image.path)),
-        ),
+      final r = await _updateProductImages({
+        'product_id': id,
+        'images': await Future.wait(images.map(ApiService.imagePart)),
       });
-      final res = await ApiService.plainDio.patch(
-        ApiService.buildUrl('update_product_image/').toString(),
-        data: formData,
-        options: Options(headers: {'Authorization': security.access}),
-      );
-      print(res.statusCode);
-      print(res.data);
-      if (res.statusCode == 200) {
+      if (r?.statusCode == 200) {
         return buildResponse(0, null, 'Амжилттай хадгалагдлаа');
-      } else {
-        messageWarning(wait);
-        return buildResponse(1, null, wait);
       }
+      return buildResponse(1, null, r == null ? wait : apiErrorMessage(apiBody(r)) ?? wait);
     } catch (e) {
       return buildResponse(3, null, 'Түх хүлээгээд дахин оролдоно уу!');
     }
   }
 
   Future<bool> deleteImages({required int id, required int imageID}) async {
-    try {
-      final security = await Authenticator.getSecurity();
-      if (security == null) {
-        messageWarning('Нэвтэрнэ үү');
-        return false;
-      }
-      final formData = FormData.fromMap({
-        'product_id': id.toString(),
-        'images_to_remove': imageID.toString(),
-      });
-      final r = await ApiService.plainDio.patch(
-        ApiService.buildUrl('update_product_image/').toString(),
-        data: formData,
-        options: Options(headers: {'Authorization': security.access}),
-      );
-      if (r.statusCode == 200) {
-        messageComplete('Амжилттай хадгалагдлаа');
-        return true;
-      } else {
-        messageWarning(wait);
-        return false;
-      }
-    } catch (e) {
-      throw Exception(e);
+    final r = await _updateProductImages({
+      'product_id': id,
+      'images_to_remove': [imageID],
+    });
+    if (r?.statusCode == 200) {
+      messageComplete('Амжилттай хадгалагдлаа');
+      return true;
     }
+    messageWarning(r == null ? wait : apiErrorMessage(apiBody(r)) ?? wait);
+    return false;
   }
 
+  // PATCH update_product_image/ (multipart). Through ApiService.dio, which
+  // adds the Bearer token and refreshes it; only the client header is set
+  // here so Dio can give FormData its multipart Content-Type. On 200 the
+  // body is the product's full image list.
+  Future<Response?> _updateProductImages(Map<String, dynamic> fields) async {
+    try {
+      return await ApiService.dio.patch(
+        ApiService.buildUrl('update_product_image/').toString(),
+        data: FormData.fromMap(fields),
+        options: Options(headers: ApiService.clientHeader),
+      );
+    } catch (e) {
+      debugPrint('update_product_image/ failed: $e');
+      return null;
+    }
+  }
   Future getBranches() async {
     try {
       final r = await api(Api.get, 'branch/orderer');
@@ -337,48 +386,10 @@ class HomeProvider extends ChangeNotifier {
       if (r == null) return;
       if (r.statusCode == 200) {
         Map res = convertData(r);
-        categories =
-            (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
-        mnfrs = (res['mnfrs'] as List)
-            .map((e) => Manufacturer.fromJson(e))
-            .toList();
-        vndrs = (res['vndrs'] as List)
-            .map((e) => Manufacturer.fromJson(e))
-            .toList();
+        categories = (res['cats'] as List).map((e) => Category.fromJson(e)).toList();
+        mnfrs = (res['mnfrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
+        vndrs = (res['vndrs'] as List).map((e) => Manufacturer.fromJson(e)).toList();
         notifyListeners();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-// Бараа ангиллаар шүүх
-  filter(String type, int filters, int page, int pageSize) async {
-    try {
-      final r = await api(
-          Api.get, 'products/?$type=[$filters]&page=$page&page_size=$pageSize');
-      if (r!.statusCode == 200) {
-        Map res = convertData(r);
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
-        return prods;
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  filterCate(int id, int page, int pageSize) async {
-    try {
-      final r = await api(
-          Api.get, 'products/?category=[$id]&page=$page&page_size=$pageSize');
-      if (r!.statusCode == 200) {
-        Map<String, dynamic> res = convertData(r);
-        List<Product> prods = (res['results'] as List)
-            .map((data) => Product.fromJson(data))
-            .toList();
-        return prods;
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -402,8 +413,7 @@ class HomeProvider extends ChangeNotifier {
         final user = Authenticator.security;
         if (user == null) return;
         if (user.isPharmacist) {
-          supliers =
-              (data as List).map((sup) => Supplier.fromJson(sup)).toList();
+          supliers = (data as List).map((sup) => Supplier.fromJson(sup)).toList();
         } else {
           supliers = (data as List)
               .map((sup) => Supplier.fromJson(sup))
@@ -457,8 +467,7 @@ class HomeProvider extends ChangeNotifier {
       );
       if (res == null) return;
       if (res.statusCode == 200) {
-        branchList =
-            (convertData(res) as List).map((j) => Branch.fromJson(j)).toList();
+        branchList = (convertData(res) as List).map((j) => Branch.fromJson(j)).toList();
         notifyListeners();
       }
     } catch (e) {
@@ -469,10 +478,8 @@ class HomeProvider extends ChangeNotifier {
 
   Future getPosition() async {
     _currentLocation = await _getCurrentLocation();
-    currentLatitude =
-        double.parse(_currentLocation!.latitude.toStringAsFixed(6));
-    currentLongitude =
-        double.parse(_currentLocation!.longitude.toStringAsFixed(6));
+    currentLatitude = double.parse(_currentLocation!.latitude.toStringAsFixed(6));
+    currentLongitude = double.parse(_currentLocation!.longitude.toStringAsFixed(6));
   }
 
   Future<Position> _getCurrentLocation() async {
@@ -487,8 +494,7 @@ class HomeProvider extends ChangeNotifier {
 
   deactiveUser(String password, BuildContext context) async {
     try {
-      final r = await api(Api.patch, 'auth/delete_user_account/',
-          body: {'pwd': password});
+      final r = await api(Api.patch, 'auth/delete_user_account/', body: {'pwd': password});
       if (r == null) return;
       if (r.statusCode == 200) {
         if (!context.mounted) return;
@@ -510,11 +516,13 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Order creation itself moved to CartProvider.createOrder(context,
-  // payType: ...) — merged with the Pharmacist pharmacy/order/ flow, since
-  // both were near-duplicate LoadingService/try-catch wrappers around
-  // different endpoints. This provider still owns customer/note, which
-  // that merged function reads/clears via context.read<HomeProvider>().
+  /// The basket was emptied: the orderer chosen for it no longer applies,
+  /// and the order sheet starts over at its first step.
+  void forgetCustomer() {
+    customer = null;
+    orderStep = 0;
+    notifyListeners();
+  }
 
   setNote(String nv) {
     note = nv;
@@ -533,6 +541,8 @@ class HomeProvider extends ChangeNotifier {
 
   changeIndex(int index) async {
     currentIndex = index;
+    // Hidden by scrolling one tab; the next starts with the bar showing.
+    hidingOnScroll = false;
     notifyListeners();
   }
 
@@ -571,14 +581,12 @@ class HomeScrollListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
-      builder: (context, home, child) =>
-          NotificationListener<UserScrollNotification>(
+      builder: (context, home, child) => NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
           if (notification.direction == ScrollDirection.idle) {
             return false;
           }
-          home.setHidingOnScroll(
-              notification.direction != ScrollDirection.forward);
+          home.setHidingOnScroll(notification.direction != ScrollDirection.forward);
           return false;
         },
         child: xchild,

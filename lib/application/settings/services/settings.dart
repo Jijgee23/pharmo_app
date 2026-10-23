@@ -15,6 +15,17 @@ class Settings {
   }
 
   static Future<void> getMessage() async {
+    Future<void> handler() async {
+      final success = await openAppSettings();
+      if (success) {
+        Get.back(canPop: true);
+      } else {
+        messageWarning('⚠️ Тохиргоо нээгдэхэд алдаа гарлаа');
+      }
+    }
+
+    void back() => Get.back();
+
     return Get.dialog(
       Dialog(
         backgroundColor: white,
@@ -32,35 +43,24 @@ class Settings {
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold, color: black),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: black),
                   children: [
                     TextSpan(text: 'Байршилийн зөвшөөрлийг '),
                     TextSpan(
-                        text: Platform.isAndroid ? 'All the time' : 'Always',
-                        style: TextStyle(color: Colors.redAccent)),
+                      text: Platform.isAndroid ? 'All the time' : 'Always',
+                      style: TextStyle(color: Colors.redAccent),
+                    ),
                     TextSpan(text: ' болгон тохируулна уу!')
                   ],
                 ),
               ),
               DialogButton(
-                  title: 'Хаах',
-                  bColor: atnessGrey,
-                  tColor: neonBlue,
-                  onTap: () => Get.back()),
-              DialogButton(
-                title: 'Тохируулах',
-                bColor: neonBlue,
-                tColor: black,
-                onTap: () async {
-                  final success = await openAppSettings();
-                  if (success) {
-                    Get.back(canPop: true);
-                  } else {
-                    messageWarning('⚠️ Тохиргоо нээгдэхэд алдаа гарлаа');
-                  }
-                },
-              )
+                title: 'Хаах',
+                bColor: atnessGrey,
+                tColor: neonBlue,
+                onTap: back,
+              ),
+              DialogButton(title: 'Тохируулах', bColor: neonBlue, tColor: black, onTap: handler)
             ],
           ),
         ),
@@ -97,8 +97,7 @@ class Settings {
     }
     if (permission == LocationPermission.always) {
       final accuricy = await Geolocator.getLocationAccuracy();
-      if (permission == LocationPermission.always &&
-          accuricy == LocationAccuracyStatus.precise) {
+      if (permission == LocationPermission.always && accuricy == LocationAccuracyStatus.precise) {
         return true;
       }
       if (accuricy != LocationAccuracyStatus.precise) {
@@ -112,8 +111,7 @@ class Settings {
   static Future<bool> checkWhenUseLocationPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
 
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
       permission = await Geolocator.requestPermission();
     }
 
@@ -123,8 +121,7 @@ class Settings {
       return false;
     }
 
-    if (permission == LocationPermission.whileInUse ||
-        permission == LocationPermission.always) {
+    if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
       return true;
     } else {
       getMessage();

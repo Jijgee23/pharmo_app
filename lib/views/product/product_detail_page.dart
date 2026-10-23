@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/product/add_basket_sheet.dart';
 
 class ProductDetail extends StatefulWidget {
   final Product prod;
@@ -65,6 +66,7 @@ class _ProductDetailState extends State<ProductDetail> {
               child: Stack(
                 children: [
                   CustomScrollView(
+                    controller: _scrollController,
                     slivers: [
                       // App Bar with Image
                       _buildSliverAppBar(isNotPharma, home),
@@ -121,35 +123,62 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
+  double get _imageHeight => MediaQuery.of(context).size.width * 0.7;
+
+  // The image has scrolled away: the bar shows the product's name instead.
+  bool _collapsed = false;
+
+  late final ScrollController _scrollController = ScrollController()
+    ..addListener(() {
+      final collapsed = _scrollController.offset > _imageHeight - kToolbarHeight - 8;
+      if (collapsed != _collapsed) setState(() => _collapsed = collapsed);
+    });
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   Widget _buildSliverAppBar(bool isNotPharma, HomeProvider home) {
     return SliverAppBar(
-      expandedHeight: MediaQuery.of(context).size.width * 0.7,
+      expandedHeight: _imageHeight,
       floating: false,
       pinned: true,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      forceElevated: _collapsed,
+      shadowColor: Colors.black.withValues(alpha: 0.08),
+      surfaceTintColor: Colors.transparent,
       backgroundColor: Colors.white,
-      leading: IconButton(
-        onPressed: () => Navigator.pop(context),
-        style: ElevatedButton.styleFrom(backgroundColor: grey300),
-        icon: Icon(
-          Icons.chevron_left_rounded,
+      automaticallyImplyLeading: false,
+      // The same rounded buttons as ModernAppBar; white squares read well
+      // over any product photo.
+      leadingWidth: 66,
+      leading: Center(
+        child: AppBarButton(
+          icon: Icons.arrow_back_ios_new_rounded,
+          tooltip: 'Буцах',
+          onTap: () => Navigator.maybePop(context),
         ),
       ),
-      actions: [
-        Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-              ),
-            ],
+      title: AnimatedOpacity(
+        opacity: _collapsed ? 1 : 0,
+        duration: const Duration(milliseconds: 200),
+        child: Text(
+          widget.prod.name ?? '',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.theme.textTheme.titleMedium?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
           ),
-          child: CartIcon.forAppBar(),
         ),
+      ),
+      titleSpacing: 4,
+      actions: const [
+        AppBarCartButton(),
+        SizedBox(width: 12),
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: det.isEmpty
@@ -203,6 +232,11 @@ class _ProductDetailState extends State<ProductDetail> {
             }).toList(),
             options: CarouselOptions(
               viewportFraction: 1.0,
+              // A single image has nowhere to go: no swiping, no looping.
+              enableInfiniteScroll: pictures.length > 1,
+              scrollPhysics: pictures.length > 1
+                  ? const PageScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
               autoPlay: pictures.length > 1,
               autoPlayInterval: const Duration(seconds: 4),
               autoPlayAnimationDuration: const Duration(milliseconds: 800),
@@ -688,7 +722,7 @@ class _ProductDetailState extends State<ProductDetail> {
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: () => _showAddToCartSheet(basket),
+                onPressed: () => _showAddToCartSheet(),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -775,23 +809,13 @@ class _ProductDetailState extends State<ProductDetail> {
         await Permission.storage.request();
       }
 
-      final pickedFile = await ImagePicker().pickImage(source: source);
-
-      if (pickedFile != null) {
-        if (images.length >= 5) {
-          messageWarning('5 хүртэлт зураг оруулах боломжтой');
-          return;
-        }
-
-        File imageFile = File(pickedFile.path);
-        File compressedImage = await compressImage(imageFile);
-
-        setState(() {
-          images.add(compressedImage);
-        });
-      } else {
-        messageWarning("Зураг сонгоно уу!");
+      if (images.length >= 5) {
+        messageWarning('Нэг удаад 5 хүртэл зураг оруулах боломжтой');
+        return;
       }
+
+      final image = await pickUploadImage(source);
+      if (image != null && mounted) setState(() => images.add(image));
     } catch (e) {
       messageWarning("Зураг сонгох үед алдаа гарлаа!");
     }
@@ -860,47 +884,15 @@ class _ProductDetailState extends State<ProductDetail> {
   //   });
   // }
 
-  void _showAddToCartSheet(CartProvider basket) {
+  void _showAddToCartSheet() {
     Get.bottomSheet(
-      ChangeQtyPad(
-        onSubmit: (v) async {
-          await _addToCart(v, basket);
+      AddBasketSheet(
+        product: widget.prod,
+        onAdded: () {
+          if (mounted) Navigator.pop(context);
         },
-        initValue: '',
-        cashOnly: widget.prod.cashOnly,
       ),
       isScrollControlled: true,
     );
-  }
-
-  Future<void> _addToCart(String qty, CartProvider basket) async {
-    if (qty.isEmpty || qty == 'Тоо ширхэг') {
-      message('Тоон утга оруулна уу!');
-      return;
-    }
-
-    final quantity = parseDouble(qty);
-    if (quantity <= 0) {
-      message('0 ба түүгээс бага байж болохгүй!');
-      return;
-    }
-
-    try {
-      Navigator.pop(context);
-      LoadingService.show();
-
-      await basket.addProduct(
-        widget.prod.id,
-        widget.prod.name!,
-        quantity,
-      );
-
-      if (!mounted) return;
-      Navigator.pop(context);
-    } catch (e) {
-      message('Алдаа гарлаа');
-    } finally {
-      LoadingService.hide();
-    }
   }
 }

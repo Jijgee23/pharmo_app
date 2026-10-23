@@ -60,6 +60,7 @@ class CartItemModel {
   final String name;
   final double price;
   final double qty;
+  final String? allowedPaytypes;
 
   const CartItemModel({
     required this.id,
@@ -67,6 +68,7 @@ class CartItemModel {
     required this.name,
     required this.price,
     required this.qty,
+    this.allowedPaytypes,
   });
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
@@ -76,6 +78,9 @@ class CartItemModel {
       name: json['name'].toString(),
       price: parseDouble(json['price']),
       qty: parseDouble(json['qty']),
+      allowedPaytypes: json['allowed_paytypes']?.toString(),
     );
   }
+
+  bool get cashOnly => (allowedPaytypes ?? '').toUpperCase() == 'C';
 }

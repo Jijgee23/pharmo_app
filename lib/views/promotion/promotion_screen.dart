@@ -1,6 +1,7 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/promotion/buying_promo.dart';
 import 'package:pharmo_app/views/promotion/marked_promo.dart';
+import 'package:pharmo_app/views/promotion/promo_card.dart';
 
 class PromotionWidget extends StatefulWidget {
   const PromotionWidget({super.key});
@@ -30,65 +31,47 @@ class _PromotionWidgetState extends State<PromotionWidget> {
   bool hasGift = false;
   DateTime start = DateTime.now();
   DateTime end = DateTime.now();
-  String iconurl = 'gitf_filled.png';
 
   @override
   Widget build(BuildContext context) {
     return Consumer<PromotionProvider>(
       builder: (_, provider, child) {
         final promos = provider.promotions;
-        return Material(
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                // Олон өнгийн зогсолт ашиглан илүү smooth болгоно
-                colors: [
-                  primary.withOpacity(0.6), // Маш бүдэг үндсэн өнгө
-                  primary.withOpacity(0.3), // Бараг харагдахгүй туяа
-                  primary.withOpacity(0.1), // Цэвэр цагаан руу уусна
-                ],
-                stops: [0, 0.5, 1], // Өнгө хаанаас хаашаа уусахыг заана
-              ),
-            ),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  AppBar(title: Text('Урамшуулал'), backgroundColor: transperant),
-                  _filterRow(provider),
-                  Expanded(
-                    child: Builder(
-                      builder: (context) {
-                        if (provider.loading) {
-                          return CircularProgressIndicator.adaptive();
-                        }
-                        if (promos.isEmpty) {
-                          return NoResult(
-                            onRefresh: () async => await promotionProvider.getPromotion(),
-                          );
-                        }
-                        return SectionCard(
-                          title: 'Урамшуулал',
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: promos
-                                  .map(
-                                    (p) => promo(
-                                      promo: promos[promos.indexOf(p)],
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                          ),
+        return Scaffold(
+          appBar: const SideAppBar(text: 'Урамшуулал'),
+          body: SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                _filterRow(provider),
+                Expanded(
+                  child: Builder(
+                    builder: (context) {
+                      if (provider.loading) {
+                        return const Center(child: PharmoIndicator());
+                      }
+                      if (promos.isEmpty) {
+                        return EmptyState(
+                          icon: Icons.local_offer_outlined,
+                          title: 'Урамшуулал алга',
+                          message: 'Одоогоор идэвхтэй урамшуулал байхгүй байна.',
+                          actionLabel: 'Дахин ачаалах',
+                          onAction: () => promotionProvider.getPromotion(),
                         );
-                      },
-                    ),
-                  )
-                ],
-              ),
+                      }
+                      return ListView.separated(
+                        padding: const EdgeInsets.all(15),
+                        itemCount: promos.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (context, idx) => PromoCard(
+                          promo: promos[idx],
+                          onTap: () => _openPromo(promos[idx]),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -96,11 +79,20 @@ class _PromotionWidgetState extends State<PromotionWidget> {
     );
   }
 
+  void _openPromo(Promotion promo) {
+    promotionProvider.getDetail(promo.id!).then((e) {
+      if (promo.promoType == '2') {
+        goto(BuyinPromo(promo: promotionProvider.promoDetail));
+      } else {
+        goto(MarkedPromoWidget(promo: promotionProvider.promoDetail));
+      }
+    });
+  }
+
   bool _promoTypeOpen = false;
   final MenuController _promoMenuController = MenuController();
 
   Widget _filterRow(PromotionProvider provider) {
-    final color = primary;
     final dateActive =
         start != DateTime(start.year, start.month, start.day) || end.difference(start).inDays > 0;
 
@@ -110,7 +102,8 @@ class _PromotionWidgetState extends State<PromotionWidget> {
       child: Row(
         spacing: 10,
         children: [
-          // 1. Promo type dropdown — MenuAnchor
+          // 1. Promo type dropdown — MenuAnchor, styled like PharmoFilterChip
+          // (same pill/border/shadow language, primary fill while open).
           MenuAnchor(
             controller: _promoMenuController,
             onOpen: () => setState(() => _promoTypeOpen = true),
@@ -134,7 +127,7 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                 },
                 style: ButtonStyle(
                   backgroundColor: WidgetStatePropertyAll(
-                    selected ? color.withOpacity(0.07) : Colors.transparent,
+                    selected ? primary.withOpacity(0.07) : Colors.transparent,
                   ),
                   padding: WidgetStatePropertyAll(
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -146,14 +139,14 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                   children: [
                     SizedBox(
                       width: 16,
-                      child: selected ? Icon(Icons.check_rounded, size: 15, color: color) : null,
+                      child: selected ? Icon(Icons.check_rounded, size: 15, color: primary) : null,
                     ),
                     Text(
                       type,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                        color: selected ? color : Colors.black87,
+                        color: selected ? primary : Colors.black87,
                       ),
                     ),
                   ],
@@ -165,29 +158,45 @@ class _PromotionWidgetState extends State<PromotionWidget> {
                   _promoTypeOpen ? _promoMenuController.close() : _promoMenuController.open(),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: _promoTypeOpen ? Colors.grey.shade100 : Colors.transparent,
+                  color: _promoTypeOpen ? primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(50),
-                  border: Border.all(color: Colors.grey.shade300, width: 1.2),
+                  border: Border.all(
+                    color: _promoTypeOpen ? primary : Colors.grey.shade300,
+                    width: 1.2,
+                  ),
+                  boxShadow: _promoTypeOpen
+                      ? [
+                          BoxShadow(
+                            color: primary.withOpacity(0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
+                      : [],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  spacing: 4,
+                  spacing: 5,
                   children: [
                     Text(
                       selectedPromoType,
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade700,
+                        fontWeight: _promoTypeOpen ? FontWeight.w600 : FontWeight.w400,
+                        color: _promoTypeOpen ? Colors.white : Colors.grey.shade700,
                         letterSpacing: 0.1,
                       ),
                     ),
                     AnimatedRotation(
                       turns: _promoTypeOpen ? 0.5 : 0,
                       duration: const Duration(milliseconds: 180),
-                      child: Icon(Icons.keyboard_arrow_down_rounded,
-                          size: 16, color: Colors.grey.shade500),
+                      child: Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 16,
+                        color: _promoTypeOpen ? Colors.white : Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
@@ -196,68 +205,34 @@ class _PromotionWidgetState extends State<PromotionWidget> {
           ),
 
           // 2. Gift toggle
-          GestureDetector(
-            onTap: () {
+          PharmoFilterChip(
+            caption: 'Бэлэгтэй',
+            icon: hasGift ? Icons.card_giftcard_rounded : Icons.card_giftcard_outlined,
+            selected: hasGift,
+            onPressed: () {
               setState(() => hasGift = !hasGift);
               provider.filterPromotion('has_gift', hasGift.toString());
             },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: hasGift ? color.withOpacity(0.08) : Colors.transparent,
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(
-                  color: hasGift ? color.withOpacity(0.5) : Colors.grey.shade300,
-                  width: hasGift ? 1.4 : 1.2,
-                ),
-                boxShadow: hasGift
-                    ? [
-                        BoxShadow(
-                          color: color.withOpacity(0.15),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        )
-                      ]
-                    : [],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 6,
-                children: [
-                  CustomIcon(name: hasGift ? 'gitf_filled.png' : 'gift_empty.png'),
-                  Text(
-                    'Бэлэгтэй',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: hasGift ? FontWeight.w600 : FontWeight.w400,
-                      color: hasGift ? color : Colors.grey.shade700,
-                      letterSpacing: 0.1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
 
-          // 3. Date range picker
+          // 3. Date range picker — same pill styling as PharmoFilterChip
           GestureDetector(
             onTap: () => _datePicker(context),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: dateActive ? color.withOpacity(0.08) : Colors.transparent,
+                color: dateActive ? primary : Colors.transparent,
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(
-                  color: dateActive ? color.withOpacity(0.5) : Colors.grey.shade300,
-                  width: dateActive ? 1.4 : 1.2,
+                  color: dateActive ? primary : Colors.grey.shade300,
+                  width: 1.2,
                 ),
                 boxShadow: dateActive
                     ? [
                         BoxShadow(
-                          color: color.withOpacity(0.15),
-                          blurRadius: 6,
+                          color: primary.withOpacity(0.25),
+                          blurRadius: 8,
                           offset: const Offset(0, 2),
                         )
                       ]
@@ -265,19 +240,19 @@ class _PromotionWidgetState extends State<PromotionWidget> {
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                spacing: 6,
+                spacing: 5,
                 children: [
                   Icon(
                     Icons.calendar_month_outlined,
                     size: 14,
-                    color: dateActive ? color : Colors.grey.shade500,
+                    color: dateActive ? Colors.white : Colors.grey.shade600,
                   ),
                   Text(
                     '${start.toString().substring(0, 10)}  ~  ${end.toString().substring(0, 10)}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: dateActive ? FontWeight.w600 : FontWeight.w400,
-                      color: dateActive ? color : Colors.grey.shade700,
+                      color: dateActive ? Colors.white : Colors.grey.shade700,
                       letterSpacing: 0.1,
                     ),
                   ),
@@ -287,61 +262,11 @@ class _PromotionWidgetState extends State<PromotionWidget> {
           ),
 
           // 4. Reload
-          GestureDetector(
-            onTap: provider.getPromotion,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(color: Colors.grey.shade200, width: 1.2),
-              ),
-              child: Icon(Icons.refresh_rounded, size: 18, color: Colors.grey.shade600),
-            ),
+          ModernIcon(
+            iconData: Icons.refresh_rounded,
+            onPressed: provider.getPromotion,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget promo({required Promotion promo}) {
-    return InkWell(
-      onTap: () => promotionProvider.getDetail(promo.id!).then((e) {
-        if (promo.promoType == '2') {
-          goto(BuyinPromo(promo: promotionProvider.promoDetail));
-        } else {
-          goto(MarkedPromoWidget(promo: promotionProvider.promoDetail));
-        }
-      }),
-      splashColor: Colors.transparent,
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade200,
-                blurRadius: 3,
-              )
-            ],
-            borderRadius: BorderRadius.circular(10)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              promo.name!,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-            (promo.description != null)
-                ? Text(
-                    promo.description!,
-                    style: const TextStyle(fontSize: 12),
-                  )
-                : Container()
-          ],
-        ),
       ),
     );
   }

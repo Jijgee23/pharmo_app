@@ -7,8 +7,7 @@ class SellerTrackButton extends StatefulWidget {
   State<SellerTrackButton> createState() => _SellerTrackButtonState();
 }
 
-class _SellerTrackButtonState extends State<SellerTrackButton>
-    with SingleTickerProviderStateMixin {
+class _SellerTrackButtonState extends State<SellerTrackButton> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _pulseAnimation;
   late Animation<double> _scaleAnimation;
@@ -56,100 +55,93 @@ class _SellerTrackButtonState extends State<SellerTrackButton>
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
         _syncAnimation(jagger.trackState);
-        return Positioned(
-          bottom: 20,
-          left: 20,
-          child: SafeArea(
-            child: Builder(
-              builder: (context) {
-                if (user == null || !user.isSaler) {
-                  return const SizedBox();
-                }
-                final trackState = jagger.trackState;
-                final bgColor = trackState.btnColor;
-                final bool isNone = trackState == TrackState.none;
-                final bool isTracking = trackState == TrackState.tracking;
+        return Builder(
+          builder: (context) {
+            if (user == null || !user.isSaler) {
+              return const SizedBox();
+            }
+            final trackState = jagger.trackState;
+            final bgColor = trackState.btnColor;
+            final bool isNone = trackState == TrackState.none;
+            final bool isTracking = trackState == TrackState.tracking;
 
-                return AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        if (!isNone)
-                          Transform.scale(
-                            scale: _pulseAnimation.value,
-                            child: Container(
-                              height: 48,
-                              width: 220,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(28),
-                                color: bgColor.withOpacity(0.25 *
-                                    (1.15 - _pulseAnimation.value) *
-                                    6.67),
-                              ),
-                            ),
-                          ),
-                        Transform.scale(
-                          scale: !isNone ? _scaleAnimation.value : 1.0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(28),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: bgColor.withOpacity(0.4),
-                                  blurRadius: !isNone ? 16 : 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: FloatingActionButton.extended(
-                              elevation: 0,
-                              heroTag: 'trackingDeliveriesSeller',
-                              onPressed: jagger.toggleTracking,
-                              backgroundColor: bgColor,
-                              label: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (isTracking) ...[
-                                    _PulsingDot(),
-                                    const SizedBox(width: 12),
-                                  ] else ...[
-                                    Icon(
-                                      trackState.icon,
-                                      color: Colors.white,
-                                      size: 24,
-                                    ),
-                                    const SizedBox(width: 8),
-                                  ],
-                                  Text(
-                                    "Борлуулалт ${trackState.label}",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                  if (isTracking) ...[
-                                    const SizedBox(width: 8),
-                                    Icon(
-                                      trackState.icon,
-                                      color: Colors.white,
-                                      size: 24,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
+            return AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Stack(
+                  alignment: Alignment.centerLeft,
+                  children: [
+                    if (!isNone)
+                      Transform.scale(
+                        scale: _pulseAnimation.value,
+                        child: Container(
+                          height: 48,
+                          width: 220,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(28),
+                            color: bgColor.withValues(
+                                alpha: 0.25 * (1.15 - _pulseAnimation.value) * 6.67),
                           ),
                         ),
-                      ],
-                    );
-                  },
+                      ),
+                    Transform.scale(
+                      scale: !isNone ? _scaleAnimation.value : 1.0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(28),
+                          boxShadow: [
+                            BoxShadow(
+                              color: bgColor.withValues(alpha: 0.4),
+                              blurRadius: !isNone ? 16 : 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: FloatingActionButton.extended(
+                          elevation: 0,
+                          heroTag: 'trackingDeliveriesSeller',
+                          onPressed: jagger.toggleTracking,
+                          backgroundColor: bgColor,
+                          label: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (isTracking) ...[
+                                _PulsingDot(),
+                                const SizedBox(width: 12),
+                              ] else ...[
+                                Icon(
+                                  trackState.icon,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              Text(
+                                "Борлуулалт ${trackState.label}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              if (isTracking) ...[
+                                const SizedBox(width: 8),
+                                Icon(
+                                  trackState.icon,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -161,8 +153,7 @@ class _PulsingDot extends StatefulWidget {
   State<_PulsingDot> createState() => _PulsingDotState();
 }
 
-class _PulsingDotState extends State<_PulsingDot>
-    with SingleTickerProviderStateMixin {
+class _PulsingDotState extends State<_PulsingDot> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -195,10 +186,10 @@ class _PulsingDotState extends State<_PulsingDot>
           height: 10,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withOpacity(_animation.value),
+            color: Colors.white.withValues(alpha: _animation.value),
             boxShadow: [
               BoxShadow(
-                color: Colors.white.withOpacity(0.5 * _animation.value),
+                color: Colors.white.withValues(alpha: 0.5 * _animation.value),
                 blurRadius: 6 * _animation.value,
                 spreadRadius: 2 * _animation.value,
               ),

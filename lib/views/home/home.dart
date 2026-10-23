@@ -19,14 +19,22 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   IconData viewIcon = Icons.grid_view;
-  int pageKey = 1;
   bool hasSale = true;
-  final ScrollController _scrollController = ScrollController();
   late AnimationController controller;
+
+  // This widget is rebuilt each time the bottom bar switches back to it;
+  // its search text, listing and scroll position are kept on HomeProvider.
+  late final HomeProvider _home;
+  late final ScrollController _scrollController;
+  late final TextEditingController _search;
 
   @override
   void initState() {
     super.initState();
+    _home = context.read<HomeProvider>();
+    _scrollController = ScrollController(initialScrollOffset: _home.productScrollOffset)
+      ..addListener(_onScroll);
+    _search = TextEditingController(text: _home.query);
     controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -37,49 +45,40 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Future initPublic() async {
-    final home = context.read<HomeProvider>();
     final cart = context.read<CartProvider>();
-    setLoading(true);
     final security = Authenticator.security;
     if (security == null) return;
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent &&
-          home.hasMore) {
-        home.fetchMoreProducts();
-      }
-    });
-    home.clearItems();
-    home.setPageKey(1);
-    await home.fetchProducts();
+    // Back on the tab with a listing already loaded: show it as it was.
+    if (!_home.productsLoaded) {
+      setLoading(true);
+      await _home.showAllProducts();
+      if (mounted) setLoading(false);
+    }
     await cart.getBasket();
-    if (mounted) setLoading(false);
+  }
+
+  void _onScroll() {
+    final position = _scrollController.position;
+    _home.productScrollOffset = position.pixels;
+    if (position.pixels == position.maxScrollExtent && _home.hasMore) {
+      _home.fetchMoreProducts();
+    }
   }
 
   @override
   void dispose() {
     controller.dispose();
     _scrollController.dispose();
+    _search.dispose();
     super.dispose();
   }
 
   List<IconData> icons = [Icons.discount, Icons.star, Icons.new_releases];
 
-  List<String> filterNames = ['Хямдралтай', 'Эрэлттэй', 'Шинэ'];
-  List<String> filterss = ['discount__gt=0', 'supplier_indemand_products', 'ordering=-created_at'];
-  String selectedFilter = 'Бүгд';
-  void setSelectedFilter(String n) {
-    setState(() {
-      selectedFilter = n;
-    });
-  }
-
   Future<void> refresh() async {
     setLoading(true);
-    final homeProvider = context.read<HomeProvider>();
-    await homeProvider.clearItems();
-    await homeProvider.setPageKey(1);
-    await homeProvider.fetchProducts();
-    setLoading(false);
+    await _home.reloadProducts();
+    if (mounted) setLoading(false);
   }
 
   @override
@@ -88,73 +87,81 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       builder: (_, home, promotionProvider, child) {
         final user = Authenticator.security;
         if (user == null) return SizedBox();
-        return SafeArea(
-          child: Material(
-            child: RefreshIndicator.adaptive(
-              onRefresh: () async => await refresh(),
+        return Material(
+          child: RefreshIndicator.adaptive(
+            onRefresh: () async => await refresh(),
+            child: SafeArea(
+              bottom: false,
               child: Column(
                 spacing: 10,
                 children: [
-                  // if (user.isPharmacist)
-                  GestureDetector(
-                    onTap: () => handleActionButton(home),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [primary.shade500, primary.shade700],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
+                  if (context.isLandscape) SizedBox(height: 14),
+                  if (user.isPharmacist)
+                    GestureDetector(
+                      onTap: () => handleActionButton(home),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [primary.shade500, primary.shade700],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primary.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: primary.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(7),
-                            ),
-                            child: Icon(Icons.storefront_outlined, size: 16, color: Colors.white),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              home.picked.name,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                letterSpacing: 0.1,
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(7),
                               ),
-                              overflow: TextOverflow.ellipsis,
+                              child: Icon(Icons.storefront_outlined, size: 16, color: Colors.white),
                             ),
-                          ),
-                          Icon(Icons.keyboard_arrow_down_rounded,
-                              color: Colors.white.withOpacity(0.85), size: 20),
-                        ],
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                home.picked.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  letterSpacing: 0.1,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: Colors.white.withOpacity(0.85),
+                              size: 20,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                   Row(
                     spacing: 10,
                     children: [
-                      ModernField(
-                        onChanged: (v) => onfieldChanged(v, home),
-                        onSubmited: (v) => onFieldSubmitted(v, home),
-                        hint: '${home.searchType} хайх',
-                        suffixIcon: IconButton(
-                          onPressed: () => setFilter(home),
-                          icon: Icon(Icons.settings),
+                      Expanded(
+                        child: ModernField(
+                          controller: _search,
+                          onChanged: (v) => onfieldChanged(v, home),
+                          onSubmited: (v) => onFieldSubmitted(v, home),
+                          hint: '${home.searchType} хайх',
+                          suffixIcon: IconButton(
+                            onPressed: () => setFilter(home),
+                            icon: Icon(Icons.settings),
+                          ),
                         ),
                       ),
                       ModernIcon(
@@ -164,13 +171,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       // CartIcon(),
                     ],
                   ),
-                  // if (user.role == 'PA')
-                  filtering(smallFontSize),
+                  if (!home.hidingOnScroll) filtering(smallFontSize),
                   products(home),
                 ],
               ),
-            ).paddingSymmetric(horizontal: 10),
-          ),
+            ),
+          ).paddingSymmetric(horizontal: 10),
         );
       },
     );
@@ -205,26 +211,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   onfieldChanged(String v, HomeProvider home) async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (v.isEmpty || v == '') {
-        home.setPageKey(1);
-        home.fetchProducts();
+      if (v.isEmpty) {
+        home.showAllProducts();
       } else {
         home.filterProduct(v);
       }
     });
   }
 
-  onFieldSubmitted(String v, HomeProvider home) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (v.isEmpty || v == '') {
-        home.setPageKey(1);
-        home.clearItems();
-        home.fetchProducts();
-      } else {
-        home.filterProduct(v);
-      }
-    });
-  }
+  onFieldSubmitted(String v, HomeProvider home) => onfieldChanged(v, home);
 
   final actoinKey = GlobalKey();
 
@@ -233,77 +228,84 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     for (Supplier sup in home.supliers) {
       all.addAll(sup.stocks);
     }
-    mySheet(
-      title: ' ${Authenticator.security!.isPharmacist ? "Нийлүүлэгч" : "Агуулах"} сонгох',
+    Get.bottomSheet(
+      _SupplierPickerSheet(stocks: all, home: home),
+      isScrollControlled: true,
       isDismissible: true,
-      spacing: 0,
-      children: all.map((e) => stockBuilder(e, home, context)).toList(),
     );
   }
 
   Widget products(HomeProvider home) {
     var del = SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: context.isTablet ? 3 : 2,
+      crossAxisCount: parseInt(context.width / 250),
       childAspectRatio: 0.75,
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
-      mainAxisExtent: 250,
     );
     final user = Authenticator.security;
 
     return Expanded(
-      child: Builder(
-        builder: (context) {
-          if (user == null) {
-            return AuthError();
-          }
-          if (user.isPharmacist && (home.picked.id.toString() == '-1' || home.picked == null)) {
-            return errorWidget();
-          }
-          if (loading) {
-            return GridView.builder(
-              gridDelegate: del,
-              itemBuilder: (_, idx) {
-                return ShimmerBox(controller: controller, height: 150);
-              },
-            );
-          }
-          if (home.fetchedItems.isEmpty) {
-            return NoResult();
-          }
-          if (home.isList) {
-            return ListView.separated(
-              shrinkWrap: true,
-              separatorBuilder: (context, idx) => SizedBox(height: 10),
-              itemCount: home.fetchedItems.length + 1,
-              controller: _scrollController,
-              itemBuilder: (context, idx) {
-                if (idx == home.fetchedItems.length) return _fetchFooter(home);
-                Product product = home.fetchedItems[idx];
-                return ProductWidgetListView(item: product);
-              },
-            );
-          }
-          return CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverGrid(
+      child: HomeScrollListener(
+        xchild: Builder(
+          builder: (context) {
+            if (user == null) {
+              return AuthError();
+            }
+            if (user.isPharmacist && (home.picked.id.toString() == '-1' || home.picked == null)) {
+              return errorWidget();
+            }
+            if (loading) {
+              return GridView.builder(
+                controller: _scrollController,
                 gridDelegate: del,
-                delegate: SliverChildBuilderDelegate(
-                  (context, idx) => ProductWidget(item: home.fetchedItems[idx]),
-                  childCount: home.fetchedItems.length,
+                itemBuilder: (_, idx) {
+                  return ShimmerBox(controller: controller, height: 150);
+                },
+              );
+            }
+            if (home.fetchedItems.isEmpty) {
+              return const EmptyState(
+                icon: Icons.inventory_2_outlined,
+                title: 'Бараа олдсонгүй',
+                message: 'Хайлт эсвэл шүүлтүүрээ өөрчлөөд дахин оролдоно уу.',
+                padding: EdgeInsets.only(bottom: 100),
+              );
+            }
+            if (home.isList) {
+              return ListView.separated(
+                shrinkWrap: true,
+                separatorBuilder: (context, idx) => SizedBox(height: 10),
+                itemCount: home.fetchedItems.length + 1,
+                controller: _scrollController,
+                itemBuilder: (context, idx) {
+                  if (idx == home.fetchedItems.length) return _fetchFooter(home);
+                  Product product = home.fetchedItems[idx];
+                  return ProductWidgetListView(item: product);
+                },
+              );
+            }
+            return CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                SliverGrid(
+                  gridDelegate: del,
+                  delegate: SliverChildBuilderDelegate(
+                    (context, idx) => ProductWidget(item: home.fetchedItems[idx]),
+                    childCount: home.fetchedItems.length,
+                  ),
                 ),
-              ),
-              SliverToBoxAdapter(child: _fetchFooter(home)),
-            ],
-          );
-        },
+                SliverToBoxAdapter(child: _fetchFooter(home)),
+                SliverToBoxAdapter(child: Padding(padding: EdgeInsets.only(bottom: 150)))
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
   // Эрэлттэй, Шинэ, Хямдралтай
-  SingleChildScrollView filtering(double smallFontSize) {
+  Widget filtering(double smallFontSize) {
     final homeProvider = context.read<HomeProvider>();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -316,38 +318,187 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             onPressed: () => goto(const FilterPage()),
           ),
           PharmoFilterChip(
-            caption: 'Бүгд',
-            selected: 'Бүгд' == selectedFilter,
+            caption: HomeProvider.allProducts,
+            selected: homeProvider.productFilter == HomeProvider.allProducts,
             onPressed: () {
-              setSelectedFilter('Бүгд');
-              homeProvider.setPageKey(1);
-              homeProvider.fetchProducts();
+              // A chip replaces the search, so the box empties with it.
+              _search.clear();
+              homeProvider.showAllProducts();
             },
           ),
-          ...filterNames.map(
-            (e) => PharmoFilterChip(
-              caption: e,
-              selected: e == selectedFilter,
+          for (final name in HomeProvider.quickFilters.keys)
+            PharmoFilterChip(
+              caption: name,
+              selected: homeProvider.productFilter == name,
               onPressed: () {
-                setSelectedFilter(e);
-                homeProvider.filterProducts(
-                  filterss[filterNames.indexOf(e)],
-                );
+                _search.clear();
+                homeProvider.applyQuickFilter(name);
               },
             ),
-          ),
         ],
       ),
     );
   }
 
-  Widget stockBuilder(Stock e, HomeProvider home, BuildContext context) {
+  Widget _fetchFooter(HomeProvider home) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        child: home.hasMore
+            ? const CircularProgressIndicator.adaptive()
+            : Text(
+                'Нийт ${home.totalCount} бараа харуулж байна',
+                style: TextStyle(color: Colors.grey, fontSize: smallFontSize),
+              ),
+      ),
+    );
+  }
+
+  Widget errorWidget() {
+    return Text(
+      'Нийлүүлэгч сонгоно уу!',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: mediumFontSize,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+}
+
+/// Supplier/warehouse picker bottom sheet, opened from [Home.handleActionButton].
+/// Filters the already-fetched `stocks` list locally by supplier or
+/// stock/warehouse name as the user types — no request round-trip, since
+/// the full list is already in memory via `home.supliers`.
+class _SupplierPickerSheet extends StatefulWidget {
+  final List<Stock> stocks;
+  final HomeProvider home;
+  const _SupplierPickerSheet({required this.stocks, required this.home});
+
+  @override
+  State<_SupplierPickerSheet> createState() => _SupplierPickerSheetState();
+}
+
+class _SupplierPickerSheetState extends State<_SupplierPickerSheet> {
+  final TextEditingController _query = TextEditingController();
+  String _search = '';
+
+  @override
+  void dispose() {
+    _query.dispose();
+    super.dispose();
+  }
+
+  List<Stock> get _filtered {
+    if (_search.trim().isEmpty) return widget.stocks;
+    final q = _search.trim().toLowerCase();
+    return widget.stocks.where((e) {
+      final supplier = widget.home.supliers.firstWhere((sup) => sup.stocks.contains(e));
+      return supplier.name.toLowerCase().contains(q) || e.name.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final title = ' ${Authenticator.security!.isPharmacist ? "Нийлүүлэгч" : "Агуулах"} сонгох';
+    final filtered = _filtered;
+    return Container(
+      constraints: BoxConstraints(maxHeight: context.height * .8),
+      width: double.maxFinite,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      decoration: const BoxDecoration(
+        color: white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+      ),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    height: 4,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(height: 16),
+                ModernField(
+                  controller: _query,
+                  hint: 'Хайх',
+                  onChanged: (v) => setState(() => _search = v),
+                ),
+                const SizedBox(height: 12),
+                Flexible(
+                  child: filtered.isEmpty
+                      ? const EmptyState(
+                          icon: Icons.search_off_rounded,
+                          title: 'Илэрц олдсонгүй',
+                          compact: true,
+                        )
+                      : ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: filtered.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 4),
+                          itemBuilder: (context, idx) => _stockTile(filtered[idx], context),
+                        ),
+                ),
+              ],
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  onPressed: () => Get.back(),
+                  icon: const Icon(Icons.close_rounded, size: 20),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black87,
+                    shape: const CircleBorder(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _stockTile(Stock e, BuildContext context) {
+    final home = widget.home;
     final supplier = home.supliers.firstWhere((sup) => sup.stocks.contains(e));
     final bool hasImage = supplier.logo != null;
     final bool selected = home.selected.id == e.id;
 
     return GestureDetector(
-      onTap: () => onPickSupp(supplier, e, home, context),
+      onTap: () => _pickSupplier(supplier, e, context),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.symmetric(vertical: 4),
@@ -442,42 +593,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     );
   }
 
-  onPickSupp(
-    Supplier e,
-    Stock stock,
-    HomeProvider home,
-    BuildContext context,
-  ) async {
+  void _pickSupplier(Supplier e, Stock stock, BuildContext context) async {
     Navigator.pop(context);
-    await home.pickSupplier(e, stock, context);
-    home.clearItems();
-    home.setPageKey(1);
-    home.fetchProducts();
-  }
-
-  Widget _fetchFooter(HomeProvider home) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Center(
-        child: home.hasMore
-            ? const CircularProgressIndicator.adaptive()
-            : Text(
-                'Нийт ${home.totalCount} бараа харуулж байна',
-                style: TextStyle(color: Colors.grey, fontSize: smallFontSize),
-              ),
-      ),
-    );
-  }
-
-  Widget errorWidget() {
-    return Text(
-      'Нийлүүлэгч сонгоно уу!',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: Colors.red,
-        fontSize: mediumFontSize,
-        fontWeight: FontWeight.bold,
-      ),
-    );
+    await widget.home.pickSupplier(e, stock, context);
+    // Same search or quick filter, now against the new supplier's catalogue.
+    widget.home.reloadProducts();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/authentication/auth_operations/change_password.dart';
 import 'package:pharmo_app/views/printer/printer_provider.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 
@@ -26,6 +27,14 @@ class _SettingsPageState extends State<SettingsPage> {
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            _SectionHeader(icon: Icons.person_outline_rounded, label: 'Бүртгэл'),
+            _SettingsTile(
+              icon: Icons.lock_outline_rounded,
+              title: 'Нууц үг солих',
+              trailing: Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+              onTap: () => goto(const ChangePassword()),
+            ),
+            const SizedBox(height: 20),
             _SectionHeader(
                 icon: Icons.battery_5_bar_rounded, label: 'Төхөөрөмж'),
             _SettingsTile(
@@ -111,8 +120,9 @@ class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final Widget? trailing;
+  final VoidCallback? onTap;
 
-  const _SettingsTile({required this.icon, required this.title, this.trailing});
+  const _SettingsTile({required this.icon, required this.title, this.trailing, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -127,6 +137,7 @@ class _SettingsTile extends StatelessWidget {
         leading: Icon(icon, color: Colors.grey.shade600, size: 20),
         title: Text(title, style: const TextStyle(fontSize: 14)),
         trailing: trailing,
+        onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       ),
     );
@@ -246,24 +257,13 @@ class _EmptyDevices extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Column(
-        spacing: 12,
-        children: [
-          Icon(Icons.bluetooth_disabled_rounded,
-              size: 40, color: Colors.grey.shade400),
-          Text(
-            'Bluetooth принтер олдсонгүй',
-            style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-          ),
-          TextButton.icon(
-            onPressed: onScan,
-            icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: const Text('Дахин хайх'),
-          ),
-        ],
-      ),
+    return EmptyState(
+      icon: Icons.bluetooth_disabled_rounded,
+      title: 'Bluetooth принтер олдсонгүй',
+      message: 'Принтерээ асааж, утастайгаа хослуулсан эсэхээ шалгана уу.',
+      actionLabel: 'Дахин хайх',
+      onAction: onScan,
+      compact: true,
     );
   }
 }

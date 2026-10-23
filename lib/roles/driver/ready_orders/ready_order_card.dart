@@ -1,5 +1,6 @@
 import 'package:pharmo_app/application/app_lite.dart';
 
+/// A ready order in the allocation list; tapping it selects it.
 class ReadyOrderCard extends StatelessWidget {
   final bool selected;
   final void Function()? onTap;
@@ -13,170 +14,206 @@ class ReadyOrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      margin: const EdgeInsets.only(bottom: 12),
+    final name = ord.recipientName;
+    final pay = ord.paymentType;
+    final zone = ord.zone.name.trim();
+    // allocation/ sends the quantity; items only come with some suppliers.
+    final count = ord.totalCount > 0 ? ord.totalCount : ord.items.length;
+    final createdAt = parseDateTime(ord.createdOn);
+    final created = createdAt == null ? null : friendlyDateTime(createdAt);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
+          borderRadius: BorderRadius.circular(18),
+          child: AnimatedContainer(
+            duration: Durations.short4,
+            curve: Curves.easeOut,
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: selected ? Colors.green.shade50 : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              color: selected ? primary.withValues(alpha: 0.06) : white,
+              borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: selected ? Colors.green.shade300 : Colors.grey.shade200,
-                width: selected ? 2 : 1,
+                color: selected ? primary : grey200,
+                width: selected ? 1.6 : 1,
               ),
               boxShadow: [
                 BoxShadow(
                   color: selected
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.04),
-                  blurRadius: selected ? 12 : 8,
-                  offset: Offset(0, selected ? 4 : 2),
+                      ? primary.withValues(alpha: 0.12)
+                      : Colors.black.withValues(alpha: 0.04),
+                  blurRadius: selected ? 16 : 10,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Animated Checkbox
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color:
-                        selected ? Colors.green.shade600 : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: selected
-                          ? Colors.green.shade600
-                          : Colors.grey.shade400,
-                      width: 2,
-                    ),
-                  ),
-                  child: selected
-                      ? const Icon(
-                          Icons.check_rounded,
-                          size: 20,
-                          color: Colors.white,
-                        )
-                      : null,
-                ),
-
-                const SizedBox(width: 16),
-
-                // Order Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Customer name with item count
-                      Row(
+                Row(
+                  children: [
+                    _Avatar(name: name, selected: selected),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 3,
                         children: [
-                          Expanded(
-                            child: Text(
-                              ord.orderer?.name ?? 'Захиалагч',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
-                                color: selected
-                                    ? Colors.green.shade900
-                                    : Colors.black87,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? Colors.green.shade100
-                                  : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.inventory_2_outlined,
-                                  size: 14,
-                                  color: selected
-                                      ? Colors.green.shade700
-                                      : Colors.grey.shade700,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${ord.items.length}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: selected
-                                        ? Colors.green.shade700
-                                        : Colors.grey.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      // Order number and price
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Order number
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.receipt_long_outlined,
-                                size: 14,
-                                color: Colors.grey.shade600,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                ord.orderNo,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade700,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // Price
                           Text(
-                            toPrice(ord.totalPrice),
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 15.5,
                               fontWeight: FontWeight.w700,
-                              color: selected
-                                  ? Colors.green.shade700
-                                  : Colors.orange.shade700,
+                              color: Colors.grey.shade900,
+                            ),
+                          ),
+                          Text(
+                            [
+                              '#${ord.orderNo}',
+                              if (created != null) created,
+                            ].join('  ·  '),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                              color: grey500,
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      toPrice(ord.totalPrice),
+                      style: TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w800,
+                        color:
+                            selected ? primary.shade700 : Colors.grey.shade900,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    if (pay != PayType.unknown)
+                      _Tag(
+                        icon: Icons.payments_outlined,
+                        label: pay.name,
+                        color: pay.color,
+                      ),
+                    if (count > 0)
+                      _Tag(
+                        icon: Icons.inventory_2_outlined,
+                        label: '${_number(count)} ширхэг',
+                      ),
+                    if (zone.isNotEmpty && zone != 'null')
+                      _Tag(icon: Icons.place_outlined, label: zone),
+                  ],
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  static String _number(num n) =>
+      n % 1 == 0 ? '${n.toInt()}' : n.toStringAsFixed(1);
+}
+
+/// The name's initial, turning into a check once selected.
+class _Avatar extends StatelessWidget {
+  final String name;
+  final bool selected;
+  const _Avatar({required this.name, required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    final initial = name.isEmpty ? '?' : name.characters.first.toUpperCase();
+    return AnimatedContainer(
+      duration: Durations.short4,
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: selected ? primary : primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      alignment: Alignment.center,
+      child: AnimatedSwitcher(
+        duration: Durations.short4,
+        transitionBuilder: (child, animation) =>
+            ScaleTransition(scale: animation, child: child),
+        child: selected
+            ? const Icon(
+                Icons.check_rounded,
+                key: ValueKey(true),
+                color: white,
+                size: 24,
+              )
+            : Text(
+                initial,
+                key: const ValueKey(false),
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: primary.shade700,
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+/// A small fact about the order: payment type, quantity, zone.
+class _Tag extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  /// Tints the tag; plain grey without it.
+  final Color? color;
+  const _Tag({required this.icon, required this.label, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final tint = color;
+    final foreground =
+        tint == null ? grey600 : Color.lerp(tint, Colors.black, 0.25)!;
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 200),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: tint == null ? grey100 : tint.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 4,
+        children: [
+          Icon(icon, size: 13, color: foreground),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: foreground,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

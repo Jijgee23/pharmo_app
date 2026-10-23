@@ -1,5 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/views/order_history/order_card/order_card.dart';
+import 'package:pharmo_app/views/order_history/order_card/order_card_skeleton.dart';
 import 'package:pharmo_app/views/order_history/pharm_order_history/custom_drop.dart';
 
 class PharmOrderHistory extends StatefulWidget {
@@ -9,32 +10,57 @@ class PharmOrderHistory extends StatefulWidget {
 }
 
 class _PharmOrderHistoryState extends State<PharmOrderHistory> {
+  // This widget is rebuilt each time the bottom bar switches back to it;
+  // the list, its filters and scroll position are kept on OrderProvider.
+  late final OrderProvider _orders;
+  late final ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async => await refresh());
+    _orders = context.read<OrderProvider>();
+    _scrollController = ScrollController(initialScrollOffset: _orders.ordersScrollOffset)
+      ..addListener(() => _orders.ordersScrollOffset = _scrollController.position.pixels);
+    // Back on the tab with a list already loaded: show it as it was, then
+    // update it in place, since statuses move and new orders come in.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async => _orders.ordersLoaded ? await _orders.filterOrders() : await refresh(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future refresh({bool afterInit = false}) async {
-    LoadingService.run(() async {
-      final order = context.read<OrderProvider>();
+    final order = context.read<OrderProvider>();
+    order.setLoading(true);
+    try {
       if (!afterInit) {
         await order.getBranches();
         await order.getSuppliers();
       }
       await order.filterOrders();
-    });
+    } catch (e) {
+      throw Exception(e);
+    } finally {
+      order.setLoading(false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<OrderProvider>(
-      builder: (context, provider, _) {
+    return Consumer2<OrderProvider, HomeProvider>(
+      builder: (context, provider, home, _) {
         final orders = provider.orders;
         return SafeArea(
+          bottom: false,
           child: Column(
             spacing: 10,
             children: [
+              if (context.isLandscape) SizedBox(height: 14),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 7.5,
@@ -47,21 +73,35 @@ class _PharmOrderHistoryState extends State<PharmOrderHistory> {
                 ],
               ).paddingSymmetric(horizontal: 10),
               Expanded(
-                child: Builder(
-                  builder: (context) {
-                    if (orders.isEmpty) {
-                      return NoResult();
-                    }
-                    return ListView.separated(
-                      itemBuilder: (_, idx) {
-                        return OrderCard(order: orders[idx]);
-                      },
-                      separatorBuilder: (_, idx) => SizedBox(height: 10),
-                      itemCount: orders.isNotEmpty ? orders.length : 1,
-                    );
-                  },
+                child: RefreshIndicator(
+                  onRefresh: () async => await refresh(),
+                  child: Builder(
+                    builder: (context) {
+                      if (provider.loading) {
+                        return SkeletonList();
+                      }
+                      if (orders.isEmpty) {
+                        return const EmptyState(
+                          icon: Icons.receipt_long_rounded,
+                          title: 'Захиалга олдсонгүй',
+                          message: 'Захиалга өгөхөд энд харагдана.',
+                          padding: EdgeInsets.only(bottom: 100),
+                        );
+                      }
+                      return HomeScrollListener(
+                        xchild: ListView.separated(
+                          controller: _scrollController,
+                          itemBuilder: (_, idx) {
+                            return OrderCard(order: orders[idx]);
+                          },
+                          separatorBuilder: (_, idx) => SizedBox(height: 10),
+                          itemCount: orders.isNotEmpty ? orders.length : 1,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         );

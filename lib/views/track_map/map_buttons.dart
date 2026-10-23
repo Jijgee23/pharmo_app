@@ -1,308 +1,238 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/application.dart';
 
-class MapButtons extends StatelessWidget {
-  const MapButtons({super.key});
+/// The map's own buttons, stacked on the right in two groups: zoom, then
+/// my location, the whole delivery, traffic and the map type.
+class MapControls extends StatelessWidget {
+  const MapControls({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
-        final isTracking = jagger.subscription != null && !jagger.subscription!.isPaused;
-
-        return Positioned(
-          bottom: 40,
-          right: 15,
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+        final hasStops = jagger.delivery?.stops.any((s) => s.coordinates != null) ?? false;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 10,
+          children: [
+            _ControlGroup(
               children: [
-                _buildMapButton(
-                  heroTag: 'zoomInDMANMAP',
-                  icon: Icons.add,
-                  onPressed: () {
-                    jagger.mapController?.animateCamera(
-                      CameraUpdate.zoomIn(),
-                    );
-                  },
+                _ControlButton(
+                  icon: Icons.add_rounded,
+                  tooltip: 'Ойртуулах',
+                  onTap: () async => jagger.mapController?.animateCamera(CameraUpdate.zoomIn()),
                 ),
-                const SizedBox(height: 10),
-                _buildMapButton(
-                  heroTag: 'zoomOutDMANMAP',
-                  icon: Icons.remove,
-                  onPressed: () {
-                    jagger.mapController?.animateCamera(
-                      CameraUpdate.zoomOut(),
-                    );
-                  },
-                ),
-                const SizedBox(height: 10),
-                _AnimatedLocationButton(
-                  isTracking: isTracking,
-                  onPressed: jagger.goToMyLocation,
-                ),
-                const SizedBox(height: 10),
-                _buildMapButton(
-                  heroTag: 'toggleTrafficDMANMAP',
-                  icon: Icons.traffic,
-                  onPressed: jagger.toggleTraffic,
-                  backgroundColor: jagger.trafficEnabled ? Colors.blue : Colors.white,
-                  iconColor: jagger.trafficEnabled ? Colors.white : Colors.black,
-                ),
-                const SizedBox(height: 10),
-                _buildMapButton(
-                  heroTag: 'mapTypeDMANMAP',
-                  icon: Icons.layers,
-                  onPressed: () => _showMapTypeSheet(context, jagger),
+                _ControlButton(
+                  icon: Icons.remove_rounded,
+                  tooltip: 'Холдуулах',
+                  onTap: () async => jagger.mapController?.animateCamera(CameraUpdate.zoomOut()),
                 ),
               ],
             ),
-          ),
+            _ControlGroup(
+              children: [
+                _ControlButton(
+                  icon: Icons.my_location_rounded,
+                  tooltip: 'Миний байршил',
+                  active: jagger.isTracking,
+                  onTap: jagger.goToMyLocation,
+                ),
+                if (hasStops)
+                  _ControlButton(
+                    icon: Icons.zoom_out_map_rounded,
+                    tooltip: 'Бүх цэгийг харах',
+                    onTap: () => jagger.frameDelivery(force: true),
+                  ),
+                _ControlButton(
+                  icon: Icons.traffic_rounded,
+                  tooltip: 'Замын түгжрэл',
+                  active: jagger.trafficEnabled,
+                  onTap: () async => jagger.toggleTraffic(),
+                ),
+                _ControlButton(
+                  icon: Icons.layers_rounded,
+                  tooltip: 'Газрын зургийн төрөл',
+                  onTap: () async =>
+                      Get.bottomSheet(const _MapTypeSheet(), isScrollControlled: true),
+                ),
+              ],
+            ),
+          ],
         );
       },
     );
   }
+}
 
-  Widget _buildMapButton({
-    required String heroTag,
-    required IconData icon,
-    required VoidCallback onPressed,
-    Color backgroundColor = Colors.white,
-    Color iconColor = Colors.black,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: FloatingActionButton(
-        heroTag: heroTag,
-        mini: true,
-        elevation: 0,
-        onPressed: onPressed,
-        backgroundColor: backgroundColor,
-        child: Icon(icon, color: iconColor, size: 20),
-      ),
-    );
-  }
+/// Buttons sharing one white rounded card, split by hairlines.
+class _ControlGroup extends StatelessWidget {
+  final List<Widget> children;
+  const _ControlGroup({required this.children});
 
-  void _showMapTypeSheet(BuildContext context, JaggerProvider jagger) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Газрын зургийн төрөл',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildMapTypeOption(
-                  context,
-                  jagger,
-                  MapType.normal,
-                  'Энгийн',
-                  Icons.map,
-                ),
-                _buildMapTypeOption(
-                  context,
-                  jagger,
-                  MapType.satellite,
-                  'Хиймэл дагуул',
-                  Icons.satellite_alt,
-                ),
-                _buildMapTypeOption(
-                  context,
-                  jagger,
-                  MapType.terrain,
-                  'Газрын гадарга',
-                  Icons.terrain,
-                ),
-                _buildMapTypeOption(
-                  context,
-                  jagger,
-                  MapType.hybrid,
-                  'Холимог',
-                  Icons.layers,
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMapTypeOption(
-    BuildContext context,
-    JaggerProvider jagger,
-    MapType type,
-    String label,
-    IconData icon,
-  ) {
-    final isSelected = jagger.mapType == type;
-    return GestureDetector(
-      onTap: () {
-        jagger.mapType = type;
-        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-        jagger.notifyListeners();
-        Navigator.pop(context);
-      },
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: white,
+      elevation: 3,
+      shadowColor: Colors.black.withValues(alpha: 0.25),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      clipBehavior: Clip.antiAlias,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isSelected ? Colors.teal : Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected ? Colors.teal : Colors.grey[300]!,
-                width: 2,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: isSelected ? Colors.white : Colors.grey[600],
-              size: 28,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              color: isSelected ? Colors.teal : Colors.grey[600],
-            ),
-          ),
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) Container(width: 28, height: 1, color: grey200),
+            children[i],
+          ],
         ],
       ),
     );
   }
 }
 
-class _AnimatedLocationButton extends StatefulWidget {
-  final bool isTracking;
-  final VoidCallback onPressed;
+/// A map button; shows a spinner (and ignores taps) until [onTap] is done,
+/// as finding the caller's location can take a while.
+class _ControlButton extends StatefulWidget {
+  final IconData icon;
+  final String tooltip;
+  final Future<void> Function() onTap;
+  final bool active;
 
-  const _AnimatedLocationButton({
-    required this.isTracking,
-    required this.onPressed,
+  const _ControlButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+    this.active = false,
   });
 
   @override
-  State<_AnimatedLocationButton> createState() => _AnimatedLocationButtonState();
+  State<_ControlButton> createState() => _ControlButtonState();
 }
 
-class _AnimatedLocationButtonState extends State<_AnimatedLocationButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _pulseAnimation;
+class _ControlButtonState extends State<_ControlButton> {
+  bool _running = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-
-    if (widget.isTracking) {
-      _controller.repeat(reverse: true);
+  Future<void> _tap() async {
+    if (_running) return;
+    setState(() => _running = true);
+    try {
+      await widget.onTap();
+    } finally {
+      if (mounted) setState(() => _running = false);
     }
-  }
-
-  @override
-  void didUpdateWidget(_AnimatedLocationButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isTracking && !_controller.isAnimating) {
-      _controller.repeat(reverse: true);
-    } else if (!widget.isTracking && _controller.isAnimating) {
-      _controller.stop();
-      _controller.reset();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Stack(
+    return Tooltip(
+      message: widget.tooltip,
+      child: InkWell(
+        onTap: _tap,
+        child: Container(
+          width: 46,
+          height: 46,
           alignment: Alignment.center,
+          color: widget.active ? primary.withValues(alpha: 0.1) : null,
+          child: _running
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Icon(
+                  widget.icon,
+                  size: 21,
+                  color: widget.active ? primary : Colors.grey.shade800,
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MapTypeSheet extends StatelessWidget {
+  const _MapTypeSheet();
+
+  static const _types = [
+    (MapType.normal, 'Энгийн', Icons.map_outlined),
+    (MapType.satellite, 'Хиймэл дагуул', Icons.satellite_alt_outlined),
+    (MapType.terrain, 'Гадарга', Icons.terrain_outlined),
+    (MapType.hybrid, 'Холимог', Icons.layers_outlined),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<JaggerProvider>(
+      builder: (context, jagger, _) => AppSheet(
+        title: 'Газрын зургийн төрөл',
+        children: [
+          Row(
+            spacing: 10,
+            children: [
+              for (final (type, label, icon) in _types)
+                Expanded(
+                  child: _MapTypeOption(
+                    label: label,
+                    icon: icon,
+                    selected: jagger.mapType == type,
+                    onTap: () {
+                      jagger.setMapType(type);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+class _MapTypeOption extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _MapTypeOption({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: Durations.short4,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+        decoration: BoxDecoration(
+          color: selected ? primary.withValues(alpha: 0.08) : grey50,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: selected ? primary : grey200, width: selected ? 1.6 : 1),
+        ),
+        child: Column(
+          spacing: 8,
           children: [
-            if (widget.isTracking)
-              Transform.scale(
-                scale: _pulseAnimation.value,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.teal.withOpacity(0.3 * (1.2 - _pulseAnimation.value)),
-                  ),
-                ),
-              ),
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: widget.isTracking
-                        ? Colors.teal.withOpacity(0.3)
-                        : Colors.black.withOpacity(0.15),
-                    blurRadius: widget.isTracking ? 12 : 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: FloatingActionButton(
-                heroTag: 'myLocationDMANMAP',
-                mini: true,
-                elevation: 0,
-                onPressed: widget.onPressed,
-                backgroundColor: widget.isTracking ? Colors.teal : Colors.white,
-                child: Icon(
-                  Icons.my_location,
-                  color: widget.isTracking ? Colors.white : Colors.black,
-                  size: 20,
-                ),
+            Icon(icon, size: 26, color: selected ? primary : grey600),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? primary.shade700 : grey600,
               ),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 }

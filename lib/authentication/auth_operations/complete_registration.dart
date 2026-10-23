@@ -41,14 +41,16 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
   // File? image;
   File? logo;
   Future<void> _pickLogo() async {
+    final file = await _pickImage();
+    if (file != null && mounted) setState(() => logo = file);
+  }
+
+  // A gallery image, cropped and made to meet company/info/'s upload rules;
+  // null when cancelled or unreadable.
+  Future<File?> _pickImage() async {
     await Permission.storage.request();
     await Permission.camera.request();
-    final pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
-    setState(() {
-      logo = File(pickedFile!.path);
-    });
+    return pickUploadImage(ImageSource.gallery);
   }
 
   List<File> licenses = [];
@@ -60,11 +62,8 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
   }
 
   Future<void> _pickFromDevice() async {
-    await Permission.storage.request();
-    await Permission.camera.request();
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    addImageToLicenses(File(pickedFile!.path));
+    final file = await _pickImage();
+    if (file != null && mounted) addImageToLicenses(file);
   }
 
   void _removeImage(File file) {
@@ -139,8 +138,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                       ],
                     ),
             ),
-            CustomTextField(
-                controller: additional, hintText: 'Нэмэлт мэдээлэл'),
+            CustomTextField(controller: additional, hintText: 'Нэмэлт мэдээлэл'),
             CustomTextField(controller: inviCode, hintText: 'Урилгын код'),
             Row(
               children: [
@@ -195,12 +193,8 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     return DefInputContainer(
       ontap: () => showMenu(
           context: context,
-          items: [
-            ...types.map(
-                (t) => PopupMenuItem(onTap: () => setType(t), child: Text(t)))
-          ],
-          position: RelativeRect.fromLTRB(
-              context.width / 2, context.height / 4, bigFontSize, 0)),
+          items: [...types.map((t) => PopupMenuItem(onTap: () => setType(t), child: Text(t)))],
+          position: RelativeRect.fromLTRB(context.width / 2, context.height / 4, bigFontSize, 0)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [Text(selectedType), const Icon(Icons.arrow_drop_down)],
@@ -248,10 +242,12 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
       lng: picked ? home.currentLongitude : null,
       logo: logo,
     );
-    messageWarning(res['message']);
     if (res['errorType'] == 1) {
+      messageComplete(res['message']);
       if (!mounted) return;
       Navigator.pop(context);
+    } else {
+      messageWarning(res['message']);
     }
   }
 }

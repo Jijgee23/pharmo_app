@@ -14,11 +14,13 @@ class _OrderHistoryState extends State<OrderHistory> {
   Widget build(BuildContext context) {
     final user = Authenticator.security;
     if (user == null) {
-      return Center(
-        child: Text('Хэрэглэгч олдсонгүй'),
+      return const EmptyState(
+        icon: Icons.person_off_outlined,
+        title: 'Хэрэглэгч олдсонгүй',
+        message: 'Дахин нэвтэрнэ үү.',
       );
     }
-    if (user.role == 'PA') {
+    if (user.isPharmacist) {
       return PharmOrderHistory();
     }
     return SellerOrderHistory();

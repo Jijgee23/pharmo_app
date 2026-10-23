@@ -44,7 +44,11 @@ class DataScreen extends StatelessWidget {
                 return customLoading ?? CustomShimmer();
               }
               if (empty) {
-                return customEmpty ?? noResult();
+                return customEmpty ??
+                    const EmptyState(
+                      icon: Icons.search_off_rounded,
+                      title: 'Үр дүн олдсонгүй',
+                    );
               }
               return Container(
                 padding: EdgeInsets.all(10.0),
@@ -54,22 +58,6 @@ class DataScreen extends StatelessWidget {
           ),
         ),
         bottomNavigationBar: navbar,
-      ),
-    );
-  }
-
-  Center noResult() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 10,
-        children: [
-          Image.asset(
-            'assets/icons/not-found.png',
-            width: 100,
-          ),
-          Text('Үр дүн олдсонгүй')
-        ],
       ),
     );
   }

@@ -4,8 +4,7 @@ class DefaultBox extends StatelessWidget {
   final String title;
   final Widget child;
   final Widget? action;
-  const DefaultBox(
-      {super.key, required this.title, required this.child, this.action});
+  const DefaultBox({super.key, required this.title, required this.child, this.action});
 
   @override
   Widget build(BuildContext context) {

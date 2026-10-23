@@ -57,6 +57,14 @@
             </intent-filter>
         </activity>
 
+        <!-- image_cropper's crop screen. Hardware acceleration on, like
+             MainActivity, since the application turns it off by default. -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:hardwareAccelerated="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

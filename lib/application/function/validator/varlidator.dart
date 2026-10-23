@@ -6,11 +6,16 @@ String? validateEmail(String? value) {
       r'[0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9]'
       r'[0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\'
       r'x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])';
-  final regex = RegExp(pattern);
+  final regex = RegExp(pattern, caseSensitive: false);
 
-  return value!.isNotEmpty && !regex.hasMatch(value)
-      ? 'Имэйл хаяг буруу байна!'
-      : null;
+  final email = value?.trim() ?? '';
+  if (email.isEmpty) {
+    return 'И-мейл хаягаа оруулна уу';
+  }
+  if (!regex.hasMatch(email)) {
+    return 'Имэйл хаяг буруу байна!';
+  }
+  return null;
 }
 
 String? validatePassword(String? value) {
@@ -39,20 +44,21 @@ String? validatePassword(String? value) {
 String? validateOtp(String? value) {
   final otpRegex = RegExp(r'^\d{6}$');
   if (value == null || value.isEmpty) {
-    return 'Нууц үгээ оруулна уу';
+    return 'Баталгаажуулах кодоо оруулна уу';
   }
   if (!otpRegex.hasMatch(value)) {
-    return 'Нууц үг 6 оронтой байх шаардлагатай!';
+    return 'Баталгаажуулах код 6 оронтой байх шаардлагатай!';
   }
   return null;
 }
 
 String? validatePhone(String? value) {
   final otpRegex = RegExp(r'^\d{8}$');
-  if (value == null || value.isEmpty) {
+  final phone = value?.trim() ?? '';
+  if (phone.isEmpty) {
     return 'Утасны дугаараа оруулна уу';
   }
-  if (!otpRegex.hasMatch(value)) {
+  if (!otpRegex.hasMatch(phone)) {
     return 'Утасны дугаар 8 оронтой байх ёстой!!';
   }
   return null;

@@ -1,3 +1,2 @@
-class ESCPOS_FORMATTER {
-  
-}
+// class ESCPOS_FORMATTER {}
+//

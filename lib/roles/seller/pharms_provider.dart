@@ -1,78 +1,27 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/seller/customer/customer_listing.dart';
 
 class PharmProvider extends ChangeNotifier {
-  List<Customer> filteredCustomers = <Customer>[];
   CustomerDetail customerDetail = CustomerDetail();
   List<Zone> zones = [];
   Zone selectedZone = Zone(id: -1, name: 'Бүс сонгох');
   void reset() {
-    filteredCustomers.clear();
+    customers.reset();
+    pickerCustomers.reset();
     customerDetail = CustomerDetail();
     zones.clear();
     selectedZone = Zone(id: -1, name: 'Бүс сонгох');
     notifyListeners();
   }
 
-  int page = 1;
-  int pageSize = 30;
-  int totalCount = 0;
-  bool hasMore = false;
-  bool fetchingMore = false;
-  String _filterType = '';
-  String _filterValue = '';
+  /// The customers tab's list. It lives here, not in the tab, so its
+  /// search, pages and scroll position survive switching tabs.
+  late final customers = CustomerListing(notifyListeners);
 
-  /// Single entry point for both initial load and filtered fetch.
-  /// Pass [type]/[value] to filter; omit them to fetch all.
-  /// [reset]=true starts from page 1 and clears the list.
-  Future fetchCustomers({String? type, String? value, bool reset = true}) async {
-    if (fetchingMore) return;
-    if (reset) {
-      page = 1;
-      filteredCustomers.clear();
-      hasMore = false;
-      _filterType = type ?? '';
-      _filterValue = value ?? '';
-      notifyListeners();
-    }
-    fetchingMore = true;
-    try {
-      final String endpoint;
-      if (_filterType.isNotEmpty && _filterValue.isNotEmpty) {
-        endpoint =
-            'seller/customer/${getEndPoint(_filterType, _filterValue)}&page=$page&page_size=$pageSize';
-      } else {
-        endpoint = 'seller/customer/?page=$page&page_size=$pageSize';
-      }
-      final r = await api(Api.get, endpoint);
-      if (r == null) return;
-      if (apiSucceess(r)) {
-        final data = convertData(r) as Map;
-        final List results = data['results'] ?? [];
-        totalCount = data['count'] ?? 0;
-        filteredCustomers.addAll(results.map((p) => Customer.fromJson(p)));
-        hasMore = filteredCustomers.length < totalCount;
-        if (hasMore) page++;
-        notifyListeners();
-      } else {
-        messageWarning('Алдаа гарлаа');
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    } finally {
-      fetchingMore = false;
-      notifyListeners();
-    }
-  }
-
-  Future fetchMoreCustomers() async {
-    if (!hasMore || fetchingMore) return;
-    await fetchCustomers(reset: false);
-  }
-
-  // Keep old names as thin wrappers so existing callers don't break
-  Future getCustomers() => fetchCustomers();
-  Future filtCustomers(String type, String v) => fetchCustomers(type: type, value: v);
+  /// The order sheet's customer picker, separate from [customers] so that
+  /// picking a customer doesn't disturb the tab.
+  late final pickerCustomers = CustomerListing(notifyListeners);
 
   Future<Map<String, dynamic>> getCustomerDetail(int custId) async {
     Map<String, dynamic> result = {};
@@ -110,16 +59,6 @@ class PharmProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint(e.toString());
-    }
-  }
-
-  getEndPoint(String type, String v) {
-    if (type == 'name') {
-      return '?name__icontains=$v';
-    } else if (type == 'phone') {
-      return '?phone=$v';
-    } else {
-      return '?rn=$v';
     }
   }
 
@@ -186,82 +125,109 @@ class PharmProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> registerCustomer(String name, String rn, String email, String phone, String? note,
-      String? lat, String? lng, BuildContext context) async {
+  /// POST seller/customer/. The API requires name, rn, phone and the
+  /// location, which is taken from the device here.
+  Future<bool> registerCustomer({
+    required String name,
+    required String rn,
+    required String phone,
+    String? email,
+    String? note,
+    required BuildContext context,
+  }) async {
+    if (selectedZone.id == -1) {
+      messageWarning('Бүс сонгоно уу!');
+      return false;
+    }
     try {
-      var body = {
-        "name": name,
-        "rn": rn,
-        "email": email,
-        "phone": phone,
-        note ?? "note": note,
-        "lat": lat,
-        "lng": lng,
-        "zone_id": selectedZone.id
+      final home = Provider.of<HomeProvider>(context, listen: false);
+      // Read only after it resolves, so a first registration sends the
+      // actual coordinates rather than none.
+      await home.getPosition();
+      final body = {
+        'name': name,
+        'rn': rn,
+        'phone': phone,
+        'email': _orNull(email),
+        'note': _orNull(note),
+        'lat': home.currentLatitude,
+        'lng': home.currentLongitude,
+        'zone_id': selectedZone.id,
       };
-      await Provider.of<HomeProvider>(context, listen: false).getPosition();
-      if (selectedZone.id == -1) {
-        messageWarning('Бүс сонгоно уу!');
-      } else {
-        var r = await api(Api.post, 'seller/customer/', body: body);
-        if (r == null) return false;
-        if (apiSucceess(r)) {
-          messageComplete('Амжилттай бүртгэгдлээ.');
-          return true;
-        }
-        final data = convertData(r);
-        if (data['error'] == 'name_exists!') {
-          messageWarning('Нэр бүртгэлтэй байна!');
-        } else {
-          messageWarning('Алдаа гарлаа!');
-        }
-        return false;
+      final r = await api(Api.post, 'seller/customer/', body: body);
+      if (r == null) return false;
+      if (apiSucceess(r)) {
+        messageComplete('Амжилттай бүртгэгдлээ.');
+        return true;
       }
+      _saveFailed(apiBody(r));
     } catch (e) {
       debugPrint(e.toString());
     }
     return false;
   }
 
-  Future editCustomer(
-      {required int id,
-      required String name,
-      required String rn,
-      required String email,
-      required String phone,
-      String? phone2,
-      String? phone3,
-      required String note,
-      double? lat,
-      double? lng,
-      required BuildContext context}) async {
+  /// PATCH seller/customer/{id}/ with the editable details. Location and
+  /// zone aren't sent, so an edit leaves them as they are; an emptied
+  /// optional field is cleared.
+  Future<bool> editCustomer({
+    required int id,
+    required String name,
+    required String rn,
+    required String phone,
+    String? email,
+    String? phone2,
+    String? phone3,
+    String? note,
+  }) async {
     try {
-      var body = {
-        "name": name,
-        "rn": rn,
-        "email": email,
-        "phone": phone,
-        "phone2": phone2,
-        "phone3": phone3,
-        "note": note,
-        "lat": lat,
-        "lng": lng
+      final body = {
+        'name': name,
+        'rn': rn,
+        'phone': phone,
+        'email': _orNull(email),
+        'phone2': _orNull(phone2),
+        'phone3': _orNull(phone3),
+        'note': _orNull(note),
       };
-      await Provider.of<HomeProvider>(context, listen: false).getPosition();
       final r = await api(Api.patch, 'seller/customer/$id/', body: body);
-      if (r == null) return;
+      if (r == null) return false;
       if (r.statusCode == 200) {
         messageComplete('Амжилттай засагдлаа.');
-      } else {
-        final data = convertData(r);
-        if (data['error'] == 'name_exists!') {
-          messageWarning('Нэр бүртгэлтэй байна!');
-        } else {
-          messageWarning('Алдаа гарлаа!');
+        // The lists show the new details at once, without reloading (and
+        // losing their place).
+        for (final listing in [customers, pickerCustomers]) {
+          for (final c in listing.items.where((c) => c.id == id)) {
+            c
+              ..name = name
+              ..rn = rn
+              ..phone = phone
+              ..phone2 = _orNull(phone2)
+              ..phone3 = _orNull(phone3)
+              ..note = _orNull(note);
+          }
         }
+        notifyListeners();
+        return true;
       }
+      _saveFailed(apiBody(r));
     } catch (e) {
       debugPrint(e.toString());
+    }
+    return false;
+  }
+
+  static String? _orNull(String? value) {
+    final text = value?.trim() ?? '';
+    return text.isEmpty ? null : text;
+  }
+
+  // [data] is the error response's body.
+  void _saveFailed(dynamic data) {
+    if ('$data'.contains('name_exists')) {
+      messageWarning('Нэр бүртгэлтэй байна!');
+    } else {
+      messageWarning(apiErrorMessage(data) ?? 'Алдаа гарлаа!');
     }
   }
 

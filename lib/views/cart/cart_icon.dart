@@ -19,7 +19,7 @@ class CartIcon extends StatelessWidget {
                 shape: const CircleBorder(),
                 onPressed: () => goto(const Cart()),
                 backgroundColor: primary,
-                child: const Icon(Icons.shopping_cart),
+                child: const Icon(Icons.shopping_cart, color: white),
               )
             : IconButton(
                 onPressed: () => goto(Cart()),
@@ -52,8 +52,7 @@ class CartIcon extends StatelessWidget {
       ),
       child: Text(
         count > 99 ? '+99' : count.toString(),
-        style: const TextStyle(
-            color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );
   }

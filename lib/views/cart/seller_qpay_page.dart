@@ -121,7 +121,7 @@ class _SellerQpayPageState extends State<SellerQpayPage> {
           onTap: _retry,
         ),
         QrPaymentSecondaryAction(
-          label: 'Урьдчилгаагүйгээр үргэлжлүүлэх',
+          label: 'Төлбөрийг алгасах',
           icon: Icons.skip_next_rounded,
           outlined: false,
           onTap: _skip,

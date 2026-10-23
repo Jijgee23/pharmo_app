@@ -57,7 +57,8 @@ class _PreLoginPageState extends State<PreLoginPage> with SingleTickerProviderSt
   void _addNewUser() {
     final auth = context.read<AuthController>();
     auth.ema.clear();
-    auth.pass.clear();
+    auth.phone.clear();
+    auth.backToIdentifier();
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const LoginPage(prefillIdentifier: null)),
     );

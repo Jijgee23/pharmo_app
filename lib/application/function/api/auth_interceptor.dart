@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:pharmo_app/application/application.dart' hide Response;
+import 'package:pharmo_app/application/application.dart' hide Response, FormData;
 
 /// Dio interceptor replacing the old http.BaseClient-based AuthClient.
 ///
@@ -40,6 +40,9 @@ class AuthInterceptor extends Interceptor {
         if (security != null) {
           retryOptions.headers['Authorization'] = 'Bearer ${security.access}';
         }
+        // A multipart body can only be sent once; the retry needs a fresh copy.
+        final body = retryOptions.data;
+        if (body is FormData) retryOptions.data = body.clone();
         try {
           final retryResponse = await ApiService.plainDio.fetch(retryOptions);
           return handler.resolve(retryResponse);

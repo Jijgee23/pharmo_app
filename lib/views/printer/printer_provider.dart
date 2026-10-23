@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:hive/hive.dart';
@@ -18,6 +19,7 @@ class PrinterProvider extends ChangeNotifier {
   static const _boxName = 'printer_settings';
   static const _macKey = 'printer_mac';
   static const _printerName = 'printer_name';
+  static const _paperSizeKey = 'paper_size';
 
   Future<BluetoothInfo?> _savedMac() async {
     final box = await Hive.openBox(_boxName);
@@ -31,6 +33,18 @@ class PrinterProvider extends ChangeNotifier {
     final box = await Hive.openBox(_boxName);
     await box.put(_macKey, device.macAdress);
     await box.put(_printerName, device.name);
+  }
+
+  Future<PaperSize?> getSavedPaperSize() async {
+    final box = await Hive.openBox(_boxName);
+    final val = box.get(_paperSizeKey, defaultValue: null);
+    if (val == null) return null;
+    return val == 'mm80' ? PaperSize.mm80 : PaperSize.mm58;
+  }
+
+  Future<void> _savePaperSize(PaperSize size) async {
+    final box = await Hive.openBox(_boxName);
+    await box.put(_paperSizeKey, size == PaperSize.mm80 ? 'mm80' : 'mm58');
   }
 
   BluetoothInfo? savedBT;
@@ -103,7 +117,7 @@ class PrinterProvider extends ChangeNotifier {
 
   BluetoothInfo? connectedDevice;
 
-  Future<void> printOrder(DeliveryOrder order, {int? deliveryId}) async {
+  Future<void> printOrder(DeliveryOrder order, PaperSize papeSize, {int? deliveryId}) async {
     setloading(true);
     try {
       final bool connected = await PrintBluetoothThermal.connectionStatus;
@@ -111,11 +125,12 @@ class PrinterProvider extends ChangeNotifier {
         messageWarning('Төхөөрөмж холбоно уу!');
         return;
       }
-      final bytes = await generateTicket(order, deliveryId: deliveryId);
+      final bytes = await generateTicket(order, papeSize, deliveryId: deliveryId);
       final result = await PrintBluetoothThermal.writeBytes(bytes);
       print("print result: $result");
       if (result) {
         if (connectedDevice != null) await _saveMac(connectedDevice!);
+        await _savePaperSize(papeSize);
         messageComplete('Баримт хэвлэгдлээ!');
       } else {
         messageWarning('Хэвлэж чадсангүй');
@@ -128,9 +143,10 @@ class PrinterProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<int>> generateTicket(DeliveryOrder order, {int? deliveryId}) async {
+  Future<List<int>> generateTicket(DeliveryOrder order, PaperSize paperSize,
+      {int? deliveryId}) async {
     final profile = await CapabilityProfile.load();
-    final generator = Generator(PaperSize.mm58, profile);
+    final generator = Generator(paperSize, profile);
     List<int> bytes = [];
 
     final user = Authenticator.security;
@@ -142,84 +158,273 @@ class PrinterProvider extends ChangeNotifier {
     final nowStr = intl.DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
 
     bytes += generator.reset();
-    bytes += generator.setGlobalCodeTable('CP866');
 
-    // Header
-    bytes += generator.text('PHARMO',
-        styles: PosStyles(
-            align: PosAlign.center,
-            bold: true,
-            height: PosTextSize.size2,
-            width: PosTextSize.size2));
-    bytes +=
-        generator.textEncoded(_mn('Захиалгын хуудас'), styles: PosStyles(align: PosAlign.center));
+    // Header — ASCII-only, ESC/POS text mode
+    bytes += generator.text(
+      'PHARMO',
+      styles: PosStyles(
+        align: PosAlign.center,
+        height: PosTextSize.size2,
+        width: PosTextSize.size2,
+      ),
+    );
+    // Mongolian lines rendered as raster images — supports Ө Ү without substitution
+    bytes += await _textLine('Захиалгын хуудас', paperSize, align: ui.TextAlign.center);
     bytes += generator.hr();
 
     // Order meta
-    bytes += generator.textEncoded(_r2('Захиалга', '#${order.orderNo}'));
-    bytes += generator.textEncoded(_r2('Захиалгын огноо', dateStr));
-    bytes += generator.textEncoded(_r2('Захиалагч', customerName));
-    bytes += generator.textEncoded(_r2('Төлбөр', order.paymentType.name));
-    bytes += generator.textEncoded(_r2('Түгээлт', '$delmanName (Тгг)'));
-    bytes += generator.textEncoded(_r2('Түгээлтийн бүс', order.zone.name));
-    bytes += generator.textEncoded(_r2('НӨАТ', '${_numStr(order.totalPrice * 0.1)}T'));
+    bytes += await _r2Image('Захиалга', '#${order.orderNo}', paperSize);
+    bytes += await _r2Image('Захиалгын огноо', dateStr, paperSize);
+    bytes += await _r2Image('Захиалагч', customerName, paperSize);
+    bytes += await _r2Image('Төлбөр', order.paymentType.name, paperSize);
+    bytes += await _r2Image('Түгээлт', '$delmanName (Тгг)', paperSize);
+    bytes += await _r2Image('Түгээлтийн бүс', order.zone.name, paperSize);
+    bytes += await _r2Image('НӨАТ', '${_numStr(order.totalPrice * 0.1)}₮', paperSize);
     if (deliveryId != null) {
-      bytes += generator.textEncoded(_r2('Түгээлтийн №', '$deliveryId'));
+      bytes += await _r2Image('Түгээлтийн №', '$deliveryId', paperSize);
     }
-    bytes += generator.textEncoded(_r2('Баримтын огноо', nowStr));
+    bytes += await _r2Image('Баримтын огноо', nowStr, paperSize);
     bytes += generator.hr();
 
     // Item header
-    bytes += generator.textEncoded(_r3('Baraa', 'Too', 'Une'), styles: PosStyles(bold: true));
+    bytes += await _r3Image('Бараа', 'Тоо', 'Үнэ', paperSize);
     bytes += generator.hr();
 
     for (final item in order.items) {
       final qtyNum = num.tryParse((item.qty).toString())?.toDouble() ?? 0;
       final total = num.tryParse((item.totalPrice).toString())?.toDouble() ?? 0;
       final unit = qtyNum > 0 ? total / qtyNum : 0.0;
-      bytes += generator.textEncoded(_r3(
-        (item.name).toString(),
+      bytes += await _r3Image(
+        item.name.toString(),
         qtyNum.toStringAsFixed(0),
-        '${_numStr(unit)}T',
-      ));
+        '${_numStr(unit)}₮',
+        paperSize,
+      );
     }
 
     bytes += generator.hr();
 
     // Totals
-    bytes += generator.textEncoded(_r2('Нийт тоо', '${order.totalCount.toStringAsFixed(0)} ш'),
-        styles: PosStyles(bold: true));
-    bytes += generator.textEncoded(_r2('Нийт үнэ', '${_numStr(order.totalPrice)}T'),
-        styles: PosStyles(bold: true));
+    bytes += await _r2Image('Нийт тоо', '${order.totalCount.toStringAsFixed(0)} ш', paperSize);
+    bytes += await _r2Image('Нийт үнэ', '${_numStr(order.totalPrice)}₮', paperSize);
 
     if (order.payments.isNotEmpty) {
       bytes += generator.hr();
       for (final p in order.payments) {
-        bytes += generator.textEncoded(_r2(p.payType, '${_numStr(p.amount)}T'));
+        bytes += await _r2Image(p.payType, '${_numStr(p.amount)}₮', paperSize);
       }
     }
 
     bytes += generator.hr();
 
     // Sign section
-    bytes += generator.textEncoded(_r2('Хүлээлгэн өгсөн', delmanName));
-    bytes += generator.textEncoded(_r2('Хүлээн авсан', '________________'));
-    bytes += generator.textEncoded(_r2('Бүргүүлэх дүн', '${_numStr(order.totalPrice)}T'));
+    bytes += await _r2Image('Хүлээлгэн өгсөн', delmanName, paperSize);
+    bytes += await _r2Image('Хүлээн авсан', '________________', paperSize);
+    bytes += await _r2Image('Бүргүүлэх дүн', '${_numStr(order.totalPrice)}₮', paperSize);
 
     bytes += generator.hr();
 
-    // QR code as raster bitmap — works on any ESC/POS printer regardless of GS ( k support
+    // QR code as raster bitmap
     bytes += _qrBitmap('#${order.orderNo}|${_numStr(order.totalPrice)}T|$dateStr');
 
-    bytes += generator.textEncoded(_mn('Баярлалаа!'),
-        styles: PosStyles(bold: true, align: PosAlign.center));
+    bytes += await _textLine('Баярлалаа!', paperSize, align: ui.TextAlign.center);
     bytes += generator.feed(3);
 
     return bytes;
   }
 
-  // ASCII-only bytes (numbers, symbols, prices)
-  Uint8List _a(String text) => Uint8List.fromList(text.codeUnits);
+  // --- Raster text rendering (dart:ui) -----------------------------------
+
+  static int _paperDots(PaperSize size) => size == PaperSize.mm80 ? 576 : 384;
+
+  // RGBA pixels → ESC/POS GS v 0 raster command bytes
+  List<int> _toBitmap(Uint8List pixels, int w, int h) {
+    final wBytes = (w + 7) ~/ 8;
+    final bmp = <int>[];
+    for (int y = 0; y < h; y++) {
+      for (int bx = 0; bx < wBytes; bx++) {
+        int byte = 0;
+        for (int bit = 0; bit < 8; bit++) {
+          final x = bx * 8 + bit;
+          if (x < w) {
+            final pi = (y * w + x) * 4;
+            final lum =
+                (0.299 * pixels[pi] + 0.587 * pixels[pi + 1] + 0.114 * pixels[pi + 2]).round();
+            if (lum < 128) byte |= (0x80 >> bit);
+          }
+        }
+        bmp.add(byte);
+      }
+    }
+    return [
+      0x1D,
+      0x76,
+      0x30,
+      0x00,
+      wBytes & 0xFF,
+      (wBytes >> 8) & 0xFF,
+      h & 0xFF,
+      (h >> 8) & 0xFF,
+      ...bmp,
+    ];
+  }
+
+  // Single text line rendered as raster — supports full Unicode (Ө Ү etc.)
+  Future<List<int>> _textLine(
+    String text,
+    PaperSize paperSize, {
+    ui.TextAlign align = ui.TextAlign.left,
+    bool bold = false,
+    bool large = false,
+  }) async {
+    final w = _paperDots(paperSize);
+    final fs = large ? 44.0 : 22.0;
+    final lh = (fs * 1.45).ceil();
+
+    final rec = ui.PictureRecorder();
+    final cvs = ui.Canvas(rec);
+    cvs.drawRect(
+      ui.Rect.fromLTWH(0, 0, w.toDouble(), lh.toDouble()),
+      ui.Paint()..color = const ui.Color(0xFFFFFFFF),
+    );
+
+    final para = (ui.ParagraphBuilder(ui.ParagraphStyle(
+      textAlign: align,
+      fontSize: fs,
+      fontWeight: bold ? ui.FontWeight.bold : ui.FontWeight.normal,
+    ))
+          ..pushStyle(ui.TextStyle(color: const ui.Color(0xFF000000)))
+          ..addText(text))
+        .build()
+      ..layout(ui.ParagraphConstraints(width: w.toDouble()));
+
+    cvs.drawParagraph(para, ui.Offset.zero);
+
+    final img = await rec.endRecording().toImage(w, lh);
+    final bd = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
+    return bd == null ? [] : _toBitmap(bd.buffer.asUint8List(), w, lh);
+  }
+
+  // 2-column raster line: label(left 58%) | value(right 42%)
+  Future<List<int>> _r2Image(
+    String label,
+    String value,
+    PaperSize paperSize, {
+    bool bold = false,
+  }) async {
+    final w = _paperDots(paperSize);
+    const fs = 22.0;
+    final lh = (fs * 1.45).ceil();
+    final fw = bold ? ui.FontWeight.bold : ui.FontWeight.normal;
+
+    final rec = ui.PictureRecorder();
+    final cvs = ui.Canvas(rec);
+    cvs.drawRect(
+      ui.Rect.fromLTWH(0, 0, w.toDouble(), lh.toDouble()),
+      ui.Paint()..color = const ui.Color(0xFFFFFFFF),
+    );
+
+    final ts = ui.TextStyle(color: const ui.Color(0xFF000000), fontSize: fs, fontWeight: fw);
+    final lw = (w * 0.58).toDouble();
+    final vw = w - lw;
+
+    final lp = (ui.ParagraphBuilder(ui.ParagraphStyle(
+      textAlign: ui.TextAlign.left,
+      fontSize: fs,
+      fontWeight: fw,
+      ellipsis: '…',
+    ))
+          ..pushStyle(ts)
+          ..addText(label))
+        .build()
+      ..layout(ui.ParagraphConstraints(width: lw));
+    cvs.drawParagraph(lp, ui.Offset.zero);
+
+    final vp = (ui.ParagraphBuilder(ui.ParagraphStyle(
+      textAlign: ui.TextAlign.right,
+      fontSize: fs,
+      fontWeight: fw,
+      ellipsis: '…',
+    ))
+          ..pushStyle(ts)
+          ..addText(value))
+        .build()
+      ..layout(ui.ParagraphConstraints(width: vw));
+    cvs.drawParagraph(vp, ui.Offset(lw, 0));
+
+    final img = await rec.endRecording().toImage(w, lh);
+    final bd = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
+    return bd == null ? [] : _toBitmap(bd.buffer.asUint8List(), w, lh);
+  }
+
+  // 3-column raster line: name(left 55%) | qty(center 17%) | price(right 28%)
+  // Name wraps to additional lines; qty/price stay on the first line.
+  Future<List<int>> _r3Image(
+    String name,
+    String qty,
+    String price,
+    PaperSize paperSize, {
+    bool bold = false,
+  }) async {
+    final w = _paperDots(paperSize);
+    const fs = 20.0;
+    final minLh = (fs * 1.45).ceil();
+    final fw = bold ? ui.FontWeight.bold : ui.FontWeight.normal;
+
+    final ts = ui.TextStyle(color: const ui.Color(0xFF000000), fontSize: fs, fontWeight: fw);
+    final nw = (w * 0.55).toDouble();
+    final qw = (w * 0.17).toDouble();
+    final pw = w - nw - qw;
+
+    // Layout name first (no ellipsis) to measure wrapped height
+    final np = (ui.ParagraphBuilder(ui.ParagraphStyle(
+      textAlign: ui.TextAlign.left,
+      fontSize: fs,
+      fontWeight: fw,
+    ))
+          ..pushStyle(ts)
+          ..addText(name))
+        .build()
+      ..layout(ui.ParagraphConstraints(width: nw));
+
+    final lh = np.height.ceil().clamp(minLh, 9999);
+
+    final rec = ui.PictureRecorder();
+    final cvs = ui.Canvas(rec);
+    cvs.drawRect(
+      ui.Rect.fromLTWH(0, 0, w.toDouble(), lh.toDouble()),
+      ui.Paint()..color = const ui.Color(0xFFFFFFFF),
+    );
+
+    cvs.drawParagraph(np, ui.Offset.zero);
+
+    final qp = (ui.ParagraphBuilder(ui.ParagraphStyle(
+      textAlign: ui.TextAlign.center,
+      fontSize: fs,
+      fontWeight: fw,
+    ))
+          ..pushStyle(ts)
+          ..addText(qty))
+        .build()
+      ..layout(ui.ParagraphConstraints(width: qw));
+    cvs.drawParagraph(qp, ui.Offset(nw, 0));
+
+    final pp = (ui.ParagraphBuilder(ui.ParagraphStyle(
+      textAlign: ui.TextAlign.right,
+      fontSize: fs,
+      fontWeight: fw,
+      ellipsis: '…',
+    ))
+          ..pushStyle(ts)
+          ..addText(price))
+        .build()
+      ..layout(ui.ParagraphConstraints(width: pw));
+    cvs.drawParagraph(pp, ui.Offset(nw + qw, 0));
+
+    final img = await rec.endRecording().toImage(w, lh);
+    final bd = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
+    return bd == null ? [] : _toBitmap(bd.buffer.asUint8List(), w, lh);
+  }
 
   // Render QR as ESC/POS raster bitmap (GS v 0) — works on all ESC/POS printers
   List<int> _qrBitmap(String data) {
@@ -279,93 +484,13 @@ class PrinterProvider extends ChangeNotifier {
     ];
   }
 
-  // Manual 2-col: label(16 left, CP866) | value(16 right, CP866) = 32 chars
-  Uint8List _r2(String label, String value) {
-    final lb = _mn(label);
-    final vb = _mn(value);
-    const w1 = 16, w2 = 16;
-    final b1 = lb.length > w1 ? lb.sublist(0, w1) : lb;
-    final b2 = vb.length > w2 ? vb.sublist(0, w2) : vb;
-    return Uint8List.fromList([
-      ...b1,
-      ...List.filled(w1 - b1.length, 0x20),
-      ...List.filled(w2 - b2.length, 0x20),
-      ...b2,
-    ]);
-  }
-
-  // Manual 3-col: name(16 left) | qty(5 right) | price(11 right) = 32 chars
-  Uint8List _r3(String name, String qty, String price) {
-    final nb = _mn(_sanitizeName(name));
-    final qb = _a(qty);
-    final pb = _a(price);
-    const w1 = 16, w2 = 5, w3 = 11;
-    final b1 = nb.length > w1 ? nb.sublist(0, w1) : nb;
-    final b2 = qb.length > w2 ? qb.sublist(0, w2) : qb;
-    final b3 = pb.length > w3 ? pb.sublist(0, w3) : pb;
-    return Uint8List.fromList([
-      ...b1,
-      ...List.filled(w1 - b1.length, 0x20),
-      ...List.filled(w2 - b2.length, 0x20),
-      ...b2,
-      ...List.filled(w3 - b3.length, 0x20),
-      ...b3,
-    ]);
-  }
-
-  // Encode a Mongolian/Cyrillic string to CP866 bytes.
-  // Ө/Ү (unique to Mongolian) are not in CP866 — substitute with O/U.
-  static const _cp866 = <int, int>{
-    0x0410: 0x80, 0x0411: 0x81, 0x0412: 0x82, 0x0413: 0x83, 0x0414: 0x84,
-    0x0415: 0x85, 0x0416: 0x86, 0x0417: 0x87, 0x0418: 0x88, 0x0419: 0x89,
-    0x041A: 0x8A, 0x041B: 0x8B, 0x041C: 0x8C, 0x041D: 0x8D, 0x041E: 0x8E,
-    0x041F: 0x8F, 0x0420: 0x90, 0x0421: 0x91, 0x0422: 0x92, 0x0423: 0x93,
-    0x0424: 0x94, 0x0425: 0x95, 0x0426: 0x96, 0x0427: 0x97, 0x0428: 0x98,
-    0x0429: 0x99, 0x042A: 0x9A, 0x042B: 0x9B, 0x042C: 0x9C, 0x042D: 0x9D,
-    0x042E: 0x9E, 0x042F: 0x9F, 0x0430: 0xA0, 0x0431: 0xA1, 0x0432: 0xA2,
-    0x0433: 0xA3, 0x0434: 0xA4, 0x0435: 0xA5, 0x0436: 0xA6, 0x0437: 0xA7,
-    0x0438: 0xA8, 0x0439: 0xA9, 0x043A: 0xAA, 0x043B: 0xAB, 0x043C: 0xAC,
-    0x043D: 0xAD, 0x043E: 0xAE, 0x043F: 0xAF, 0x0440: 0xE0, 0x0441: 0xE1,
-    0x0442: 0xE2, 0x0443: 0xE3, 0x0444: 0xE4, 0x0445: 0xE5, 0x0446: 0xE6,
-    0x0447: 0xE7, 0x0448: 0xE8, 0x0449: 0xE9, 0x044A: 0xEA, 0x044B: 0xEB,
-    0x044C: 0xEC, 0x044D: 0xED, 0x044E: 0xEE, 0x044F: 0xEF,
-    0x0401: 0xF0, 0x0451: 0xF1, // Ё ё
-    // Mongolian-specific substitutions mapped to nearest CP866 equivalents
-    0x04E8: 0x8E, // Ө → О (0x041E)
-    0x04E9: 0xAE, // ө → о (0x043E)
-    0x04AE: 0x93, // Ү → У (0x0423)
-    0x04AF: 0xE3, // ү → у (0x0443)
-  };
-
-  // Keep only ASCII printable and Cyrillic; strip everything else (®, ™, emojis, etc.)
-  String _sanitizeName(String text) {
-    final buf = StringBuffer();
-    for (final rune in text.runes) {
-      if ((rune >= 0x20 && rune <= 0x7E) || (rune >= 0x0400 && rune <= 0x04FF)) {
-        buf.writeCharCode(rune);
-      }
-    }
-    return buf.toString();
-  }
-
-  Uint8List _mn(String text) {
-    final out = <int>[];
-    for (final rune in text.runes) {
-      if (rune < 0x80) {
-        out.add(rune);
-      } else {
-        final byte = _cp866[rune];
-        if (byte != null) out.add(byte); // skip truly unknown chars silently
-      }
-    }
-    return Uint8List.fromList(out);
-  }
-
   String _numStr(dynamic v) {
     if (v == null) return '0';
     final n = v is num ? v.toDouble() : (double.tryParse(v.toString()) ?? 0);
     return intl.NumberFormat('#,##0', 'en_US').format(n);
   }
+
+  Future<bool> isBluetoothReady() async => await _waitForBluetooth();
 
   Future connect(BluetoothInfo device) async {
     setloading(true);

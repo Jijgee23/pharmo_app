@@ -45,6 +45,10 @@ class _OrderSheetState extends State<OrderSheet> {
       }
     }
     if (cart.isCashOnlyBasket) payType = PayType.cash.value;
+    // Resume on whichever step the user was on before an accidental close
+    // (the X button, a swipe-down) instead of snapping back to step 0.
+    final steps = _buildSteps(home, cart);
+    _step = home.orderStep.clamp(0, steps.length - 1);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Two different endpoints, identical response shape: PA/PM read the
       // currently-selected supplier's own settings (supplier_order_settings/),
@@ -82,6 +86,31 @@ class _OrderSheetState extends State<OrderSheet> {
       final main = home.branches.where((e) => e.isMain == true).firstOrNull;
       if (main != null) _setBranch(main);
     }
+  }
+
+  // Every step change (auto-advance, the nav buttons) goes through here so
+  // HomeProvider.orderStep always mirrors what's on screen — that's what
+  // lets a re-opened sheet resume on the right step after an accidental
+  // close instead of snapping back to step 0.
+  void _setStep(int newStep) {
+    setState(() => _step = newStep);
+    context.read<HomeProvider>().setOrderStep(newStep);
+  }
+
+  // Steps that are a single tap-to-choose (delivery type, branch, customer)
+  // don't need the user to also press "Дараах" — call this right after the
+  // choice is made and it advances on its own once the step is satisfied.
+  // Not used on the payment step: that one is always last, and submitting
+  // an order should stay a deliberate tap.
+  void _goNext() {
+    final home = context.read<HomeProvider>();
+    final cart = context.read<CartProvider>();
+    final steps = _buildSteps(home, cart);
+    if (_step >= steps.length - 1 || !steps[_step].canAdvance()) return;
+    final target = _step + 1;
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) _setStep(target);
+    });
   }
 
   void _setBranch(Sector s) {
@@ -152,7 +181,7 @@ class _OrderSheetState extends State<OrderSheet> {
                       if (_step > 0)
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () => setState(() => _step--),
+                            onPressed: () => _setStep(_step - 1),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.black87,
                               side: BorderSide(color: Colors.grey.shade300),
@@ -173,7 +202,7 @@ class _OrderSheetState extends State<OrderSheet> {
                                     messageWarning(step.validationMessage);
                                     return;
                                   }
-                                  setState(() => _step++);
+                                  _setStep(_step + 1);
                                 },
                               )
                             : _loading
@@ -380,7 +409,15 @@ class _OrderSheetState extends State<OrderSheet> {
             maxLines: 4,
             decoration: const InputDecoration(
               hintText: 'Энд тайлбар бичиж болно...',
+              // Theme's InputDecorationTheme sets enabledBorder/focusedBorder
+              // explicitly, so they must each be nulled out here too — just
+              // `border: InputBorder.none` still lets those through, doubling
+              // up with the Container's own border above.
               border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              filled: false,
               hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),
@@ -500,6 +537,7 @@ class _OrderSheetState extends State<OrderSheet> {
                   onTap: () {
                     setState(() => deliveryType = dm['v']!);
                     context.read<HomeProvider>().setOrderDeliveryType(dm['v']!);
+                    _goNext();
                   },
                 ),
               ))
@@ -569,6 +607,7 @@ class _OrderSheetState extends State<OrderSheet> {
                             onTap: () {
                               _setBranch(e);
                               Get.back();
+                              _goNext();
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
@@ -644,8 +683,12 @@ class _OrderSheetState extends State<OrderSheet> {
     return InkWell(
       onTap: () async {
         final value = await goto<Customer?>(const ChooseCustomer());
-        if (value != null) home.setCustomer(value);
-        if (mounted) setState(() {});
+        if (!mounted) return;
+        if (value != null) {
+          home.setCustomer(value);
+          setState(() {});
+          _goNext();
+        }
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(

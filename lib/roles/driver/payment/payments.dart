@@ -48,7 +48,14 @@ class _PaymentsState extends State<Payments> {
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : jagger.payments.isEmpty
-                ? const Center(child: NoResult())
+                ? EmptyState(
+                    icon: Icons.payments_outlined,
+                    title: 'Төлбөр бүртгэгдээгүй байна',
+                    message: 'Харилцагчаас авсан төлбөрөө бүртгэнэ үү.',
+                    actionLabel: 'Төлбөр нэмэх',
+                    actionIcon: Icons.add_rounded,
+                    onAction: () => _showCreateSheet(jagger),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.all(10),
                     itemCount: jagger.payments.length,
@@ -257,7 +264,8 @@ class _PaymentsState extends State<Payments> {
       message('Харилцагч сонгоно уу!');
       return;
     }
-    await jagger.addCustomerPayment(selected, amount.text, customer!.id.toString());
+    final added = await jagger.addCustomerPayment(selected, amount.text, parseInt(customer!.id));
+    if (!added) return;
     amount.clear();
     selected = 'e';
     customer = null;

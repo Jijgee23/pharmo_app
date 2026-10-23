@@ -1,3 +1,4 @@
+import 'package:pharmo_app/roles/seller/customer/add_customer.dart';
 import 'package:pharmo_app/roles/seller/customer/customer_location_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pharmo_app/application/application.dart';
@@ -63,8 +64,8 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
                   actions: [
                     if (isEditable)
                       IconButton(
-                        onPressed: () => editCustomer(
-                            d, pp, ['Мейл', 'Регистр', 'Утас', 'Утас 2', 'Утас 3', 'Тайлбар']),
+                        // The registration form, filled in and in edit mode.
+                        onPressed: () => goto(CustomerFormScreen(customer: d)),
                         icon: const Icon(Icons.edit_note_rounded, size: 28),
                       ),
                   ],
@@ -343,54 +344,6 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage> {
           ),
         ],
       ),
-    );
-  }
-
-  final TextEditingController name = TextEditingController();
-  final TextEditingController rn = TextEditingController();
-  final TextEditingController email = TextEditingController();
-  final TextEditingController phone = TextEditingController();
-  final TextEditingController phone2 = TextEditingController();
-  final TextEditingController phone3 = TextEditingController();
-  final TextEditingController note = TextEditingController();
-
-  editCustomer(CustomerDetail det, PharmProvider pp, List<String> titles) {
-    setState(() {
-      name.text = det.name ?? '';
-      email.text = det.email ?? '';
-      rn.text = det.rn ?? '';
-      phone.text = det.phone ?? '';
-      phone2.text = det.phone2 ?? '';
-      phone3.text = det.phone3 ?? '';
-      note.text = det.note ?? '';
-    });
-    mySheet(
-      title: 'Харилцагчийн мэдээлэл засах',
-      children: [
-        CustomTextField(controller: name, hintText: 'Нэр'),
-        CustomTextField(controller: email, hintText: titles[0]),
-        CustomTextField(controller: rn, hintText: titles[1]),
-        CustomTextField(controller: phone, hintText: titles[2]),
-        CustomTextField(controller: phone2, hintText: titles[3]),
-        CustomTextField(controller: phone3, hintText: titles[4]),
-        CustomTextField(controller: note, hintText: titles[5]),
-        CustomButton(
-            text: 'Хадгалах',
-            ontap: () {
-              pp.editCustomer(
-                  id: parseInt(det.id),
-                  name: name.text.isNotEmpty ? name.text : maybeNullToJson(det.name),
-                  rn: rn.text.isNotEmpty ? rn.text : maybeNullToJson(det.rn),
-                  email: email.text.isNotEmpty ? email.text : maybeNullToJson(det.email),
-                  phone: phone.text.isNotEmpty ? phone.text : maybeNullToJson(det.phone),
-                  note: note.text.isNotEmpty ? note.text : maybeNullToJson(det.note),
-                  context: context,
-                  phone2: phone2.text.isNotEmpty ? phone2.text : maybeNullToJson(det.phone2),
-                  phone3: phone3.text.isNotEmpty ? phone3.text : maybeNullToJson(det.phone3));
-              getDetail();
-              Navigator.pop(context);
-            }),
-      ],
     );
   }
 }

@@ -34,16 +34,14 @@ class _LocationSelectorState extends State<LocationSelector> {
 
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
+      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
         return;
       }
     }
 
     // Get the current position
     // ignore: deprecated_member_use
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     LatLng currentLocation = LatLng(position.latitude, position.longitude);
 
     setState(() {
@@ -81,8 +79,7 @@ class _LocationSelectorState extends State<LocationSelector> {
       appBar: AppBar(
         leading: const ChevronBack(),
         title: const SmallText('Байршил сонгох'),
-        backgroundColor:
-            ContextExtensionss(context).theme.colorScheme.onPrimary,
+        backgroundColor: ContextExtensionss(context).theme.colorScheme.onPrimary,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -101,20 +98,15 @@ class _LocationSelectorState extends State<LocationSelector> {
                 ),
                 Positioned(
                   bottom: smallFontSize,
-                  left: ContextExtensionss(context).width / 2 -
-                      mediumFontSize * 2,
+                  left: ContextExtensionss(context).width / 2 - mediumFontSize * 2,
                   child: InkWell(
                     onTap: () => Navigator.pop(context, _selectedLocation),
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: mediumFontSize,
-                          vertical: smallFontSize),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: mediumFontSize, vertical: smallFontSize),
                       decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius:
-                              BorderRadius.circular(bigFontSize)),
-                      child: const Text('Болсон',
-                          style: TextStyle(color: Colors.white)),
+                          color: Colors.green, borderRadius: BorderRadius.circular(bigFontSize)),
+                      child: const Text('Болсон', style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

@@ -6,6 +6,7 @@ class ModernField extends StatefulWidget {
   final void Function(String)? onSubmited;
   final String hint;
   final IconButton? suffixIcon;
+  final TextInputType keyboardType;
 
   const ModernField({
     super.key,
@@ -14,6 +15,7 @@ class ModernField extends StatefulWidget {
     this.onSubmited,
     this.hint = 'Хайх',
     this.suffixIcon,
+    this.keyboardType = TextInputType.text,
   });
 
   @override
@@ -40,8 +42,7 @@ class _ModernFieldState extends State<ModernField> {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
 
-    return Expanded(
-      child: AnimatedContainer(
+    return AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -70,6 +71,7 @@ class _ModernFieldState extends State<ModernField> {
           focusNode: _focus,
           controller: widget.controller,
           onChanged: widget.onChanged,
+          keyboardType: widget.keyboardType,
           textInputAction: TextInputAction.done,
           onFieldSubmitted: widget.onSubmited,
           style: TextStyle(
@@ -102,7 +104,6 @@ class _ModernFieldState extends State<ModernField> {
             suffixIcon: widget.suffixIcon,
           ),
         ),
-      ),
     );
   }
 }

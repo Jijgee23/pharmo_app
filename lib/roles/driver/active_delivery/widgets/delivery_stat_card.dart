@@ -1,73 +1,49 @@
-
 import 'package:pharmo_app/application/app_lite.dart';
 
+/// One count in the delivery's row of stats, e.g. how many were delivered.
 class DeliveryStatCard extends StatelessWidget {
   const DeliveryStatCard({
     super.key,
-    required this.icon,
     required this.label,
     required this.value,
     required this.color,
-    this.withExnanded = true,
   });
 
-  final IconData icon;
   final String label;
-  final String value;
+  final int value;
   final Color color;
-  final bool withExnanded;
 
   @override
   Widget build(BuildContext context) {
-    if (withExnanded) {
-      return Expanded(child: _content());
-    }
-    return _content();
-  }
-
-  _content() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+    final strong = color is MaterialColor ? (color as MaterialColor).shade700 : color;
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+        decoration: BoxDecoration(
+          color: value == 0 ? white : color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: value == 0 ? grey200 : color.withValues(alpha: 0.25)),
+        ),
+        child: Column(
+          spacing: 2,
+          children: [
+            Text(
+              '$value',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: value == 0 ? grey400 : strong,
+              ),
             ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: grey600),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[600],
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

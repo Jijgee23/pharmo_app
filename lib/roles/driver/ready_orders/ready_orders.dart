@@ -1,10 +1,16 @@
-import 'package:flutter/services.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/driver/active_delivery/widgets/delivery_skeletons.dart';
+import 'package:pharmo_app/roles/driver/ready_orders/delivery_assign_sheet.dart';
 import 'package:pharmo_app/roles/driver/ready_orders/ready_order_card.dart';
+import 'package:pharmo_app/roles/driver/widgets/selection_bar.dart';
 
 class ReadyOrders extends StatefulWidget {
   final bool showHeader;
-  const ReadyOrders({super.key, this.showHeader = true});
+
+  /// Shown as a tab under the floating bottom bar, which the add button has
+  /// to clear; false on a page of its own.
+  final bool aboveBottomBar;
+  const ReadyOrders({super.key, this.showHeader = true, this.aboveBottomBar = true});
 
   @override
   State<ReadyOrders> createState() => _ReadyOrdersState();
@@ -12,20 +18,46 @@ class ReadyOrders extends StatefulWidget {
 
 class _ReadyOrdersState extends State<ReadyOrders> {
   List<int> selecteds = [];
-  int delman = -1;
-  String me = 'Өөрийн';
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async => await fetch());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  // Shown as loading: the skeleton until there are orders to show, then a
+  // line over them. Pull-to-refresh ([fetch]) has its own spinner.
+  Future<void> _load() async {
+    final driver = context.read<DriverProvider>();
+    await driver.refreshOrders();
+    _pruneSelection();
+    if (driver.delmans.isEmpty) await driver.getDelmans();
   }
 
   Future fetch() async {
-    LoadingService.run(() async {
-      final jag = context.read<DriverProvider>();
-      await jag.getOrders();
-      await jag.getDelmans();
+    final driver = context.read<DriverProvider>();
+    await driver.getOrders();
+    if (driver.delmans.isEmpty) await driver.getDelmans();
+    _pruneSelection();
+  }
+
+  // Orders taken meanwhile (by another deliveryman) leave the list; they
+  // can't stay selected.
+  void _pruneSelection() {
+    if (!mounted) return;
+    final ids = context.read<DriverProvider>().orders.map((o) => o.id).toSet();
+    setState(() => selecteds.removeWhere((id) => !ids.contains(id)));
+  }
+
+  void _toggleAll(List<DeliveryOrder> orders) {
+    setState(() {
+      if (selecteds.length == orders.length) {
+        selecteds.clear();
+      } else {
+        selecteds
+          ..clear()
+          ..addAll(orders.map((o) => o.id));
+      }
     });
   }
 
@@ -35,237 +67,175 @@ class _ReadyOrdersState extends State<ReadyOrders> {
     });
   }
 
-  void setDelman(int n) {
-    setState(() {
-      delman = n;
-    });
+  @override
+  Widget build(BuildContext context) {
+    final buttonBottom = widget.aboveBottomBar ? 100.0 : 20.0;
+    return Consumer<DriverProvider>(
+      builder: (context, jagger, child) {
+        return Stack(
+          children: [
+            SafeArea(
+              child: Column(
+                children: [
+                  if (widget.showHeader) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Бэлэн захиалгууд',
+                            style: context.theme.appBarTheme.titleTextStyle,
+                          ),
+                        ),
+                        if (jagger.ordersRefreshing)
+                          const SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: Center(
+                              child: SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ),
+                          )
+                        else
+                          IconButton(
+                            onPressed: _load,
+                            tooltip: 'Шинэчлэх',
+                            icon: const Icon(Icons.refresh_rounded),
+                          ),
+                      ],
+                    ).paddingAll(10),
+                    const Divider(height: 1),
+                  ],
+                  RefreshLine(active: jagger.ordersRefreshing && jagger.orders.isNotEmpty),
+                  if (jagger.orders.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 6, 4, 0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              selecteds.isEmpty
+                                  ? '${jagger.orders.length} захиалга'
+                                  : '${selecteds.length} / ${jagger.orders.length} сонгосон',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: grey600,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => _toggleAll(jagger.orders),
+                            child: Text(
+                              selecteds.length == jagger.orders.length
+                                  ? 'Сонголт цуцлах'
+                                  : 'Бүгдийг сонгох',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: fetch,
+                      child: Builder(
+                        builder: (context) {
+                          if (jagger.orders.isEmpty) {
+                            final padding = widget.aboveBottomBar
+                                ? const EdgeInsets.only(bottom: 100)
+                                : EdgeInsets.zero;
+                            // Not "none" until the list has come back empty.
+                            if (!jagger.ordersLoaded || jagger.ordersRefreshing) {
+                              return const ReadyOrdersSkeleton();
+                            }
+                            if (jagger.ordersFailed) {
+                              return EmptyState(
+                                icon: Icons.cloud_off_rounded,
+                                title: 'Захиалга ачаалж чадсангүй',
+                                message: 'Сүлжээгээ шалгаад дахин оролдоно уу.',
+                                actionLabel: 'Дахин оролдох',
+                                actionIcon: Icons.refresh_rounded,
+                                onAction: _load,
+                                color: Colors.red,
+                                padding: padding,
+                              );
+                            }
+                            return EmptyState(
+                              icon: Icons.inventory_rounded,
+                              title: 'Бэлэн захиалга алга',
+                              message: 'Савлагдаж бэлэн болсон захиалга энд харагдана.',
+                              padding: padding,
+                            );
+                          }
+                          return ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            // Room for the last card to scroll out from under the button.
+                            padding: EdgeInsets.fromLTRB(10, 4, 10, buttonBottom + 80),
+                            itemCount: jagger.orders.length,
+                            itemBuilder: (context, index) {
+                              final order = jagger.orders[index];
+                              return ReadyOrderCard(
+                                onTap: () => onTapOrder(order),
+                                selected: selecteds.contains(order.id),
+                                ord: order,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: buttonBottom,
+              child: SafeArea(
+                top: false,
+                child: SelectionBar(
+                  count: selecteds.length,
+                  total: jagger.orders
+                      .where((o) => selecteds.contains(o.id))
+                      .fold(0.0, (sum, o) => sum + o.totalPrice),
+                  onClear: () => setState(selecteds.clear),
+                  actionLabel: 'Түгээлтэд нэмэх',
+                  actionIcon: Icons.local_shipping_rounded,
+                  onAction: _assign,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
+
+  Future<void> _assign() async {
+    final done = await showDeliveryAssignSheet(List.of(selecteds));
+    if (!mounted) return;
+    if (done) {
+      setState(() => selecteds.clear());
+    } else {
+      // Orders taken meanwhile can't stay selected.
+      _pruneSelection();
+    }
+  }
+}
+
+/// The ready orders as a page of their own, for VS (whose bottom bar has no
+/// tab for them).
+class ReadyOrdersPage extends StatelessWidget {
+  const ReadyOrdersPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DriverProvider>(
-      builder: (context, jagger, child) => Stack(
-        children: [
-          SafeArea(
-            child: Column(
-              children: [
-                if (widget.showHeader) ...[
-                  Row(
-                    children: [
-                      Text(
-                        'Бэлэн захиалгууд',
-                        style: context.theme.appBarTheme.titleTextStyle,
-                      )
-                    ],
-                  ).paddingAll(10),
-                  Divider(),
-                ],
-                Flexible(
-                  child: Builder(
-                    builder: (context) {
-                      if (jagger.orders.isEmpty) {
-                        return NoResult();
-                      }
-                      return ListView.builder(
-                        itemCount: jagger.orders.length,
-                        itemBuilder: (context, index) {
-                          final order = jagger.orders[index];
-                          return ReadyOrderCard(
-                            onTap: () => onTapOrder(order),
-                            selected: selecteds.contains(order.id),
-                            ord: order,
-                          );
-                        },
-                      );
-                    },
-                  ).paddingAll(10),
-                )
-              ],
-            ),
-          ),
-          AnimatedPositioned(
-            duration: Durations.medium1,
-            bottom: 20,
-            right: selecteds.isNotEmpty ? 20 : -300,
-            child: SafeArea(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 30,
-                      ),
-                      backgroundColor: primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(16),
-                      ),
-                    ),
-                    onPressed: () => addSheet(jagger),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 12,
-                      children: [
-                        Icon(Icons.add_rounded, color: white, size: 20),
-                        Text(
-                          'Түгээлт рүү нэмэх',
-                          style: TextStyle(
-                            color: white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
+    return const Scaffold(
+      appBar: SideAppBar(text: 'Бэлэн захиалгууд'),
+      body: ReadyOrders(showHeader: false, aboveBottomBar: false),
     );
-  }
-
-  void addSheet(DriverProvider driver) {
-    Get.bottomSheet(
-      StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Handle Bar
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Түгээлтэнд нэмэх (${selecteds.length} захиалга)',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              const SizedBox(height: 24),
-
-              // 1. Selection Type
-              const BottomSheetLabelBuilder('Түгээгч сонгох төрөл'),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: BottomSheetOptionChip(
-                      title: 'Өөрийн',
-                      v: 'Өөрийн',
-                      icon: '👤',
-                      isSelected: me == 'Өөрийн',
-                      onTap: () => setModalState(() => me = 'Өөрийн'),
-                    ),
-                  ),
-                  Expanded(
-                    child: BottomSheetOptionChip(
-                      title: 'Бусдын',
-                      v: 'Бусдын',
-                      icon: '👥',
-                      isSelected: me == 'Бусдын',
-                      onTap: () => setModalState(() => me = 'Бусдын'),
-                    ),
-                  ),
-                ],
-              ),
-
-              // 2. Delman Selection (Conditional)
-              if (me != 'Өөрийн') ...[
-                const SizedBox(height: 24),
-                const BottomSheetLabelBuilder('Түгээгч сонгох'),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 100, // Fixed height for horizontal scroll or use Wrap
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: driver.delmans.map((dm) {
-                        bool isSelected = delman == dm.id;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: ChoiceChip(
-                            label: Text(dm.name),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              if (selected) HapticFeedback.lightImpact();
-                              setModalState(() => delman = dm.id);
-                            },
-                            // --- Modern Styling ---
-                            elevation: isSelected ? 4 : 0,
-                            pressElevation: 0,
-                            shadowColor: primary.withOpacity(0.3),
-                            backgroundColor: Colors.grey[100],
-                            selectedColor: primary.withOpacity(0.15),
-                            side: BorderSide(
-                              color: isSelected ? primary : Colors.transparent,
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(12), // Softer, more modern corners
-                            ),
-                            showCheckmark: false, // Modern chips usually skip the checkmark icon
-                            labelStyle: TextStyle(
-                              color: isSelected ? primary : Colors.grey[700],
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                              fontSize: 14,
-                              letterSpacing: 0.3,
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
-
-              const SizedBox(height: 32),
-
-              // 3. Action Button
-              CustomButton(
-                text: 'Хадгалах',
-                ontap: () {
-                  if (me == 'Өөрийн') {
-                    driver.addOrdersToDelivery(selecteds);
-                  } else {
-                    if (delman == -1) {
-                      message('Түгээгч сонгоно уу!');
-                      return;
-                    }
-                    driver.passOrdersToDelman(selecteds, delman);
-                  }
-                  Navigator.pop(context);
-                  setState(() => selecteds.clear()); // Clear main state
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      isScrollControlled: true,
-    );
-  }
-
-  void cleanOrders(Function(void Function()) setModalState) {
-    setModalState(() {
-      selecteds.clear();
-    });
   }
 }

@@ -20,12 +20,6 @@ class JaggerProvider extends ChangeNotifier {
     initJagger();
   }
 
-  bool isShowingTrackingInfo = true;
-  void toggleShowing() {
-    isShowingTrackingInfo = !isShowingTrackingInfo;
-    notifyListeners();
-  }
-
   Future initJagger() async {
     if (Hive.isBoxOpen('track_box')) {
       trackBox = Hive.box('track_box');
@@ -43,7 +37,6 @@ class JaggerProvider extends ChangeNotifier {
   Position? currentPosition;
   Delivery? delivery;
   List<Zone> zones = [];
-  List<LatLng> routeCoords = [];
   List<Payment> payments = [];
   final LogService logService = LogService();
 
@@ -78,12 +71,32 @@ class JaggerProvider extends ChangeNotifier {
   }
 
   TrackState trackState = TrackState.none;
+
+  /// Location is being sent right now (not stopped or paused).
+  bool get isTracking => subscription != null && !subscription!.isPaused;
+
+  /// A start, resume or end is under way. They wait for a GPS fix first,
+  /// which can take a while, so their buttons show it.
+  bool busy = false;
+
+  Future<void> _whileBusy(Future<void> Function() action) async {
+    if (busy) return;
+    busy = true;
+    notifyListeners();
+    try {
+      await action();
+    } finally {
+      busy = false;
+      notifyListeners();
+    }
+  }
+
   Future loadTrackState() async {
     bool hasTrack = await Authenticator.hasTrack();
     if (!hasTrack) {
       trackState = TrackState.none;
       notifyListeners();
-      print('TRACK STATE LOADED: $trackState');
+      debugPrint('TRACK STATE LOADED: $trackState');
       return;
     }
     bool serviceRunning = await NativeChannel.isServiceRunning();
@@ -91,12 +104,12 @@ class JaggerProvider extends ChangeNotifier {
     if (!serviceRunning && subscription == null) {
       trackState = TrackState.paused;
       notifyListeners();
-      print('TRACK STATE LOADED: $trackState');
+      debugPrint('TRACK STATE LOADED: $trackState');
       return;
     }
     trackState = TrackState.tracking;
     notifyListeners();
-    print('TRACK STATE LOADED: $trackState');
+    debugPrint('TRACK STATE LOADED: $trackState');
   }
 
   String salerStartedOn = '';
@@ -130,12 +143,17 @@ class JaggerProvider extends ChangeNotifier {
       return;
     }
     if (trackState == TrackState.paused) {
-      print('TRACK PAUSED,  RESUMING TRACK...');
+      debugPrint('TRACK PAUSED,  RESUMING TRACK...');
       await resumeTracking();
       return;
     }
     await startShipment();
   }
+
+  /// Starts the caller's delivery [deliveryId].
+  Future<void> startDelivery(int deliveryId) => _whileBusy(() => _startShipment(deliveryId));
+
+  Future<void> startShipment() => _whileBusy(() => _startShipment(null));
 
   // Native tracking filters every point against MAX_ACCURACY_METERS=25, but
   // these Dart-side entry/exit fixes bypass that filter entirely — a bad
@@ -175,7 +193,9 @@ class JaggerProvider extends ChangeNotifier {
     return Geolocator.getCurrentPosition();
   }
 
-  Future<void> startShipment() async {
+  // [deliveryId] is the delivery a D/VS starts; null for a seller's route,
+  // or to take the saved track id.
+  Future<void> _startShipment(int? deliveryId) async {
     if (!await Settings.checkAlwaysLocationPermission()) {
       return;
     }
@@ -193,7 +213,7 @@ class JaggerProvider extends ChangeNotifier {
     bool isDriver = user.isDeliveryCapable;
     String url = isDriver ? 'delivery/start/' : 'sales/route/';
     String action = isDriver ? 'түгээлт' : 'борлуулалт';
-    final shipmentId = await Authenticator.getTrackId();
+    final shipmentId = deliveryId ?? await Authenticator.getTrackId();
 
     final confirmed = await confirmDialog(
       title: '${action.capitalize} эхлүүлэх үү?',
@@ -202,7 +222,6 @@ class JaggerProvider extends ChangeNotifier {
 
     if (!confirmed) return;
 
-    setLoading(true);
     try {
       var body = isDriver
           ? {
@@ -241,13 +260,11 @@ class JaggerProvider extends ChangeNotifier {
             sended: true,
           ),
         );
-        addMarker(
+        _addTripMarker(
+          'start',
           AssetIcon.flag,
-          infoWindow: InfoWindow(title: 'Эхлэл'),
-          position: LatLng(
-            currentPosition!.latitude,
-            currentPosition!.longitude,
-          ),
+          LatLng(currentPosition!.latitude, currentPosition!.longitude),
+          'Эхлэл',
         );
 
         await Authenticator.saveTrackId(isDriver ? shipmentId : sellerTrackId).whenComplete(
@@ -270,13 +287,13 @@ class JaggerProvider extends ChangeNotifier {
       }
     } catch (e) {
       messageWarning('Түр хүлээнэ үү!');
-      print(e);
-    } finally {
-      setLoading(false);
+      debugPrint('startShipment: $e');
     }
   }
 
-  Future<void> resumeTracking() async {
+  Future<void> resumeTracking() => _whileBusy(_resumeTracking);
+
+  Future<void> _resumeTracking() async {
     bool confirmed = await confirmDialog(
       title: 'Байршил хянах үйлчилгээг үргэлжлүүлэх үү?',
       message: 'Таны байршлыг хянах үйлчилгээг үргэлжлүүлэх үү?',
@@ -305,7 +322,7 @@ class JaggerProvider extends ChangeNotifier {
     try {
       subscription = NativeChannel.bgLocationChannel.receiveBroadcastStream().listen(
         (event) async {
-          print("location changed: $event");
+          debugPrint("location changed: $event");
           final lat = parseDouble(event['lat']);
           final lng = parseDouble(event['lng']);
           await sendTobackend(lat, lng);
@@ -334,7 +351,7 @@ class JaggerProvider extends ChangeNotifier {
         const Duration(seconds: 20),
         (_) => loadPermission(),
       );
-      print("subscription started :${subscription != null}");
+      debugPrint("subscription started :${subscription != null}");
       notifyListeners();
     } catch (e) {
       debugPrint(e.toString());
@@ -343,7 +360,9 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  Future<dynamic> endTrack() async {
+  Future<void> endTrack() => _whileBusy(_endTrack);
+
+  Future<void> _endTrack() async {
     if (!await Settings.checkAlwaysLocationPermission()) {
       return;
     }
@@ -360,10 +379,10 @@ class JaggerProvider extends ChangeNotifier {
 
     bool isDriver = user.isDeliveryCapable;
     String action = isDriver ? 'түгээлт' : 'борлуулалт';
-    // List<DeliveryOrder>? orders = delivery?.orders;
+    // Not yet delivered, returned or closed.
     List<DeliveryOrder> unDeliveredOrders = [];
     if (isDriver && delivery != null) {
-      unDeliveredOrders = delivery!.orders.where((t) => t.isOnDelivery).toList();
+      unDeliveredOrders = delivery!.orders.where((t) => !t.isHandled).toList();
     }
 
     final confirmed = await confirmDialog(
@@ -392,6 +411,8 @@ class JaggerProvider extends ChangeNotifier {
       if (r.statusCode == 200) {
         if (isDriver) {
           await getDeliveries();
+          // The history tab keeps its list; this delivery belongs on it.
+          Get.context?.read<DriverProvider>().refreshHistory();
         }
         await stopTracking();
         messageComplete('Таны $shipmentId дугаартай $action дууслаа.');
@@ -408,8 +429,8 @@ class JaggerProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print("Error in endTrack: $e");
-      return {'fail': e};
+      debugPrint('endTrack: $e');
+      messageWarning('$action дуусгахад алдаа гарлаа.');
     }
     notifyListeners();
   }
@@ -421,9 +442,6 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // late Timer timer;
-  DateTime now = DateTime.now();
-
   Future stopTracking() async {
     try {
       await syncOffineTracks();
@@ -434,12 +452,11 @@ class JaggerProvider extends ChangeNotifier {
       await NativeChannel.stopLocationService();
       await Authenticator.clearTrackId();
       await clearTrackData();
-      routeCoords.clear();
       polylines.clear();
-      orderMarkers.clear();
+      _tripMarkers.clear();
       notifyListeners();
     } catch (e) {
-      print(e);
+      debugPrint('stopTracking: $e');
       throw Exception(e);
     } finally {
       await loadTrackState();
@@ -636,13 +653,11 @@ class JaggerProvider extends ChangeNotifier {
       // point for the whole session instead of once per trip.
       if (!_startMarkerAdded) {
         _startMarkerAdded = true;
-        addMarker(
+        _addTripMarker(
+          'start',
           AssetIcon.flag,
-          position: LatLng(
-            trackDatas.first.latitude,
-            trackDatas.first.longitude,
-          ),
-          infoWindow: InfoWindow(title: 'Эхлэлийн цэг'),
+          LatLng(trackDatas.first.latitude, trackDatas.first.longitude),
+          'Эхлэл',
         );
       }
     }
@@ -668,91 +683,110 @@ class JaggerProvider extends ChangeNotifier {
     await getTrackBox();
   }
 
-  Future<dynamic> getDeliveries() async {
-    try {
-      final r = await api(Api.get, 'delivery/delman_active/');
-      if (r == null) {
-        return;
-      }
-      if (r.statusCode == 200) {
-        final data = convertData(r) as List;
-        if (data.isEmpty) {
-          print('No active deliveries found for the driver.');
-          delivery = null;
-          notifyListeners();
-          print(delivery?.created);
-          return;
-        }
+  /// The first fetch of the active delivery has come back (either way).
+  bool deliveriesLoaded = false;
 
-        delivery = Delivery.fromJson(data[0]);
-        if (delivery == null) return;
-        for (var order in delivery!.orders) {
-          if (order.orderer != null && order.orderer!.lat != null) {
-            addMarker(
-              AssetIcon.box,
-              position: LatLng(
-                parseDouble(order.orderer!.lat),
-                parseDouble(order.orderer!.lng),
-              ),
-              infoWindow: InfoWindow(
-                title: order.orderer!.name,
-                snippet: 'Захиалагч',
-              ),
-            );
-            notifyListeners();
-          }
-          if (order.customer != null && order.customer!.lat != null) {
-            orderMarkers.add(
-              Marker(
-                markerId: MarkerId(order.orderNo),
-                position: LatLng(
-                  parseDouble(order.customer!.lat),
-                  parseDouble(order.customer!.lng),
-                ),
-                infoWindow: InfoWindow(
-                  title: order.customer!.name,
-                  snippet: 'Харилцагч',
-                ),
-                icon: await BitmapDescriptor.asset(
-                  ImageConfiguration.empty,
-                  'assets/box.png',
-                  width: 30,
-                  height: 30,
-                ),
-              ),
-            );
-            notifyListeners();
-          }
-        }
-        zones = delivery!.zones;
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+  /// The last fetch failed, so [delivery] may be out of date or missing.
+  bool deliveriesFailed = false;
+
+  /// A refresh someone asked for is under way. The quiet ones (every few
+  /// seconds while tracking, after each change) don't set it.
+  bool deliveriesRefreshing = false;
+
+  /// [getDeliveries], shown as loading while it runs; true once done.
+  Future<bool> refreshDeliveries() async {
+    if (deliveriesRefreshing) return false;
+    deliveriesRefreshing = true;
     notifyListeners();
+    try {
+      return await getDeliveries();
+    } finally {
+      deliveriesRefreshing = false;
+      notifyListeners();
+    }
   }
 
-  addCustomerPayment(String type, String amount, String customerId) async {
+  /// Fetches the caller's active delivery (GET delivery/delman_active/).
+  /// True once it is known, even when there is none.
+  Future<bool> getDeliveries() async {
     try {
-      final data = {"customer_id": int.parse(customerId), "pay_type": type, "amount": amount};
-      final r = await api(Api.post, 'customer_payment/', body: data);
-      if (r == null) return;
-      if (r.statusCode == 201) {
-        messageComplete('Амжилттай бүртгэлээ');
-        await getCustomerPayment();
-      } else {
-        messageWarning(wait);
+      final r = await api(Api.get, 'delivery/delman_active/');
+      if (r == null || r.statusCode != 200) {
+        deliveriesFailed = true;
+        return false;
       }
+      final data = convertData(r) as List;
+      delivery = data.isEmpty ? null : Delivery.fromJson(data[0]);
+      if (delivery != null) zones = delivery!.zones;
+      deliveriesFailed = false;
+      frameDelivery();
+      return true;
+    } catch (e) {
+      debugPrint('getDeliveries: $e');
+      deliveriesFailed = true;
+      return false;
+    } finally {
+      deliveriesLoaded = true;
+      notifyListeners();
+    }
+  }
+
+  /// Sets [order]'s delivery state (PATCH delivery/order/) and refreshes
+  /// the delivery. True once it is set.
+  Future<bool> setOrderProcess(DeliveryOrder order, OrderProcess process) async {
+    try {
+      final r = await api(Api.patch, 'delivery/order/', body: {
+        'delivery_id': order.deliveryId != 0 ? order.deliveryId : delivery?.id,
+        'order_id': order.id,
+        'process': process.code,
+      });
+      if (r == null) {
+        messageWarning('Сервертэй холбогдож чадсангүй!');
+        return false;
+      }
+      if (r.statusCode == 200 || r.statusCode == 201) {
+        await getDeliveries();
+        messageComplete('Төлөв өөрчлөгдлөө');
+        return true;
+      }
+      final body = apiBody(r);
+      messageWarning(
+        body.toString().contains('Delivery not started!')
+            ? 'Түгээлт эхлээгүй байна!'
+            : apiErrorMessage(body) ?? 'Төлөв өөрчлөхөд алдаа гарлаа!',
+      );
+    } catch (e) {
+      debugPrint('setOrderProcess: $e');
+      messageWarning('Сервертэй холбогдоход алдаа гарлаа!');
+    }
+    return false;
+  }
+
+  /// Records a payment from customer [customerId] (POST customer_payment/).
+  /// True once it is recorded.
+  Future<bool> addCustomerPayment(String type, String amount, int customerId) async {
+    try {
+      final data = {"customer_id": customerId, "pay_type": type, "amount": amount};
+      final r = await api(Api.post, 'customer_payment/', body: data);
+      if (r == null) {
+        messageWarning('Сервертэй холбогдож чадсангүй!');
+        return false;
+      }
+      if (r.statusCode == 200 || r.statusCode == 201) {
+        messageComplete('Төлбөр бүртгэгдлээ');
+        await getCustomerPayment();
+        return true;
+      }
+      messageWarning(apiErrorMessage(apiBody(r)) ?? wait);
     } catch (e) {
       messageWarning(wait);
       debugPrint(e.toString());
     }
+    return false;
   }
 
   editCustomerPayment(String customerId, int payId, String payType, String amount) async {
     try {
-      print(amount);
       final data = {
         "customer_id": int.parse(customerId),
         "payment_id": payId,
@@ -779,7 +813,6 @@ class JaggerProvider extends ChangeNotifier {
       if (r == null) return;
       if (r.statusCode == 200) {
         final data = convertData(r);
-        print(data);
         payments = (data as List).map((payment) => Payment.fromJson(payment)).toList();
         notifyListeners();
       } else {
@@ -790,14 +823,12 @@ class JaggerProvider extends ChangeNotifier {
     }
   }
 
-  Future registerAdditionalDelivery(String note) async {
+  /// Logs a visit at the caller's current spot (POST delivery/addition/).
+  /// True once it is logged.
+  Future<bool> registerAdditionalDelivery(String note) async {
     try {
       await Settings.checkWhenUseLocationPermission();
       final loc = await Geolocator.getCurrentPosition();
-      if (loc == null) {
-        messageWarning('Байршил тодорхойлж чадсангүй!');
-        return;
-      }
       final data = {
         "note": note,
         "visited_on": DateTime.now().toString(),
@@ -805,33 +836,43 @@ class JaggerProvider extends ChangeNotifier {
         "lng": loc.longitude
       };
       final r = await api(Api.post, 'delivery/addition/', body: data);
-      if (r == null) return;
-      print(r.statusCode);
+      if (r == null) {
+        messageWarning('Сервертэй холбогдож чадсангүй!');
+        return false;
+      }
       if (r.statusCode == 200 || r.statusCode == 201) {
         messageComplete('Амжилттай бүртгэлээ');
         await getDeliveries();
-      } else {
-        messageWarning('Бүртгэл амжилтгүй');
+        return true;
       }
+      messageWarning(apiErrorMessage(apiBody(r)) ?? 'Бүртгэл амжилтгүй');
     } catch (e) {
-      messageWarning(wait);
+      debugPrint('registerAdditionalDelivery: $e');
+      messageWarning('Байршил тодорхойлж чадсангүй!');
     }
+    return false;
   }
 
-  editAdditionalDelivery(int id, String note) async {
+  /// Changes a logged visit's note (PATCH delivery/addition/). True once
+  /// it is saved.
+  Future<bool> editAdditionalDelivery(int id, String note) async {
     try {
       final data = {"note": note, 'item_id': id};
       final r = await api(Api.patch, 'delivery/addition/', body: data);
-      if (r == null) return;
+      if (r == null) {
+        messageWarning('Сервертэй холбогдож чадсангүй!');
+        return false;
+      }
       if (r.statusCode == 200 || r.statusCode == 201) {
         messageComplete('Амжилттай хадгаллаа');
         await getDeliveries();
-      } else {
-        messageWarning('Aмжилтгүй');
+        return true;
       }
+      messageWarning(apiErrorMessage(apiBody(r)) ?? 'Хадгалахад алдаа гарлаа');
     } catch (e) {
       messageWarning(wait);
     }
+    return false;
   }
 
   addPaymentToDeliveryOrder(int orderId, String payType, String value) async {
@@ -855,38 +896,27 @@ class JaggerProvider extends ChangeNotifier {
   GoogleMapController? mapController;
   double zoomIndex = 14;
   bool trafficEnabled = false;
-  // Set<Marker> markers = {};
-  Set<Marker> orderMarkers = {};
 
-  void addMarker(String icon, {required LatLng position, InfoWindow? infoWindow}) async {
-    final mid = DateTime.now().millisecondsSinceEpoch.toString();
-    orderMarkers.add(
-      Marker(
-        markerId: MarkerId(icon + mid),
-        infoWindow: infoWindow ?? InfoWindow(title: icon),
-        position: position,
-        icon: await readIcon(icon),
-      ),
+  // Trip markers (the start flag), by id so adding one again replaces it.
+  // The delivery's stops are drawn from [delivery] by the map itself.
+  final Map<String, Marker> _tripMarkers = {};
+  Set<Marker> get tripMarkers => _tripMarkers.values.toSet();
+
+  Future<void> _addTripMarker(String id, String icon, LatLng position, String title) async {
+    _tripMarkers[id] = Marker(
+      markerId: MarkerId(id),
+      position: position,
+      infoWindow: InfoWindow(title: title),
+      icon: await readIcon(icon),
     );
-    notifyListeners();
-  }
-
-  zoomIn() {
-    zoomIndex = zoomIndex + 1.0;
-    mapController?.animateCamera(CameraUpdate.zoomTo(zoomIndex));
-    notifyListeners();
-  }
-
-  zoomOut() {
-    zoomIndex = zoomIndex - 1.0;
-    mapController?.animateCamera(CameraUpdate.zoomTo(zoomIndex));
     notifyListeners();
   }
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    _framedDeliveryId = null;
     notifyListeners();
-    goToMyLocation();
+    frameDelivery();
   }
 
   /// Call from the GoogleMap-hosting widget's dispose() — the platform
@@ -903,14 +933,14 @@ class JaggerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  LatLng latLng = LatLng(47.90771, 106.88324);
-
-  void updateLatLng(LatLng valeu) {
-    latLng = valeu;
+  void setMapType(MapType type) {
+    mapType = type;
     notifyListeners();
   }
 
-  MapType mapType = MapType.terrain;
+  LatLng latLng = LatLng(47.90771, 106.88324);
+
+  MapType mapType = MapType.normal;
 
   Future<void> goToMyLocation() async {
     if (permission == null ||
@@ -931,34 +961,65 @@ class JaggerProvider extends ChangeNotifier {
     );
   }
 
-  Future gotoWithNative(LatLng value) async {
+  // The delivery the camera last framed, so refreshes (every few seconds
+  // while tracking) don't keep moving it; -1 once it went to the caller.
+  int? _framedDeliveryId;
+
+  /// Frames the active delivery's stops and the caller, once per delivery
+  /// and map unless [force]d; goes to the caller when there are no stops.
+  Future<void> frameDelivery({bool force = false}) async {
     if (mapController == null) return;
-    await mapController!.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: value, zoom: zoomIndex),
-      ),
-    );
+    final d = delivery;
+    final points = <LatLng>[
+      if (d != null)
+        for (final stop in d.stops)
+          if (stop.coordinates case final c?) LatLng(c.$1, c.$2),
+    ];
+    if (d == null || points.isEmpty) {
+      if (_framedDeliveryId != null && !force) return;
+      _framedDeliveryId = -1;
+      await goToMyLocation();
+      return;
+    }
+    if (_framedDeliveryId == d.id && !force) return;
+    _framedDeliveryId = d.id;
+    final me = currentPosition;
+    if (me != null) points.add(LatLng(me.latitude, me.longitude));
+    await _fitTo(points);
   }
 
-  double tilt = 90;
+  Future<void> _fitTo(List<LatLng> points) async {
+    final controller = mapController;
+    if (controller == null || points.isEmpty) return;
+    try {
+      if (points.length == 1) {
+        await controller.animateCamera(CameraUpdate.newLatLngZoom(points.first, 15));
+        return;
+      }
+      var south = points.first.latitude, north = south;
+      var west = points.first.longitude, east = west;
+      for (final p in points) {
+        if (p.latitude < south) south = p.latitude;
+        if (p.latitude > north) north = p.latitude;
+        if (p.longitude < west) west = p.longitude;
+        if (p.longitude > east) east = p.longitude;
+      }
+      await controller.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          LatLngBounds(southwest: LatLng(south, west), northeast: LatLng(north, east)),
+          56,
+        ),
+      );
+    } catch (e) {
+      // Before the map has a size, bounds can't be fitted; nothing lost.
+      debugPrint('fitTo: $e');
+    }
+  }
+
+  double tilt = 0;
   double bearing = 0;
-  void updateTilt(double v) {
-    tilt = v;
-    notifyListeners();
-  }
-
-  ScrollController scrollController = ScrollController();
-
-  bool loading = false;
-  setLoading(bool n) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      loading = n;
-      notifyListeners();
-    });
-  }
 
   Future reset() async {
-    routeCoords.clear();
     if (subscription != null) {
       subscription!.cancel();
       subscription = null;
@@ -969,6 +1030,11 @@ class JaggerProvider extends ChangeNotifier {
     zones.clear();
     currentPosition = null;
     delivery = null;
+    deliveriesLoaded = false;
+    deliveriesFailed = false;
+    deliveriesRefreshing = false;
+    _tripMarkers.clear();
+    _framedDeliveryId = null;
     payments.clear();
     notifyListeners();
   }
@@ -983,39 +1049,3 @@ class JaggerProvider extends ChangeNotifier {
     return rult;
   }
 }
-
-// Future<dynamic> getDeliveryLocation() async {
-//   currentPosition = await Geolocator.getCurrentPosition();
-//   final security = await Authenticator.getSecurity();
-//   if (security == null) return;
-//   try {
-//     final r = await api(Api.get, 'delivery/locations/?with_routes=true');
-//     if (r!.statusCode == 200) {
-//       final data = convertData(r);
-//       final me = (data as List).firstWhere(
-//           (element) => element['delman']['id'] == security.id,
-//           orElse: () => null);
-//       if (me == null) {
-//         return;
-//       }
-//       routeCoords = (me['routes'] as List)
-//           .map((r) => LatLng(parseDouble(r['lat']), parseDouble(r['lng'])))
-//           .toList();
-//       notifyListeners();
-//       updatePolylines();
-//     }
-//   } catch (e) {
-//     debugPrint(e.toString());
-//   } finally {
-//     notifyListeners();
-//   }
-// }
-// final text = 'Өрг: $latitude Урт: $longitude';
-// final lastNotifDate = await logService.getLastNotifDate();
-// bool hasNotLastNotid = lastNotifDate == null;
-// if (hasNotLastNotid ||
-//     (lastNotifDate != null &&
-//         now.difference(lastNotifDate) > Duration(minutes: 3))) {
-//   await FirebaseApi.local('Байршил илгээсэн', text);
-//   await logService.saveLastNotif(now);
-// }

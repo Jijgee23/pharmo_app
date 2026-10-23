@@ -5,8 +5,7 @@ class DefInputContainer extends StatelessWidget {
   final String? title;
   final Function()? ontap;
   final double? width;
-  const DefInputContainer(
-      {super.key, required this.child, this.ontap, this.title, this.width});
+  const DefInputContainer({super.key, required this.child, this.ontap, this.title, this.width});
 
   @override
   Widget build(BuildContext context) {

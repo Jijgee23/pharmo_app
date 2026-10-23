@@ -1,146 +1,48 @@
-import 'package:pharmo_app/application/app_lite.dart';
+import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/driver/ready_orders/ready_orders.dart';
+import 'package:pharmo_app/views/track_map/tracking_status_card.dart';
 
+/// The strip along the top of the map: back on a seller's pushed map, the
+/// tracking pill while location is being sent, and for VS the ready orders
+/// and the basket.
 class MapHeading extends StatelessWidget {
   final bool isSeller;
-  final bool showTracking;
-  const MapHeading({
-    super.key,
-    required this.isSeller,
-    required this.showTracking,
-  });
+  const MapHeading({super.key, required this.isSeller});
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      top: 0,
-      right: 16,
-      left: 16,
-      child: SafeArea(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            if (isSeller)
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+    final vanSales = Authenticator.security?.isVanSales ?? false;
+    return Consumer<JaggerProvider>(
+      builder: (context, jagger, _) => SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
+              if (isSeller)
+                AppBarButton(
+                  icon: Icons.arrow_back_ios_new_rounded,
+                  tooltip: 'Буцах',
+                  onTap: () => Navigator.maybePop(context),
                 ),
-                child: FloatingActionButton(
-                  heroTag: 'backST',
-                  mini: true,
-                  elevation: 0,
-                  onPressed: () => Navigator.of(context).pop(),
-                  backgroundColor: Colors.white,
-                  child: const Icon(
-                    Icons.arrow_back_ios_new,
-                    color: Colors.black,
-                    size: 18,
-                  ),
+              Expanded(
+                child: Align(
+                  alignment: vanSales ? Alignment.topLeft : Alignment.topCenter,
+                  child: jagger.isTracking ? const TrackingPill() : const SizedBox.shrink(),
                 ),
-              )
-            else
-              const SizedBox(width: 40),
-            if (showTracking) const _LiveTrackingIndicator(),
-            const SizedBox(width: 40),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LiveTrackingIndicator extends StatefulWidget {
-  const _LiveTrackingIndicator();
-
-  @override
-  State<_LiveTrackingIndicator> createState() => _LiveTrackingIndicatorState();
-}
-
-class _LiveTrackingIndicatorState extends State<_LiveTrackingIndicator>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _dotAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    )..repeat(reverse: true);
-
-    _dotAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.teal.withOpacity(0.2),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          border: Border.all(
-            color: Colors.teal.withOpacity(0.3),
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedBuilder(
-              animation: _dotAnimation,
-              builder: (context, child) {
-                return Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.teal.withOpacity(_dotAnimation.value),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.teal.withOpacity(0.4 * _dotAnimation.value),
-                        blurRadius: 6 * _dotAnimation.value,
-                        spreadRadius: 1 * _dotAnimation.value,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              'LIVE',
-              style: TextStyle(
-                color: Colors.teal,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-                letterSpacing: 1,
               ),
-            ),
-          ],
+              if (vanSales) ...[
+                AppBarButton(
+                  icon: Icons.checklist_rounded,
+                  tooltip: 'Бэлэн захиалгууд',
+                  onTap: () => goto(const ReadyOrdersPage()),
+                ),
+                const AppBarCartButton(),
+              ],
+            ],
+          ),
         ),
       ),
     );

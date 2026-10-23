@@ -58,43 +58,13 @@ class _PrintPrevievState extends State<PrintPreviev> {
                   ),
                   const SizedBox(height: 10),
                   if (printer.devices.isEmpty)
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          spacing: 12,
-                          children: [
-                            Text(
-                              'Төхөөрөмж олдсонгүй',
-                              style: TextStyle(color: Colors.grey.shade500),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => printer.scanDevices(),
-                              style: ElevatedButton.styleFrom(
-                                maximumSize: Size(120, 40),
-                                minimumSize: Size(120, 32),
-                                backgroundColor: AppColors.main,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Icon(Icons.refresh, color: white),
-                                  Text(
-                                    'Хайх',
-                                    style: TextStyle(
-                                        color: white,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
+                    EmptyState(
+                      icon: Icons.bluetooth_disabled_rounded,
+                      title: 'Төхөөрөмж олдсонгүй',
+                      message: 'Принтерээ асааж, утастайгаа хослуулсан эсэхээ шалгана уу.',
+                      actionLabel: 'Хайх',
+                      onAction: () => printer.scanDevices(),
+                      compact: true,
                     )
                   else
                     ...printer.devices.map((device) {

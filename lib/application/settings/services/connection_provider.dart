@@ -25,7 +25,12 @@ class ConnectionProvider extends ChangeNotifier {
         bool isSharingLocation = await Authenticator.hasTrack();
 
         if (isSharingLocation) {
-          final security = Authenticator.security!;
+          // The saved track outlives the session: it is only cleared when
+          // the delivery/route/visit ends, not on logout or when an expired
+          // session is dropped. With nobody signed in there is nothing to
+          // log or sync.
+          final security = Authenticator.security;
+          if (security == null) return;
           final logType = security.isRepresentative
               ? 'Уулзалт'
               : security.isSaler
@@ -49,10 +54,14 @@ class ConnectionProvider extends ChangeNotifier {
   bool isDialogOpen = false;
 
   void _showNetworkDialog() {
+    // No navigator yet (the change came in during start-up): the next
+    // change tries again.
+    final context = GlobalKeys.navigatorKey.currentContext;
+    if (context == null) return;
     isDialogOpen = true;
     showDialog(
       barrierDismissible: false,
-      context: GlobalKeys.navigatorKey.currentContext!,
+      context: context,
       builder: (context) {
         return PopScope(
           canPop: false,
@@ -83,9 +92,9 @@ class ConnectionProvider extends ChangeNotifier {
   }
 
   void _hideNetworkDialog() {
-    if (isDialogOpen) {
-      Navigator.of(GlobalKeys.navigatorKey.currentContext!).pop();
-      isDialogOpen = false;
-    }
+    final context = GlobalKeys.navigatorKey.currentContext;
+    if (!isDialogOpen || context == null) return;
+    Navigator.of(context).pop();
+    isDialogOpen = false;
   }
 }

@@ -150,46 +150,23 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildEmptyState() {
-    return ListView(
-      // RefreshIndicator ажиллахын тулд ListView ашиглав
-      children: [
-        SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-        const EmptyBasket(), // Таны өмнөх Empty State widget
-        SizedBox(height: 20),
-        Row(
-          children: [
-            Spacer(),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  final home = context.read<HomeProvider>();
-                  final user = Authenticator.security;
-                  home.changeIndex(user!.isPharmacist
-                      ? 0
-                      : user.isVanSales
-                          ? 1
-                          : 2);
-                  home.setHidingOnScroll(false);
-                  gotoRemoveUntil(
-                      user.isVanSales ? VanSalesIndex() : IndexPharma());
-                },
-                style: ElevatedButton.styleFrom(
-                  maximumSize: Size(150, 48),
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text('Бараа үзэх', style: TextStyle(fontSize: 14)),
-                    Icon(Icons.chevron_right_rounded, color: white),
-                  ],
-                ),
-              ),
-            ),
-            Spacer(),
-          ],
-        )
-      ],
+    return EmptyState(
+      icon: Icons.shopping_cart_outlined,
+      title: 'Сагс хоосон байна',
+      message: 'Бараа сонгоод сагсандаа нэмээрэй.',
+      actionLabel: 'Бараа үзэх',
+      actionIcon: Icons.storefront_outlined,
+      onAction: () {
+        final home = context.read<HomeProvider>();
+        final user = Authenticator.security;
+        home.changeIndex(user!.isPharmacist
+            ? 0
+            : user.isVanSales
+                ? 1
+                : 2);
+        home.setHidingOnScroll(false);
+        gotoRemoveUntil(user.isVanSales ? VanSalesIndex() : IndexPharma());
+      },
     );
   }
 

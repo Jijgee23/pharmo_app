@@ -1,5 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/roles/driver/ready_orders/ready_orders.dart';
+import 'package:pharmo_app/roles/driver/delivery_history/delivery_history.dart';
 import 'package:pharmo_app/views/home/home.dart';
 import 'package:pharmo_app/views/order_history/order_history.dart';
 import 'package:pharmo_app/views/profile/delivery_profile.dart';
@@ -25,26 +25,20 @@ class _VanSalesIndexState extends State<VanSalesIndex> {
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
       builder: (context, home, _) {
-        final onMapTab = home.currentIndex == 0;
+        final showCart = home.currentIndex != 0 && _pages[home.currentIndex] is! ShipmentHistory;
         return Scaffold(
           extendBody: true,
           body: Stack(
             children: [
               _pages[home.currentIndex],
-              AnimatedPositioned(
-                duration: Duration(milliseconds: 300),
-                bottom: 100,
-                right: 10,
-                child: SafeArea(
-                  child: Column(
-                    spacing: 10,
-                    children: [
-                      if (onMapTab) _ReadyOrdersJumpButton(),
-                      CartIcon(),
-                    ],
-                  ),
+              // The map has the basket (and the ready orders) in its own top
+              // bar, and it has no business over the delivery history.
+              if (showCart)
+                Positioned(
+                  bottom: 100,
+                  right: 10,
+                  child: SafeArea(child: CartIcon()),
                 ),
-              ),
               AnimatedPositioned(
                 duration: Duration(milliseconds: 300),
                 bottom: 0,
@@ -59,39 +53,22 @@ class _VanSalesIndexState extends State<VanSalesIndex> {
     );
   }
 
-  final List _pages = [TrackMap(), Home(), OrderHistory(), DeliveryProfile()];
+  final List _pages = [
+    TrackMap(),
+    Home(),
+    OrderHistory(),
+    ShipmentHistory(asTab: true),
+    DeliveryProfile(),
+  ];
 
   List<String> icons = [
     AssetIcon.marker,
     AssetIcon.category,
     AssetIcon.orderHistory,
+    AssetIcon.boxCheck,
     AssetIcon.user,
   ];
 
-  List<String> labels = ['Map', 'Бараа', 'Захиалгууд', 'Профайл'];
-}
-
-class _ReadyOrdersJumpButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: 'VS_READY_ORDERS',
-      shape: const CircleBorder(),
-      backgroundColor: Colors.white,
-      onPressed: () => goto(const ReadyOrdersPage()),
-      child: const Icon(Icons.checklist_rounded, color: primary),
-    );
-  }
-}
-
-class ReadyOrdersPage extends StatelessWidget {
-  const ReadyOrdersPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const SideAppBar(text: 'Бэлэн захиалгууд'),
-      body: const ReadyOrders(showHeader: false),
-    );
-  }
+  // "Түүх" would read as the order history next to Захиалгууд.
+  List<String> labels = ['Map', 'Бараа', 'Захиалгууд', 'Түгээлт', 'Профайл'];
 }

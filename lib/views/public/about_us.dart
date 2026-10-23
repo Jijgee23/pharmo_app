@@ -10,20 +10,19 @@ class AboutUs extends StatelessWidget {
   Widget build(BuildContext context) {
     // Сошиал холбоосууд
     final List<Map<String, String>> socials = [
-      // {
-      //   'url': 'https://www.facebook.com/infosystems.mn',
-      //   'icon':
-      //       'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_2023.png/600px-Facebook_Logo_2023.png',
-      // },
+      {
+        'url': 'https://www.facebook.com/infosystems.mn',
+        'icon': 'https://cdn.pixabay.com/photo/2021/08/16/08/55/facebook-6549798_1280.jpg',
+      },
       {
         'url': 'https://www.youtube.com/',
         'icon':
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/1024px-YouTube_full-color_icon_%282017%29.svg.png',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/YouTube_play_button_square_%282013-2017%29.svg/3840px-YouTube_play_button_square_%282013-2017%29.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail',
       },
       {
         'url': 'https://x.com/',
         'icon':
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/X_logo_2023.svg/600px-X_logo_2023.svg.png',
+            'https://img.magnific.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg?semt=ais_hybrid&w=740&q=80',
       },
     ];
 
@@ -92,8 +91,7 @@ class AboutUs extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 20,
-              children:
-                  socials.map((social) => _buildSocialItem(social)).toList(),
+              children: socials.map((social) => _buildSocialItem(social)).toList(),
             ),
 
             const SizedBox(height: 40),
@@ -124,8 +122,7 @@ class AboutUs extends StatelessWidget {
         // const SizedBox(height: 16),
         const Text(
           'ИНФО-СИСТЕМС ХХК',
-          style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1),
         ),
         const SizedBox(height: 4),
         Text(
@@ -152,16 +149,13 @@ class AboutUs extends StatelessWidget {
             children: [
               Icon(icon, color: primary, size: 20),
               const SizedBox(width: 8),
-              Text(title,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 15)),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
             ],
           ),
           const SizedBox(height: 10),
           Text(
             text,
-            style: TextStyle(
-                color: Colors.grey.shade700, height: 1.5, fontSize: 13),
+            style: TextStyle(color: Colors.grey.shade700, height: 1.5, fontSize: 13),
           ),
         ],
       ),
@@ -172,25 +166,22 @@ class AboutUs extends StatelessWidget {
       {required VoidCallback onTap, bool isLast = false}) {
     return InkWell(
       onTap: onTap,
-      borderRadius: isLast
-          ? const BorderRadius.vertical(bottom: Radius.circular(16))
-          : BorderRadius.zero,
+      borderRadius:
+          isLast ? const BorderRadius.vertical(bottom: Radius.circular(16)) : BorderRadius.zero,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  color: Colors.grey.shade50, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: Colors.grey.shade50, shape: BoxShape.circle),
               child: Icon(icon, size: 18, color: primary),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 text,
-                style:
-                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
               ),
             ),
             const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey),
@@ -218,15 +209,13 @@ class AboutUs extends StatelessWidget {
         alignment: Alignment.centerLeft,
         child: Text(
           title,
-          style: const TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey),
         ),
       ),
     );
   }
 
-  Widget _buildDivider() =>
-      Divider(height: 1, indent: 60, color: Colors.grey.shade100);
+  Widget _buildDivider() => Divider(height: 1, indent: 60, color: Colors.grey.shade100);
 
   void _openMap(BuildContext context) {
     goto(Scaffold(

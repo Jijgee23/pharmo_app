@@ -1,63 +1,149 @@
 import 'package:pharmo_app/application/application.dart';
 
+/// How GET seller/report/ buckets the totals. [key] is both the `by` value
+/// sent and the field each row is labelled by.
+enum ReportGrouping {
+  day('day', 'Өдрөөр', 'Өдөр'),
+  month('month', 'Сараар', 'Сар'),
+  quarter('quarter', 'Улирлаар', 'Улирал'),
+  year('year', 'Жилээр', 'Жил');
+
+  final String key, label, column;
+
+  const ReportGrouping(this.key, this.label, this.column);
+}
+
+/// One bucket of the report: its period, the sales total and the number of
+/// orders.
+class ReportRow {
+  final String period;
+  final double total;
+  final int count;
+
+  const ReportRow(this.period, this.total, this.count);
+
+  factory ReportRow.fromJson(Map<String, dynamic> json, ReportGrouping by) => ReportRow(
+        json[by.key]?.toString() ?? '',
+        parseDouble(json['total']),
+        parseInt(json['count']),
+      );
+}
+
 class ReportProvider extends ChangeNotifier {
-  DateTime currentDate = DateTime.now().subtract(Duration(days: 30));
-  DateTime currentDate2 = DateTime.now();
-  List<dynamic> report = [];
-  setReport(dynamic newReports) {
-    report = newReports;
-    notifyListeners();
+  /// The processes seller/report/ filters by, in the order the API wants
+  /// them sent so the same selection always makes the same request.
+  static const processes = [
+    OrderProcess.newOrder,
+    OrderProcess.packing,
+    OrderProcess.packed,
+    OrderProcess.onDelivery,
+    OrderProcess.delivered,
+    OrderProcess.accepted,
+    OrderProcess.closed,
+    OrderProcess.returned,
+  ];
+
+  static DateTime get _thisMonth {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month);
   }
+
+  /// First and last month of the range, both inclusive; the API reads only
+  /// their year and month.
+  DateTime start = DateTime(_thisMonth.year, _thisMonth.month - 1);
+  DateTime end = _thisMonth;
+  ReportGrouping grouping = ReportGrouping.day;
+
+  /// Empty means every process.
+  Set<OrderProcess> selectedProcesses = {};
+
+  List<ReportRow> rows = [];
+  bool loading = false;
+
+  // Bumped by every fetch, so an older answer arriving late is dropped.
+  int _request = 0;
+
+  double get total => rows.fold(0, (sum, r) => sum + r.total);
+  int get count => rows.fold(0, (sum, r) => sum + r.count);
 
   void reset() {
-    currentDate = DateTime.now();
-    currentDate2 = DateTime.now();
-    report.clear();
+    _request++;
+    start = DateTime(_thisMonth.year, _thisMonth.month - 1);
+    end = _thisMonth;
+    grouping = ReportGrouping.day;
+    selectedProcesses = {};
+    rows = [];
+    loading = false;
     notifyListeners();
   }
 
-  Future getReports(String query) async {
-    String e =
-        'seller/report/?by=$query&year=${currentDate.year}&month=${currentDate.month}&year2=${currentDate2.year}&month2=${currentDate2.month}';
+  String get _endpoint {
+    final process = processes.where(selectedProcesses.contains).map((p) => p.code).join(',');
+    return 'seller/report/?year=${start.year}&month=${start.month}'
+        '&year2=${end.year}&month2=${end.month}&by=${grouping.key}'
+        '${process.isEmpty ? '' : '&process=$process'}';
+  }
+
+  Future<void> getReports() async {
+    final request = ++_request;
+    final by = grouping;
+    loading = true;
+    notifyListeners();
     try {
-      final r = await api(Api.get, e);
-      if (r == null) return;
+      final r = await api(Api.get, _endpoint);
+      if (request != _request || r == null) return;
       if (r.statusCode == 200) {
-        List<dynamic> data = convertData(r);
-        setReport(data);
-        notifyListeners();
+        rows = [for (final row in convertData(r) as List) ReportRow.fromJson(row, by)];
       } else {
-        report.clear();
-        notifyListeners();
+        rows = [];
+        messageWarning(apiErrorMessage(apiBody(r)) ?? wait);
       }
     } catch (e) {
       debugPrint(e.toString());
-      messageError(wait);
+      if (request == _request) messageError(wait);
+    } finally {
+      if (request == _request) {
+        loading = false;
+        notifyListeners();
+      }
     }
-    notifyListeners();
   }
 
-  setCurrentDate(DateTime newDate, {bool isStart = true}) async {
-    final now = DateTime.now();
-    if (newDate.isAfter(now)) {
-      messageWarning('Огноо зөв сонгоно уу!');
+  /// Sets the first ([isStart]) or last month of the range, moving the other
+  /// end along when it would otherwise be crossed, and refetches.
+  Future<void> setMonth(DateTime month, {required bool isStart}) async {
+    month = DateTime(month.year, month.month);
+    if (month.isAfter(_thisMonth)) {
+      messageWarning('Ирээдүйн сар сонгох боломжгүй');
       return;
     }
     if (isStart) {
-      if (newDate.isAfter(currentDate2)) {
-        messageWarning('Огноо зөв сонгоно уу!');
-        return;
-      }
-      currentDate = newDate;
+      start = month;
+      if (end.isBefore(month)) end = month;
+    } else {
+      end = month;
+      if (start.isAfter(month)) start = month;
+    }
+    await getReports();
+  }
 
-      notifyListeners();
-      return;
-    }
-    if (newDate.isBefore(currentDate)) {
-      messageWarning('Огноо зөв сонгоно уу!');
-      return;
-    }
-    currentDate2 = newDate;
-    notifyListeners();
+  Future<void> setGrouping(ReportGrouping value) async {
+    if (value == grouping) return;
+    grouping = value;
+    await getReports();
+  }
+
+  /// Adds or removes [process]; picking every one is the same as none.
+  Future<void> toggleProcess(OrderProcess process) async {
+    final next = {...selectedProcesses};
+    if (!next.remove(process)) next.add(process);
+    selectedProcesses = next.length == processes.length ? {} : next;
+    await getReports();
+  }
+
+  Future<void> clearProcesses() async {
+    if (selectedProcesses.isEmpty) return;
+    selectedProcesses = {};
+    await getReports();
   }
 }

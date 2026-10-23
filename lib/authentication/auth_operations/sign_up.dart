@@ -1,5 +1,5 @@
-import 'package:pharmo_app/authentication/login/auth_text.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/authentication/widgets/auth_widgets.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -13,11 +13,12 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController pass = TextEditingController();
   final TextEditingController phone = TextEditingController();
   final TextEditingController passConfirm = TextEditingController();
-  final TextEditingController otp = TextEditingController();
 
   final _formKey = GlobalKey<FormState>(); // Validation хийхэд хэрэгтэй
   bool showPasss = false;
   bool otpSent = false;
+  bool loading = false;
+  String otp = '';
 
   @override
   void dispose() {
@@ -25,119 +26,102 @@ class _SignUpState extends State<SignUp> {
     pass.dispose();
     phone.dispose();
     passConfirm.dispose();
-    otp.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
+    return AuthScaffold(
+      children: [
+        AuthHeader(
+          leading: AuthIconTile(
+            icon: otpSent ? Icons.mark_email_read_rounded : Icons.person_add_alt_1_rounded,
+          ),
+          title: 'Бүртгүүлэх',
+          subtitle: otpSent
+              ? AuthSubtitle(
+                  'Баталгаажуулах кодыг ${ema.text.trim()} хаяг руу илгээлээ.',
+                  highlight: ema.text.trim(),
+                )
+              : const AuthSubtitle('Шинэ бүртгэл үүсгэхийн тулд мэдээллээ оруулна уу.'),
+        ),
+        const SizedBox(height: 24),
+        AuthStepIndicator(
+          secondStep: otpSent,
+          firstLabel: 'Мэдээлэл',
+          secondLabel: 'Баталгаажуулалт',
+        ),
+        const SizedBox(height: 28),
+        AuthStepSwitcher(child: otpSent ? _otpStep() : _infoStep()),
+      ],
+    );
+  }
 
-    return Scaffold(
-      body: SingleChildScrollView(
+  Widget _infoStep() {
+    final visibility = PasswordVisibilityButton(
+      visible: showPasss,
+      onTap: () => setState(() => showPasss = !showPasss),
+    );
+    return Form(
+      key: _formKey,
+      child: AutofillGroup(
         child: Column(
+          key: const ValueKey('info-step'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 1. Header хэсэг
-            Stack(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: context.theme.primaryColor.withOpacity(0.1),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40),
-                    ),
-                  ),
-                  child: Center(
-                    child: Image.asset('assets/picon.png', width: 100),
-                  ),
-                ),
-                const Positioned(top: 50, left: 15, child: ChevronBack()),
-              ],
+            const AuthLabel('И-мейл хаяг'),
+            CustomTextField(
+              controller: ema,
+              hintText: 'example@mail.com',
+              prefix: Icons.email_outlined,
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+              validator: (v) => validateEmail(v),
             ),
-
-            // 2. Form хэсэг
-            Padding(
-              padding: const EdgeInsets.all(25.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const AuthText('Бүртгүүлэх'),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Шинэ бүртгэл үүсгэхийн тулд мэдээллээ оруулна уу.',
-                      style:
-                          TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                    ),
-                    const SizedBox(height: 25),
-
-                    CustomTextField(
-                      controller: ema,
-                      hintText: 'Имейл хаяг',
-                      prefix: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: validateEmail,
-                    ),
-                    const SizedBox(height: 15),
-
-                    CustomTextField(
-                      controller: phone,
-                      hintText: 'Утасны дугаар',
-                      prefix: Icons.phone_outlined,
-                      keyboardType: TextInputType.phone,
-                      validator: validatePhone,
-                    ),
-                    const SizedBox(height: 15),
-
-                    CustomTextField(
-                      controller: pass,
-                      hintText: 'Нууц үг',
-                      obscureText: !showPasss,
-                      prefix: Icons.lock_outline,
-                      suffixIcon: _viewIcon(),
-                      validator: validatePassword,
-                    ),
-                    const SizedBox(height: 15),
-
-                    CustomTextField(
-                      controller: passConfirm,
-                      hintText: 'Нууц үг давтах',
-                      obscureText: !showPasss,
-                      prefix: Icons.lock_reset,
-                      suffixIcon: _viewIcon(),
-                      validator: (v) =>
-                          v != pass.text ? 'Нууц үг таарахгүй байна' : null,
-                    ),
-
-                    if (otpSent) ...[
-                      const SizedBox(height: 15),
-                      CustomTextField(
-                        controller: otp,
-                        hintText: 'Батлагаажуулах код',
-                        prefix: Icons.vibration_outlined,
-                        keyboardType: TextInputType.number,
-                      ),
-                    ],
-
-                    const SizedBox(height: 30),
-
-                    // 3. Үйлдэл хийх товч
-                    otpSent
-                        ? CustomButton(
-                            text: 'Бүртгэл баталгаажуулах',
-                            ontap: () => confirm(authController),
-                          )
-                        : CustomButton(
-                            text: 'Батлагаажуулах код авах',
-                            ontap: () => getOtp(authController),
-                          ),
-                  ],
-                ),
-              ),
+            const SizedBox(height: 18),
+            const AuthLabel('Утасны дугаар'),
+            CustomTextField(
+              controller: phone,
+              hintText: '99112233',
+              prefix: Icons.phone_outlined,
+              keyboardType: TextInputType.phone,
+              autofillHints: const [AutofillHints.telephoneNumber],
+              validator: (v) => validatePhone(v),
+            ),
+            const SizedBox(height: 18),
+            const AuthLabel('Нууц үг'),
+            CustomTextField(
+              controller: pass,
+              hintText: 'Нууц үг',
+              obscureText: !showPasss,
+              prefix: Icons.lock_outline_rounded,
+              suffixIcon: visibility,
+              keyboardType: TextInputType.visiblePassword,
+              autofillHints: const [AutofillHints.newPassword],
+              validator: (v) => validatePassword(v),
+            ),
+            const SizedBox(height: 14),
+            CustomTextField(
+              controller: passConfirm,
+              hintText: 'Нууц үг давтах',
+              obscureText: !showPasss,
+              prefix: Icons.lock_reset_rounded,
+              suffixIcon: visibility,
+              keyboardType: TextInputType.visiblePassword,
+              validator: (v) => v != pass.text ? 'Нууц үг таарахгүй байна' : null,
+              onSubmitted: (_) => _getFirstOtp(),
+            ),
+            const SizedBox(height: 28),
+            AuthPrimaryButton(
+              text: 'Баталгаажуулах код авах',
+              onTap: _getFirstOtp,
+              loading: loading,
+            ),
+            const SizedBox(height: 24),
+            AuthPrompt(
+              question: 'Бүртгэлтэй юу? ',
+              action: 'Нэвтрэх',
+              onTap: loading ? null : () => Navigator.pop(context),
             ),
           ],
         ),
@@ -145,42 +129,92 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  IconButton _viewIcon() {
-    return IconButton(
-      onPressed: () => setState(() => showPasss = !showPasss),
-      icon: Icon(showPasss ? Icons.visibility : Icons.visibility_off,
-          color: primary.withOpacity(0.6)),
+  Widget _otpStep() {
+    return Column(
+      key: const ValueKey('otp-step'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const AuthLabel('Баталгаажуулах код'),
+        OtpInput(onChanged: (pin) => otp = pin, onResend: getOtp),
+        const SizedBox(height: 28),
+        AuthPrimaryButton(text: 'Бүртгэл баталгаажуулах', onTap: confirm, loading: loading),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: loading ? null : () => setState(() => otpSent = false),
+          icon: const Icon(Icons.edit_outlined, size: 18),
+          label: const Text('Мэдээлэл засах'),
+          style: TextButton.styleFrom(foregroundColor: grey600),
+        ),
+      ],
     );
   }
 
-  // Логик хэсэгт нэмсэн засварууд
-  getOtp(AuthController authController) async {
-    if (_formKey.currentState!.validate()) {
-      dynamic res = await authController.signUpGetOtp(ema.text, phone.text);
-      if (res['errorType'] == 1) {
-        setState(() => otpSent = true);
+  Future<void> _getFirstOtp() async {
+    if (loading || !(_formKey.currentState?.validate() ?? false)) return;
+    FocusScope.of(context).unfocus();
+    setState(() => loading = true);
+    try {
+      // On a cooldown the code sent moments ago is still valid, so the code
+      // step is shown either way.
+      final request = await _requestOtp();
+      if (request != OtpRequest.failed && mounted) {
+        setState(() {
+          otp = '';
+          otpSent = true;
+        });
       }
-      messageComplete(res['message']);
+    } finally {
+      if (mounted) setState(() => loading = false);
     }
   }
 
-  confirm(AuthController authController) async {
-    if (_formKey.currentState!.validate() && otp.text.isNotEmpty) {
-      dynamic res = await authController.register(
-        email: ema.text,
-        phone: phone.text,
-        otp: otp.text,
-        password: pass.text,
-      );
-      if (res['errorType'] == 1) {
+  // Код дахин илгээх
+  Future<bool> getOtp() async => await _requestOtp() == OtpRequest.sent;
+
+  // Код авах
+  Future<OtpRequest> _requestOtp() async {
+    dynamic res = await context
+        .read<AuthController>()
+        .signUpGetOtp(ema.text.trim(), phone.text.trim());
+    // null: the request never got an answer, and the user was already told why.
+    if (res == null) return OtpRequest.failed;
+    switch (res['errorType']) {
+      case 1:
         messageComplete(res['message']);
-        if (!mounted) return;
+        return OtpRequest.sent;
+      case 4:
+        messageWarning(res['message']);
+        return OtpRequest.cooldown;
+      default:
+        messageWarning(res['message']);
+        return OtpRequest.failed;
+    }
+  }
+
+  Future<void> confirm() async {
+    if (loading) return;
+    if (otp.length != OtpInput.length) {
+      messageWarning('Баталгаажуулах кодоо бүрэн оруулна уу!');
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    setState(() => loading = true);
+    try {
+      dynamic res = await context.read<AuthController>().register(
+            email: ema.text.trim(),
+            phone: phone.text.trim(),
+            otp: otp,
+            password: pass.text,
+          );
+      if (!mounted) return;
+      if (res != null && res['errorType'] == 1) {
+        messageComplete(res['message']);
         Navigator.pop(context);
       } else {
-        messageWarning(res['message']);
+        messageWarning(res?['message'] ?? 'Алдаа гарлаа');
       }
-    } else if (otp.text.isEmpty) {
-      messageWarning('Баталгаажуулах код оруулна уу!');
+    } finally {
+      if (mounted) setState(() => loading = false);
     }
   }
 }

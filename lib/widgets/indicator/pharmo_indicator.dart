@@ -14,8 +14,7 @@ class PharmoIndicator extends StatefulWidget {
   State<PharmoIndicator> createState() => _PharmoIndicatorState();
 }
 
-class _PharmoIndicatorState extends State<PharmoIndicator>
-    with SingleTickerProviderStateMixin {
+class _PharmoIndicatorState extends State<PharmoIndicator> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override

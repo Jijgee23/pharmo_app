@@ -9,7 +9,7 @@ class CustomTextField extends StatefulWidget {
   final bool? isPassword;
   final bool enabled;
   final bool filled;
-  final IconButton? suffixIcon;
+  final Widget? suffixIcon;
   final Iterable<String>? autofillHints;
   final FocusNode? focusNode;
   final TextAlign? align;

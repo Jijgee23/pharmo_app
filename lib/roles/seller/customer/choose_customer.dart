@@ -1,4 +1,5 @@
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/seller/customer/customer_listing.dart';
 
 class ChooseCustomer extends StatefulWidget {
   const ChooseCustomer({super.key});
@@ -24,8 +25,11 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    // Starts fresh on every open, in its own list: the customers tab keeps
+    // whatever it was showing.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PharmProvider>().fetchCustomers();
+      _listing.reset();
+      _listing.search();
     });
   }
 
@@ -39,9 +43,11 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      context.read<PharmProvider>().fetchMoreCustomers();
+      _listing.fetchMore();
     }
   }
+
+  CustomerListing get _listing => context.read<PharmProvider>().pickerCustomers;
 
   void setFilter(String v) {
     setState(() {
@@ -49,16 +55,14 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
       filter =
           v == 'Нэрээр' ? 'name' : (v == 'Утасны дугаараар' ? 'phone' : 'rn');
     });
+    // Re-run a search already typed, now matched by the new type.
+    if (query.text.trim().isNotEmpty) _listing.search(type: filter);
   }
 
-  void _onSearch(String v, PharmProvider pp) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (v.isEmpty) {
-        await pp.fetchCustomers();
-      } else {
-        await pp.fetchCustomers(type: filter, value: v);
-      }
-    });
+  void _onSearch(String v) {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _listing.search(type: filter, value: v),
+    );
   }
 
   @override
@@ -75,7 +79,7 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
             padding: const EdgeInsets.only(right: 16),
             child: ModernField(
               controller: query,
-              onChanged: (v) => _onSearch(v, provider),
+              onChanged: _onSearch,
               hint: '$selectedFilter хайх',
               suffixIcon: IconButton(
                 icon: const Icon(Icons.tune_rounded, size: 18),
@@ -110,18 +114,19 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
                 ),
               ),
             Expanded(
-              child: provider.filteredCustomers.isEmpty &&
-                      !provider.fetchingMore
+              child: provider.pickerCustomers.items.isEmpty &&
+                      !provider.pickerCustomers.fetchingMore
                   ? _emptyState()
                   : ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                      itemCount: provider.filteredCustomers.length + 1,
+                      itemCount: provider.pickerCustomers.items.length + 1,
                       itemBuilder: (context, index) {
-                        if (index == provider.filteredCustomers.length) {
-                          return _footer(provider);
+                        final listing = provider.pickerCustomers;
+                        if (index == listing.items.length) {
+                          return _footer(listing);
                         }
-                        return _customerItem(provider.filteredCustomers[index]);
+                        return _customerItem(listing.items[index]);
                       },
                     ),
             ),
@@ -178,19 +183,19 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
     );
   }
 
-  Widget _footer(PharmProvider pp) {
-    if (pp.fetchingMore) {
+  Widget _footer(CustomerListing listing) {
+    if (listing.fetchingMore) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
         child: Center(child: CircularProgressIndicator.adaptive()),
       );
     }
-    if (!pp.hasMore && pp.filteredCustomers.isNotEmpty) {
+    if (!listing.hasMore && listing.items.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Center(
           child: Text(
-            'Нийт ${pp.totalCount} харилцагч',
+            'Нийт ${listing.totalCount} харилцагч',
             style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
           ),
         ),
@@ -200,19 +205,10 @@ class _ChooseCustomerState extends State<ChooseCustomer> {
   }
 
   Widget _emptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 12,
-        children: [
-          Icon(Icons.person_off_outlined,
-              size: 56, color: Colors.grey.shade300),
-          Text(
-            'Харилцагч олдсонгүй',
-            style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-          ),
-        ],
-      ),
+    return const EmptyState(
+      icon: Icons.person_search_rounded,
+      title: 'Харилцагч олдсонгүй',
+      message: 'Хайлтын утга эсвэл төрлөө өөрчлөөд дахин оролдоно уу.',
     );
   }
 

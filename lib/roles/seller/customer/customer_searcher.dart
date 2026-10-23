@@ -1,6 +1,9 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/roles/seller/customer/add_customer.dart';
+import 'package:pharmo_app/roles/seller/customer/customer_listing.dart';
 
+/// Search box of the customers tab. Its text and search type are the tab's
+/// [PharmProvider.customers] search, so they come back with the tab.
 class CustomerSearcher extends StatefulWidget {
   const CustomerSearcher({super.key});
 
@@ -9,16 +12,20 @@ class CustomerSearcher extends StatefulWidget {
 }
 
 class _CustomerSearcherState extends State<CustomerSearcher> {
-  String selectedFilter = 'Нэрээр';
-  String filter = 'name';
-  final TextEditingController controller = TextEditingController();
-  final List<String> filters = ['Нэрээр', 'Утасны дугаараар', 'Регистрийн дугаараар'];
+  late final CustomerListing _listing;
+  late final TextEditingController controller;
 
-  void setFilter(String v) {
-    setState(() {
-      selectedFilter = v;
-      filter = v == 'Нэрээр' ? 'name' : (v == 'Утасны дугаараар' ? 'phone' : 'rn');
-    });
+  @override
+  void initState() {
+    super.initState();
+    _listing = context.read<PharmProvider>().customers;
+    controller = TextEditingController(text: _listing.searchValue);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -30,8 +37,10 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
           Expanded(
             child: ModernField(
               controller: controller,
-              onChanged: (v) => _onSearch(v, pp),
-              hint: '$selectedFilter хайх',
+              onChanged: _onSearch,
+              hint: '${CustomerListing.searchTypes[_listing.searchType]} хайх',
+              keyboardType:
+                  _listing.searchType == 'name' ? TextInputType.text : TextInputType.number,
               suffixIcon: IconButton(
                 onPressed: _setFilter,
                 icon: const Icon(Icons.tune_rounded, size: 18),
@@ -41,7 +50,7 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
           ModernIcon(
             iconData: Icons.person_add_alt_1_rounded,
             color: const Color(0xFF00897B),
-            onPressed: () => goto(AddCustomerScreen()),
+            onPressed: () => goto(const CustomerFormScreen()),
           ),
         ],
       ),
@@ -52,23 +61,25 @@ class _CustomerSearcherState extends State<CustomerSearcher> {
     mySheet(
       isDismissible: true,
       title: 'Хайлтын төрөл сонгоно уу',
-      children: filters
-          .map((e) => SelectedFilter(
-                selected: e == selectedFilter,
-                caption: e,
-                onSelect: () => setFilter(e),
-              ))
-          .toList(),
+      children: [
+        for (final MapEntry(key: type, value: label) in CustomerListing.searchTypes.entries)
+          SelectedFilter(
+            selected: type == _listing.searchType,
+            caption: label,
+            onSelect: () {
+              if (_listing.searchValue.trim().isEmpty) {
+                // Nothing to search by yet: only the box's label changes.
+                setState(() => _listing.searchType = type);
+              } else {
+                _listing.search(type: type);
+              }
+            },
+          ),
+      ],
     );
   }
 
-  void _onSearch(String value, PharmProvider pp) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (value.isEmpty) {
-        await pp.fetchCustomers();
-      } else {
-        await pp.fetchCustomers(type: filter, value: value);
-      }
-    });
+  void _onSearch(String value) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _listing.search(value: value));
   }
 }

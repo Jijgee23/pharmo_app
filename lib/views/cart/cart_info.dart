@@ -14,16 +14,6 @@ class _CartInfoState extends State<CartInfo> {
     final cartProvider = Provider.of<CartProvider>(context);
     final basket = cartProvider.basket;
 
-    void clearBasket() async {
-      final confirmed = await confirmDialog(
-        title: 'Захиалгын сагсыг хоослох уу?',
-      );
-      if (confirmed) {
-        await cartProvider.clearBasket();
-        await cartProvider.getBasket();
-      }
-    }
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -40,6 +30,7 @@ class _CartInfoState extends State<CartInfo> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // 1. Нийт дүн
             _buildInfoItem(
@@ -61,26 +52,7 @@ class _CartInfoState extends State<CartInfo> {
               title: 'Тоо ширхэг',
               text: '${basket?.totalCount ?? 0} ш',
               isHighlight: false,
-            ),
-
-            const Spacer(),
-
-            // 3. Устгах товч (Бүдэг улаан дэвсгэртэй)
-            Material(
-              color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(12),
-              child: InkWell(
-                onTap: clearBasket,
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  child: const Icon(
-                    Icons.delete_sweep_rounded,
-                    color: Colors.red,
-                    size: 26,
-                  ),
-                ),
-              ),
+              axis: CrossAxisAlignment.end,
             ),
           ],
         ),
@@ -92,10 +64,11 @@ class _CartInfoState extends State<CartInfo> {
     required String title,
     required String text,
     required bool isHighlight,
+    CrossAxisAlignment axis = CrossAxisAlignment.start,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: axis,
       children: [
         Text(
           title,

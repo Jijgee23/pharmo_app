@@ -1,5 +1,6 @@
 import 'package:pharmo_app/application/application.dart';
 import 'package:pharmo_app/authentication/authentication/auth_error.dart';
+import 'package:pharmo_app/roles/seller/customer/customer_listing.dart';
 import 'package:pharmo_app/roles/seller/customer/customer_searcher.dart';
 import 'package:pharmo_app/roles/seller/customer/customer_tile.dart';
 
@@ -13,8 +14,12 @@ class CustomerList extends StatefulWidget {
 class _CustomerListState extends State<CustomerList> with SingleTickerProviderStateMixin {
   late AnimationController controller;
   late Animation<double> _shimmerAnimation;
-  final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
+
+  // This widget is rebuilt each time the bottom bar switches back to it;
+  // the list, its search and scroll position are kept on PharmProvider.
+  late final CustomerListing _listing;
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
@@ -28,7 +33,9 @@ class _CustomerListState extends State<CustomerList> with SingleTickerProviderSt
       CurvedAnimation(parent: controller, curve: Curves.easeInOut),
     );
 
-    _scrollController.addListener(_onScroll);
+    _listing = context.read<PharmProvider>().customers;
+    _scrollController = ScrollController(initialScrollOffset: _listing.scrollOffset)
+      ..addListener(_onScroll);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async => await init());
   }
@@ -41,16 +48,24 @@ class _CustomerListState extends State<CustomerList> with SingleTickerProviderSt
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      context.read<PharmProvider>().fetchMoreCustomers();
+    final position = _scrollController.position;
+    _listing.scrollOffset = position.pixels;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      _listing.fetchMore();
     }
   }
 
   Future init() async {
-    setState(() => _isLoading = true);
     final pp = context.read<PharmProvider>();
-    await pp.fetchCustomers();
-    await pp.getZones();
+    // Back on the tab with a list already loaded: show it as it was.
+    if (!_listing.loaded) await refresh();
+    if (pp.zones.isEmpty) await pp.getZones();
+  }
+
+  // Page 1 again, keeping the search in effect.
+  Future refresh() async {
+    setState(() => _isLoading = true);
+    await _listing.search();
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -79,20 +94,29 @@ class _CustomerListState extends State<CustomerList> with SingleTickerProviderSt
     return Consumer2<PharmProvider, HomeProvider>(
       builder: (context, pp, home, child) => Expanded(
         child: RefreshIndicator.adaptive(
-          onRefresh: () async => init(),
+          onRefresh: refresh,
           child: HomeScrollListener(
             xchild: Builder(builder: (context) {
+              final listing = pp.customers;
               if (_isLoading) {
                 return _buildSkeletonList();
               }
+              if (listing.items.isEmpty && !listing.fetchingMore) {
+                return const EmptyState(
+                  icon: Icons.person_search_rounded,
+                  title: 'Харилцагч олдсонгүй',
+                  message: 'Хайлтын утга эсвэл төрлөө өөрчлөөд дахин оролдоно уу.',
+                  padding: EdgeInsets.only(bottom: 100),
+                );
+              }
               return ListView.builder(
                 controller: _scrollController,
-                itemCount: pp.filteredCustomers.length + 1,
+                itemCount: listing.items.length + 1,
                 itemBuilder: (context, ind) {
-                  if (ind == pp.filteredCustomers.length) {
-                    return _footer(pp);
+                  if (ind == listing.items.length) {
+                    return _footer(listing);
                   }
-                  return CustomerTile(customer: pp.filteredCustomers[ind]);
+                  return CustomerTile(customer: listing.items[ind]);
                 },
               );
             }),
@@ -173,19 +197,19 @@ class _CustomerListState extends State<CustomerList> with SingleTickerProviderSt
     );
   }
 
-  Widget _footer(PharmProvider pp) {
-    if (pp.fetchingMore) {
+  Widget _footer(CustomerListing listing) {
+    if (listing.fetchingMore) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
         child: Center(child: CircularProgressIndicator.adaptive()),
       );
     }
-    if (!pp.hasMore && pp.filteredCustomers.isNotEmpty) {
+    if (!listing.hasMore && listing.items.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Center(
           child: Text(
-            'Нийт ${pp.totalCount} харилцагч',
+            'Нийт ${listing.totalCount} харилцагч',
             style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
           ),
         ),

@@ -1,372 +1,192 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:pharmo_app/application/application.dart';
 
-class TrackingStatusCard extends StatelessWidget {
-  const TrackingStatusCard({super.key});
+/// While location is being sent: a pill with the elapsed time and the
+/// distance covered; tapping it opens the details (points sent, what the
+/// line colours mean).
+class TrackingPill extends StatefulWidget {
+  const TrackingPill({super.key});
+
+  @override
+  State<TrackingPill> createState() => _TrackingPillState();
+}
+
+class _TrackingPillState extends State<TrackingPill> {
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<JaggerProvider>(
       builder: (context, jagger, child) {
-        final isTracking = jagger.subscription != null && !jagger.subscription!.isPaused;
+        final isSeller = Authenticator.security?.isSaler ?? false;
+        final startedAt =
+            isSeller ? parseDateTime(jagger.salerStartedOn) : jagger.delivery?.startedAt;
+        final points = jagger.trackDatas;
+        final sent = points.where((p) => p.sended).length;
+        final distance = _distance(points);
 
-        if (!isTracking) return const SizedBox.shrink();
-        final trackDatas = jagger.trackDatas;
-        final distance = _calculateTotalDistance(trackDatas, jagger);
-        final duration = _formatDuration(
-          jagger.now,
-          Authenticator.security!.isSaler ? jagger.salerStartedOn : jagger.delivery?.startedOn,
-        );
-
-        return Positioned(
-          top: 110,
-          left: 16,
-          right: 16,
-          child: Column(
-            children: [
-              AnimatedCrossFade(
-                crossFadeState: jagger.isShowingTrackingInfo
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                duration: const Duration(milliseconds: 300),
-                secondChild: const SizedBox.shrink(),
-                firstChild: Material(
-                  color: Colors.transparent,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+        return Material(
+          color: white,
+          elevation: 3,
+          shadowColor: Colors.black.withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(_expanded ? 18 : 24),
+          child: InkWell(
+            onTap: () => setState(() => _expanded = !_expanded),
+            borderRadius: BorderRadius.circular(_expanded ? 18 : 24),
+            child: AnimatedSize(
+              duration: Durations.medium1,
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const LiveDot(),
+                        const SizedBox(width: 8),
+                        if (startedAt != null) ...[
+                          _Elapsed(since: startedAt),
+                          _dot(),
+                        ],
+                        Text(_formatDistance(distance), style: _strong),
+                        const SizedBox(width: 4),
+                        Icon(
+                          _expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                          size: 18,
+                          color: grey500,
                         ),
                       ],
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
+                    if (_expanded) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        'Байршил дамжуулж байна',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w700, color: primary.shade700),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: 220,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 6,
                           children: [
-                            _buildPulsingIndicator(),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Байршил дамжуулж байна',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.teal,
+                            Row(
+                              children: [
+                                Text('Илгээсэн цэг', style: _muted),
+                                const Spacer(),
+                                Text('$sent / ${points.length}', style: _strong),
+                              ],
+                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: points.isEmpty ? 1 : sent / points.length,
+                                minHeight: 5,
+                                backgroundColor: grey200,
+                                color: primary,
                               ),
                             ),
+                            const SizedBox(height: 2),
+                            _legend(primary, 'Илгээсэн зам'),
+                            _legend(Colors.redAccent, 'Илгээгдээгүй (сүлжээ орохоор илгээнэ)'),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildStatItem(
-                              icon: Icons.timer_outlined,
-                              value: duration,
-                              label: 'Хугацаа',
-                              color: Colors.blue,
-                            ),
-                            _buildDivider(),
-                            _buildStatItem(
-                              icon: Icons.straighten,
-                              value: _formatDistance(distance),
-                              label: 'Зай (ойролцоогоор)',
-                              color: Colors.orange,
-                            ),
-                            // _buildDivider(),
-                            // _buildStatItem(
-                            //   icon: Icons.speed,
-                            //   value:
-                            //       '${_calculateSpeed(distance, jagger).toStringAsFixed(1)} км/ц',
-                            //   label: 'Дундаж хурд',
-                            //   color: Colors.green,
-                            // ),
-                          ],
-                        ),
-                        if (trackDatas.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          _buildProgressBar(trackDatas, jagger),
-                        ],
-                      ],
-                    ),
-                  ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: jagger.toggleShowing,
-                child: Material(
-                  color: Colors.transparent,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          jagger.isShowingTrackingInfo ? Icons.visibility : Icons.visibility_off,
-                          size: 16,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          jagger.isShowingTrackingInfo ? 'Харуулах' : 'Нуух',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildPulsingIndicator() {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.5, end: 1.0),
-      duration: const Duration(milliseconds: 800),
-      builder: (context, value, child) {
-        return Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.teal.withOpacity(value),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.teal.withOpacity(0.4 * value),
-                blurRadius: 8 * value,
-                spreadRadius: 2 * value,
-              ),
-            ],
-          ),
-        );
-      },
-      onEnd: () {},
-    );
-  }
+  static final _strong =
+      TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.grey.shade900);
+  static final _muted = TextStyle(fontSize: 12, color: grey600);
 
-  Widget _buildStatItem({
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-  }) {
-    return Column(
+  Widget _dot() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: Text('·', style: TextStyle(color: grey400, fontWeight: FontWeight.w900)),
+      );
+
+  Widget _legend(Color color, String text) {
+    return Row(
+      spacing: 8,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey[600],
-          ),
-        ),
+            width: 14,
+            height: 4,
+            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
+        Expanded(child: Text(text, style: _muted)),
       ],
     );
   }
 
-  Widget _buildDivider() {
-    return Container(
-      height: 40,
-      width: 1,
-      color: Colors.grey[300],
-    );
-  }
-
-  Widget _buildProgressBar(List<TrackData> trackDatas, JaggerProvider jagger) {
-    final sentCount = trackDatas.where((e) => e.sended).length;
-    final totalCount = trackDatas.length;
-    final progress = totalCount > 0 ? sentCount / totalCount : 1.0;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Илгээсэн: $sentCount / $totalCount цэг',
-              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-            ),
-            Text(
-              '${(progress * 100).toStringAsFixed(0)}%',
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Colors.teal,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: progress,
-            backgroundColor: Colors.grey[200],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.teal),
-            minHeight: 6,
-          ),
-        ),
-      ],
-    );
-  }
-
-  double _calculateTotalDistance(
-    List<TrackData> trackDatas,
-    JaggerProvider jagger,
-  ) {
-    if (trackDatas.length < 2) return 0;
-
-    double total = 0;
-    for (int i = 1; i < trackDatas.length; i++) {
-      final prev = trackDatas[i - 1];
-      final curr = trackDatas[i];
-      total += _distanceBetween(
-        prev.latitude,
-        prev.longitude,
-        curr.latitude,
-        curr.longitude,
+  static double _distance(List<TrackData> points) {
+    var total = 0.0;
+    for (var i = 1; i < points.length; i++) {
+      total += Geolocator.distanceBetween(
+        points[i - 1].latitude,
+        points[i - 1].longitude,
+        points[i].latitude,
+        points[i].longitude,
       );
     }
     return total;
   }
 
-  double _distanceBetween(double lat1, double lng1, double lat2, double lng2) {
-    const double earthRadius = 6371000; // meters
-    final double dLat = _toRadians(lat2 - lat1);
-    final double dLng = _toRadians(lng2 - lng1);
+  static String _formatDistance(double meters) =>
+      meters < 1000 ? '${meters.toStringAsFixed(0)} м' : '${(meters / 1000).toStringAsFixed(1)} км';
+}
 
-    final double a = _sin(dLat / 2) * _sin(dLat / 2) +
-        _cos(_toRadians(lat1)) * _cos(_toRadians(lat2)) * _sin(dLng / 2) * _sin(dLng / 2);
+/// Time since [since], ticking every second.
+class _Elapsed extends StatefulWidget {
+  final DateTime since;
+  const _Elapsed({required this.since});
 
-    final double c = 2 * _atan2(_sqrt(a), _sqrt(1 - a));
-    return earthRadius * c;
+  @override
+  State<_Elapsed> createState() => _ElapsedState();
+}
+
+class _ElapsedState extends State<_Elapsed> {
+  late final Timer _timer = Timer.periodic(const Duration(seconds: 1), (_) => setState(() {}));
+
+  @override
+  void initState() {
+    super.initState();
+    _timer;
   }
 
-  double _toRadians(double degree) => degree * 3.14159265359 / 180;
-  double _sin(double x) => _taylor(x, true);
-  double _cos(double x) => _taylor(x, false);
-  double _sqrt(double x) {
-    if (x <= 0) return 0;
-    double guess = x / 2;
-    for (int i = 0; i < 20; i++) {
-      guess = (guess + x / guess) / 2;
-    }
-    return guess;
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
-  double _atan2(double y, double x) {
-    if (x > 0) return _atan(y / x);
-    if (x < 0 && y >= 0) return _atan(y / x) + 3.14159265359;
-    if (x < 0 && y < 0) return _atan(y / x) - 3.14159265359;
-    if (x == 0 && y > 0) return 3.14159265359 / 2;
-    if (x == 0 && y < 0) return -3.14159265359 / 2;
-    return 0;
+  @override
+  Widget build(BuildContext context) {
+    var d = DateTime.now().difference(widget.since);
+    if (d.isNegative) d = Duration.zero;
+    String two(int v) => v.toString().padLeft(2, '0');
+    final text = d.inHours > 0
+        ? '${d.inHours}:${two(d.inMinutes % 60)}:${two(d.inSeconds % 60)}'
+        : '${two(d.inMinutes)}:${two(d.inSeconds % 60)}';
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+        color: Colors.grey.shade900,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+    );
   }
-
-  double _atan(double x) {
-    double result = 0;
-    double term = x;
-    for (int n = 0; n < 20; n++) {
-      result += term / (2 * n + 1) * (n % 2 == 0 ? 1 : -1);
-      term *= x * x;
-    }
-    return result;
-  }
-
-  double _taylor(double x, bool isSin) {
-    x = x % (2 * 3.14159265359);
-    double result = isSin ? x : 1;
-    double term = isSin ? x : 1;
-    for (int n = 1; n < 20; n++) {
-      term *= -x * x / ((isSin ? 2 * n : 2 * n - 1) * (isSin ? 2 * n + 1 : 2 * n));
-      result += term;
-    }
-    return result;
-  }
-
-  String _formatDistance(double meters) {
-    if (meters < 1000) {
-      return '${meters.toStringAsFixed(0)} м';
-    }
-    return '${(meters / 1000).toStringAsFixed(2)} км';
-  }
-
-  String _formatDuration(DateTime now, String? startedOn) {
-    if (startedOn == null) return '00:00';
-
-    try {
-      final startTime = DateTime.parse(startedOn);
-      final duration = now.difference(startTime);
-
-      final hours = duration.inHours;
-      final minutes = duration.inMinutes % 60;
-      final seconds = duration.inSeconds % 60;
-
-      if (hours > 0) {
-        return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-      }
-      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-    } catch (e) {
-      return '00:00';
-    }
-  }
-
-  // double _calculateSpeed(double distanceMeters, JaggerProvider jagger) {
-  //   if (jagger.delivery?.startedOn == null) return 0;
-
-  //   try {
-  //     final startTime = DateTime.parse(jagger.delivery!.startedOn!);
-  //     final duration = jagger.now.difference(startTime);
-
-  //     if (duration.inSeconds == 0) return 0;
-
-  //     // Convert m/s to km/h
-  //     final speedMs = distanceMeters / duration.inSeconds;
-  //     return speedMs * 3.6;
-  //   } catch (e) {
-  //     return 0;
-  //   }
-  // }
 }

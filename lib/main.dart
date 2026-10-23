@@ -1,9 +1,9 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:pharmo_app/application/settings/services/shorebird_patcher.dart';
 import 'package:pharmo_app/authentication/root/root_page.dart';
 import 'package:pharmo_app/data/database/log_model.dart';
 import 'package:upgrader/upgrader.dart';
-
 import 'application/application.dart';
 
 Future<void> main() async {
@@ -15,6 +15,7 @@ Future<void> main() async {
       WidgetsFlutterBinding.ensureInitialized();
       await FirebaseApi.initFirebase();
       await Upgrader.clearSavedSettings();
+      ShorebirdPatcher.start();
       await dotenv.load(fileName: ".env");
       await Hive.initFlutter();
       Hive.registerAdapter(SecurityAdapter());

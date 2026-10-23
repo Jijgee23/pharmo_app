@@ -10,6 +10,8 @@ App has 4 role.
 
 4. R is supplier's repman. Make meeting and share location.
 
+5. VS is supplier's van salas employee. Can do seller and driver actions both.
+
 ## Folder structure
 
 - `lib/roles/{driver,seller,repman,van_sales}/` — role-specific screens/providers for D, S, R, and VS (the merged S+D role, see `UserRole.vanSales` in `lib/authentication/role_managemant/user_role.dart`).

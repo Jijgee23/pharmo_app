@@ -1,5 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/views/product/add_basket_sheet.dart';
 import 'package:pharmo_app/views/product/product_detail_page.dart';
 
 class ProductWidget extends StatelessWidget {
@@ -110,17 +111,7 @@ class ProductWidget extends StatelessWidget {
                               child: IconButton(
                                 onPressed: () => Get.bottomSheet(
                                   isScrollControlled: true,
-                                  ChangeQtyPad(
-                                    title: 'Тоо хэмжээ оруулна уу',
-                                    initValue: '',
-                                    cashOnly: item.cashOnly,
-                                    onSubmit: (value) async {
-                                      await addBasket(
-                                          item, parseDouble(value), context);
-                                      if (!context.mounted) return;
-                                      Navigator.pop(context);
-                                    },
-                                  ),
+                                  AddBasketSheet(product: item),
                                 ),
                                 style: IconButton.styleFrom(
                                   shape: CircleBorder(
@@ -220,19 +211,6 @@ class ProductWidget extends StatelessWidget {
   }
 }
 
-Future<void> addBasket(Product item, double qty, BuildContext context) async {
-  await LoadingService.run(
-    () async {
-      try {
-        final cart = context.read<CartProvider>();
-        await cart.addProduct(item.id, item.name ?? 'Бараа', qty);
-      } catch (e) {
-        throw Exception(e);
-      }
-    },
-  );
-}
-
 //LIST VIEW
 class ProductWidgetListView extends StatelessWidget {
   final Product item;
@@ -306,17 +284,7 @@ class ProductWidgetListView extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Get.bottomSheet(
                 isScrollControlled: true,
-                ChangeQtyPad(
-                  title: 'Тоо хэмжээ оруулна уу',
-                  initValue: '',
-                  cashOnly: item.cashOnly,
-                  onSubmit: (value) async {
-                    await addBasket(item, parseDouble(value), context);
-                    if (!context.mounted) return;
-                    Navigator.pop(context);
-                  },
-                ),
-                // AddBasketSheet(product: item),
+                AddBasketSheet(product: item),
               ),
               style: ElevatedButton.styleFrom(
                 elevation: 0,

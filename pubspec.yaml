@@ -3,7 +3,7 @@ description: "Эмийн бөөний худалда, захиалгын сис�
 publish_to: none
 
 
-version: 2.1.2+91
+version: 2.1.5+94
 environment:
   sdk: '>=3.3.3 <4.0.0'
 
@@ -53,6 +53,8 @@ dependencies:
   print_bluetooth_thermal:
     path: packages/print_bluetooth_thermal
   esc_pos_utils_plus: ^2.0.4
+  image_cropper: ^13.0.0
+  shorebird_code_push: ^2.0.7
 
 
 dev_dependencies:
@@ -71,8 +73,8 @@ flutter:
     - assets/icons/
     - assets/icons_2/
     - assets/stickers/
-    - assets/fonts/
     - .env
+    - shorebird.yaml
   fonts:
      - family: Sf-Pro-Text
        fonts:

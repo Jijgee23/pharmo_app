@@ -1,8 +1,8 @@
 import 'package:pharmo_app/application/application.dart';
-import 'package:pharmo_app/views/SELLER/customer/add_customer.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/order_general_builder.dart';
 import 'package:pharmo_app/views/order_history/seller_order_history/order_item_card.dart';
 import 'package:pharmo_app/views/product/add_basket_sheet.dart';
+import 'package:pharmo_app/roles/seller/customer/add_customer.dart';
 
 class SellerOrderDetail extends StatefulWidget {
   final int oId;
@@ -133,76 +133,27 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> with SingleTicker
   }
 
   Widget _buildErrorState(String error) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
-            const SizedBox(height: 16),
-            Text(
-              'Алдаа гарлаа',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-          ],
-        ),
-      ),
+    return EmptyState(
+      icon: Icons.error_outline_rounded,
+      title: 'Алдаа гарлаа',
+      message: error,
+      color: Colors.red,
     );
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox_outlined, size: 64, color: Colors.grey.shade300),
-            const SizedBox(height: 16),
-            Text(
-              'Захиалгын мэдээлэл олдсонгүй',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return const EmptyState(
+      icon: Icons.receipt_long_rounded,
+      title: 'Захиалгын мэдээлэл олдсонгүй',
     );
   }
 
   Widget _buildProductsTab(OrderModel order) {
     if (order.products == null || order.products.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey.shade300),
-              const SizedBox(height: 16),
-              Text(
-                'Бараа олдсонгүй',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-            ],
-          ),
-        ),
+      return const EmptyState(
+        icon: Icons.inventory_2_outlined,
+        title: 'Бараа олдсонгүй',
+        message: 'Энэ захиалгад бараа бүртгэгдээгүй байна.',
       );
     }
 
@@ -281,8 +232,9 @@ class _SellerOrderDetailState extends State<SellerOrderDetail> with SingleTicker
               // Input field
               Input(
                 hint: 'Тоо ширхэг оруулна уу',
-                contr: qtyController,
                 keyType: TextInputType.number,
+                controller: qtyController,
+                icon: Icons.numbers,
               ),
               const SizedBox(height: 16),
               // Save button

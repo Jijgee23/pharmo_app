@@ -235,6 +235,25 @@ Future<Response?> apiPostWithoutToken(
   }
 }
 
+/// Response body, decoded where possible. Some endpoints answer with a bare
+/// string, which [convertData] cannot decode.
+dynamic apiBody(Response r) {
+  try {
+    return convertData(r);
+  } catch (_) {
+    return r.data;
+  }
+}
+
+/// First readable message in an error body: a bare string,
+/// `{field: [message]}` or `[message]`.
+String? apiErrorMessage(dynamic data) {
+  if (data is String) return data.trim().isEmpty ? null : data;
+  if (data is List) return data.isEmpty ? null : apiErrorMessage(data.first);
+  if (data is Map) return data.isEmpty ? null : apiErrorMessage(data.values.first);
+  return null;
+}
+
 dynamic convertData(Response response) {
   final data = response.data;
   // Dio-ийн default transformer нь content-type='application/json'

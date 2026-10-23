@@ -1,14 +1,10 @@
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/seller/report/month_picker.dart';
 import 'package:pharmo_app/roles/seller/report/report_widget.dart';
+import 'package:pharmo_app/widgets/filter/filter_widgets.dart';
 
-class Reportfilter {
-  String title;
-  String query;
-  Reportfilter({
-    required this.title,
-    required this.query,
-  });
-}
+/// «2026.10».
+String _monthLabel(DateTime d) => '${d.year}.${'${d.month}'.padLeft(2, '0')}';
 
 class SellerReportPage extends StatefulWidget {
   const SellerReportPage({super.key});
@@ -18,98 +14,89 @@ class SellerReportPage extends StatefulWidget {
 }
 
 class _SellerReportState extends State<SellerReportPage> {
-  late ReportProvider report;
   @override
-  initState() {
-    report = Provider.of<ReportProvider>(context, listen: false);
-    report.getReports(selectedFilter.query);
+  void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<ReportProvider>().getReports());
   }
 
-  List<String> titles = ['Огноо', 'Дүн', 'Тоо ширхэг'];
-
-  List<Reportfilter> filters = [
-    Reportfilter(title: 'Өдрөөр', query: 'day'),
-    Reportfilter(title: 'Сараар', query: 'month'),
-    Reportfilter(title: 'Улирлаар', query: 'quarter'),
-    Reportfilter(title: 'Жилээр', query: 'year'),
-  ];
-
-  late Reportfilter selectedFilter = filters.first;
-
-  Duration duration = const Duration(milliseconds: 500);
+  Future<void> _pickMonth(ReportProvider rp, {required bool isStart}) async {
+    final picked = await showMonthPicker(
+      title: isStart ? 'Эхлэх сар' : 'Дуусах сар',
+      initial: isStart ? rp.start : rp.end,
+      // seller/report/ takes no year before 2020.
+      first: DateTime(2020),
+      last: DateTime.now(),
+    );
+    if (picked != null) await rp.setMonth(picked, isStart: isStart);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ReportProvider>(
       builder: (context, rp, child) {
-        dynamic data = rp.report;
         return Scaffold(
           backgroundColor: Colors.grey.shade50,
-          appBar: SideAppBar(title: Text('Борлуулагчийн тайлан')),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          appBar: SideAppBar(title: Text('Борлуулалтын тайлан')),
+          body: RefreshIndicator(
+            onRefresh: rp.getReports,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(top: 16, bottom: 32),
               children: [
-                // 1. Огноо сонгох хэсэг
+                // 1. Хугацаа (сараар)
                 Row(
                   children: [
-                    DateButton(
-                      label: 'Эхлэх',
-                      date: rp.currentDate,
-                      onTap: () => _showCalendar(report),
+                    MonthButton(
+                      label: 'Эхлэх сар',
+                      month: rp.start,
+                      onTap: () => _pickMonth(rp, isStart: true),
                     ),
-                    const SizedBox(width: 12),
-                    DateButton(
-                      label: 'Эхлэх',
-                      date: rp.currentDate2,
-                      onTap: () => _showCalendar(report, isStart: false),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Icon(Icons.arrow_forward_rounded, size: 18, color: grey400),
+                    ),
+                    MonthButton(
+                      label: 'Дуусах сар',
+                      month: rp.end,
+                      onTap: () => _pickMonth(rp, isStart: false),
                     ),
                   ],
-                ),
+                ).paddingSymmetric(horizontal: 16),
+                const SizedBox(height: 16),
+
+                // 2. Бүлэглэх
+                _sectionTitle('Бүлэглэх'),
+                _choices([
+                  for (final g in ReportGrouping.values)
+                    FilterChoice(g.label, rp.grouping == g, () => rp.setGrouping(g)),
+                ]),
                 const SizedBox(height: 12),
 
-                // 2. Шүүлтүүр сонгох товч
-                FilterButton(
-                  label: 'Тайлангийн төрөл: ${selectedFilter.title}',
-                  onPressed: () => mySheet(
-                    isDismissible: true,
-                    children: filters
-                        .map((f) => SelectedFilter(
-                              selected: f.title == selectedFilter.title,
-                              caption: f.title,
-                              onSelect: () {
-                                setState(() => selectedFilter = f);
-                                rp.getReports(selectedFilter.query);
-                              },
-                            ))
-                        .toList(),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                // 3. Захиалгын явц
+                _sectionTitle('Захиалгын явц'),
+                _choices([
+                  FilterChoice('Бүгд', rp.selectedProcesses.isEmpty, rp.clearProcesses),
+                  for (final p in ReportProvider.processes)
+                    FilterChoice(
+                      p.name,
+                      rp.selectedProcesses.contains(p),
+                      () => rp.toggleProcess(p),
+                      color: p.color,
+                    ),
+                ]),
+                const SizedBox(height: 20),
 
-                // 3. Хүснэгтийн толгой
-                _buildTableHeader(),
+                // 4. Нийт дүн
+                ReportSummary(
+                  total: rp.total,
+                  count: rp.count,
+                  period: _periodLabel(rp),
+                ).paddingSymmetric(horizontal: 16),
+                const SizedBox(height: 16),
 
-                // 4. Дата жагсаалт
-                Expanded(
-                  child: data is List && data.isNotEmpty
-                      ? ListView.separated(
-                          padding: const EdgeInsets.only(top: 8),
-                          itemCount: data.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1),
-                          itemBuilder: (context, idx) {
-                            final r = data[idx];
-                            return ReportWidget(
-                              date: r[selectedFilter.query].toString(),
-                              total: toPrice(r['total']), // toPrice ашиглав
-                              count: '${r['count']} ш',
-                            );
-                          },
-                        )
-                      : const Center(child: NoResult()),
-                ),
+                // 5. Хүснэгт
+                _table(rp).paddingSymmetric(horizontal: 16),
               ],
             ),
           ),
@@ -118,109 +105,177 @@ class _SellerReportState extends State<SellerReportPage> {
     );
   }
 
-  Widget _buildTableHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade800,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-      ),
-      child: Row(
-        children: const [
-          Expanded(
-            flex: 2,
-            child: Text(
-              'Огноо',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
+  String _periodLabel(ReportProvider rp) {
+    final start = _monthLabel(rp.start);
+    final end = _monthLabel(rp.end);
+    return start == end ? start : '$start – $end';
+  }
+
+  Widget _sectionTitle(String title) {
+    return Text(
+      title,
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: grey600),
+    ).paddingOnly(left: 16, right: 16, bottom: 8);
+  }
+
+  // One row of choices, scrolled sideways when it does not fit.
+  Widget _choices(List<Widget> children) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(spacing: 8, children: children),
+    );
+  }
+
+  Widget _table(ReportProvider rp) {
+    if (rp.rows.isEmpty) {
+      if (rp.loading) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 48),
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+      final filtered = rp.selectedProcesses.isNotEmpty;
+      return EmptyState(
+        compact: true,
+        icon: Icons.bar_chart_rounded,
+        title: 'Тайлангийн мэдээлэл алга',
+        message: filtered
+            ? 'Сонгосон хугацаа, явцад борлуулалт бүртгэгдээгүй байна.'
+            : 'Сонгосон хугацаанд борлуулалт бүртгэгдээгүй байна.',
+        actionLabel: filtered ? 'Бүх явцыг харах' : null,
+        actionIcon: Icons.filter_alt_off_outlined,
+        onAction: filtered ? rp.clearProcesses : null,
+      );
+    }
+    final top = rp.rows.map((r) => r.total).reduce((a, b) => a > b ? a : b);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _tableHeader(rp.grouping.column),
+          // Kept on screen while a new selection loads, with a bar to say so.
+          SizedBox(
+            height: 2,
+            child: rp.loading ? const LinearProgressIndicator() : null,
           ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              'Дүн',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
+          for (final (i, r) in rp.rows.indexed) ...[
+            if (i > 0) const Divider(height: 1),
+            ReportWidget(
+              date: r.period,
+              total: toPrice(r.total),
+              count: '${r.count}',
+              share: top > 0 ? r.total / top : 0,
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              'Тоо',
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
-          ),
+          ],
         ],
       ),
     );
   }
 
-  void _showCalendar(ReportProvider report, {bool isStart = true}) async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: report.currentDate,
-      firstDate: DateTime(2024),
-      lastDate: DateTime(2030),
-      confirmText: 'Болсон',
-      cancelText: 'Буцах',
-      helpText: 'Эхлэх огноо сонгоно уу?',
+  Widget _tableHeader(String period) {
+    const style = TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.bold,
+      fontSize: 12,
     );
-    if (pickedDate == null) return;
-    report.setCurrentDate(pickedDate, isStart: isStart);
-    await report.getReports(selectedFilter.query);
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      color: Colors.grey.shade800,
+      child: Row(
+        children: [
+          Expanded(flex: 2, child: Text(period, style: style)),
+          const Expanded(flex: 3, child: Text('Дүн', textAlign: TextAlign.right, style: style)),
+          const Expanded(
+            flex: 1,
+            child: Text('Захиалга', textAlign: TextAlign.right, style: style),
+          ),
+        ],
+      ),
+    );
   }
 }
 
-class FilterButton extends StatelessWidget {
-  final void Function()? onPressed;
-  final String label;
+/// The range's sales total and order count, over the period it covers.
+class ReportSummary extends StatelessWidget {
+  final double total;
+  final int count;
+  final String period;
 
-  const FilterButton({
+  const ReportSummary({
     super.key,
-    this.onPressed,
-    required this.label,
+    required this.total,
+    required this.count,
+    required this.period,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        elevation: 0,
-        backgroundColor: primary.withOpacity(0.05),
-        foregroundColor: primary,
-        padding: const EdgeInsets.all(14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: primary.withOpacity(0.2),
-          ),
+    final tint = context.theme.primaryColor;
+    final label = TextStyle(fontSize: 12, color: white.withValues(alpha: 0.8));
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [tint, tint.withValues(alpha: 0.75)],
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Icon(Icons.calendar_month_rounded, size: 16, color: white.withValues(alpha: 0.8)),
+              const SizedBox(width: 6),
+              Text(period, style: label),
+            ],
           ),
-          const Icon(
-            Icons.tune_rounded,
-            size: 20,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 2,
+                  children: [
+                    Text('Нийт борлуулалт', style: label),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        toPrice(total),
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                spacing: 2,
+                children: [
+                  Text('Захиалга', style: label),
+                  Text(
+                    '$count',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: white,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -228,16 +283,16 @@ class FilterButton extends StatelessWidget {
   }
 }
 
-class DateButton extends StatelessWidget {
+class MonthButton extends StatelessWidget {
   final VoidCallback? onTap;
-  final String? label;
-  final DateTime date;
+  final String label;
+  final DateTime month;
 
-  const DateButton({
+  const MonthButton({
     super.key,
     this.onTap,
-    this.label,
-    required this.date,
+    required this.label,
+    required this.month,
   });
 
   @override
@@ -260,7 +315,7 @@ class DateButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              label ?? "Огноо",
+              label,
               style: TextStyle(
                 fontSize: 10,
                 color: Colors.grey.shade500,
@@ -270,13 +325,13 @@ class DateButton extends StatelessWidget {
             Row(
               children: [
                 const Icon(
-                  Icons.calendar_today_outlined,
+                  Icons.calendar_month_outlined,
                   size: 14,
                   color: primary,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  date.yyyyMMdd,
+                  _monthLabel(month),
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,

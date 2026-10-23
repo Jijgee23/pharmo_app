@@ -216,7 +216,7 @@ final lightTheme = ThemeData(
 
   // BottomNavigationBar
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.transparent,
     selectedItemColor: Color(0xFF00897B),
     unselectedItemColor: Color(0xFFAABBBA),
     elevation: 0,

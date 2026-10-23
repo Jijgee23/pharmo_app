@@ -42,10 +42,13 @@ class _RepHomeState extends State<RepHome> {
           loading: rep.loading,
           onRefresh: refresh,
           empty: !hasVisiting,
-          customEmpty: NoResult(
-            message: 'Идэвхтэй уулзалт алга',
-            subMessage: 'Доод буланд байрлах товчоор шинэ уулзалт бүртгэнэ үү.',
-            onRefresh: refresh,
+          customEmpty: EmptyState(
+            icon: Icons.event_available_rounded,
+            title: 'Идэвхтэй уулзалт алга',
+            message: 'Доод буланд байрлах товчоор шинэ уулзалт бүртгэнэ үү.',
+            actionLabel: 'Дахин ачаалах',
+            onAction: refresh,
+            padding: EdgeInsets.only(bottom: bottomClearance),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
