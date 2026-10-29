@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:pharmo_app/application/application.dart';
+import 'package:pharmo_app/roles/driver/temperature_log/reading_reminder.dart';
 
 enum TrackState {
   none(Colors.green, 'эхлүүлэх', Icons.play_arrow_rounded),
@@ -161,7 +162,8 @@ class JaggerProvider extends ChangeNotifier {
   // later distance-floor decision in sendTobackend(). Retries a couple of
   // times for a fix at least as accurate as the native threshold, falling
   // back to the best one seen rather than blocking the flow indefinitely.
-  Future<Position> _getAccuratePosition({
+  // Null when no fix came at all.
+  Future<Position?> _getAccuratePosition({
     double maxAccuracyMeters = 25,
     int retries = 2,
   }) async {
@@ -178,19 +180,25 @@ class JaggerProvider extends ChangeNotifier {
         if (p.accuracy <= maxAccuracyMeters) return p;
       } on TimeoutException {
         // GPS hasn't resolved within 5s (indoors, cold start) — try again,
-        // or fall through to the unbounded-time fallback below once retries
-        // are exhausted. Previously uncaught: this exception propagated
+        // or fall through to the longer fallback below once retries are
+        // exhausted. Previously uncaught: this exception propagated
         // straight out of goToMyLocation()/startShipment()/endTrack(),
         // crashing the flow instead of just taking longer to get a fix.
         continue;
       }
     }
     if (best != null) return best;
-    // Every attempt timed out and we never got a single fix — one last
-    // call with no time limit rather than giving up, matching the
-    // unbounded behavior the raw Geolocator.getCurrentPosition() calls
-    // this helper replaced always had.
-    return Geolocator.getCurrentPosition();
+    // Every attempt timed out and we never got a single fix — one last,
+    // longer wait rather than giving up at once. Bounded: with no time
+    // limit a phone that never gets a fix left the button spinning for
+    // good with nothing said.
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(timeLimit: Duration(seconds: 30)),
+      );
+    } on TimeoutException {
+      return null;
+    }
   }
 
   // [deliveryId] is the delivery a D/VS starts; null for a seller's route,
@@ -247,6 +255,8 @@ class JaggerProvider extends ChangeNotifier {
         int sellerTrackId = 0;
         if (isDriver) {
           await getDeliveries();
+          // Only a reminder: never holds up the start.
+          unawaited(remindReading(LogSlot.start));
         } else {
           sellerTrackId = await checkSellerTrack();
         }
@@ -393,7 +403,8 @@ class JaggerProvider extends ChangeNotifier {
 
     if (!confirmed) return;
     try {
-      final current = await _getAccuratePosition();
+      // The fix just taken above if a fresh one doesn't come.
+      final current = await _getAccuratePosition() ?? currentPosition!;
       final shipmentId = await Authenticator.getTrackId();
       var body = {
         if (isDriver) "delivery_id": delivery != null ? delivery!.id : shipmentId,
@@ -413,6 +424,7 @@ class JaggerProvider extends ChangeNotifier {
           await getDeliveries();
           // The history tab keeps its list; this delivery belongs on it.
           Get.context?.read<DriverProvider>().refreshHistory();
+          unawaited(remindReading(LogSlot.end));
         }
         await stopTracking();
         messageComplete('Таны $shipmentId дугаартай $action дууслаа.');
@@ -951,6 +963,7 @@ class JaggerProvider extends ChangeNotifier {
       return;
     }
     final n = await _getAccuratePosition();
+    if (n == null) return;
     latLng = LatLng(n.latitude, n.longitude);
     notifyListeners();
     if (mapController == null) return;

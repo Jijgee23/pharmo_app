@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -71,41 +71,44 @@ class Settings {
     );
   }
 
+  /// True when location may be taken always and precisely, as tracking a
+  /// delivery or route needs. Otherwise says what to change, offers the
+  /// settings, and returns false.
   static Future<bool> checkAlwaysLocationPermission() async {
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    print("service enabled: $serviceEnabled");
-    if (!serviceEnabled) {
-      await openAppSettings();
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      messageWarning('Байршил тогтоогчоо асаана уу!');
+      await Geolocator.openLocationSettings();
+      return false;
     }
-    LocationPermission permission = await Geolocator.checkPermission();
-    print(permission);
-
+    var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      try {
-        permission = await Geolocator.requestPermission();
-      } catch (e) {
-        if (e is PlatformException) {
-          await openAppSettings();
-        }
-      }
+      permission = await _requestLocationPermission();
     }
-    if (permission == LocationPermission.deniedForever) {
+    if (permission != LocationPermission.always) {
+      await getMessage();
+      return false;
+    }
+    if (await Geolocator.getLocationAccuracy() != LocationAccuracyStatus.precise) {
+      messageWarning('Байршлын тохиргооноос "Нарийвчлалтай" (Precise) сонголтыг асаана уу!');
       await openAppSettings();
+      return false;
     }
-    if (permission == LocationPermission.whileInUse) {
-      await openAppSettings();
+    return true;
+  }
+
+  // On Android, Geolocator.requestPermission() never completes when the
+  // request comes back cancelled (an empty result: asked while the settings
+  // were in front, or foreground and background together on Android 11+),
+  // which left the start button spinning for good. Give up after a while
+  // and go by what is granted.
+  static Future<LocationPermission> _requestLocationPermission() async {
+    try {
+      return await Geolocator.requestPermission().timeout(const Duration(seconds: 30));
+    } on TimeoutException {
+      return Geolocator.checkPermission();
+    } on Exception {
+      return Geolocator.checkPermission();
     }
-    if (permission == LocationPermission.always) {
-      final accuricy = await Geolocator.getLocationAccuracy();
-      if (permission == LocationPermission.always && accuricy == LocationAccuracyStatus.precise) {
-        return true;
-      }
-      if (accuricy != LocationAccuracyStatus.precise) {
-        await openAppSettings();
-      }
-    }
-    await Geolocator.requestPermission();
-    return false;
   }
 
   static Future<bool> checkWhenUseLocationPermission() async {

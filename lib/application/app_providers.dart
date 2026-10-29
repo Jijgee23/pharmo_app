@@ -4,6 +4,7 @@
 export '../authentication/auth_provider.dart';
 export '../roles/driver/driver_provider.dart';
 export '../roles/driver/jagger_provider.dart';
+export '../roles/driver/temperature_log/temperature_log_provider.dart';
 export '../roles/repman/rep_provider.dart';
 export '../views/cart/cart_provider.dart';
 export '../views/home/home_provider.dart';

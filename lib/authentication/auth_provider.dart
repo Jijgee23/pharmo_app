@@ -291,6 +291,7 @@ class AuthController extends ChangeNotifier {
       context.read<CartProvider>().reset();
       context.read<DriverProvider>().reset();
       context.read<JaggerProvider>().reset();
+      context.read<TemperatureLogProvider>().reset();
       context.read<LogProvider>().reset();
       context.read<OrderProvider>().reset();
       context.read<PharmProvider>().reset();

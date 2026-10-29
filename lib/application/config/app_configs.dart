@@ -34,6 +34,7 @@ class AppConfigs {
     ChangeNotifierProvider(create: (_) => RepProvider()),
     ChangeNotifierProvider(create: (_) => LogProvider()),
     ChangeNotifierProvider(create: (_) => DriverProvider()),
+    ChangeNotifierProvider(create: (_) => TemperatureLogProvider()),
     ChangeNotifierProvider(create: (_) => SettingsProvider()),
     ChangeNotifierProvider(create: (_) => PrinterProvider())
   ];

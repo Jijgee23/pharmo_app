@@ -37,7 +37,9 @@ class FirebaseApi {
       _androidChannel.name,
       channelDescription: _androidChannel.description,
       icon: '@drawable/ic_pharmo',
-      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      // A plain bitmap: @mipmap/ic_launcher is an adaptive icon on Android 8+,
+      // which can't be decoded into one.
+      largeIcon: const DrawableResourceAndroidBitmap('@drawable/ic_notification_large'),
       priority: Priority.high,
       playSound: true,
     ),

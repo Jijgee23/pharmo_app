@@ -2,6 +2,7 @@ import 'package:pharmo_app/roles/seller/report/seller_report.dart';
 import 'package:pharmo_app/views/index.dart';
 import 'package:pharmo_app/roles/driver/payment/payments.dart';
 import 'package:pharmo_app/roles/driver/delivery_history/delivery_history.dart';
+import 'package:pharmo_app/roles/driver/temperature_log/temperature_log_page.dart';
 import 'package:pharmo_app/views/profile/app_info.dart';
 import 'package:pharmo_app/views/profile/menu_item_builder.dart';
 import 'package:pharmo_app/views/profile/menu_section.dart';
@@ -62,6 +63,13 @@ class DeliveryProfile extends StatelessWidget {
                             icon: Icons.history,
                             color: darkBlue,
                             onTap: () => goto(ShipmentHistory()),
+                          ),
+                        if (Authenticator.security?.isDeliveryCapable ?? false)
+                          MenuItemBuilder(
+                            title: 'Температурын журнал',
+                            icon: Icons.thermostat_rounded,
+                            color: Colors.orange,
+                            onTap: () => goto(const TemperatureLogPage()),
                           ),
                         MenuItemBuilder(
                           title: 'Төлбөрийн жагсаалт',
